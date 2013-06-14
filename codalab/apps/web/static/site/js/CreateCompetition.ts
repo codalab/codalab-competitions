@@ -1,0 +1,676 @@
+/// <reference path="../jquery.d.ts" />
+/// <reference path="../jqueryui.d.ts" />
+/// <reference path="./FileUpload.ts" />
+module Competition {
+    export class CreateCompetition extends FileUpload.FileUploadFile {
+
+        private tabSelection() {
+            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1)
+           .tabs('select', parseInt($("#Step").val()) - 1)
+            // .tabs("option", "disabled", [0, 1]);
+            CreateCompetition.prototype.activateSaveButtons();
+        }
+
+        public tabOnClick(obj) {
+            if (!CreateCompetition.prototype.confirmNavigation()) { return; };
+            var objLength = $(obj).attr("id").length;
+            $("#Step").val($(obj).attr("id").substring(objLength - 1, objLength));
+            CreateCompetition.prototype.tabSelection();
+            CreateCompetition.prototype.changeSaveButtonText();
+            CreateCompetition.prototype.activateSaveButtons();
+        }
+
+        private activateSaveButtons() {
+            if ($("#Step").val() === "4") {
+                $("#btnSave").hide();
+            }
+            else { $("#btnSave").show(); }
+        }
+
+        private changeSaveButtonText() {
+            if ($("#Step").val() === "4") {
+                $("#btnSaveConti").val("finish");
+            } else {
+                $("#btnSaveConti").val("next");
+            }
+            if ($("#Step").val() === "1") {
+                $("#btnSavePrev").addClass("disabledStatus");
+            }
+            else {
+                $("#btnSavePrev").removeClass("disabledStatus");
+            }
+        }
+
+        public save(event, obj) {
+            $("#SaveFlag").val("True")
+            var step = parseInt($("#Step").val());
+            switch (step) {
+                case 1:
+                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionInfo(obj);
+                    event.preventDefault();
+                    break;
+                case 2:
+                    CreateCompetition.prototype.savePhases(obj);
+                    event.preventDefault();
+                    break;
+                case 3:
+                    $(obj).removeClass("disabledStatus")
+                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageContent(obj)
+                    event.preventDefault();
+                    break;
+            }
+        }
+        public saveContinue(event, obj) {
+            CreateCompetition.prototype.nextStep(obj, event);
+        }
+
+        public setValueChanged(event, obj) {
+            $("#valueChanged").val("True");
+            //var keyCode = event.keyCode || event.which;
+            //if (keyCode === 13 || keyCode === 9 || event.type == "blur") {
+            //    event.preventDefault();
+            //    CreateCompetition.prototype.ajaxRequestForSavingCompetitionInfo(obj)
+            //    $("#valueChanged").val("");
+            //}
+        }
+
+        private ajaxRequestForSavingCompetitionInfo(obj) {
+            //  $(obj).siblings(".preloaderInput").remove();
+            // $(obj).parent().append($(".preloaderInput").clone());
+            // $(obj).siblings(".preloaderInput").css("display", "inline-block");
+            var data;
+            //switch ($(obj).attr("id")) {
+            //    case "Title":
+            //        data = { "title": $(obj).val() };
+            //        break;
+            //    case "Description":
+            //        data = { "description": $(obj).val() };
+            //        break;
+            //}
+            data = { "title": $("#Title").val(), "description": $("#Description").val() };
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/info";
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.managePublishButton(data.published)
+                //  CreateCompetition.prototype.makePublicNotification();
+                $(obj).removeClass("disabledStatus");
+                $("#valueChanged").val("");
+                // $(obj).siblings(".preloaderInput").remove();
+
+            };
+            var onError = function (xhr, status, err) {
+                // $(obj).siblings(".preloaderInput").remove();
+                $(obj).removeClass("disabledStatus");
+            }
+            super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+
+        }
+
+        private managePublishButton(data) {
+            switch (data) {
+                case 1:
+                    (<HTMLInputElement>$("#Public")[0]).checked = false;
+                    $("#btnPublish").addClass("disabledStatus");
+                    break;
+                case 2:
+                    (<HTMLInputElement>$("#Public")[0]).checked = true;
+                    $("#btnPublish").addClass("disabledStatus");
+                    break;
+                case 3:
+                    (<HTMLInputElement>$("#Public")[0]).checked = true;
+                    $("#btnPublish").removeClass("disabledStatus");
+                    CreateCompetition.prototype.makePublicNotification();
+                    break;
+            }
+
+        }
+
+        public makePublicNotification() {
+            if (((<HTMLInputElement> $("#Public")[0]).checked) && !$("#btnPublish").hasClass("disabledStatus")) {
+                $("#publishNotoficationdiv,#publishNotoficationIcon").show();
+            }
+            else { $("#publishNotoficationdiv,#publishNotoficationIcon").hide(); }
+        }
+
+
+        private ajaxRequestForSavingCompetitionPageLabel(obj) {
+            $(obj).closest("li").children(".buttonPreloaderInput").remove();
+            $(obj).closest("li").append($(".buttonPreloaderInput").clone());
+            $(obj).closest("li").children(".buttonPreloaderInput").show();
+            var lableUpdate = 0;
+            var rank;
+            var data;
+            if ($(obj).parent().parent().hasClass("viewStateOff")) {
+                if ($(obj).attr("type") !== undefined) {
+                    lableUpdate = 1
+                    rank = $.trim($(obj).parent().attr("id").replace("tab", ""))
+                    data = data = { "rank": rank, "visible": "False", "label": $(obj).val() };
+                } else {
+
+                    rank = $.trim($(obj).parent().parent().attr("id").replace("tab", ""))
+                    data = data = { "rank": rank, "visible": "False" };
+                }
+            } else {
+                if ($(obj).attr("type") !== undefined) {
+                    lableUpdate = 1
+                    rank = $.trim($(obj).parent().attr("id").replace("tab", ""))
+                    data = data = { "rank": rank, "visible": "True", "label": $(obj).val() };
+
+                } else {
+                    rank = $.trim($(obj).parent().parent().attr("id").replace("tab", ""))
+                    data = { "rank": rank, "visible": "True" };
+                }
+            }
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/page";
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.managePublishButton(data.published);
+                // CreateCompetition.prototype.makePublicNotification();
+                if (lableUpdate === 1) {
+                    $(obj).hide();
+                    $(obj).siblings("label").text($(obj).val())
+                    $(obj).siblings().show();
+                }
+                $(obj).closest("li").children(".buttonPreloaderInput").remove();
+                $("#valueChanged").val("");
+            };
+            var onError = function (xhr, status, err) {
+                $(obj).closest("li").children(".buttonPreloaderInput").remove();
+            }
+            super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+        }
+
+        public ajaxRequestForSavingCompetitionPageContent(obj) {
+            var rank;
+            var data;
+            var HTML;
+            if ($(obj).hasClass("disabledStatus")) { return false; }
+            $(obj).addClass("disabledStatus");
+            $(".textEditor").append($(".buttonPreloaderTxtArea").clone());
+            $(".textEditor > .buttonPreloaderTxtArea").show();
+            if ($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
+                HTML = $("#textEditorTxtArea").val();
+            } else {
+                HTML = $("#textEditorTxtArea1").val();
+            };
+            rank = $.trim($(".textEditorLftTab li.active").attr("id").replace("tab", ""))
+            data = data = { "rank": rank, "markup": "", "html": HTML };
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/pagecontent";
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.managePublishButton(data.published);
+                //CreateCompetition.prototype.makePublicNotification()
+                $(".textEditor > .buttonPreloaderTxtArea").remove();
+                $(obj).removeClass("disabledStatus");
+                $("#valueChanged").val("");
+            };
+            var onError = function (xhr, status, err) {
+                $(".textEditor > .buttonPreloaderTxtArea").remove();
+                $(this).removeClass("disabledStatus");
+            }
+            super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+        }
+
+        private ajaxRequestForGettingCompetitionPageContent(pageNumber) {
+
+            var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
+
+            var onSuccess = function (data) {
+                if ($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
+                    $("#textEditorTxtArea").val(data);
+                } else { $("#textEditorTxtArea1").val(data); }
+            };
+            var onError = function (xhr, status, err) {
+
+            };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+        }
+
+        public ajaxRequestForManagingPublishTab() {
+            var xUrl;
+            if ((<HTMLInputElement>$("#Public")[0]).checked === true) {
+                xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/public";
+            } else {
+                xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/private";
+            };
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.managePublishButton(data);
+                //CreateCompetition.prototype.makePublicNotification();
+                $("#valueChanged").val("");
+            };
+            var onError = function (xhr, status, err) {
+
+            };
+            CreateCompetition.prototype.ajaxPostRequest(xUrl, onSuccess, onError);
+        }
+
+        private confirmNavigation() {
+            if ($("#valueChanged").val() === "True") {
+                if (confirm("You have changed the input value and Do you want to continue")) { $("#valueChanged").val(""); return true; } else {
+                    $("#Step").val($("#Step").val());
+                    CreateCompetition.prototype.tabSelection();
+                    CreateCompetition.prototype.changeSaveButtonText();
+                    return false;
+                };
+            } else { return true; }
+
+        }
+        public getLftTabsForCompetition(tabNumber) {
+
+            var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
+
+            var onSuccess = function (data) {
+                if (tabNumber === 0) {
+                    $("#textEditorLftTab").html(""); $("#textEditorLftTab").append(data);
+                    $('.textEditorLftTab > li').removeClass('active');
+                    $("#textEditorLftTab > li:first").addClass("active");
+                    CreateCompetition.prototype.ajaxRequestForGettingCompetitionPageContent(parseInt($.trim($("#textEditorLftTab > li:first").attr("id").replace("tab", ""))));
+                }
+                else {
+                    $("#CompetitionsDetailLftParticipateNav").html(""); $("#CompetitionsDetailLftParticipateNav").append(data);
+                    $('.textEditorLftTab > li').removeClass('active');
+                    $("#CompetitionsDetailLftParticipateNav > li:first").addClass("active");
+                    CreateCompetition.prototype.ajaxRequestForGettingCompetitionPageContent(parseInt($.trim($("#CompetitionsDetailLftParticipateNav > li:first").attr("id").replace("tab", ""))));
+                }
+                $('.textEditorLftTab > li').click(function () {
+                    if ($(this).hasClass("viewStateDisabled")) { return false; }
+                    var myClass = $(this).attr("class");
+                    if (!$(this).hasClass('active')) {
+                        $('.textEditorLftTab > li').removeClass('active');
+                        $(this).addClass('active');
+                        $("#textEditorTxtArea").val("");
+                        CreateCompetition.prototype.ajaxRequestForGettingCompetitionPageContent(parseInt($.trim($(this).attr("id").replace("tab", ""))));
+                    }
+                });
+
+                $('.textEditorLftTab > li > div > a').click(function (e) {
+                    $(this).parent().parent().children("label").show();
+                    $(this).parent().parent().children("input").hide();
+                    if (!$(this).parent().parent().hasClass("viewStateOff")) {
+                        $(this).parent().parent().addClass("viewStateOff");
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                        e.stopPropagation();
+                    } else {
+                        $('.textEditorLftTab > li').removeClass('active');
+                        $(this).parent().parent().removeClass("viewStateOff");
+                        $(this).parent().parent().addClass("active");
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                    }
+                });
+                $('.textEditorLftTab > li > label').dblclick(function (e) {
+                    if (!$(this).parent().hasClass("viewStateAlwaysOn") && !$(this).parent().hasClass("viewStateOff")) {
+                        $(this).hide();
+                        $(this).siblings().show();
+                        e.stopPropagation();
+                    }
+                });
+                $('.textEditorLftTab > li > input').bind("keypress blur", function (e) {
+                    var keyCode = e.keyCode || e.which;
+                    if (keyCode === 13 || keyCode === 9 || e.type == "blur") {
+                        e.preventDefault();
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                    }
+                });
+            };
+            var onError = function (xhr, status, err) {
+            };
+
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+        }
+
+        public genaraltabSelection() {
+            CreateCompetition.prototype.tabSelection();
+
+        }
+        public changeSaveButtonTextValue() {
+            CreateCompetition.prototype.changeSaveButtonText();
+        }
+
+
+        public savePhases(obj) {
+            $("#savePhaseProcess").show();
+            $(obj).addClass("disabledStatus");
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+            var p1 = { "label": $("#ph1title").val(), "maxSubmissions": $("#ph1SubmissionLmt").val(), startDate: $("#ph1StartDate").val() };
+            var p2 = { "label": $("#ph2title").val(), "maxSubmissions": $("#ph2SubmissionLmt").val(), startDate: $("#ph2StartDate").val() };
+            var data = { "endDate": $("#competitionEndDate").val(), "phases": [p1, p2] };
+            var onSuccess = function (data) {
+                $(obj).removeClass("disabledStatus");
+                $("#savePhaseProcess").hide();
+                if ((<HTMLInputElement>$("#Public")[0]).checked) {
+                    $("#btnPublish").removeClass("disabledStatus");
+                }
+                CreateCompetition.prototype.makePublicNotification();
+                $("#valueChanged").val("");
+            };
+            var onError = function (xhr, status, err) {
+                alert('An error occured [' + err + ']');
+                $(obj).removeClass("disabledStatus");
+                $("#savePhaseProcess").hide();
+
+            };
+            CreateCompetition.prototype.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+        }
+
+        public getPhasesDetails() {
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+            var onSuccess = function (data) {
+                $("#ph1title").val(data.phases[0].label)
+                $("#ph2title").val(data.phases[1].label)
+                $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions)
+                $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions)
+                if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+                    $("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
+                }
+                else { $("#ph1StartDate").val(""); }
+                if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+                    $("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
+                } else { $("#ph2StartDate").val(""); }
+                if (data.endDate !== null && data.endDate !== undefined) {
+                    $("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
+                } else { $("#competitionEndDate").val(""); }
+
+            };
+            var onError = function (xhr, status, err) {
+                alert('An error occured [' + err + ']');
+            };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+        }
+
+        public toggleDataset(obj) {
+            if ($(obj).parents("section").siblings(".downloadedContainer").is(":visible")) {
+                $(obj).children("div").removeClass().addClass('expCollDatasetExp');
+                $(obj).parents("section").siblings(".downloadedContainer").hide();
+            } else {
+                $(obj).children("div > div").removeClass().addClass('expCollDatasetColl');
+                $(obj).parents("section").siblings(".downloadedContainer").show();
+            }
+        }
+
+        private saveDataSet(obj, type) {
+            var phaseValue = $(obj).parents(".phaseDatasetDetails").siblings("input").val();
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/1";
+            var dataSetID = $(obj).parents(".phaseDatasetDetails").find("input:#hidDatasetId").val()
+            var data = {
+                "DatasetId": (dataSetID !== "" ? dataSetID : 0),
+                "Type": $(obj).parents(".phaseDatasetDetails").find("select:#selectOption option:selected").val(),
+                "SourceUrl": $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val(),
+                "SourceAccessInfo": $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val(),
+                "DownloadUrl": $(obj).parents(".phaseDatasetDetails").find("input:#DownloadUrl").val()
+            };
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.getDataSet(parseInt(phaseValue));
+            };
+            var onError = function (xhr, status, err) {
+                alert('An error occured [' + err + ']');
+            };
+            CreateCompetition.prototype.ajaxJSONRequestGeneral(xUrl, onSuccess, onError, type, data);
+        }
+
+        public addDataSet(obj) {
+
+            if ($(obj).parents(".downloadedContainer").children("div: #divDownloadedContainer").length === 0) {
+                var dataSet = $("#divDownloadedContainer").clone(true)
+                $(dataSet).find("#divupdate").hide();
+                $(dataSet).find("#divAdd").css("display", "table-row");
+                $(dataSet).find("a:#apply").click(function (e) { CreateCompetition.prototype.saveDataSet(this, "PUT"); });
+                $(dataSet).find("a:#remove").click(function (e) { CreateCompetition.prototype.removeDataSet(); });
+
+                $(dataSet).find("#selectOption").change(function () {
+                    CreateCompetition.prototype.selectDataType($(this).val(), this);
+                });
+                $(dataSet).find("input:#DownloadUrl").parent("div").parent("div").hide();
+                $(obj).parents(".downloadedContainer").prepend($(dataSet).show());
+            }
+        }
+
+        private removeDataSet() {
+            $("#downloadedContainer div:#divDownloadedContainer").remove();
+            $("#downloadedContainer2").find("div:#divDownloadedContainer").remove();
+        }
+
+        private DeleteDataSet(obj) {
+            var dataSetID = $(obj).parents(".phaseDatasetDetails").find("input:#hidDatasetId").val()
+            var phaseValue = $(obj).parents(".phaseDatasetDetails").siblings("input").val();
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/" + dataSetID;
+            var onSuccess = function (data) {
+                CreateCompetition.prototype.getDataSet(parseInt(phaseValue));
+            };
+            var onError = function (xhr, status, err) {
+                alert('An error occured [' + err + ']');
+            };
+            CreateCompetition.prototype.ajaxGeneralRequest(xUrl, onSuccess, onError, "DELETE");
+        }
+
+        public getDataSet(phaseValue: number) {
+            if (phaseValue === 1) {
+                $("#downloadedContainer .phaseDatasetDetails").remove();
+                $("#preLoaderPh1").show();
+            } else {
+                $("#preLoaderPh2").show();
+                $("#downloadedContainer2 .phaseDatasetDetails").remove();
+            }
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/1";
+            var onSuccess = function (data) {
+                for (var v in data) {
+                    var dataSet = $("#divDownloadedContainer").clone()
+                    $(dataSet).attr("id", v + "divDownloadedContainer")
+                    $(dataSet).find("input:#hidDatasetId").val(data[v].DatasetId)
+                    $(dataSet).find("input:#SourceUrl").val(data[v].SourceUrl)
+                    $(dataSet).find("input:#SourceAccessInfo").val(data[v].SourceAccessInfo)
+                    $(dataSet).find("input:#DownloadUrl").val(data[v].DownloadUrl)
+                    $(dataSet).find("a:#update").click(function (e) { CreateCompetition.prototype.saveDataSet(this, "POST"); });
+                    $(dataSet).find("a:#delete").click(function (e) { CreateCompetition.prototype.DeleteDataSet(this); });
+                    $(dataSet).find("select:#selectOption option[value='" + data[v].Type + "']").attr("selected", "selected");
+                    if (phaseValue === 1) {
+                        $("#downloadedContainer").append($(dataSet).show());
+
+                    }
+                    else {
+                        $("#downloadedContainer2").append($(dataSet).show());
+
+
+                    }
+                }
+                $("#preLoaderPh1").hide(); $("#preLoaderPh2").hide();
+
+            };
+            var onError = function (xhr, status, err) {
+                alert('An error occured [' + err + ']');
+                $("#preLoaderPh1").hide(); $("#preLoaderPh2").hide();
+            };
+
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+        }
+
+        public previousStep(obj, event) {
+            $("#Step").val((parseInt($("#Step").val()) - 1).toString());
+            CreateCompetition.prototype.tabSelection();
+            CreateCompetition.prototype.changeSaveButtonText();
+            event.preventDefault();
+        }
+
+        private nextStep(obj, event) {
+            $("#Step").val((parseInt($("#Step").val()) + 1).toString());
+            if ($("#Step").val() > 4) {
+                $("#SaveFlag").val("False")
+            }
+            else {
+                CreateCompetition.prototype.tabSelection();
+                CreateCompetition.prototype.changeSaveButtonText();
+                $(obj).removeClass("disabledStatus");
+                event.preventDefault();
+            }
+        }
+
+        private selectDataType(val, obj) {
+            if (val === "1") {
+                $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val("http://<account>.blob.core.windows.net/<container>/<blob-path>?<shared-access-string>");
+                $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val("<NOT USED>");
+            }
+            else {
+                $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val("http://<account>.blob.core.windows.net/<container>/<blob-path>");
+                $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val("DefaultEndpointsProtocol=https;AccountName=<account>;AccountKey=<access-key>");
+            }
+
+        }
+    }
+
+}
+
+$(function () {
+
+    var CreateCompetition = new Competition.CreateCompetition();
+    $("#addDataSetPh1,#addDataSetPh2").click(function () { CreateCompetition.addDataSet(this); });
+    $(".uploadLabel").click(function () {
+        $("#UploadReason").val("1");
+        $("#uploadFile").click();
+    })
+    $("#tabs").tabs();
+    $(".headerNavigation li.active").removeClass("active");
+    $("#liMycodeLab").addClass("active");
+    CreateCompetition.genaraltabSelection();
+    CreateCompetition.changeSaveButtonTextValue();
+    $("#btnSaveConti").click(function (e) {
+        if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
+        $(this).addClass("disabledStatus");
+        CreateCompetition.saveContinue(e, this);
+    });
+
+    $("#btnSave").click(function (e) {
+        if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
+        $(this).addClass("disabledStatus");
+        CreateCompetition.save(e, this);
+    });
+
+    $("#aTab1").click(function (e) {
+        CreateCompetition.tabOnClick(this);
+    });
+    $("#aTab2").click(function (e) {
+        CreateCompetition.tabOnClick(this);
+    });
+    $("#aTab3").click(function (e) {
+        CreateCompetition.tabOnClick(this);
+    });
+    $("#aTab4").click(function (e) {
+        CreateCompetition.tabOnClick(this);
+    });
+    $('input[type=Text]').bind("change input keydown keypress blur", function (e) {
+        CreateCompetition.setValueChanged(e, this);
+    });
+
+    $('.competitionsDetailTabTop > li').click(function () {
+        if ($(this).hasClass('viewStateOff')) { return; }
+        var myClass = $(this).attr("class");
+        if (!$(this).hasClass('active')) {
+            $('.competitionsDetailTabTop > li').removeClass('active');
+            $(this).addClass('active');
+            $('.competitionsDetailTabBlock > li').css('display', 'none');
+            $('.competitionsDetailTabBlock').children("." + myClass).css('display', 'block');
+            CreateCompetition.getLftTabsForCompetition(parseInt($.trim(myClass.replace("tab", ""))) - 1);
+        }
+        if (myClass === "tab1") {
+            $("#applyChanges").css("display", "table-cell");
+            $("#applyChangesparticep").hide();
+
+        } else {
+            $("#applyChangesparticep").css("display", "table-cell");
+            $("#applyChanges").hide();
+
+        }
+    });
+
+    CreateCompetition.getLftTabsForCompetition(0);
+
+    $('.textEditorLftTab > li').click(function () {
+        var myClass = $(this).attr("class");
+        if (!$(this).hasClass("active")) {
+            $('.textEditorLftTab > li').removeClass("active");
+            $(this).addClass('active');
+            $("#textEditorTxtArea").text("");
+        }
+    });
+    $("#applyChanges,#applyChangesparticep").click(function (e) { CreateCompetition.ajaxRequestForSavingCompetitionPageContent(this); });
+
+    $("#Public").click(function (e) { CreateCompetition.ajaxRequestForManagingPublishTab(); });
+    $("#btnPublish").click(function (e) { if ($("#btnPublish").hasClass("disabledStatus")) { return } CreateCompetition.ajaxRequestForManagingPublishTab(); });
+
+    $("#uploadFile").change(function () {
+        if ($("#UploadReason").val() === "3") { CreateCompetition.uploadFile(3); }
+        else { CreateCompetition.uploadFile(1); }
+    });
+
+    $("#ph1StartDate").datepicker();
+    $("#ph1StartDateIcon").click(function () {
+        $("#ph1StartDate").datepicker("show");
+    });
+    $("#ph2StartDateIcon").click(function () {
+        $("#ph2StartDate").datepicker("show");
+
+    });
+    $("#ph2StartDate").datepicker({
+        onSelect: function () {
+            if ($("#ph1StartDate").val() === "") {
+                alert("Please enter Training phase start")
+                $("#ph2StartDate").val("");
+                return false;
+            }
+            var phase2 = new Date($(this).datepicker('getDate').toString());
+            var phase1 = new Date($("#ph1StartDate").datepicker('getDate').toString());
+            var dayDiff = Math.ceil((phase2.getTime() - phase1.getTime()) / (1000 * 60 * 60 * 24));
+            if (dayDiff < 1) {
+                alert("There should be atleast one day differance between training phase and testing phase");
+                $("#ph2StartDate").val("");
+            }
+        }
+    });
+    $("#competitionEndDate").datepicker();
+    $("#competitionEndDateIcon").click(function () {
+        $("#competitionEndDate").datepicker("show");
+    });
+
+    $("#savePhase").click(function (e) {
+        var TrStartDate = $("#ph1StartDate").val();
+        var TeStartDate = $("#ph2StartDate").val();
+        if (TrStartDate === "") {
+            alert("Please enter Training phase start date");
+            return false;
+        }
+        else if (TeStartDate === "") {
+            alert("Please enter testing phase start date.")
+            return false;
+        }
+        CreateCompetition.savePhases(this)
+    });
+    CreateCompetition.getPhasesDetails();
+    $("#ph1dataset,#ph2dataset,#ph2datasetimg,#ph1datasetimg").click(function () {
+        CreateCompetition.toggleDataset(this);
+    });
+    CreateCompetition.getDataSet(1);
+    CreateCompetition.getDataSet(2);
+
+    $("#btnSavePrev").click(function (e) {
+        if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
+        CreateCompetition.previousStep(this, e);
+    });
+
+    CreateCompetition.makePublicNotification();
+    $("#uploadManifestph1").click(function () {
+        $("#UploadReason").val("3");
+        FileUpload.FileUploadFile.phaseValue = 1;
+        $("#uploadFile").click();
+    })
+    $("#uploadManifestph2").click(function () {
+        $("#UploadReason").val("3");
+        FileUpload.FileUploadFile.phaseValue = 2;
+        $("#uploadFile").click();
+    })
+
+    
+});
+function disableBeforeUnload() {
+    window.onbeforeunload = null;
+}
+
+window.onbeforeunload = function () {
+    if ($("#valueChanged").val() === "True") {
+        return "You're about to end your session, are you sure?";
+    }
+}

@@ -1,0 +1,34 @@
+﻿{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block title %}Home{% endblock %}
+{% block extra_head %}
+<script type="text/javascript">
+    $(function () {
+        $("li.active").removeClass("active");
+        $("#liHome").addClass("active");
+    });
+</script>
+{% endblock %}
+{% block body %}
+<div class="homepageBanner">
+    <div class="bannerBlockContainer">
+        <div class="bannerBlock">
+            <img src="{% static "site/img/icon1.png" %}" />
+            <div class="bannertxtBlock">
+                <label class="bannerBlockHead">Create</label>
+                <label class="bannerBlocklabl">Solutions</label>
+            </div>
+        </div>
+        <div class="bannerBlock">
+            <img src="{% static "site/img/icon2.png" %}" />
+            <div class="bannertxtBlock">
+                <label class="bannerBlockHead">Compete</label>
+                <label class="bannerBlocklabl">with peers</label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mainContainer">
+    
+</div>
+{% endblock %}

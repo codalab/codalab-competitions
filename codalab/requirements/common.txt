@@ -1,0 +1,5 @@
+Django==1.5.1
+argparse==1.2.1
+distribute==0.6.34
+wsgiref==0.1.2
+django-wsgiserver==0.8.0beta
