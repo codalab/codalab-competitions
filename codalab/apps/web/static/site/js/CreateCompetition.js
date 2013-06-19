@@ -100,9 +100,9 @@ var Competition;
                 case 3:
                     ($("#Public")[0]).checked = true;
                     $("#btnPublish").removeClass("disabledStatus");
-                    CreateCompetition.prototype.makePublicNotification();
                     break;
             }
+            CreateCompetition.prototype.makePublicNotification();
         };
         CreateCompetition.prototype.makePublicNotification = function () {
             if((($("#Public")[0]).checked) && !$("#btnPublish").hasClass("disabledStatus")) {
@@ -386,60 +386,9 @@ var Competition;
             } else {
                 $(obj).children("div > div").removeClass().addClass('expCollDatasetColl');
                 $(obj).parents("section").siblings(".downloadedContainer").show();
-            }
-        };
-        CreateCompetition.prototype.saveDataSet = function (obj, type) {
-            var phaseValue = $(obj).parents(".phaseDatasetDetails").siblings("input").val();
-            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/1";
-            var dataSetID = $(obj).parents(".phaseDatasetDetails").find("input:#hidDatasetId").val();
-            var data = {
-                "DatasetId": (dataSetID !== "" ? dataSetID : 0),
-                "Type": $(obj).parents(".phaseDatasetDetails").find("select:#selectOption option:selected").val(),
-                "SourceUrl": $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val(),
-                "SourceAccessInfo": $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val(),
-                "DownloadUrl": $(obj).parents(".phaseDatasetDetails").find("input:#DownloadUrl").val()
-            };
-            var onSuccess = function (data) {
+                var phaseValue = $(obj).parents("section").siblings(".downloadedContainer").children("input:hidden").val();
                 CreateCompetition.prototype.getDataSet(parseInt(phaseValue));
-            };
-            var onError = function (xhr, status, err) {
-                alert('An error occured [' + err + ']');
-            };
-            CreateCompetition.prototype.ajaxJSONRequestGeneral(xUrl, onSuccess, onError, type, data);
-        };
-        CreateCompetition.prototype.addDataSet = function (obj) {
-            if($(obj).parents(".downloadedContainer").children("div: #divDownloadedContainer").length === 0) {
-                var dataSet = $("#divDownloadedContainer").clone(true);
-                $(dataSet).find("#divupdate").hide();
-                $(dataSet).find("#divAdd").css("display", "table-row");
-                $(dataSet).find("a:#apply").click(function (e) {
-                    CreateCompetition.prototype.saveDataSet(this, "PUT");
-                });
-                $(dataSet).find("a:#remove").click(function (e) {
-                    CreateCompetition.prototype.removeDataSet();
-                });
-                $(dataSet).find("#selectOption").change(function () {
-                    CreateCompetition.prototype.selectDataType($(this).val(), this);
-                });
-                $(dataSet).find("input:#DownloadUrl").parent("div").parent("div").hide();
-                $(obj).parents(".downloadedContainer").prepend($(dataSet).show());
             }
-        };
-        CreateCompetition.prototype.removeDataSet = function () {
-            $("#downloadedContainer div:#divDownloadedContainer").remove();
-            $("#downloadedContainer2").find("div:#divDownloadedContainer").remove();
-        };
-        CreateCompetition.prototype.DeleteDataSet = function (obj) {
-            var dataSetID = $(obj).parents(".phaseDatasetDetails").find("input:#hidDatasetId").val();
-            var phaseValue = $(obj).parents(".phaseDatasetDetails").siblings("input").val();
-            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/" + dataSetID;
-            var onSuccess = function (data) {
-                CreateCompetition.prototype.getDataSet(parseInt(phaseValue));
-            };
-            var onError = function (xhr, status, err) {
-                alert('An error occured [' + err + ']');
-            };
-            CreateCompetition.prototype.ajaxGeneralRequest(xUrl, onSuccess, onError, "DELETE");
         };
         CreateCompetition.prototype.getDataSet = function (phaseValue) {
             if(phaseValue === 1) {
@@ -449,22 +398,19 @@ var Competition;
                 $("#preLoaderPh2").show();
                 $("#downloadedContainer2 .phaseDatasetDetails").remove();
             }
-            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset/1";
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phase/" + phaseValue + "/dataset";
             var onSuccess = function (data) {
                 for(var v in data) {
                     var dataSet = $("#divDownloadedContainer").clone();
                     $(dataSet).attr("id", v + "divDownloadedContainer");
                     $(dataSet).find("input:#hidDatasetId").val(data[v].DatasetId);
                     $(dataSet).find("input:#SourceUrl").val(data[v].SourceUrl);
-                    $(dataSet).find("input:#SourceAccessInfo").val(data[v].SourceAccessInfo);
                     $(dataSet).find("input:#DownloadUrl").val(data[v].DownloadUrl);
-                    $(dataSet).find("a:#update").click(function (e) {
-                        CreateCompetition.prototype.saveDataSet(this, "POST");
-                    });
-                    $(dataSet).find("a:#delete").click(function (e) {
-                        CreateCompetition.prototype.DeleteDataSet(this);
-                    });
-                    $(dataSet).find("select:#selectOption option[value='" + data[v].Type + "']").attr("selected", "selected");
+                    if(data[v].Type === 2) {
+                        $(dataSet).find("input:#dataSetType").val("Azure Blob");
+                    } else {
+                        $(dataSet).find("input:#dataSetType").val("Azure Blob Shared Access Signature");
+                    }
                     if(phaseValue === 1) {
                         $("#downloadedContainer").append($(dataSet).show());
                     } else {
@@ -498,24 +444,12 @@ var Competition;
                 event.preventDefault();
             }
         };
-        CreateCompetition.prototype.selectDataType = function (val, obj) {
-            if(val === "1") {
-                $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val("http://<account>.blob.core.windows.net/<container>/<blob-path>?<shared-access-string>");
-                $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val("<NOT USED>");
-            } else {
-                $(obj).parents(".phaseDatasetDetails").find("input:#SourceUrl").val("http://<account>.blob.core.windows.net/<container>/<blob-path>");
-                $(obj).parents(".phaseDatasetDetails").find("input:#SourceAccessInfo").val("DefaultEndpointsProtocol=https;AccountName=<account>;AccountKey=<access-key>");
-            }
-        };
         return CreateCompetition;
     })(FileUpload.FileUploadFile);
     Competition.CreateCompetition = CreateCompetition;    
 })(Competition || (Competition = {}));
 $(function () {
     var CreateCompetition = new Competition.CreateCompetition();
-    $("#addDataSetPh1,#addDataSetPh2").click(function () {
-        CreateCompetition.addDataSet(this);
-    });
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
         $("#uploadFile").click();
@@ -645,8 +579,6 @@ $(function () {
     $("#ph1dataset,#ph2dataset,#ph2datasetimg,#ph1datasetimg").click(function () {
         CreateCompetition.toggleDataset(this);
     });
-    CreateCompetition.getDataSet(1);
-    CreateCompetition.getDataSet(2);
     $("#btnSavePrev").click(function (e) {
         if($(this).hasClass("disabledStatus")) {
             e.preventDefault();

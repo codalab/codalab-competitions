@@ -90,7 +90,6 @@ module Competition {
         }
 
         public saveUserRegisterStatus() {
-            if ($("#registerCompetition").hasClass("disabledStatus")) { return false; }
             var url = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.checkRegisterStatus();
@@ -156,21 +155,26 @@ module Competition {
                 $("<tr id='preLoaderRow'><td colspan='5'><div class='coloumPreloader'></div></td></tr>").insertAfter($("#seeTheResults tr:last"));
                 var data = { "pageNumber": CompetitionDetails.page, "pageSize": 6 };
                 CompetitionDetails.page++;
-                var xUrl = "/Competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue;
+                var xUrl = "/Competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue + "/" + parseInt($("#selectedRank").val());
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no results.") {
                         CompetitionDetails.loadSucess = true;
                         $("#seeTheResults").append(data);
                         $("#preLoaderRow").remove();
-                        $('.check-box').each(function () {
-                            if ($(this).is(':checked')) {
-                                // $(this).parents('tr').find('td').css('background', '#83d5e7');
-                            }
-                        });
+                        
                         if ($('body').outerHeight() < $(window).height()) { CompetitionDetails.prototype.getCompetitionResults(phaseValue); }
                         if ($("#seeTheResults tr.trHearder").length > 1) {
                             $("#seeTheResults tr:first").remove();
                         }
+
+                        $(".trHearder").find(".rankHeader").each(function () {
+                            $(this).click(function () {
+                                CompetitionDetails.page = 0;
+                                $("#selectedRank").val($(this).children("input:hidden").val());
+                                $('#seeTheResults tr:gt(0)').remove();
+                                CompetitionDetails.prototype.getCompetitionResults($("#selctedPhaseButton").val());
+                            });
+                        });
                     }
                     else {
                         if (CompetitionDetails.page === 1) {
@@ -278,6 +282,11 @@ module Competition {
                         $(".leaderboardDelete").click(function () {
                             CompetitionDetails.prototype.deleteLeaderBoard(this);
                         });
+                        $(".globalBlueButtonSmallFlexi").click(function () {
+                            var submissionVal = $(this).parents('.preSubmissionToggleView').siblings(".toggleTble").find("tr td:first").text();
+                            var type = $(this).attr("id");
+                            CompetitionDetails.prototype.openSubStandardWindow(submissionVal, type)
+                        })
                         if ($('body').outerHeight() < $(window).height()) { CompetitionDetails.prototype.getSubmissionsPageResults(phaseValue); }
                     }
                     else {
@@ -300,6 +309,14 @@ module Competition {
                 };
                 super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
             }
+        }
+
+        private openSubStandardWindow(submissionValue,type) {
+            var selectedPhaseValue = $("#selctedPhaseButton").val();
+            var competitionId = $("#CompetitionId").val();
+            var URL = "" + "/" + competitionId + "/" + selectedPhaseValue + "/" + submissionValue + "/" + type;
+            window.open(URL)
+            //alert(URL);
         }
 
         private getCurrentLederBoardDetails() {
@@ -460,6 +477,7 @@ module Competition {
                     $("#selctedPhaseButton").val((parseInt($.trim($(this).attr("id").replace("result", ""))) + 1).toString());
                     $('#seeTheResults tr:gt(0)').remove();
                     Competition.CompetitionDetails.page = 0;
+                    $("#selectedRank").val("1");
                     CompetitionDetails.prototype.getCompetitionResults($("#selctedPhaseButton").val());
                 });
             });
@@ -552,7 +570,7 @@ $(function () {
     CompetitionDetails.getTabSelectionIdentifiersFromURL();
     $(".headerContent li.active").removeClass("active");
     $("#liCompetition").addClass("active");
-    $("#registerCompetition").click(function () { $("#registerOptionContainer").hide(); CompetitionDetails.saveUserRegisterStatus(); });
+    $("#registerCompetition").click(function () { if ($("#registerCompetition").hasClass("disabledStatus")) { return; } $("#registerOptionContainer").hide(); CompetitionDetails.saveUserRegisterStatus(); });
     $(".preloader").show();
     $(".tabArea").hide();
     $("#registerCompetition").addClass("disabledStatus");
@@ -561,10 +579,7 @@ $(function () {
         var myClass = $(this).attr("class");
         CompetitionDetails.getTabSelectionIdentifiersFromURL();
         if (!$(this).hasClass('active')) {
-            $('.competitionsDetailTabTop > li').removeClass('active');
-            $(this).addClass('active');
-            $('.competitionsDetailTabBlock > li').css('display', 'none');
-            $('.competitionsDetailTabBlock').children("." + myClass).css('display', 'block');
+            CompetitionDetails.activateMainTab(myClass);
             if (!Competition.CompetitionDetails.currentMainTab) {
                 window.location.hash = "";
             }

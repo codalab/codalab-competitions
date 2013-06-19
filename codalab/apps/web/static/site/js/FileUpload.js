@@ -119,11 +119,17 @@ var FileUpload;
                                     $("#errorLabelPh1").text("");
                                     $("#errorLabelPh1").css("display", "inline-block");
                                     $("#errorLabelPh1").text(data.message);
+                                    $("#ph1datasetimg div").removeClass().addClass('expCollDatasetExp');
+                                    $("#ph1datasetimg").parents("section").siblings(".downloadedContainer").hide();
                                 } else {
                                     $("#errorLabelPh2").text("");
                                     $("#errorLabelPh2").css("display", "inline-block");
                                     $("#errorLabelPh2").text(data.message);
+                                    $("#ph2datasetimg div").removeClass().addClass('expCollDatasetExp');
+                                    $("#ph2datasetimg").parents("section").siblings(".downloadedContainer").hide();
                                 }
+                                var CreateCompetition = new Competition.CreateCompetition();
+                                CreateCompetition.ajaxRequestForManagingPublishTab();
                             } else {
                                 Competition.CompetitionDetails.prototype.requestPartialViewcontroller(10);
                                 FileUpload.FileUploadFile.uploadResult = true;

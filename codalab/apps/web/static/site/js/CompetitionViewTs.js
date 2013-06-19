@@ -79,4 +79,16 @@ $(function () {
             CompetitionView.getCompetitionList();
         }
     };
+    $("#searchInput").bind("propertychange keyup input paste", function () {
+        if($.trim($("#searchInput").val()) === "") {
+            $("#searchInput").attr("value", "filter by keyword, title or author");
+        }
+    });
+    $("#searchInput").on("focus", function () {
+        if($("#searchInput").val() === "filter by keyword, title or author") {
+            $("#searchInput").val("");
+        } else if($("#searchInput").val() === "") {
+            $("#searchInput").val("filter by keyword, title or author");
+        }
+    });
 });

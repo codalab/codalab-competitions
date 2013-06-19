@@ -29,6 +29,7 @@ h1,h2,h3,h4,h5,h6 {
     font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:100%;
 	font-weight:normal;
+    color:#666;
 }
 q:before,q:after {
 	content:'';
@@ -61,18 +62,18 @@ label{font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans
 {
     width: 15px;
 }
-::-webkit-scrollbar-track {
-    background-color: #b46868;
-} /* the new scrollbar will have a flat appearance with the set background color */
-::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-} /* this will style the thumb, ignoring the track */
-::-webkit-scrollbar-button {
-    background-color: #7c2929;
-} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
-::-webkit-scrollbar-corner {
-    background-color: black;
-} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
+ ::-webkit-scrollbar-track {
+    background-color: #ccc;
+ } /* the new scrollbar will have a flat appearance with the set background color */
+ ::-webkit-scrollbar-thumb {
+    background-color: #606060
+ } /* this will style the thumb, ignoring the track */
+ ::-webkit-scrollbar-button {
+    background-color: #7c7c7c;
+ } /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+ ::-webkit-scrollbar-corner {
+     background-color: black;
+ } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
 body
 {
     scrollbar-face-color: #7c7c7c; 
@@ -84,10 +85,11 @@ body
     scrollbar-darkshadow-color: #7c7c7c;
     min-width:1024px;
     position:relative; 
+    overflow-y:scroll;
 }
 .preloader,.buttonPreloader,.competitionPreloader
 {
-    background:url('../img/PreloaderTransp.gif') no-repeat center center; 
+    background:url('../Images/PreloaderTransp.gif') no-repeat center center; 
     width:30px;
     height:30px;
     margin:30% auto;
@@ -95,14 +97,14 @@ body
     display:none
 }
 .coloumPreloader {
-    background:url('../img/PreloaderTransp.gif') no-repeat center center; 
+    background:url('../Images/PreloaderTransp.gif') no-repeat center center; 
     width:30px;
     height:30px;
     margin-left:50%;
 }
 .preloaderInput,.buttonPreloaderInput,.buttonPreloaderTxtArea,.preloaderInputImg
 {
-    background:url('../img/Preloader_Small.gif') no-repeat center center; 
+    background:url('../Images/Preloader_Small.gif') no-repeat center center; 
     text-align:left;
     width:22px;
     height:22px;
@@ -128,7 +130,7 @@ body
     top:55%;
 }
 .preloader {
-    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    background:url('../Images/Preloader_Medium.gif') no-repeat center center;
     left:50%;
     top:80px;
     width:50px;
@@ -144,7 +146,7 @@ body
     top:7px;
 }
 .competitionPreloader {
-    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    background:url('../Images/Preloader_Medium.gif') no-repeat center center;
     width:50px;
     height:50px;
     position:absolute;
@@ -329,7 +331,7 @@ header {
 }
 .navContainer {clear:both;}
 .logo {
-    background:url('../img/logo.png') no-repeat center top;
+    background:url('../Images/logo.png') no-repeat center top;
     float:left;
     width:139px;
     height:33px;
@@ -386,7 +388,7 @@ ul.headerNavigation li.active a {
 .searchBar input[type="button"] {
     height:26px;
     width:26px;
-    background:url('../img/search.png') no-repeat center top;
+    background:url('../Images/search.png') no-repeat center top;
     border:0;
     float:right;
     margin:3px 5px 0 0;
@@ -402,7 +404,7 @@ ul.headerNavigation li.active a {
     margin:8px 0 0 20px;
 }
 .socialNetworkBlock .twitIcon,.socialNetworkBlock .fBIcon {
-    background:url('../img/FBIcon.jpg') no-repeat center top;
+    background:url('../Images/FBIcon.jpg') no-repeat center top;
     width:20px;
     height:20px; 
     float:left;
@@ -411,7 +413,7 @@ ul.headerNavigation li.active a {
     margin-top:4px;
 }
 .socialNetworkBlock .fBIcon {
-    background:url('../img/twitIcon.jpg') no-repeat center top;
+    background:url('../Images/twitIcon.jpg') no-repeat center top;
 }
 /*Header----------------------------------------*/
 /*loggin Container------------------------------*/
@@ -509,7 +511,7 @@ input[type="submit"][value="Delete"]
 {
     background:#f1702f;
 }
-.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput,.globalBlueButtonAtag > a,.globalBlueButtonSmallAtag > a,.globalBlueButtonSmall,.globalBlueButtonSmallFlexi,.buttonAccept{
+.globalBlueButton,.globalBlueButton.disabledStatus:hover,.globalBlueButton.disabledStatus > a.disabledStatus:active,.globalBlueButtonAtag > a.disabledStatus:hover,.globalBlueButton.disabledStatus:active, .globalBlueButtonBig, .globalBlueButtonInput,.globalBlueButtonAtag > a,.globalBlueButtonSmallAtag > a,.globalBlueButtonSmall,.globalBlueButtonSmallFlexi,.buttonAccept{
     height:32px;
     padding:0 15px;
     min-width:103px;
@@ -531,7 +533,6 @@ input[type="submit"][value="Delete"]
     background: -ms-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #529ded 0%,#3784d7 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#529ded', endColorstr='#3784d7',GradientType=0 ); /* IE6-9 */
-
 }
 .globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
     border-color:#a2cef7;
@@ -727,7 +728,7 @@ input[type="submit"][value="Delete"]
 
 /*Banner----------------------------------------*/
 .banner {
-    background:#787878 url('../img/BnrImg_1.jpg') no-repeat center top;
+    background:#787878 url('../Images/BnrImg_1.jpg') no-repeat center top;
     height:340px;
 }
 /*Banner----------------------------------------*/
@@ -957,7 +958,7 @@ input[type="submit"][value="Delete"]
     padding:10px;
 }
 .competitionTileLftStrip{
-    background:#3684d6 url('../img/icon2Small.png') no-repeat center 2px;
+    background:#3684d6 url('../Images/icon2Small.png') no-repeat center 2px;
     display:table-cell;
     width:35px;
     padding:0 !important;
@@ -1046,7 +1047,7 @@ input[type="submit"][value="Delete"]
     min-height:43px;
 }
 .subContainer figure.articleImage {
-    background:url('../img/DummyImage.jpg') no-repeat center top;
+    background:url('../Images/DummyImage.jpg') no-repeat center top;
     margin-bottom:0;
     /*background:#50E0FB;
     color:#fff;
@@ -1062,7 +1063,7 @@ figure.userImage {
     display:inline;
 }
 .userSocialNetworkBlock .twitIcon,.userSocialNetworkBlock .fBIcon,.userSocialNetworkBlock .linkedIcon {
-    background:url('../img/FBIcon.jpg') no-repeat center top;
+    background:url('../Images/FBIcon.jpg') no-repeat center top;
     width:20px;
     height:20px; 
     float:left;
@@ -1071,14 +1072,14 @@ figure.userImage {
     margin-top:4px;
 }
 .userSocialNetworkBlock .fBIcon {
-    background:url('../img/twitIcon.jpg') no-repeat center top;
+    background:url('../Images/twitIcon.jpg') no-repeat center top;
 }
 .userSocialNetworkBlock .linkedIcon {
-    background:url('../img/twitIcon.jpg') no-repeat center top;
+    background:url('../Images/twitIcon.jpg') no-repeat center top;
 }
 .userSocialNetworkBlock > div:last-child{ margin-right:0;}
 .subContainer:nth-child(2) figure.articleImage {
-    background:url('../img/xray2.jpg');
+    background:url('../Images/xray2.jpg');
 }
 .subContainer > div {
     display:table-cell;
@@ -1285,20 +1286,20 @@ div.articleImageContainer
     float:left;
     margin:0;
     cursor:pointer;
-    background:url('../img/TabSprite.png') no-repeat left top;
+    background:url('../Images/TabSprite.png') no-repeat left top;
     position:relative;
     min-width:55px;
     padding-left:10px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li a{
-    background:url('../img/TabSprite.png') repeat-x left -34px;
+    background:url('../Images/TabSprite.png') repeat-x left -34px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li div
 {
     height:16px;
     width:16px;
     position:absolute;
-    background:url('../img/notification.png') no-repeat left center;
+    background:url('../Images/notification.png') no-repeat left center;
     left:25px;
     top:-8px;
 }
@@ -1322,16 +1323,16 @@ div.articleImageContainer
     display:none;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover{
-    background:url('../img/TabSprite.png') no-repeat left -220px;
+    background:url('../Images/TabSprite.png') no-repeat left -220px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover a{
-    background:url('../img/TabSprite.png') repeat-x left -254px;
+    background:url('../Images/TabSprite.png') repeat-x left -254px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-state-active {
-    background:url('../img/TabSprite.png') repeat-x left -108px;
+    background:url('../Images/TabSprite.png') repeat-x left -108px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li span,.ui-state-default span{
-    background:url('../img/TabSprite.png') no-repeat left -69px;
+    background:url('../Images/TabSprite.png') no-repeat left -69px;
     position:absolute;
     right:-20px;
     width:20px;
@@ -1341,13 +1342,13 @@ div.articleImageContainer
     display:block;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover  span {
-    background:url('../img/TabSprite.png') no-repeat left -289px;
+    background:url('../Images/TabSprite.png') no-repeat left -289px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate a, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected a{
-    background:url('../img/TabSprite.png') repeat-x left -145px;
+    background:url('../Images/TabSprite.png') repeat-x left -145px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate span, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected span{
-    background:url('../img/TabSprite.png') no-repeat left -181px;
+    background:url('../Images/TabSprite.png') no-repeat left -181px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:first-child {
     margin-left:0;
@@ -1416,7 +1417,7 @@ div.articleImageContainer
     width:73%;
 }
 .CompetitionTypeDetailrow .thumbView {
-    background:url('../img/thumbIcon.png') no-repeat right center;
+    background:url('../Images/thumbIcon.png') no-repeat right center;
     width:53px;
     height:42px;
     float:left;
@@ -1509,13 +1510,13 @@ div.articleImageContainer
 }
 .CompetitionsDetailRit figure {
     height:115px;
-    background:url('../img/contentImg.jpg') left -170px;
+    background:url('../Images/contentImg.jpg') left -170px;
     margin-bottom:20px;
 }
 .CompetitionsDetailImg {
     height:238px;
     width:238px;
-    background:url('../img/demoImageDetail.jpg');
+    background:url('../Images/demoImageDetail.jpg');
     margin-right:10px;
     float:right;
     clear:both;
@@ -1752,6 +1753,7 @@ font-weight:normal !important;
 .chkRegisterContainer span a
 {
     font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    color:#3684D6;
 }
 .chkRegisterContainer input {
     float:left;
@@ -1847,7 +1849,7 @@ font-weight:normal !important;
 }
 .textEditorLftTab > li a
 {
-    background:url('../img/IconSpriteImage.png') no-repeat 2px 5px;
+    background:url('../Images/IconSpriteImage.png') no-repeat 2px 5px;
 }
 .textEditorLftTab > li label,.textEditorLftTab > li.active label
 {
@@ -1925,6 +1927,7 @@ font-weight:normal !important;
     font-size:12px;
     text-decoration:none;
     padding-top:5px;
+    cursor:pointer;
 }
 .pContentArea
 {
@@ -1994,7 +1997,8 @@ font-weight:normal !important;
 }
 code {
     color:#3b3b3b;
-    font:normal 12px/15px Menlo,Consolas,"Andale Mono","Lucida Console","Nimbus Mono L","DejaVu Sans Mono",monospace,"Courier New"
+    background-color: rgb(235, 242, 251);
+    font:normal 12px/0px Menlo,Consolas,"Andale Mono","Lucida Console","Nimbus Mono L","DejaVu Sans Mono",monospace,"Courier New"
 }
 .competitionTileNoRecord
 {
@@ -2040,14 +2044,14 @@ code {
     height:24px;
     width:24px;
     vertical-align:top;
-    background:url('../img/collapse.png') no-repeat -5px -5px;
+    background:url('../Images/collapse.png') no-repeat -5px -5px;
     cursor:pointer;
 }
 .toggleIconColp{
-    background:url('../img/expand.png') no-repeat -5px -5px;
+    background:url('../Images/expand.png') no-repeat -5px -5px;
 }
 .leaderboardOk {
-    background:url('../img/statusIconOk.png') no-repeat center center;
+    background:url('../Images/statusIconOk.png') no-repeat center center;
     cursor:default;
 }
 .leaderboardHidden{
@@ -2100,7 +2104,7 @@ code {
     height:16px;
     width:16px;
     float:left;
-    background:url('../img/calendar.png') no-repeat center center;
+    background:url('../Images/calendar.png') no-repeat center center;
     position:relative;
     left:-30px;
     top:6px;
@@ -2149,7 +2153,6 @@ code {
 .phaseToggleBtnContainer {
     position:absolute;
     top:10px;
-    height:100px;
     right:20px;
 } 
 .phaseLegendContainer {
@@ -2159,7 +2162,7 @@ code {
     left:35px;
 }
 .phaseLegendContainer .legend{
-    background:url('../img/selectedRowBlue.png') no-repeat left center;
+    background:url('../Images/selectedRowBlue.png') no-repeat left center;
     font-size:13px;
     padding-left:25px;
     height:22px;
@@ -2184,7 +2187,7 @@ code {
     height:16px;
     width:16px;
     float:left;
-    background:url('../img/aciveimg.png') no-repeat center center;
+    background:url('../Images/aciveimg.png') no-repeat center center;
     margin-left:5px;
     margin-top:6px;
 }
@@ -2246,14 +2249,14 @@ body .ui-datepicker td span, body .ui-datepicker td a {
     width: 17em;
 }
 body .ui-datepicker-next span{
-    background:url('../img/next.png') no-repeat center center;
+    background:url('../Images/next.png') no-repeat center center;
     text-indent:-99999px;
     height: 16px;
     width: 16px;
     cursor:pointer;
 }
 body .ui-datepicker-prev span{
-    background:url('../img/prev.png') no-repeat center center;
+    background:url('../Images/prev.png') no-repeat center center;
     text-indent:-99999px;
     height: 16px;
     width: 16px;
@@ -2284,20 +2287,20 @@ body .ui-datepicker-prev span{
     position:relative;
     background:#fbfbfb
 }
-.CompetitionTypeDetailrowAdd{
+/*.CompetitionTypeDetailrowAdd{
     position:absolute;
     right:0;
     top:110px;
-}
+}*/
 .stepNotification,.stepNotificationDone{
-    background:url('../img/StepTodo.png') no-repeat center center;
+    background:url('../Images/StepTodo.png') no-repeat center center;
     height:45px;
     width:45px;
     margin-left:-36px;
     margin-top:-36px;
 }
 .stepNotificationDone {
-    background:url('../img/StepDone.png') no-repeat center center;
+    background:url('../Images/StepDone.png') no-repeat center center;
 }
 .CompetitionTypeDetailrowDate > section{
     display:table;
@@ -2344,7 +2347,7 @@ body .ui-datepicker-prev span{
 
 .expCollDatasetExp,.expCollDatasetColl
 {
-    background:url('../img/expand_colapse.png');
+    background:url('../Images/expand_colapse.png');
     height:26px;
     width:26px;
     display:inline-block;
@@ -2354,7 +2357,7 @@ body .ui-datepicker-prev span{
 }
 .expCollDatasetColl
 {
-    background:url('../img/expand_colapse_Coll.png');
+    background:url('../Images/expand_colapse_Coll.png');
 }
 .downloadedDataset th,.downloadedDataset td{
     padding:8px 10px;
@@ -2386,13 +2389,12 @@ body .ui-datepicker-prev span{
         width:190px;
     }
 .phaseDatasetDetails > div > div > div select{ width:310px;}
-.phaseDatasetDetailsContainer div:nth-child(3) input[type="text"],.phaseDatasetDetailsContainer div:nth-child(4) input[type="text"],.phaseDatasetDetailsContainer > div:nth-child(5) input[type="text"]{width:70%;}
 .phaseDatasetDetails >  div > div  a{color:#07b4db; font-size:13px; cursor:pointer; font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;}
 .phaseDatasetDetailsContainer{ border-top:dotted 1px #666; padding:20px 0 15px; display:table; width:100%; margin-top:10px;}
 .CompetitionTypeDetailrowDate.detailsUpload > div{width:100%}
 .CompetitionTypeDetailrowDate.detailsUpload .CompetitionTypeDetailrow textarea{width:98% !important; margin-top:10px; height:64px !important;}
 .CompetitionTypeDetailrowDate.detailsUpload .CompetitionTypeDetailrow input[type="text"]{width:98%}
-.phaseDatasetDetailsContainer input[type="text"][readonly="true"]{background:#ddd}
+.phaseDatasetDetailsContainer input[type="text"][readonly="true"]{background:#ddd;width:70%;}
 .detailsUpload{position:relative;}
 .detailsUpload .preloaderInput{position:absolute; right:5px; top:35px;}
 .detailsUpload .CompetitionTypeDetailTBL{table-layout:fixed; margin-top:17px;}
@@ -2483,6 +2485,7 @@ tr:nth-child(even) .selectedColoumRow{
 .generalContainer{
     display:table;
     width:100%;
+    table-layout:fixed;
 }
 ul.leftNavigation {
     width:226px;
@@ -2498,6 +2501,9 @@ ul.leftNavigation a{
     cursor:pointer;
     color:#3684d6;
     font-size:15px;
+}
+ul.leftNavigation li:hover a{
+    color:#ffac31
 }
 ul.leftNavigation li.active a{
     color:#ffac31;
@@ -2518,7 +2524,7 @@ ul.leftNavigation li.active a{
     height:20px;
     width:20px;
     float:right;
-    background:url('../img/selectedRow.png') no-repeat center center;
+    background:url('../Images/selectedRow.png') no-repeat center center;
     margin-right:5px;
 }
 .mainPageContainer .rightContentArea ul,.mainPageContainer .rightContentArea ol{
@@ -2653,14 +2659,14 @@ ul.leftNavigation li.active a{
    margin-right:0;
 }
 .helpLinkIcon,.helpLinkEdit{
-    background:url('../img/helpicon2.png') no-repeat center center;
+    background:url('../Images/helpicon2.png') no-repeat center center;
     height:18px;
     width:18px;
     display:inline-block;
     margin-top:5px;
 }
 .helpLinkIcon:hover {
-    background: url('../img/helpicon.png') no-repeat center center;
+    background: url('../Images/helpicon.png') no-repeat center center;
 }
 .helpLinkEdit{
     position:relative;
@@ -2686,4 +2692,8 @@ ul.leftNavigation li.active a{
     position:relative;
     top:4px;
     left:-6px;
+}
+.rankHeader
+{
+    cursor:pointer;
 }

@@ -1,0 +1,35 @@
+{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block title %}Competitions{% endblock %}
+{% block body %}
+<div class="mainContainer">
+<div class="compBlockTbl"> 
+    <div class="compBlockLeftContainer">
+        <div class="container compBlockFilter">
+            {% comment %}<h3>filter competitions by:</h3>
+            <div class="container">
+                <label>Status:</label>
+                <select class="gradient"> 
+                    <option>Active</option>
+                </select>
+            </div>
+            <div class="container">
+                <label>Technique:</label>
+                <select class="gradient">
+                    <option>Machine Learning</option>
+                </select>
+            </div> {% endcomment %}
+                {# <label>Key Words:</label> #}
+                <input type="text" class="gradient" id="searchInput" value="filter by keyword, title or author"/>
+        </div>
+    </div>
+    <div class="compBlockRightContainer">
+        <div class="container" id="competitionListContainer"> 
+        </div>
+    </div>
+     <div class="competitionTilePreload" id="competitionTilePreload">
+          <div class="competitionPreloader"></div>
+        </div>
+</div></div>
+<script src="{% static "site/js/CompetitionViewTs.js" %}"></script>
+{% endblock %}

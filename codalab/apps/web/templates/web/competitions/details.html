@@ -1,0 +1,147 @@
+{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block title %}Competition Details{% endblock %}
+{% block extra_head %}
+<script src="{% static "site/js/fileUpload.js" %}"></script>
+<script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
+{% endblock %}
+{% block body %}
+<div class="mainContainer">
+<div class="CompetitionsDetailContainer">
+    <section class="competitionsDetailHeader">
+        <figure class="competitionsProfileImage">
+            <img src="@imgSource" width="175" height="123" />
+        </figure>
+        <div class="competitionsHeaderTitle">
+            <div class="container">
+                <h2>@Html.DisplayFor(model => model.Title)</h2>
+                <label id="lblLastModifiedDate">by @Html.DisplayFor(model => model.By) - </label>
+                   @Html.HiddenFor(model => model.LastModified)
+                <input id="submissionId" name="submissionId"  type="hidden" />
+                <input id="activePhase" name="activePhase"  type="hidden" />
+                <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
+                <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
+
+            </div>
+            <div class="StatusStripContainer">
+                <div class="challStatusStripTxt">
+                    <div class="dataStatusHolder">
+
+                        <span></span>
+                    </div>
+                  
+                </div>
+                <div class="challStatusStrip">
+                    <div class="challStatusStripLevel">
+                    </div>
+                    <section class="challStatusStripSection">
+                    </section>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="competitionsDetailTabArea">
+
+        <ul class="competitionsDetailTabTop">
+            <li class="tab1 active">Learn the details</li>
+            <li class="tab2" id="tabA">Participate</li>
+            <li class="tab3">See the results</li>
+        </ul>
+        <ul class="competitionsDetailTabBlock">
+            <li class="tab1">
+                <div class="competitionsDetailTab">
+
+                    <div class="CompetitionsDetailLft">
+                        <nav>
+                            <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftLtd">
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="CompetitionsDetailRit">
+                        <div id="subContainerBlock">
+                        </div>
+                        <div class="preloader"></div>
+                    </div>
+                </div>
+            </li>
+            <li class="tab2">
+                <section class="phaseToggleBtnContainer" id="phaseToggleBtnContainerSubmitPage">
+                </section>
+                <div class="">
+                    <div class="participateInfoBlock" id="participateInfoBlock">
+                        <div class="infoStatusBar"></div>
+                        <div class="labelArea">
+                            <label id="registerCompetitionLabel" class="regApprovLabel">You must be logged in before you can register </label>
+                            <label id="rejectionReasonLabel" class="regApprovLabel noBold" ></label>
+                            <input id="CompetitionId" type="hidden" value="@Model.CompetitionId" />
+                            @if (Request.IsAuthenticated)
+                            {
+
+                                <script type="text/javascript">
+                                    $(document).ready(function () {
+                                        var CompetitionDetails = new Competition.CompetitionDetails();
+                                        CompetitionDetails.checkRegisterStatus();
+                                        $("#termsAndConditions").click(function () { CompetitionDetails.redirectToCompetitionRules(); });
+                                    });
+                                    </script>
+
+                                <div class="container" id="registerOptionContainer">
+                                    <div class="containerSpace">
+                                        <p>To participate in this competition, you must accept its specific terms and conditions.
+                                           After you register, the competition organizer will review your application and notify you
+                                           when your participation is approved.
+                                        </p>
+                                    </div>
+                                    <div class="chkRegisterContainer">
+                                        <input id="chkRegister" type="checkbox" />
+                                        <span>I accept the  <a id="termsAndConditions"> terms and conditions </a> of the competition</span>
+                                    </div>
+
+                                    <div class="containerSpace">
+                                        <div class="globalBlueButtonAtag lFloat">
+                                            <a class="registerCompetition" id="registerCompetition"></a>
+                                            <div class="buttonPreloader"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="globalBlueButtonAtag">@Html.ActionLink("Login / create account", "Login", "Account", routeValues: new { ReturnUrl = @returnUrl }, htmlAttributes: new { id = "loginLink", @class = "registerCompetition" })</div>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="competitionsDetailTab" id="tabParticipantContainer" style="display: none;">
+
+                        <div class="CompetitionsDetailLft">
+                            <nav>
+                                <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftParticipate">
+                            </ul>
+                            </nav>
+                           @* @Html.ActionLink("Help: Create a Competition", "../Help/CreateCompetition")*@
+                        </div>
+                        <div class="CompetitionsDetailRit">
+                            <div id="subContainerBlockForParticipate"></div>
+                            <div class="preloader" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="tab3">
+                <section class="phaseToggleBtnContainer" id="phaseToggleBtnContainerResultpage">
+                </section>
+                <div class="">
+                    <div class="seeTheResults">
+                        <table class="prevResultSubmission" id="seeTheResults">  
+                           
+                        </table>
+                    </div>
+
+                </div>
+            </li>
+        </ul>
+    </section>
+</div></div>
+
+{% endblock %}

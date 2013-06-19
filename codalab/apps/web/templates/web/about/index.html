@@ -1,7 +1,7 @@
 ﻿{% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block body %}
-<script language="text/javascript">
+{% block extra_head %}
+<script type="text/javascript">
     $(function () {
         //$("li.active").removeClass("active");
         //
@@ -17,7 +17,8 @@
         $('html,body').animate({ scrollTop: parseInt($('#' + id).offset().top) - 60 }, 'slow');
     }
 </script>
-
+{% endblock %}
+{% block body %}
 <div class="mainContainer">
     <div class="generalContainer mainPageContainer">
         <div class="leftNavigationMenu">
@@ -27,11 +28,6 @@
                 <li onclick="scrollAnimation('competeinchallenges',this)"><a>Compete in challenges</a></li>
                 <li onclick="scrollAnimation('yourdata',this)"><a>Your data in the cloud</a></li>
                 <li onclick="scrollAnimation('glossary',this)"><a>Glossary</a></li>
-                <li>
-                    <br />
-                    <a href='@Url.Action("CreateCompetition", "Help")' title="Get help with creating a competition">
-                    <img src="~/Images/helpicon.png" /></a>
-                </li>
             </ul>
         </div>
         <div class="rightContentArea">
@@ -61,7 +57,7 @@
                  best way to solve a given problem. Problem sets originate from a variety of fields, although in this
                  release the focus is on advancing computer vision through medical image analysis technology. Each
                  competition features a detailed description of the problem, and a set of data against which solutions can
-                 be trained and tested.
+                 be trained and tested. <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>.
                 </p>
 
                 <h1>Your data in the cloud</h1>
@@ -102,8 +98,7 @@
                         <b>User</b> - Someone who creates programs, datasets, experiments and/or notebooks.</li>
                     <li>
                         <b>ePaper</b> - The basic unit of organization of bundles and programs. A notebook is a 
-                    document that lists and describes bundles and programs. Similar to an <a href="http://ipython.org/
-                        ipython-doc/dev/interactive/htmlnotebook.html">IPython notebook</a>, CodaLab notebooks are a 
+                    document that lists and describes bundles and programs. Similar to an <a href="http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html">IPython notebook</a>, CodaLab notebooks are a 
                     sequence of HTML/Markdown blocks interleaved with blocks of code from programs, datasets and 
                     experiments.</li>
                 </ul>
