@@ -9,4 +9,5 @@ urlpatterns = patterns('',
                        url(r'^my/$', TemplateView.as_view(template_name='web/my/index.html'), name='my_codalab'),
                        url(r'^competitions/', include('apps.web.urls.competitions')),                       
                        url(r'^worksheets/', include('apps.web.urls.worksheets')),
+                       url(r'^help/', include('apps.web.urls.help')),
                        )

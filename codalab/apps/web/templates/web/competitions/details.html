@@ -1,6 +1,6 @@
 {% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block title %}Competition - [{{ object.title }}]{% endblock %}
+{% block title %}Competition - [{{ object.info.title }}]{% endblock %}
 {% block extra_head %}
 <script src="{% static "site/js/FileUpload.js" %}"></script>
 <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
