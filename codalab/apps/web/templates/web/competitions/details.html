@@ -1,8 +1,8 @@
 {% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block title %}Competition Details{% endblock %}
+{% block title %}Competition - [{{ object.title }}]{% endblock %}
 {% block extra_head %}
-<script src="{% static "site/js/fileUpload.js" %}"></script>
+<script src="{% static "site/js/FileUpload.js" %}"></script>
 <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
 {% endblock %}
 {% block body %}
@@ -14,9 +14,9 @@
         </figure>
         <div class="competitionsHeaderTitle">
             <div class="container">
-                <h2>@Html.DisplayFor(model => model.Title)</h2>
-                <label id="lblLastModifiedDate">by @Html.DisplayFor(model => model.By) - </label>
-                   @Html.HiddenFor(model => model.LastModified)
+                <h2>{{ object.title }}</h2>
+                <label id="lblLastModifiedDate"> -- by -- </label>
+                   {# @Html.HiddenFor(model => model.LastModified) #} 
                 <input id="submissionId" name="submissionId"  type="hidden" />
                 <input id="activePhase" name="activePhase"  type="hidden" />
                 <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
@@ -73,9 +73,9 @@
                         <div class="labelArea">
                             <label id="registerCompetitionLabel" class="regApprovLabel">You must be logged in before you can register </label>
                             <label id="rejectionReasonLabel" class="regApprovLabel noBold" ></label>
-                            <input id="CompetitionId" type="hidden" value="@Model.CompetitionId" />
-                            @if (Request.IsAuthenticated)
-                            {
+                            <input id="CompetitionId" type="hidden" value="{{ object.pk }}" />
+			    {% if request.user.is_authenticated %}
+                           
 
                                 <script type="text/javascript">
                                     $(document).ready(function () {
@@ -104,11 +104,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            }
-                            else
-                            {
-                                <div class="globalBlueButtonAtag">@Html.ActionLink("Login / create account", "Login", "Account", routeValues: new { ReturnUrl = @returnUrl }, htmlAttributes: new { id = "loginLink", @class = "registerCompetition" })</div>
-                            }
+                           {% else %}
+                                <div class="globalBlueButtonAtag">LOGIN/REGISTER link goes here</div>
+                            {% endif %}
                         </div>
 
                     </div>
@@ -119,7 +117,7 @@
                                 <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftParticipate">
                             </ul>
                             </nav>
-                           @* @Html.ActionLink("Help: Create a Competition", "../Help/CreateCompetition")*@
+                           {# @Html.ActionLink("Help: Create a Competition", "../Help/CreateCompetition") #}
                         </div>
                         <div class="CompetitionsDetailRit">
                             <div id="subContainerBlockForParticipate"></div>
@@ -143,5 +141,4 @@
         </ul>
     </section>
 </div></div>
-
 {% endblock %}

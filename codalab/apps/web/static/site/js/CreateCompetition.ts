@@ -1,5 +1,5 @@
-/// <reference path="../jquery.d.ts" />
-/// <reference path="../jqueryui.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
+/// <reference path="../../lib/jq/jqueryui.d.ts" />
 /// <reference path="./FileUpload.ts" />
 module Competition {
     export class CreateCompetition extends FileUpload.FileUploadFile {

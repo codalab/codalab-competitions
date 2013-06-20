@@ -1,13 +1,16 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView,DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.web import models
 
 class CompetitionTabDetails(TemplateView):
     pass
 
+class CompetitionDetails(DetailView):
+    model = models.Competition
+
 class CompetitionPageDetails(TemplateView):
     pass
-
+        
 class CompetitionSubmissionsPage(TemplateView):
     pass
 
@@ -16,6 +19,8 @@ class CompetitionResultsPage(TemplateView):
 
 class CompetitionDownloadDataset(TemplateView):
     pass
+
+
 
 ## Partials
 

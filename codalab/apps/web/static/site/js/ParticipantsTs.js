@@ -2,7 +2,7 @@ var __extends = this.__extends || function (d, b) {
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
-};
+}
 var Competition;
 (function (Competition) {
     var Participants = (function (_super) {
@@ -39,14 +39,16 @@ var Competition;
                     $(obj).parent().siblings("p").text("Participation approved");
                     $(obj).parent().hide();
                     $(obj).parent().siblings(".buttonPreloader").hide();
-                } else if(data.status == 3) {
-                    $(obj).parent().siblings("p").text("Participation rejected");
-                    $(obj).parent().parent().append("<p style='color:red'>Reason: " + data.reason + "<p>");
-                    $(obj).parent().hide();
-                    $(obj).parent().siblings(".buttonPreloader").hide();
                 } else {
+                    if(data.status == 3) {
+                        $(obj).parent().siblings("p").text("Participation rejected");
+                        $(obj).parent().parent().append("<p style='color:red'>Reason: " + data.reason + "<p>");
+                        $(obj).parent().hide();
+                        $(obj).parent().siblings(".buttonPreloader").hide();
+                    } else {
+                    }
                 }
-                ;
+                ; ;
             };
             var onError = function (xhr, status, err) {
                 $(obj).parent().removeClass("disabledStatus");
@@ -73,6 +75,7 @@ var Competition;
     })(Ajax.AjaxRequest);
     Competition.Participants = Participants;    
 })(Competition || (Competition = {}));
+
 $(function () {
     var Participants = new Competition.Participants();
     $("li.active").removeClass("active");

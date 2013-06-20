@@ -1,5 +1,6 @@
 # Django settings for codalab project.
 import os,sys
+from django.conf import global_settings
 
 SETTINGS_DIR=os.path.dirname(__file__)
 PROJECT_APP_DIR=os.path.dirname(SETTINGS_DIR)
@@ -119,6 +120,16 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+     "allauth.account.context_processors.account",
+     "allauth.socialaccount.context_processors.socialaccount",
+)
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    )
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -126,13 +137,16 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    
+    'django.contrib.admin',
+
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
    
     'apps.web',
-
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
 # A sample logging configuration. The only tangible logging

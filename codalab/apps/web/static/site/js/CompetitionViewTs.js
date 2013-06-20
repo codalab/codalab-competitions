@@ -5,7 +5,7 @@ var Competition;
         CompetitionView.page = 0;
         CompetitionView.loadSucess = true;
         CompetitionView.prototype.articleClick = function (obj) {
-            window.location.href = "/Competitions/Details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competition/details/" + $(obj).parent().children("#competitionID").val();
         };
         CompetitionView.prototype.ajaxJSONRequest = function (xUrl, succ, err, data) {
             $.ajax({
@@ -25,7 +25,7 @@ var Competition;
                 CompetitionView.page++;
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
-                var data = 'page=' + (CompetitionView.page - 1) + '&per_page=' + 6;
+                var data = 'page=' + CompetitionView.page + '&per_page=' + 6;
                 var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if($(data).text() !== "There are no competitions.") {

@@ -1,4 +1,4 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
 module Ajax {
     export class AjaxRequest {
         public ajaxJSONRequest(xUrl:string, succ, err, data) {

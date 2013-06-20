@@ -1,11 +1,11 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
 module Competition {
 
     export class CompetitionView {
         static page = 0;
         static loadSucess = true;
         private articleClick(obj) {
-            window.location.href = "/competition/details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competitions/details/" + $(obj).parent().children("#competitionID").val();
         }
 
         private ajaxJSONRequest(xUrl: string, succ, err, data) {
@@ -28,7 +28,7 @@ module Competition {
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
                 // var data = { "pageNumber": CompetitionView.page - 1, "pageSize": 6 };
-		var data = 'page=' + (CompetitionView.page - 1) + '&per_page=' + 6;
+		var data = 'page=' +  CompetitionView.page + '&per_page=' + 6;
                 var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no competitions.") {

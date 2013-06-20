@@ -1,4 +1,4 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
 /// <reference path="./AjaxRequest.ts" />
 /// <reference path="./CompetitionDetailsTs.ts" />
 /// <reference path="./CreateCompetition.ts" />

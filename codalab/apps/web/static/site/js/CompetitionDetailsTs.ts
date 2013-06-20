@@ -1,5 +1,5 @@
-/// <reference path="../jquery.d.ts" />
-/// <reference path="../jqueryui.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
+/// <reference path="../../lib/jq/jqueryui.d.ts" />
 /// <reference path="./FileUpload.ts" />
 module Competition {
     export class CompetitionDetails extends FileUpload.FileUploadFile {
@@ -155,7 +155,7 @@ module Competition {
                 $("<tr id='preLoaderRow'><td colspan='5'><div class='coloumPreloader'></div></td></tr>").insertAfter($("#seeTheResults tr:last"));
                 var data = { "pageNumber": CompetitionDetails.page, "pageSize": 6 };
                 CompetitionDetails.page++;
-                var xUrl = "/Competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue + "/" + parseInt($("#selectedRank").val());
+                var xUrl = "/competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue + "/" + parseInt($("#selectedRank").val());
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no results.") {
                         CompetitionDetails.loadSucess = true;

@@ -36,6 +36,7 @@ class CompetitionInfo(models.Model):
         return self.title
 
 class Competition(models.Model):
+    name = models.CharField(max_length=100)
     has_registration = models.BooleanField(default=False)
     info = models.ForeignKey(CompetitionInfo, related_name='competition_info',
                              null=True,blank=True)
