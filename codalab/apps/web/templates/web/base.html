@@ -20,15 +20,18 @@
             <div class="headerContent">
                 <div class="container">
                     <div class="logo"></div>
-                    {% comment %} <div class="socialNetworkBlock">
-                        <div class="twitIcon"></div>
-                        <div class="fBIcon"></div>
-                    </div> {% endcomment %}
+                    
                     <div class="loginArea">
                         <section id="login">
-                           {#  @Html.Partial("_LoginPartial") #}
+			  {% if user.is_authenticated %}
+				<li><a href="{% url 'account_logout' %}">Log Off</a></li>
+			  {% else %}
+				<li><a href="{% url 'account_login' %}">Login</a></li>
+				<li><a href="{% url 'account_signup' %}">Register</a></li>
+			  {% endif %}
+                           
                         </section>
-                        {# <a class="loginButton">username<span></span></a> #}
+                  
                     </div>
                 </div>
                 <div class="navContainer">
@@ -57,16 +60,13 @@
                 {% block body %} {% endblock %}
             </section>
         </div>
-        {% comment %}   <footer>
+         <footer>
             <div class="content-wrapper">
                 <div class="float-left">
-                    <p>&copy; @DateTime.Now.Year </p>
+                    <p>&copy; 2013 </p>
                 </div>
             </div>
         </footer>
-         @Scripts.Render("~/bundles/jquery")*@
-           @RenderSection("scripts", required: false)
-	{% endcomment %}
     </div>
     <div class="uploadpopup">
         <div class="uploadpopupBlock">
