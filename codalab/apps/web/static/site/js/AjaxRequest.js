@@ -67,3 +67,4 @@ var Ajax;
     })();
     Ajax.AjaxRequest = AjaxRequest;    
 })(Ajax || (Ajax = {}));
+

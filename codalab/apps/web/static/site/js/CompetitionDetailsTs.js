@@ -2,7 +2,7 @@ var __extends = this.__extends || function (d, b) {
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
-};
+}
 var Competition;
 (function (Competition) {
     var CompetitionDetails = (function (_super) {
@@ -15,6 +15,8 @@ var Competition;
         CompetitionDetails.pageSubmission = 0;
         CompetitionDetails.loadSucess = false;
         CompetitionDetails.loadSucessSubmisstion = false;
+        CompetitionDetails.currentMainTab = undefined;
+        CompetitionDetails.currentSubTab = undefined;
         CompetitionDetails.timerId = 0;
         CompetitionDetails.prototype.requestPartialViewcontroller = function (pageId) {
             CompetitionDetails.prototype.hidePhaseToggleBtn();
@@ -104,27 +106,37 @@ var Competition;
         CompetitionDetails.prototype.setRegisterButtonLabel = function (status, reason) {
             CompetitionDetails.prototype.hideAllTabSections();
             switch(status) {
-                case 0:
+                case 0: {
                     CompetitionDetails.prototype.showRegisterButton("register", "You have not yet registered for this competition");
                     CompetitionDetails.prototype.showRegisterSection();
                     break;
-                case 1:
+
+                }
+                case 1: {
                     CompetitionDetails.prototype.showRegisterLabel("Your registration is pending approval");
                     $("#participateInfoBlock").addClass("pendingApproval");
                     break;
-                case 2:
+
+                }
+                case 2: {
                     $("#participateInfoBlock").hide();
                     CompetitionDetails.prototype.showTabSections();
                     break;
-                case 3:
+
+                }
+                case 3: {
                     CompetitionDetails.prototype.showRegisterLabel("Your registration has been rejected.");
                     $("#rejectionReasonLabel").show();
                     $("#rejectionReasonLabel").text(reason);
                     $("#participateInfoBlock").addClass("rejectedApproval");
                     break;
-                default:
+
+                }
+                default: {
                     CompetitionDetails.prototype.showRegisterLabel("status not available");
                     break;
+
+                }
             }
         };
         CompetitionDetails.prototype.showRegisterButton = function (text, label) {
@@ -145,7 +157,7 @@ var Competition;
             } else {
                 $("#registerCompetition").addClass("disabledStatus");
             }
-            ;
+            ; ;
         };
         CompetitionDetails.prototype.getCompetitionResults = function (phaseValue) {
             $("#seeTheResults div.competitionTileNoRecord").remove();
@@ -444,10 +456,12 @@ var Competition;
                     $("#selctedPhaseButton").val(currentPhase.toString());
                     if(currentPhase < parseInt($("#activePhase").val())) {
                         $("#plblSubmission").text("View your previous submissions");
-                    } else if(currentPhase === parseInt($("#activePhase").val())) {
-                        $("#plblSubmission").text("Submit a new result set or view your previous submissions.");
                     } else {
-                        $("#plblSubmission").text("This phase of the competition has not started. You cannot submit results at this time");
+                        if(currentPhase === parseInt($("#activePhase").val())) {
+                            $("#plblSubmission").text("Submit a new result set or view your previous submissions.");
+                        } else {
+                            $("#plblSubmission").text("This phase of the competition has not started. You cannot submit results at this time");
+                        }
                     }
                     Competition.CompetitionDetails.pageSubmission = 0;
                     CompetitionDetails.prototype.getSubmissionsPageResults($("#selctedPhaseButton").val());
@@ -471,16 +485,20 @@ var Competition;
             var arrTabs = window.location.hash.split("-");
             if(arrTabs !== undefined) {
                 switch(arrTabs.length) {
-                    case 1:
+                    case 1: {
                         if($.trim(arrTabs[0]) !== "") {
                             CompetitionDetails.currentMainTab = $.trim(arrTabs[0].replace("#", ""));
                             CompetitionDetails.currentSubTab = undefined;
                         }
                         break;
-                    case 2:
+
+                    }
+                    case 2: {
                         CompetitionDetails.currentMainTab = $.trim(arrTabs[0].replace("#", ""));
                         CompetitionDetails.currentSubTab = $.trim(arrTabs[1]);
                         break;
+
+                    }
                 }
             }
         };
@@ -541,6 +559,7 @@ var Competition;
     })(FileUpload.FileUploadFile);
     Competition.CompetitionDetails = CompetitionDetails;    
 })(Competition || (Competition = {}));
+
 $(function () {
     var CompetitionDetails = new Competition.CompetitionDetails();
     Competition.CompetitionDetails.page = 0;
@@ -576,21 +595,23 @@ $(function () {
                 $("#seeTheResults > tr").remove();
                 $("#selctedPhaseButton").val($("#activePhase").val());
                 CompetitionDetails.getCompetitionResults($("#activePhase").val());
-            } else if($(this).hasClass("tab2")) {
-                if((Competition.CompetitionDetails.currentMainTab) !== "tab2") {
-                    window.location.hash = "tab2";
-                }
-                $(".tabArea").hide();
-                $("#subContainerBlockForParticipate").html("");
-                $('.CompetitionsDetailLftUl > li').removeClass('active');
-                CompetitionDetails.getLftTabsForCompetition(1);
             } else {
-                if(Competition.CompetitionDetails.currentMainTab !== "tab1") {
-                    window.location.hash = "tab1";
+                if($(this).hasClass("tab2")) {
+                    if((Competition.CompetitionDetails.currentMainTab) !== "tab2") {
+                        window.location.hash = "tab2";
+                    }
+                    $(".tabArea").hide();
+                    $("#subContainerBlockForParticipate").html("");
+                    $('.CompetitionsDetailLftUl > li').removeClass('active');
+                    CompetitionDetails.getLftTabsForCompetition(1);
+                } else {
+                    if(Competition.CompetitionDetails.currentMainTab !== "tab1") {
+                        window.location.hash = "tab1";
+                    }
+                    $("#subContainerBlock").html("");
+                    $('.CompetitionsDetailLftUl > li').removeClass('active');
+                    CompetitionDetails.getLftTabsForCompetition(0);
                 }
-                $("#subContainerBlock").html("");
-                $('.CompetitionsDetailLftUl > li').removeClass('active');
-                CompetitionDetails.getLftTabsForCompetition(0);
             }
         }
     });
@@ -606,9 +627,11 @@ $(function () {
         if($(window).scrollTop() == $(document).height() - $(window).height() - 1) {
             if($(".competitionsDetailTabTop > li.active").hasClass("tab3")) {
                 CompetitionDetails.getCompetitionResults($("#selctedPhaseButton").val());
-            } else if($(".competitionsDetailTabTop > li.active").hasClass("tab2")) {
-                if($("#tab10").hasClass("active")) {
-                    CompetitionDetails.getSubmissionsPageResults($("#selctedPhaseButton").val());
+            } else {
+                if($(".competitionsDetailTabTop > li.active").hasClass("tab2")) {
+                    if($("#tab10").hasClass("active")) {
+                        CompetitionDetails.getSubmissionsPageResults($("#selctedPhaseButton").val());
+                    }
                 }
             }
         }

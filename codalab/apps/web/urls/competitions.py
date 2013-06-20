@@ -3,8 +3,15 @@ from django.views.generic import TemplateView
 
 from .. import views
 
+partials_patterns = patterns('',
+                             url(r'^indexpage$', views.CompetitionIndexPartial.as_view(template_name='web/competitions/_indexpage.html'),
+                                 name='_competition_indexpage'),
+                             
+                             )
+
 urlpatterns = patterns('',
                        url(r'^$', TemplateView.as_view(template_name='web/competitions/index.html'), name='competitions'),
+                       url(r'^_partials/', include(partials_patterns)),
                        url(r'^details/(?P<id>\d+)/tab/(?P<tab_number>\d+)$',
                            views.CompetitionTabDetails.as_view(template_name='web/competitions/tab_details.html'), 
                            name='competition_page_tabs'),
@@ -20,5 +27,7 @@ urlpatterns = patterns('',
                        url(r'^(?P<id>\d+)/dataset/(?P<dataset_id>\d+)$',
                            views.CompetitionDownloadDataset.as_view(template_name='web/competitions/download_dataset.html'), 
                            name='competition_download_dataset'),
+                       
                        )
 
+                        

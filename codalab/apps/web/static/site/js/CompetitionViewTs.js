@@ -9,11 +9,11 @@ var Competition;
         };
         CompetitionView.prototype.ajaxJSONRequest = function (xUrl, succ, err, data) {
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: xUrl,
                 cache: false,
                 contentType: 'application/json',
-                data: JSON.stringify(data),
+                data: data,
                 success: succ,
                 error: err
             });
@@ -25,11 +25,8 @@ var Competition;
                 CompetitionView.page++;
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
-                var data = {
-                    "pageNumber": CompetitionView.page - 1,
-                    "pageSize": 6
-                };
-                var xUrl = "/Competitions/IndexPage";
+                var data = 'page=' + (CompetitionView.page - 1) + '&per_page=' + 6;
+                var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if($(data).text() !== "There are no competitions.") {
                         CompetitionView.loadSucess = true;
@@ -62,6 +59,7 @@ var Competition;
     })();
     Competition.CompetitionView = CompetitionView;    
 })(Competition || (Competition = {}));
+
 $(function () {
     var CompetitionView = new Competition.CompetitionView();
     $("#competitionListContainer").append($("#competitionTilePreload").clone());
@@ -87,8 +85,10 @@ $(function () {
     $("#searchInput").on("focus", function () {
         if($("#searchInput").val() === "filter by keyword, title or author") {
             $("#searchInput").val("");
-        } else if($("#searchInput").val() === "") {
-            $("#searchInput").val("filter by keyword, title or author");
+        } else {
+            if($("#searchInput").val() === "") {
+                $("#searchInput").val("filter by keyword, title or author");
+            }
         }
     });
 });

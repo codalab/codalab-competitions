@@ -2,7 +2,7 @@ var __extends = this.__extends || function (d, b) {
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
-};
+}
 var Competition;
 (function (Competition) {
     var CreateCompetition = (function (_super) {
@@ -19,7 +19,7 @@ var Competition;
             if(!CreateCompetition.prototype.confirmNavigation()) {
                 return;
             }
-            ;
+            ; ;
             var objLength = $(obj).attr("id").length;
             $("#Step").val($(obj).attr("id").substring(objLength - 1, objLength));
             CreateCompetition.prototype.tabSelection();
@@ -49,19 +49,25 @@ var Competition;
             $("#SaveFlag").val("True");
             var step = parseInt($("#Step").val());
             switch(step) {
-                case 1:
+                case 1: {
                     CreateCompetition.prototype.ajaxRequestForSavingCompetitionInfo(obj);
                     event.preventDefault();
                     break;
-                case 2:
+
+                }
+                case 2: {
                     CreateCompetition.prototype.savePhases(obj);
                     event.preventDefault();
                     break;
-                case 3:
+
+                }
+                case 3: {
                     $(obj).removeClass("disabledStatus");
                     CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageContent(obj);
                     event.preventDefault();
                     break;
+
+                }
             }
         };
         CreateCompetition.prototype.saveContinue = function (event, obj) {
@@ -89,18 +95,24 @@ var Competition;
         };
         CreateCompetition.prototype.managePublishButton = function (data) {
             switch(data) {
-                case 1:
+                case 1: {
                     ($("#Public")[0]).checked = false;
                     $("#btnPublish").addClass("disabledStatus");
                     break;
-                case 2:
+
+                }
+                case 2: {
                     ($("#Public")[0]).checked = true;
                     $("#btnPublish").addClass("disabledStatus");
                     break;
-                case 3:
+
+                }
+                case 3: {
                     ($("#Public")[0]).checked = true;
                     $("#btnPublish").removeClass("disabledStatus");
                     break;
+
+                }
             }
             CreateCompetition.prototype.makePublicNotification();
         };
@@ -182,7 +194,7 @@ var Competition;
             } else {
                 HTML = $("#textEditorTxtArea1").val();
             }
-            ;
+            ; ;
             rank = $.trim($(".textEditorLftTab li.active").attr("id").replace("tab", ""));
             data = data = {
                 "rank": rank,
@@ -222,7 +234,7 @@ var Competition;
             } else {
                 xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/private";
             }
-            ;
+            ; ;
             var onSuccess = function (data) {
                 CreateCompetition.prototype.managePublishButton(data);
                 $("#valueChanged").val("");
@@ -242,7 +254,7 @@ var Competition;
                     CreateCompetition.prototype.changeSaveButtonText();
                     return false;
                 }
-                ;
+                ; ;
             } else {
                 return true;
             }
@@ -448,6 +460,7 @@ var Competition;
     })(FileUpload.FileUploadFile);
     Competition.CreateCompetition = CreateCompetition;    
 })(Competition || (Competition = {}));
+
 $(function () {
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
@@ -569,9 +582,11 @@ $(function () {
         if(TrStartDate === "") {
             alert("Please enter Training phase start date");
             return false;
-        } else if(TeStartDate === "") {
-            alert("Please enter testing phase start date.");
-            return false;
+        } else {
+            if(TeStartDate === "") {
+                alert("Please enter testing phase start date.");
+                return false;
+            }
         }
         CreateCompetition.savePhases(this);
     });

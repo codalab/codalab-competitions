@@ -1,8 +1,3 @@
-var __extends = this.__extends || function (d, b) {
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var FileUpload;
 (function (FileUpload) {
     var FileUploadFile = (function (_super) {
@@ -114,46 +109,50 @@ var FileUpload;
                         if(data.status == 8) {
                             if(reason === 1) {
                                 ($("#imgProfileImage")[0]).src = "/file/download/" + token;
-                            } else if(reason === 3) {
-                                if(FileUpload.FileUploadFile.phaseValue === 1) {
-                                    $("#errorLabelPh1").text("");
-                                    $("#errorLabelPh1").css("display", "inline-block");
-                                    $("#errorLabelPh1").text(data.message);
-                                    $("#ph1datasetimg div").removeClass().addClass('expCollDatasetExp');
-                                    $("#ph1datasetimg").parents("section").siblings(".downloadedContainer").hide();
-                                } else {
-                                    $("#errorLabelPh2").text("");
-                                    $("#errorLabelPh2").css("display", "inline-block");
-                                    $("#errorLabelPh2").text(data.message);
-                                    $("#ph2datasetimg div").removeClass().addClass('expCollDatasetExp');
-                                    $("#ph2datasetimg").parents("section").siblings(".downloadedContainer").hide();
-                                }
-                                var CreateCompetition = new Competition.CreateCompetition();
-                                CreateCompetition.ajaxRequestForManagingPublishTab();
                             } else {
-                                Competition.CompetitionDetails.prototype.requestPartialViewcontroller(10);
-                                FileUpload.FileUploadFile.uploadResult = true;
-                            }
-                            $("#imageProcess").css("display", "none");
-                            clearInterval(FileUpload.FileUploadFile.timerId);
-                            $(".preloaderInputImg").hide();
-                        } else if(data.status == 9) {
-                            $("#resultStatus").show();
-                            $("#resultStatus").text(data.message);
-                            $("#imageProcess").css("display", "none");
-                            $(".preloaderInputImg").hide();
-                            if(reason === 3) {
-                                if(FileUpload.FileUploadFile.phaseValue === 1) {
-                                    $("#errorLabelPh1").css("display", "inline-block");
-                                    $("#errorLabelPh1").text("");
-                                    $("#errorLabelPh1").text(data.message);
+                                if(reason === 3) {
+                                    if(FileUpload.FileUploadFile.phaseValue === 1) {
+                                        $("#errorLabelPh1").text("");
+                                        $("#errorLabelPh1").css("display", "inline-block");
+                                        $("#errorLabelPh1").text(data.message);
+                                        $("#ph1datasetimg div").removeClass().addClass('expCollDatasetExp');
+                                        $("#ph1datasetimg").parents("section").siblings(".downloadedContainer").hide();
+                                    } else {
+                                        $("#errorLabelPh2").text("");
+                                        $("#errorLabelPh2").css("display", "inline-block");
+                                        $("#errorLabelPh2").text(data.message);
+                                        $("#ph2datasetimg div").removeClass().addClass('expCollDatasetExp');
+                                        $("#ph2datasetimg").parents("section").siblings(".downloadedContainer").hide();
+                                    }
+                                    var CreateCompetition = new Competition.CreateCompetition();
+                                    CreateCompetition.ajaxRequestForManagingPublishTab();
                                 } else {
-                                    $("#errorLabelPh2").text("");
-                                    $("#errorLabelPh2").css("display", "inline-block");
-                                    $("#errorLabelPh2").text(data.message);
+                                    Competition.CompetitionDetails.prototype.requestPartialViewcontroller(10);
+                                    FileUpload.FileUploadFile.uploadResult = true;
                                 }
                             }
+                            $("#imageProcess").css("display", "none");
                             clearInterval(FileUpload.FileUploadFile.timerId);
+                            $(".preloaderInputImg").hide();
+                        } else {
+                            if(data.status == 9) {
+                                $("#resultStatus").show();
+                                $("#resultStatus").text(data.message);
+                                $("#imageProcess").css("display", "none");
+                                $(".preloaderInputImg").hide();
+                                if(reason === 3) {
+                                    if(FileUpload.FileUploadFile.phaseValue === 1) {
+                                        $("#errorLabelPh1").css("display", "inline-block");
+                                        $("#errorLabelPh1").text("");
+                                        $("#errorLabelPh1").text(data.message);
+                                    } else {
+                                        $("#errorLabelPh2").text("");
+                                        $("#errorLabelPh2").css("display", "inline-block");
+                                        $("#errorLabelPh2").text(data.message);
+                                    }
+                                }
+                                clearInterval(FileUpload.FileUploadFile.timerId);
+                            }
                         }
                     } else {
                         $("#imageProcess").css("display", "none");
@@ -187,3 +186,4 @@ var FileUpload;
     })(Ajax.AjaxRequest);
     FileUpload.FileUploadFile = FileUploadFile;    
 })(FileUpload || (FileUpload = {}));
+

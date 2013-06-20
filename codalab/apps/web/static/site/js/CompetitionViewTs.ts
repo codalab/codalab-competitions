@@ -5,16 +5,16 @@ module Competition {
         static page = 0;
         static loadSucess = true;
         private articleClick(obj) {
-            window.location.href = "/Competitions/Details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competition/details/" + $(obj).parent().children("#competitionID").val();
         }
 
         private ajaxJSONRequest(xUrl: string, succ, err, data) {
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: xUrl,
                 cache: false,
                 contentType: 'application/json',
-                data: JSON.stringify(data),
+                data: data,
                 success: succ,
                 error: err
             });
@@ -27,8 +27,9 @@ module Competition {
                 CompetitionView.page++;
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
-                var data = { "pageNumber": CompetitionView.page - 1, "pageSize": 6 };
-                var xUrl = "/Competitions/IndexPage";
+                // var data = { "pageNumber": CompetitionView.page - 1, "pageSize": 6 };
+		var data = 'page=' + (CompetitionView.page - 1) + '&per_page=' + 6;
+                var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no competitions.") {
                         CompetitionView.loadSucess = true;

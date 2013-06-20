@@ -15,6 +15,13 @@ class ParticipationStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+class TabVisibility(models.Model):
+    name = models.CharField(max_length=30)
+    codename = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.name 
+
 class CompetitionInfo(models.Model):
     competition = models.ForeignKey('Competition')
     title = models.CharField(max_length=100)
@@ -30,8 +37,11 @@ class CompetitionInfo(models.Model):
 
 class Competition(models.Model):
     has_registration = models.BooleanField(default=False)
-    info = models.ForeignKey(CompetitionInfo, related_name='competition_info',null=True,blank=True)
-    staged_info = models.ForeignKey(CompetitionInfo, related_name='competition_staged_info',null=True,blank=True)
+    info = models.ForeignKey(CompetitionInfo, related_name='competition_info',
+                             null=True,blank=True)
+    staged_info = models.ForeignKey(CompetitionInfo, 
+                                    related_name='competition_staged_info',
+                                    null=True,blank=True)
     is_public = models.BooleanField(default=False)
     has_edits = models.BooleanField(default=False)
 
