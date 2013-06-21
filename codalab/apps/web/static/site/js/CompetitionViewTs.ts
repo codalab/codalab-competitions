@@ -14,7 +14,7 @@ module Competition {
                 url: xUrl,
                 cache: false,
                 contentType: 'application/json',
-                data: data,
+                data: JSON.stringify(data),
                 success: succ,
                 error: err
             });
@@ -27,8 +27,7 @@ module Competition {
                 CompetitionView.page++;
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
-                // var data = { "pageNumber": CompetitionView.page - 1, "pageSize": 6 };
-		var data = 'page=' +  CompetitionView.page + '&per_page=' + 6;
+                var data = 'page=' +  CompetitionView.page + '&per_page=' + 6;
                 var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no competitions.") {

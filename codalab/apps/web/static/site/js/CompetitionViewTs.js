@@ -5,7 +5,7 @@ var Competition;
         CompetitionView.page = 0;
         CompetitionView.loadSucess = true;
         CompetitionView.prototype.articleClick = function (obj) {
-            window.location.href = "/competition/details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competitions/details/" + $(obj).parent().children("#competitionID").val();
         };
         CompetitionView.prototype.ajaxJSONRequest = function (xUrl, succ, err, data) {
             $.ajax({
@@ -13,7 +13,7 @@ var Competition;
                 url: xUrl,
                 cache: false,
                 contentType: 'application/json',
-                data: data,
+                data: JSON.stringify(data),
                 success: succ,
                 error: err
             });

@@ -1,5 +1,46 @@
 {% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block title %}My Competitions{% endblock %}
+{% block title %}My CodaLab{% endblock %}
+{% block extra_head %}
+<script src="{% static "site/js/CompetitionListTs.js" %}"></script>
+{% endblock %}
 {% block body %}
+<div class="mainContainer">
+    <div class="compBlockTbl">
+        <div class="compBlockRightContainer">
+            <div class="container myCodalabBlock myCodalabTabContainer">
+                <ul class="myCodalabTabArea">
+                    <li class="tab1 highlightactive" tabindex="1" id="tabCompetitionIManage">Competitions I Manage
+                    </li>
+                    <li class="tab2" tabindex="2" id="tabCompetitionIParticipate">Competitions I Participate In
+                    </li>
+                    <li class="tab3" tabindex="3">My Worksheets
+                    </li>
+                </ul>
+                <ul class="myCodalabTabContent">
+                    <li tabindex="1" class="tab1">
+                        <div class="competitionsDetailTab">
+                            <div class="CompetitionsDetailLft">
+                                <div class="globalBlueButtonAtag">
+                                    <a href="{% url 'my_create_competition' %}">Create Competition</a>
+                                    <div class="helpLinkBlock"><a class="helpLinkIcon compManageHelp" href='{% url "help_create_competition" %}' title="Get help with creating a competition"></a></div>
+                                </div>
+                            </div>
+                            <div class="CompetitionsDetailRit" id="tabAreaCompetitionIManage"></div>
+                        </div>
+                    </li>
+                    <li tabindex="2" class="container tab2" id="tabAreaCopetitionIParticipate"></li>
+                    <li tabindex="3" class="container tab3">
+                        <div class="competitionTileNoRecord">
+                            <p>You do not have any Worksheets.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="competitionTilePreload" id="competitionTilePreload">
+            <div class="competitionPreloader"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}

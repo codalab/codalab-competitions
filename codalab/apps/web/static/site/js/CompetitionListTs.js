@@ -6,7 +6,7 @@ var Competition;
         CompetitionList.pageIParticipate = 0;
         CompetitionList.loadSucess = true;
         CompetitionList.prototype.articleClick = function (obj) {
-            window.location.href = "/Competitions/Details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competition/list/" + $(obj).parent().children("#competitionID").val();
         };
         CompetitionList.doAjaxRequest = function doAjaxRequest(url, containerId, noDataString, page) {
             $("#" + containerId).children("#competitionTilePreload").remove();
@@ -59,7 +59,7 @@ var Competition;
                 };
                 Ajax.AjaxRequest.prototype.ajaxJSONRequest(xUrl, onSuccess, onError, data);
             }
-        };
+        }
         CompetitionList.prototype.showCompetitionIParticipate = function () {
             CompetitionList.loadSucess = true;
             $("#tabAreaCopetitionIParticipate").append($("#competitionTilePreload").clone());
@@ -77,6 +77,7 @@ var Competition;
     })();
     Competition.CompetitionList = CompetitionList;    
 })(Competition || (Competition = {}));
+
 $(function () {
     var CompetitionList = new Competition.CompetitionList();
     $("li.active").removeClass("active");

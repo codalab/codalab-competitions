@@ -1,6 +1,15 @@
 from django.views.generic import TemplateView,DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 from apps.web import models
+
+class LoginRequiredMixin(object):
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 class CompetitionTabDetails(TemplateView):
     pass
@@ -18,6 +27,11 @@ class CompetitionResultsPage(TemplateView):
     pass
 
 class CompetitionDownloadDataset(TemplateView):
+    pass
+
+### Views for My Codalab
+
+class MyIndex(LoginRequiredMixin):
     pass
 
 

@@ -1,4 +1,4 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
 /// <reference path="./AjaxRequest.ts" />
 module Competition {
 

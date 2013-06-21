@@ -35,7 +35,10 @@ var Competition;
                         CompetitionDetails.prototype.getSubmissionsPageResults($("#activePhase").val());
                         CompetitionDetails.prototype.togglePhases($("#activePhase").val());
                         $("#uploadFile").change(function () {
-                            CompetitionDetails.prototype.uploadFile(2);
+                            var onSuccess = function (dataA) {
+                                CompetitionDetails.prototype.requestPartialViewcontroller(10);
+                            };
+                            CompetitionDetails.prototype.uploadFile(2, onSuccess);
                         });
                         $("#submitResults").click(function (e) {
                             $("#uploadFile").click();
@@ -304,10 +307,6 @@ var Competition;
                         $("#preLoaderRow").remove();
                     }
                     CompetitionDetails.prototype.getCurrentLederBoardDetails();
-                    if(FileUpload.FileUploadFile.uploadResult == true) {
-                        $("#resultSubmissionResults").children("tr:first").find("td:#status").text("Processing");
-                        FileUpload.FileUploadFile.uploadResult = false;
-                    }
                 };
                 var onError = function (xhr, status, err) {
                     $("#preLoaderRow").remove();
@@ -322,7 +321,7 @@ var Competition;
             window.open(URL);
         };
         CompetitionDetails.prototype.getCurrentLederBoardDetails = function () {
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + 1 + "/submission/1";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1";
             var onSuccess = function (data) {
                 var currentTickElement = $(".resultSubResultsContainer").find("tr td:first:contains('" + (data.number) + "')").siblings("td.ticked").find("div");
                 $(currentTickElement).removeClass("leaderboardHidden");
@@ -336,7 +335,7 @@ var Competition;
         };
         CompetitionDetails.prototype.updateLeaderBoard = function (submissionID, obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + 1 + "/submission/" + submissionID;
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/" + submissionID;
             var filedata = new FormData();
             if(filedata !== undefined) {
                 filedata.append("submissionId", 2);
@@ -359,7 +358,7 @@ var Competition;
         };
         CompetitionDetails.prototype.deleteLeaderBoard = function (obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/1/submission/1/";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1/";
             var onSuccess = function (data) {
                 $(".leaderboardVisible").addClass("leaderboardHidden");
                 $(obj).siblings("a").removeClass("leaderboardbuttonHidden");

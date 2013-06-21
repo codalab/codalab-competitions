@@ -260,7 +260,7 @@ var Competition;
             }
         };
         CreateCompetition.prototype.getLftTabsForCompetition = function (tabNumber) {
-            var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
+            var xUrl = "/my/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
             var onSuccess = function (data) {
                 if(tabNumber === 0) {
                     $("#textEditorLftTab").html("");
@@ -544,9 +544,25 @@ $(function () {
     });
     $("#uploadFile").change(function () {
         if($("#UploadReason").val() === "3") {
-            CreateCompetition.uploadFile(3);
+            var onSuccess = function (data) {
+                CreateCompetition.ajaxRequestForManagingPublishTab();
+                if(FileUpload.FileUploadFile.phaseValue === 1) {
+                    $("#errorLabelPh1").text("");
+                    $("#errorLabelPh1").css("display", "inline-block");
+                    $("#errorLabelPh1").text(data.message);
+                    $("#ph1datasetimg div").removeClass().addClass('expCollDatasetExp');
+                    $("#ph1datasetimg").parents("section").siblings(".downloadedContainer").hide();
+                } else {
+                    $("#errorLabelPh2").text("");
+                    $("#errorLabelPh2").css("display", "inline-block");
+                    $("#errorLabelPh2").text(data.message);
+                    $("#ph2datasetimg div").removeClass().addClass('expCollDatasetExp');
+                    $("#ph2datasetimg").parents("section").siblings(".downloadedContainer").hide();
+                }
+            };
+            CreateCompetition.uploadFile(3, onSuccess);
         } else {
-            CreateCompetition.uploadFile(1);
+            CreateCompetition.uploadFile(1, "");
         }
     });
     $("#ph1StartDate").datepicker();

@@ -29,7 +29,10 @@ module Competition {
                         CompetitionDetails.prototype.getSubmissionsPageResults($("#activePhase").val());
                         CompetitionDetails.prototype.togglePhases($("#activePhase").val())
                         $("#uploadFile").change(function () {
-                            CompetitionDetails.prototype.uploadFile(2);
+                            var onSuccess = function (dataA) {
+                                CompetitionDetails.prototype.requestPartialViewcontroller(10)
+                            };
+                            CompetitionDetails.prototype.uploadFile(2, onSuccess);
                         });
                         $("#submitResults").click(function (e) {
                             $("#uploadFile").click();
@@ -155,7 +158,7 @@ module Competition {
                 $("<tr id='preLoaderRow'><td colspan='5'><div class='coloumPreloader'></div></td></tr>").insertAfter($("#seeTheResults tr:last"));
                 var data = { "pageNumber": CompetitionDetails.page, "pageSize": 6 };
                 CompetitionDetails.page++;
-                var xUrl = "/competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue + "/" + parseInt($("#selectedRank").val());
+                var xUrl = "/Competitions/" + $("#CompetitionId").val() + "/results/" + phaseValue + "/" + parseInt($("#selectedRank").val());
                 var onSuccess = function (data) {
                     if ($(data).text() !== "There are no results.") {
                         CompetitionDetails.loadSucess = true;
@@ -298,10 +301,10 @@ module Competition {
                     }
                     CompetitionDetails.prototype.getCurrentLederBoardDetails();
                     // We can think one flag setting on database so that this patch of code can remove .// Todo have to handle from server side.
-                    if (FileUpload.FileUploadFile.uploadResult == true) {
-                        $("#resultSubmissionResults").children("tr:first").find("td:#status").text("Processing");
-                        FileUpload.FileUploadFile.uploadResult = false;
-                    }
+                    //if (FileUpload.FileUploadFile.uploadResult == true) {
+                    //    $("#resultSubmissionResults").children("tr:first").find("td:#status").text("Processing");
+                    //    FileUpload.FileUploadFile.uploadResult = false;
+                    //}
                     // ends here
                 };
                 var onError = function (xhr, status, err) {
@@ -320,7 +323,7 @@ module Competition {
         }
 
         private getCurrentLederBoardDetails() {
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + 1 + "/submission/1";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1";
             var onSuccess = function (data) {
                 var currentTickElement = $(".resultSubResultsContainer").find("tr td:first:contains('" + (data.number) + "')").siblings("td.ticked").find("div");
                 $(currentTickElement).removeClass("leaderboardHidden");
@@ -335,7 +338,7 @@ module Competition {
 
         private updateLeaderBoard(submissionID: number, obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + 1 + "/submission/" + submissionID;
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/" + submissionID;
             var filedata = new FormData();
             if (filedata !== undefined) {
                 filedata.append("submissionId", 2);
@@ -358,7 +361,7 @@ module Competition {
 
         private deleteLeaderBoard(obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/1/submission/1/";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1/";
             var onSuccess = function (data) {
                 $(".leaderboardVisible").addClass("leaderboardHidden");
                 $(obj).siblings("a").removeClass("leaderboardbuttonHidden");

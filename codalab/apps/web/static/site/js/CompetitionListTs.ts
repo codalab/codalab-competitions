@@ -1,4 +1,4 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../../lib/jq/jquery.d.ts" />
 /// <reference path="./AjaxRequest.ts" />
 module Competition {
     export class CompetitionList {
@@ -7,7 +7,7 @@ module Competition {
         static loadSucess = true;
 
         private articleClick(obj) {
-            window.location.href = "/Competitions/Details/" + $(obj).parent().children("#competitionID").val();
+            window.location.href = "/competition/list/" + $(obj).parent().children("#competitionID").val();
         }
         static doAjaxRequest(url, containerId, noDataString, page) {
             $("#" + containerId).children("#competitionTilePreload").remove();
