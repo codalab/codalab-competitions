@@ -2,10 +2,13 @@
 import os,sys
 from django.conf import global_settings
 
-SETTINGS_DIR=os.path.dirname(__file__)
+SETTINGS_DIR=os.path.dirname(os.path.abspath(__file__))
 PROJECT_APP_DIR=os.path.dirname(SETTINGS_DIR)
 PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
 ROOT_DIR=os.path.dirname(PROJECT_DIR)
+
+print SETTINGS_DIR
+print PROJECT_DIR
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
