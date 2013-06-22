@@ -14,11 +14,11 @@ For current Debian-based Linux distributions , BSD and Mac Python 2.7 is usually
 
 For Windows you can install Python from here (be sure to select the correct one for you architecture):
 
-  [http://www.python.org/download/releases/2.7.5/][]
+  http://www.python.org/download/releases/2.7.5/
   
 To Install Pip you should install distribute. Download the following URL:
 
-  [http://python-distribute.org/distribute_setup.py][]
+  http://python-distribute.org/distribute_setup.py
 
 Run it from a shell from the directory into where it was downloaded:
   
@@ -38,38 +38,38 @@ From here you need to have the source checked-out/cloned. If you don't have a lo
 
 Assuming that you have a copy, you will need to install the other requirements. It is best to work in a virtualenv. It is even better to intall virtualenvwrapper:
 
- pip install virtualenv
+  pip install virtualenv
 
 For the *nix crowd (and I am also looking at you Mac folks), you will install (probably with sudo):
 
- pip install virtualenvwrapper
+  pip install virtualenvwrapper
 
- see http://virtualenvwrapper.readthedocs.org/en/latest/
+  see http://virtualenvwrapper.readthedocs.org/en/latest/
 
 The *dows contigent can install:
 
- pip install virtualenvwrapper-powershell
+  pip install virtualenvwrapper-powershell
 
- see http://docs.python-guide.org/en/latest/dev/virtualenvs.html
- and http://virtualenvwrapper.readthedocs.org/en/latest/install.html
+  see http://docs.python-guide.org/en/latest/dev/virtualenvs.html
+  and http://virtualenvwrapper.readthedocs.org/en/latest/install.html
 
 ### Actual Development
 
 With all the tooling in place, you can create a virtual environment into which packages can be installed and be kept separate from what is installed on the system, globally. 
 
- mkvirtualenv MyEnv
+  mkvirtualenv MyEnv
 
 It should create it and activate the environment. The shell prompt should indicate it, but if it doesn't you should be able to examine the value of the environment variable $VIRTUAL_ENV which should indicate the directory which is the root of the virtual environment.
 
 Then, assuming the code is checked out:
 
- pip install -r codalab/requirements/common.txt
+  pip install -r codalab/requirements/common.txt
 
 Then:
  
- cd codalab
- python manage.py syncdb
- python manage.py runserver
+  cd codalab
+  python manage.py syncdb
+  python manage.py runserver
 
  
  
