@@ -44,14 +44,14 @@ For the *nix crowd (and I am also looking at you Mac folks), you will install (p
 
  pip install virtualenvwrapper
 
- see [http://virtualenvwrapper.readthedocs.org/en/latest/][]
+ see http://virtualenvwrapper.readthedocs.org/en/latest/
 
 The *dows contigent can install:
 
  pip install virtualenvwrapper-powershell
 
- see [http://docs.python-guide.org/en/latest/dev/virtualenvs.html][]
- and [http://virtualenvwrapper.readthedocs.org/en/latest/install.html][]
+ see http://docs.python-guide.org/en/latest/dev/virtualenvs.html
+ and http://virtualenvwrapper.readthedocs.org/en/latest/install.html
 
 ### Actual Development
 
