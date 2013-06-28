@@ -7,8 +7,6 @@ PROJECT_APP_DIR=os.path.dirname(SETTINGS_DIR)
 PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
 ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
-print SETTINGS_DIR
-print PROJECT_DIR
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -145,13 +143,22 @@ INSTALLED_APPS = (
 
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-   
+    'haystack', 
     'apps.web',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
 )
 LOGIN_REDIRECT_URL = '/my'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(PROJECT_DIR, 'whoosh_index'),
+    },
+}
+
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

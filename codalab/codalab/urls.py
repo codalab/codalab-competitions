@@ -10,6 +10,7 @@ urlpatterns = patterns('',
 
     url(r'', include('apps.web.urls')),
     (r'^accounts/', include('allauth.urls')),
+    (r'^search/', include('haystack.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
