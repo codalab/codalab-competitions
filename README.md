@@ -22,13 +22,13 @@ To Install Pip you should install distribute. Download the following URL:
 
 Run it from a shell from the directory into where it was downloaded:
   
-  python distribute_setup.py
+  `python distribute_setup.py`
 
 Or, execute it from Explorer if file associations were setup.
 
 You can then execute from a command-line:
 
-  easy_install pip
+  `easy_install pip`
 
 If this seems like a lot of steps, it is. There are a couple of ways to do it, but it is assumed that if you read this far you are a developer of some sort, have some experience navigating a shell of some sort and/or have an awareness of the idiosyncratic nature of the platform(s) you employ in you personal and professional endeavors.
 
@@ -38,17 +38,17 @@ From here you need to have the source checked-out/cloned. If you don't have a lo
 
 Assuming that you have a copy, you will need to install the other requirements. It is best to work in a virtualenv. It is even better to intall virtualenvwrapper:
 
-  pip install virtualenv
+  `pip install virtualenv`
 
 For the *nix crowd (and I am also looking at you Mac folks), you will install (probably with sudo):
 
-  pip install virtualenvwrapper
+  `pip install virtualenvwrapper`
 
   see http://virtualenvwrapper.readthedocs.org/en/latest/
 
 The *dows contigent can install:
 
-  pip install virtualenvwrapper-powershell
+  `pip install virtualenvwrapper-powershell`
 
   see http://docs.python-guide.org/en/latest/dev/virtualenvs.html
   and http://virtualenvwrapper.readthedocs.org/en/latest/install.html
@@ -57,19 +57,19 @@ The *dows contigent can install:
 
 With all the tooling in place, you can create a virtual environment into which packages can be installed and be kept separate from what is installed on the system, globally. 
 
-  mkvirtualenv MyEnv
+  `mkvirtualenv MyEnv`
 
 It should create it and activate the environment. The shell prompt should indicate it, but if it doesn't you should be able to examine the value of the environment variable $VIRTUAL_ENV which should indicate the directory which is the root of the virtual environment.
 
 Then, assuming the code is checked out:
 
-  pip install -r codalab/requirements/common.txt
+  `pip install -r codalab/requirements/common.txt`
 
 Then:
- 
+
+  ```
   cd codalab
   python manage.py syncdb
   python manage.py runserver
-
- 
+  ```
  
