@@ -63,7 +63,9 @@ It should create it and activate the environment. The shell prompt should indica
 
 Then, assuming the code is checked out:
 
-  pip install -r codalab/requirements/common.txt
+ pip install -r codalab/requirements/dev.txt
+
+Which will install the dependences for a dev environment. 
 
 Then:
  
@@ -72,4 +74,4 @@ Then:
   python manage.py runserver
 
  
- 
+If syncdb fails it will provide an error. If certain python packages and/or Django apps and modules are not installed it will indicate what it cannot find. This usually means that the requirements have not been installed.
