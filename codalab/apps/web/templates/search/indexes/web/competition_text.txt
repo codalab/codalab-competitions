@@ -1,2 +1,2 @@
-{{ object.info.title }}
-{{ object.info.description }}
+{{ object.title }}
+{{ object.description }}

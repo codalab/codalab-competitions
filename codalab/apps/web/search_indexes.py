@@ -1,10 +1,10 @@
 from haystack import indexes
-from apps.web.models import Competition
+from apps.web import models
 
 class CompetitionIndex(indexes.SearchIndex, indexes.Indexable):
    text = indexes.CharField(document=True,use_template=True)
    
    def get_model(self):
-      return Competition
+      return models.Competition
 
 
