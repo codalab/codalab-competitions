@@ -132,6 +132,7 @@ AUTHENTICATION_BACKENDS = (
     )
 
 INSTALLED_APPS = (
+    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -140,10 +141,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     
     'django.contrib.admin',
-
+    'django_extensions',
+    'reversion',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'haystack', 
+
+    'haystack',
+    'apps.authenz', 
     'apps.web',
     'allauth',
     'allauth.account',
@@ -158,6 +162,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+AUTH_USER_MODEL = 'authenz.User'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+import reversion
+
 
 class CompetitionDeploymentState(models.Model):
     name = models.CharField(max_length=30)
@@ -22,30 +24,19 @@ class TabVisibility(models.Model):
     def __unicode__(self):
         return self.name 
 
-class CompetitionInfo(models.Model):
-    competition = models.ForeignKey('Competition')
+class Competition(models.Model):
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=4000, null=True, blank=True)
-    image_url = models.URLField()
+    description = models.TextField(null=True, blank=True)
+    image_url = models.URLField(null=True, blank=True)
+    has_registration = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
+    has_edits = models.BooleanField(default=False)
     end_date = models.DateField()
-    creator = models.ForeignKey(User, related_name='competitioninfo_creator')
-    modified_by = models.ForeignKey(User, related_name='competitioninfo_modified_by')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField()
+
 
     def __unicode__(self):
         return self.title
-
-class Competition(models.Model):
-    name = models.CharField(max_length=100)
-    has_registration = models.BooleanField(default=False)
-    info = models.ForeignKey(CompetitionInfo, related_name='competition_info',
-                             null=True,blank=True)
-    staged_info = models.ForeignKey(CompetitionInfo, 
-                                    related_name='competition_staged_info',
-                                    null=True,blank=True)
-    is_public = models.BooleanField(default=False)
-    has_edits = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return "Competition %s" % str(self.pk)
 
