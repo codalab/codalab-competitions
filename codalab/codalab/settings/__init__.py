@@ -129,6 +129,7 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
+    'guardian.backends.ObjectPermissionBackend',
     )
 
 INSTALLED_APPS = (
@@ -142,13 +143,17 @@ INSTALLED_APPS = (
     
     'django.contrib.admin',
     'django_extensions',
-    'reversion',
+    'rest_framework',
+    'guardian',
+    'publish',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 
     'haystack',
+    'apps.api',
     'apps.authenz', 
     'apps.web',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -163,7 +168,7 @@ HAYSTACK_CONNECTIONS = {
 }
 
 AUTH_USER_MODEL = 'authenz.User'
-
+ANONYMOUS_USER_ID = -1
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
