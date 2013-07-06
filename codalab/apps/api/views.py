@@ -18,6 +18,9 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     queryset = webmodels.CompetitionPhase.objects.all()
     
     def get_query_set(self):
+        # The pk (primary key) is for the competition, not the phase.
+        # rest framework could use a little extension to provide more 
+        # flexibility.
         competition_id = self.kwargs.get('pk',None)
         phasenumber = self.kwargs.get('phasenumber',None)
         kw = {}
