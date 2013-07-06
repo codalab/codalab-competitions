@@ -2,8 +2,10 @@
 *.pot
 *.pyc
 local_settings.py
+local_configuration.py
 *~
 \#*\#
 .\#*
 *.db
 *_db.sqlite
+codalab/static/*/*
