@@ -18,6 +18,7 @@ class ExternalFile(models.Model):
 class ParticipantStatus(models.Model):
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30)
+    description = models.CharField(max_length=50)
 
     def __unicode__(self):
         return self.name
@@ -61,7 +62,7 @@ class CompetitionPhase(Publishable):
 
 class CompetitionParticipant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    competition = models.ForeignKey(Competition)
+    competition = models.ForeignKey(Competition,related_name='participation')
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100,null=True,blank=True)
 

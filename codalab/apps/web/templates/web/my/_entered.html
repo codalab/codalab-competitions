@@ -1,0 +1,51 @@
+﻿{% if not participations %}
+    <p>You have not participated in any competitions.</p>
+{% else %}
+  {% for item in participations %}
+     <div class="competitionTile">
+        <article class="subContainer">
+            <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
+            <div class="competitionTileLftStrip"></div>
+            <div class="articleImageContainer">
+                <div class="subContainerPadding">
+                    <!-- Image-------------- -->
+                    <figure class="articleImage">
+                        {% if item.competition.image_url %}
+                            <img src="{{ item.competition.image_url }}" width="115" height="90">
+                       {% endif %}
+                    </figure>
+                    <!-- Image-------------- -->
+                </div>
+            </div>
+            <div class="articleTextArea">
+                <div class="subContainerPadding">
+                    <div class="articleHeadingContainer">
+                        <h3>{{ item.competition.title }}</h3>
+                        <label>by {{ item.competition.created_by }}</label>
+                    </div>
+                    <p>{{ item.competition.description }}</p>
+                    <div class="competitionActions">
+		     	 <label class="status{{item.status.name}}">{{ item.status.description }}</label>
+                    </div>
+                </div>
+            </div>
+            {% comment %}<div class="CompetitionDetail">
+                <div class="CompetitionDetailBox">
+                    <div class="CompetitionDetailTbl">
+                        <label>deadline:</label>
+                        <label>10-10-10</label>
+                    </div>
+                    <div class="CompetitionDetailTbl">
+                        <label>rewards:</label>
+                        <label>information</label>
+                    </div>
+                    <div class="CompetitionDetailTbl">
+                        <label>applicants:</label>
+                        <label>2,002</label>
+                    </div>
+                </div>
+            </div>{% endcomment %}
+        </article>
+    </div>                
+  {% endfor %}
+{% endif %}
