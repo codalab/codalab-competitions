@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView,DetailView
+from django.views.generic import TemplateView,DetailView,ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -58,3 +58,23 @@ class CompetitionIndexPartial(TemplateView):
             competitions = []
         context['competitions'] = competitions
         return context
+
+class MyCompetitionsManagedPartial(ListView):
+    
+    model = models.Competition
+    template_name = 'web/my/_managed.html'
+    queryset = models.Competition.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(creator=self.request.user)
+
+class MyCompetitionsEnteredPartial(ListView):
+    
+    model = models.CompetitionParticipant
+    template_name = 'web/my/_entered.html'
+    queryset = models.CompetitionParticipant.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    
