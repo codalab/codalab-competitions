@@ -1,4 +1,6 @@
 
+from configurations import Settings
+from configurations.utils import uppercase_attributes
 import os,sys
 
 
@@ -160,13 +162,6 @@ class Base(Settings):
     'allauth.socialaccount',
    )
    LOGIN_REDIRECT_URL = '/my'
-
-   HAYSTACK_CONNECTIONS = {
-      'default': {
-          'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-          'PATH': os.path.join(PROJECT_DIR, 'whoosh_index'),
-      },
-   }
 
    AUTH_USER_MODEL = 'authenz.User'
    ANONYMOUS_USER_ID = -1
