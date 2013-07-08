@@ -69,7 +69,7 @@ class CompetitionParticipant(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
 
-class CompetitionWizardViewModel(models.Model):
+class CompetitionWizard(models.Model):
     competition = models.ForeignKey(Competition)
     step = models.IntegerField(default=1)
     title = models.CharField(max_length=100,null=True,blank=True)
@@ -79,6 +79,9 @@ class CompetitionWizardViewModel(models.Model):
     saveflag = models.BooleanField(default=True)
     image_url = models.URLField(null=True,blank=True)
     
+    class Meta:
+        unique_together = (('competition','step'),)
+         
     def __unicode__(self):
         return "%s step %d" % (self.competition,self.step)
 

@@ -1,14 +1,12 @@
 ﻿{% extends 'web/base.html' %}
 {% load staticfiles %}
 {% block title %}Edit{% endblock %}
-
- 
 {% block body %}
 <form method="POST" onsubmit="disableBeforeUnload();">
 {% csrf_token %}
-<input type="hidden" name="competition_id" value="{{ item.competition_id }}"/>
-<input type="hidden" name="step" value="{{ item.step }}"/>
-<input type="hidden" name="saveflag" value="{{ item.saveflag }}"/>
+<input type="hidden" name="competition_id" value="{{ object.competition_id }}"/>
+<input type="hidden" name="step" value="{{ object.step }}"/>
+<input type="hidden" name="saveflag" value="{{ object.saveflag }}"/>
 
 <input id="valueChanged" type="hidden" />
 <div id="tabs" class="CompetitionProcessTab">
@@ -59,7 +57,7 @@
 				<input id="Title" class="text-box single-line" type="text" value="Untitled" name="Title"/>
                                 <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
                                 <div>
-				    <textarea id="Description" rows="2" name="Description" cols="20">{{ object.description }}</textarea>
+				    <textarea id="Description" rows="2" name="Description" cols="20">{{ object.description|default:"" }}</textarea>
 				    <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Description"></span>
                                 </div>
 
@@ -309,7 +307,7 @@
                     <div class="CompetitionTypeDetailrow makePublicContainer">
                         <div>
 			    <input id="Public" class="check-box" type="checkbox" value="true" name="Public" data-val-required="The Public field is required." data-val="true"/>
-                            <input type="hidden" value="false" name="Public"></input>
+                            <input type="hidden" value="false" name="Public"/>
                             <label class="publicLabel" for="Public">competition is public</label>
                             <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Public"></span>
                         </div>

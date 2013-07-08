@@ -44,6 +44,9 @@ class MyCreateCompetition(LoginRequiredMixin,TemplateView):
         c = models.Competition.objects.create(creator=request.user,
                                               title='Untitled',
                                               modified_by=request.user)
+        cw = models.CompetitionWizard.objects.create(competition=c,
+                                                     step=1,
+                                                     creator=request.user)
         return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
     
 
@@ -57,8 +60,12 @@ class MyEditCompetition(LoginRequiredMixin,TemplateView):
             form.save()
             return HttpResponseRedirect(reverse('my_edit_competition', kwargs={'pk': form.cleaned_data['competition_id'] }))
         return HttpResponseBadRequest()
+    
+    def get_context_data(self, **kwargs):
+        context = super(MyEditCompetition,self).get_context_data(**kwargs)
+        context['object'] = models.CompetitionWizard.objects.get(competition_id=self.kwargs['pk'],step=1)
+        return context
         
-
 ## Partials
 
 class CompetitionIndexPartial(TemplateView):

@@ -463,10 +463,12 @@ var Competition;
 
 $(document).ready(function () {
     var CreateCompetition = new Competition.CreateCompetition();
+    console.log("new CreateCompetition");
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
         $("#uploadFile").click();
     });
+    console.log("uploadLabel");
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");
