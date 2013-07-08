@@ -12,7 +12,7 @@ var Competition;
 
         }
         CreateCompetition.prototype.tabSelection = function () {
-            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs('select', parseInt($("#Step").val()) - 1);
+            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs("option", "active", parseInt($("#Step").val()) - 1);
             CreateCompetition.prototype.activateSaveButtons();
         };
         CreateCompetition.prototype.tabOnClick = function (obj) {
@@ -330,6 +330,7 @@ var Competition;
             $("#savePhaseProcess").show();
             $(obj).addClass("disabledStatus");
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+            xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
             var p1 = {
                 "label": $("#ph1title").val(),
                 "maxSubmissions": $("#ph1SubmissionLmt").val(),
@@ -365,6 +366,7 @@ var Competition;
         };
         CreateCompetition.prototype.getPhasesDetails = function () {
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+            xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
             var onSuccess = function (data) {
                 $("#ph1title").val(data.phases[0].label);
                 $("#ph2title").val(data.phases[1].label);
@@ -463,12 +465,10 @@ var Competition;
 
 $(document).ready(function () {
     var CreateCompetition = new Competition.CreateCompetition();
-    console.log("new CreateCompetition");
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
         $("#uploadFile").click();
     });
-    console.log("uploadLabel");
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");

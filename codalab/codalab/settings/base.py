@@ -146,6 +146,7 @@ class Base(Settings):
     
     'django.contrib.admin',
     'django_extensions',
+    'django_js_reverse',
     'rest_framework',
     'guardian',
     'publish',

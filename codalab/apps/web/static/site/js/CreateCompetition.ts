@@ -6,7 +6,7 @@ module Competition {
 
         private tabSelection() {
             $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1)
-           .tabs('select', parseInt($("#Step").val()) - 1)
+           .tabs("option", "active", parseInt($("#Step").val()) - 1)
             // .tabs("option", "disabled", [0, 1]);
             CreateCompetition.prototype.activateSaveButtons();
         }
@@ -319,7 +319,9 @@ module Competition {
         public savePhases(obj) {
             $("#savePhaseProcess").show();
             $(obj).addClass("disabledStatus");
+	    
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+	    xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
             var p1 = { "label": $("#ph1title").val(), "maxSubmissions": $("#ph1SubmissionLmt").val(), startDate: $("#ph1StartDate").val() };
             var p2 = { "label": $("#ph2title").val(), "maxSubmissions": $("#ph2SubmissionLmt").val(), startDate: $("#ph2StartDate").val() };
             var data = { "endDate": $("#competitionEndDate").val(), "phases": [p1, p2] };
@@ -343,6 +345,9 @@ module Competition {
 
         public getPhasesDetails() {
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
+
+	    xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
+
             var onSuccess = function (data) {
                 $("#ph1title").val(data.phases[0].label)
                 $("#ph2title").val(data.phases[1].label)
