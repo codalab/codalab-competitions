@@ -8,9 +8,9 @@
 {% block body %}
 <form method="POST" onsubmit="disableBeforeUnload();">
 {% csrf_token %}
-<input type="hidden" name="competition_id" value="{{ object.competition_id }}"/>
-<input type="hidden" name="step" value="{{ object.step }}"/>
-<input type="hidden" name="saveflag" value="{{ object.saveflag }}"/>
+<input type="hidden" id="CompetitionID" name="competition_id" value="{{ object.competition_id }}"/>
+<input type="hidden" id="Step" name="step" value="{{ object.step }}"/>
+<input type="hidden" id="SaveFlag" name="saveflag" value="{{ object.saveflag }}"/>
 
 <input id="valueChanged" type="hidden" />
 <div id="tabs" class="CompetitionProcessTab">

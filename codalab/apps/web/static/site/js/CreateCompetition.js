@@ -225,7 +225,7 @@ var Competition;
             };
             var onError = function (xhr, status, err) {
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         };
         CreateCompetition.prototype.ajaxRequestForManagingPublishTab = function () {
             var xUrl;
@@ -318,7 +318,7 @@ var Competition;
             };
             var onError = function (xhr, status, err) {
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         };
         CreateCompetition.prototype.genaraltabSelection = function () {
             CreateCompetition.prototype.tabSelection();
@@ -391,7 +391,7 @@ var Competition;
             var onError = function (xhr, status, err) {
                 alert('An error occured [' + err + ']');
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         };
         CreateCompetition.prototype.toggleDataset = function (obj) {
             if($(obj).parents("section").siblings(".downloadedContainer").is(":visible")) {
@@ -439,7 +439,7 @@ var Competition;
                 $("#preLoaderPh1").hide();
                 $("#preLoaderPh2").hide();
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         };
         CreateCompetition.prototype.previousStep = function (obj, event) {
             $("#Step").val((parseInt($("#Step").val()) - 1).toString());

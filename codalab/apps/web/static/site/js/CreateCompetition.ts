@@ -216,7 +216,7 @@ module Competition {
             var onError = function (xhr, status, err) {
 
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         public ajaxRequestForManagingPublishTab() {
@@ -305,7 +305,7 @@ module Competition {
             var onError = function (xhr, status, err) {
             };
 
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         public genaraltabSelection() {
@@ -368,7 +368,7 @@ module Competition {
             var onError = function (xhr, status, err) {
                 alert('An error occured [' + err + ']');
             };
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         public toggleDataset(obj) {
@@ -417,7 +417,7 @@ module Competition {
                 $("#preLoaderPh1").hide(); $("#preLoaderPh2").hide();
             };
 
-            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError);
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         public previousStep(obj, event) {
