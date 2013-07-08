@@ -15,9 +15,10 @@ var Competition;
                 $("#" + containerId).append($("#competitionTilePreload").clone());
                 $("#" + containerId).children("#competitionTilePreload").css("display", "block");
                 var data = {
-                    "pageNumber": page,
-                    "pageSize": 6
+                    "page": page,
+                    "per_page": 6
                 };
+                var query_s = "page=" + page + "&per_page=6";
                 var xUrl = url;
                 var onSuccess = function (data) {
                     if(containerId === "tabAreaCompetitionIManage") {
@@ -57,7 +58,7 @@ var Competition;
                 var onError = function (xhr, status, err) {
                     $("#" + containerId).children("#competitionTilePreload").remove();
                 };
-                Ajax.AjaxRequest.prototype.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+                Ajax.AjaxRequest.prototype.ajaxGetRequest(xUrl, onSuccess, onError, data);
             }
         }
         CompetitionList.prototype.showCompetitionIParticipate = function () {
@@ -80,7 +81,7 @@ var Competition;
     Competition.CompetitionList = CompetitionList;    
 })(Competition || (Competition = {}));
 
-$(function () {
+$(document).ready(function () {
     var CompetitionList = new Competition.CompetitionList();
     $("li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");

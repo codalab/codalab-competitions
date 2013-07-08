@@ -42,10 +42,11 @@ var Ajax;
                 error: err
             });
         };
-        AjaxRequest.prototype.ajaxGetRequest = function (xUrl, succ, err) {
+        AjaxRequest.prototype.ajaxGetRequest = function (xUrl, succ, err, data) {
             $.ajax({
                 type: "GET",
                 url: xUrl,
+                data: data,
                 cache: false,
                 success: succ,
                 error: err
