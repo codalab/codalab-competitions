@@ -6,7 +6,6 @@
     <title>Codalab - {% block title %}{% endblock %}</title>
     <link href="{% static "site/Images/favicon.ico" %}" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" type="text/css" href="{% static 'lib/jq/ui/themes/base/jquery-ui.css' %}" />
     {% include "web/includes/jquery.html" %}
     {% include "web/includes/jqueryui.html" %}
     <link rel="stylesheet" type="text/css" href="{% static "site/css/Main.css" %}" />
@@ -24,13 +23,14 @@
                     
                     <div class="loginArea">
                         <section id="login">
+			  <ul>
 			  {% if user.is_authenticated %}
 				<li><a href="{% url 'account_logout' %}">Log Off</a></li>
 			  {% else %}
 				<li><a href="{% url 'account_login' %}">Login</a></li>
 				<li><a href="{% url 'account_signup' %}">Register</a></li>
 			  {% endif %}
-                           
+                           </ul>
                         </section>
                   
                     </div>
