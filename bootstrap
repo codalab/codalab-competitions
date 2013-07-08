@@ -1,0 +1,12 @@
+#!/bin/bash
+
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd `pwd`
+cd $THIS_DIR
+
+virtualenv --clear --distribute venv && \
+source ./venv/bin/activate && \
+pip install --upgrade pip && \
+pip install --upgrade distribute && \
+./requirements
+popd

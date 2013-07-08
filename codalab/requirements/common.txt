@@ -1,6 +1,6 @@
 Django==1.5.1
 argparse==1.2.1
-azure==0.6.2
+azure>=0.6.2
 distribute==0.6.34
 django-allauth==0.11.1
 django-appconf==0.6
@@ -10,6 +10,7 @@ django-configurations==0.3
 django-extensions==1.1.1
 django-guardian==1.1.1
 django-haystack==2.0.0
+django-js-reverse>=0.2.0
 -e git+https://github.com/johnsensible/django-publish.git@d347373ae4d695fff030c299362c3ee846a0c3db#egg=django_publish-dev
 djangorestframework==2.3.6
 oauthlib==0.4.2

@@ -47,7 +47,7 @@ module Competition {
             var onError = function (xhr, status, err) {
                 CompetitionDetails.prototype.hideProcess();
             };
-            super.ajaxGetRequest(url, onSuccess, onError);
+            super.ajaxGetRequest(url, onSuccess, onError, null);
         }
 
         requestPartialView(obj) {
@@ -88,7 +88,7 @@ module Competition {
                 CompetitionDetails.prototype.hideDialog();
                 CompetitionDetails.prototype.hideProcess();
             };
-            super.ajaxGetRequest(xUrl, onSuccess, onError);
+            super.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         public saveUserRegisterStatus() {
@@ -258,7 +258,7 @@ module Competition {
             var onError = function (xhr, status, err) {
 
             };
-            super.ajaxGetRequest(xUrl, onSuccess, onError)
+            super.ajaxGetRequest(xUrl, onSuccess, onError, null)
         }
 
         public getSubmissionsPageResults(phaseValue) {
@@ -327,7 +327,7 @@ module Competition {
             };
             var onError = function (xhr, status, err) {
             };
-            super.ajaxGetRequest(xUrl, onSuccess, onError);
+            super.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         private updateLeaderBoard(submissionID: number, obj) {
@@ -399,7 +399,7 @@ module Competition {
             };
             var onError = function (xhr, status, err) {
             };
-            super.ajaxGetRequest(xUrl, onSuccess, onError);
+            super.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
 
         private togglePhases(i: number) {
