@@ -6,6 +6,7 @@
     <title>Codalab - {% block title %}{% endblock %}</title>
     <link href="{% static "site/Images/favicon.ico" %}" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
+    <script src="{% url 'js_reverse' %}" type="text/javascript"></script>
     {% include "web/includes/jquery.html" %}
     {% include "web/includes/jqueryui.html" %}
     <link rel="stylesheet" type="text/css" href="{% static "site/css/Main.css" %}" />

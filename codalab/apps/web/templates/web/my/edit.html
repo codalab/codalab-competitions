@@ -1,6 +1,10 @@
 ﻿{% extends 'web/base.html' %}
 {% load staticfiles %}
 {% block title %}Edit{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="{% static 'site/js/FileUpload.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/js/CreateCompetition.js' %}"></script>
+{% endblock %}
 {% block body %}
 <form method="POST" onsubmit="disableBeforeUnload();">
 {% csrf_token %}
@@ -364,7 +368,6 @@
 
 </form>
 
-<script type="text/javascript" src="{% static 'site/js/FileUpload.js' %}"></script>
-<script type="text/javascript" src="{% static 'site/js/CreateCompetition.js' %}"></script>
+
 
 {% endblock %}

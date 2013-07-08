@@ -65,12 +65,14 @@ var Competition;
             $("#tabAreaCopetitionIParticipate").append($("#competitionTilePreload").clone());
             $("#tabAreaCopetitionIParticipate").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsEntered";
+            xUrl = Urls.my_competitions_entered();
             CompetitionList.doAjaxRequest(xUrl, "tabAreaCopetitionIParticipate", "You have not participated in any competitions.", CompetitionList.pageIParticipate);
         };
         CompetitionList.prototype.showCompetitionIManage = function () {
             $("#tabAreaCompetitionIManage").append($("#competitionTilePreload").clone());
             $("#tabAreaCompetitionIManage").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsManaged";
+            xUrl = Urls.my_competitions_managed();
             CompetitionList.doAjaxRequest(xUrl, "tabAreaCompetitionIManage", "You do not manage any competitions.", CompetitionList.pageIManage);
         };
         return CompetitionList;
