@@ -4,7 +4,7 @@ from apps.web import models as webmodels
 from apps.authenz import models as authmodels
 
 class CompetitionAPIViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.CompetitionSerial
+    serializer_class = serializers.CompetitionDataSerial
     queryset = webmodels.Competition.objects.all()
 
 

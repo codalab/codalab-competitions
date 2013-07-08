@@ -83,7 +83,7 @@ body
     scrollbar-arrow-color: #f5f5f5; 
     scrollbar-track-color: #ccc;
     scrollbar-darkshadow-color: #7c7c7c;
-    min-width:1024px;
+    min-width:1000px;
     position:relative; 
     overflow-y:scroll;
 }
@@ -287,13 +287,9 @@ h4
 /*SpriteImage-----------------------------------*/
 
 /*responsive Layout-----------------------------*/
-/* iPads (landscape) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {}
 
-/* iPads (portrait) ----------- */
-@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {}
 /* normal screens ----------- */
-@media only screen and (max-width : 1025px) {
+@media only screen and (min-width : 1025px) {
     body {
         min-width:950px !important;
     }
@@ -326,7 +322,7 @@ header {
     overflow:hidden;
 }
 .headerContent {
-    width:1020px;
+    width:1000px;
     margin:auto;
 }
 .navContainer {clear:both;}
@@ -375,7 +371,8 @@ ul.headerNavigation li.active a {
 .searchBar {
     width:318px;
     height:30px;
-    background: #f5f5f5
+    background: #f5f5f5;
+    border:solid 1px #3684d6;
 
 }
 .searchBar input[type="text"] {
@@ -511,7 +508,7 @@ input[type="submit"][value="Delete"]
 {
     background:#f1702f;
 }
-.globalBlueButton,.globalBlueButton.disabledStatus:hover,.globalBlueButton.disabledStatus > a.disabledStatus:active,.globalBlueButtonAtag > a.disabledStatus:hover,.globalBlueButton.disabledStatus:active, .globalBlueButtonBig, .globalBlueButtonInput,.globalBlueButtonAtag > a,.globalBlueButtonSmallAtag > a,.globalBlueButtonSmall,.globalBlueButtonSmallFlexi,.buttonAccept{
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput,.globalBlueButtonAtag > a,.globalBlueButtonSmallAtag > a,.globalBlueButtonSmall,.globalBlueButtonSmallFlexi,.buttonAccept{
     height:32px;
     padding:0 15px;
     min-width:103px;
@@ -533,6 +530,7 @@ input[type="submit"][value="Delete"]
     background: -ms-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #529ded 0%,#3784d7 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#529ded', endColorstr='#3784d7',GradientType=0 ); /* IE6-9 */
+
 }
 .globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
     border-color:#a2cef7;
@@ -1916,14 +1914,14 @@ font-weight:normal !important;
     background:none;
     position:relative;
     bottom:3px;
-    opacity:.4;
-    filter: alpha(opacity=40);
+    opacity:.01;
+    filter: alpha(opacity=01);
     height:0;
     width:0;
 }
 .uploadLabel {
     text-decoration:underline;
-    color:#07b4db;
+    color:#07b4db !important;
     font-size:12px;
     text-decoration:none;
     padding-top:5px;
@@ -2502,9 +2500,6 @@ ul.leftNavigation a{
     color:#3684d6;
     font-size:15px;
 }
-ul.leftNavigation li:hover a{
-    color:#ffac31
-}
 ul.leftNavigation li.active a{
     color:#ffac31;
     font-weight:bold;
@@ -2574,7 +2569,7 @@ ul.leftNavigation li.active a{
 }
 .breadcrumb{
     height:30px;
-    width:1024px;
+    width:1000px;
     margin:auto;
 }
 .breadcrumb label,.breadcrumb span{
@@ -2586,7 +2581,7 @@ ul.leftNavigation li.active a{
     cursor:pointer;
 }
 .homepageBanner{
-    height:255px;
+    min-height:255px;
     background:#ebf2fb;
 }
 .loginpageBG{
@@ -2602,7 +2597,7 @@ ul.leftNavigation li.active a{
     padding-right:20px;
 }
 .bannerBlockContainer{
-    width:1024px;
+    width:1000px;
     display:table;
     margin:auto;
 }
@@ -2696,4 +2691,11 @@ ul.leftNavigation li.active a{
 .rankHeader
 {
     cursor:pointer;
+}
+.focusOutline{
+    border-color:#ffac31
+}
+.publicLabel
+{
+    line-height:10px;
 }

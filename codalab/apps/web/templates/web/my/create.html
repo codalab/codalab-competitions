@@ -8,19 +8,15 @@
 <div class="mainContainer">
     <h2>Create Competition Wizard</h2>
 
-
-    @using (Html.BeginForm())
-    {
-        @Html.ValidationSummary(true)
-
+    <form method="POST">{% csrf_token %}
         <p>
             This wizard will guide you through the steps to create a competition. Just click to get started.
         </p>
         <div>
             <input type="submit" class="globalBlueButtonInput" value="Start" />
-            <a class="helpLinkIcon startHelp" href='@Url.Action("CreateCompetition", "Help")' title="Get help with creating a competition"></a>
+            <a class="helpLinkIcon startHelp" href="{% url 'help_create_competition' %}" title="Get help with creating a competition"></a>
         </div>
-    }
+    </form>
 
     <div>
     </div>

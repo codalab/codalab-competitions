@@ -260,7 +260,7 @@ var Competition;
             }
         };
         CreateCompetition.prototype.getLftTabsForCompetition = function (tabNumber) {
-            var xUrl = "/my/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
+            var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
             var onSuccess = function (data) {
                 if(tabNumber === 0) {
                     $("#textEditorLftTab").html("");
@@ -461,7 +461,7 @@ var Competition;
     Competition.CreateCompetition = CreateCompetition;    
 })(Competition || (Competition = {}));
 
-$(function () {
+$(document).ready(function () {
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
@@ -562,7 +562,10 @@ $(function () {
             };
             CreateCompetition.uploadFile(3, onSuccess);
         } else {
-            CreateCompetition.uploadFile(1, "");
+            var onSuccess = function (token) {
+                ($("#imgProfileImage")[0]).src = "/file/download/" + token;
+            };
+            CreateCompetition.uploadFile(1, onSuccess);
         }
     });
     $("#ph1StartDate").datepicker();
@@ -575,7 +578,7 @@ $(function () {
     $("#ph2StartDate").datepicker({
         onSelect: function () {
             if($("#ph1StartDate").val() === "") {
-                alert("Please enter Training phase start");
+                alert("Please enter phase1 start date");
                 $("#ph2StartDate").val("");
                 return false;
             }
@@ -583,12 +586,42 @@ $(function () {
             var phase1 = new Date($("#ph1StartDate").datepicker('getDate').toString());
             var dayDiff = Math.ceil((phase2.getTime() - phase1.getTime()) / (1000 * 60 * 60 * 24));
             if(dayDiff < 1) {
-                alert("There should be atleast one day differance between training phase and testing phase");
+                alert("There should be atleast one day differance between phase1 and phase2");
                 $("#ph2StartDate").val("");
+                return false;
+            }
+            if($("#competitionEndDate").val() !== "") {
+                var endDate = new Date($("#competitionEndDate").datepicker('getDate').toString());
+                var dayDiffEndDate = Math.ceil((phase2.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24));
+                if(dayDiffEndDate > 1) {
+                    alert("competition end date cannot be less than the phase dates");
+                    $("#ph2StartDate").val("");
+                    return false;
+                }
             }
         }
     });
-    $("#competitionEndDate").datepicker();
+    $("#competitionEndDate").datepicker({
+        onSelect: function () {
+            if($("#ph1StartDate").val() === "") {
+                alert("Please enter phase1 start date");
+                $("#competitionEndDate").val("");
+                return false;
+            }
+            if($("#ph2StartDate").val() === "") {
+                alert("Please enter phase2 start date");
+                $("#competitionEndDate").val("");
+                return false;
+            }
+            var phase2 = new Date($(this).datepicker('getDate').toString());
+            var phase1 = new Date($("#ph2StartDate").datepicker('getDate').toString());
+            var dayDiff = Math.ceil((phase2.getTime() - phase1.getTime()) / (1000 * 60 * 60 * 24));
+            if(dayDiff < 1) {
+                alert("There should be atleast one day differance between  phases and competition end date.");
+                $("#competitionEndDate").val("");
+            }
+        }
+    });
     $("#competitionEndDateIcon").click(function () {
         $("#competitionEndDate").datepicker("show");
     });

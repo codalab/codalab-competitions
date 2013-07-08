@@ -109,7 +109,7 @@ module FileUpload {
                     if (FileUpload.FileUploadFile.timerId < 10000) {
                         if (data.status == 8) {
                             if (reason === 1) {
-                                (<HTMLImageElement> $("#imgProfileImage")[0]).src = "/file/download/" + token;
+                                FileUpload.FileUploadFile.staticCallback(token);
                             }
                             else {
                              //Competition.CompetitionDetails.prototype.requestPartialViewcontroller(10);

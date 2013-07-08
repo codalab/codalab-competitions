@@ -43,7 +43,6 @@ module Competition {
                 $('.CompetitionsDetailLftUl > li').removeClass('active');
                 $("#tab" + pageId).addClass("active");
                 CompetitionDetails.prototype.hideProcess();
-                //   CompetitionDetails.prototype.getTabSelectionbyDefalut();
             };
             var onError = function (xhr, status, err) {
                 CompetitionDetails.prototype.hideProcess();
@@ -181,6 +180,7 @@ module Competition {
                     }
                     else {
                         if (CompetitionDetails.page === 1) {
+                            if ((parseInt($("#activePhase").val()) > -1) && ((parseInt(phaseValue) === 0) || (parseInt(phaseValue) > parseInt($("#activePhase").val())))) { data = "<p> This phase has not started.</p>"; }
                             $("#seeTheResults").append("<div class=\"competitionTileNoRecord\">" + data + "</div>");
                             $("#seeTheResults tr:first").hide();
                         }
@@ -300,12 +300,6 @@ module Competition {
                         $("#preLoaderRow").remove();
                     }
                     CompetitionDetails.prototype.getCurrentLederBoardDetails();
-                    // We can think one flag setting on database so that this patch of code can remove .// Todo have to handle from server side.
-                    //if (FileUpload.FileUploadFile.uploadResult == true) {
-                    //    $("#resultSubmissionResults").children("tr:first").find("td:#status").text("Processing");
-                    //    FileUpload.FileUploadFile.uploadResult = false;
-                    //}
-                    // ends here
                 };
                 var onError = function (xhr, status, err) {
                     $("#preLoaderRow").remove();
@@ -389,7 +383,7 @@ module Competition {
                 }
                 strHtmlStrip = strHtmlStrip + "<section><label> Competition </br>";
                 if (data.phases.endDate !== undefined && data.phases.endDate !== null) {
-                    strHtmlStrip = strHtmlStrip + "<span> ends" + $.datepicker.formatDate('mm/dd/yy', new Date(data.phases.endDate)) + "</span>";
+                    strHtmlStrip = strHtmlStrip + "<span> ends " + $.datepicker.formatDate('mm/dd/yy', new Date(data.phases.endDate)) + "</span>";
                 }
                 else {
                     strHtmlStrip = strHtmlStrip + "<span> has no end </span>";
@@ -487,7 +481,6 @@ module Competition {
         }
 
         public getTabSelectionIdentifiersFromURL() {
-            // var arrTabs = window.location.href.substring(window.location.href.lastIndexOf("/") + 1).split("#")
             CompetitionDetails.currentMainTab = undefined;
             CompetitionDetails.currentSubTab = undefined;
             var arrTabs = window.location.hash.split("-")

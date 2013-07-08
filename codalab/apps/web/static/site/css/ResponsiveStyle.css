@@ -1,0 +1,259 @@
+﻿@media only screen and (max-width : 1023px) {
+    body {
+        min-width: 400px !important;
+    }
+
+    .headerContent, .mainContainer {
+        width: auto !important;
+    }
+
+    .CompetitionProcessTab .competitionProcessHeader > ul {
+        width: 550px !important;
+    }
+
+    .competitionProcessHeader {
+        padding: 6px 0 !important;
+    }
+
+    .bannerBlock {
+        margin: auto;
+        vertical-align: top;
+        padding-left: 20px;
+        padding-right: 0;
+    }
+
+        .bannerBlock img {
+            width: 30%;
+            max-width: 105px;
+        }
+
+    .bannerBlockContainer {
+        width: 100%;
+    }
+
+    .bannerBlockHead {
+        font-size: 37px;
+    }
+
+    .bannerBlocklabl {
+        font-size: 18px;
+    }
+
+    .bannertxtBlock {
+        padding-left: 5px;
+    }
+
+    .headerContent {
+        overflow: hidden;
+        padding: 0 15px;
+    }
+
+    .searchArea {
+        position: relative;
+        top: -80px;
+        right: 120px;
+        float: right;
+        clear: left;
+    }
+
+    .searchBar {
+        width: 250px;
+    }
+
+    .loginContainer {
+        padding-right: 20px;
+    }
+}
+
+@media only screen and (max-width : 600px) {
+    ul.headerNavigation li a {
+        font-size: 15px;
+    }
+
+    ul.headerNavigation li {
+        padding: 5px 14px 5px;
+    }
+
+    .searchArea {
+        position: static;
+    }
+
+    .loginArea {
+        width: 127px;
+    }
+
+    header {
+        height: auto;
+    }
+
+    .bannerBlock {
+    }
+
+    .loginContainer {
+        width: auto;
+    }
+
+    .loginAreaBlock, .loginImageArea, .loginContainer {
+        display: block;
+    }
+
+    .loginContainer, .loginImageArea {
+        padding: 30px;
+    }
+
+    .loginImageArea {
+        padding: 0 30px;
+    }
+
+        .loginImageArea img {
+            width: 100px;
+            padding: 0;
+        }
+
+    .compBlockTbl, .compBlockLeftContainer, .compBlockRightContainer {
+        display: block;
+        width: auto;
+    }
+
+    .compBlockLeftContainer {
+        padding: 0;
+    }
+
+    .mainContainer {
+        padding: 25px;
+    }
+
+    .compBlockFilter {
+        min-height: auto;
+        margin-bottom: 10px;
+    }
+}
+
+@media only screen and (max-width : 500px) {
+    body {
+        min-width: 300px !important;
+    }
+
+    .loginpageBG {
+        padding-top: 0;
+    }
+
+    .loginContainer {
+        width: auto;
+    }
+
+    ul.headerNavigation {
+        display: table;
+    }
+
+        ul.headerNavigation li {
+            display: table-cell;
+            float: none;
+            padding: 2px 5px 5px;
+        }
+
+            ul.headerNavigation li a {
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+    .searchArea {
+        position: static;
+        width: 100%;
+    }
+
+    .loginArea {
+        width: 127px;
+    }
+
+    header {
+        height: auto;
+    }
+
+    .searchBar {
+        width: 100%;
+    }
+
+    .bannerBlockHead {
+        font-size: 30px;
+        line-height: 45px;
+    }
+
+    .bannerBlock {
+        text-align: center;
+    }
+
+    .bannertxtBlock, .bannertxtBlock label {
+        display: block;
+    }
+
+    .loginAreaBlock, .loginImageArea, .loginContainer, .formRegister {
+        display: block;
+    }
+
+    .loginContainer, .loginImageArea, .formRegister,.loginImageArea {
+        padding: 0px;
+    }
+
+        .loginImageArea img {
+            width: 100px;
+            padding: 0;
+        }
+
+    .bannerBlock img {
+        width: auto;
+        height: 55px;
+    }
+
+    .regIconImage {
+        width: 25px !important;
+    }
+
+    .compBlockTbl, .compBlockLeftContainer, .compBlockRightContainer, .competitionsDetailTab, .CompetitionsDetailLft, .globalBlueButtonAtag {
+        display: block;
+        width: auto;
+    }
+
+    .compBlockLeftContainer, .CompetitionsDetailRit {
+        padding: 0;
+    }
+
+    .globalBlueButtonAtag {
+        margin-bottom: 10px;
+    }
+
+    .mainContainer {
+        padding: 25px;
+    }
+
+    .compBlockFilter {
+        min-height: auto;
+        margin-bottom: 10px;
+    }
+
+    ul.competitionsDetailTabTop li, .myCodalabTabArea li {
+        font: normal 12px/37px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+        padding: 0 7px;
+    }
+
+    .competitionsDetailTabBlock > li, .myCodalabTabContent > li {
+        padding: 10px;
+    }
+
+    .globalYellowButtonSmallAtag a {
+        margin-bottom: 10px;
+    }
+    .regBlockHead{
+        font-size:20px;
+    }
+    .regBlocklabl{
+        font-size:13px;
+    }
+}
+/* iPads (landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape) {
+}
+
+/* iPads (portrait) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
+}
