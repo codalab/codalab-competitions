@@ -45,10 +45,11 @@ module Ajax {
             });
         }
 
-        public ajaxGetRequest(xUrl:string, succ, err) {
+        public ajaxGetRequest(xUrl:string, succ, err, data) {
             $.ajax({
                 type: "GET",
                 url: xUrl,
+                data: data,
                 cache: false,
                 success: succ,
                 error: err
