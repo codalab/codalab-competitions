@@ -6,10 +6,11 @@
     <title>Codalab - {% block title %}{% endblock %}</title>
     <link href="{% static "site/Images/favicon.ico" %}" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" type="text/css" href="{% static "site/css/Main.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "lib/jq/ui/themes/base/jquery.ui.datepicker.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'lib/jq/ui/themes/base/jquery-ui.css' %}" />
     {% include "web/includes/jquery.html" %}
     {% include "web/includes/jqueryui.html" %}
+    <link rel="stylesheet" type="text/css" href="{% static "site/css/Main.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "lib/jq/ui/themes/base/jquery.ui.datepicker.css" %}" />
     {% include "web/includes/modernizr.html" %}
     <script src="{% static "site/js/AjaxRequest.js" %}"></script>
     {% block extra_head %}{% endblock %}

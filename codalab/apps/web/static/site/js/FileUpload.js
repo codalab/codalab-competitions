@@ -116,7 +116,7 @@ var FileUpload;
                     if(FileUpload.FileUploadFile.timerId < 10000) {
                         if(data.status == 8) {
                             if(reason === 1) {
-                                ($("#imgProfileImage")[0]).src = "/file/download/" + token;
+                                FileUpload.FileUploadFile.staticCallback(token);
                             } else {
                                 FileUpload.FileUploadFile.staticCallback(data);
                             }

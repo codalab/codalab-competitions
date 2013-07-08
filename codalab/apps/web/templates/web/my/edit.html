@@ -1,0 +1,372 @@
+﻿{% extends 'web/base.html' %}
+{% load staticfiles %}
+{% block title %}Edit{% endblock %}
+
+ 
+{% block body %}
+<form method="POST" onsubmit="disableBeforeUnload();">
+{% csrf_token %}
+<input type="hidden" name="competition_id" value="{{ item.competition_id }}"/>
+<input type="hidden" name="step" value="{{ item.step }}"/>
+<input type="hidden" name="saveflag" value="{{ item.saveflag }}"/>
+
+<input id="valueChanged" type="hidden" />
+<div id="tabs" class="CompetitionProcessTab">
+    <div class="competitionProcessHeader">
+        {# <div class="breadcrumb"><div><label>home</label><span></span><label>codalab</label></div></div> #}
+        <ul>
+            <li id="tab1"><a id="aTab1" href="#tabs-1">overview</a><span></span></li>
+            <li id="tab2"><a id="aTab2" href="#tabs-2">phases</a><span></span></li>
+            <li id="tab3"><a id="aTab3" href="#tabs-3">details</a><span></span></li>
+            <li id="tab4">
+                <div id="publishNotoficationIcon"></div>
+                <a id="aTab4" href="#tabs-4">publish</a><span></span></li>
+            {% comment %}
+            <li id="competitionTabButtonContainer">
+                    <div class="tabButton"> <input type="submit" value="Save & Continue" id="btnSaveConti" /> </div>
+                    <div class="tabButton"> <input id="btnSave" type="submit" value="Save" /></div>*@
+            @*<div class="tabButton"><a>manage participants</a></div>
+                </li>
+            {% endcomment %}
+        </ul>
+
+    </div>
+    <div class="mainContainer">
+        <div class="CompetitionProcessContainer">
+            <div id="tabs-1" class="CompetitionTypeDetailTBLHolder">
+                <div class="CompetitionTypeDetailrowDate detailsUpload">
+                    <div class="CompetitionTypeDetailTBL">
+
+                        <div class="CompetitionTypeDetailrow">
+
+                            <div class="thumbnailContainer">
+                                <figure class="competitionsProfileImage">
+ 				   {% if object.image_url %}
+                                    <img id="imgProfileImage" src="{{ object.image_url }}" width="133" height="94">
+				   {% else %}
+				   <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
+				   {% endif %}
+                                </figure>
+                                <div>
+                                    <input id="UploadReason" value ="1" type="hidden" />
+                                    <label class="uploadLabel">Change thumbnail</label>
+                                    <input class="uploadImage" type="file" id="uploadFile" name="uploadFile">
+                                    <span id="imageProcess" class="preloaderInputImg"></span>
+                                </div>
+                            </div>
+                            <div>
+                                
+				<input id="Title" class="text-box single-line" type="text" value="Untitled" name="Title"/>
+                                <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
+                                <div>
+				    <textarea id="Description" rows="2" name="Description" cols="20">{{ object.description }}</textarea>
+				    <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Description"></span>
+                                </div>
+
+                            </div>
+                        </div><a class="helpLinkIcon" href="{% url 'help_create_competition' %}#overview"  title="Get help with creating a competition" target="_blank"></a>
+                    </div>
+               </div>
+            </div>
+            <div id="tabs-2" class="CompetitionTypeDetailTBLHolder">
+
+                <div class="CompetitionTypeDetailrowDate">
+
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label class="">Phase #1 title</label>
+                            </div>
+                            <div>
+                                <input type="text" class="inputTxt phaseTitle" id="ph1title" />
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label>Start date</label>
+                            </div>
+                            <div>
+                                <div class="dateSelectBlock">
+                                    <input type="text" class="inputTxt" id="ph1StartDate"  readonly="true"/>
+                                    <div id="ph1StartDateIcon" class="calIcon"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Maximum number of submission</label></div>
+                            <div>
+                                <div class="dateSelectBlock">
+                                    <input type="text" class="inputSubmissionLmt" id="ph1SubmissionLmt" value="100" />
+                                    <label class="txtBoxLabel">* 1 - 100</label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label>Upload score and dataset manifest file</label>
+                            </div>
+                            <div>
+                                <a class="globalBlueButtonSmall" id="uploadManifestph1">upload</a>
+                                  <span class="preloaderInputImg" id="imageProcessph1" style="display: none;"></span>
+                                  <label class="errorLabel" id="errorLabelPh1"></label>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div id="ph1dataset">
+                                <label>Downloadable datasets</label></div>
+                            <div id="ph1datasetimg">
+                                <div class="expCollDatasetExp"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="downloadedContainer" class="downloadedContainer" style="display: none;">
+                        <div id="preLoaderPh1" class="preloader"></div>
+                     {% comment %}   <div class="CompetitionTypeDetailrowAdd">
+                            <div id="addDataSetPh1" class="globalBlueButton rFloat">
+                                <a>Add</a>
+                            </div>
+
+                        </div> {% endcomment %}
+                        <input type="hidden" value="1" />
+                    </div>
+                    <div id="divDownloadedContainer" class="phaseDatasetDetails" style="display: none">
+
+                        <div class="phaseDatasetDetailsContainer">
+                            <input type="hidden" id="hidDatasetId" />
+                            <div>
+                                <label>Dataset type</label>
+                                <div>
+                                    <input id="dataSetType" type="text" readonly="true" />
+                                </div>
+                            </div>
+                            <div>
+                                <label>Blob URL</label>
+                                <div>
+                                    <input id="SourceUrl" readonly="true" type="text" value="http://<account>.blob.core.windows.net/<container>/<blob-path>?<shared-access-string>" /></div>
+                            </div>
+                            <div>
+                                <label>Download URL</label>
+                                <div>
+                                    <input id="DownloadUrl" type="text" readonly="true" /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="CompetitionTypeDetailrowDate">
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label class="">Phase #2 title</label>
+                            </div>
+                            <div>
+                                <input type="text" class="inputTxt phaseTitle" id="ph2title" />
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label>Start date</label></div>
+                            <div>
+                                <div class="dateSelectBlock">
+                                    <input type="text" class="inputTxt" id="ph2StartDate" readonly="true" /><div id="ph2StartDateIcon" class="calIcon"></div>
+
+                                </div>
+                            </div>
+                            <div>
+                                <label>Maximum number of submission</label></div>
+                            <div>
+                                <div class="dateSelectBlock">
+                                    <input type="text" class="inputSubmissionLmt" id="ph2SubmissionLmt" value="100" />
+                                    <label class="txtBoxLabel">* 1 - 100</label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label>Upload score and dataset manifest file</label>
+                            </div>
+                            <div>
+                                <a class="globalBlueButtonSmall" id="uploadManifestph2">upload</a>
+                                <span class="preloaderInputImg" id="imageProcessph2" style="display: none;"></span>
+                                 <label class="errorLabel" id="errorLabelPh2"></label>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div id="ph2dataset">
+                                <label>Downloadable datasets</label></div>
+                            <div id="ph2datasetimg">
+                                <div class="expCollDatasetExp"></div>
+                            </div>
+                        </div>
+                    </section>
+                    <div id="downloadedContainer2" class="downloadedContainer" style="display: none;">
+                        <div id="preLoaderPh2" class="preloader"></div>
+
+                       {% comment %} <div class="CompetitionTypeDetailrowAdd">
+                            <div id="addDataSetPh2" class="globalBlueButton rFloat">
+                                <a>Add</a>
+                            </div>
+                        </div> {% endcomment %}
+
+                        <input type="hidden" value="2" />
+                    </div>
+                </div>
+                <div class="CompetitionTypeDetailrowDate">
+                    <section>
+                        <div class="CompetitionTypeDetailrow">
+                            <div>
+                                <label>Competition end date</label>
+                            </div>
+                            <div>
+                                <div class="dateSelectBlock">
+                                    <input type="text" class="inputTxt" id="competitionEndDate"  readonly="true"/><div id="competitionEndDateIcon" class="calIcon"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <a class="helpLinkIcon" href='{% url 'help_create_competition' %}#phases' title="Get help with creating a competition" target="_blank"></a>
+                </div>
+
+            </div>
+            <div id="tabs-3" class="CompetitionTypeDetailTBLHolder">
+                <section class="competitionsDetailTabArea">
+
+                    <ul class="competitionsDetailTabTop">
+                        <li class="tab1 active">Learn the details</li>
+                        <li class="tab2">Participate</li>
+                        <li class="tab3 viewStateOff">See the results</li>
+                    </ul>
+                    <ul class="competitionsDetailTabBlock">
+                        <li class="tab1">
+                            <div class="competitionsDetailTab textEditorLftTabContainer">
+                                <div class="CompetitionsDetailLft">
+                                    <nav>
+                                        <ul class="textEditorLftTab" id="textEditorLftTab">
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="CompetitionsDetailRit">
+                                    <div class="container">
+                                        <div class="textEditor">
+                                            <div class="textEditorBtnBlock"></div>
+                                            <textarea class="textEditorTxtArea" id="textEditorTxtArea">
+                                        </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% comment %}  <div class="saveBtnContainer">
+                            <a class="button3Small rFloat" id="applyChanges"> Apply changes</a>
+                        </div> {% endcomment %}
+                        </li>
+                        <li class="tab2">
+                            <div class="competitionsDetailTab textEditorLftTabContainer">
+                                <div class="CompetitionsDetailLft">
+                                    <nav>
+                                        <ul class="textEditorLftTab" id="CompetitionsDetailLftParticipateNav">
+                                        </ul>
+                                    </nav>
+                                </div>
+                                <div class="CompetitionsDetailRit">
+                                    <div class="container">
+                                        <div class="textEditor">
+                                            <div class="textEditorBtnBlock"></div>
+                                            <textarea class="textEditorTxtArea" id="textEditorTxtArea1">
+                                        </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% comment %}  <div class="saveBtnContainer">
+                            <a class="button3Small rFloat" id="applyChangesparticep"> Apply changes</a>
+                        </div> {% endcomment %}
+                        </li>
+                        <li class="tab3"></li>
+
+                    </ul>
+
+                </section>
+                <a class="helpLinkIcon helpLinkEdit" href='{% url 'help_create_competition' %}#details' title="Get help with creating a competition" target="_blank"></a>
+            </div>
+
+            <div id="tabs-4" class="CompetitionTypeDetailTBLHolder">
+
+                <div class="CompetitionTypeDetailTBL">
+                    <div class="CompetitionTypeDetailrow makePublicContainer">
+                        <div>
+			    <input id="Public" class="check-box" type="checkbox" value="true" name="Public" data-val-required="The Public field is required." data-val="true"/>
+                            <input type="hidden" value="false" name="Public"></input>
+                            <label class="publicLabel" for="Public">competition is public</label>
+                            <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Public"></span>
+                        </div>
+                    </div>
+                    <div id="publishNotoficationdiv" class="competitionTileNoRecord">
+                        <p>You have some unpublished changes. Click the Publish Changes button to make the changes visible to everyone.</p>
+                    </div>
+                    <div class="CompetitionTypeDetailrow makePublicContainer">
+                        <div>
+                            {% if object.public and object.has_edits %}
+                                <a id="btnPublish" class="globalBlueButton">publish changes</a>
+                            {% else %}
+
+                                <a id="btnPublish" class="globalBlueButton disabledStatus">publish changes</a>
+                            {% endif %}
+                            <a class="helpLinkIcon publishHelp" href="{% url 'help_create_competition' %}#publish" title="Get help with creating a competition" target="_blank"></a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="saveContainer">
+        <div class="saveBtnHolder">
+            <div class="saveBtnHolderColm">
+                <input type="submit" value="previous" id="btnSavePrev" class="commonBlueButton disabledStatus" />
+            </div>
+            <div class="saveBtnHolderColm">
+                <input id="btnSave" type="submit" value="Save" class="commonBlueButton" />
+            </div>
+
+            {% comment %} <div id="applyChanges" class="saveBtnHolderColm">
+                            <a class="commonBlueButton rFloat" >Save</a>
+                        </div>
+                 <div id="applyChangesparticep" class="saveBtnHolderColm">
+                            <a class="commonBlueButton rFloat" >Save</a>
+                        </div> {% endcomment %}
+            <div class="saveBtnHolderColm">
+                <input type="submit" value="next" id="btnSaveConti" class="commonBlueButton" />
+            </div>
+
+
+        </div>
+    </div>
+
+
+</div>
+<div class="buttonPreloaderTxtArea"></div>
+<div class="preloaderInput"></div>
+<div class="buttonPreloaderInput"></div>
+
+</form>
+
+<script type="text/javascript" src="{% static 'site/js/FileUpload.js' %}"></script>
+<script type="text/javascript" src="{% static 'site/js/CreateCompetition.js' %}"></script>
+
+{% endblock %}

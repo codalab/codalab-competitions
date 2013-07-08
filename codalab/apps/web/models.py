@@ -35,10 +35,10 @@ class Competition(Publishable):
     description = models.TextField(null=True, blank=True)
     image_url = models.URLField(null=True, blank=True)
     has_registration = models.BooleanField(default=False)
-    end_date = models.DateField()
+    end_date = models.DateField(null=True,blank=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
-    last_modified = models.DateTimeField()
+    last_modified = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         permissions = (
@@ -68,6 +68,21 @@ class CompetitionParticipant(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
+
+class CompetitionWizardViewModel(models.Model):
+    competition = models.ForeignKey(Competition)
+    step = models.IntegerField(default=1)
+    title = models.CharField(max_length=100,null=True,blank=True)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
+    description = models.TextField(null=True,blank=True)
+    public = models.BooleanField(default=False)
+    saveflag = models.BooleanField(default=True)
+    image_url = models.URLField(null=True,blank=True)
+    
+    def __unicode__(self):
+        return "%s step %d" % (self.competition,self.step)
+
+
 
 class CompetitionDataset(Publishable):
     competition = models.ForeignKey(Competition)

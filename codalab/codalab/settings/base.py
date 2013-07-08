@@ -165,6 +165,11 @@ class Base(Settings):
 
    AUTH_USER_MODEL = 'authenz.User'
    ANONYMOUS_USER_ID = -1
+
+   ACCOUNT_AUTHENTICATION_METHOD='email'
+   ACCOUNT_EMAIL_REQUIRED=True
+   ACCOUNT_EMAIL_VERIFICATION='none'
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

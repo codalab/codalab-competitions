@@ -1,7 +1,9 @@
-from django.views.generic import TemplateView,DetailView,ListView
+from django.views.generic import View,TemplateView,DetailView,ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.core.urlresolvers import reverse
 
 from apps.web import models
 
@@ -34,7 +36,28 @@ class CompetitionDownloadDataset(TemplateView):
 class MyIndex(LoginRequiredMixin):
     pass
 
+class MyCreateCompetition(LoginRequiredMixin,TemplateView):
+    
+    template_name = 'web/my/create.html'
+    
+    def post(self,request,*args,**kwargs):
+        c = models.Competition.objects.create(creator=request.user,
+                                              title='Untitled',
+                                              modified_by=request.user)
+        return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
+    
 
+class MyEditCompetition(LoginRequiredMixin,TemplateView):
+    
+    template_name = 'web/my/edit.html'
+
+    def post(self,request,competition_id=None):
+        form = MyEditWizardForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('my_edit_competition', kwargs={'pk': form.cleaned_data['competition_id'] }))
+        return HttpResponseBadRequest()
+        
 
 ## Partials
 

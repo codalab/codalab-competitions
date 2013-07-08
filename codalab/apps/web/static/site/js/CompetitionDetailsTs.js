@@ -194,6 +194,9 @@ var Competition;
                         });
                     } else {
                         if(CompetitionDetails.page === 1) {
+                            if((parseInt($("#activePhase").val()) > -1) && ((parseInt(phaseValue) === 0) || (parseInt(phaseValue) > parseInt($("#activePhase").val())))) {
+                                data = "<p> This phase has not started.</p>";
+                            }
                             $("#seeTheResults").append("<div class=\"competitionTileNoRecord\">" + data + "</div>");
                             $("#seeTheResults tr:first").hide();
                         }
@@ -385,7 +388,7 @@ var Competition;
                 }
                 strHtmlStrip = strHtmlStrip + "<section><label> Competition </br>";
                 if(data.phases.endDate !== undefined && data.phases.endDate !== null) {
-                    strHtmlStrip = strHtmlStrip + "<span> ends" + $.datepicker.formatDate('mm/dd/yy', new Date(data.phases.endDate)) + "</span>";
+                    strHtmlStrip = strHtmlStrip + "<span> ends " + $.datepicker.formatDate('mm/dd/yy', new Date(data.phases.endDate)) + "</span>";
                 } else {
                     strHtmlStrip = strHtmlStrip + "<span> has no end </span>";
                 }
