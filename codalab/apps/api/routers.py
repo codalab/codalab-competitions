@@ -11,5 +11,5 @@ urlpatterns = router.urls
 urlpatterns += (
     url(r'competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),
     url(r'competition/(?P<pk>\d+)/phases/$',views.competitionphase_list,name='api_competitionphases_list'),
-
+    
 )

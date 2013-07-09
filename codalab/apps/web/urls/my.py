@@ -15,7 +15,9 @@ partials_patterns = patterns(
 urlpatterns = patterns(
     '',
     url(r'^$', login_required(TemplateView.as_view(template_name='web/my/index.html')), name='my_codalab'),
-    url(r'^create_competition$', views.MyCreateCompetition.as_view(), name='my_create_competition'),
-    url(r'^edit_competition/(?P<pk>\d+)$', views.MyEditCompetition.as_view(), name='my_edit_competition'),
+    #url(r'^create_competition$', views.MyCreateCompetition.as_view(), name='my_create_competition'),
+    url(r'^create_competition$', views.CompetitionCreate.as_view(), name='my_create_competition'),
+    url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='my_edit_competition'),
     url(r'^_partials/', include(partials_patterns)),
     )
+
