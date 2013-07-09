@@ -1,7 +1,54 @@
 from django.db import models
 from django.conf import settings
 from publish.models import Publishable
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
+
+class ContentVisibility(models.Model):
+    name = models.CharField(max_length=20)
+    codename = models.SlugField(max_length=20)
+    
+    def __unicode__(self):
+        return self.name
+
+class ContentContainerType(models.Model):
+    name = models.CharField(max_length=50)
+    codename = models.SlugField(max_length=50)
+    is_active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
+
+class ContentContainer(models.Model):
+    parent = models.ForeignKey('self', related_name='children', null=True, blank=True)
+    type = models.ForeignKey(ContentContainerType)
+    visibility = models.ForeignKey(ContentVisibility)
+    label = models.CharField(max_length=50)
+    rank = models.IntegerField(default=0)
+    max_items = models.IntegerField(default=1)
+
+    def __unicode__(self):
+        return self.label
+
+    @property
+    def toplevel(self):
+        return self.parent is None
+
+class PageContainer(models.Model):
+    container = models.ForeignKey(ContentContainer)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    owner = generic.GenericForeignKey('content_type', 'object_id')
+    
+class Page(Publishable):
+    pagecontainer = models.ForeignKey(PageContainer,related_name='pages')
+    rank = models.PositiveIntegerField(default=0)
+    title = models.CharField(max_length=100, null=True, blank=True)
+    visible = models.BooleanField(default=True)
+    markup = models.TextField(blank=True)
+    html = models.TextField(blank=True)
+    
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -39,6 +86,8 @@ class Competition(Publishable):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
+    pagecontainer = generic.GenericRelation(PageContainer)
+    
 
     class Meta:
         permissions = (
@@ -73,18 +122,6 @@ class CompetitionParticipant(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
-
-class CompetitionPage(Publishable):
-    competition = models.ForeignKey(Competition)
-    rank = models.PositiveIntegerField(default=0)
-    label = models.CharField(max_length=50,blank=True,default="")
-    visible = models.BooleanField(default=True)
-    markup = models.TextField(blank=True)
-    html = models.TextField(blank=True)
-
-    class Meta:
-        unique_together = (('competition','rank'),)
-
 
 
 
