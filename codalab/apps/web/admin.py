@@ -18,3 +18,15 @@ admin.site.register(models.ParticipantStatus, ParticipantStatusAdmin)
 class ExternalFileTypeAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
+
+class ContentContainerTypeAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentContainerType, ContentContainerTypeAdmin)
+
+class ContentContainerAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentContainer, ContentContainerAdmin)
+
+class ContentVisibilityAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentVisibility, ContentVisibilityAdmin)

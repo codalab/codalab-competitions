@@ -32,3 +32,8 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
 
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'})
+
+
+class ContentContainerViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.ContentContainerSerial
+    queryset = webmodels.ContentContainer.objects.filter(parent=None)
