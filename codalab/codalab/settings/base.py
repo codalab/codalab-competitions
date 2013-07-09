@@ -91,6 +91,7 @@ class Base(Settings):
       'django.contrib.staticfiles.finders.FileSystemFinder',
       'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+      'compressor.finders.CompressorFinder',
    )
 
 # Make this unique, and don't share it with anybody.
@@ -109,6 +110,7 @@ class Base(Settings):
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
    )
@@ -145,6 +147,7 @@ class Base(Settings):
     'django.contrib.staticfiles',
     
     'django.contrib.admin',
+    'compressor',
     'django_extensions',
     'django_js_reverse',
     'rest_framework',
@@ -161,7 +164,14 @@ class Base(Settings):
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'debug_toolbar',
    )
+   INTERNAL_IPS = ('127.0.0.1',)
+   DEBUG_TOOLBAR_CONFIG = {
+      'SHOW_TEMPLATE_CONTEXT': True,
+      
+      'ENABLE_STACKTRACES' : True,
+      }
    LOGIN_REDIRECT_URL = '/my'
 
    AUTH_USER_MODEL = 'authenz.User'
@@ -171,6 +181,10 @@ class Base(Settings):
    ACCOUNT_EMAIL_REQUIRED=True
    ACCOUNT_EMAIL_VERIFICATION='none'
 
+   COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/typescript', 'tsc {infile} --out {outfile}'),
+    )
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

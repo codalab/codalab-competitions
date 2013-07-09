@@ -1,4 +1,7 @@
-from django.views.generic import View,TemplateView,DetailView,ListView
+from django.views.generic import View,TemplateView,DetailView,ListView,FormView,UpdateView,CreateView
+from django.views.generic.edit import FormMixin
+from django.views.generic.detail import SingleObjectMixin
+from django.forms.formsets import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -6,6 +9,9 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.core.urlresolvers import reverse
 
 from apps.web import models
+from apps.web import forms
+
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
 class LoginRequiredMixin(object):
 
@@ -16,9 +22,54 @@ class LoginRequiredMixin(object):
 class CompetitionTabDetails(TemplateView):
     pass
 
-class CompetitionDetails(DetailView):
+class CompetitionCreate(CreateView):
     model = models.Competition
+    template_name = 'web/my/create.html'
+    form_class = forms.CompetitionForm
 
+    def form_valid(self,form):
+         form.instance.creator = self.request.user
+         form.instance.modified_by = self.request.user
+         return super(CompetitionCreate, self).form_valid(form)
+
+    def form_invalid(self,form):
+        raise Exception(form.errors)
+
+    def get_success_url(self):
+        return reverse('my_edit_competition', kwargs={'pk': self.object.pk})
+
+
+
+class PhasesInline(InlineFormSet):
+    model = models.CompetitionPhase
+
+class CompetitionEdit(UpdateWithInlinesView):
+    model = models.Competition
+    inlines = [PhasesInline, ]
+    template_name = 'web/my/edit_new.html'
+    
+ 
+    # def get(self,request,*args,**kwargs):
+    #     competition_id = kwargs.get('pk',None)
+    #     instance =  models.Competition.objects.get(pk=competition_id) if competition_id else None
+    #     comp_form = forms.Competition(instance=instance)
+    #     phase_formset = modelformset_factory(models.CompetitionPhase, form=form, 
+    #                                          queryset=models.CompetitionPhase.filter(competition=instance))
+        
+        
+
+    
+
+class CompetitionUpdate(UpdateView):
+    model = models.Competition
+    form_class = forms.CompetitionForm
+    
+#class Competition(DetailView, FormMixin):
+#    model = models.Competition
+#    form_class = forms.CompetitionForm
+
+    
+        
 class CompetitionPageDetails(TemplateView):
     pass
         
@@ -107,4 +158,6 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-    
+
+class MyCompetitionDetailsTab(TemplateView):
+    template_name = 'web/my/_tab.html'

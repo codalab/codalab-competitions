@@ -49,13 +49,18 @@ class Competition(Publishable):
     def __unicode__(self):
         return self.title
 
+class CompetitionDataset(Publishable):
+    competition = models.ForeignKey(Competition)
+    number = models.PositiveIntegerField(default=0)
+    dataset = models.ForeignKey(ExternalFile)
+
 class CompetitionPhase(Publishable):
     competition = models.ForeignKey(Competition)
     phasenumber = models.PositiveIntegerField()
     label = models.CharField(max_length=50,blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
-    manifest_file_id = models.PositiveIntegerField()
+    dataset = models.ForeignKey(CompetitionDataset)
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.phasenumber)
@@ -68,6 +73,20 @@ class CompetitionParticipant(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
+
+class CompetitionPage(Publishable):
+    competition = models.ForeignKey(Competition)
+    rank = models.PositiveIntegerField(default=0)
+    label = models.CharField(max_length=50,blank=True,default="")
+    visible = models.BooleanField(default=True)
+    markup = models.TextField(blank=True)
+    html = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = (('competition','rank'),)
+
+
+
 
 class CompetitionWizard(models.Model):
     competition = models.ForeignKey(Competition)
@@ -86,9 +105,3 @@ class CompetitionWizard(models.Model):
         return "%s step %d" % (self.competition,self.step)
 
 
-
-class CompetitionDataset(Publishable):
-    competition = models.ForeignKey(Competition)
-    number = models.PositiveIntegerField(default=0)
-    dataset = models.ForeignKey(ExternalFile)
-    
