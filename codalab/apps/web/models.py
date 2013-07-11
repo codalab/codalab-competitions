@@ -3,43 +3,68 @@ from django.conf import settings
 from publish.models import Publishable
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-
+from django.utils.text import slugify
 
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
-    codename = models.SlugField(max_length=20)
-    
+    codename = models.SlugField(max_length=20,unique=True)
+    classname = models.CharField(max_length=30,null=True,blank=True)
+
     def __unicode__(self):
         return self.name
 
 class ContentContainerType(models.Model):
     name = models.CharField(max_length=50)
-    codename = models.SlugField(max_length=50)
+    codename = models.SlugField(max_length=50,unique=True)
     is_active = models.BooleanField(default=True)
+
 
     def __unicode__(self):
         return self.name
 
 class ContentContainer(models.Model):
+    name = models.CharField(max_length=30)
+    type = models.ForeignKey(ContentContainerType, unique=True)
+
+    def __unicode__(self):
+        return "%s %s" % (self.name,self.type.name)
+
+class ContentEntity(models.Model):
     parent = models.ForeignKey('self', related_name='children', null=True, blank=True)
-    type = models.ForeignKey(ContentContainerType)
+    container = models.ForeignKey(ContentContainer, related_name='entities')
     visibility = models.ForeignKey(ContentVisibility)
     label = models.CharField(max_length=50)
+    codename = models.SlugField(max_length=81,null=True,blank=True)
     rank = models.IntegerField(default=0)
     max_items = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ['rank']
+        #unique_together = (('label','container'),)
 
     def __unicode__(self):
         return self.label
 
+    def make_codename(self):
+        return slugify("%s %s" % (self.container.type.codename, self.label))
+    
+    def save(self,*args,**kwargs):
+        if not self.codename:
+            self.codename = self.make_codename()
+        return super(ContentEntity,self).save(*args,**kwargs)
+    
     @property
     def toplevel(self):
         return self.parent is None
 
 class PageContainer(models.Model):
-    container = models.ForeignKey(ContentContainer)
+    entity = models.ForeignKey(ContentEntity)
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(db_index=True)
     owner = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        unique_together = (('content_type','object_id'),)
     
 class Page(Publishable):
     pagecontainer = models.ForeignKey(PageContainer,related_name='pages')

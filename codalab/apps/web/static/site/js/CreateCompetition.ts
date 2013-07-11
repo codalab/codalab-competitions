@@ -206,15 +206,33 @@ module Competition {
             super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
         }
 
-        private ajaxRequestForGettingCompetitionPageContent(pageNumber) {
-            var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
+	private getContentPage(pageNumber,target) {
+	    
+	    var xUrl = Urls.api_competition_page_list(parseInt($("#CompetitionId").val())) + pageNumber
+
             var onSuccess = function (data) {
-                if ($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
-                    $("#textEditorTxtArea").val(data);
-                } else { $("#textEditorTxtArea1").val(data); }
+		console.log(data.html);
+		$(target).val(data.html);
+                
             };
             var onError = function (xhr, status, err) {
+		console.log("Error requestion detail page")
+            };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
 
+	}
+
+
+        private ajaxRequestForGettingCompetitionPageContent(pageNumber) {
+            var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
+	    xUrl = Urls.api_competition_page(parseInt($("#CompetitionId").val(), pageNumber));
+
+            var onSuccess = function (data) {
+		// $(target).val(data.html);
+                
+            };
+            var onError = function (xhr, status, err) {
+		console.log("Error requestion detail page")
             };
             CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         }
@@ -247,6 +265,76 @@ module Competition {
             } else { return true; }
 
         }
+	public getDetailTabs() {
+	    
+	    console.log("OK");
+	    var xUrl = Urls.api_contentcontainer_list();
+	    console.log(xUrl);
+	    var onSuccess = function(data) {
+		for (var i=0; i < data.length; i++)
+		{
+		    var item = data[i];
+		    var a = '';
+		    if(i === 0) {
+			a = ' active';
+		    }
+		    $("#competition_detail_tab_head").append('<li class="tab' + (item.rank +1) + a + '">' + item.label + '</li>');
+		}
+	    };
+	    var onError = function (xhr, status, err) {
+	    };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
+	}
+	
+	public bindCompetitionDetailEvents() {
+	    $('.textEditorLftTab > li').click(function () {
+                if ($(this).hasClass("viewStateDisabled")) { return false; }
+		    var el = $("div:first",this);
+		   
+		    var tab_id =  $("input.t_tab_id",el).val();
+		    var target = $("#textEditorTxtArea"+tab_id);
+		    console.log(tab_id + " " + target);
+         	    var pagenum = $(el).find('input.t_id').val()
+                    var myClass = $(this).attr("class");
+                    if (!$(this).hasClass('active')) {
+                        $('.textEditorLftTab > li').removeClass('active');
+                        $(this).addClass('active');
+                        $(target).val("");
+                        CreateCompetition.prototype.getContentPage(pagenum,target);
+                    }
+                });
+
+                $('.textEditorLftTab > li > div > a').click(function (e) {
+                    $(this).parent().parent().children("label").show();
+                    $(this).parent().parent().children("input").hide();
+                    if (!$(this).parent().parent().hasClass("viewStateOff")) {
+                        $(this).parent().parent().addClass("viewStateOff");
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                        e.stopPropagation();
+                    } else {
+                        $('.textEditorLftTab > li').removeClass('active');
+                        $(this).parent().parent().removeClass("viewStateOff");
+                        $(this).parent().parent().addClass("active");
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                    }
+                });
+                $('.textEditorLftTab > li > label').dblclick(function (e) {
+                    if (!$(this).parent().hasClass("viewStateAlwaysOn") && !$(this).parent().hasClass("viewStateOff")) {
+                        $(this).hide();
+                        $(this).siblings().show();
+                        e.stopPropagation();
+                    }
+                });
+                $('.textEditorLftTab > li > input').bind("keypress blur", function (e) {
+                    var keyCode = e.keyCode || e.which;
+                    if (keyCode === 13 || keyCode === 9 || e.type == "blur") {
+                        e.preventDefault();
+                        CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                    }
+                });
+	    
+
+	}
         public getLftTabsForCompetition(tabNumber) {
             var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
             var onSuccess = function (data) {
@@ -349,21 +437,22 @@ module Competition {
 	    xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
 
             var onSuccess = function (data) {
-                $("#ph1title").val(data.phases[0].label)
-                $("#ph2title").val(data.phases[1].label)
-                $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions)
-                $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions)
-                if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-                    $("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
-                }
-                else { $("#ph1StartDate").val(""); }
-                if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-                    $("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
-                } else { $("#ph2StartDate").val(""); }
-                if (data.endDate !== null && data.endDate !== undefined) {
-                    $("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
-                } else { $("#competitionEndDate").val(""); }
-
+		if(data.length > 0) {
+                    $("#ph1title").val(data.phases[0].label)
+                    $("#ph2title").val(data.phases[1].label)
+                    $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions)
+                    $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions)
+                    if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+			$("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
+                    }
+                    else { $("#ph1StartDate").val(""); }
+                    if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+			$("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
+                    } else { $("#ph2StartDate").val(""); }
+                    if (data.endDate !== null && data.endDate !== undefined) {
+			$("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
+                    } else { $("#competitionEndDate").val(""); }
+		}
             };
             var onError = function (xhr, status, err) {
                 alert('An error occured [' + err + ']');
@@ -444,17 +533,20 @@ module Competition {
 
 }
 
-$(document).ready(function () {
+$(function () {
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
         $("#uploadFile").click();
-    })
+    });
+    //CreateCompetition.getDetailTabs();
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");
+    
     CreateCompetition.genaraltabSelection();
     CreateCompetition.changeSaveButtonTextValue();
+   
     $("#btnSaveConti").click(function (e) {
         if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
         $(this).addClass("disabledStatus");
@@ -504,8 +596,8 @@ $(document).ready(function () {
         }
     });
 
-    CreateCompetition.getLftTabsForCompetition(0);
-
+    // CreateCompetition.getLftTabsForCompetition(0);
+    CreateCompetition.bindCompetitionDetailEvents();
     $('.textEditorLftTab > li').click(function () {
         var myClass = $(this).attr("class");
         if (!$(this).hasClass("active")) {

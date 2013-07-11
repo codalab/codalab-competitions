@@ -13,6 +13,29 @@ from apps.web import forms
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
+def get_content_context(typename=None):
+    ## TODO: Add caching
+    cont = {}
+    ctx = {'content': cont}
+    kw = {}
+    if type:
+        kw['type__codename'] = typename          
+    container = models.ContentContainer.objects.get(**kw)
+    cont['container'] = container
+    toplevel = []
+    cont['toplevel'] = toplevel
+    children = {}
+    cont['children'] = children
+    for e in sorted(container.entities.all(), key=lambda entity: entity.rank):
+        if e.toplevel:
+            toplevel.append(e)
+        else:
+            if e.parent_id not in children:
+                children[e.parent_id] = []
+            children[e.parent_id].append(e)
+    return ctx
+
+
 class LoginRequiredMixin(object):
 
     @method_decorator(login_required)
@@ -46,9 +69,14 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/my/edit_new.html'
+    template_name = 'web/my/edit.html'
     
- 
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionEdit,self).get_context_data(**kwargs)
+        # context['pages'] = .pagecontainer.pages
+        context.update(get_content_context(typename='competition_detail'))
+        return context
+
     # def get(self,request,*args,**kwargs):
     #     competition_id = kwargs.get('pk',None)
     #     instance =  models.Competition.objects.get(pk=competition_id) if competition_id else None
@@ -101,7 +129,7 @@ class MyCreateCompetition(LoginRequiredMixin,TemplateView):
         return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
     
 
-class MyEditCompetition(LoginRequiredMixin,TemplateView):
+class MyEditCompetition(LoginRequiredMixin,UpdateView):
     
     template_name = 'web/my/edit.html'
 
@@ -114,7 +142,10 @@ class MyEditCompetition(LoginRequiredMixin,TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(MyEditCompetition,self).get_context_data(**kwargs)
-        context['object'] = models.CompetitionWizard.objects.get(competition_id=self.kwargs['pk'],step=1)
+        comp = models.Competition.objects.get(pk=self.kwargs['pk'])
+        context['competition'] = comp
+        context['pages'] = comp.pagecontainer.pages
+        context['content'] = models.ContentContainer.objects.all()
         return context
         
 ## Partials

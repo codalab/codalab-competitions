@@ -259,6 +259,22 @@ var Competition;
                 return true;
             }
         };
+        CreateCompetition.prototype.getDetailTabs = function () {
+            var xUrl = Urls['contentcontainers-list'];
+            var onSuccess = function (data) {
+                for(var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    var a = '';
+                    if(i === 0) {
+                        a = ' active';
+                    }
+                    $("#competition_detail_tab_head").append('<li class="tab' + (item.rank + 1) + a + '">' + item.label + '</li>');
+                }
+            };
+            var onError = function (xhr, status, err) {
+            };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
+        };
         CreateCompetition.prototype.getLftTabsForCompetition = function (tabNumber) {
             var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
             var onSuccess = function (data) {
@@ -463,12 +479,13 @@ var Competition;
     Competition.CreateCompetition = CreateCompetition;    
 })(Competition || (Competition = {}));
 
-$(document).ready(function () {
+$(function () {
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
         $("#uploadFile").click();
     });
+    CreateCompetition.getDetailTabs();
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");

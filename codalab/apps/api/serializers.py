@@ -24,25 +24,42 @@ class CompetitionDataSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.Competition
  
-
-class ContentContainerSerial(serializers.ModelSerializer):
+class ContentContainerSerialBase(serializers.ModelSerializer):
     type_id = serializers.IntegerField(source='type.pk')
     type_name = serializers.CharField(source='type.name')
-
+    type_codename = serializers.CharField(source='type.codename')
+    visibility_id = serializers.IntegerField(source='visibility.pk')
+    visibility_name = serializers.CharField(source='visibility.name')
+    visibility_codename = serializers.CharField(source='visibility.codename')
+    
     class Meta:
         model = webmodels.ContentContainer
-        depth = 1
-        exclude = ('parent','type')
-        fields = ('type_id','type_name','visibility','label','rank','max_items','children')
+        #exclude = ('parent','type','visibility')
+        #fields = ('id', 'type_id','type_name','visibility_id','visibility_name' ,'rank','max_items','children')
+
+class ContentContainerSerial(ContentContainerSerialBase):
+    children = ContentContainerSerialBase(source='children')
+    
+
 
 class PageSerial(serializers.ModelSerializer):
+    
+    def __init__(self ,*args, **kwargs):
+        super(PageSerial,self).__init__(*args,**kwargs)
+        self._pagecontainer = self.context.get('pagecontainer',None)
+       
+
+    def validate_pagecontainer(self, attrs, source):
+        if self._pagecontainer:
+            attrs['pagecontainer'] = self._pagecontainer
+        return attrs
 
     class Meta:
         model = webmodels.Page
 
 class PageContainerSerial(serializers.ModelSerializer):
     pages = PageSerial(source='pages')
-
+    
     class Meta:
         model = webmodels.PageContainer
         
