@@ -30,3 +30,7 @@ admin.site.register(models.ContentContainer, ContentContainerAdmin)
 class ContentVisibilityAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ContentVisibility, ContentVisibilityAdmin)
+
+class ContentEntityAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentEntity, ContentEntityAdmin)

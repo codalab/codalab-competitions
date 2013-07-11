@@ -1,0 +1,133 @@
+[
+{
+  "pk": 1, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "unknown", 
+    "name": "Unknown"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "visible", 
+    "name": "Visible"
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "visible_always", 
+    "name": "Visible Always"
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "hidden", 
+    "name": "Hidden"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contentcontainertype", 
+  "fields": {
+    "codename": "competition_detail", 
+    "is_active": true, 
+    "name": "Competition Detail"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contentcontainer", 
+  "fields": {
+    "type": 1, 
+    "name": "Competition Detail"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "rank": 0, 
+    "label": "Overview", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-overview"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": null, 
+    "rank": 0, 
+    "label": "Learn the Details", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-learn-the-details"
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": null, 
+    "rank": 1, 
+    "label": "Participate", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-participate"
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "rank": 1, 
+    "label": "Overview", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-overview"
+  }
+},
+{
+  "pk": 5, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "rank": 2, 
+    "label": "Terms and Conditions", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-terms-and-conditions"
+  }
+},
+{
+  "pk": 6, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 3, 
+    "rank": 0, 
+    "label": "Get data", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "codename": "competition_detail-get-data"
+  }
+}
+]

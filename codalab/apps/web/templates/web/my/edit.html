@@ -1,16 +1,19 @@
 ﻿{% extends 'web/base.html' %}
 {% load staticfiles %}
+{% load compress %}
 {% block title %}Edit{% endblock %}
 {% block extra_head %}
-<script type="text/javascript" src="{% static 'site/js/FileUpload.js' %}"></script>
-<script type="text/javascript" src="{% static 'site/js/CreateCompetition.js' %}"></script>
+{% compress js %}
+<script type="text/typescript" src="{% static 'site/js/FileUpload.ts' %}"></script>
+<script type="text/typescript" src="{% static 'site/js/CreateCompetition.ts' %}"></script>
+{% endcompress %}
 {% endblock %}
 {% block body %}
 <form method="POST" onsubmit="disableBeforeUnload();">
 {% csrf_token %}
-<input type="hidden" id="CompetitionID" name="competition_id" value="{{ object.competition_id }}"/>
-<input type="hidden" id="Step" name="step" value="{{ object.step }}"/>
-<input type="hidden" id="SaveFlag" name="saveflag" value="{{ object.saveflag }}"/>
+<input type="hidden" id="CompetitionId" name="competition_id" value="{{ competition.pk }}"/>
+<input type="hidden" id="Step" name="step" value="{{ competition.step }}"/>
+<input type="hidden" id="SaveFlag" name="saveflag" value="{{ competition.saveflag }}"/>
 
 <input id="valueChanged" type="hidden" />
 <div id="tabs" class="CompetitionProcessTab">
@@ -61,7 +64,7 @@
 				<input id="Title" class="text-box single-line" type="text" value="Untitled" name="Title"/>
                                 <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
                                 <div>
-				    <textarea id="Description" rows="2" name="Description" cols="20">{{ object.description|default:"" }}</textarea>
+				    <textarea id="Description" rows="2" name="Description" cols="20">{{ competition.description|default:"" }}</textarea>
 				    <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Description"></span>
                                 </div>
 
@@ -247,13 +250,51 @@
             <div id="tabs-3" class="CompetitionTypeDetailTBLHolder">
                 <section class="competitionsDetailTabArea">
 
-                    <ul class="competitionsDetailTabTop">
-                        <li class="tab1 active">Learn the details</li>
+                    <ul class="competitionsDetailTabTop" id="competition_detail_tab_head">
+		      {% for c in content.toplevel %}
+		        <li class="tab{{forloop.counter}} {% if forloop.first %}active{% endif %}">{{c.label}}</li>
+		      {% endfor %}
+                        {% comment %}<li class="tab1 active">Learn the details</li>
                         <li class="tab2">Participate</li>
-                        <li class="tab3 viewStateOff">See the results</li>
+                        <li class="tab3 viewStateOff">See the results</li>{% endcomment %}
                     </ul>
                     <ul class="competitionsDetailTabBlock">
-                        <li class="tab1">
+                      {% for t in content.toplevel %}
+		         {% with toploop=forloop %}
+		         <li class="tab{{toploop.counter}}">
+                           <div class="competitionsDetailTab textEditorLftTabContainer">
+                                <div class="CompetitionsDetailLft"> 
+				  <nav>
+				    <ul class="textEditorLftTab" id="textEditorLftTab">
+		        {% for c in t.children.all %} 
+		                    <li title="{{c.label}}" tabindex="{{forloop.counter}}" class="{{ c.visibility.classname }}" id="tab{{forloop.counter0|add:toploop.counter}}"><label>{{c.label}}</label><input type="text" style="display:none;" value="{{ c.label }}" />
+				      <div>
+					<input type="hidden" class="t_type" value="{{ c.container.type.codename }}"/>
+					<input type="hidden" class="t_container_codename" value="{{ c.container.codename }}"/>
+					<input type="hidden" class="t_container_class" value="page"/>
+					<input type="hidden" class="t_id" value="{{ c.pk }}"/>
+					<input type="hidden" class="t_tab_id" value="{{toploop.counter}}"/>
+					<a></a>
+				      </div>
+				    </li> 
+		        {% endfor %}
+                                   </ul>
+                                  </nav>
+                                </div>
+				<div class="CompetitionsDetailRit">
+                                  <div class="container">
+                                    <div class="textEditor">
+                                      <div class="textEditorBtnBlock"></div>
+                                      <textarea class="textEditorTxtArea" id="textEditorTxtArea{{toploop.counter}}"></textarea>
+                                    </div>
+                                  </div>
+                                </div>	
+			   </div>
+                         </li>
+			 {% endwith %}
+		      {% endfor %}
+                       
+		      {% comment %} <li class="tab1">
                             <div class="competitionsDetailTab textEditorLftTabContainer">
                                 <div class="CompetitionsDetailLft">
                                     <nav>
@@ -271,9 +312,10 @@
                                     </div>
                                 </div>
                             </div>
-                            {% comment %}  <div class="saveBtnContainer">
+                              <div class="saveBtnContainer">
                             <a class="button3Small rFloat" id="applyChanges"> Apply changes</a>
-                        </div> {% endcomment %}
+                        </div>
+			    
                         </li>
                         <li class="tab2">
                             <div class="competitionsDetailTab textEditorLftTabContainer">
@@ -293,10 +335,11 @@
                                     </div>
                                 </div>
                             </div>
-                            {% comment %}  <div class="saveBtnContainer">
+                              <div class="saveBtnContainer">
                             <a class="button3Small rFloat" id="applyChangesparticep"> Apply changes</a>
-                        </div> {% endcomment %}
+                        </div> 
                         </li>
+			{% endcomment %}
                         <li class="tab3"></li>
 
                     </ul>
