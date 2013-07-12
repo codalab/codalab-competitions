@@ -2,7 +2,21 @@ from rest_framework import serializers
 from apps.web import models as webmodels
 from apps.authenz import models as authmodels
 
-       
+
+class CompetitionDatasetSerial(serializers.ModelSerializer):
+    dataset_id = serializers.IntegerField()
+    source_url = serializers.URLField()
+    source_address_info = serializers.CharField()
+    competition_id = serializers.IntegerField()
+    phase_id = serializers.IntegerField()
+    
+    def validata_phase_id(self,attr,source):
+        if not attr[source]:
+            attr[source] = None
+        return attr
+
+    def save():
+        pass
 
 class CompetitionSerial(serializers.ModelSerializer):
     

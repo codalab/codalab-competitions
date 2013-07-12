@@ -50,7 +50,7 @@
     "container": 1, 
     "parent": 2, 
     "max_items": 1, 
-    "label": "Overview", 
+    "label": "Evaluate", 
     "visibility": 2, 
     "rank": 1
   }

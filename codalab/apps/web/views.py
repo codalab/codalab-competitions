@@ -77,26 +77,19 @@ class CompetitionEdit(UpdateWithInlinesView):
         context.update(get_content_context(typename='competition_detail'))
         return context
 
-    # def get(self,request,*args,**kwargs):
-    #     competition_id = kwargs.get('pk',None)
-    #     instance =  models.Competition.objects.get(pk=competition_id) if competition_id else None
-    #     comp_form = forms.Competition(instance=instance)
-    #     phase_formset = modelformset_factory(models.CompetitionPhase, form=form, 
-    #                                          queryset=models.CompetitionPhase.filter(competition=instance))
-        
+       
         
 
     
+class CompetitionDetailView(DetailView):
+    queryset = models.Competition.objects.all()
+
+
 
 class CompetitionUpdate(UpdateView):
     model = models.Competition
     form_class = forms.CompetitionForm
-    
-#class Competition(DetailView, FormMixin):
-#    model = models.Competition
-#    form_class = forms.CompetitionForm
-
-    
+        
         
 class CompetitionPageDetails(TemplateView):
     pass

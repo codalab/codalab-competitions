@@ -98,10 +98,10 @@
     "container": 1, 
     "parent": 2, 
     "rank": 1, 
-    "label": "Overview", 
+    "label": "Evaluate", 
     "max_items": 1, 
     "visibility": 2, 
-    "codename": "competition_detail-overview"
+    "codename": "competition_detail-evaluate"
   }
 },
 {
@@ -128,6 +128,50 @@
     "max_items": 1, 
     "visibility": 2, 
     "codename": "competition_detail-get-data"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.externalfiletype", 
+  "fields": {
+    "codename": "test", 
+    "name": "Test"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "unknown", 
+    "name": "Unknown", 
+    "description": "Status is unknown"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "denied", 
+    "name": "Denied", 
+    "description": "Participation is denied. Chceck reason."
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "approved", 
+    "name": "Approved", 
+    "description": "Participation is Approved."
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "pending", 
+    "name": "Pending", 
+    "description": "Participation is pending approval."
   }
 }
 ]
