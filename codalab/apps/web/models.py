@@ -40,7 +40,7 @@ class ContentEntity(models.Model):
 
     class Meta:
         ordering = ['rank']
-        #unique_together = (('label','container'),)
+        unique_together = (('label','container'),)
 
     def __unicode__(self):
         return self.label
@@ -77,13 +77,14 @@ class Page(Publishable):
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
-    code = models.SlugField(max_length=20)
+    codename = models.SlugField(max_length=20)
 
     def __unicode__(self):
         return self.name
 
 class ExternalFile(models.Model):
     type = models.ForeignKey(ExternalFileType)
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     source_url = models.URLField()
     source_address_info = models.CharField(max_length=200, blank=True)
 
@@ -126,7 +127,7 @@ class Competition(Publishable):
 class CompetitionDataset(Publishable):
     competition = models.ForeignKey(Competition)
     number = models.PositiveIntegerField(default=0)
-    dataset = models.ForeignKey(ExternalFile)
+    datafile = models.ForeignKey(ExternalFile)
 
 class CompetitionPhase(Publishable):
     competition = models.ForeignKey(Competition)
@@ -134,7 +135,7 @@ class CompetitionPhase(Publishable):
     label = models.CharField(max_length=50,blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
-    dataset = models.ForeignKey(CompetitionDataset)
+    dataset = models.ForeignKey(CompetitionDataset,null=True,blank=True)
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.phasenumber)
@@ -144,6 +145,9 @@ class CompetitionParticipant(models.Model):
     competition = models.ForeignKey(Competition,related_name='participation')
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100,null=True,blank=True)
+
+    class Meta:
+        unique_together = (('user','competition'),)
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)

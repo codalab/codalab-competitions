@@ -1,6 +1,6 @@
 {% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block title %}Competition - [{{ object.info.title }}]{% endblock %}
+{% block title %}Competition - [{{ object.title }}]{% endblock %}
 {% block extra_head %}
 <script src="{% static "site/js/FileUpload.js" %}"></script>
 <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
@@ -10,13 +10,17 @@
 <div class="CompetitionsDetailContainer">
     <section class="competitionsDetailHeader">
         <figure class="competitionsProfileImage">
-            <img src="@imgSource" width="175" height="123" />
+	 {% if object.image_url %}
+               <img id="imgProfileImage" src="{{ object.image_url }}" width="133" height="94">
+	 {% else %}
+  	       <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
+	 {% endif %}
         </figure>
         <div class="competitionsHeaderTitle">
             <div class="container">
                 <h2>{{ object.title }}</h2>
-                <label id="lblLastModifiedDate"> -- by -- </label>
-                   {# @Html.HiddenFor(model => model.LastModified) #} 
+                <label id="lblLastModifiedDate"> -- by {{ object.creator }} -- </label>
+                    
                 <input id="submissionId" name="submissionId"  type="hidden" />
                 <input id="activePhase" name="activePhase"  type="hidden" />
                 <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
@@ -105,7 +109,7 @@
                                     </div>
                                 </div>
                            {% else %}
-                                <div class="globalBlueButtonAtag">LOGIN/REGISTER link goes here</div>
+                                <div class="globalBlueButtonAtag"><a href="{% url 'account_login' %}">Login</a>  <a href="{% url 'account_signup' %}">Register</a></div>
                             {% endif %}
                         </div>
 

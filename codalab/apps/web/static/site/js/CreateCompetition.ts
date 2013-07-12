@@ -293,7 +293,7 @@ module Competition {
 		   
 		    var tab_id =  $("input.t_tab_id",el).val();
 		    var target = $("#textEditorTxtArea"+tab_id);
-		    console.log(tab_id + " " + target);
+		    
          	    var pagenum = $(el).find('input.t_id').val()
                     var myClass = $(this).attr("class");
                     if (!$(this).hasClass('active')) {
