@@ -1,18 +1,22 @@
-# CodaLab: a platform for
+# codalab
 
 This is CodaLab. It goes to eleven. Just not yet.
 
-## get it working locally
+## Local Installation
 
-This is all Python. It works on Windows, Linux, Mac and BSD most of the time.
-You need two things to start. Well, three things if you count the computer. You
-need to have Python 2.7.x installed and a version of pip >= 1.3. 
+This is all Python.  It works on Windows, Linux, Mac and BSD most of the time.
+
+### Installing Python
+
+In this section, we will walk you through installing Python 2.7.x and a version
+of pip >= 1.3 (for installing Python packages).  You can skip this section if
+you already meet these requirements.
 
 #### Linux
 
-For current Debian-based Linux distributions , BSD and Mac Python 2.7 is
-usually installed. However... Redhat-based Linux distributions, such as RHEL
-and CentOS, sometimes behind the curve and do not have python 2.7. As of this
+For current Debian-based Linux distributions, BSD and Mac Python 2.7 is usually
+installed. However... Redhat-based Linux distributions, such as RHEL and
+CentOS, sometimes behind the curve and do not have Python 2.7. As of this
 writing, CentOS 6.4 is at Python 2.6, which is well on its way to EOL. Python
 2.6 may work, but code will be written with 2.7 and 3.3+ in mind. 
 
@@ -37,57 +41,70 @@ You can then execute from a command-line:
 
     easy_install pip
 
+Note that 'easy\_install.exe' will be located in the Scripts directory of your
+Python installation. You may find it easier to add the Scripts folder to your
+environment's PATH variable.
+
 If this seems like a lot of steps, it is. There are a couple of ways to do it,
 but it is assumed that if you read this far you are a developer of some sort,
 have some experience navigating a shell of some sort and/or have an awareness
 of the idiosyncratic nature of the platform(s) you employ in you personal and
 professional endeavors.
 
-### Virtual Environments
+### virtualenv
 
-From here you need to have the source checked-out/cloned. If you don't have a
-local copy and you are reading this then you have come to the right place. Only
-a few clicks will get you where you need to be. 
-
-Assuming that you have a copy, you will need to install the other requirements.
-It is best to work in a virtualenv. It is even better to install
-virtualenvwrapper:
+First, we will install virtualenv, which allows us to create a virtual
+environment to keep the CodaLab packages separate from the rest of your system:
 
     pip install virtualenv
 
-For the Linux crowd (and I am also looking at you Mac folks), you will install (probably with sudo):
+Optionally, you can also install virtualenvwrapper if you want:
 
     pip install virtualenvwrapper
 
-See [here](http://virtualenvwrapper.readthedocs.org/en/latest/).
+See [documentation here](http://virtualenvwrapper.readthedocs.org/en/latest).
 
-The Windows contigent can install:
+On Windows, you can install from the Windows PowerShell command-line:
 
     pip install virtualenvwrapper-powershell
+    $env:WORKON_HOME="~/Envs"
+    mkdir $env:WORKON_HOME
+    import-module virtualenvwrapper
 
 See [here](http://docs.python-guide.org/en/latest/dev/virtualenvs.html) and
 [here](http://virtualenvwrapper.readthedocs.org/en/latest/install.html).
 
-### Actual Development
+### Creating a virtual environment
 
-With all the tooling in place, you can create a virtual environment into which
-packages can be installed and be kept separate from what is installed on the
-system, globally.
+You can run a single command to install everything you need:
 
-    virtualenv MyEnv  # Creates a directory called MyEnv (do this once)
+    ./bootstrap 
 
-Each time you want to activate the environment, type:
+Or you can follow the following steps if you want to walk through the details.
+First create the virtual environment:
 
-    source MyEnv/bin/activate
+    virtualenv venv
 
-The shell prompt should indicate that you're in the environment.
+This should create a directory <code>venv</code>  To activate the environment:
 
-Then, assuming the code is checked out:
+    source ./venv/bin/activate 
 
-    pip install -r codalab/requirements/common.txt
+The shell prompt should change to have a <code>(venv)</code> prefix.  To
+install all the packages required for CodaLab, run:
 
-Then to start the CodaLab server:
- 
+    pip install -r codalab/requirements/dev.txt
+
+### Running CodaLab
+
+Now that everything is installed, you can start the CodaLab site:
+
     cd codalab
-    python manage.py syncdb  # Need settings.DATABASES (TODO)
+    python manage.py syncdb
     python manage.py runserver
+ 
+If syncdb fails it will provide an error.  If certain Python packages and/or
+Django apps and modules are not installed it will indicate what it cannot find.
+This usually means that the requirements have not been installed.
+
+You should be able to go to [http://127.0.0.1:8000](http://127.0.0.1:8000) to
+access your local copy of the website.
