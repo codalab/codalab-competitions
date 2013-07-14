@@ -1,4 +1,3 @@
-
 from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os,sys
@@ -226,16 +225,16 @@ class Base(Settings):
          lcls = getattr(local_configuration,os.environ.get('LOCAL_CONFIGURATION','Local'))
          for name,value in uppercase_attributes(lcls).items():
             setattr(cls,name,value)
-      except ImportError:
-         pass
+      except ImportError as e:
+         print e        
       if hasattr(cls,'ADDITIONAL_APPS'):
          cls.INSTALLED_APPS += cls.ADDITIONAL_APPS
       if hasattr(cls,'OPTIONAL_APPS'):
          for a in cls.OPTIONAL_APPS:
             try:
                __import__(a)
-            except ImportError:
-               pass
+            except ImportError as e:
+               print e               
             else:
                cls.INSTALLED_APPS += (a,)
 

@@ -3,18 +3,19 @@ Examples for local configuration for various environments.
 
 The objects ceated as here and referenced though the environment variable
 """
+import os
 
 class LocalEnvironment(object):
     """
     This creates the settings from environment variables that are set on the host.
     """
-    DB_ENGINE = 'sql_server.pyodbc'
-    DB_NAME = 'codadjango'
-    DB_USER = 'django_dev@loa9bc6d41'
-    DB_SERVER = 'loa9bc6d41'
-    DB_PASSWORD = 'Blergh01'
-    DB_HOST = 'loa9bc6d41.database.windows.net'
-    DB_PORT = '1433'
+    DB_ENGINE = os.environ.get('DB_ENGINE')
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_USER = os.environ.get('DB_USER')
+    DB_SERVER = os.environ.get('DB_SERVER')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_PORT = os.environ.get('DB_PORT')
 
 
 class LocalSQLAzureLinux(object):
