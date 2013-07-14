@@ -4,7 +4,7 @@ from . import models
 
   
 class CompetitionForm(forms.ModelForm):
-
+    
     def __init__(self,*args,**kwargs):
         self._user = kwargs.pop('user',None)
         super(CompetitionForm,self).__init__(*args,**kwargs)

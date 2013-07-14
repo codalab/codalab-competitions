@@ -10,3 +10,4 @@ local_configuration.py
 *.db
 *_db.sqlite
 codalab/static/*/*
+codalab/config/generated

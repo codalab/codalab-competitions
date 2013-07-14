@@ -11,8 +11,14 @@ class Base(Settings):
    ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
 
+   # Hosts/domain names that are valid for this site; required if DEBUG is False
+   # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+   ALLOWED_HOSTS = []
    DEBUG = True
    TEMPLATE_DEBUG = DEBUG
+   SERVER_NAME = 'localhost'
+   DOMAIN_NAME = 'localhost'
+   PORT = '8000'
 
    ADMINS = (
       # ('Your Name', 'your_email@example.com'),
@@ -32,9 +38,6 @@ class Base(Settings):
      }
    }
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-   ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -145,16 +148,18 @@ class Base(Settings):
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     'django.contrib.admin',
+    # Uncomment the next line to enable admin documentation:
+    # 'django.contrib.admindocs',
+
+    'django_config_gen',
     'compressor',
     'django_extensions',
     'django_js_reverse',
     'rest_framework',
     'guardian',
     'publish',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+
 
     'haystack',
     'apps.api',
@@ -223,3 +228,17 @@ class Base(Settings):
             setattr(cls,name,value)
       except ImportError:
          pass
+      if hasattr(cls,'ADDITIONAL_APPS'):
+         cls.INSTALLED_APPS += cls.ADDITIONAL_APPS
+      if hasattr(cls,'OPTIONAL_APPS'):
+         for a in cls.OPTIONAL_APPS:
+            try:
+               __import__(a)
+            except ImportError:
+               pass
+            else:
+               cls.INSTALLED_APPS += (a,)
+
+
+
+
