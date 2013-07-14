@@ -1,6 +1,5 @@
 Django==1.5.1
 argparse==1.2.1
-azure>=0.6.2
 distribute==0.6.34
 django-allauth==0.11.1
 django-appconf==0.6

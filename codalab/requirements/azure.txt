@@ -1,0 +1,2 @@
+azure==0.6.2
+django-pyodbc-azure==1.0.7
