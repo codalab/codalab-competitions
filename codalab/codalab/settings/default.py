@@ -16,6 +16,3 @@ class Dev(Base):
           'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
       },
    }
-
-
-
