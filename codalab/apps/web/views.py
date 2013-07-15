@@ -88,7 +88,8 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self,**kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
         try:
-            context['participation'] = self.request.user.participation.filter(competition=self.object)
+            if self.request.user.is_authenticated():
+                context['participation'] = self.request.user.participation.filter(competition=self.object)
         except ObjectDoesNotExist:
             pass
         return context
