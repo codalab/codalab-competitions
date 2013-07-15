@@ -62,6 +62,7 @@ module Competition {
             $("#tabAreaCompetitionIManage").append($("#competitionTilePreload").clone());
             $("#tabAreaCompetitionIManage").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsManaged";
+	    
 	    xUrl = Urls.my_competitions_managed();
             CompetitionList.doAjaxRequest(xUrl, "tabAreaCompetitionIManage", "You do not manage any competitions.", CompetitionList.pageIManage);
         }
