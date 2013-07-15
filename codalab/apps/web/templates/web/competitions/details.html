@@ -75,10 +75,20 @@
                     <div class="participateInfoBlock" id="participateInfoBlock">
                         <div class="infoStatusBar"></div>
                         <div class="labelArea">
-                            <label id="registerCompetitionLabel" class="regApprovLabel">You must be logged in before you can register </label>
+                            <label id="registerCompetitionLabel" class="regApprovLabel">
+			     {% if not user.is_authenticated %}
+			     You must be logged in before you can register
+			     {% elif not participation %}
+			     You have not yet registered for this competition
+			     {% elif participation.status.codename == 'pending' %}
+			     Your registration is pending approval
+			     {% elif participation.status.codename == 'rejected' %}
+			     Your registration has been rejected.
+			     {% endif %}
+			    </label>
                             <label id="rejectionReasonLabel" class="regApprovLabel noBold" ></label>
                             <input id="CompetitionId" type="hidden" value="{{ object.pk }}" />
-			    {% if request.user.is_authenticated %}
+			    {% if user.is_authenticated %}
                            
 
                                 <script type="text/javascript">
@@ -103,7 +113,9 @@
 
                                     <div class="containerSpace">
                                         <div class="globalBlueButtonAtag lFloat">
-                                            <a class="registerCompetition" id="registerCompetition"></a>
+					  {% if not participation %}
+                                            <a class="registerCompetition" id="registerCompetition">register</a>
+					  {% endif %}
                                             <div class="buttonPreloader"></div>
                                         </div>
                                     </div>

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from apps.web import models
 from apps.web import forms
@@ -83,8 +84,14 @@ class CompetitionEdit(UpdateWithInlinesView):
     
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
-
-
+    
+    def get_context_data(self,**kwargs):
+        context = super(CompetitionDetailView,self).get_context_data(**kwargs)
+        try:
+            context['participation'] = self.request.user.participation.filter(competition=self.object)
+        except ObjectDoesNotExist:
+            pass
+        return context
 
 class CompetitionUpdate(UpdateView):
     model = models.Competition

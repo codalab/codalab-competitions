@@ -4,6 +4,7 @@ from publish.models import Publishable
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.text import slugify
+from django.utils.timezone import utc,now
 
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
@@ -113,7 +114,6 @@ class Competition(Publishable):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainer = generic.GenericRelation(PageContainer)
-    
 
     class Meta:
         permissions = (
@@ -123,6 +123,10 @@ class Competition(Publishable):
 
     def __unicode__(self):
         return self.title
+    
+    @property
+    def is_active(self):
+        return self.end_date < now().date()
 
 class CompetitionDataset(Publishable):
     competition = models.ForeignKey(Competition)
@@ -130,19 +134,27 @@ class CompetitionDataset(Publishable):
     datafile = models.ForeignKey(ExternalFile)
 
 class CompetitionPhase(Publishable):
-    competition = models.ForeignKey(Competition)
+    competition = models.ForeignKey(Competition,related_name='phases')
     phasenumber = models.PositiveIntegerField()
     label = models.CharField(max_length=50,blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
     dataset = models.ForeignKey(CompetitionDataset,null=True,blank=True)
 
+    class Meta:
+        ordering = ['phasenumber']
+
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.phasenumber)
 
+    @property
+    def is_active(self):
+        next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+        return self.start_date <= now().date() and (next_phase and next_phase[0].start_date > now().date())
+
 class CompetitionParticipant(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    competition = models.ForeignKey(Competition,related_name='participation')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='participation')
+    competition = models.ForeignKey(Competition,related_name='participants')
     status = models.ForeignKey(ParticipantStatus)
     reason = models.CharField(max_length=100,null=True,blank=True)
 
@@ -153,21 +165,6 @@ class CompetitionParticipant(models.Model):
         return "%s - %s" % (self.competition.title, self.user.username)
 
 
-
-class CompetitionWizard(models.Model):
-    competition = models.ForeignKey(Competition)
-    step = models.IntegerField(default=1)
-    title = models.CharField(max_length=100,null=True,blank=True)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL)
-    description = models.TextField(null=True,blank=True)
-    public = models.BooleanField(default=False)
-    saveflag = models.BooleanField(default=True)
-    image_url = models.URLField(null=True,blank=True)
+class PhaseSubmission(models.Model):
+    participant = models.ForeignKey(CompetitionParticipant)
     
-    class Meta:
-        unique_together = (('competition','step'),)
-         
-    def __unicode__(self):
-        return "%s step %d" % (self.competition,self.step)
-
-

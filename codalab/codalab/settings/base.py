@@ -131,6 +131,7 @@ class Base(Settings):
    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
      "allauth.account.context_processors.account",
      "allauth.socialaccount.context_processors.socialaccount",
+     
    )
 
    AUTHENTICATION_BACKENDS = (

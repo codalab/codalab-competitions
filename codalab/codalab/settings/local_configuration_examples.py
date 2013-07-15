@@ -19,9 +19,11 @@ class LocalEnvironment(object):
 
 
 class LocalSQLAzureLinux(object):
+    # See the docs at https://github.com/michiya/django-pyodbc-azure
     """
     This is the configuration that works for deploying the project on Linux on Azure.
     PyODBC is used in conjunction with FreeTDS and employing the django-pyodbc-azure
+    FreeTDS and ODBC Connection definitons are required to connect.
     """
 
     DB_ENGINE = 'sql_server.pyodbc'
@@ -38,15 +40,47 @@ class LocalSQLAzureLinux(object):
   
     DATABASES = {
         'default': {
-            'ENGINE':  DB_ENGINE, # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': DB_NAME,                      # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
+            'ENGINE':  DB_ENGINE, 
+            'NAME': DB_NAME,                      
+            
             'USER': DB_USER,
             'PASSWORD': DB_PASSWORD,
-            'HOST': DB_SERVER,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            'HOST': DB_SERVER,                     
             'PORT': DB_PORT,                      # Set to empty string for default.
             
             'OPTIONS': DB_OPTIONS,
             }
         }
 
+class LocalSQLAzureWindows(object):
+    """
+    This is the configuration that works for deploying the project on Windows on Azure.
+    PyODBC is used as the bridge to the Windows ODBC connector. Also uses django-pyodbc-azure
+    """
+    # See the docs at https://github.com/michiya/django-pyodbc-azure
+    DB_ENGINE = 'sql_server.pyodbc'
+    DB_NAME = 'djangodb' # Database name for django
+    DB_USER = 'db_user@xoagbc6d42' # Azure required usename@servername for db use
+    DB_SERVER = 'xoagbc6d42'
+    DB_PASSWORD = '********' 
+    DB_HOST = 'xoagbc6d42.database.windows.net' # The Hostname of the SQL Server hosted on Azure
+    DB_PORT = '1433'
+    DB_OPTIONS =  {
+        'driver': 'SQL Server Native Client 10.0', # The driver as specified by the Azure Management Console
+	'dsn': 'codalab2', # This is the DSN defined in the ODBC Configuration
+ 	'extra_params': 'Encrypt=yes;Connection Timeout=30;', # The Extra params as specified by Azure
+
+        }
+  
+    DATABASES = {
+        'default': {
+            'ENGINE':  DB_ENGINE, 
+            'NAME': DB_NAME,                     
+            
+            'HOST': DB_HOST,                     
+            # 'PORT': DB_PORT,                      # Set to empty string for default.
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'OPTIONS': DB_OPTIONS,
+            }
+        }
