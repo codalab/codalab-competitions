@@ -23,6 +23,7 @@ class Base(Settings):
       # ('Your Name', 'your_email@example.com'),
    )
 
+   
    MANAGERS = ADMINS
 
    DATABASES = {
@@ -112,7 +113,11 @@ class Base(Settings):
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+
+    'django.middleware.transaction.TransactionMiddleware',
+
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
    )
@@ -185,6 +190,8 @@ class Base(Settings):
    ACCOUNT_AUTHENTICATION_METHOD='email'
    ACCOUNT_EMAIL_REQUIRED=True
    ACCOUNT_EMAIL_VERIFICATION='none'
+   
+   ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
 
    COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
