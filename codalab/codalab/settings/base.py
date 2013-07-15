@@ -156,7 +156,7 @@ class Base(Settings):
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-
+    'django_wsgiserver',
     'django_config_gen',
     'compressor',
     'django_extensions',
@@ -175,6 +175,7 @@ class Base(Settings):
     'allauth.account',
     'allauth.socialaccount',
     'debug_toolbar',
+    
    )
    INTERNAL_IPS = ('127.0.0.1',)
    DEBUG_TOOLBAR_CONFIG = {
