@@ -19,7 +19,7 @@
         <div class="competitionsHeaderTitle">
             <div class="container">
                 <h2>{{ object.title }}</h2>
-                <label id="lblLastModifiedDate"> -- by {{ object.creator }} -- </label>
+                <label id="lblLastModifiedDate"> -- by {{ object.creator }} -- Last Modified: {{ object.last_modified }} </label>
                     
                 <input id="submissionId" name="submissionId"  type="hidden" />
                 <input id="activePhase" name="activePhase"  type="hidden" />
@@ -113,10 +113,8 @@
 
                                     <div class="containerSpace">
                                         <div class="globalBlueButtonAtag lFloat">
-					  {% if not participation %}
-                                            <a class="registerCompetition" id="registerCompetition">register</a>
-					  {% endif %}
-                                            <div class="buttonPreloader"></div>
+					  <a class="registerCompetition" id="registerCompetition">register</a>
+					  <div class="buttonPreloader"></div>
                                         </div>
                                     </div>
                                 </div>

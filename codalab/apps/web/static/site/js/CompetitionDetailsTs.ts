@@ -77,7 +77,7 @@ module Competition {
 
         public checkRegisterStatus() {
             $(".preloader").show();
-            var xUrl = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/userstatus/"
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.setRegisterButtonLabel(data.status, data.reason);
                 CompetitionDetails.prototype.hideDialog();
@@ -92,7 +92,7 @@ module Competition {
         }
 
         public saveUserRegisterStatus() {
-            var url = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var url = "/api/competition/" + $("#CompetitionId").val() + '/participate/';
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.checkRegisterStatus();
             };
@@ -105,19 +105,19 @@ module Competition {
         private setRegisterButtonLabel(status: number, reason: string) {
             CompetitionDetails.prototype.hideAllTabSections();
             switch (status) {
-                case 0:
+                case 'none':
                     CompetitionDetails.prototype.showRegisterButton("register", "You have not yet registered for this competition");
                     CompetitionDetails.prototype.showRegisterSection();
                     break;
-                case 1:
+                case 'pending':
                     CompetitionDetails.prototype.showRegisterLabel("Your registration is pending approval");
                     $("#participateInfoBlock").addClass("pendingApproval");
                     break;
-                case 2:
+                case 'approved':
                     $("#participateInfoBlock").hide();
                     CompetitionDetails.prototype.showTabSections();
                     break;
-                case 3:
+                case 'denied':
                     CompetitionDetails.prototype.showRegisterLabel("Your registration has been rejected.");
                     $("#rejectionReasonLabel").show();
                     $("#rejectionReasonLabel").text(reason);
@@ -613,7 +613,7 @@ $(function () {
     window.onresize = function () { if (Competition.CompetitionDetails.loadSucess) { CompetitionDetails.getCompetitionResults($("#selctedPhaseButton").val()) } };
     CompetitionDetails.getAcivePhase();
     CompetitionDetails.getTabSelectionbyDefalut();
-    $("#lblLastModifiedDate").text($("#lblLastModifiedDate").text() + " " + CompetitionDetails.lastModifiedDateLabel($("#LastModified").val()));
+    // $("#lblLastModifiedDate").text($("#lblLastModifiedDate").text() + " " + CompetitionDetails.lastModifiedDateLabel($("#LastModified").val()));
     window.onscroll = function () {
         if ($(window).scrollTop() == $(document).height() - $(window).height() - 1) {
             if ($(".competitionsDetailTabTop > li.active").hasClass("tab3")) {

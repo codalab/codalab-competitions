@@ -78,9 +78,6 @@ class CompetitionEdit(UpdateWithInlinesView):
         context.update(get_content_context(typename='competition_detail'))
         return context
 
-       
-        
-
     
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
