@@ -29,9 +29,9 @@
                     </div>
                 </div>
                 <div class="globalYellowButtonSmallAtag">
-		    {% comment %} <a href="{% url my_competition_delete pk=item.pk %}">Delete</a> 
-		    <a href="{% url my_competition_edit pk=item.pk %}">Edit</a>
-		    <a href="{% url my_competition_participants pk=item.pk %}">Participants</a> {% endcomment %}
+		     <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
+		    <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
+		    <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
                     
                   {#  @Html.ActionLink("Manage co-owners", "Coowners", new { id = item.CompetitionId }) #}
                 </div>

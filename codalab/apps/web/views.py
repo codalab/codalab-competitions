@@ -1,4 +1,4 @@
-from django.views.generic import View,TemplateView,DetailView,ListView,FormView,UpdateView,CreateView
+from django.views.generic import View,TemplateView,DetailView,ListView,FormView,UpdateView,CreateView,DeleteView
 from django.views.generic.edit import FormMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.forms.formsets import formset_factory
@@ -78,6 +78,10 @@ class CompetitionEdit(UpdateWithInlinesView):
         context.update(get_content_context(typename='competition_detail'))
         return context
 
+class CompetitionDelete(DeleteView):
+    queryset = models.Competition.objects.all()
+    
+
     
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -145,7 +149,20 @@ class MyEditCompetition(LoginRequiredMixin,UpdateView):
         context['pages'] = comp.pagecontainer.pages
         context['content'] = models.ContentContainer.objects.all()
         return context
-        
+ 
+
+class MyCompetitionParticipantView(LoginRequiredMixin,ListView):
+    queryset = models.CompetitionParticipant.objects.all()
+    template_name = 'web/my/participants.html'
+
+    def get_context_data(self,**kwargs):
+        ctx = super(MyCompetitionParticipantView,self).get_context_data(**kwargs)
+        ctx['competition_id'] = self.kwargs.get('competition_id')
+        return ctx
+
+    def get_queryset(self):
+        return self.queryset.filter(competition=self.kwargs.get('competition_id'))
+
 ## Partials
 
 class CompetitionIndexPartial(TemplateView):

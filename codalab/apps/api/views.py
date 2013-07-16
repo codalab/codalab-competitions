@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from apps.web import models as webmodels
 from apps.authenz import models as authmodels
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
+
 
 class CompetitionAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionDataSerial
@@ -18,21 +20,43 @@ class CompetitionAPIViewset(viewsets.ModelViewSet):
                                                                    competition=comp,
                                                                    defaults={'status': webmodels.ParticipantStatus.objects.get(codename='pending'),
                                                                              'reason': None})
-        return Response(status=(204 if cr else 200))
+        return Response(status=(201 if cr else 200))
     
     @link(#permission_classes=[permissions.IsAuthenticated]
           )
-    def userstatus(self,request,pk=None):
+    def userstatus(self,request,pk=None,participant_id=None):
         comp = self.get_object()
         resp = {}
         try:
             p = webmodels.CompetitionParticipant.objects.get(user=self.request.user,competition=comp)
             resp = {'status': p.status.codename, 'reason': p.reason}
-        except DoesNotExist:
+        except ObjectDoesNotExist:
             resp = {'status': 'none', 'reason': None}
         return Response(resp,status=200)
 
-
+    @action(#permission_classes=[permissions.IsAuthenticated]
+          )
+    def userstatus(self,request,pk=None):
+        comp = self.get_object()
+        resp = {}
+        status = request.DATA['operation']
+        part = request.DATA['participantId']
+        reason = request.DATA['reason']
+        try:
+            p = webmodels.CompetitionParticipant.objects.get(competition=comp,
+                                                   pk=part)
+            p.status = webmodels.ParticipantStatus.objects.get(codename=status)
+            p.reason = reason
+            p.save()
+        except ObjectDoesNotExist as e:
+            return Response(status=400)
+        resp = { 'status': status,
+                 'participantId': part,
+                 'reason': reason }
+        return Response(resp,status=201)
+            
+                                                   
+            
 competition_list =   CompetitionAPIViewset.as_view({'get':'list','post':'create','put':'update'})
 competition_retrieve =   CompetitionAPIViewset.as_view({'get':'retrieve'})
 

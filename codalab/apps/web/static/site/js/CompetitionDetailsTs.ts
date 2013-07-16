@@ -14,7 +14,7 @@ module Competition {
         public requestPartialViewcontroller(pageId: number) {
             CompetitionDetails.prototype.hidePhaseToggleBtn();
             var competitionId = $("#CompetitionId").val();
-            var url = "/competitions/details/" + competitionId + "/page/" + pageId;
+            var url = "/competitions/details/" + competitionId + "/xpage/" + pageId;
             var onSuccess = function (data) {
                 if ($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
                     $("#subContainerBlock").append(data);
@@ -525,32 +525,6 @@ module Competition {
             }
             return s;
         }
-        public lastModifiedDateLabel(dtString: string) {
-            var d;
-            if ($.browser.msie && (parseInt($.browser.version) === 8)) {
-                d = new Date();
-                var dd = parseInt(dtString.substring(8, 10), 10);
-                var mm = parseInt(dtString.substring(5, 7), 10);
-                var yr = parseInt(dtString.substring(0, 4), 10);
-                var hh = parseInt(dtString.substring(11, 13), 10);
-                var mn = parseInt(dtString.substring(14, 16), 10);
-                var sc = parseInt(dtString.substring(17, 19), 10);
-                d.setUTCDate(dd);
-                d.setUTCMonth(mm);
-                d.setUTCFullYear(yr);
-                d.setUTCHours(hh);
-                d.setUTCMinutes(mn);
-                d.setUTCSeconds(sc);
-            } else {
-                d = new Date(dtString);
-            }
-            var dstr = $.datepicker.formatDate('M dd, yy', d).toString();
-            var hstr = d.getHours().toString();
-            var mstr = CompetitionDetails.prototype.fmt2(d.getMinutes());
-            var sstr = CompetitionDetails.prototype.fmt2(d.getSeconds());
-            return "Last modified: " + dstr + " at " + hstr + ":" + mstr + ":" + sstr;
-        }
-
         public activateMainTab(classValue) {
             $('.competitionsDetailTabTop > li').removeClass('active');
             $("." + classValue).addClass('active');
