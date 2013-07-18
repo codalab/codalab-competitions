@@ -25,7 +25,7 @@ class CompetitionForm(forms.ModelForm):
 
     class Meta:
         model = models.Competition
-        fields = ['title','description','image_url','has_registration','end_date']
+        fields = ['title','description','has_registration','end_date']
 
 class CompetitionPhaseForm(forms.ModelForm):
 
