@@ -55,9 +55,17 @@ class CompetitionAPIViewset(viewsets.ModelViewSet):
                  'reason': reason }
         return Response(resp,status=201)
             
-                                                   
-            
-competition_list =   CompetitionAPIViewset.as_view({'get':'list','post':'create','put':'update'})
+           
+    @action(#permission_classes=[permissions.IsAuthenticated]
+          )
+    def info(self,request,*args,**kwargs):
+        comp = self.get_object()
+        comp.title = request.DATA.get('title')
+        comp.description = request.DATA.get('description')
+        comp.save()
+        return Response({"data":{"title":comp.title,"description":comp.description,"imageUrl":comp.image.url},"published":3},status=200)
+
+competition_list =   CompetitionAPIViewset.as_view({'get':'list','post':'create','put':'update','patch': 'update_partial'})
 competition_retrieve =   CompetitionAPIViewset.as_view({'get':'retrieve'})
 
 class CompetitionParticipantAPIViewset(viewsets.ModelViewSet):

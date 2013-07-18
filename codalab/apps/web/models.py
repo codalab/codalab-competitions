@@ -97,17 +97,10 @@ class ParticipantStatus(models.Model):
     def __unicode__(self):
         return self.name
 
-class TabVisibility(models.Model):
-    name = models.CharField(max_length=30)
-    codename = models.CharField(max_length=30)
-
-    def __unicode__(self):
-        return self.name 
-
 class Competition(Publishable):
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image_url = models.URLField(null=True, blank=True)
+    image = models.FileField(upload_to='logos',null=True,blank=True)
     has_registration = models.BooleanField(default=False)
     end_date = models.DateField(null=True,blank=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
@@ -165,6 +158,34 @@ class CompetitionParticipant(models.Model):
         return "%s - %s" % (self.competition.title, self.user.username)
 
 
-class PhaseSubmission(models.Model):
+class CompetitionEntryStatus(models.Model):
+    name = models.CharField(max_length=20)
+    codename = models.SlugField(max_length=20)
+    
+    def __unicode__(self):
+        return self.name
+
+class CompetitionEntry(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
+    phase = models.ForeignKey(CompetitionPhase)
+    submitted_at = models.DateTimeField()
+    status = models.ForeignKey(CompetitionEntryStatus)
+    status_details = models.CharField(max_length=100)
+    
+    
+    def save(self,*args,**kwargs):
+        if self.participant.competition != self.phase.competition:
+            raise IntegrityError("Competition for phase and participant must be the same")
+        return super(CompetitionSubmission,self).save(*args,**kwargs)
+
+class ScoreLabel(models.Model):
+    label = models.CharField(max_length=20)
+
+    def __unicode__(self):
+        return label
+
+class CompetitionEntryScore(models.Model):
+    entry = models.ForeignKey(CompetitionEntry)
+    score_label = models.ForeignKey(ScoreLabel)
+    score = models.DecimalField(default='0.0',decimal_places=12,max_digits=30,null=True,blank=True)
     

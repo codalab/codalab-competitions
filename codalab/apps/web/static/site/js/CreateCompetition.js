@@ -12,7 +12,7 @@ var Competition;
 
         }
         CreateCompetition.prototype.tabSelection = function () {
-            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs("option", "active", parseInt($("#Step").val()) - 1);
+            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs('select', parseInt($("#Step").val()) - 1);
             CreateCompetition.prototype.activateSaveButtons();
         };
         CreateCompetition.prototype.tabOnClick = function (obj) {
@@ -82,7 +82,7 @@ var Competition;
                 "title": $("#Title").val(),
                 "description": $("#Description").val()
             };
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/info";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/info/";
             var onSuccess = function (data) {
                 CreateCompetition.prototype.managePublishButton(data.published);
                 $(obj).removeClass("disabledStatus");
@@ -214,16 +214,24 @@ var Competition;
             };
             _super.prototype.ajaxJSONRequest.call(this, xUrl, onSuccess, onError, data);
         };
-        CreateCompetition.prototype.ajaxRequestForGettingCompetitionPageContent = function (pageNumber) {
-            var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
+        CreateCompetition.prototype.getContentPage = function (pageNumber, target) {
+            var xUrl = Urls.api_competition_page_list(parseInt($("#CompetitionId").val())) + pageNumber;
             var onSuccess = function (data) {
-                if($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
-                    $("#textEditorTxtArea").val(data);
-                } else {
-                    $("#textEditorTxtArea1").val(data);
-                }
+                console.log(data.html);
+                $(target).val(data.html);
             };
             var onError = function (xhr, status, err) {
+                console.log("Error requestion detail page");
+            };
+            CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
+        };
+        CreateCompetition.prototype.ajaxRequestForGettingCompetitionPageContent = function (pageNumber) {
+            var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
+            xUrl = Urls.api_competition_page(parseInt($("#CompetitionId").val(), pageNumber));
+            var onSuccess = function (data) {
+            };
+            var onError = function (xhr, status, err) {
+                console.log("Error requestion detail page");
             };
             CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
         };
@@ -260,7 +268,9 @@ var Competition;
             }
         };
         CreateCompetition.prototype.getDetailTabs = function () {
-            var xUrl = Urls['contentcontainers-list'];
+            console.log("OK");
+            var xUrl = Urls.api_contentcontainer_list();
+            console.log(xUrl);
             var onSuccess = function (data) {
                 for(var i = 0; i < data.length; i++) {
                     var item = data[i];
@@ -274,6 +284,52 @@ var Competition;
             var onError = function (xhr, status, err) {
             };
             CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
+        };
+        CreateCompetition.prototype.bindCompetitionDetailEvents = function () {
+            $('.textEditorLftTab > li').click(function () {
+                if($(this).hasClass("viewStateDisabled")) {
+                    return false;
+                }
+                var el = $("div:first", this);
+                var tab_id = $("input.t_tab_id", el).val();
+                var target = $("#textEditorTxtArea" + tab_id);
+                var pagenum = $(el).find('input.t_id').val();
+                var myClass = $(this).attr("class");
+                if(!$(this).hasClass('active')) {
+                    $('.textEditorLftTab > li').removeClass('active');
+                    $(this).addClass('active');
+                    $(target).val("");
+                    CreateCompetition.prototype.getContentPage(pagenum, target);
+                }
+            });
+            $('.textEditorLftTab > li > div > a').click(function (e) {
+                $(this).parent().parent().children("label").show();
+                $(this).parent().parent().children("input").hide();
+                if(!$(this).parent().parent().hasClass("viewStateOff")) {
+                    $(this).parent().parent().addClass("viewStateOff");
+                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                    e.stopPropagation();
+                } else {
+                    $('.textEditorLftTab > li').removeClass('active');
+                    $(this).parent().parent().removeClass("viewStateOff");
+                    $(this).parent().parent().addClass("active");
+                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                }
+            });
+            $('.textEditorLftTab > li > label').dblclick(function (e) {
+                if(!$(this).parent().hasClass("viewStateAlwaysOn") && !$(this).parent().hasClass("viewStateOff")) {
+                    $(this).hide();
+                    $(this).siblings().show();
+                    e.stopPropagation();
+                }
+            });
+            $('.textEditorLftTab > li > input').bind("keypress blur", function (e) {
+                var keyCode = e.keyCode || e.which;
+                if(keyCode === 13 || keyCode === 9 || e.type == "blur") {
+                    e.preventDefault();
+                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageLabel(this);
+                }
+            });
         };
         CreateCompetition.prototype.getLftTabsForCompetition = function (tabNumber) {
             var xUrl = "/My/competitions/details/" + $("#CompetitionId").val() + "/tab/ " + tabNumber;
@@ -384,24 +440,26 @@ var Competition;
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
             xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
             var onSuccess = function (data) {
-                $("#ph1title").val(data.phases[0].label);
-                $("#ph2title").val(data.phases[1].label);
-                $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions);
-                $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions);
-                if(data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-                    $("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
-                } else {
-                    $("#ph1StartDate").val("");
-                }
-                if(data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-                    $("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
-                } else {
-                    $("#ph2StartDate").val("");
-                }
-                if(data.endDate !== null && data.endDate !== undefined) {
-                    $("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
-                } else {
-                    $("#competitionEndDate").val("");
+                if(data.length > 0) {
+                    $("#ph1title").val(data.phases[0].label);
+                    $("#ph2title").val(data.phases[1].label);
+                    $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions);
+                    $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions);
+                    if(data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+                        $("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
+                    } else {
+                        $("#ph1StartDate").val("");
+                    }
+                    if(data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
+                        $("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
+                    } else {
+                        $("#ph2StartDate").val("");
+                    }
+                    if(data.endDate !== null && data.endDate !== undefined) {
+                        $("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
+                    } else {
+                        $("#competitionEndDate").val("");
+                    }
                 }
             };
             var onError = function (xhr, status, err) {
@@ -483,9 +541,24 @@ $(function () {
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
-        $("#uploadFile").click();
+        $("#uploadLogo").click();
     });
-    CreateCompetition.getDetailTabs();
+    $("#uploadLogo").change(function () {
+        var data = new FormData();
+        data.append('image', ($('#uploadLogo')[0]).files[0]);
+        data.append('competition', $('#CompetitionId').val());
+        $.ajax({
+            url: '/api/competition/' + $('#CompetitionId').val(),
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: 'PATCH',
+            success: function (data) {
+                ($('#imgProfileImage')[0]).src = '/media/' + data.image;
+            }
+        });
+    });
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
     $("#liMycodeLab").addClass("active");
@@ -499,10 +572,8 @@ $(function () {
         CreateCompetition.saveContinue(e, this);
     });
     $("#btnSave").click(function (e) {
-        if($(this).hasClass("disabledStatus")) {
-            e.preventDefault();
-        }
         $(this).addClass("disabledStatus");
+        e.preventDefault();
         CreateCompetition.save(e, this);
     });
     $("#aTab1").click(function (e) {
@@ -540,7 +611,7 @@ $(function () {
             $("#applyChanges").hide();
         }
     });
-    CreateCompetition.getLftTabsForCompetition(0);
+    CreateCompetition.bindCompetitionDetailEvents();
     $('.textEditorLftTab > li').click(function () {
         var myClass = $(this).attr("class");
         if(!$(this).hasClass("active")) {
@@ -579,12 +650,10 @@ $(function () {
                     $("#ph2datasetimg").parents("section").siblings(".downloadedContainer").hide();
                 }
             };
-            CreateCompetition.uploadFile(3, onSuccess);
         } else {
             var onSuccess = function (token) {
                 ($("#imgProfileImage")[0]).src = "/file/download/" + token;
             };
-            CreateCompetition.uploadFile(1, onSuccess);
         }
     });
     $("#ph1StartDate").datepicker();
