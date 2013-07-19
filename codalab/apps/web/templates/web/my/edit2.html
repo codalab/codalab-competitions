@@ -12,7 +12,7 @@
 
 
 <input type="hidden" id="CompetitionId" name="competition_id" value="{{ competition.pk }}"/>
-<input type="hidden" id="Step" name="step" value="{{ competition.step }}"/>
+<input type="hidden" id="Step" name="step" value="{{ step|default:'1' }}"/>
 <input type="hidden" id="SaveFlag" name="saveflag" value="{{ competition.saveflag }}"/>
 
 <input id="valueChanged" type="hidden" />
@@ -48,7 +48,7 @@
 			    <input type="hidden"  name="competition" value="{{ competition.pk }}"/>
                             <div class="thumbnailContainer">
                                 <figure class="competitionsProfileImage">
- 				   {% if object.image_url %}
+ 				   {% if object.image %}
                                     <img id="imgProfileImage" src="{{ object.image.url }}" width="133" height="94">
 				   {% else %}
 				   <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
@@ -63,7 +63,7 @@
                             </div>
                             <div>
                                 
-				<input id="Title" class="text-box single-line" type="text" value="Untitled" name="Title"/>
+				<input id="Title" class="text-box single-line" type="text" value="{{ competition.title }}" name="Title"/>
                                 <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
                                 <div>
 				    <textarea id="Description" rows="2" name="Description" cols="20">{{ competition.description|default:"" }}</textarea>
@@ -82,6 +82,7 @@
                 <div class="CompetitionTypeDetailrowDate">
 
                     <section>
+		      <input type="hidden" name="phase-1" value="{{competition.phases.0.pk}}" id="ph1Id" />
                         <div class="CompetitionTypeDetailrow">
                             <div>
                                 <label class="">Phase #1 title</label>
@@ -171,6 +172,7 @@
                 <div class="CompetitionTypeDetailrowDate">
                     <section>
                         <div class="CompetitionTypeDetailrow">
+			  <input type="hidden" name="phase-2" value="{{competition.phases.1.pk}}" id="ph2Id" />
                             <div>
                                 <label class="">Phase #2 title</label>
                             </div>
@@ -266,6 +268,7 @@
                         <li class="tab3 viewStateOff">See the results</li>{% endcomment %}
                     </ul>
                     <ul class="competitionsDetailTabBlock">
+		      <input type="hidden" id="activeContentPage"/>
                       {% for t in content.toplevel %}
 		         {% with toploop=forloop %}
 		         <li class="tab{{toploop.counter}}">
@@ -274,12 +277,13 @@
 				  <nav>
 				    <ul class="textEditorLftTab" id="textEditorLftTab">
 		        {% for c in t.children.all %} 
-		                    <li title="{{c.label}}" tabindex="{{forloop.counter}}" class="{{ c.visibility.classname }}" id="tab{{forloop.counter0|add:toploop.counter}}"><label>{{c.label}}</label><input type="text" style="display:none;" value="{{ c.label }}" />
+		                    <li title="{{c.label}}" tabindex="{{forloop.counter}}" class="{{ c.visibility.classname }}" id="tab{{c.pk}}"><label>{{c.pk}} {{c.label}}</label><input type="text" style="display:none;" value="{{ c.label }}" />
 				      <div>
 					<input type="hidden" class="t_type" value="{{ c.container.type.codename }}"/>
-					<input type="hidden" class="t_container_codename" value="{{ c.container.codename }}"/>
+					<input type="hidden" class="t_container_codename" value="{{ c.codename }}"/>
 					<input type="hidden" class="t_container_class" value="page"/>
-					<input type="hidden" class="t_id" value="{{ c.pk }}"/>
+					<input type="hidden" class="t_entity_id" value="{{ c.pk }}"/>
+					<input type="hidden" class="t_page_id" value=""/>
 					<input type="hidden" class="t_tab_id" value="{{toploop.counter}}"/>
 					<a></a>
 				      </div>

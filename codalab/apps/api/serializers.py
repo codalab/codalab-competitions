@@ -18,8 +18,23 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
     def save():
         pass
 
+class CompetitionPhaseSerial(serializers.Serializer):
+    phase_id = serializers.IntegerField(required=False)
+    competition_id = serializers.IntegerField()
+    label = serializers.CharField()
+    start_date = serializers.DateField(format='%Y-%m-%d')
+    max_submissions = serializers.IntegerField()
+    phasenumber = serializers.IntegerField()
+
+class CompetitionPhasesEditSerial(serializers.Serializer):
+    competition_id = serializers.IntegerField(required=False)
+    phases = CompetitionPhaseSerial(many=True)
+    end_date = serializers.DateField(format='%Y-%m-%d',required=False)
+    
+    
 class CompetitionSerial(serializers.ModelSerializer):
     
+
     class Meta:
         model = webmodels.Competition
 
@@ -28,13 +43,13 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
-class CompetitionPhaseSerial(serializers.ModelSerializer):
+class _CompetitionPhaseSerial(serializers.ModelSerializer):
     
     class Meta:
         model = webmodels.CompetitionPhase
 
 class CompetitionDataSerial(serializers.ModelSerializer):
-
+    image_url = serializers.URLField(source='image.url',read_only=True)
     class Meta:
         model = webmodels.Competition
  
@@ -61,11 +76,8 @@ class PageSerial(serializers.ModelSerializer):
     def __init__(self ,*args, **kwargs):
         super(PageSerial,self).__init__(*args,**kwargs)
         self._pagecontainer = self.context.get('pagecontainer',None)
-       
-
+        
     def validate_pagecontainer(self, attrs, source):
-        if self._pagecontainer:
-            attrs['pagecontainer'] = self._pagecontainer
         return attrs
 
     class Meta:

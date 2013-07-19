@@ -2,10 +2,31 @@ from django.contrib import admin
 import models
 
 
+class ExternalFileAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ExternalFile, ExternalFileAdmin)
+
+class ExternalFileTypeAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
+
+class DatasetAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.CompetitionDataset, DatasetAdmin)
+
+class PhaseInlineAdmin(admin.TabularInline):
+    model = models.CompetitionPhase
+class DatasetInlineAdmin(admin.TabularInline):
+    model = models.CompetitionDataset
+
 
 class CompetitionAdmin(admin.ModelAdmin):
-    pass
+    inlines = [PhaseInlineAdmin,
+               DatasetInlineAdmin
+               ]               
 admin.site.register(models.Competition, CompetitionAdmin)
+
+
 
 class CompetitionPhaseAdmin(admin.ModelAdmin):
     pass
@@ -15,9 +36,6 @@ class ParticipantStatusAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ParticipantStatus, ParticipantStatusAdmin)
 
-class ExternalFileTypeAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
 
 class ContentContainerTypeAdmin(admin.ModelAdmin):
     pass

@@ -5,8 +5,9 @@ module Competition {
     export class CreateCompetition extends FileUpload.FileUploadFile {
 
         private tabSelection() {
-            $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1)
-	    .tabs('select', parseInt($("#Step").val()) - 1)
+	    $("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs('select', parseInt($("#Step").val()) - 1);
+            //$("#tabs").tabs('enable', parseInt($("#Step").val()) - 1).tabs({selected: parseInt($("#Step").val()) - 1});
+	    //.tabs('select', parseInt($("#Step").val()) - 1)
            //.tabs("option", "active", parseInt($("#Step").val()) - 1)
             // .tabs("option", "disabled", [0, 1]);
             CreateCompetition.prototype.activateSaveButtons();
@@ -45,6 +46,7 @@ module Competition {
         public save(event, obj) {
             $("#SaveFlag").val("True")
             var step = parseInt($("#Step").val());
+	    console.log('Step: ' + step);
             switch (step) {
                 case 1:
                     CreateCompetition.prototype.ajaxRequestForSavingCompetitionInfo(obj);
@@ -56,7 +58,8 @@ module Competition {
                     break;
                 case 3:
                     $(obj).removeClass("disabledStatus")
-                    CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageContent(obj)
+		    CreateCompetition.prototype.putContentPage( $("#" + $("#activeContentPage").val() + " div") );
+                    //CreateCompetition.prototype.ajaxRequestForSavingCompetitionPageContent(obj);
                     event.preventDefault();
                     break;
             }
@@ -96,11 +99,12 @@ module Competition {
                 $(obj).removeClass("disabledStatus");
                 $("#valueChanged").val("");
                 // $(obj).siblings(".preloaderInput").remove();
-
+	
             };
             var onError = function (xhr, status, err) {
                 // $(obj).siblings(".preloaderInput").remove();
                 $(obj).removeClass("disabledStatus");
+		
             }
             super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
 
@@ -207,23 +211,81 @@ module Competition {
             super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
         }
 
-	private getContentPage(pageNumber,target) {
+	private getContentPage(pageNumber,el,target) {
+	    var page_id = $("input.t_page_id",el).val();
+	    var entity_id = $("input.t_entity_id",el).val();
+	    var competition_id = $("#CompetitionId").val();
+	    var xUrl;
+	    if( page_id == "" ) {
+		xUrl = Urls.api_competition_page_list(competition_id,entity_id);	
+	    } else {
+		xUrl = Urls.api_competition_page(competition_id,entity_id,page_id);
+	    }
 	    
-	    var xUrl = Urls.api_competition_page_list(parseInt($("#CompetitionId").val())) + pageNumber
-
             var onSuccess = function (data) {
-		console.log(data.html);
-		$(target).val(data.html);
+		var d;
+		// only one page supported for now.
+		if (data instanceof Array) {
+		    if( data.length ) {
+			d = data[0];
+			console.log(d);
+		    } else {
+			return;
+		    }
+		} else {
+		    d = data;
+		}
+		
+		$(target).val("");
+		$(target).val(d.html);
+		$("input.t_page_id",el).val(d['id']);
                 
             };
             var onError = function (xhr, status, err) {
-		console.log("Error requestion detail page")
+		console.log("Error requestion detail page");
             };
             CreateCompetition.prototype.ajaxGetRequest(xUrl, onSuccess, onError, null);
 
 	}
 
+	private putContentPage(source) {
+	    
+	    var tab_id =  $("input.t_tab_id",source).val();
+	    var page_id = $("input.t_page_id",source).val();
+	    var entity_id = $("input.t_entity_id",source).val();
 
+	    var target = $("#textEditorTxtArea"+tab_id);
+	    var codename = $(source).find("input.t_container_codename").val();
+	    
+	    // var xUrl = Urls.api_competition_page_list(parseInt($("#CompetitionId").val()),codename) + pagenum;
+	    var xUrl = '/api/competition/' + $("#CompetitionId").val() + '/pages/' + entity_id + '/'; //  + pagenum;
+	    console.log(xUrl + ', ' + tab_id + ', '  + page_id);
+	    var data = {'title': "", 'visible': true, 'markup': "", 'html': $("#textEditorTxtArea" + tab_id).val()}
+	    
+	    var METH = 'POST';
+	    if(page_id != "") {
+		data['id'] = page_id;
+		METH = 'PUT';
+	    } 
+	    
+	    var onSuccess = function(data) {
+		$("input.t_page_id",source).val(data.id);
+	    }
+	    var onError = function(data) {
+		console.log(data);
+	    }
+	   $.ajax({
+                type: METH,
+                url: xUrl,
+                cache: false,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: onSuccess,
+                error: onError,
+            }); 
+
+	    // super.ajaxJSONRequest(xUrl, onSuccess , function(){}, data);
+	}
         private ajaxRequestForGettingCompetitionPageContent(pageNumber) {
             var xUrl = "/My/competitions/details/" + parseInt($("#CompetitionId").val()) + "/page/" + pageNumber;
 	    xUrl = Urls.api_competition_page(parseInt($("#CompetitionId").val(), pageNumber));
@@ -292,15 +354,18 @@ module Competition {
                 if ($(this).hasClass("viewStateDisabled")) { return false; }
 		    var el = $("div:first",this);		   
 		    var tab_id =  $("input.t_tab_id",el).val();
-		    var target = $("#textEditorTxtArea"+tab_id);		    
-         	    var pagenum = $(el).find('input.t_id').val()
+		    var target = $("#textEditorTxtArea"+tab_id);
+		    
+         	    var pagenum = $(el).find('input.t_page_id').val()
                     var myClass = $(this).attr("class");
 
                     if (!$(this).hasClass('active')) {
                         $('.textEditorLftTab > li').removeClass('active');
                         $(this).addClass('active');
                         $(target).val("");
-                        CreateCompetition.prototype.getContentPage(pagenum,target);
+			$("#activeContentPage").val($(this).attr('id'));
+                        CreateCompetition.prototype.getContentPage(pagenum,el,target);
+			
                     }
                 });
 
@@ -409,10 +474,10 @@ module Competition {
             $(obj).addClass("disabledStatus");
 	    
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
-	    xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
-            var p1 = { "label": $("#ph1title").val(), "maxSubmissions": $("#ph1SubmissionLmt").val(), startDate: $("#ph1StartDate").val() };
-            var p2 = { "label": $("#ph2title").val(), "maxSubmissions": $("#ph2SubmissionLmt").val(), startDate: $("#ph2StartDate").val() };
-            var data = { "endDate": $("#competitionEndDate").val(), "phases": [p1, p2] };
+	    xUrl = Urls.api_competitionphases($("#CompetitionId").val());
+            var p1 = { "competition_id" : $("#CompetitionId").val(), "phasenumber": 1, "label": $("#ph1title").val(), "max_submissions": $("#ph1SubmissionLmt").val(), "start_date": $("#ph1StartDate").datepicker({ dateFormat: 'yyyy-mm-dd' }).val() };
+            var p2 = { "competition_id" : $("#CompetitionId").val(), "phasenumber": 2, "label": $("#ph2title").val(), "max_submissions": $("#ph2SubmissionLmt").val(), "start_date": $("#ph2StartDate").datepicker({ dateFormat: 'yyyy-mm-dd' }).val() };
+            var data = { "competition_id" : $("#CompetitionId").val(), "end_date": $("#competitionEndDate").datepicker({ dateformat: 'yyyy-mm-dd' }).val(), "phases": [p1, p2] };
             var onSuccess = function (data) {
                 $(obj).removeClass("disabledStatus");
                 $("#savePhaseProcess").hide();
@@ -443,14 +508,14 @@ module Competition {
                     $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions)
                     $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions)
                     if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-			$("#ph1StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[0].startDate)));
+			$("#ph1StartDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.phases[0].startDate)));
                     }
                     else { $("#ph1StartDate").val(""); }
                     if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-			$("#ph2StartDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.phases[1].startDate)));
+			$("#ph2StartDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.phases[1].startDate)));
                     } else { $("#ph2StartDate").val(""); }
                     if (data.endDate !== null && data.endDate !== undefined) {
-			$("#competitionEndDate").val($.datepicker.formatDate('mm/dd/yy', new Date(data.endDate)));
+			$("#competitionEndDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.endDate)));
                     } else { $("#competitionEndDate").val(""); }
 		}
             };
@@ -534,6 +599,7 @@ module Competition {
 }
 
 $(function () {
+    $.datepicker.setDefaults({ dateFormat: 'yy-mm-dd' });
     var CreateCompetition = new Competition.CreateCompetition();
     $(".uploadLabel").click(function () {
         $("#UploadReason").val("1");
@@ -541,21 +607,22 @@ $(function () {
     });
     $("#uploadLogo").change(function () {
 	var data = new FormData();
-	data.append('image',(<HTMLInputElement>$('#uploadLogo')[0]).files[0]);
+	data.append('image',(<HTMLInputElement> $('#uploadLogo')[0]).files[0]);
 	data.append('competition',$('#CompetitionId').val());
 	$.ajax({
-	    url: '/api/competition/' + $('#CompetitionId').val(),
+	    url: '/api/competition/' + $('#CompetitionId').val() + "/",
 	    data: data,
 	    cache: false,
 	    contentType: false,
 	    processData: false,
 	    type: 'PATCH',
 	    success: function(data){
-		(<HTMLImageElement> $('#imgProfileImage')[0]).src = '/media/' + data.image;
+		(<HTMLImageElement> $('#imgProfileImage')[0]).src = data.image_url;
 	    }
 	});
+	
     });
-
+    
     //CreateCompetition.getDetailTabs();
     $("#tabs").tabs();
     $(".headerNavigation li.active").removeClass("active");
@@ -572,11 +639,10 @@ $(function () {
 
     $("#btnSave").click(function (e) {
 	
-        // if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
+        if ($(this).hasClass("disabledStatus")) { e.preventDefault(); }
         $(this).addClass("disabledStatus");
-	e.preventDefault();
         CreateCompetition.save(e, this);
-	
+	return false;
     });
 
     $("#aTab1").click(function (e) {
@@ -675,8 +741,8 @@ $(function () {
                 $("#ph2StartDate").val("");
                 return false;
             }
-            var phase2 = new Date($(this).datepicker('getDate').toString());
-            var phase1 = new Date($("#ph1StartDate").datepicker('getDate').toString());
+            var phase2 = new Date($(this).datepicker({ dateFormat: 'yyyy-mm-dd' } ).val());
+            var phase1 = new Date($("#ph1StartDate").datepicker({ dateFormat: 'yyyy-mm-dd' }).val());
             var dayDiff = Math.ceil((phase2.getTime() - phase1.getTime()) / (1000 * 60 * 60 * 24));
             if (dayDiff < 1) {
                 alert("There should be atleast one day differance between phase1 and phase2");
@@ -684,7 +750,7 @@ $(function () {
                 return false;
             }
             if ($("#competitionEndDate").val() !== "") {
-                var endDate = new Date($("#competitionEndDate").datepicker('getDate').toString());
+                var endDate = new Date($("#competitionEndDate").datepicker({ dateFormat: 'yyyy-mm-dd' }).val());
                 var dayDiffEndDate = Math.ceil((phase2.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24));
                 if (dayDiffEndDate > 1) {
                     alert("competition end date cannot be less than the phase dates");
