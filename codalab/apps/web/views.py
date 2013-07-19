@@ -19,7 +19,7 @@ def get_content_context(typename=None):
     cont = {}
     ctx = {'content': cont}
     kw = {}
-    if type:
+    if typename:
         kw['type__codename'] = typename          
     container = models.ContentContainer.objects.get(**kw)
     cont['container'] = container
@@ -32,8 +32,8 @@ def get_content_context(typename=None):
             toplevel.append(e)
         else:
             if e.parent_id not in children:
-                children[e.parent_id] = []
-            children[e.parent_id].append(e)
+                children[e.codename] = []
+            children[e.codename].append(e)
     return ctx
 
 
@@ -88,6 +88,9 @@ class CompetitionDetailView(DetailView):
     
     def get_context_data(self,**kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
+        cc = get_content_context(typename='competition_detail')
+        
+        context.update(cc)
         try:
             if self.request.user.is_authenticated():
                 context['participation'] = self.request.user.participation.filter(competition=self.object)

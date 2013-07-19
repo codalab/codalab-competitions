@@ -548,14 +548,14 @@ $(function () {
         data.append('image', ($('#uploadLogo')[0]).files[0]);
         data.append('competition', $('#CompetitionId').val());
         $.ajax({
-            url: '/api/competition/' + $('#CompetitionId').val(),
+            url: '/api/competition/' + $('#CompetitionId').val() + "/",
             data: data,
             cache: false,
             contentType: false,
             processData: false,
             type: 'PATCH',
             success: function (data) {
-                ($('#imgProfileImage')[0]).src = '/media/' + data.image;
+                ($('#imgProfileImage')[0]).src = data.image;
             }
         });
     });

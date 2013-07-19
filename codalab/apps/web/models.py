@@ -65,7 +65,7 @@ class PageContainer(models.Model):
     owner = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        unique_together = (('content_type','object_id'),)
+        unique_together = (('object_id','content_type','entity'),)
     
 class Page(Publishable):
     pagecontainer = models.ForeignKey(PageContainer,related_name='pages')
@@ -74,7 +74,9 @@ class Page(Publishable):
     visible = models.BooleanField(default=True)
     markup = models.TextField(blank=True)
     html = models.TextField(blank=True)
-    
+
+    class Meta(Publishable.Meta): 
+        ordering = ["rank"]
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -108,11 +110,12 @@ class Competition(Publishable):
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainer = generic.GenericRelation(PageContainer)
 
-    class Meta:
+    class Meta(Publishable.Meta):
         permissions = (
             ('is_owner', 'Owner'),
             ('can_edit', 'Edit'),
             )
+        ordering = ['end_date']
 
     def __unicode__(self):
         return self.title
@@ -126,15 +129,19 @@ class CompetitionDataset(Publishable):
     number = models.PositiveIntegerField(default=0)
     datafile = models.ForeignKey(ExternalFile)
 
+    class Meta(Publishable.Meta):
+        ordering = ["number"]
+
 class CompetitionPhase(Publishable):
     competition = models.ForeignKey(Competition,related_name='phases')
     phasenumber = models.PositiveIntegerField()
     label = models.CharField(max_length=50,blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
-    dataset = models.ForeignKey(CompetitionDataset,null=True,blank=True)
+    datasets = models.ManyToManyField(CompetitionDataset,blank=True,related_name='phase')
 
-    class Meta:
+
+    class Meta(Publishable.Meta):
         ordering = ['phasenumber']
 
     def __unicode__(self):
