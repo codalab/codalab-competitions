@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" /> 
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  {% block meta %}{% endblock %}
+
+  <title>CodaLab - {% block title %}{% endblock %}</title>
+  
+  <!-- Included CSS Files (Uncompressed) -->
+  <!--
+  <link rel="stylesheet" href="{{ STATIC_URL }}foundation/stylesheets/foundation.css">
+  -->
+  
+  {% block css %}
+    <!-- Included CSS Files (Compressed) -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/foundation.min.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/app.css">
+
+    <script src="{{ STATIC_URL }}foundation/js/customer.modernizr.js"></script>
+
+    <!-- IE Fix for HTML5 Tags -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  {% endblock %}
+
+</head>
+<body>
+
+<!-- Nav Bar -->
+ 
+  <div class="row">
+    <div class="large-12 columns">
+      <h1>CodaLab</h1>
+      <div class="nav-bar ">
+       <ul class="button-group">
+         <li><a href="#" class="button">Competitions</a></li>
+         <li><a href="#" class="button">Experiments</a></li>
+         <li><a href="#" class="button">My CodaLab</a></li>
+         <li><a href="#" class="button">About</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- End Nav -->
+ 
+  <!-- Main Page Content and Sidebar -->
+ 
+  <div class="row">
+ 
+    <!-- Main Blog Content -->
+    <div class="large-9 columns" role="content">
+
+    {% block site %}{% endblock site %}
+ 
+    </div>
+ 
+    <!-- End Main Content -->
+ 
+    <!-- Sidebar -->
+ 
+    <aside class="large-3 columns">
+ 
+    {% block sidebar %} {% endblock sidebar %}
+
+    </aside>
+ 
+    <!-- End Sidebar -->
+  </div>
+ 
+  <!-- End Main Content and Sidebar -->
+ 
+  <!-- Footer -->
+ 
+  <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-6 columns">
+          <p>&copy; Copyright 2013 <a href="http://www.outercurve.org">Outercurve</a></p>
+        </div>
+        <div class="large-6 columns">
+          <ul class="inline-list right">
+            <li><a href="#">Link 1</a></li>
+            <li><a href="#">Link 2</a></li>
+            <li><a href="#">Link 3</a></li>
+            <li><a href="#">Link 4</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  {% block js %}
+<!-- Check for Zepto support, load jQuery if necessary -->
+  <script>
+    document.write('<script src={{ STATIC_URL }}foundation/js/vendor/'
+      + ('__proto__' in {} ? 'zepto' : 'jquery')
+      + '.js><\/script>');
+  </script>
+
+  <!-- Included JS Files (Compressed) -->
+  <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
+  <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
+  <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
+
+  <!-- Initialize JS Plugins -->
+  <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
+  
+  <script>
+    $(document).foundation();
+  </script>
+  {% endblock %}
+</body>
+</html>

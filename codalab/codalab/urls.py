@@ -1,11 +1,13 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic import TemplateView
 
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^starter/', TemplateView.as_view(template_name="foundation/starter.html")),
     url(r'', include('apps.web.urls')),
     (r'^accounts/', include('allauth.urls')),
     (r'^search/', include('haystack.urls')),
