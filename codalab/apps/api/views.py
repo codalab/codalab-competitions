@@ -97,7 +97,7 @@ class CompetitionParticipantAPIViewset(viewsets.ModelViewSet):
 
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
-    queryset = webmodels.CompetitionPhase.objects.all()
+    queryset = webmodels.Competition.objects.all()
     
     def get_query_set(self):
         # The pk (primary key) is for the competition, not the phase.
@@ -107,9 +107,9 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
         phasenumber = self.kwargs.get('phasenumber',None)
         kw = {}
         if competition_id:
-            kw['competition_id'] = competition_id
+            kw['pk'] = competition_id
         if number:
-            kw['phasenumber'] = phasenumber
+            kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
 
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create','put':'update'})
