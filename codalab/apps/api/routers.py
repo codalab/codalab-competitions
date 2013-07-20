@@ -13,7 +13,7 @@ urlpatterns = router.urls
 urlpatterns += (
     #url(r'^competition/(?P<pk>\d+)/(?P
     url(r'^competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),
-    url(r'^competition/(?P<pk>\d+)/phases/$',views.competitionphase_list,name='api_competitionphases_list'),
+    url(r'^competition/(?P<pk>\d+)/phases/$',views.competitionphase_retrieve,name='api_competitionphases_list'),
     url(r'^contentcontainers/$',views.contentcontainer_list,name='api_contentcontainer_list'),
     url(r'^competition/(?P<competition_id>\d+)/pages/(?P<entity>\d+)/$', views.competition_page_list, name='api_competition_page_list'),
     url(r'^competition/(?P<competition_id>\d+)/pages/(?P<entity>\d+)/(?P<pk>\d+)$', views.competition_page, name='api_competition_page'),

@@ -18,7 +18,7 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
     def save():
         pass
 
-class CompetitionPhaseSerial(serializers.Serializer):
+class _CompetitionPhaseSerial(serializers.Serializer):
     phase_id = serializers.IntegerField(required=False)
     competition_id = serializers.IntegerField()
     label = serializers.CharField()
@@ -28,7 +28,7 @@ class CompetitionPhaseSerial(serializers.Serializer):
 
 class CompetitionPhasesEditSerial(serializers.Serializer):
     competition_id = serializers.IntegerField(required=False)
-    phases = CompetitionPhaseSerial(many=True)
+    phases = _CompetitionPhaseSerial(many=True)
     end_date = serializers.DateField(format='%Y-%m-%d',required=False)
     
     
@@ -43,13 +43,26 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
-class _CompetitionPhaseSerial(serializers.ModelSerializer):
+class PhaseSerial(serializers.ModelSerializer):
+    #start_date = serializers.DateField(format='%Y-%m-%d')
     
+
     class Meta:
         model = webmodels.CompetitionPhase
 
+class CompetitionPhaseSerial(serializers.ModelSerializer):
+    # end_date = serializers.DateField(format='%Y-%m-%d')
+    phases = PhaseSerial(many=True)
+
+    class Meta:
+        model = webmodels.Competition
+        fields = ['end_date','phases']
+
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url',read_only=True)
+    # phases = CompetitionPhaseSerial(many=True)
+    phases = serializers.RelatedField(many=True)
+
     class Meta:
         model = webmodels.Competition
  

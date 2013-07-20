@@ -499,24 +499,29 @@ module Competition {
         public getPhasesDetails() {
             var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/phases/";
 
-	    xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
+	    // xUrl = Urls.api_competitionphases_list($("#CompetitionId").val());
 
             var onSuccess = function (data) {
-		if(data.length > 0) {
-                    $("#ph1title").val(data.phases[0].label)
-                    $("#ph2title").val(data.phases[1].label)
-                    $("#ph1SubmissionLmt").val(data.phases[0].maxSubmissions)
-                    $("#ph2SubmissionLmt").val(data.phases[1].maxSubmissions)
-                    if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-			$("#ph1StartDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.phases[0].startDate)));
-                    }
-                    else { $("#ph1StartDate").val(""); }
-                    if (data.phases[0].startDate !== null && data.phases[0].startDate !== undefined) {
-			$("#ph2StartDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.phases[1].startDate)));
-                    } else { $("#ph2StartDate").val(""); }
-                    if (data.endDate !== null && data.endDate !== undefined) {
-			$("#competitionEndDate").val($.datepicker.formatDate('yyyy-mm-dd', new Date(data.endDate)));
-                    } else { $("#competitionEndDate").val(""); }
+		console.log(data);
+		if('phases' in data) {
+		    
+		    for (var i in data.phases) {
+			
+			var p = data.phases[i];
+			
+			$("#ph" + p['phasenumber'] + "title").val(p['label'])
+			
+			$("#ph" + p.phasenumber + "SubmissionLmt").val(p.max_submissions)
+			
+			if (p.start_date !== null && p.start_date !== undefined) {
+			    $("#ph" + p.phasenumber + "StartDate").val($.datepicker.formatDate('yy-mm-dd', new Date(p.start_date)));
+			}
+			else { $("#ph" + p.phasenumber + "StartDate").val(""); }
+		    }
+		    if (data.end_date !== null && data.end_date !== undefined) {
+			$("#competitionEndDate").val($.datepicker.formatDate('yy-mm-dd', new Date(data.end_date)));
+		    } else { $("#competitionEndDate").val(""); }
+		   
 		}
             };
             var onError = function (xhr, status, err) {
