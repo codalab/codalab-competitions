@@ -10,7 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 class CompetitionAPIViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.CompetitionDataSerial
+    #serializer_class = serializers.CompetitionDataSerial
+    serializer_class = serializers.CSerial
     queryset = webmodels.Competition.objects.all()
 
     @action(#permission_classes=[permissions.IsAuthenticated]

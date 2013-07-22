@@ -44,14 +44,18 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
         model = webmodels.CompetitionParticipant
 
 class PhaseSerial(serializers.ModelSerializer):
-    #start_date = serializers.DateField(format='%Y-%m-%d')
+    start_date = serializers.DateField(format='%Y-%m-%d')
     
-
     class Meta:
         model = webmodels.CompetitionPhase
-
+        
+    
+    def from_native(self,data):
+        print type(data)
+        print data
+        
 class CompetitionPhaseSerial(serializers.ModelSerializer):
-    # end_date = serializers.DateField(format='%Y-%m-%d')
+    end_date = serializers.DateField(format='%Y-%m-%d')
     phases = PhaseSerial(many=True)
 
     class Meta:
@@ -102,3 +106,27 @@ class PageContainerSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.PageContainer
         
+
+class PhaseRel(serializers.RelatedField):
+
+    def to_native(self,value):
+        o = PhaseSerial(instance=value)
+        return o.data
+        
+
+    def from_native(self,data):
+        kw = {'data': data,'partial':self.partial}
+        if self.partial:
+            instance = webmodels.CompetitionPhase.objects.get(pk=data['id'])
+            kw['instance'] = instance
+        o = PhaseSerial(**kw)
+        print o.data
+        print data
+
+        return o
+
+class CSerial(serializers.ModelSerializer):
+    phases = PhaseRel(many=True,read_only=False)
+    #phases = PhaseSerial(read_only=False,many=True)
+    class Meta:
+        model = webmodels.Competition
