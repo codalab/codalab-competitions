@@ -10,3 +10,5 @@ local_configuration.py
 *.db
 *_db.sqlite
 codalab/static/*/*
+**/**/.sass-cache
+**/**/.DS_Store

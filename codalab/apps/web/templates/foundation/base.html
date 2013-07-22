@@ -10,6 +10,7 @@
 
   <!-- Set the viewport width to device width for mobile -->
   <meta name="viewport" content="width=device-width" />
+  <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}site/Images/favicon.ico">
 
   {% block meta %}{% endblock %}
 
@@ -22,10 +23,8 @@
   
   {% block css %}
     <!-- Included CSS Files (Compressed) -->
-    <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/foundation.min.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/app.css">
-
-    <script src="{{ STATIC_URL }}foundation/js/customer.modernizr.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
+    <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
     <!-- IE Fix for HTML5 Tags -->
     <!--[if lt IE 9]>
@@ -37,77 +36,70 @@
 <body>
 
 <!-- Nav Bar -->
- 
-  <div class="row">
-    <div class="large-12 columns">
-      <h1>CodaLab</h1>
-      <div class="nav-bar ">
-       <ul class="button-group">
-         <li><a href="#" class="button">Competitions</a></li>
-         <li><a href="#" class="button">Experiments</a></li>
-         <li><a href="#" class="button">My CodaLab</a></li>
-         <li><a href="#" class="button">About</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
- 
+<div class="header">
+  <nav class="top-bar">
+    <ul class="title-area">
+      <!-- Title Area -->
+      <li class="name">
+        <h1><a href="#">CodaLab</a></h1>
+      </li>
+      <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+      <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+    </ul>
+    <section class="top-bar-section">
+      <!-- Left Nav Section -->
+      <ul class="left">
+        <li><a href="/competitions">Competitions</a></li>
+        <li><a href="/worksheets">Experiments</a></li>
+        <li><a href="/my">My CodaLab</a></li>
+        <li><a href="/about">About</a></li>
+      </ul>
+
+      <!-- Right Nav Section -->
+      <ul class="right">
+        <li class="has-form">
+          <form action="/search" method="get">
+            <input name="query" type="search" placeholder="Search">
+          </form>
+        </li>
+        <li class="menu-icon"><a href="/accounts/login"><i class="social-foundicon-torso"></i></a></li>        
+      </ul>
+    </section>
+  </nav>
+ </div>
   <!-- End Nav -->
  
   <!-- Main Page Content and Sidebar -->
- 
-  <div class="row">
- 
-    <!-- Main Blog Content -->
-    <div class="large-9 columns" role="content">
-
-    {% block site %}{% endblock site %}
- 
-    </div>
- 
-    <!-- End Main Content -->
- 
-    <!-- Sidebar -->
- 
-    <aside class="large-3 columns">
- 
-    {% block sidebar %} {% endblock sidebar %}
-
-    </aside>
- 
-    <!-- End Sidebar -->
+  <div class="container content">
+        {% block site %}{% endblock site %}
   </div>
- 
   <!-- End Main Content and Sidebar -->
  
   <!-- Footer -->
- 
-  <footer class="row">
-    <div class="large-12 columns">
-      <hr />
-      <div class="row">
-        <div class="large-6 columns">
-          <p>&copy; Copyright 2013 <a href="http://www.outercurve.org">Outercurve</a></p>
-        </div>
-        <div class="large-6 columns">
-          <ul class="inline-list right">
-            <li><a href="#">Link 1</a></li>
-            <li><a href="#">Link 2</a></li>
-            <li><a href="#">Link 3</a></li>
-            <li><a href="#">Link 4</a></li>
+    <footer>
+        <div class="large-6 columns footer">
+          <ul class="inline-list left">
+            <li><a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
+                <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a></li>
+            <li><a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
+                <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a></li>
           </ul>
         </div>
-      </div>
-    </div>
-  </footer>
-  
+        <div class="large-6 columns footer">
+          <ul class="inline-list right">
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Feedback</a></li>
+            <li><a href="#">Notices</a></li>
+            <li><a href="#">Developers</a></li>
+          </ul>
+        </div>
+    </footer>
+
   {% block js %}
-<!-- Check for Zepto support, load jQuery if necessary -->
-  <script>
-    document.write('<script src={{ STATIC_URL }}foundation/js/vendor/'
-      + ('__proto__' in {} ? 'zepto' : 'jquery')
-      + '.js><\/script>');
-  </script>
+
+  <!-- Check for Zepto support, load jQuery if necessary -->
+  <script src="{{ STATIC_URL }}foundation/js/vendor/zepto.js"></script>
+  <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.js"></script>
 
   <!-- Included JS Files (Compressed) -->
   <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>

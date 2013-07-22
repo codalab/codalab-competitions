@@ -1,0 +1,77 @@
+$background: #3694D6;
+$foreground: white;
+$banner: #EBF2FB;
+$highlight: #3684d6;
+$active: #ffac31;
+
+$topbar-bg: $background;
+$topbar-fg: $foreground;
+$topbar-margin-bottom: 0px;
+
+$topbar-title-weight: normal;
+$topbar-title-font-size: xx-large;
+$topbar-link-weight: normal;
+$topbar-link-font-size: 100%;
+$topbar-link-hover-lightness: -30%;
+$topbar-link-bg-active: $active;
+
+$section-content-bg: $background;
+$anchor-font-color: $foreground;
+$anochor-font-color-hover: $foreground;
+
+*{
+    font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+	font-size:100%;
+	font-weight:normal;
+}
+
+.right-fix {
+    padding-top: 6px;
+}
+
+.middle {
+	vertical-align: middle;
+}
+
+.banner {
+	background: $banner;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+	font-size: small;
+	background: $background;
+	color: $foreground;
+	height: 25px;
+    width: 100%;
+}
+
+.topbar-title {
+	font-size: x-large;
+	font-weight: light;
+}
+
+.homepageBanner{
+    min-height:255px;
+    background:#ebf2fb;
+    padding-top: 40px;
+}
+
+.bannerBlock{
+    display:table-cell;
+    padding-top:20px;
+    color:#454545;
+    vertical-align:top;
+}
+
+.bannerBlockHead{
+    font-size:60px;
+    display:table-row;
+    line-height:65px;
+}
+
+.bannerBlocklabl{
+    font-size:30px;
+    display:table-row;
+}
