@@ -1,17 +1,24 @@
 {% extends "foundation/base.html" %}
 
 {% block site %}
-
+<div class="homepageBanner">
   <div class="row">
-      <h2>Welcome to Foundation</h2>
-      <p>This is version 4.2.3.</p>
-      <hr />
+    <div class="large-4 columns">
+      <div class="large-1 large-centered columns bannerBlock">
+        <img src="/static/site/Images/icon1.png">
+      </div>
+      <div class="large-1 large-centered columns bannerBlock">
+        <div class="bannerBlockHead">Create</div>
+        <div class="bannerBlocklabl">Solutions</div>
+      </div>
+      <div class="large-1 large-centered columns bannerBlock">
+        <img src="/static/site/Images/icon2.png">
+      </div>
+      <div class="large-1 large-centered columns bannerBlock">
+        <div class="bannerBlockHead">Compete</div>
+        <div class="bannerBlocklabl">with peers</div>
+      </div>
+    </div>
   </div>
-
+</div>
 {% endblock site %}
-
-{% block sidebar %}
-  <div class="row">
-    <p>Sidebar content goes here</p>
-  </div>
-{% endblock sidebar %}
