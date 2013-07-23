@@ -7,5 +7,21 @@
   <h1>Bundles</h1>
     <hr>
       <p> This is the codalab bundles index</p>
+  
+    ###List Block
+      <ol>
+        {% for bundle in object_list %}
+        <li>
+          <a href="{{ bundle.url }}">
+            <b>{{ bundle.title }}</b>
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+    ###END List Block
+  
+  
+  
+  
 </div>
 {% endblock %}

@@ -20,5 +20,5 @@ class ExternalFileTypeAdmin(admin.ModelAdmin):
 admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
 
 
-class BundleAdmin(admin.ModelAdmin):
-  pass
+class BundleAdmin(admin.ModelAdmin):pass
+admin.site.register(models.Bundle, BundleAdmin)
