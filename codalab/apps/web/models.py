@@ -102,4 +102,4 @@ class Bundle(models.Model):
   description = models.TextField(blank=True)
     
   def __unicode__(self):
-    return self.name
+    return self.title

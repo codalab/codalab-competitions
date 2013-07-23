@@ -110,5 +110,5 @@ class MyCompetitionsEnteredPartial(ListView):
 
 ## Bundle View
 
-class Bundle(TemplateView):
+class Bundle(ListView):
   model = models.Bundle
