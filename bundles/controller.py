@@ -380,8 +380,14 @@ class BadFormatException(Exception):
 
 loadBundlesIntoCache()
 
-#w = Worksheet('pliang/csv_to_arff')
-#w = Worksheet('pliang/basic_ml')
+w = Worksheet('pliang/csv_to_arff')
+w.execute()
+w.generateHtml()
+
+w = Worksheet('pliang/basic_ml')
+w.execute()
+w.generateHtml()
+
 w = Worksheet('pliang/standard_ml_programs')
 w.execute()
 w.generateHtml()
