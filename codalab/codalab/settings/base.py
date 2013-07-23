@@ -156,6 +156,7 @@ class Base(Settings):
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'mptt',
     'django_wsgiserver',
     'django_config_gen',
     'compressor',

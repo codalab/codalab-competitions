@@ -46,7 +46,7 @@ class CompetitionParticipantForm(forms.ModelForm):
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
-        model = models.CompetitionDataset
+        model = models.Dataset
 
 
 
