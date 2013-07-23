@@ -9,7 +9,7 @@ blocks:
 - Next, we insert a dataset in CSV format.  This one happens to have
   information about US census information.
 - var: csvData
-  name: pliang/census-population
+  name: pliang/census_population
 
 - We specify the entry point into Weka corresponding to the CSV-to-ARFF
   converter.
