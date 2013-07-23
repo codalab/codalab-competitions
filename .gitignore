@@ -2,8 +2,6 @@ venv/*/*
 *.log
 *.pot
 *.pyc
-local_settings.py
-local_configuration.py
 *~
 \#*\#
 .\#*
