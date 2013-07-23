@@ -46,87 +46,103 @@
 },
 {
   "pk": 1, 
-  "model": "web.contentcontainer", 
-  "fields": {
-    "type": 1, 
-    "name": "Competition Detail"
-  }
-},
-{
-  "pk": 1, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 8, 
     "container": 1, 
-    "parent": 2, 
-    "rank": 0, 
-    "label": "Overview", 
+    "parent": null, 
+    "lft": 1, 
+    "level": 0, 
+    "rank": 1, 
+    "label": "Learn the Details", 
     "max_items": 1, 
     "visibility": 2, 
-    "codename": "competition_detail-overview"
+    "tree_id": 1, 
+    "codename": "competition_detail-learn-the-details"
   }
 },
 {
   "pk": 2, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 3, 
     "container": 1, 
-    "parent": null, 
-    "rank": 0, 
-    "label": "Learn the Details", 
+    "parent": 1, 
+    "lft": 2, 
+    "level": 1, 
+    "rank": 1, 
+    "label": "Overview", 
     "max_items": 1, 
     "visibility": 2, 
-    "codename": "competition_detail-learn-the-details"
+    "tree_id": 1, 
+    "codename": "competition_detail-overview"
   }
 },
 {
   "pk": 3, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 5, 
     "container": 1, 
-    "parent": null, 
-    "rank": 1, 
-    "label": "Participate", 
+    "parent": 1, 
+    "lft": 4, 
+    "level": 1, 
+    "rank": 2, 
+    "label": "Evaluate", 
     "max_items": 1, 
     "visibility": 2, 
-    "codename": "competition_detail-participate"
+    "tree_id": 1, 
+    "codename": "competition_detail-evaluate"
   }
 },
 {
   "pk": 4, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 7, 
     "container": 1, 
-    "parent": 2, 
-    "rank": 1, 
-    "label": "Evaluate", 
+    "parent": 1, 
+    "lft": 6, 
+    "level": 1, 
+    "rank": 3, 
+    "label": "Terms and Conditions", 
     "max_items": 1, 
     "visibility": 2, 
-    "codename": "competition_detail-evaluate"
+    "tree_id": 1, 
+    "codename": "competition_detail-terms-and-conditions"
   }
 },
 {
   "pk": 5, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 4, 
     "container": 1, 
-    "parent": 2, 
-    "rank": 2, 
-    "label": "Terms and Conditions", 
+    "parent": null, 
+    "lft": 1, 
+    "level": 0, 
+    "rank": 1, 
+    "label": "Participate", 
     "max_items": 1, 
-    "visibility": 2, 
-    "codename": "competition_detail-terms-and-conditions"
+    "visibility": 1, 
+    "tree_id": 2, 
+    "codename": "competition_detail-participate"
   }
 },
 {
   "pk": 6, 
   "model": "web.contententity", 
   "fields": {
+    "rght": 3, 
     "container": 1, 
-    "parent": 3, 
-    "rank": 0, 
+    "parent": 5, 
+    "lft": 2, 
+    "level": 1, 
+    "rank": 1, 
     "label": "Get data", 
     "max_items": 1, 
     "visibility": 2, 
+    "tree_id": 2, 
     "codename": "competition_detail-get-data"
   }
 },

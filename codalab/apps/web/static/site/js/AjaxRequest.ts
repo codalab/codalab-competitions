@@ -76,8 +76,8 @@ module Ajax {
 		data: data,
                 cache: false,
                 success: succ,
-                error: err,
-		accepts: 
+                error: err
+		
             });
         }
     }
