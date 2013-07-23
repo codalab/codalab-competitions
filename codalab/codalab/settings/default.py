@@ -1,18 +1,20 @@
-from .base import Base
+from .base import DevBase
 import os
 
-class Dev(Base):
-   OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-   INTERNAL_IPS = ('127.0.0.1',)
-   DEBUG_TOOLBAR_CONFIG = {
-      'SHOW_TEMPLATE_CONTEXT': True,
+__all__ = ['Dev','Prod','Test','Staging']
 
-      'ENABLE_STACKTRACES' : True,
-      }
+class NotImp(object):
+   def __init__(self):
+      raise NotImplementedError
 
-   HAYSTACK_CONNECTIONS = {
-      'default': {
-          'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-          'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
-      },
-   }
+class Dev(DevBase):
+   pass
+
+class Prod(NotImp):
+   pass
+
+class Test(NotImp):
+   pass
+
+class Staging(NotImp):
+   pass
