@@ -3,11 +3,15 @@ import os, sys, yaml, time, re
 # This file provides the interface for working with Bundles and Worksheets.
 # Currently, everything is just run locally.  Currently this is just a
 # prototype which needs to be refactored.
+#
+# All Bundles and Worksheets have a unique immutable name of the form:
+#   <user>/<basename>
 
-# The base directory where all the Bundles are stored.
+# The base directory where all the Bundles and Worksheets are stored.
+# Names are paths relative to this base.
 bundlesPath = "."
 
-# For visualization
+# For visualization.
 htmlOutPath = 'html_out'
 
 # These keys are produced in a run
@@ -18,15 +22,12 @@ producedRunKeys = ['output', 'status', 'stdout', 'stderr']
 bundleCache = {}  # Map from specification to Bundle
 
 # A Bundle is an immutable directory with files and subdirectories.
-# Some of these files are YAML files, which conceptually represent
-# directories.
 #
 # A Bundle has a metadata file which contains the following keys:
 #  - description
-#  - any key-value pairs that reference other Bundles
+#  - key-value pairs that reference other Bundles
 #
-# Programs, Datasets, and Runs are Bundles with different mandatory keys
-# (files):
+# Programs, Datasets, and Runs are Bundles with different mandatory keys:
 #  - Program: command
 #  - Dataset: format
 #  - Run: program/macro, input, produced keys (output, status, stdout, stderr)
@@ -51,16 +52,17 @@ class Bundle:
 
 ############################################################
 # Main functions:
-#   - getBundle: Return an existing bundle with this name.
-#   - createBundle: Creates a new bundle by combining parts of other
-#     bundles.
-#   - runProgram: Creates a new bundle by running a program.
-#   - runMacro: Creates a new bundle by running a macro.
+#   - getBundle: Return an existing Bundle with this name.
+#   - createBundle: Creates a new Bundle by combining parts of other
+#     Bundles.
+#   - runProgram: Creates a new Bundle by running a program.
+#   - runMacro: Creates a new Bundle by running a macro.
 
-# Return the bundle with this name.
+# Return the existing Bundle with this name.
 def getBundle(name): return Bundle(name)
 
-# Helper function: find a fresh bundle directory (this is inefficient!)
+# Helper function: find an unused Bundle directory (this is inefficient!).
+# Just return the unused smallest integer.
 def reserveNewBundleName():
   i = 0
   generatedName = 'generated'
@@ -73,7 +75,11 @@ def reserveNewBundleName():
   #print "Created " + name
   return name
 
+# Given |metadata| which specifies the construction of the Bundle, return a
+# specification string which essentially serializes this metadata.
+# The specification is used to check for duplicates.
 def getSpec(metadata):
+  # Filter out keys which could change over time.
   filteredMetadata = {}
   for key, value in metadata.items():
     if key not in producedRunKeys:
@@ -92,7 +98,8 @@ def loadBundlesIntoCache():
       spec = getSpec(bundle.metadata)
       bundleCache[spec] = bundle
 
-# Given the metadata, create and the corresponding Bundle.
+# Given the metadata, create the corresponding Bundle,
+# writing it to disk.
 def createBundle(metadata):
   spec = getSpec(metadata)
   if spec in bundleCache: return bundleCache[spec]
@@ -109,12 +116,16 @@ def createBundle(metadata):
 
   return bundle
 
+# If a Bundle depends on another one, its metadata will contain:
+#   <key>: <reference to Bundle>/<subdirectory>
+# Take this information and make it an actual directory (in the future,
+# installation will not be in the same directory but on the worker machine).
 def installDependencies(bundle):
-  # Set up dependencies
   for key, value in bundle.metadata.items():
     installDir(os.path.join(bundlesPath, value),
                os.path.join(bundle.path, key))
 
+# Helper functions to query about a Run.
 def getExitCode(bundle):
   status = readYaml(os.path.join(bundle.path, 'status'))
   return status.get('exitCode')
@@ -123,18 +134,21 @@ def wasRunSuccessful(bundle):
 def wasRunStarted(bundle):  # Either started, or finishing
   return os.path.exists(os.path.join(bundle.path, 'output'))
 
-# Execute this run Bundle.  Return whether it was successful.
+# Execute this Run Bundle.  Return whether it was successful.
+# Currently, we are executing the Run in the same directory.
+# In the future, this will be impossible since it will be on another machine.
 def runProgram(bundle):
+  # If already run, don't do it again.
   if wasRunStarted(bundle):
     return wasRunSuccessful(bundle)
-  # TODO: create a scratch directory.  For now, just use the same
-  # directory.
 
+  # Define paths
   runPath = bundle.path 
   programPath = os.path.join(runPath, 'program')
   inputPath = os.path.join(runPath, 'input')
   outputPath = os.path.join(runPath, 'output')
   tmpPath = runPath
+  os.mkdir(outputPath)
 
   # Read the command from the Program's metadata.
   metadataPath = os.path.join(bundle.path, 'program', 'metadata')
@@ -145,8 +159,6 @@ def runProgram(bundle):
   command = command.replace("$input", inputPath)
   command = command.replace("$output", outputPath)
   command = command.replace("$tmp", tmpPath)
-
-  os.mkdir(outputPath)
 
   print
   print "BEGIN ====== runProgram(%s) ======" % command
@@ -190,12 +202,12 @@ def runMacro(bundle):
       bundle.metadata[key] = worksheet.returnBundle.name + '/' + key
     writeYaml(bundle.metadata, bundle.metadataPath)
     installDependencies(bundle)
-  print 'END ===== runMacro(%s) ===== ' % bundle.metadata
 
+  print 'END ===== runMacro(%s) ===== ' % bundle.metadata
   return ok
 
 ############################################################
-# Functions for loading and running worksheets.
+# Functions for loading and running Worksheets.
 
 # A basic building block of a worksheet
 class Block: pass
