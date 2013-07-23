@@ -92,3 +92,14 @@ class CompetitionDataset(Publishable):
     number = models.PositiveIntegerField(default=0)
     dataset = models.ForeignKey(ExternalFile)
     
+
+# Bundle Model
+class Bundle(models.Model):
+  title = models.CharField(max_length=100,null=True,blank=True)
+  created = models.DateTimeField(auto_now_add=True)
+  #submitter = models.ForeignKey(User)
+  url = models.URLField("URL", max_length=250, blank=True)
+  description = models.TextField(blank=True)
+    
+  def __unicode__(self):
+    return self.name

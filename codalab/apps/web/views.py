@@ -107,4 +107,8 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-    
+
+## Bundle View
+
+class Bundle(TemplateView):
+  model = models.Bundle

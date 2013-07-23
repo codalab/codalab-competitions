@@ -18,3 +18,7 @@ admin.site.register(models.ParticipantStatus, ParticipantStatusAdmin)
 class ExternalFileTypeAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
+
+
+class BundleAdmin(admin.ModelAdmin):
+  pass
