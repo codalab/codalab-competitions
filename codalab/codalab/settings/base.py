@@ -9,13 +9,15 @@ class Base(Settings):
    PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
+   VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
+   DOMAIN_NAME='localhost'
+   SERVER_NAME='localhost'
+
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
    DEBUG = True
    TEMPLATE_DEBUG = DEBUG
-   SERVER_NAME = 'localhost'
-   DOMAIN_NAME = 'localhost'
    PORT = '8000'
 
    ADMINS = (
