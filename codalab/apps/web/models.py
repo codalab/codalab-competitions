@@ -206,7 +206,7 @@ class CompetitionSubmission(models.Model):
     submitted_at = models.DateTimeField()
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100)   
-    
+
     def save(self,*args,**kwargs):
         if self.participant.competition != self.phase.competition:
             raise IntegrityError("Competition for phase and participant must be the same")
@@ -217,3 +217,34 @@ class CompetitionSubmission(models.Model):
 class CompetitionSubmissionResults(models.Model):
     submission = models.ForeignKey(CompetitionSubmission)
     payload = models.TextField()
+
+
+
+# Bundle Model
+class Bundle(models.Model):
+  title = models.CharField(max_length=100,null=True,blank=True)
+  created = models.DateTimeField(auto_now_add=True)
+  #submitter = models.ForeignKey(User)
+  #published = models.BooleanField(default=True)
+  url = models.URLField("URL", max_length=250, blank=True)
+  description = models.TextField(blank=True)
+    
+  def __unicode__(self):
+    return self.title
+
+class Run(models.Model):
+    bundle = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255)
+    metadata = models.CharField(max_length=255)
+    program = models.CharField(max_length=255)
+    #published = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __unicode__(self):
+        return u'%s' % self.bundle
+
+    def get_absolute_url(self):
+        return reverse('bundle.views.run', args=[self.slug])

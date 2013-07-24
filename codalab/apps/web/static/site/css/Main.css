@@ -930,6 +930,7 @@ input[type="submit"][value="Delete"]
 }
 /*Container----------------------------------------*/
 .bodyContainer{
+  
     overflow:hidden;
     clear:both;
 }
