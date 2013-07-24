@@ -10,4 +10,5 @@ urlpatterns = patterns('',
                        url(r'^competitions/', include('apps.web.urls.competitions')),                       
                        url(r'^worksheets/', include('apps.web.urls.worksheets')),
                        url(r'^help/', include('apps.web.urls.help')),
+                       url(r'^bundle/', include('apps.web.urls.bundle')),
                        )

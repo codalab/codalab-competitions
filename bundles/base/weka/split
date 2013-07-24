@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Split an ARFF file into train and test.
+
+if [ $# != 3 ]; then
+  echo "Usage: $0 <input data path> <output path (will contain train and test)> <number of folds; hold out one fold for test>"
+  exit 1
+fi
+
+# Train
+echo "Splitting into train..."
+mkdir $2/train || exit 1
+`dirname $0`/runjava weka.filters.supervised.instance.StratifiedRemoveFolds -i $1/data.arff -o $2/train/data.arff -c last -N $3 -F 1 -V || exit 1
+[ -e "$2/train/data.arff" ] || exit 1  # Check because Weka programs don't return proper exit codes
+
+# Test
+echo "Splitting into test..."
+mkdir $2/test || exit 1
+`dirname $0`/runjava weka.filters.supervised.instance.StratifiedRemoveFolds -i $1/data.arff -o $2/test/data.arff -c last -N $3 -F 1 || exit 1
+[ -e "$2/test/data.arff" ] || exit 1  # Check because Weka programs don't return proper exit codes

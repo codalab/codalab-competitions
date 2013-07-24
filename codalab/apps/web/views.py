@@ -207,6 +207,15 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
+
+class BundleView(TemplateView):
+  model = models.Bundle
+  template_name = 'web/bundle/index.html'
+  
+  def get_context_data(self, **kwargs):
+    context = super(BundleView, self).get_context_data(**kwargs)
+    context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
+    return context
+    
