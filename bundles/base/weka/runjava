@@ -1,0 +1,2 @@
+# Sets the classpath properly
+java -cp `dirname $0`/classes:`dirname $0`/weka-3-7-9/weka.jar "$@"
