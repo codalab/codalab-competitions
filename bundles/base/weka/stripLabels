@@ -1,0 +1,1 @@
+exec `dirname $0`/runjava Main stripLabels "$@"
