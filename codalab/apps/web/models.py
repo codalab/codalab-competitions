@@ -206,8 +206,19 @@ class CompetitionSubmission(models.Model):
     submitted_at = models.DateTimeField()
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100)   
-    
-<<<<<<< HEAD
+
+    def save(self,*args,**kwargs):
+        if self.participant.competition != self.phase.competition:
+            raise IntegrityError("Competition for phase and participant must be the same")
+        if self.participant.user != self.file.creator:
+            raise IntegrityError("Participant can only submit their own files")
+        return super(CompetitionSubmission,self).save(*args,**kwargs)
+
+class CompetitionSubmissionResults(models.Model):
+    submission = models.ForeignKey(CompetitionSubmission)
+    payload = models.TextField()
+
+
 
 # Bundle Model
 class Bundle(models.Model):
@@ -237,15 +248,3 @@ class Run(models.Model):
 
     def get_absolute_url(self):
         return reverse('bundle.views.run', args=[self.slug])
-=======
-    def save(self,*args,**kwargs):
-        if self.participant.competition != self.phase.competition:
-            raise IntegrityError("Competition for phase and participant must be the same")
-        if self.participant.user != self.file.creator:
-            raise IntegrityError("Participant can only submit their own files")
-        return super(CompetitionSubmission,self).save(*args,**kwargs)
-
-class CompetitionSubmissionResults(models.Model):
-    submission = models.ForeignKey(CompetitionSubmission)
-    payload = models.TextField()
->>>>>>> master

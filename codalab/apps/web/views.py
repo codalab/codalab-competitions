@@ -207,9 +207,8 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-
-<<<<<<< HEAD
-## Bundle View
+class MyCompetitionDetailsTab(TemplateView):
+    template_name = 'web/my/_tab.html'
 
 class BundleView(TemplateView):
   model = models.Bundle
@@ -220,31 +219,3 @@ class BundleView(TemplateView):
     context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
     return context
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-=======
-class MyCompetitionDetailsTab(TemplateView):
-    template_name = 'web/my/_tab.html'
->>>>>>> master
