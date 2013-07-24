@@ -1,4 +1,5 @@
 Django==1.5.1
+pytz==2013b
 argparse==1.2.1
 distribute==0.6.34
 django-allauth==0.11.1
