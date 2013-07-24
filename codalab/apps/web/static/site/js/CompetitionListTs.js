@@ -19,6 +19,7 @@ var Competition;
                     "per_page": 6
                 };
                 var query_s = "page=" + page + "&per_page=6";
+                console.log(query_s);
                 var xUrl = url;
                 var onSuccess = function (data) {
                     if(containerId === "tabAreaCompetitionIManage") {

@@ -14,7 +14,7 @@ module Competition {
         public requestPartialViewcontroller(pageId: number) {
             CompetitionDetails.prototype.hidePhaseToggleBtn();
             var competitionId = $("#CompetitionId").val();
-            var url = "/competitions/details/" + competitionId + "/page/" + pageId;
+            var url = "/competitions/details/" + competitionId + "/xpage/" + pageId;
             var onSuccess = function (data) {
                 if ($(".competitionsDetailTabTop > li.active").hasClass("tab1")) {
                     $("#subContainerBlock").append(data);
@@ -77,7 +77,7 @@ module Competition {
 
         public checkRegisterStatus() {
             $(".preloader").show();
-            var xUrl = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/userstatus/"
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.setRegisterButtonLabel(data.status, data.reason);
                 CompetitionDetails.prototype.hideDialog();
@@ -92,7 +92,7 @@ module Competition {
         }
 
         public saveUserRegisterStatus() {
-            var url = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var url = "/api/competition/" + $("#CompetitionId").val() + '/participate/';
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.checkRegisterStatus();
             };
@@ -105,19 +105,19 @@ module Competition {
         private setRegisterButtonLabel(status: number, reason: string) {
             CompetitionDetails.prototype.hideAllTabSections();
             switch (status) {
-                case 0:
+                case 'none':
                     CompetitionDetails.prototype.showRegisterButton("register", "You have not yet registered for this competition");
                     CompetitionDetails.prototype.showRegisterSection();
                     break;
-                case 1:
+                case 'pending':
                     CompetitionDetails.prototype.showRegisterLabel("Your registration is pending approval");
                     $("#participateInfoBlock").addClass("pendingApproval");
                     break;
-                case 2:
+                case 'approved':
                     $("#participateInfoBlock").hide();
                     CompetitionDetails.prototype.showTabSections();
                     break;
-                case 3:
+                case 'denied':
                     CompetitionDetails.prototype.showRegisterLabel("Your registration has been rejected.");
                     $("#rejectionReasonLabel").show();
                     $("#rejectionReasonLabel").text(reason);
@@ -525,32 +525,6 @@ module Competition {
             }
             return s;
         }
-        public lastModifiedDateLabel(dtString: string) {
-            var d;
-            if ($.browser.msie && (parseInt($.browser.version) === 8)) {
-                d = new Date();
-                var dd = parseInt(dtString.substring(8, 10), 10);
-                var mm = parseInt(dtString.substring(5, 7), 10);
-                var yr = parseInt(dtString.substring(0, 4), 10);
-                var hh = parseInt(dtString.substring(11, 13), 10);
-                var mn = parseInt(dtString.substring(14, 16), 10);
-                var sc = parseInt(dtString.substring(17, 19), 10);
-                d.setUTCDate(dd);
-                d.setUTCMonth(mm);
-                d.setUTCFullYear(yr);
-                d.setUTCHours(hh);
-                d.setUTCMinutes(mn);
-                d.setUTCSeconds(sc);
-            } else {
-                d = new Date(dtString);
-            }
-            var dstr = $.datepicker.formatDate('M dd, yy', d).toString();
-            var hstr = d.getHours().toString();
-            var mstr = CompetitionDetails.prototype.fmt2(d.getMinutes());
-            var sstr = CompetitionDetails.prototype.fmt2(d.getSeconds());
-            return "Last modified: " + dstr + " at " + hstr + ":" + mstr + ":" + sstr;
-        }
-
         public activateMainTab(classValue) {
             $('.competitionsDetailTabTop > li').removeClass('active');
             $("." + classValue).addClass('active');
@@ -613,7 +587,7 @@ $(function () {
     window.onresize = function () { if (Competition.CompetitionDetails.loadSucess) { CompetitionDetails.getCompetitionResults($("#selctedPhaseButton").val()) } };
     CompetitionDetails.getAcivePhase();
     CompetitionDetails.getTabSelectionbyDefalut();
-    $("#lblLastModifiedDate").text($("#lblLastModifiedDate").text() + " " + CompetitionDetails.lastModifiedDateLabel($("#LastModified").val()));
+    // $("#lblLastModifiedDate").text($("#lblLastModifiedDate").text() + " " + CompetitionDetails.lastModifiedDateLabel($("#LastModified").val()));
     window.onscroll = function () {
         if ($(window).scrollTop() == $(document).height() - $(window).height() - 1) {
             if ($(".competitionsDetailTabTop > li.active").hasClass("tab3")) {

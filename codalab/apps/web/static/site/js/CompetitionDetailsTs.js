@@ -53,7 +53,7 @@ var Competition;
             var onError = function (xhr, status, err) {
                 CompetitionDetails.prototype.hideProcess();
             };
-            _super.prototype.ajaxGetRequest.call(this, url, onSuccess, onError);
+            _super.prototype.ajaxGetRequest.call(this, url, onSuccess, onError, null);
         };
         CompetitionDetails.prototype.requestPartialView = function (obj) {
             $(".preloader").show();
@@ -83,7 +83,7 @@ var Competition;
         };
         CompetitionDetails.prototype.checkRegisterStatus = function () {
             $(".preloader").show();
-            var xUrl = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var xUrl = "/api/competition/" + $("#CompetitionId").val() + "/userstatus/";
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.setRegisterButtonLabel(data.status, data.reason);
                 CompetitionDetails.prototype.hideDialog();
@@ -94,10 +94,10 @@ var Competition;
                 CompetitionDetails.prototype.hideDialog();
                 CompetitionDetails.prototype.hideProcess();
             };
-            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError);
+            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError, null);
         };
         CompetitionDetails.prototype.saveUserRegisterStatus = function () {
-            var url = "/api/competitionparticipantstatus/" + $("#CompetitionId").val();
+            var url = "/api/competition/" + $("#CompetitionId").val() + '/participate/';
             var onSuccess = function (data) {
                 CompetitionDetails.prototype.checkRegisterStatus();
             };
@@ -109,25 +109,25 @@ var Competition;
         CompetitionDetails.prototype.setRegisterButtonLabel = function (status, reason) {
             CompetitionDetails.prototype.hideAllTabSections();
             switch(status) {
-                case 0: {
+                case 'none': {
                     CompetitionDetails.prototype.showRegisterButton("register", "You have not yet registered for this competition");
                     CompetitionDetails.prototype.showRegisterSection();
                     break;
 
                 }
-                case 1: {
+                case 'pending': {
                     CompetitionDetails.prototype.showRegisterLabel("Your registration is pending approval");
                     $("#participateInfoBlock").addClass("pendingApproval");
                     break;
 
                 }
-                case 2: {
+                case 'approved': {
                     $("#participateInfoBlock").hide();
                     CompetitionDetails.prototype.showTabSections();
                     break;
 
                 }
-                case 3: {
+                case 'denied': {
                     CompetitionDetails.prototype.showRegisterLabel("Your registration has been rejected.");
                     $("#rejectionReasonLabel").show();
                     $("#rejectionReasonLabel").text(reason);
@@ -264,7 +264,7 @@ var Competition;
             };
             var onError = function (xhr, status, err) {
             };
-            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError);
+            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError, null);
         };
         CompetitionDetails.prototype.getSubmissionsPageResults = function (phaseValue) {
             $("#resultSubmissionResults div.competitionTileNoRecord").remove();
@@ -334,7 +334,7 @@ var Competition;
             };
             var onError = function (xhr, status, err) {
             };
-            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError);
+            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError, null);
         };
         CompetitionDetails.prototype.updateLeaderBoard = function (submissionID, obj) {
             $(obj).addClass("disabledStatus");
@@ -402,7 +402,7 @@ var Competition;
             };
             var onError = function (xhr, status, err) {
             };
-            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError);
+            _super.prototype.ajaxGetRequest.call(this, xUrl, onSuccess, onError, null);
         };
         CompetitionDetails.prototype.togglePhases = function (i) {
             var phaseToggleBtnContainerSubmitPage = $("#phaseToggleBtnContainerSubmitPage div");
@@ -624,7 +624,6 @@ $(function () {
     };
     CompetitionDetails.getAcivePhase();
     CompetitionDetails.getTabSelectionbyDefalut();
-    $("#lblLastModifiedDate").text($("#lblLastModifiedDate").text() + " " + CompetitionDetails.lastModifiedDateLabel($("#LastModified").val()));
     window.onscroll = function () {
         if($(window).scrollTop() == $(document).height() - $(window).height() - 1) {
             if($(".competitionsDetailTabTop > li.active").hasClass("tab3")) {
