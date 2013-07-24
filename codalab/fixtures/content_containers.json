@@ -1,0 +1,82 @@
+[
+{
+  "pk": 1, 
+  "model": "web.contentcontainer", 
+  "fields": {
+    "type": 1, 
+    "name": "Competition Detail"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "max_items": 1, 
+    "label": "Overview", 
+    "visibility": 2, 
+    "rank": 0
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": null, 
+    "max_items": 1, 
+    "label": "Learn the Details", 
+    "visibility": 2, 
+    "rank": 0
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": null, 
+    "max_items": 1, 
+    "label": "Participate", 
+    "visibility": 2, 
+    "rank": 1
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "max_items": 1, 
+    "label": "Evaluate", 
+    "visibility": 2, 
+    "rank": 1
+  }
+},
+{
+  "pk": 5, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 2, 
+    "max_items": 1, 
+    "label": "Terms and Conditions", 
+    "visibility": 2, 
+    "rank": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "web.contententity", 
+  "fields": {
+    "container": 1, 
+    "parent": 3, 
+    "max_items": 1, 
+    "label": "Get data", 
+    "visibility": 2, 
+    "rank": 0
+  }
+}
+]

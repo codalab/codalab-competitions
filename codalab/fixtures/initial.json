@@ -1,0 +1,193 @@
+[
+{
+  "pk": 1, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "unknown", 
+    "name": "Unknown"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "visible", 
+    "name": "Visible"
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "visible_always", 
+    "name": "Visible Always"
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.contentvisibility", 
+  "fields": {
+    "classname": null, 
+    "codename": "hidden", 
+    "name": "Hidden"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contentcontainertype", 
+  "fields": {
+    "codename": "competition_detail", 
+    "is_active": true, 
+    "name": "Competition Detail"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 8, 
+    "container": 1, 
+    "parent": null, 
+    "lft": 1, 
+    "level": 0, 
+    "rank": 1, 
+    "label": "Learn the Details", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "tree_id": 1, 
+    "codename": "competition_detail-learn-the-details"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 3, 
+    "container": 1, 
+    "parent": 1, 
+    "lft": 2, 
+    "level": 1, 
+    "rank": 1, 
+    "label": "Overview", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "tree_id": 1, 
+    "codename": "competition_detail-overview"
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 5, 
+    "container": 1, 
+    "parent": 1, 
+    "lft": 4, 
+    "level": 1, 
+    "rank": 2, 
+    "label": "Evaluate", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "tree_id": 1, 
+    "codename": "competition_detail-evaluate"
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 7, 
+    "container": 1, 
+    "parent": 1, 
+    "lft": 6, 
+    "level": 1, 
+    "rank": 3, 
+    "label": "Terms and Conditions", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "tree_id": 1, 
+    "codename": "competition_detail-terms-and-conditions"
+  }
+},
+{
+  "pk": 5, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 4, 
+    "container": 1, 
+    "parent": null, 
+    "lft": 1, 
+    "level": 0, 
+    "rank": 1, 
+    "label": "Participate", 
+    "max_items": 1, 
+    "visibility": 1, 
+    "tree_id": 2, 
+    "codename": "competition_detail-participate"
+  }
+},
+{
+  "pk": 6, 
+  "model": "web.contententity", 
+  "fields": {
+    "rght": 3, 
+    "container": 1, 
+    "parent": 5, 
+    "lft": 2, 
+    "level": 1, 
+    "rank": 1, 
+    "label": "Get data", 
+    "max_items": 1, 
+    "visibility": 2, 
+    "tree_id": 2, 
+    "codename": "competition_detail-get-data"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.externalfiletype", 
+  "fields": {
+    "codename": "test", 
+    "name": "Test"
+  }
+},
+{
+  "pk": 1, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "unknown", 
+    "name": "Unknown", 
+    "description": "Status is unknown"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "denied", 
+    "name": "Denied", 
+    "description": "Participation is denied. Chceck reason."
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "approved", 
+    "name": "Approved", 
+    "description": "Participation is Approved."
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.participantstatus", 
+  "fields": {
+    "codename": "pending", 
+    "name": "Pending", 
+    "description": "Participation is pending approval."
+  }
+}
+]

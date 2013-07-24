@@ -1,13 +1,20 @@
-from .base import Base
+from .base import DevBase
 import os
 
-class Dev(Base):
-   HAYSTACK_CONNECTIONS = {
-      'default': {
-          'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-          'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
-      },
-   }
+__all__ = ['Dev','Prod','Test','Staging']
 
+class NotImp(object):
+   def __init__(self):
+      raise NotImplementedError
 
+class Dev(DevBase):
+   pass
 
+class Prod(NotImp):
+   pass
+
+class Test(NotImp):
+   pass
+
+class Staging(NotImp):
+   pass

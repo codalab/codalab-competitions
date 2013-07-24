@@ -9,4 +9,7 @@ source ./venv/bin/activate && \
 pip install --upgrade pip && \
 pip install --upgrade distribute && \
 ./requirements
+cd codalab
+python manage.py syncdb
+python manage.py migrate
 popd

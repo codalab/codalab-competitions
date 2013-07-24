@@ -13,7 +13,7 @@ var Competition;
                 url: xUrl,
                 cache: false,
                 contentType: 'application/json',
-                data: JSON.stringify(data),
+                data: data,
                 success: succ,
                 error: err
             });
@@ -25,7 +25,10 @@ var Competition;
                 CompetitionView.page++;
                 $("#competitionListContainer").append($("#competitionTilePreload").clone());
                 $("#competitionListContainer").children("#competitionTilePreload").css("display", "block");
-                var data = 'page=' + CompetitionView.page + '&per_page=' + 6;
+                var data = {
+                    'page': CompetitionView.page,
+                    'per_page': 6
+                };
                 var xUrl = "/competitions/_partials/indexpage";
                 var onSuccess = function (data) {
                     if($(data).text() !== "There are no competitions.") {
