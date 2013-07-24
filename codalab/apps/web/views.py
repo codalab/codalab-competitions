@@ -110,5 +110,36 @@ class MyCompetitionsEnteredPartial(ListView):
 
 ## Bundle View
 
-class Bundle(ListView):
+class BundleView(TemplateView):
   model = models.Bundle
+  template_name = 'web/bundle/index.html'
+  
+  def get_context_data(self, **kwargs):
+    context = super(BundleView, self).get_context_data(**kwargs)
+    context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
+    return context
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
