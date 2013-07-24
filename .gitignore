@@ -2,8 +2,6 @@ venv/*/*
 *.log
 *.pot
 *.pyc
-local_settings.py
-local_configuration.py
 *~
 \#*\#
 .\#*
@@ -53,3 +51,6 @@ Thumbs.db
 *_db.sqlite
 codalab/static/*/*
 /bundles/*
+=======
+codalab/config/generated
+
