@@ -1,8 +1,16 @@
 """
+local.py
+
 Examples for local configuration for various environments.
 
 The objects ceated as here and referenced though the environment variable
+
 """
+from base import DevBase
+from default import *
+
+from configurations import Settings
+
 import os
 
 class LocalEnvironment(object):
@@ -16,6 +24,12 @@ class LocalEnvironment(object):
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
     DB_HOST = os.environ.get('DB_HOST')
     DB_PORT = os.environ.get('DB_PORT')
+
+class LocalAzureBlobstore(object):
+    DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+    AZURE_ACCOUNT_NAME = "accountname"
+    AZURE_ACCOUNT_KEY = 'xaedadsf34fCjHpYAKOpRE1uSw3y37MaRSUtUYkj+o2..aoHg5YwasdfGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7GT4=='
+    AZURE_CONTAINER = 'containerx'
 
 
 class LocalSQLAzureLinux(object):
@@ -84,3 +98,19 @@ class LocalSQLAzureWindows(object):
             'OPTIONS': DB_OPTIONS,
             }
         }
+
+
+class Dev(DevBase,LocalSQLAzureLinux):
+    ### https://docs.djangoproject.com/en/1.5/topics/settings/
+    ### https://github.com/jezdez/django-configurations/blob/master/docs/index.rst
+
+    ### https://docs.djangoproject.com/en/1.5/topics/email/#email-backends
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    #EMAIL_HOST = 'localhost'
+    #EMAIL_PORT = '123'
+    #EMAIL_HOST_USER = 'user'
+    #EMAIL_HOST_PASSWORD = 'password'
+    #EMAIL_USE_TLS = True
+
+    
