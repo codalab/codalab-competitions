@@ -145,9 +145,10 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_js_reverse',
     'rest_framework',
-    #'guardian',
+    'guardian',
     'publish',
-    # Uncomment the next line to enable admin documentation:
+    'storages',
+    'mptt',
     # 'django.contrib.admindocs',
 
     'haystack',
@@ -161,6 +162,21 @@ INSTALLED_APPS = (
    )
 
 LOGIN_REDIRECT_URL = '/my'
+OPTIONAL_APPS = [ 'django_wsgiserver',]
+INTERNAL_IPS = []
+
+LOGIN_REDIRECT_URL = '/my'
+
+AUTH_USER_MODEL = 'authenz.User'
+ANONYMOUS_USER_ID = -1
+ACCOUNT_AUTHENTICATION_METHOD='email'
+ACCOUNT_EMAIL_REQUIRED=True
+ACCOUNT_EMAIL_VERIFICATION='none'
+   
+ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
+
+COMPRESS_PRECOMPILERS = (('text/less', 'lessc {infile} {outfile}'),
+    ('text/typescript', 'tsc {infile} --out {outfile}'),)
 
 HAYSTACK_CONNECTIONS = {
     'default': {

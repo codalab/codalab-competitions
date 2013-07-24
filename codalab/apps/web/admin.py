@@ -63,19 +63,9 @@ class ExternalFileTypeAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ExternalFileType, ExternalFileTypeAdmin)
 
-<<<<<<< HEAD
-
-class BundleAdmin(admin.ModelAdmin):pass
-admin.site.register(models.Bundle, BundleAdmin)
-=======
 class ExternalFileSourceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ExternalFileSource, ExternalFileSourceAdmin)
-
-
-
-
-
 
 class PageGenAdmin(admin.TabularInline):
     model = models.Page
@@ -88,4 +78,5 @@ class PageAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Page, PageAdmin)
 
->>>>>>> master
+class BundleAdmin(admin.ModelAdmin):pass
+admin.site.register(models.Bundle, BundleAdmin)
