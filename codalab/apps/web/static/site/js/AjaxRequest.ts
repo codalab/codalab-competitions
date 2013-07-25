@@ -67,6 +67,18 @@ module Ajax {
                 success: succ,
                 error: err
             });
+	}
+	
+	public ajaxPatchRequest(xUrl: string, succ, err, data) {
+            $.ajax({
+                type: "PATCH",
+                url: xUrl,
+		data: data,
+                cache: false,
+                success: succ,
+                error: err
+		
+            });
         }
     }
 }

@@ -6,8 +6,9 @@
     <title>Codalab - {% block title %}{% endblock %}</title>
     <link href="{% static "site/Images/favicon.ico" %}" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
-    <script src="{% url 'js_reverse' %}" type="text/javascript"></script>
     {% include "web/includes/jquery.html" %}
+    <script type="text/javascript" src="{% static "site/js/main.js" %}"></script>
+    <script src="{% url 'js_reverse' %}" type="text/javascript"></script>
     {% include "web/includes/jqueryui.html" %}
     <link rel="stylesheet" type="text/css" href="{% static "site/css/Main.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "lib/jq/ui/themes/base/jquery.ui.datepicker.css" %}" />
@@ -20,7 +21,9 @@
         <header>
             <div class="headerContent">
                 <div class="container">
-                    <div class="logo"></div>
+                    <a href="{% url 'home' %}">
+                  <div class="logo"></div>
+                      </a>
                     
                     <div class="loginArea">
                         <section id="login">
@@ -42,6 +45,7 @@
                             <li id="liHome" class="active"><a href="{% url 'home' %}">Home</a></li>
                             <li id="liWorksheets"><a href="{% url 'worksheets' %}">Worksheets</a></li>
                             <li id="liCompetition"><a href="{% url 'competitions' %}">Competitons</a></li>
+                            <li id="liBundle"><a href="{% url 'bundle' %}">Bundles</a></li>
                             <li id="liMycodeLab"><a href="{% url 'my_codalab' %}">My Codalab</a></li>
                             <li id="liAbout"><a href="{% url 'about' %}">About</a></li>
                         </ul>
@@ -62,13 +66,17 @@
                 {% block body %} {% endblock %}
             </section>
         </div>
-         <footer>
+         
+      
+<!--       <footer>
             <div class="content-wrapper">
                 <div class="float-left">
                     <p>&copy; 2013 </p>
                 </div>
-            </div>
-        </footer>
+            </div>  
+      </footer> -->
+      
+      
     </div>
     <div class="uploadpopup">
         <div class="uploadpopupBlock">

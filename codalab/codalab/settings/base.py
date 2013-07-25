@@ -1,4 +1,3 @@
-
 from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os,sys
@@ -9,30 +8,20 @@ class Base(Settings):
    PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
+   # Hosts/domain names that are valid for this site; required if DEBUG is False
+   # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+   ALLOWED_HOSTS = []
    DEBUG = True
    TEMPLATE_DEBUG = DEBUG
+   SERVER_NAME = 'localhost'
+   DOMAIN_NAME = 'localhost'
+   PORT = '8000'
 
    ADMINS = (
       # ('Your Name', 'your_email@example.com'),
    )
-
+   
    MANAGERS = ADMINS
-
-   DATABASES = {
-     'default': {
-         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-         'NAME': 'dev_db.sqlite',                      # Or path to database file if using sqlite3.
-         # The following settings are not used with sqlite3:
-         'USER': '',
-         'PASSWORD': '',
-         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-         'PORT': '',                      # Set to empty string for default.
-     }
-   }
-
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-   ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -59,12 +48,12 @@ class Base(Settings):
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-   MEDIA_ROOT = ''
+   MEDIA_ROOT = os.path.join(PROJECT_DIR,'media/')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-   MEDIA_URL = ''
+   MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -86,9 +75,11 @@ class Base(Settings):
 # List of finder classes that know how to find static files in
 # various locations.
    STATICFILES_FINDERS = (
-      'django.contrib.staticfiles.finders.FileSystemFinder',
+      
       'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+     'django.contrib.staticfiles.finders.FileSystemFinder', 
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+      'compressor.finders.CompressorFinder',
    )
 
 # Make this unique, and don't share it with anybody.
@@ -107,6 +98,9 @@ class Base(Settings):
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    'django.middleware.transaction.TransactionMiddleware',
+
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
    )
@@ -120,11 +114,13 @@ class Base(Settings):
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+        os.path.join(PROJECT_DIR,'templates'),
    )
 
    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
      "allauth.account.context_processors.account",
      "allauth.socialaccount.context_processors.socialaccount",
+   
    )
 
    AUTHENTICATION_BACKENDS = (
@@ -141,17 +137,20 @@ class Base(Settings):
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     'django.contrib.admin',
-    'django_extensions',
+
+  
+
+    'mptt',
+   
+    'django_config_gen',
+    'compressor',
     'django_js_reverse',
     'rest_framework',
     'guardian',
     'publish',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-
     'haystack',
+
     'apps.api',
     'apps.authenz', 
     'apps.web',
@@ -159,7 +158,13 @@ class Base(Settings):
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+
+    'storages',
+    'south',
    )
+   OPTIONAL_APPS = [ 'django_wsgiserver',]
+   INTERNAL_IPS = []
+
    LOGIN_REDIRECT_URL = '/my'
 
    AUTH_USER_MODEL = 'authenz.User'
@@ -168,6 +173,14 @@ class Base(Settings):
    ACCOUNT_AUTHENTICATION_METHOD='email'
    ACCOUNT_EMAIL_REQUIRED=True
    ACCOUNT_EMAIL_VERIFICATION='none'
+   
+   ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
+
+   COMPRESS_PRECOMPILERS = (
+    ('text/less', 'lessc {infile} {outfile}'),
+    ('text/typescript', 'tsc {infile} --out {outfile}'),
+    )
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -200,10 +213,44 @@ class Base(Settings):
 
    @classmethod
    def pre_setup(cls):
-      try:
-         import local_configuration
-         lcls = getattr(local_configuration,os.environ.get('LOCAL_CONFIGURATION','Local'))
-         for name,value in uppercase_attributes(lcls).items():
-            setattr(cls,name,value)
-      except ImportError:
-         pass
+      if hasattr(cls,'OPTIONAL_APPS'):
+         for a in cls.OPTIONAL_APPS:
+            try:
+               __import__(a)
+            except ImportError as e:
+               print e               
+            else:
+               cls.INSTALLED_APPS += (a,)
+
+
+
+class DevBase(Base):
+   OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+   INTERNAL_IPS = ('127.0.0.1',)
+   DEBUG=True
+   DEBUG_TOOLBAR_CONFIG = {
+      'SHOW_TEMPLATE_CONTEXT': True,
+
+      'ENABLE_STACKTRACES' : True,
+      }
+
+   HAYSTACK_CONNECTIONS = {
+      'default': {
+          'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+          'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
+      },
+   }
+
+   DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+         'NAME': 'dev_db.sqlite',                      # Or path to database file if using sqlite3.
+         # The following settings are not used with sqlite3:
+         'USER': '',
+         'PASSWORD': '',
+         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+         'PORT': '',                      # Set to empty string for default.
+     }
+   }
+
+

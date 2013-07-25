@@ -1,5 +1,6 @@
 /// <reference path="../../lib/jq/jquery.d.ts" />
 /// <reference path="./AjaxRequest.ts" />
+declare var Urls: any;
 module FileUpload {
     export class FileUploadFile extends Ajax.AjaxRequest {
         static timerId = 0;

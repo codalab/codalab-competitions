@@ -1,6 +1,6 @@
 {% extends 'web/base.html' %}
 {% load staticfiles %}
-{% block title %}Competition - [{{ object.info.title }}]{% endblock %}
+{% block title %}Competition - [{{ object.title }}]{% endblock %}
 {% block extra_head %}
 <script src="{% static "site/js/FileUpload.js" %}"></script>
 <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
@@ -10,18 +10,20 @@
 <div class="CompetitionsDetailContainer">
     <section class="competitionsDetailHeader">
         <figure class="competitionsProfileImage">
-            <img src="@imgSource" width="175" height="123" />
+	 {% if object.image_url %}
+               <img id="imgProfileImage" src="{{ object.image_url }}" width="133" height="94">
+	 {% else %}
+  	       <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
+	 {% endif %}
         </figure>
         <div class="competitionsHeaderTitle">
             <div class="container">
                 <h2>{{ object.title }}</h2>
-                <label id="lblLastModifiedDate"> -- by -- </label>
-                   {# @Html.HiddenFor(model => model.LastModified) #} 
+                <label id="lblLastModifiedDate"> -- by {{ object.creator }} -- Last Modified: {{ object.last_modified }} </label>                    
                 <input id="submissionId" name="submissionId"  type="hidden" />
                 <input id="activePhase" name="activePhase"  type="hidden" />
                 <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
                 <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
-
             </div>
             <div class="StatusStripContainer">
                 <div class="challStatusStripTxt">
@@ -54,6 +56,10 @@
                     <div class="CompetitionsDetailLft">
                         <nav>
                             <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftLtd">
+			      
+			      {% for e in content.toplevel.0.children.all %}
+			      <li title="{{e.label}}" tabindex="{{forloop.counter}}" id="tab{{forloop.counter}}"><a>{{e.label}}</a></li>
+			      {% endfor %}
                             </ul>
                         </nav>
                     </div>
@@ -71,10 +77,20 @@
                     <div class="participateInfoBlock" id="participateInfoBlock">
                         <div class="infoStatusBar"></div>
                         <div class="labelArea">
-                            <label id="registerCompetitionLabel" class="regApprovLabel">You must be logged in before you can register </label>
+                            <label id="registerCompetitionLabel" class="regApprovLabel">
+			     {% if not user.is_authenticated %}
+			     You must be logged in before you can register
+			     {% elif not participation %}
+			     You have not yet registered for this competition
+			     {% elif participation.status.codename == 'pending' %}
+			     Your registration is pending approval
+			     {% elif participation.status.codename == 'rejected' %}
+			     Your registration has been rejected.
+			     {% endif %}
+			    </label>
                             <label id="rejectionReasonLabel" class="regApprovLabel noBold" ></label>
                             <input id="CompetitionId" type="hidden" value="{{ object.pk }}" />
-			    {% if request.user.is_authenticated %}
+			    {% if user.is_authenticated %}
                            
 
                                 <script type="text/javascript">
@@ -99,13 +115,13 @@
 
                                     <div class="containerSpace">
                                         <div class="globalBlueButtonAtag lFloat">
-                                            <a class="registerCompetition" id="registerCompetition"></a>
-                                            <div class="buttonPreloader"></div>
+					  <a class="registerCompetition" id="registerCompetition">register</a>
+					  <div class="buttonPreloader"></div>
                                         </div>
                                     </div>
                                 </div>
                            {% else %}
-                                <div class="globalBlueButtonAtag">LOGIN/REGISTER link goes here</div>
+                                <div class="globalBlueButtonAtag"><a href="{% url 'account_login' %}">Login</a>  <a href="{% url 'account_signup' %}">Register</a></div>
                             {% endif %}
                         </div>
 

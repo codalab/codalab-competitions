@@ -1,5 +1,6 @@
 /// <reference path="../../lib/jq/jquery.d.ts" />
 /// <reference path="./AjaxRequest.ts" />
+declare var Urls: any;
 module Competition {
     export class CompetitionList {
         static pageIManage = 0;
@@ -17,6 +18,7 @@ module Competition {
                 $("#" + containerId).children("#competitionTilePreload").css("display", "block");
                 var data = { "page": page, "per_page": 6 };
                 var query_s = "page=" + page + "&per_page=6";
+		console.log(query_s);
                 var xUrl = url;
                 var onSuccess = function (data) {
                     if (containerId === "tabAreaCompetitionIManage") { pageIManage++ } else { pageIParticipate++ }
@@ -60,6 +62,7 @@ module Competition {
             $("#tabAreaCompetitionIManage").append($("#competitionTilePreload").clone());
             $("#tabAreaCompetitionIManage").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsManaged";
+	    
 	    xUrl = Urls.my_competitions_managed();
             CompetitionList.doAjaxRequest(xUrl, "tabAreaCompetitionIManage", "You do not manage any competitions.", CompetitionList.pageIManage);
         }
