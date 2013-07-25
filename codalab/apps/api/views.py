@@ -190,3 +190,14 @@ competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'cre
 
 
 competition_page = CompetitionPageViewSet.as_view({'get':'retrieve'})
+
+class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CompetitionSubmissionSerial
+    queryset = webmodels.CompetitionSubmission.objects.all()
+
+    def pre_save(self,obj):
+        if not obj.status:
+            obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
+        if not obj.participant:
+            obj.participant = self.request.user
+        
