@@ -9,6 +9,10 @@ class Base(Settings):
    PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
+   CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
+   CONFIG_GEN_TEMPLATES_DIR  = os.path.join(PROJECT_DIR,'config','templates')
+
+
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
@@ -161,9 +165,9 @@ class Base(Settings):
     'allauth.socialaccount',
 
     'storages',
-    'south',
+    # 'south',
    )
-   OPTIONAL_APPS = [ 'django_wsgiserver',]
+   OPTIONAL_APPS = [ 'django_wsgiserver', ]
    INTERNAL_IPS = []
 
    LOGIN_REDIRECT_URL = '/my'

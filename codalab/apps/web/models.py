@@ -8,6 +8,7 @@ from django.utils.timezone import utc,now
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
+
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -203,7 +204,7 @@ class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
     file = models.ForeignKey(ExternalFile)
-    submitted_at = models.DateTimeField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100)   
 
