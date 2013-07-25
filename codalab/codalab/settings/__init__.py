@@ -8,6 +8,10 @@ logger = logging.getLogger(__name__)
 
 from .default import *
 try:
+    from .deploy import *
+except ImportError as e:
+    logger.info('No deployment config found')
+try:
     from .local import *
 except ImportError as e:
-    logger.warn("No local configuration found")
+    logger.info("No local configuration found")
