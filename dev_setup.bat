@@ -7,7 +7,7 @@ REM Create the virtual environment named venv
 virtualenv --clear --distribute venv 
 
 REM Activate the virtual environment
-venv\Scripts\activate.bat
+CALL venv\Scripts\activate.bat
 
 REM Update pip and distribute in venv
 pip install --upgrade pip
