@@ -1,7 +1,7 @@
-﻿{% if not competitions %}
+﻿{% if not object_list %}
     <p>You do not manage any competitions.</p>
 {% else %}
-{% for item in competitions %}
+{% for item in object_list %}
     <div class="competitionTile">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.pk }}" />
@@ -29,9 +29,9 @@
                     </div>
                 </div>
                 <div class="globalYellowButtonSmallAtag">
-		    <a href="{% url my_competition_delete pk=item.pk %}">Delete</a>
-		    <a href="{% url my_competition_edit pk=item.pk %}">Edit</a>
-		    <a href="{% url my_competition_participants pk=item.pk %}">Participants</a>
+		     <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
+		    <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
+		    <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
                     
                   {#  @Html.ActionLink("Manage co-owners", "Coowners", new { id = item.CompetitionId }) #}
                 </div>

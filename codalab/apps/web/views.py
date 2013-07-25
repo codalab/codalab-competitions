@@ -1,11 +1,41 @@
-from django.views.generic import View,TemplateView,DetailView,ListView
+from django.views.generic import View,TemplateView,DetailView,ListView,FormView,UpdateView,CreateView,DeleteView
+from django.views.generic.edit import FormMixin
+from django.views.generic.detail import SingleObjectMixin
+from django.forms.formsets import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from apps.web import models
+from apps.web import forms
+
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
+
+def get_content_context(typename=None):
+    ## TODO: Add caching
+    cont = {}
+    ctx = {'content': cont}
+    kw = {}
+    if typename:
+        kw['type__codename'] = typename          
+    container = models.ContentContainer.objects.get(**kw)
+    cont['container'] = container
+    toplevel = []
+    cont['toplevel'] = toplevel
+    children = {}
+    cont['children'] = children
+    for e in sorted(container.entities.all(), key=lambda entity: entity.rank):
+        if e.toplevel:
+            toplevel.append(e)
+        else:
+            if e.parent_id not in children:
+                children[e.codename] = []
+            children[e.codename].append(e)
+    return ctx
+
 
 class LoginRequiredMixin(object):
 
@@ -16,9 +46,63 @@ class LoginRequiredMixin(object):
 class CompetitionTabDetails(TemplateView):
     pass
 
-class CompetitionDetails(DetailView):
+class CompetitionCreate(CreateView):
     model = models.Competition
+    template_name = 'web/my/create.html'
+    form_class = forms.CompetitionForm
 
+    def form_valid(self,form):
+         form.instance.creator = self.request.user
+         form.instance.modified_by = self.request.user
+         return super(CompetitionCreate, self).form_valid(form)
+
+    def form_invalid(self,form):
+        raise Exception(form.errors)
+
+    def get_success_url(self):
+        return reverse('my_edit_competition', kwargs={'pk': self.object.pk})
+
+
+
+class PhasesInline(InlineFormSet):
+    model = models.CompetitionPhase
+
+class CompetitionEdit(UpdateWithInlinesView):
+    model = models.Competition
+    inlines = [PhasesInline, ]
+    template_name = 'web/my/edit2.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionEdit,self).get_context_data(**kwargs)
+        # context['pages'] = .pagecontainer.pages
+        context.update(get_content_context(typename='competition_detail'))
+        return context
+
+class CompetitionDelete(DeleteView):
+    queryset = models.Competition.objects.all()
+    
+
+    
+class CompetitionDetailView(DetailView):
+    queryset = models.Competition.objects.all()
+    
+    def get_context_data(self,**kwargs):
+        context = super(CompetitionDetailView,self).get_context_data(**kwargs)
+        cc = get_content_context(typename='competition_detail')
+        
+        context.update(cc)
+        try:
+            if self.request.user.is_authenticated():
+                context['participation'] = self.request.user.participation.filter(competition=self.object)
+        except ObjectDoesNotExist:
+            pass
+        return context
+
+class CompetitionUpdate(UpdateView):
+    model = models.Competition
+    form_class = forms.CompetitionForm
+        
+        
 class CompetitionPageDetails(TemplateView):
     pass
         
@@ -50,7 +134,7 @@ class MyCreateCompetition(LoginRequiredMixin,TemplateView):
         return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
     
 
-class MyEditCompetition(LoginRequiredMixin,TemplateView):
+class MyEditCompetition(LoginRequiredMixin,UpdateView):
     
     template_name = 'web/my/edit.html'
 
@@ -63,9 +147,25 @@ class MyEditCompetition(LoginRequiredMixin,TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(MyEditCompetition,self).get_context_data(**kwargs)
-        context['object'] = models.CompetitionWizard.objects.get(competition_id=self.kwargs['pk'],step=1)
+        comp = models.Competition.objects.get(pk=self.kwargs['pk'])
+        context['competition'] = comp
+        context['pages'] = comp.pagecontainer.pages
+        context['content'] = models.ContentContainer.objects.all()
         return context
-        
+ 
+
+class MyCompetitionParticipantView(LoginRequiredMixin,ListView):
+    queryset = models.CompetitionParticipant.objects.all()
+    template_name = 'web/my/participants.html'
+
+    def get_context_data(self,**kwargs):
+        ctx = super(MyCompetitionParticipantView,self).get_context_data(**kwargs)
+        ctx['competition_id'] = self.kwargs.get('competition_id')
+        return ctx
+
+    def get_queryset(self):
+        return self.queryset.filter(competition=self.kwargs.get('competition_id'))
+
 ## Partials
 
 class CompetitionIndexPartial(TemplateView):
@@ -107,4 +207,15 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
+class MyCompetitionDetailsTab(TemplateView):
+    template_name = 'web/my/_tab.html'
+
+class BundleView(TemplateView):
+  model = models.Bundle
+  template_name = 'web/bundle/index.html'
+  
+  def get_context_data(self, **kwargs):
+    context = super(BundleView, self).get_context_data(**kwargs)
+    context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
+    return context
     

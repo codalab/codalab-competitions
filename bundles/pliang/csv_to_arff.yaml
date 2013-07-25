@@ -1,0 +1,23 @@
+description:
+  This worksheet just converts a dataset from CSV format to ARFF format.
+
+blocks:
+- We first insert Weka, a set of standard machine learning utilities.
+- var: weka
+  name: base/weka
+
+- Next, we insert a dataset in CSV format.  This one happens to have
+  information about US census information.
+- var: csvData
+  name: pliang/census_population
+
+- We specify the entry point into Weka corresponding to the CSV-to-ARFF
+  converter.
+- var: convert
+  base: ^weka
+  command: $program/base/csvToArff $input $output
+
+- Finally, we run the converter program on the dataset.
+- var: run1
+  program: ^convert
+  input: ^csvData

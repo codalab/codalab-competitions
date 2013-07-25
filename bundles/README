@@ -1,0 +1,8 @@
+This directory contains a prototype of the Bundle/Worksheet system.
+To download the relevant Bundles, type:
+
+    ./download.sh
+
+To run the test Worksheet, type:
+
+    python controller.py

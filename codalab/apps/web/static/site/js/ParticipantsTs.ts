@@ -11,26 +11,27 @@ module Competition {
             $(obj).parent().siblings(".buttonPreloader").show();
             $(obj).parent().addClass('disabledStatus');
             if ($(obj).hasClass("approve")) {
-                operationValue = 0;
+                operationValue = 'approved';
                 userId = $(obj).attr("id").replace("A", "");
             } else {
-                operationValue = 1;
+                operationValue = 'denied';
                 userId = $(obj).attr("id").replace("R", "");
                 reason = $("#reason").val();
             }
             var data = { "operation": operationValue, "participantId": parseInt($.trim(userId)), "reason": reason };
-            var xUrl = "/api/competitionparticipantstatus/" + $("#competitionID").val();
+            var xUrl = "/api/competition/" + $("#competitionID").val() + '/userstatus/';
             var onSuccess = function (data) {
-                    if (data.status == 2) {
+                    if (data.status == 'approved') {
                         $(obj).parent().siblings("p").text("Participation approved");
                         $(obj).parent().hide();
                         $(obj).parent().siblings(".buttonPreloader").hide();
-                    } else if (data.status == 3) {
+                    } else if (data.status == 'denied') {
                         $(obj).parent().siblings("p").text("Participation rejected");
                         $(obj).parent().parent().append("<p style='color:red'>Reason: " + data.reason + "<p>");
                         $(obj).parent().hide();
                         $(obj).parent().siblings(".buttonPreloader").hide();
                     } else {
+			alert("WTF?");
                     };
                 };
                var onError = function (xhr, status, err) {
