@@ -14,11 +14,8 @@ else
 	exit 1
 fi
 
-# Change to the CodaLab directory
-cd codalab
-
 # Run the django app using nohup (man nohup), so it continues to run after you log out.
-nohup python manage.py runserver 0.0.0.0:8000 2>&1 >& codalab.output &
+nohup python ./codalab/manage.py runserver 0.0.0.0:8000 2>&1 >& codalab.output &
 
 # Exit cleanly
 exit 0
