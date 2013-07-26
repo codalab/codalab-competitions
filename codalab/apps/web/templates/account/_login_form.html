@@ -1,13 +1,11 @@
 <fieldset>
-<ol>
-{% for field in form %}
-<li>
-{{ field.label_tag }} {{ field }}
-{{ field.errors }}
-</li>
-{% endfor %}
-</ol>
+ 	<ol>
+		{% for field in form %}
+			<li>
+				{{ field.label_tag }} {{ field }}
+				{{ field.errors }}
+			</li>
+		{% endfor %}
+	</ol>
 </fieldset>
-<p>
-<a href="{% url 'account_signup' %}">Register</a>
-</p>
+<p><a href="{% url 'account_signup' %}">Register</a></p>

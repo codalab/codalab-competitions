@@ -1,17 +1,15 @@
 <fieldset>
-<ol>
-{% for field in form %}
-<li>
-{% if field.is_hidden %}
-{{ field }}
-{% else %}
-{{ field.label_tag }} {{ field }}
-{{ field.errors }}
-{% endif %}
-</li>
-{% endfor %}
-</ol>
+  <ol>
+	{% for field in form %}
+		<li>
+			{% if field.is_hidden %}
+				{{ field }}
+			{% else %}
+				{{ field.label_tag }} {{ field }}
+				{{ field.errors }}
+			{% endif %}
+		</li>
+	{% endfor %}
+  </ol>
 </fieldset>
-<p>
-Already have an account? <a href="{% url 'account_login' %}">Log in</a>
-</p>
+<p>Already have an account? <a href="{% url 'account_login' %}">Log in</a></p>
