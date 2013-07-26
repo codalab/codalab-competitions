@@ -8,13 +8,24 @@ class Base(Settings):
    PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR=os.path.dirname(PROJECT_DIR)
 
+
+   CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
+   CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
+
+   SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
+   VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
+   DOMAIN_NAME='localhost'
+   SERVER_NAME='localhost'
+
+   DEPLOY_ROLES = {'web': ['localhost'],
+                   'celery': ['localhost'],
+                   }
+   
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
    DEBUG = True
    TEMPLATE_DEBUG = DEBUG
-   SERVER_NAME = 'localhost'
-   DOMAIN_NAME = 'localhost'
    PORT = '8000'
 
    ADMINS = (
@@ -76,7 +87,7 @@ class Base(Settings):
 # various locations.
    STATICFILES_FINDERS = (
       
-      'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
      'django.contrib.staticfiles.finders.FileSystemFinder', 
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
       'compressor.finders.CompressorFinder',
@@ -157,7 +168,7 @@ class Base(Settings):
     'allauth.socialaccount',
 
     'storages',
-    'south',
+    # 'south',
    )
 
    OPTIONAL_APPS = [ 'django_wsgiserver',]
@@ -166,6 +177,7 @@ class Base(Settings):
    LOGIN_REDIRECT_URL = '/my'
 
    ANONYMOUS_USER_ID = -1
+
    ACCOUNT_AUTHENTICATION_METHOD='username_email'
    ACCOUNT_EMAIL_REQUIRED=True
    ACCOUNT_USERNAME_REQUIRED=False
