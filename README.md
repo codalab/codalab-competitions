@@ -105,6 +105,10 @@ Now that everything is installed, you can start the CodaLab site:
     cd codalab
     python manage.py syncdb
     python manage.py runserver
+    
+To load initial data from the initial.json file, you can use this command:
+
+    python manage.py loaddata fixtures/initial.json
  
 If syncdb fails it will provide an error.  If certain Python packages and/or
 Django apps and modules are not installed it will indicate what it cannot find.
