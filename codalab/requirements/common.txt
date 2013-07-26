@@ -1,3 +1,4 @@
+distribute>=0.6.34
 Django==1.5.1
 pytz==2013b
 argparse==1.2.1
@@ -23,3 +24,6 @@ django-storages==1.1.8
 South==0.8.1
 django-extra-views==0.6.3
 celery==3.0.21
+fabric-virtualenv==0.2.1
+Fabric==1.6.1
+requests==1.2.3
