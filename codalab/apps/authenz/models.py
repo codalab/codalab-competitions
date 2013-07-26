@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser,  UserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core import validators
@@ -37,9 +37,10 @@ class User(AbstractBaseUser):
         validators=[
             validators.RegexValidator(re.compile('^[\w\d.@+-]+$'), _('Enter a valid username.'), 'invalid')
         ])
+    email = models.EmailField(_('email address'), unique=True)
+
     first_name = models.CharField(_('first name'), max_length=50, blank=True)
     last_name = models.CharField(_('last name'), max_length=50, blank=True)
-    email = models.EmailField(_('email address'), unique=True)
     affiliation = models.CharField(_('affiliation'), max_length=100, blank=True)
     home_page = models.URLField(_('home page'), null=True, blank=True)
     is_staff = models.BooleanField(_('staff status'), default=False,
