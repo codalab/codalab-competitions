@@ -10,15 +10,12 @@
     <div class="mainContainer">
         <div class="loginAreaBlock">
             <section class="loginImageArea">
-                <img src="{% static 'site/Images/LoginIcon.png' %}" />
+                <img src="/static/site/Images/LoginIcon.png" />
             </section>
             <section class="loginContainer">
                 <hgroup class="title">
                     <h1>Log in</h1>
                 </hgroup>
-            
-
-
 
 {% if socialaccount.providers  %}
 <p>{% blocktrans with site.name as site_name %}Please sign in with one

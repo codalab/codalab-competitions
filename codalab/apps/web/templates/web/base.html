@@ -15,29 +15,25 @@
   {% block meta %}{% endblock %}
 
   <title>CodaLab - {% block title %}{% endblock %}</title>
-  
-  <!-- Included CSS Files (Uncompressed) -->
-  <!--
-  <link rel="stylesheet" href="{{ STATIC_URL }}foundation/stylesheets/foundation.css">
--->
 
-{% block css %}
-<!-- Included CSS Files (Compressed) -->
-<link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
-<script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+  {% block css %}
+      <!-- Included CSS Files (Compressed) -->
+      <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
+      <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
-<!-- IE Fix for HTML5 Tags -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <!-- IE Fix for HTML5 Tags -->
+      <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
       <![endif]-->
-      {% endblock %}
+  {% endblock %}
 
+  {% block extra_headers %}{% endblock extra_headers %}
   </head>
 
   <body class="body">
 
     <!-- Main Page Content and Sidebar -->
-    <div class="container content" id="layout">
+    <div class="container" id="layout">
 
         <!-- Nav Bar -->
         <div class="header">
@@ -99,28 +95,26 @@
                 <li><a href="/help">Help</a></li>
                 <li><a href="#">Feedback</a></li>
                 <li><a href="#">Notices</a></li>
-                <li><a href="#">Developers</a></li>
+                <li><a href="http://github.com/codalab/codalab">Developers</a></li>
             </ul>
         </div>
     </footer>
 
     {% block js %}
+        <!-- Load jQuery -->
+        <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.js"></script>
 
-    <!-- Check for Zepto support, load jQuery if necessary -->
-    <script src="{{ STATIC_URL }}foundation/js/vendor/zepto.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.js"></script>
+        <!-- Included JS Files (Compressed) -->
+        <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
+        <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
+        <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
 
-    <!-- Included JS Files (Compressed) -->
-    <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
-    <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
+        <!-- Initialize JS Plugins -->
+        <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
 
-    <!-- Initialize JS Plugins -->
-    <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
-
-    <script>
-    $(document).foundation();
-    </script>
+        <script>
+            $(document).foundation();
+        </script>
     {% endblock %}
   </body>
 </html>

@@ -1,34 +1,37 @@
 ﻿{% extends 'web/base.html' %}
-{% load staticfiles %}
 {% block title %}Home{% endblock %}
-{% block extra_head %}
-<script type="text/javascript">
-    $(function () {
-        $("li.active").removeClass("active");
-        $("#liHome").addClass("active");
-    });
-</script>
-{% endblock %}
-{% block body %}
-<div class="homepageBanner">
-    <div class="bannerBlockContainer">
-        <div class="bannerBlock">
-            <img src="{% static "site/Images/icon1.png" %}" />
-            <div class="bannertxtBlock">
-                <label class="bannerBlockHead">Create</label>
-                <label class="bannerBlocklabl">Solutions</label>
-            </div>
-        </div>
-        <div class="bannerBlock">
-            <img src="{% static "site/Images/icon2.png" %}" />
-            <div class="bannertxtBlock">
-                <label class="bannerBlockHead">Compete</label>
-                <label class="bannerBlocklabl">with peers</label>
-            </div>
-        </div>
+{% block subheader %} {% endblock subheader %}
+{% block site %}
+    <div class="row">
+        <div class="large-10 large-centered columns">
+            <div class="slideshow-wrapper">
+                <div class="preloader"></div>
+                <ul id="feature" data-orbit data-options="pause_on_hover:false; timer_speed:5000;">
+                    <li>
+                        <img src="/static/site/Images/icon1.png"/>
+                        <div class="orbit-caption">Experiments</div>
+                    </li>
+                    <li>
+                        <img src="/static/site/Images/icon2.png" />
+                        <div class="orbit-caption">Competitions</div>
+                    </li>
+                </ul>
+           </div>
+       </div>
+   </div>
+   <div class="row">
+    <div class="small-4 columns">
+        <H4>Competitions</H4>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ullamcorper pharetra elit ut faucibus. Nunc adipiscing purus nec ante pharetra molestie. Pellentesque ac tincidunt augue. Nam ipsum ante, fermentum quis mollis nec, malesuada eget ante. Ut a eleifend mi. Cras semper purus in enim consectetur, a facilisis enim hendrerit. Maecenas gravida urna id mi porta facilisis.</p>
     </div>
-</div>
-<div class="mainContainer">
-    
-</div>
+    <div class="small-4 columns">
+        <H4>The CodaLab Platform</H4>
+        <p>Sed eu nisl est. In in pellentesque turpis, a eleifend quam. Quisque nec dui eros. Vestibulum fermentum, lacus a interdum aliquam, turpis nisi mattis turpis, eu dignissim tellus enim vitae mi. Maecenas vehicula, sapien vitae blandit porttitor, nulla metus pellentesque nibh, id porttitor nisl libero quis velit. Sed tempus convallis blandit. Etiam eget nisi sed ante fermentum ullamcorper sed ut enim. Quisque in viverra sapien.</p>
+    </div>
+    <div class="small-4 columns">
+        <h4>Experiments</h4>
+        <p>Cras tristique augue magna, eu tristique sapien feugiat porta. Vivamus quis dolor purus. Maecenas sit amet nunc sapien. Mauris quis arcu interdum, bibendum orci ac, dictum orci. Mauris euismod ante pulvinar mauris commodo, vitae bibendum justo semper. Praesent tortor tellus, commodo sit amet urna vitae, placerat mattis nulla.</p>
+
+    </div>
+   </div>
 {% endblock %}
