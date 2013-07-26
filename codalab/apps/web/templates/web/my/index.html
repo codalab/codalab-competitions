@@ -1,40 +1,29 @@
 {% extends 'web/base.html' %}
 {% block title %}My CodaLab{% endblock %}
-{% block extra_head %}
-  <script src="/static/site/js/CompetitionListTs.js"></script>
-{% endblock %}
+{% block extra_headers %}
+    <script src="/static/site/js/CompetitionListTs.js"></script>
+{% endblock extra_headers %}
+{% block subheader %}<H3>My CodaLab</H3>{% endblock subheader %}
 {% block site %}
-<div class="mainContainer">
-    <div class="compBlockTbl">
-        <div class="compBlockRightContainer">
-            <div class="container myCodalabBlock myCodalabTabContainer">
-                <ul class="myCodalabTabArea">
-                    <li class="tab1 highlightactive" tabindex="1" id="tabCompetitionIManage">Competitions I Manage
-                    </li>
-                    <li class="tab2" tabindex="2" id="tabCompetitionIParticipate">Competitions I Participate In
-                    </li>
-                    <li class="tab3" tabindex="3">My Worksheets
-                    </li>
-                </ul>
-                <ul class="myCodalabTabContent">
-                    <li tabindex="1" class="tab1">
-                        <div class="competitionsDetailTab">
-                            <div class="CompetitionsDetailLft">
-                                <div class="globalBlueButtonAtag">
-                                    <a href="{% url 'my_create_competition' %}">Create Competition</a>
-                                    <div class="helpLinkBlock"><a class="helpLinkIcon compManageHelp" href='{% url "help_create_competition" %}' title="Get help with creating a competition"></a></div>
-                                </div>
-                            </div>
-                            <div class="CompetitionsDetailRit" id="tabAreaCompetitionIManage"></div>
-                        </div>
-                    </li>
-                    <li tabindex="2" class="container tab2" id="tabAreaCopetitionIParticipate"></li>
-                </ul>
+<div class="large-9 large-centered columns">
+    <div class="section-container tabs" data-section>
+        <section>
+            <p class="title" data-section-title><a href="#manage">Competitions I Manage</a></p>
+            <div class="content" data-section-content>
+                <div id="tabAreaCompetitionIManage"></div>
             </div>
-        </div>
-        <div class="competitionTilePreload" id="competitionTilePreload">
-            <div class="competitionPreloader"></div>
-        </div>
+        </section>
+        <section>
+            <p class="title" data-section-title><a href="#participate">Competitions I Participate In</a></p>
+            <div class="content" data-section-content>
+                <div id="tabAreaCopetitionIParticipate"></div>
+            </div>
+        </section>
     </div>
 </div>
+
+<div class="competitionTilePreload" id="competitionTilePreload">
+    <div class="competitionPreloader"></div>
+</div>
+
 {% endblock %}
