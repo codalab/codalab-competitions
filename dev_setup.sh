@@ -3,9 +3,9 @@
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"dev_venv"}
  
-default_requirements="$script_dir/dev-requirements.txt"
+default_requirements="$script_dir/codalab/requirements/dev.txt"
  
-python=$(which ${PYTHON:-python3.2})
+python=$(which ${PYTHON:-python2.7})
 if [ ! -f $python ]; then
         echo "Could not locate python interpreter: $python"
         exit 1
@@ -33,7 +33,7 @@ fi
  
 if [ ! -f "$venv_dir/bin/python" ]; then
         echo "Creating VirtualEnv in: $venv_dir"
-        $python "$script_dir/virtualenv.py" --never-download --extra-search-dir="$script_dir/frozen-libs" --distribute "$script_dir/$venv"
+        virtualenv --clear --distribute $venv_dir
 fi
  
 venv_pip="$venv_dir/bin/pip"
@@ -50,19 +50,27 @@ if [ -f $venv_pip ]; then
                 echo "ERROR: Failed to install requirements: $requirements_file"
                 exit $pip_res
         fi
-        echo "Copying dev_settings.py into place."
-
-        echo "Running syncdb for Django"
-        python codalab/manage.py syncdb
-
-        echo "Running data migrations"
-        python codalab/manage.py migrate
-
-        echo "Running data load"
-        python codalab/manage.py loaddata codalab/fixtures/initial.json
-
-        echo "You can now run python codalab/manage.py runserver 0.0.0.0:8000"
 else
         echo "ERROR: Could not locate pip in virtualenv: $venv_pip"
         exit 1
 fi
+
+venv_python="$venv_dir/bin/python"
+
+if [ -f $venv_python ]; then
+	echo "Running syncdb for Django"
+	python codalab/manage.py syncdb
+
+	echo "Running data migrations"
+	python codalab/manage.py migrate
+
+	echo "Running data load"
+	python codalab/manage.py loaddata codalab/fixtures/initial.json
+else
+	echo "ERROR: Could not locate python in virtualenv: $venv_python"
+	exit 1
+fi
+
+echo "You should now run:"
+echo "  > source $venv_dir/bin/activate"
+echo "  > python codalab/manage.py runserver 0.0.0.0:8000"
