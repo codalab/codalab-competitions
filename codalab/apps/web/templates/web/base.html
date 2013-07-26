@@ -14,6 +14,13 @@
     <link rel="stylesheet" type="text/css" href="{% static "lib/jq/ui/themes/base/jquery.ui.datepicker.css" %}" />
     {% include "web/includes/modernizr.html" %}
     <script src="{% static "site/js/AjaxRequest.js" %}"></script>
+    <script type="text/javascript">
+    $(function() {
+      $('#logoutlink').click(function() {
+        $.post($(this).attr('href'), function(){});
+      });
+    });
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -29,7 +36,7 @@
                         <section id="login">
 			  <ul>
 			  {% if user.is_authenticated %}
-				<li><a href="{% url 'account_logout' %}">Log Off</a></li>
+				<li><a id="logoutlink" href="{% url 'account_logout' %}">Log Off</a></li>
 			  {% else %}
 				<li><a href="{% url 'account_login' %}">Login</a></li>
 				<li><a href="{% url 'account_signup' %}">Register</a></li>
