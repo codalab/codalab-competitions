@@ -1,36 +1,36 @@
-﻿{% extends 'foundation/base.html' %}
+﻿{% extends 'web/base.html' %}
+{% block title %}About{% endblock title %}
 {% block site %}
 
-<!-- End Header and Nav -->
 <div class="row">
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 push-3 columns">
-        <h1>About CodaLab</h1>
+        <h6>About CodaLab</h6>
         <a id="codaLab"></a>
         <p>
             CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
         </p>
 
-        <h1>Collaborate with Experiments</h1>
+        <h6>Collaborate with Experiments</h6>
         <a id="collaborate"></a>
         <p>
             CodaLab Experiments are a unique amalgamation of documentation and code that you can use to express ideas programmatically and collaborate with others. CodaLab experiments utilize the <a href="http://www.python.org/">Python</a> programming language and <a href="http://daringfireball.net/projects/markdown/basics">Markdown</a> syntax. A wide variety of libraries for mathematics, charting and more are installed and available for use.
         </p>
 
-        <h1>Compete in Challenges</h1>
+        <h6>Compete in Challenges</h6>
         <a id="compete"></a>
         <p>
             Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>.
         </p>
 
-        <h1>Your Data in the Cloud</h1>
+        <h6>Your Data in the Cloud</h6>
         <a id="yourdata"></a>
         <p>
             Datasets form the basis for competitions. CodaLab gives you the ability to upload data to Microsoft Azure&#8482; for use in competitions. Datasets can include CT scans, MRIs, and other types of images. Each dataset represents a problem or set of problems to solve. For example, a competition could be created to find the most efficient way of segmenting mitochondria in a scanned cross-section of a human brain.
         </p>
 
-        <h1>Glossary</h1>
+        <h6>Glossary</h6>
         <a id="glossary"></a>
         <ul>
             <li>
@@ -73,4 +73,5 @@
       </div>
   </div>
 </div>
-{% endblock %}
+
+{% endblock site %}

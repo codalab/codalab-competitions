@@ -1,12 +1,11 @@
-{% extends "account/base.html" %}
+{% extends "web/base.html" %}
 
 {% load i18n %}
 {% load account %}
 {% load url from future %}
-{% load staticfiles %}
 {% block title %}{% trans "Log in" %}{% endblock %}
 
-{% block body %}
+{% block site %}
 <div class="loginpageBG">
     <div class="mainContainer">
         <div class="loginAreaBlock">

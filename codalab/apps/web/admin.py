@@ -24,8 +24,6 @@ class CompetitionAdmin(admin.ModelAdmin):
 admin.site.register(models.Competition, CompetitionAdmin)
 
 
-
-
 class ParticipantAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.CompetitionParticipant, ParticipantAdmin)

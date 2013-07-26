@@ -37,8 +37,6 @@ class CompetitionPhaseForm(forms.ModelForm):
         # Possibly need async proccessing
         return super(CompetitionPhaseForm, self).save(commit)
 
-
-
 class CompetitionParticipantForm(forms.ModelForm):
     
     class Meta:

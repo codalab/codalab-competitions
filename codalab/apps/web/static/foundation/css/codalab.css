@@ -63,67 +63,30 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 25, ../sass/_settings.scss */
+/* line 30, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 31, ../sass/_settings.scss */
-.right-fix {
-  padding-top: 6px;
+/* line 36, ../sass/_settings.scss */
+.subheader {
+  height: auto;
+  padding-bottom: 10px;
 }
 
-/* line 35, ../sass/_settings.scss */
-.middle {
-  vertical-align: middle;
-}
-
-/* line 39, ../sass/_settings.scss */
-.banner {
-  background: #ebf2fb;
-}
-
-/* line 43, ../sass/_settings.scss */
+/* line 41, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 49, ../sass/_settings.scss */
+/* line 47, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
-}
-
-/* line 54, ../sass/_settings.scss */
-.homepageBanner {
-  min-height: 255px;
-  background: #ebf2fb;
-  padding-top: 40px;
-}
-
-/* line 60, ../sass/_settings.scss */
-.bannerBlock {
-  display: table-cell;
-  padding-top: 20px;
-  color: #454545;
-  vertical-align: top;
-}
-
-/* line 67, ../sass/_settings.scss */
-.bannerBlockHead {
-  font-size: 60px;
-  display: table-row;
-  line-height: 65px;
-}
-
-/* line 73, ../sass/_settings.scss */
-.bannerBlocklabl {
-  font-size: 30px;
-  display: table-row;
 }
 
 /* font-face */
@@ -1018,7 +981,7 @@ body {
 /* line 272, /dev/foundation/scss/foundation/components/_global.scss */
 body {
   background: white;
-  color: #222222;
+  color: #666666;
   padding: 0;
   margin: 0;
   font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
@@ -2557,7 +2520,7 @@ p.lead {
 /* line 115, /dev/foundation/scss/foundation/components/_type.scss */
 .subheader {
   line-height: 1.4;
-  color: #6f6f6f;
+  color: #b3b3b3;
   font-weight: 300;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
@@ -2628,7 +2591,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
   font-weight: bold;
   font-style: normal;
-  color: #222222;
+  color: #666666;
   text-rendering: optimizeLegibility;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
@@ -2637,7 +2600,7 @@ h1, h2, h3, h4, h5, h6 {
 /* line 191, /dev/foundation/scss/foundation/components/_type.scss */
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
   font-size: 60%;
-  color: #6f6f6f;
+  color: #b3b3b3;
   line-height: 0;
 }
 
@@ -2780,7 +2743,7 @@ abbr,
 acronym {
   text-transform: uppercase;
   font-size: 90%;
-  color: #222222;
+  color: #666666;
   border-bottom: 1px dotted #dddddd;
   cursor: help;
 }
@@ -2801,7 +2764,7 @@ blockquote {
 blockquote cite {
   display: block;
   font-size: 0.8125em;
-  color: #555555;
+  color: #999999;
 }
 /* line 319, /dev/foundation/scss/foundation/components/_type.scss */
 blockquote cite:before {
@@ -2810,14 +2773,14 @@ blockquote cite:before {
 /* line 324, /dev/foundation/scss/foundation/components/_type.scss */
 blockquote cite a,
 blockquote cite a:visited {
-  color: #555555;
+  color: #999999;
 }
 
 /* line 330, /dev/foundation/scss/foundation/components/_type.scss */
 blockquote,
 blockquote p {
   line-height: 1.6;
-  color: #6f6f6f;
+  color: #b3b3b3;
 }
 
 /* Microformats */
@@ -7190,7 +7153,7 @@ ul.pagination li {
 }
 /* line 48, /dev/foundation/scss/foundation/components/_side-nav.scss */
 .side-nav li.active > a:first-child {
-  color: #4d4d4d;
+  color: #ffac31;
   font-weight: bold;
 }
 /* line 53, /dev/foundation/scss/foundation/components/_side-nav.scss */

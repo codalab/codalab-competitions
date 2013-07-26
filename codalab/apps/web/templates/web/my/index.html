@@ -1,10 +1,9 @@
 {% extends 'web/base.html' %}
-{% load staticfiles %}
 {% block title %}My CodaLab{% endblock %}
 {% block extra_head %}
-<script src="{% static "site/js/CompetitionListTs.js" %}"></script>
+  <script src="/static/site/js/CompetitionListTs.js"></script>
 {% endblock %}
-{% block body %}
+{% block site %}
 <div class="mainContainer">
     <div class="compBlockTbl">
         <div class="compBlockRightContainer">
@@ -30,11 +29,6 @@
                         </div>
                     </li>
                     <li tabindex="2" class="container tab2" id="tabAreaCopetitionIParticipate"></li>
-                    <li tabindex="3" class="container tab3">
-                        <div class="competitionTileNoRecord">
-                            <p>You do not have any Worksheets.</p>
-                        </div>
-                    </li>
                 </ul>
             </div>
         </div>
