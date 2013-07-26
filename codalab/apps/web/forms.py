@@ -2,21 +2,6 @@ from django import forms
 from django.forms.formsets import formset_factory
 from . import models
 
-class SignupForm(forms.Form):
-    
-   first_name = forms.CharField(max_length=40, label='First Name')
-   last_name = forms.CharField(max_length=40, label='Last Name')
-   affiliation = forms.CharField(max_length=40, label='Affiliation')
-   home_page = forms.URLField(max_length=40, label='Home Page')
-
-   def save(self,user):
-       user.first_name = self.cleaned_data['first_name']
-       user.last_name = self.cleaned_data['last_name']
-       user.affiliation = self.cleaned_data['affiliation']
-       user.home_page = self.cleaned_data['home_page']
-       user.save()
-
-
 class CompetitionForm(forms.ModelForm):
     
     def __init__(self,*args,**kwargs):

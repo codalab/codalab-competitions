@@ -4,7 +4,6 @@ from rest_framework.decorators import action,link
 from rest_framework.response import Response
 from rest_framework import renderers
 from apps.web import models as webmodels
-from apps.authenz import models as authmodels
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
