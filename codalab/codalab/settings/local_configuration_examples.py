@@ -40,6 +40,12 @@ class LocalSQLAzureLinux(object):
     FreeTDS and ODBC Connection definitons are required to connect.
     """
 
+    ## Set environment variables for ODBC/FreeTDS
+    os.environ['FREETDS'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'freetds.conf')
+    os.environ['ODBCINSTINI'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'odbcinst.ini')
+    os.environ['ODBCINI'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'odbc.ini')
+    os.environ['ODBCSYSINI'] = Base.CONFIG_GEN_GENERATED_DIR
+
     DB_ENGINE = 'sql_server.pyodbc'
     DB_NAME = '_db_name_'
     DB_USER = '_user_name_@_host_name_'

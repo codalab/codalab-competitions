@@ -21,7 +21,12 @@ class Base(Settings):
    DEPLOY_ROLES = {'web': ['localhost'],
                    'celery': ['localhost'],
                    }
-   
+   STARTUP_ENV = dict()
+   HAYSTACK_CONNECTIONS = {
+      'default': {
+         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+         },
+      }
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
