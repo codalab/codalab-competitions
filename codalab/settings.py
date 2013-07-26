@@ -153,7 +153,6 @@ INSTALLED_APPS = (
 
     'haystack',
     'apps.api',
-    'apps.authenz', 
     'apps.web',
 
     'allauth',
@@ -167,14 +166,11 @@ INTERNAL_IPS = []
 
 LOGIN_REDIRECT_URL = '/my'
 
-AUTH_USER_MODEL = 'authenz.User'
 ANONYMOUS_USER_ID = -1
-ACCOUNT_AUTHENTICATION_METHOD='email'
+ACCOUNT_AUTHENTICATION_METHOD='username_email'
 ACCOUNT_EMAIL_REQUIRED=True
 ACCOUNT_EMAIL_VERIFICATION='none'
    
-ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
-
 COMPRESS_PRECOMPILERS = (('text/less', 'lessc {infile} {outfile}'),
     ('text/typescript', 'tsc {infile} --out {outfile}'),)
 
