@@ -6,7 +6,6 @@ from .. import views
 partials_patterns = patterns('',
                              url(r'^indexpage$', views.CompetitionIndexPartial.as_view(template_name='web/competitions/_indexpage.html'),
                                  name='_competition_indexpage'),
-                             
                              )
 
 urlpatterns = patterns('',
