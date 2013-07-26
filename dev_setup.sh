@@ -53,7 +53,15 @@ if [ -f $venv_pip ]; then
         echo "Copying dev_settings.py into place."
 
         echo "Running syncdb for Django"
-        ( cd codalab; python manage.py syncdb )
+        python codalab/manage.py syncdb
+
+        echo "Running data migrations"
+        python codalab/manage.py migrate
+
+        echo "Running data load"
+        python codalab/manage.py loaddata codalab/fixtures/initial.json
+
+        echo "You can now run python codalab/manage.py runserver 0.0.0.0:8000"
 else
         echo "ERROR: Could not locate pip in virtualenv: $venv_pip"
         exit 1
