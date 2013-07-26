@@ -1,23 +1,27 @@
-﻿{% extends 'web/base.html' %}
-{% block title %}Home{% endblock %}
+﻿{% extends 'base.html' %}
+{% block head_title %}Home{% endblock %}
 {% block subheader %} {% endblock subheader %}
-{% block site %}
+{% block content %}
     <div class="row">
         <div class="large-10 large-centered columns">
             <div class="slideshow-wrapper">
                 <div class="preloader"></div>
-                <ul id="feature" data-orbit data-options="pause_on_hover:false; timer_speed:5000;">
+                <ul data-orbit>
                     <li>
-                        <img src="/static/site/Images/icon1.png"/>
-                        <div class="orbit-caption">Experiments</div>
+                        <img src="{{ STATIC_URL }}foundation/img/banner1.jpg" />
+                        <div class="orbit-caption">Medical Imaging</div>
                     </li>
                     <li>
-                        <img src="/static/site/Images/icon2.png" />
-                        <div class="orbit-caption">Competitions</div>
+                        <img src="{{ STATIC_URL }}foundation/img/experiment.png" />
+                        <div class="orbit-caption">Collaborate on Experiments</div>
+                    </li>
+                    <li>
+                        <img src="{{ STATIC_URL }}foundation/img/challenge.png" />
+                        <div class="orbit-caption">Participate in Challenges</div>
                     </li>
                 </ul>
-           </div>
-       </div>
+            </div>
+        </div>
    </div>
    <div class="row">
     <div class="small-4 columns">
@@ -26,7 +30,7 @@
     </div>
     <div class="small-4 columns">
         <H4>The CodaLab Platform</H4>
-        <p>Sed eu nisl est. In in pellentesque turpis, a eleifend quam. Quisque nec dui eros. Vestibulum fermentum, lacus a interdum aliquam, turpis nisi mattis turpis, eu dignissim tellus enim vitae mi. Maecenas vehicula, sapien vitae blandit porttitor, nulla metus pellentesque nibh, id porttitor nisl libero quis velit. Sed tempus convallis blandit. Etiam eget nisi sed ante fermentum ullamcorper sed ut enim. Quisque in viverra sapien.</p>
+        <p>Sed eu nisl est. In pellentesque in turpis, a eleifend quam. Quisque nec dui eros. Vestibulum fermentum, lacus a interdum aliquam, turpis nisi mattis turpis, eu dignissim tellus enim vitae mi. Maecenas vehicula, sapien vitae blandit porttitor, nulla metus pellentesque nibh, id porttitor nisl libero quis velit. Sed tempus convallis blandit. Etiam eget nisi sed ante fermentum ullamcorper sed ut enim. Quisque in viverra sapien.</p>
     </div>
     <div class="small-4 columns">
         <h4>Experiments</h4>

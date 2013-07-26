@@ -1,6 +1,6 @@
-{% extends 'web/base.html' %}
-{% block title %}Help{% endblock %}
+{% extends 'base.html' %}
+{% block head_title %}Help{% endblock %}
 {% block subheader %}<H3>CodaLab Help</H3>{% endblock subheader %}
-{% block site %}
+{% block content %}
     <a href="{% url 'help_create_competition' %}">Help: Create Competition</a>
 {% endblock %}
