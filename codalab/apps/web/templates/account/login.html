@@ -2,9 +2,6 @@
 {% load url from future %}
 {% load i18n %}
 {% block title %}{% trans "Log in" %}{% endblock %}
-{% block extra_head %}
-  {% include 'web/includes/jqueryval.html' %}
-{% endblock %}
 {% block subheader %}
   <h1>Create a new account.</h1>
 {% endblock subheader %}
@@ -33,5 +30,5 @@
     </div>
 </div>
 
-{% block site %}
+{% endblock site %}
 

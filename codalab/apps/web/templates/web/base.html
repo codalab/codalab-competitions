@@ -52,7 +52,11 @@
                 <li><a href="/competitions">Competitions</a></li>
 <!--                 <li><a href="/experiments">Experiments</a></li>
                 <li><a href="/my">My CodaLab</a></li>
- -->                <li><a href="/about">About</a></li>
+ -->               
+                {% if is_logged_in %}
+                  <li><a href="/my">My CodaLab</a></li>
+                {% endif %}
+                <li><a href="/help/about.html">About</a></li>
               </ul>
 
               <!-- Right Nav Section -->
@@ -62,7 +66,11 @@
                     <input name="query" type="search" placeholder="Search">
                   </form>
                 </li> -->
-                <li class="menu-icon"><a href="/accounts/login"><i class="social-foundicon-torso"></i></a></li>        
+                {% if is_logged_in %}
+                  <li class="menu-icon"><a href="/accounts/logout">Sign out</a></li>  
+                {% else %}      
+                  <li class="menu-icon"><a href="/accounts/login">Sign in</a></li>  
+                {% endif %}      
               </ul>
             </section>
           </nav>
