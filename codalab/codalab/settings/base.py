@@ -27,7 +27,7 @@ class Base(Settings):
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-   TIME_ZONE = 'America/Los_Angeles'
+   TIME_ZONE = 'US/Pacific'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -139,8 +139,6 @@ class Base(Settings):
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
-  
-
     'mptt',
    
     'django_config_gen',
@@ -162,6 +160,7 @@ class Base(Settings):
     'storages',
     'south',
    )
+
    OPTIONAL_APPS = [ 'django_wsgiserver',]
    INTERNAL_IPS = []
 
@@ -170,11 +169,11 @@ class Base(Settings):
    AUTH_USER_MODEL = 'authenz.User'
    ANONYMOUS_USER_ID = -1
 
-   ACCOUNT_AUTHENTICATION_METHOD='email'
+   ACCOUNT_AUTHENTICATION_METHOD='username_email'
    ACCOUNT_EMAIL_REQUIRED=True
+   ACCOUNT_USERNAME_REQUIRED=False
    ACCOUNT_EMAIL_VERIFICATION='none'
-   
-   ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
+   ACCOUNT_SIGNUP_FORM_CLASS='apps.web.forms.SignupForm'
 
    COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
