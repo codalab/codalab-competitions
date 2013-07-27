@@ -3,9 +3,10 @@ $foreground: white;
 $banner: #EBF2FB;
 $highlight: #3684d6;
 $active: #ffac31;
+$gray: #666;
 
-$body-font-color: #666;
-$header-font-color: #666;
+$body-font-color: $gray;
+$header-font-color: $gray;
 
 $topbar-bg: $background;
 $topbar-fg: $foreground;
@@ -36,10 +37,55 @@ $panel-padding-bottom: 0px;
 	font-weight: normal;
 }
 
+.competition-summary {
+	background: #fafafa;
+	border: 1px dotted $gray;
+	height: 100px;
+}
+
+.competition-summary > .columns {
+	margin: 0px;
+	padding: 0px;
+}
+
+.competition-label {
+	height: 100px;
+	background: $background;
+	color: $foreground;
+	padding-right: 0px;
+	padding-left: 0px;
+}
+
+.competition-image {
+	padding: 0px;
+	margin: 0px;
+	height: 100px;
+	vertical-align: middle;
+}
+
+.competition-info .columns {
+	padding: 0px;
+	margin: 0px;
+}
+.competition-title {
+	color: $background;
+	text-align: left;
+}
+
+.large-12 > .competition-label {
+	margin: 0px;
+	padding: 0px;
+	width: 30px;
+}
+
+.competition-description, .competition-owner {
+	font-size: small;
+}
+
 .slider {
 	color: $foreground;
    	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-	font-size: 3em;
+	font-size: 3.5em;
 	font-weight: 100;
 	position: relative;
 	text-align: center;

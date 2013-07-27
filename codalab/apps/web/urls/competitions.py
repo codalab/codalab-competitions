@@ -9,9 +9,9 @@ partials_patterns = patterns('',
                              )
 
 urlpatterns = patterns('',
-                       url(r'^$', TemplateView.as_view(template_name='web/competitions/index.html'), name='competitions'),
+                       url(r'^$', views.competition_index, name='competitions'),
+                       # url(r'^$', TemplateView.as_view(template_name='web/competitions/index.html'), name='competitions'),
                        url(r'^_partials/', include(partials_patterns)),
-                       
                        url(r'^details/(?P<pk>\d+)$', views.CompetitionDetailView.as_view(template_name='web/competitions/details.html'),  name='competition_details'),
                        url(r'^details/(?P<id>\d+)/tab/(?P<tab_number>\d+)$',
                            views.CompetitionTabDetails.as_view(template_name='web/competitions/tab_details.html'), 
@@ -28,7 +28,6 @@ urlpatterns = patterns('',
                        url(r'^(?P<id>\d+)/dataset/(?P<dataset_id>\d+)$',
                            views.CompetitionDownloadDataset.as_view(template_name='web/competitions/download_dataset.html'), 
                            name='competition_download_dataset'),
-                       
                        )
 
                         
