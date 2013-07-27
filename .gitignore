@@ -53,4 +53,5 @@ codalab/static/*/*
 /bundles/*
 =======
 codalab/config/generated
-
+src/
+requirements/src/
