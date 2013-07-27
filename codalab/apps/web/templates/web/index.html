@@ -1,36 +1,16 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}Home{% endblock %}
 {% block nosubheader %} {% endblock nosubheader %}
-
 {% block hero_subheader %}
 <!-- First Band (Slider) -->
 <div class="slider">
-<!--     <div class="slideshow-wrapper">
-        <span class="preloader"></span>
-        <ul data-orbit>
-          <li>
-            <img src="{{ STATIC_URL }}foundation/img/codalab_hero.png" />
-            <div class="orbit-caption">CodaLab Rocks!</div>
-          </li>
-          <li>
-            <img src="{{ STATIC_URL }}foundation/img/banner1.png" />
-            <div class="orbit-caption">Medical Imaging</div>
-          </li>
-        </ul>
-    </div> -->
-
     CodaLab = Experiments + Competitions
-    <!-- <img src="{{ STATIC_URL }}foundation/img/codalab_hero.png" /> -->
-    <!-- <img src="{{ STATIC_URL }}foundation/img/banner1.png" /> -->
 </div>
 {% endblock hero_subheader %}
 
 {% block content %}
-
-
-
-<div class="row">
-   
+<!-- Hero block -->
+<div class="row">  
   <div class="row">
     <div class="large-12 columns">      
       <hr />
@@ -38,38 +18,34 @@
   </div>
   
 <!-- Three-up Content Blocks -->
- 
     <div class="row">
         <div class="large-4 columns">
-      <img src="{{ STATIC_URL }}foundation/img/competitions-csr.png" />
-      <h4>Competitions</h4>
-      <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
-    </div>
+          <img src="{{ STATIC_URL }}foundation/img/competitions-csr.png" />
+          <h4>Competitions</h4>
+          <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+        </div>
     
-    <div class="large-4 columns">
-      <img src="{{ STATIC_URL }}foundation/img/news-csr.png" />
-      <h4>CodaLab</h4>
-      <p>CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.</p>
-    </div>
-    
-    <div class="large-4 columns">
-      <img src="{{ STATIC_URL }}foundation/img/experiment-csr.png" />
-      <h4>Experiments</h4>
-      <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
-    </div>
-    
+        <div class="large-4 columns">
+          <img src="{{ STATIC_URL }}foundation/img/news-csr.png" />
+          <h4>CodaLab</h4>
+          <p>CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.</p>
+        </div>
+        
+        <div class="large-4 columns">
+          <img src="{{ STATIC_URL }}foundation/img/experiment-csr.png" />
+          <h4>Experiments</h4>
+          <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+        </div>
     </div>
     
 <!-- Call to Action Panel -->
 <div class="row">
     <div class="small-12 columns">
-    
       <div class="panel">
-        <h4>Sign up today!</h4>
-            
+        <h4>Sign up today!</h4>            
         <div class="row">
           <div class="small-9 columns">
-            <p>To start exploring the CodaLab platform for competitions and experimentation.</p>
+            <p>Start exploring CodaLab.</p>
           </div>
           <div class="small-3 columns">
             <a href="{% url 'account_signup' %}" class="radius button right">Sign Up</a>

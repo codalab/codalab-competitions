@@ -9,10 +9,22 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.template import RequestContext, loader
+
 from apps.web import models
 from apps.web import forms
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
+
+def competition_index(request):
+    competitions = models.Competition.objects.all()
+    for c in competitions:
+        print c
+    template = loader.get_template("web/competitions/index.html")
+    context = RequestContext(request, {
+        'competitions' : competitions,
+        })
+    return HttpResponse(template.render(context))
 
 def get_content_context(typename=None):
     ## TODO: Add caching
@@ -81,8 +93,6 @@ class CompetitionEdit(UpdateWithInlinesView):
 class CompetitionDelete(DeleteView):
     queryset = models.Competition.objects.all()
     
-
-    
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     
@@ -101,7 +111,6 @@ class CompetitionDetailView(DetailView):
 class CompetitionUpdate(UpdateView):
     model = models.Competition
     form_class = forms.CompetitionForm
-        
         
 class CompetitionPageDetails(TemplateView):
     pass
@@ -153,7 +162,6 @@ class MyEditCompetition(LoginRequiredMixin,UpdateView):
         context['content'] = models.ContentContainer.objects.all()
         return context
  
-
 class MyCompetitionParticipantView(LoginRequiredMixin,ListView):
     queryset = models.CompetitionParticipant.objects.all()
     template_name = 'web/my/participants.html'

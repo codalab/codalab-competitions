@@ -22,7 +22,9 @@ urlpatterns = patterns('',
     # Static files
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.STATIC_ROOT}),
-
+    # Media files
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.MEDIA_ROOT}),
     # JS Reverse for saner AJAX calls
     url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse')
 ) 
