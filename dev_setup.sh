@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
  
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
-venv=${VENV:-"dev_venv"}
+venv=${VENV:-"venv"}
  
 default_requirements="$script_dir/codalab/requirements/dev.txt"
  
