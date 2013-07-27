@@ -37,6 +37,10 @@ $panel-padding-bottom: 0px;
 }
 
 .slider {
+	color: $foreground;
+   	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+	font-size: 3em;
+	font-weight: 100;
 	position: relative;
 	text-align: center;
 	background: #D7CDBF;
