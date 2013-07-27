@@ -63,27 +63,39 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 30, ../sass/_settings.scss */
+/* line 33, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 36, ../sass/_settings.scss */
+/* line 39, ../sass/_settings.scss */
+.slider {
+  position: relative;
+  text-align: center;
+  background: #D7CDBF;
+  padding-top: 70px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 200px;
+  vertical-align: middle;
+}
+
+/* line 50, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 41, ../sass/_settings.scss */
+/* line 55, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 47, ../sass/_settings.scss */
+/* line 61, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
@@ -6957,7 +6969,7 @@ ul.pagination li {
   border-style: solid;
   border-width: 1px;
   border-color: #d9d9d9;
-  margin-bottom: 1.25em;
+  margin-bottom: 0px;
   padding: 1.25em;
   background: #f2f2f2;
 }
@@ -6987,7 +6999,7 @@ ul.pagination li {
   border-style: solid;
   border-width: 1px;
   border-color: #2284a1;
-  margin-bottom: 1.25em;
+  margin-bottom: 0px;
   padding: 1.25em;
   background: #2ba6cb;
   -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
