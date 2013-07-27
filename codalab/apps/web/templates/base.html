@@ -1,0 +1,130 @@
+{% load url from future %}
+{% load account %}
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" /> 
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+  <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}site/Images/favicon.ico">
+
+  {% block meta %}{% endblock %}
+
+  <title>CodaLab - {% block head_title %}{% endblock %}</title>
+
+  {% block css %}
+      <!-- Included CSS Files (Compressed) -->
+      <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
+      <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+
+      <!-- IE Fix for HTML5 Tags -->
+      <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+  {% endblock %}
+
+  {% block extra_headers %}{% endblock extra_headers %}
+  </head>
+
+  <body class="body">
+
+    <!-- Main Page Content and Sidebar -->
+    <div class="container" id="layout">
+
+        <!-- Nav Bar -->
+        <div class="header">
+          <nav class="top-bar">
+            <ul class="title-area">
+              <!-- Title Area -->
+              <li class="name">
+                <h1><a href="/">CodaLab</a></h1>
+              </li>
+              <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+              <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+            </ul>
+            <section class="top-bar-section">
+              <!-- Left Nav Section -->
+              <ul class="left">
+                <li><a href="/competitions">Competitions</a></li>
+<!--                 <li><a href="/experiments">Experiments</a></li>
+                <li><a href="/my">My CodaLab</a></li>
+ -->               
+                <li><a href="/my">My CodaLab</a></li>
+                <li><a href="/help/about.html">About</a></li>
+              </ul>
+
+              <!-- Right Nav Section -->
+              <ul class="right">
+<!--                 <li class="has-form">
+                  <form action="/search" method="get">
+                    <input name="query" type="search" placeholder="Search">
+                  </form>
+                </li> -->
+                {% if user.is_authenticated %}
+                  <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>  
+                {% else %}
+                  <li class="menu-icon"><a href="{% url 'account_signup' %}">Sign Up</a></li>                
+                  <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>  
+                {% endif %}      
+              </ul>
+            </section>
+          </nav>
+        </div>
+        <!-- End Nav -->
+        <div class="row">
+            <div class="subheader small-centered">
+                {% block subheader %} {% endblock subheader %}
+            </div>
+        </div>
+
+        <div class="large-12 large-centered columns">
+          {% block content %}{% endblock content %}
+        </div>
+        <div id="layout_footer"></div>
+    </div>
+    <!-- End Main Content and Sidebar -->
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="small-6 columns">
+          <ul class="inline-list left">
+            <li><a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
+                <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a></li>
+                <li><a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
+                    <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a></li>
+                </ul>
+            </div>
+            <div class="small-6 columns">
+              <ul class="inline-list right">
+                <li><a href="/help">Help</a></li>
+                <li><a href="#">Feedback</a></li>
+                <li><a href="#">Notices</a></li>
+                <li><a href="http://github.com/codalab/codalab">Developers</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    {% block js %}
+        <!-- Load jQuery -->
+        <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
+
+        <!-- Included JS Files (Compressed) -->
+        <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
+        <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
+        <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
+
+        <!-- Initialize JS Plugins -->
+        <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
+
+        <script>
+            $(document).foundation();
+        </script>
+    {% endblock %}
+  </body>
+</html>

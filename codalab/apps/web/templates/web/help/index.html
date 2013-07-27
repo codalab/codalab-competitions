@@ -1,44 +1,6 @@
-{% extends 'web/base.html' %}
-{% load staticfiles %}
-{% block title %}Help{% endblock %}
-{% block extra_head %}
-<script type="text/javascript">
-    $(function () {
-        //$("li.active").removeClass("active");
-        //
-        $(".headerContent li.active").removeClass("active");
-        $("#liAbout").addClass("active");
-        $("#statusMsg").hide();
-
-    });
-
-    function scrollAnimation(id, obj) {
-        $(".leftNavigation li").removeClass("active");
-        $(obj).addClass("active");
-        $('html,body').animate({ scrollTop: parseInt($('#' + id).offset().top) - 60 }, 'slow');
-    }
-
-</script>
-{% endblock %}
-{% block body %}
-<div class="mainContainer">
-    <div class="generalContainer mainPageContainer">
-        <div class="leftNavigationMenu">
-            {% comment %}<ul class="leftNavigation">
-                <li class="active" onclick="scrollAnimation('codaLab',this)"><a>About codalab</a></li>
-                <li onclick="scrollAnimation('collaborate',this)"><a>Collaborate with ePapers</a></li>
-                <li onclick="scrollAnimation('competeinchallenges',this)"><a>Compete in challenges</a></li>
-                <li onclick="scrollAnimation('yourdata',this)"><a>Your data in the cloud</a></li>
-                <li onclick="scrollAnimation('glossary',this)"><a>Glossary</a></li>
-                <li onclick="scrollAnimation('helpol',this)"><a>General data</a></li>
-            </ul> {% endcomment %}
-        </div>
-        <div class="rightContentArea">
-            <div class="rightContentAreaScroll">
-                <h1>CodaLab Help</h1>
-		<a href="{% url 'help_create_competition' %}">Help: Create Competition</a>
-            </div>
-        </div>
-    </div>
-</div>
+{% extends 'base.html' %}
+{% block head_title %}Help{% endblock %}
+{% block subheader %}<H3>CodaLab Help</H3>{% endblock subheader %}
+{% block content %}
+    <a href="{% url 'help_create_competition' %}">Help: Create Competition</a>
 {% endblock %}

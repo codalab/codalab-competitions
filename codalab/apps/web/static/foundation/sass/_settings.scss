@@ -1,0 +1,50 @@
+$background: #3694D6;
+$foreground: white;
+$banner: #EBF2FB;
+$highlight: #3684d6;
+$active: #ffac31;
+
+$body-font-color: #666;
+$header-font-color: #666;
+
+$topbar-bg: $background;
+$topbar-fg: $foreground;
+$topbar-margin-bottom: 0px;
+$topbar-title-weight: normal;
+$topbar-title-font-size: xx-large;
+$topbar-link-weight: normal;
+$topbar-link-font-size: 100%;
+$topbar-link-hover-lightness: -30%;
+$topbar-link-bg-active: $active;
+
+$section-content-bg: $background;
+
+$anchor-font-color: $background;
+$anchor-font-color-hover: $background;
+$anchor-font-color-active: $active;
+
+$inline-list-bottom-margin: 0;
+
+$side-nav-link-color-active: $active;
+
+*{
+    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+	font-size:   100%;
+	font-weight: normal;
+}
+
+.subheader {
+    height: auto;
+    padding-bottom: 10px;
+}
+
+#footer, #footer a, #footer a:hover {
+	font-size: small;
+	background: $background;
+	color: $foreground;
+}
+
+.topbar-title {
+	font-size: x-large;
+	font-weight: light;
+}

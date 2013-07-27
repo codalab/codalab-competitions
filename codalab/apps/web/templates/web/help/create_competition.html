@@ -1,61 +1,10 @@
-{% extends 'web/base.html' %}
-{% load staticfiles %}
+{% extends 'base.html' %}
 {% block title %}Help - Create Competition{% endblock %}
-{% block extra_head %}
-<script type="text/javascript">
-    $(function () {
-        //$("li.active").removeClass("active");
-        //
-        $(".headerContent li.active").removeClass("active");
-        $("#liAbout").addClass("active");
-        $("#statusMsg").hide();
-
-    });
-
-    function scrollAnimation(id, obj) {
-        function animateActive() {
-            $(".leftNavigation li").removeClass("active");
-            $(obj).addClass("active");
-        }
-        if ($(obj).is(':first-child')) {
-            animateActive();
-            $('html,body').animate({ scrollTop: 0 }, 'slow');
-        }
-        else {
-            animateActive()
-            $('html,body').animate({ scrollTop: parseInt($('#' + id).offset().top) - 60 }, 'slow');
-        }
-    }
-    $(window).scroll(function () {
-        var height = $('body').height();
-        var scrollTop = $(window).scrollTop();
-
-        if (scrollTop > 110) {
-            $('.leftNavigation').css({ 'position': 'fixed', 'top': '0' });
-        }
-        else {
-            $('.leftNavigation').css({ 'position': 'fixed', 'top': '100px' });
-        }
-    });
-
-
-</script>
-{% endblock %}
-{% block body %}
-<div class="mainContainer">
-    <div class="generalContainer mainPageContainer">
-        <div class="leftNavigationMenu">
-            <ul class="leftNavigation">
-                <li class="active" onclick="scrollAnimation('prerequisites',this)"><a>Prerequisites</a></li>
-                <li onclick="scrollAnimation('competition-overview',this)"><a>Competition Overview</a></li>
-                <li onclick="scrollAnimation('create-an-azure-account',this)"><a>Create an Azure Account</a></li>
-                <li onclick="scrollAnimation('configure-azure-storage',this)"><a>Configure Azure Storage</a></li>
-                <li onclick="scrollAnimation('upload-competition-data',this)"><a>Upload Competition Data</a></li>
-                <li onclick="scrollAnimation('create-a-codalab-competition',this)"><a>Create a CodaLab Competition</a></li>
-            </ul>
-        </div>
-        <div class="rightContentArea">
-            <div class="rightContentAreaScroll">
+{% block site %}
+<div class="row">
+    <!-- Main Content Section -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-9 push-3 columns">
                 <h1>Create a Competition</h1>
                 <p>
                     CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
@@ -254,11 +203,11 @@ C:\MyCompetition\reference-training -&gt; reference-training.zip
                     <li>
                         <p>Copy the endpoint URL and key for your storage container. You will need this for uploading competition data, and for creating your manifest files. To do this, navigate to the dashboard for your storage account and click the <strong>MANAGE ACCESS KEYS</strong> button at the bottom of the page.</p>
                         <p>
-                            <img src="{% static 'site/Images/Docs/ccw_managekeys.png' %}" />
+                            <img src="/static/site/Images/Docs/ccw_managekeys.png" />
                         </p>
                         <p>This will display the <strong>Manage Access Keys</strong> dialog.</p>
                         <p>
-                            <img src="{% static 'site/Images/Docs/ccw_managekeys-2.png' %}" />
+                            <img src="/static/site/Images/Docs/ccw_managekeys-2.png" />
                         </p>
                         <p>For more information about getting your storage account name and account key, see <a href="http://www.windowsazure.com/en-us/manage/services/storage/how-to-manage-a-storage-account/#regeneratestoragekeys">How to: View, copy, and regenerate storage access keys</a>.</p>
                     </li>
@@ -303,7 +252,7 @@ reference-*.zip /destkey:&lt;access-key&gt;
                 <h3>overview</h3>
                 <p>Enter a title and brief description, and select a thumbnail image.</p>
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_1_overview.png' %}" alt="Wizard: Overview" />
+                    <img src="/static/site/Images/Docs/ccw_1_overview.png" alt="Wizard: Overview" />
                 </p>
                 <a id="phases"></a>
                 <h3>phases</h3>
@@ -311,7 +260,7 @@ reference-*.zip /destkey:&lt;access-key&gt;
 
                 <p>To access the endpoint URL and key for your storage container, navigate to the dashboard for your storage account and click the <strong>MANAGE ACCESS KEYS</strong> button at the bottom of the page.</p>
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_managekeys.png' %}" />
+                    <img src="/static/site/Images/Docs/ccw_managekeys.png" />
                 </p>
                 <p>To get the URLs for the data you have <a href="#upload-competition-data">uploaded</a>:</p>
                 <ol>
@@ -324,13 +273,13 @@ reference-*.zip /destkey:&lt;access-key&gt;
 
 
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_2_phases.png' %}" alt="Wizard: Phases" />
+                    <img src="/static/site/Images/Docs/ccw_2_phases.png" alt="Wizard: Phases" />
                 </p>
                 <a id="details"></a>
                 <h3>details</h3>
                 <p>This is where you provide documentation about the competition for participants.</p>
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_3_details.png' %}" alt="Wizard: Details" />
+                    <img src="/static/site/Images/Docs/ccw_3_details.png" alt="Wizard: Details" />
                 </p>
                 <p>
                     <b>Learn the details tab</b>
@@ -351,16 +300,29 @@ reference-*.zip /destkey:&lt;access-key&gt;
                 <h3>publish</h3>
                 <p>When you are ready to make your competition available, check the <b>competition is public</b> checkbox, and click <b>publish changes</b>.</p>
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_4_publish.png' %}" alt="Wizard: Publish" />
+                    <img src="/static/site/Images/Docs/ccw_4_publish.png" alt="Wizard: Publish" />
                 </p>
                 <a id="managing-your-competitions"></a>
                 <hr />
                 <h1>Managing Your Competitions</h1>
                 <p>All of the competitions you have created will appear in <strong>My CodaLab</strong>, under the <strong>Competitions I Manage</strong> tab. There are options to <strong>delete</strong> or <strong>edit</strong> the competition, and view information about the competition participants.</p>
                 <p>
-                    <img src="{% static 'site/Images/Docs/ccw_managetab.png' %}" alt="Competitions I Manage" />
+                    <img src="/static/site/Images/Docs/ccw_managetab.png" alt="Competitions I Manage" />
                 </p>
             </div>
+
+    <div>
+        <!-- Nav Sidebar -->
+        <!-- This is source ordered to be pulled to the left on larger screens -->
+        <div class="large-3 pull-9 columns">
+            <ul class="five side-nav">
+                <li class="active" onclick="scrollAnimation('prerequisites',this)"><a>Prerequisites</a></li>
+                <li onclick="scrollAnimation('competition-overview',this)"><a>Competition Overview</a></li>
+                <li onclick="scrollAnimation('create-an-azure-account',this)"><a>Create an Azure Account</a></li>
+                <li onclick="scrollAnimation('configure-azure-storage',this)"><a>Configure Azure Storage</a></li>
+                <li onclick="scrollAnimation('upload-competition-data',this)"><a>Upload Competition Data</a></li>
+                <li onclick="scrollAnimation('create-a-codalab-competition',this)"><a>Create a CodaLab Competition</a></li>
+            </ul>
         </div>
     </div>
 </div>
