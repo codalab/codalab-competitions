@@ -1,0 +1,29 @@
+#!/bin/bash
+
+## This will eventually be a bit more configurable
+
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd `pwd` > /dev/null
+cd $THIS_DIR
+
+U=$1
+
+if [[ "$U" == ""  ]] ; then
+  echo "Specify user"
+  exit 1
+fi
+if ! id -u "$U" > /dev/null; then
+  sudo useradd -m -s /bin/bash $U
+  sudo passwd $U
+  exit 1
+fi
+
+echo "Installing codalab dependency meta-package..."
+sudo dpkg -i *.deb > /dev/null && \
+sudo apt-get -f install > /dev/null && \
+echo "Updaing some user permissions..." && \
+sudo chgrp -R www-data /var/log/nginx /var/lib/nginx && \
+sudo chmod -R g+rw   /var/log/nginx /var/lib/nginx && \
+sudo usermod -a -G www-data $U
+
+
