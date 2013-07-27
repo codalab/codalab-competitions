@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from apps.web.models import Competition,CompetitionParticipant,ParticipantStatus
-from apps.authenz.models import User
+from django.contrib.auth.models import User
 from optparse import make_option
 
 class Command(BaseCommand):
