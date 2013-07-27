@@ -1,2 +1,3 @@
 -r common.txt
 Whoosh==2.4.1
+django-debug-toolbar
