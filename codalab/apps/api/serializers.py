@@ -1,7 +1,5 @@
 from rest_framework import serializers
 from apps.web import models as webmodels
-from apps.authenz import models as authmodels
-
 
 class CompetitionDatasetSerial(serializers.ModelSerializer):
     dataset_id = serializers.IntegerField()

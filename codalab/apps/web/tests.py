@@ -6,8 +6,8 @@ Replace this with more appropriate tests for your application.
 """
 from django.core import management
 from django.test import TestCase
-from apps.authenz.models import User
-from apps.web.models import Competition,ParticipantStatus,CompetitionParticipant
+from django.contrib.auth.models import User
+from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant
 
 
 class SimpleTest(TestCase):

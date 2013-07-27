@@ -22,7 +22,7 @@ var Competition;
                 console.log(query_s);
                 var xUrl = url;
                 var onSuccess = function (data) {
-                    if(containerId === "tabAreaCompetitionIManage") {
+                    if(containerId === "manage") {
                         CompetitionList.pageIManage++;
                     } else {
                         CompetitionList.pageIParticipate++;
@@ -38,14 +38,14 @@ var Competition;
                             CompetitionList.prototype.articleClick(this);
                         });
                         if($('body').outerHeight() < $(window).height()) {
-                            if(containerId === "tabAreaCompetitionIManage") {
+                            if(containerId === "manage") {
                                 CompetitionList.doAjaxRequest(url, containerId, noDataString, CompetitionList.pageIManage);
                             } else {
                                 CompetitionList.doAjaxRequest(url, containerId, noDataString, CompetitionList.pageIParticipate);
                             }
                         }
                     } else {
-                        if(containerId === "tabAreaCompetitionIManage") {
+                        if(containerId === "manage") {
                             CompetitionList.pageIManage = -1;
                         } else {
                             CompetitionList.pageIParticipate = -1;
@@ -64,18 +64,18 @@ var Competition;
         }
         CompetitionList.prototype.showCompetitionIParticipate = function () {
             CompetitionList.loadSucess = true;
-            $("#tabAreaCopetitionIParticipate").append($("#competitionTilePreload").clone());
-            $("#tabAreaCopetitionIParticipate").children("#competitionTilePreload").css("display", "block");
+            $("#participate").append($("#competitionTilePreload").clone());
+            $("#participate").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsEntered";
             xUrl = Urls.my_competitions_entered();
-            CompetitionList.doAjaxRequest(xUrl, "tabAreaCopetitionIParticipate", "You have not participated in any competitions.", CompetitionList.pageIParticipate);
+            CompetitionList.doAjaxRequest(xUrl, "participate", "You have not participated in any competitions.", CompetitionList.pageIParticipate);
         };
         CompetitionList.prototype.showCompetitionIManage = function () {
-            $("#tabAreaCompetitionIManage").append($("#competitionTilePreload").clone());
-            $("#tabAreaCompetitionIManage").children("#competitionTilePreload").css("display", "block");
+            $("#manage").append($("#competitionTilePreload").clone());
+            $("#manage").children("#competitionTilePreload").css("display", "block");
             var xUrl = "/My/CompetitionsManaged";
             xUrl = Urls.my_competitions_managed();
-            CompetitionList.doAjaxRequest(xUrl, "tabAreaCompetitionIManage", "You do not manage any competitions.", CompetitionList.pageIManage);
+            CompetitionList.doAjaxRequest(xUrl, "manage", "You do not manage any competitions.", CompetitionList.pageIManage);
         };
         return CompetitionList;
     })();
@@ -95,13 +95,13 @@ $(document).ready(function () {
             $('.myCodalabTabContent').children("." + myClass).css('display', 'block');
         }
     });
-    $("#tabCompetitionIParticipate").click(function (e) {
+    $("#participate").click(function (e) {
         CompetitionList.showCompetitionIParticipate();
     });
     CompetitionList.showCompetitionIManage();
     window.onresize = function () {
         if($('body').outerHeight() < $(window).height()) {
-            if($(".highlightactive").attr("id") === "tabCompetitionIManage") {
+            if($(".highlightactive").attr("id") === "manage") {
                 CompetitionList.showCompetitionIManage();
             } else {
                 CompetitionList.showCompetitionIParticipate();
@@ -110,7 +110,7 @@ $(document).ready(function () {
     };
     window.onscroll = function () {
         if($(window).scrollTop() == $(document).height() - $(window).height()) {
-            if($(".highlightactive").attr("id") === "tabCompetitionIManage") {
+            if($(".highlightactive").attr("id") === "manage") {
                 CompetitionList.showCompetitionIManage();
             } else {
                 CompetitionList.showCompetitionIParticipate();

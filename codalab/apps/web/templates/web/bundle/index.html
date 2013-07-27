@@ -1,7 +1,6 @@
-{% extends 'web/base.html' %}
-{% load staticfiles %}
+{% extends 'base.html' %}
 {% block title %}Worksheets{% endblock %}
-{% block body %}
+{% block site %}
 
 <div class="mainContainer">
   <h1>Bundles</h1>
@@ -19,9 +18,7 @@
         {% endfor %}
       </ol>
     ###END List Block
-  
-  
-  
-  
+
 </div>
-{% endblock %}
+
+{% endblock site %}
