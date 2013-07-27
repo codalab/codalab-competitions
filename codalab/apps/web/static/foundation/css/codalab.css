@@ -72,6 +72,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 
 /* line 39, ../sass/_settings.scss */
 .slider {
+  color: white;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-size: 3em;
+  font-weight: 100;
   position: relative;
   text-align: center;
   background: #D7CDBF;
@@ -82,20 +86,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 50, ../sass/_settings.scss */
+/* line 54, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 55, ../sass/_settings.scss */
+/* line 59, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 61, ../sass/_settings.scss */
+/* line 65, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
