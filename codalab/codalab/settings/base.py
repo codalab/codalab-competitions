@@ -21,7 +21,9 @@ class Base(Settings):
    DEPLOY_ROLES = {'web': ['localhost'],
                    'celery': ['localhost'],
                    }
-   STARTUP_ENV = dict()
+
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'] }
+
    HAYSTACK_CONNECTIONS = {
       'default': {
          'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',

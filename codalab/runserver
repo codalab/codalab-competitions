@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source ./config/generated/startup_env.sh
+echo " .... "
+echo "$DJANGO_CONFIGURATION Configuration"
+echo " .... "
+python manage.py runserver $1 $2
