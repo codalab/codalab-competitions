@@ -77,11 +77,16 @@
           </nav>
         </div>
         <!-- End Nav -->
+        {% block nosubheader %}
         <div class="row">
             <div class="subheader small-centered">
                 {% block subheader %} {% endblock subheader %}
             </div>
         </div>
+        {% endblock nosubheader %}
+
+        {% block hero_subheader %}
+        {% endblock hero_subheader %}
 
         <div class="large-12 large-centered columns">
           {% block content %}{% endblock content %}
@@ -110,8 +115,8 @@
         </div>
     </footer>
 
-    {% block js %}
-        <!-- Load jQuery -->
+    <!-- Check for Zepto support, load jQuery if necessary -->
+
         <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
 
         <!-- Included JS Files (Compressed) -->
@@ -125,6 +130,6 @@
         <script>
             $(document).foundation();
         </script>
-    {% endblock %}
+
   </body>
 </html>
