@@ -17,75 +17,154 @@ class ContentVisibility(models.Model):
     def __unicode__(self):
         return self.name
 
-class ContentContainerType(models.Model):
-    name = models.CharField(max_length=50)
-    codename = models.SlugField(max_length=50,unique=True)
-    is_active = models.BooleanField(default=True)
+# class ContentContainerType(models.Model):
+#     name = models.CharField(max_length=50)
+#     codename = models.SlugField(max_length=50,unique=True)
+#     is_active = models.BooleanField(default=True)
+
+#     def __unicode__(self):
+#         return self.name
+
+# class ContentContainer(models.Model):
+#     name = models.CharField(max_length=30)
+#     type = models.ForeignKey(ContentContainerType, unique=True)
+
+#     def __unicode__(self):
+#         return "%s %s" % (self.name,self.type.name)
+
+# class ContentEntity(MPTTModel):
+#     parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
+#     container = models.ForeignKey(ContentContainer, related_name='entities')
+#     visibility = models.ForeignKey(ContentVisibility)
+#     label = models.CharField(max_length=50)
+#     codename = models.SlugField(max_length=81,null=True,blank=True)
+#     rank = models.IntegerField(default=0)
+#     max_items = models.IntegerField(default=1)
+
+#     class Meta:
+#         ordering = ['rank']
+#         unique_together = (('label','container'),)
+
+#     def __unicode__(self):
+#         return "%s - %s" % (self.container.name, self.label)
+
+#     def make_codename(self):
+#         return slugify("%s %s" % (self.container.type.codename, self.label))
+    
+#     def save(self,*args,**kwargs):
+#         if not self.codename:
+#             self.codename = self.make_codename()
+#         return super(ContentEntity,self).save(*args,**kwargs)
+    
+#     @property
+#     def toplevel(self):
+#         return self.parent is None
+
+# class PageContainer(models.Model):
+#     entity = TreeForeignKey(ContentEntity)
+#     content_type = models.ForeignKey(ContentType)
+#     object_id = models.PositiveIntegerField(db_index=True)
+#     owner = generic.GenericForeignKey('content_type', 'object_id')
+
+#     class Meta:
+#         unique_together = (('object_id','content_type','entity'),)
+        
+#     def __unicode__(self):
+#         return "%s [%s]" % (self.owner.__unicode__(), self.entity.__unicode__())
+
+class ContentCategory(MPTTModel):
+    parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
+    name = models.CharField(max_length=100)
+    codename = models.SlugField(max_length=100)
+    visibility = models.ForeignKey(ContentVisibility)
+    is_menu = models.BooleanField(default=True)
+    content_limit = models.PositiveIntegerField(default=1)
 
     def __unicode__(self):
         return self.name
 
-class ContentContainer(models.Model):
-    name = models.CharField(max_length=30)
-    type = models.ForeignKey(ContentContainerType, unique=True)
-
-    def __unicode__(self):
-        return "%s %s" % (self.name,self.type.name)
-
-class ContentEntity(MPTTModel):
-    parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
-    container = models.ForeignKey(ContentContainer, related_name='entities')
-    visibility = models.ForeignKey(ContentVisibility)
-    label = models.CharField(max_length=50)
-    codename = models.SlugField(max_length=81,null=True,blank=True)
+class DefaultContentItem(models.Model):
+    category = TreeForeignKey(ContentCategory)
+    label = models.CharField(max_length=100)
     rank = models.IntegerField(default=0)
-    max_items = models.IntegerField(default=1)
-
-    class Meta:
-        ordering = ['rank']
-        unique_together = (('label','container'),)
+    required = models.BooleanField(default=False)
+    initial_visibility =  models.ForeignKey(ContentVisibility)
 
     def __unicode__(self):
-        return "%s - %s" % (self.container.name, self.label)
+        return self.label
 
-    def make_codename(self):
-        return slugify("%s %s" % (self.container.type.codename, self.label))
+# class ContentList(models.Model):
+#     category = TreeForeignKey(ContentCategory)
+#     title = models.CharField(max_length=100)
+#     content_type = models.ForeignKey(ContentType)
+#     object_id = models.PositiveIntegerField(db_index=True)
+#     owner = generic.GenericForeignKey('content_type', 'object_id')
     
-    def save(self,*args,**kwargs):
-        if not self.codename:
-            self.codename = self.make_codename()
-        return super(ContentEntity,self).save(*args,**kwargs)
-    
-    @property
-    def toplevel(self):
-        return self.parent is None
+#     def __unicode__(self):
+#         return self.title
+
+#     def save(self,*args,**kwargs):
+#         if not self.title:
+#             self.title = "%s - %s" % (self.owner.__unicode__(),self.category.name)
+#         return super(ContentList,self).save(*args,**kwargs)
+        
+
+# class ContentItem(models.Model):
+#     category = TreeForeignKey(ContentCategory)
+#     defaults = models.ForeignKey(DefaultContentItem,null=True,blank=True)
+#     label = models.CharField(max_length=100)
+#     rank = models.IntegerField(default=0)
+#     visibility = models.ForeignKey(ContentVisibility)
+
 
 class PageContainer(models.Model):
-    entity = TreeForeignKey(ContentEntity)
+    name = models.CharField(max_length=200,blank=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     owner = generic.GenericForeignKey('content_type', 'object_id')
-
+    
     class Meta:
-        unique_together = (('object_id','content_type','entity'),)
-        
+        unique_together = (('object_id','content_type'),)
+
     def __unicode__(self):
-        return "%s [%s]" % (self.owner.__unicode__(), self.entity.__unicode__())
+        return self.name
 
+    def save(self,*args,**kwargs):
+        if not self.name:
+            self.name = "%s - %s" % (self.owner.__unicode__(), self.name)
+        return super(PageContainer,self).save(*args,**kwargs)
 
+   
 class Page(models.Model):
-    pagecontainer = models.ForeignKey(PageContainer,related_name='pages')
-    rank = models.PositiveIntegerField(default=0)
+    category = TreeForeignKey(ContentCategory)
+    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    container = models.ForeignKey(PageContainer,related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
-    visible = models.BooleanField(default=True)
+    label = models.CharField(max_length=100)
+    rank = models.IntegerField(default=0)
+    visibility = models.BooleanField(default=True)
     markup = models.TextField(blank=True)
     html = models.TextField(blank=True)
 
     class Meta: 
         ordering = ["rank"]
-
+        
     def __unicode__(self):
         return self.title
+    
+    class Meta:
+        unique_together = (('label','category'),)
+        ordering = ['rank']
+
+    def save(self,*args,**kwargs):
+        if self.defaults:
+            if self.category != self.defaults.category:
+                raise IntegrityError("Defaults category must match Item category")
+            if self.defaults.required and self.visibility is False:
+                raise IntegrityError("Item is required and must be visible")
+        return super(Page,self).save(*args,**kwargs)
+    
+        
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -129,7 +208,7 @@ class Competition(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
-    pagecontainer = generic.GenericRelation(PageContainer)
+    pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
 
     class Meta:
         permissions = (

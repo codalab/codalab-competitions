@@ -116,75 +116,102 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create','put':'update'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'})
 
-class ContentContainerViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.ContentContainerSerial
-    queryset = webmodels.ContentContainer.objects.filter()
+# class ContentContainerViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.ContentContainerSerial
+#     queryset = webmodels.ContentContainer.objects.filter()
 
-contentcontainer_list = ContentContainerViewSet.as_view({'get':'list'})
+# contentcontainer_list = ContentContainerViewSet.as_view({'get':'list'})
 
 class CompetitionPageViewSet(viewsets.ModelViewSet):
     ## TODO: Turn the custom logic here into a mixin for other content
-    serializer_class = serializers.PageSerial
+    serializer_class = serializers.PageSerial  
     content_type = ContentType.objects.get_for_model(webmodels.Competition)
-    queryset = webmodels.Page.objects.filter(pagecontainer__content_type=content_type)
-    pagecontainer = None
+    queryset = webmodels.Page.objects.all()
+    _pagecontainer = None
+    _pagecontainer_q = None
 
-    def get_serializer(self,instance=None, data=None,
-                       files=None, many=False, partial=False,**kwargs):
-        if self.pagecontainer:
-            if instance:
-                instance.pagecontainer = self.pagecontainer                
-            if data:
-                data['pagecontainer'] = self.pagecontainer.pk
-        return super(CompetitionPageViewSet,self).get_serializer(instance=instance, data=data,
-                       files=files, many=many, partial=partial, **kwargs)
+    def get_queryset(self):
+        kw = {}
+        if 'competition_id' in self.kwargs:
+            kw['container__object_id'] = self.kwargs['competition_id']
+            kw['container__content_type'] = self.content_type
+            return self.queryset.filter(**kw)
+        else:
+            return self.queryset
+
+    def dispatch(self,request,*args,**kwargs):
+        
+        if 'competition_id' in kwargs:
+            self._pagecontainer_q = webmodels.PageContainer.objects.filter(object_id=kwargs['competition_id'],
+                                                                           content_type=self.content_type)
+        return super(CompetitionPageViewSet,self).dispatch(request,*args,**kwargs)
+
+    @property
+    def pagecontainer(self):
+        if self._pagecontainer_q is not None and self._pagecontainer is None:
+            self._pagecontainer = self._pagecontainer_q.get()
+            
+        return self._pagecontainer
+    
+    def new_pagecontainer(self,competition_id):
+        self._pagecontainer = webmodels.PageContainer.objects.create(object_id=competition_id,
+                                                                     content_type=self.content_type)
+        return self._pagecontainer
 
     def get_serializer_context(self):
         ctx = super(CompetitionPageViewSet,self).get_serializer_context()
-        ctx.update({ 'content_type': self.content_type,
-                     'pagecontainer': self.pagecontainer })
+        if 'competition_id' in self.kwargs:
+            ctx.update({'container': self.pagecontainer})
         return ctx
 
-    def get_object(self,queryset=None):
-        container = self.kwargs.get('entity',None)
-        page_id = self.kwargs.get('pk',None)
-        competition_id = self.kwargs.get('competition_id')
-        
-        kw = {}
-        if container:
-            kw['pagecontainer__entity__pk'] = container
-        if page_id:
-            kw['pk'] = page_id
-        if competition_id:
-            kw['pagecontainer__object_id'] = competition_id
-        try:
-            o =  self.queryset.filter(**kw).get()
-        except ObjectDoesNotExist:
-            raise Http404
-        return o
+    def x_get_serializer(self,instance=None, data=None,
+                       files=None, many=False, partial=False,**kwargs):
+        if 'competition_id' in self.kwargs:
+            if instance:
+                instance.container = self.pagecontainer
+            if data:
+                data['container'] = self.pagecontainer.owner.pk
+        return super(CompetitionPageViewSet,self).get_serializer(instance=instance, data=data,
+                       files=files, many=many, partial=partial, **kwargs)
 
-    def get_queryset(self):
-        q = self.queryset.filter(pagecontainer__object_id=self.kwargs.get('container_id'))
-        if 'entity' in self.kwargs:
-            q = q.filter(pagecontainer__entity__pk=self.kwargs.get("entity"))           
-        return q
+    # def get_serializer_context(self):
+    #     ctx = super(CompetitionPageViewSet,self).get_serializer_context()
+    #     ctx.update({ 'content_type': self.content_type,
+    #                  'pagecontainer': self.pagecontainer })
+    #     return ctx
+
+    # def get_object(self,queryset=None):
+    #     container = self.kwargs.get('entity',None)
+    #     page_id = self.kwargs.get('pk',None)
+    #     competition_id = self.kwargs.get('competition_id')
+        
+    #     kw = {}
+    #     if container:
+    #         kw['pagecontainer__entity__pk'] = container
+    #     if page_id:
+    #         kw['pk'] = page_id
+    #     if competition_id:
+    #         kw['pagecontainer__object_id'] = competition_id
+    #     try:
+    #         o =  self.queryset.filter(**kw).get()
+    #     except ObjectDoesNotExist:
+    #         raise Http404
+    #     return o
+
         
     def create(self,request,*args,**kwargs):
-        if 'entity' in self.kwargs:
-            self.pagecontainer,cr = webmodels.PageContainer.objects.get_or_create(
-                entity=webmodels.ContentEntity.objects.get(pk=self.kwargs.get('entity')),
-                content_type = self.content_type, 
-                object_id=kwargs.get('competition_id')
-                )
+        
+        try:
+            container = self.pagecontainer
+            print "Has Container"
+        except ObjectDoesNotExist:
+            
+            container = self.new_pagecontainer(self.kwargs.get('competition_id'))
+            print "Creating container"
+
         return  super(CompetitionPageViewSet,self).create(request,*args,**kwargs)
 
-    def update(self,request,*args,**kwargs):
-        self.pagecontainer = webmodels.PageContainer.objects.get(content_type = self.content_type, 
-                                                                 object_id=kwargs.get('competition_id'),
-                                                                 entity__pk=self.kwargs.get('entity'))
-        
-        return  super(CompetitionPageViewSet,self).update(request,*args,**kwargs)
-    
+
 
 competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create','put':'update'})
 
