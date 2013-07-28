@@ -1,41 +1,59 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}Home{% endblock %}
-{% block subheader %} {% endblock subheader %}
-{% block content %}
-    <div class="row">
-        <div class="large-10 large-centered columns">
-            <div class="slideshow-wrapper">
-                <div class="preloader"></div>
-                <ul data-orbit>
-                    <li>
-                        <img src="{{ STATIC_URL }}foundation/img/banner1.jpg" />
-                        <div class="orbit-caption">Medical Imaging</div>
-                    </li>
-                    <li>
-                        <img src="{{ STATIC_URL }}foundation/img/experiment.png" />
-                        <div class="orbit-caption">Collaborate on Experiments</div>
-                    </li>
-                    <li>
-                        <img src="{{ STATIC_URL }}foundation/img/challenge.png" />
-                        <div class="orbit-caption">Participate in Challenges</div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-   </div>
-   <div class="row">
-    <div class="small-4 columns">
-        <H4>Competitions</H4>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ullamcorper pharetra elit ut faucibus. Nunc adipiscing purus nec ante pharetra molestie. Pellentesque ac tincidunt augue. Nam ipsum ante, fermentum quis mollis nec, malesuada eget ante. Ut a eleifend mi. Cras semper purus in enim consectetur, a facilisis enim hendrerit. Maecenas gravida urna id mi porta facilisis.</p>
-    </div>
-    <div class="small-4 columns">
-        <H4>The CodaLab Platform</H4>
-        <p>Sed eu nisl est. In pellentesque in turpis, a eleifend quam. Quisque nec dui eros. Vestibulum fermentum, lacus a interdum aliquam, turpis nisi mattis turpis, eu dignissim tellus enim vitae mi. Maecenas vehicula, sapien vitae blandit porttitor, nulla metus pellentesque nibh, id porttitor nisl libero quis velit. Sed tempus convallis blandit. Etiam eget nisi sed ante fermentum ullamcorper sed ut enim. Quisque in viverra sapien.</p>
-    </div>
-    <div class="small-4 columns">
-        <h4>Experiments</h4>
-        <p>Cras tristique augue magna, eu tristique sapien feugiat porta. Vivamus quis dolor purus. Maecenas sit amet nunc sapien. Mauris quis arcu interdum, bibendum orci ac, dictum orci. Mauris euismod ante pulvinar mauris commodo, vitae bibendum justo semper. Praesent tortor tellus, commodo sit amet urna vitae, placerat mattis nulla.</p>
+{% block nosubheader %} {% endblock nosubheader %}
+{% block hero_subheader %}
+<!-- First Band (Slider) -->
+<div class="slider">
+    CodaLab = Experiments + Competitions
+</div>
+{% endblock hero_subheader %}
 
+{% block content %}
+<!-- Hero block -->
+<div class="row">  
+  <div class="row">
+    <div class="large-12 columns">      
+      <hr />
     </div>
-   </div>
+  </div>
+  
+<!-- Three-up Content Blocks -->
+    <div class="row">
+        <div class="large-4 columns">
+          <img src="{{ STATIC_URL }}foundation/img/competitions-csr.png" />
+          <h4>Competitions</h4>
+          <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+        </div>
+    
+        <div class="large-4 columns">
+          <img src="{{ STATIC_URL }}foundation/img/news-csr.png" />
+          <h4>CodaLab</h4>
+          <p>CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.</p>
+        </div>
+        
+        <div class="large-4 columns">
+          <img src="{{ STATIC_URL }}foundation/img/experiment-csr.png" />
+          <h4>Experiments</h4>
+          <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+        </div>
+    </div>
+    
+<!-- Call to Action Panel -->
+<div class="row">
+    <div class="small-12 columns">
+      <div class="panel">
+        <h4>Sign up today!</h4>            
+        <div class="row">
+          <div class="small-9 columns">
+            <p>Start exploring CodaLab.</p>
+          </div>
+          <div class="small-3 columns">
+            <a href="{% url 'account_signup' %}" class="radius button right">Sign Up</a>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+ 
 {% endblock %}

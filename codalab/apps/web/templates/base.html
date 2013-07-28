@@ -36,7 +36,6 @@
 
     <!-- Main Page Content and Sidebar -->
     <div class="container" id="layout">
-
         <!-- Nav Bar -->
         <div class="header">
           <nav class="top-bar">
@@ -77,11 +76,17 @@
           </nav>
         </div>
         <!-- End Nav -->
+
+        {% block nosubheader %}
         <div class="row">
             <div class="subheader small-centered">
                 {% block subheader %} {% endblock subheader %}
             </div>
         </div>
+        {% endblock nosubheader %}
+
+        {% block hero_subheader %}
+        {% endblock hero_subheader %}
 
         <div class="large-12 large-centered columns">
           {% block content %}{% endblock content %}
@@ -110,21 +115,23 @@
         </div>
     </footer>
 
-    {% block js %}
-        <!-- Load jQuery -->
-        <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
 
-        <!-- Included JS Files (Compressed) -->
-        <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
-        <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
-        <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
+    <!-- Check for Zepto support, load jQuery if necessary -->
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
 
-        <!-- Initialize JS Plugins -->
-        <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
+    <!-- Included JS Files (Compressed) -->
+    <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
+    <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
 
-        <script>
-            $(document).foundation();
-        </script>
-    {% endblock %}
+    <!-- Initialize JS Plugins -->
+    <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
+
+    <script>
+        $(document).foundation();
+        {% block js %}
+        {% endblock js %}
+    </script>
+
   </body>
 </html>
