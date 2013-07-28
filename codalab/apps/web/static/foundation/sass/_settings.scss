@@ -18,8 +18,6 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$section-content-bg: $background;
-
 $anchor-font-color: $background;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
@@ -37,13 +35,29 @@ $panel-padding-bottom: 0px;
 	font-weight: normal;
 }
 
-.competition-summary {
-	background: #fafafa;
+.competition-preview {
 	border: 1px dotted $gray;
-	height: 100px;
 	margin-top: 5px;
 	margin-bottom: 5px;
+}
+
+.competition-summary {
+	background: #fafafa;
+	height: 100px;
 	overflow: hidden;
+}
+
+.competition-preview > .columns {
+	border-top: 1px dotted $gray;
+}
+
+.competition-preview > .columns > .button.small {
+	vertical-align: middle;
+	margin-bottom: 5px;
+	margin-top: 5px;
+	text-align: center;
+	background: $active;
+	border-color: $active;
 }
 
 .competition-summary > .columns {
