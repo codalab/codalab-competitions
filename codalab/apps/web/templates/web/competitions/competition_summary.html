@@ -1,0 +1,35 @@
+{% if edit == "yes" %}
+<div class="competition-preview panel">
+{% else %}
+<div class="competition-preview">
+{% endif %}
+	<div class="competition-summary">
+		<div class="large-12 columns">
+			<div class="large-1 competition-label columns">
+				<img src="{{ STATIC_URL }}foundation/img/challenge-small.png"></img>
+			</div>
+			<div class="large-2 competition-image columns">
+				<img src="{{ MEDIA_URL }}{{ competition.image }}"></img>
+			</div>
+			<div class="large-9 competition-info columns">
+				<div class="row">
+					<div class="large-12 columns">
+						<span class="competition-title">{{ competition.title }}</span> <span class="competition-owner"> by {{ competition.owner|default:"Example Text" }}</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-12 competition-description columns">
+						<div>{{ competition.description }}</div>
+					</div>
+				</div>
+			</div>
+		 </div>
+	</div>
+	{% if edit == "yes" %}
+		<div class="large-12 large-centered columns">
+			<a href="#" class="small button">Delete</a>
+			<a href="#" class="small button">Edit</a>
+			<a href="#" class="small button">Participants</a>
+		</div>
+	{% endif %}
+</div>

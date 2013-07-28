@@ -6,20 +6,16 @@
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 push-3 columns">
-        <div class="compBlockRightContainer">
-            <div class="container" id="competitionListContainer"></div>
-        </div>
-        <div class="competitionTilePreload" id="competitionTilePreload">
-            <div class="competitionPreloader"></div>
-        </div>
+        <ul>
+            {% for item in competitions %}
+                {% include "web/competitions/competition_summary.html" with competition=item %}
+            {% empty %}
+                <li>There are no competitions in CodaLab.</li>
+            {% endfor %}
+        </ul>
     </div>
-    <!-- Nav Sidebar -->
-    <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 pull-9 columns">
-        <input type="text" class="gradient" id="searchInput" value="filter by keyword, title or author"/>
     </div>
 </div>
-
-<script src="/static/site/js/CompetitionViewTs.js"></script>
 
 {% endblock %}

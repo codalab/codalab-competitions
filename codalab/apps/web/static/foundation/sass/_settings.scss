@@ -3,9 +3,10 @@ $foreground: white;
 $banner: #EBF2FB;
 $highlight: #3684d6;
 $active: #ffac31;
+$gray: #666;
 
-$body-font-color: #666;
-$header-font-color: #666;
+$body-font-color: $gray;
+$header-font-color: $gray;
 
 $topbar-bg: $background;
 $topbar-fg: $foreground;
@@ -17,8 +18,6 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$section-content-bg: $background;
-
 $anchor-font-color: $background;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
@@ -27,10 +26,88 @@ $inline-list-bottom-margin: 0;
 
 $side-nav-link-color-active: $active;
 
+$panel-margin-bottom: 0px;
+$panel-padding-bottom: 0px;
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
 	font-weight: normal;
+}
+
+.competition-preview {
+	border: 1px dotted $gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.competition-summary {
+	background: #fafafa;
+	height: 100px;
+	overflow: hidden;
+}
+
+.competition-preview > .columns > .button.small {
+	vertical-align: middle;
+	margin-bottom: 5px;
+	margin-top: 5px;
+	text-align: center;
+	background: $active;
+	border-color: $active;
+}
+
+.competition-summary > .columns {
+	margin: 0px;
+	padding: 0px;
+}
+
+.competition-label {
+	height: 100px;
+	background: $background;
+	color: $foreground;
+	padding-right: 0px;
+	padding-left: 0px;
+}
+
+.competition-image {
+	padding: 0px;
+	margin: 0px;
+	height: 100px;
+	vertical-align: middle;
+}
+
+.competition-info .columns {
+	padding: 0px;
+	margin: 0px;
+}
+.competition-title {
+	color: $background;
+	text-align: left;
+}
+
+.large-12 > .competition-label {
+	margin: 0px;
+	padding: 0px;
+	width: 30px;
+}
+
+.competition-description, .competition-owner {
+	font-size: small;
+}
+
+.slider {
+	color: $foreground;
+   	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+	font-size: 3.5em;
+	font-weight: 100;
+	position: relative;
+	text-align: center;
+	background: #D7CDBF;
+	padding-top: 70px;
+	margin: 0 auto;
+	width: 100%;
+	min-height: 200px;
+	vertical-align: middle;
 }
 
 .subheader {
