@@ -75,15 +75,18 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   background: #fafafa;
   border: 1px dotted #666666;
   height: 100px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  overflow: hidden;
 }
 
-/* line 46, ../sass/_settings.scss */
+/* line 49, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 51, ../sass/_settings.scss */
+/* line 54, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3694d6;
@@ -92,7 +95,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 0px;
 }
 
-/* line 59, ../sass/_settings.scss */
+/* line 62, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -100,31 +103,31 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 66, ../sass/_settings.scss */
+/* line 69, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 70, ../sass/_settings.scss */
+/* line 73, ../sass/_settings.scss */
 .competition-title {
   color: #3694d6;
   text-align: left;
 }
 
-/* line 75, ../sass/_settings.scss */
+/* line 78, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 81, ../sass/_settings.scss */
+/* line 84, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
 }
 
-/* line 85, ../sass/_settings.scss */
+/* line 88, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -140,20 +143,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 100, ../sass/_settings.scss */
+/* line 103, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 105, ../sass/_settings.scss */
+/* line 108, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 111, ../sass/_settings.scss */
+/* line 114, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
