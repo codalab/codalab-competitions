@@ -41,6 +41,9 @@ $panel-padding-bottom: 0px;
 	background: #fafafa;
 	border: 1px dotted $gray;
 	height: 100px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	overflow: hidden;
 }
 
 .competition-summary > .columns {

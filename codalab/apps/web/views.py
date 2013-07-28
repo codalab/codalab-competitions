@@ -19,7 +19,7 @@ from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineForm
 def competition_index(request):
     competitions = models.Competition.objects.all()
     for c in competitions:
-        print c
+        print c.image
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
         'competitions' : competitions,
