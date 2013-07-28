@@ -85,11 +85,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 
 /* line 50, ../sass/_settings.scss */
-.competition-preview > .columns {
-  border-top: 1px dotted #666666;
-}
-
-/* line 54, ../sass/_settings.scss */
 .competition-preview > .columns > .button.small {
   vertical-align: middle;
   margin-bottom: 5px;
@@ -99,13 +94,13 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   border-color: #ffac31;
 }
 
-/* line 63, ../sass/_settings.scss */
+/* line 59, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 68, ../sass/_settings.scss */
+/* line 64, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3694d6;
@@ -114,7 +109,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 0px;
 }
 
-/* line 76, ../sass/_settings.scss */
+/* line 72, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -122,31 +117,31 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 83, ../sass/_settings.scss */
+/* line 79, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 87, ../sass/_settings.scss */
+/* line 83, ../sass/_settings.scss */
 .competition-title {
   color: #3694d6;
   text-align: left;
 }
 
-/* line 92, ../sass/_settings.scss */
+/* line 88, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 98, ../sass/_settings.scss */
+/* line 94, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
 }
 
-/* line 102, ../sass/_settings.scss */
+/* line 98, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -162,20 +157,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 117, ../sass/_settings.scss */
+/* line 113, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 122, ../sass/_settings.scss */
+/* line 118, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 128, ../sass/_settings.scss */
+/* line 124, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
