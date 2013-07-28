@@ -120,7 +120,10 @@ class ParticipantStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+# Competition Models
+
 class Competition(models.Model):
+    """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='logos',null=True,blank=True)
@@ -149,6 +152,10 @@ class Competition(models.Model):
         return self.end_date < now().date()
 
 class Dataset(models.Model):
+    """ 
+        This is a dataset for a competition. 
+        TODO: Consider if this is replaced or reimplemented as a 'bundle of data'. 
+    """
     creator =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
     name = models.CharField(max_length=50)
     description = models.TextField()
@@ -162,12 +169,15 @@ class Dataset(models.Model):
         return "%s [%s]" % (self.name,self.datafile.name)
 
 class CompetitionPhase(models.Model):
+    """ 
+        A phase of a competition.
+    """
     competition = models.ForeignKey(Competition,related_name='phases')
     phasenumber = models.PositiveIntegerField()
     label = models.CharField(max_length=50, blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
-    datasets = models.ManyToManyField(Dataset, blank=True,related_name='phase')
+    datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
 
     class Meta:
         ordering = ['phasenumber']
