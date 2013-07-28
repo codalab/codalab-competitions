@@ -3,6 +3,17 @@ from apps.web import models as webmodels
 from apps.authenz import models as authmodels
 
 
+class PageSerial(serializers.ModelSerializer):
+    container = serializers.RelatedField(required=False)
+
+    class Meta:
+        model = webmodels.Page
+
+    def validate_container(self,attr,source):
+        if 'container' in self.context:
+            attr['container'] = self.context['container']
+        return attr
+
 class CompetitionDatasetSerial(serializers.ModelSerializer):
     dataset_id = serializers.IntegerField()
     source_url = serializers.URLField()
@@ -18,6 +29,7 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
     def save():
         pass
 
+
 class _CompetitionPhaseSerial(serializers.Serializer):
     phase_id = serializers.IntegerField(required=False)
     competition_id = serializers.IntegerField()
@@ -26,6 +38,7 @@ class _CompetitionPhaseSerial(serializers.Serializer):
     max_submissions = serializers.IntegerField()
     phasenumber = serializers.IntegerField()
 
+
 class CompetitionPhasesEditSerial(serializers.Serializer):
     competition_id = serializers.IntegerField(required=False)
     phases = _CompetitionPhaseSerial(many=True)
@@ -33,7 +46,7 @@ class CompetitionPhasesEditSerial(serializers.Serializer):
     
     
 class CompetitionSerial(serializers.ModelSerializer):
-    
+    pages = PageSerial(source='pagecontent__pages',read_only=True)
 
     class Meta:
         model = webmodels.Competition
@@ -76,42 +89,7 @@ class CompetitionDataSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.Competition
  
-class ContentContainerSerialBase(serializers.ModelSerializer):
-    type_id = serializers.IntegerField(source='type.pk')
-    type_name = serializers.CharField(source='type.name')
-    type_codename = serializers.CharField(source='type.codename')
-    visibility_id = serializers.IntegerField(source='visibility.pk')
-    visibility_name = serializers.CharField(source='visibility.name')
-    visibility_codename = serializers.CharField(source='visibility.codename')
-    
-    class Meta:
-        model = webmodels.ContentContainer
-        #exclude = ('parent','type','visibility')
-        #fields = ('id', 'type_id','type_name','visibility_id','visibility_name' ,'rank','max_items','children')
 
-class ContentContainerSerial(ContentContainerSerialBase):
-    children = ContentContainerSerialBase(source='children')
-    
-
-
-class PageSerial(serializers.ModelSerializer):
-    
-    def __init__(self ,*args, **kwargs):
-        super(PageSerial,self).__init__(*args,**kwargs)
-        self._pagecontainer = self.context.get('pagecontainer',None)
-        
-    def validate_pagecontainer(self, attrs, source):
-        return attrs
-
-    class Meta:
-        model = webmodels.Page
-
-class PageContainerSerial(serializers.ModelSerializer):
-    pages = PageSerial(source='pages')
-    
-    class Meta:
-        model = webmodels.PageContainer
-        
 
 class PhaseRel(serializers.RelatedField):
 
@@ -119,7 +97,6 @@ class PhaseRel(serializers.RelatedField):
         o = PhaseSerial(instance=value)
         return o.data
         
-
     def from_native(self,data):
         kw = {'data': data,'partial':self.partial}
         if self.partial:

@@ -10,20 +10,16 @@ admin.site.register(models.Dataset, DatasetAdmin)
 class PhaseInlineAdmin(admin.TabularInline):
     model = models.CompetitionPhase
 
-class PageContainerGenericInline(generic.GenericTabularInline):
-    model = models.PageContainer
 
 class ParticipantInlineAdmin(admin.TabularInline):
     model = models.CompetitionParticipant
 
 class CompetitionAdmin(admin.ModelAdmin):
-    inlines = [ PageContainerGenericInline,
+    inlines = [ 
                PhaseInlineAdmin,
                ParticipantInlineAdmin
                ]               
 admin.site.register(models.Competition, CompetitionAdmin)
-
-
 
 
 class ParticipantAdmin(admin.ModelAdmin):
@@ -39,21 +35,18 @@ class ParticipantStatusAdmin(admin.ModelAdmin):
 admin.site.register(models.ParticipantStatus, ParticipantStatusAdmin)
 
 
-class ContentContainerTypeAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.ContentContainerType, ContentContainerTypeAdmin)
+# class ContentContainerTypeAdmin(admin.ModelAdmin):
+#     pass
+# admin.site.register(models.ContentContainerType, ContentContainerTypeAdmin)
 
-class ContentContainerAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.ContentContainer, ContentContainerAdmin)
+# class ContentContainerAdmin(admin.ModelAdmin):
+#     pass
+# admin.site.register(models.ContentContainer, ContentContainerAdmin)
 
-class ContentVisibilityAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.ContentVisibility, ContentVisibilityAdmin)
 
-class ContentEntityAdmin(MPTTModelAdmin):
-    pass
-admin.site.register(models.ContentEntity, ContentEntityAdmin)
+# class ContentEntityAdmin(MPTTModelAdmin):
+#     pass
+# admin.site.register(models.ContentEntity, ContentEntityAdmin)
 
 class ExternalFileAdmin(admin.ModelAdmin):
     pass
@@ -67,16 +60,28 @@ class ExternalFileSourceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ExternalFileSource, ExternalFileSourceAdmin)
 
+
+class ContentCategoryAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentCategory, ContentCategoryAdmin)
+
+class DefaultContentItemAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.DefaultContentItem, DefaultContentItemAdmin)
+
+
 class PageGenAdmin(admin.TabularInline):
     model = models.Page
 
-class PageContainerAdmin(admin.ModelAdmin):
-    inlines = [PageGenAdmin]
-admin.site.register(models.PageContainer, PageContainerAdmin)
+class ContentVisibilityAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.ContentVisibility, ContentVisibilityAdmin)
+
 
 class PageAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Page, PageAdmin)
 
-class BundleAdmin(admin.ModelAdmin):pass
+class BundleAdmin(admin.ModelAdmin):
+    pass
 admin.site.register(models.Bundle, BundleAdmin)
