@@ -1,0 +1,12 @@
+@import "compass/reset.scss";
+@import "settings";
+@import "compass/layout.scss";
+
+@import "../img/icons/general/sass/general_foundicons";
+@import "../img/icons/social/sass/social_foundicons";
+@import "../img/icons/accessibility/sass/accessibility_foundicons";
+@import "../img/icons/enclosed/sass/general_enclosed_foundicons";
+
+@import "/dev/foundation/scss/foundation";
+
+@include sticky-footer(25px, "#layout", "#layout_footer", "#footer");

@@ -1,35 +1,21 @@
-{% extends 'web/base.html' %}
-{% load staticfiles %}
+{% extends 'base.html' %}
 {% block title %}Competitions{% endblock %}
-{% block body %}
-<div class="mainContainer">
-<div class="compBlockTbl"> 
-    <div class="compBlockLeftContainer">
-        <div class="container compBlockFilter">
-            {% comment %}<h3>filter competitions by:</h3>
-            <div class="container">
-                <label>Status:</label>
-                <select class="gradient"> 
-                    <option>Active</option>
-                </select>
-            </div>
-            <div class="container">
-                <label>Technique:</label>
-                <select class="gradient">
-                    <option>Machine Learning</option>
-                </select>
-            </div> {% endcomment %}
-                {# <label>Key Words:</label> #}
-                <input type="text" class="gradient" id="searchInput" value="filter by keyword, title or author"/>
-        </div>
+{% block content %}
+
+<div class="row">
+    <!-- Main Content Section -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-9 push-3 columns">
+        <ul>
+            {% for item in competitions %}
+                {% include "web/competitions/competition_summary.html" with competition=item %}
+            {% empty %}
+                <li>There are no competitions in CodaLab.</li>
+            {% endfor %}
+        </ul>
     </div>
-    <div class="compBlockRightContainer">
-        <div class="container" id="competitionListContainer"> 
-        </div>
+    <div class="large-3 pull-9 columns">
     </div>
-     <div class="competitionTilePreload" id="competitionTilePreload">
-          <div class="competitionPreloader"></div>
-        </div>
-</div></div>
-<script src="{% static "site/js/CompetitionViewTs.js" %}"></script>
+</div>
+
 {% endblock %}

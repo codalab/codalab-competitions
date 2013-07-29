@@ -26,4 +26,4 @@ django-extra-views==0.6.3
 celery==3.0.21
 fabric-virtualenv==0.2.1
 Fabric==1.6.1
-requests==1.2.3
+django-analytical

@@ -2,7 +2,6 @@ from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os,sys
 
-
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -46,7 +45,7 @@ class Base(Settings):
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-   TIME_ZONE = 'America/Los_Angeles'
+   TIME_ZONE = 'US/Pacific'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -94,7 +93,6 @@ class Base(Settings):
 # List of finder classes that know how to find static files in
 # various locations.
    STATICFILES_FINDERS = (
-      
      'django.contrib.staticfiles.finders.AppDirectoriesFinder',
      'django.contrib.staticfiles.finders.FileSystemFinder', 
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
@@ -133,7 +131,7 @@ class Base(Settings):
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+    os.path.join(PROJECT_DIR,'templates'),
    )
 
    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
@@ -149,7 +147,7 @@ class Base(Settings):
      )
 
    INSTALLED_APPS = (
-    
+    # Standard django apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -158,43 +156,46 @@ class Base(Settings):
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
-  
+    # Analytics app that works with many services - IRJ 2013.7.29
+    'analytical',
+    'rest_framework',
 
+    # TODO: Document the need for these
     'mptt',
-   
     'django_config_gen',
     'compressor',
     'django_js_reverse',
-    'rest_framework',
     'guardian',
     'publish',
+    'storages',
+
+    # Search app
     'haystack',
 
+    # Migration app
+    'south',
+
+    # CodaLab apps
     'apps.api',
-    'apps.authenz', 
     'apps.web',
 
+    # Authentication app, enables social authentication
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
-    'storages',
-    # 'south',
    )
-   OPTIONAL_APPS = [ 'django_wsgiserver', ]
+
+   OPTIONAL_APPS = [ 'django_wsgiserver',]
    INTERNAL_IPS = []
 
    LOGIN_REDIRECT_URL = '/my'
 
-   AUTH_USER_MODEL = 'authenz.User'
    ANONYMOUS_USER_ID = -1
 
    ACCOUNT_AUTHENTICATION_METHOD='username_email'
    ACCOUNT_EMAIL_REQUIRED=True
+   ACCOUNT_USERNAME_REQUIRED=False
    ACCOUNT_EMAIL_VERIFICATION='none'
-   ACCOUNT_USERNAME_REQUIRED=True
-   # Will create progressive profile creation
-   #ACCOUNT_SIGNUP_FORM_CLASS = 'apps.web.forms.SignupForm'
 
    COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
@@ -250,7 +251,6 @@ class DevBase(Base):
    DEBUG=True
    DEBUG_TOOLBAR_CONFIG = {
       'SHOW_TEMPLATE_CONTEXT': True,
-
       'ENABLE_STACKTRACES' : True,
       }
 

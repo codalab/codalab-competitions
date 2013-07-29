@@ -7,9 +7,14 @@ User =  get_user_model()
 import os
 from django.core import management
 from django.test import TestCase
+<<<<<<< HEAD
 from django.test.client import Client
 from apps.web.models import Competition,ParticipantStatus,CompetitionParticipant
 import json
+=======
+from django.contrib.auth.models import User
+from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant
+>>>>>>> master
 
 from django.core.urlresolvers import reverse
 
