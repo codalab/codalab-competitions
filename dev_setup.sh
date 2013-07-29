@@ -63,9 +63,6 @@ if [ -f $venv_python ]; then
 
 	echo "Running data migrations"
 	python codalab/manage.py migrate
-
-	echo "Running data load"
-	python codalab/manage.py loaddata codalab/fixtures/initial.json
 else
 	echo "ERROR: Could not locate python in virtualenv: $venv_python"
 	exit 1
