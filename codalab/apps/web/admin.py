@@ -70,14 +70,19 @@ class DefaultContentItemAdmin(admin.ModelAdmin):
 admin.site.register(models.DefaultContentItem, DefaultContentItemAdmin)
 
 
-class PageGenAdmin(admin.TabularInline):
+class PageGenAdmin(admin.StackedInline):
     model = models.Page
 
 class ContentVisibilityAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.ContentVisibility, ContentVisibilityAdmin)
 
-
+class PageContainerAdmin(admin.ModelAdmin):
+    inlines = [
+        PageGenAdmin,
+        ]
+admin.site.register(models.PageContainer, PageContainerAdmin)     
+  
 class PageAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Page, PageAdmin)

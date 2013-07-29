@@ -48,8 +48,8 @@
 			    <input type="hidden"  name="competition" value="{{ competition.pk }}"/>
                             <div class="thumbnailContainer">
                                 <figure class="competitionsProfileImage">
- 				   {% if object.image %}
-                                    <img id="imgProfileImage" src="{{ object.image.url }}" width="133" height="94">
+ 				   {% if competition.image %}
+                                    <img id="imgProfileImage" src="{{ competition.image.url }}" width="133" height="94">
 				   {% else %}
 				   <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
 				   {% endif %}

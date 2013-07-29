@@ -4,12 +4,12 @@ import os,sys
 
 
 class Base(Settings):
-   SETTINGS_DIR=os.path.dirname(os.path.abspath(__file__))
-   PROJECT_APP_DIR=os.path.dirname(SETTINGS_DIR)
-   PROJECT_DIR=os.path.dirname(PROJECT_APP_DIR)
-   ROOT_DIR=os.path.dirname(PROJECT_DIR)
+   SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+   PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
+   PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
+   ROOT_DIR = os.path.dirname(PROJECT_DIR)
 
-
+   TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 

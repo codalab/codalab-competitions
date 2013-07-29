@@ -46,7 +46,6 @@ module Competition {
         public save(event, obj) {
             $("#SaveFlag").val("True")
             var step = parseInt($("#Step").val());
-	    console.log('Step: ' + step);
             switch (step) {
                 case 1:
                     CreateCompetition.prototype.ajaxRequestForSavingCompetitionInfo(obj);
@@ -91,8 +90,8 @@ module Competition {
             //        data = { "description": $(obj).val() };
             //        break;
             //}
-            data = { "title": $("#Title").val(), "description": $("#Description").val() };
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/info/";
+            data = { "id": parseInt($("#CompetitionId").val()), "title": $("#Title").val(), "description": $("#Description").val() };
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/";
             var onSuccess = function (data) {
                 CreateCompetition.prototype.managePublishButton(data.published)
                 //  CreateCompetition.prototype.makePublicNotification();
@@ -106,7 +105,17 @@ module Competition {
                 $(obj).removeClass("disabledStatus");
 		
             }
-            super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
+	    $.ajax({
+		url: xUrl,
+		data: JSON.stringify(data),
+		cache: false,
+		contentType: 'application/json',
+		processData: true,
+		type: 'PATCH',
+		success: onSuccess,
+		error: onError
+	    });
+            // super.ajaxJSONRequest(xUrl, onSuccess, onError, data);
 
         }
 

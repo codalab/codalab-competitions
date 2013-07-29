@@ -9,10 +9,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
-class CompetitionAPIViewset(viewsets.ModelViewSet):
-    serializer_class = serializers.CompetitionDataSerial
-    #serializer_class = serializers.CSerial
+class CompetitionAPIViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
+
 
     @action(#permission_classes=[permissions.IsAuthenticated]
             )
@@ -67,8 +67,8 @@ class CompetitionAPIViewset(viewsets.ModelViewSet):
         comp.save()
         return Response({"data":{"title":comp.title,"description":comp.description,"imageUrl":comp.image.url if comp.image else None},"published":3},status=200)
 
-competition_list =   CompetitionAPIViewset.as_view({'get':'list','post':'create','put':'update','patch': 'update_partial'})
-competition_retrieve =   CompetitionAPIViewset.as_view({'get':'retrieve'})
+competition_list =   CompetitionAPIViewSet.as_view({'get':'list','post':'create'})
+competition_retrieve =   CompetitionAPIViewSet.as_view({'get':'retrieve','put':'update', 'patch': 'partial_update'})
 
 class CompetitionPhaseEditView(views.APIView):
     renderer_classes = (renderers.JSONRenderer,renderers.BrowsableAPIRenderer)
@@ -91,7 +91,7 @@ class CompetitionPhaseEditView(views.APIView):
                                                                   max_submissions=p['max_submissions'])
         return Response(status=200)
 
-class CompetitionParticipantAPIViewset(viewsets.ModelViewSet):
+class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionParticipantSerial
     queryset = webmodels.CompetitionParticipant.objects.all()
 
@@ -101,9 +101,6 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     queryset = webmodels.Competition.objects.all()
     
     def get_query_set(self):
-        # The pk (primary key) is for the competition, not the phase.
-        # rest framework could use a little extension to provide more 
-        # flexibility.
         competition_id = self.kwargs.get('pk',None)
         phasenumber = self.kwargs.get('phasenumber',None)
         kw = {}
@@ -116,11 +113,6 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
 competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create','put':'update'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'})
 
-# class ContentContainerViewSet(viewsets.ModelViewSet):
-#     serializer_class = serializers.ContentContainerSerial
-#     queryset = webmodels.ContentContainer.objects.filter()
-
-# contentcontainer_list = ContentContainerViewSet.as_view({'get':'list'})
 
 class CompetitionPageViewSet(viewsets.ModelViewSet):
     ## TODO: Turn the custom logic here into a mixin for other content
@@ -135,12 +127,14 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
         if 'competition_id' in self.kwargs:
             kw['container__object_id'] = self.kwargs['competition_id']
             kw['container__content_type'] = self.content_type
+        if 'category' in self.kwargs:
+            kw['category__codename'] = self.kwargs['category']
+        if kw:
             return self.queryset.filter(**kw)
         else:
             return self.queryset
 
-    def dispatch(self,request,*args,**kwargs):
-        
+    def dispatch(self,request,*args,**kwargs):        
         if 'competition_id' in kwargs:
             self._pagecontainer_q = webmodels.PageContainer.objects.filter(object_id=kwargs['competition_id'],
                                                                            content_type=self.content_type)
@@ -164,43 +158,7 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             ctx.update({'container': self.pagecontainer})
         return ctx
 
-    def x_get_serializer(self,instance=None, data=None,
-                       files=None, many=False, partial=False,**kwargs):
-        if 'competition_id' in self.kwargs:
-            if instance:
-                instance.container = self.pagecontainer
-            if data:
-                data['container'] = self.pagecontainer.owner.pk
-        return super(CompetitionPageViewSet,self).get_serializer(instance=instance, data=data,
-                       files=files, many=many, partial=partial, **kwargs)
-
-    # def get_serializer_context(self):
-    #     ctx = super(CompetitionPageViewSet,self).get_serializer_context()
-    #     ctx.update({ 'content_type': self.content_type,
-    #                  'pagecontainer': self.pagecontainer })
-    #     return ctx
-
-    # def get_object(self,queryset=None):
-    #     container = self.kwargs.get('entity',None)
-    #     page_id = self.kwargs.get('pk',None)
-    #     competition_id = self.kwargs.get('competition_id')
-        
-    #     kw = {}
-    #     if container:
-    #         kw['pagecontainer__entity__pk'] = container
-    #     if page_id:
-    #         kw['pk'] = page_id
-    #     if competition_id:
-    #         kw['pagecontainer__object_id'] = competition_id
-    #     try:
-    #         o =  self.queryset.filter(**kw).get()
-    #     except ObjectDoesNotExist:
-    #         raise Http404
-    #     return o
-
-        
     def create(self,request,*args,**kwargs):
-        
         try:
             container = self.pagecontainer
             print "Has Container"
@@ -208,14 +166,9 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             
             container = self.new_pagecontainer(self.kwargs.get('competition_id'))
             print "Creating container"
-
         return  super(CompetitionPageViewSet,self).create(request,*args,**kwargs)
 
-
-
-competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create','put':'update'})
-
-
+competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create','put':'update','patch':'partial_update'})
 competition_page = CompetitionPageViewSet.as_view({'get':'retrieve'})
 
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
@@ -228,3 +181,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not obj.participant:
             obj.participant = self.request.user
         
+class DefaultContentViewSet(viewsets.ModelViewSet):
+    queryset = webmodels.DefaultContentItem.objects.all()
+    serializer_class = serializers.DefaultContentSerial
+    

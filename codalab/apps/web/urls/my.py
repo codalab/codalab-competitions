@@ -19,7 +19,7 @@ urlpatterns = patterns(
    
     url(r'^create_competition$', views.CompetitionCreate.as_view(), name='my_create_competition'),
     url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='my_delete_competition'),
-    url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='my_edit_competition'),
+    url(r'^edit_competition/(?P<pk>\d+)$', views.MyEditCompetition.as_view(), name='my_edit_competition'),
     url(r'^competition/(?P<competition_id>\d+)/participants/', views.MyCompetitionParticipantView.as_view(), name='my_competition_participants'),
     
     url(r'^_partials/', include(partials_patterns)),

@@ -64,6 +64,16 @@ var Ajax;
                 error: err
             });
         };
+        AjaxRequest.prototype.ajaxPatchRequest = function (xUrl, succ, err, data) {
+            $.ajax({
+                type: "PATCH",
+                url: xUrl,
+                data: data,
+                cache: false,
+                success: succ,
+                error: err
+            });
+        };
         return AjaxRequest;
     })();
     Ajax.AjaxRequest = AjaxRequest;    
