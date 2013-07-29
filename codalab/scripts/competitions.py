@@ -2,7 +2,7 @@
 # Run this with the python from the CodaLab virtual environment
 # 
 
-import sys, os.path, os, random
+import sys, os.path, os, random, datetime
 # This is a really, really long way around saying that if the script is in
 #  codalab\scripts\users.py, we need to add, ../../../codalab to the sys.path to find the settings
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
@@ -17,7 +17,7 @@ from configurations import importer
 importer.install()
 
 from django.contrib.auth.models import User
-from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant
+from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant, CompetitionPhase
 
 # Get a user to be the creator
 guest1 = User.objects.get(username="guest1")
@@ -49,19 +49,33 @@ sigsc_logo = os.path.join(root_dir, "fixtures", "images", "sigspatial.jpg")
 sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
 # print sigsc
 
+# # Data for the competition
+# TODO: Creating phases won't work until I figure out how to create data files/sets. IRJ 2013.7.29
+# # Fake dataset for now
+# datafile = ExternalFile.objects.create(type=External)
+# data_set = None
+
+# # Phases for the competition
+# start_date = datetime.date.today()
+# day_delta = datetime.timedelta(days=10)
+# for phase in [1, 2]:
+# 	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
+# 														start_date=start_date + (day_delta * phase), max_submissions=4, dataset=data_set)
+
+# Participants for the competition
 participants = [ User.objects.get(username="guest%d" % i) for i in [2, 4, 5, 7]]
 # print participants
 
+# Participant statuses, if they haven't been created before
 statuses = ParticipantStatus.objects.all()
 if len(statuses) == 0:
 	print "No statuses created yet, creating them now."
 	for status in ['unknown', 'pending', 'approved', 'denied']:
 		status_object, created = ParticipantStatus.objects.get_or_create(name=status.capitalize(), codename=status, description="")
 	statuses = ParticipantStatus.objects.all()
-
 # print statuses
 
-# Add participants with random statuses
+# Add participants to the competition with random statuses
 for participant in participants:
 	status = random.choice(statuses)
 	print "Adding %s to competition %s with status %s" % (participant, sigsc, status)
