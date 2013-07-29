@@ -3,6 +3,20 @@ from apps.web import models as webmodels
 from apps.authenz import models as authmodels
 
 
+class ContentCategorySerial(serializers.ModelSerializer):
+    visibility = serializers.SlugField(source='visibility.codename')
+    
+    class Meta:
+        model = webmodels.ContentCategory
+
+class DefaultContentSerial(serializers.ModelSerializer):
+    category_codename = serializers.SlugField(source='category.codename')
+    category_name = serializers.CharField(source='category.name')
+    initial_visibility = serializers.SlugField(source='initial_visibility.codename')
+    class Meta:
+        model = webmodels.DefaultContentItem
+        
+
 class PageSerial(serializers.ModelSerializer):
     container = serializers.RelatedField(required=False)
 
@@ -10,6 +24,8 @@ class PageSerial(serializers.ModelSerializer):
         model = webmodels.Page
 
     def validate_container(self,attr,source):
+        ## The container, if not supplied will be supplied by the view
+        ## based on url kwargs. 
         if 'container' in self.context:
             attr['container'] = self.context['container']
         return attr
@@ -26,30 +42,6 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
             attr[source] = None
         return attr
 
-    def save():
-        pass
-
-
-class _CompetitionPhaseSerial(serializers.Serializer):
-    phase_id = serializers.IntegerField(required=False)
-    competition_id = serializers.IntegerField()
-    label = serializers.CharField()
-    start_date = serializers.DateField(format='%Y-%m-%d')
-    max_submissions = serializers.IntegerField()
-    phasenumber = serializers.IntegerField()
-
-
-class CompetitionPhasesEditSerial(serializers.Serializer):
-    competition_id = serializers.IntegerField(required=False)
-    phases = _CompetitionPhaseSerial(many=True)
-    end_date = serializers.DateField(format='%Y-%m-%d',required=False)
-    
-    
-class CompetitionSerial(serializers.ModelSerializer):
-    pages = PageSerial(source='pagecontent__pages',read_only=True)
-
-    class Meta:
-        model = webmodels.Competition
 
 class CompetitionParticipantSerial(serializers.ModelSerializer):
     
@@ -67,12 +59,8 @@ class PhaseSerial(serializers.ModelSerializer):
     
     class Meta:
         model = webmodels.CompetitionPhase
-        
-    
-    def from_native(self,data):
-        print type(data)
-        print data
-        
+        read_only_fields = ['datasets']
+
 class CompetitionPhaseSerial(serializers.ModelSerializer):
     end_date = serializers.DateField(format='%Y-%m-%d')
     phases = PhaseSerial(many=True)
@@ -82,8 +70,7 @@ class CompetitionPhaseSerial(serializers.ModelSerializer):
         fields = ['end_date','phases']
 
 class CompetitionDataSerial(serializers.ModelSerializer):
-    image_url = serializers.URLField(source='image.url',read_only=True)
-    # phases = CompetitionPhaseSerial(many=True)
+    image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True)
 
     class Meta:
@@ -93,23 +80,31 @@ class CompetitionDataSerial(serializers.ModelSerializer):
 
 class PhaseRel(serializers.RelatedField):
 
+    # TODO: Some cleanup and validation to do
     def to_native(self,value):
         o = PhaseSerial(instance=value)
         return o.data
+
         
-    def from_native(self,data):
+    def from_native(self,data=None,files=None):
         kw = {'data': data,'partial':self.partial}
-        if self.partial:
-            instance = webmodels.CompetitionPhase.objects.get(pk=data['id'])
-            kw['instance'] = instance
-        o = PhaseSerial(**kw)
-        print o.data
-        print data
+        args = []
+        if data['id']:
+            instance = webmodels.CompetitionPhase.objects.filter(pk=data['id']).get()
+            args.append(instance)
+            print instance
+        o = PhaseSerial(*args,**kw)
+        print o
+        if o.is_valid():
+            return o.object
+        else:
+            raise Exception(o.errors)
 
-        return o
+class CompetitionSerial(serializers.ModelSerializer):
+    phases = PhaseRel(many=True,read_only=False)    
+    image_url = serializers.CharField(source='image_url',read_only=True)
+    pages = PageSerial(source='pagecontent.pages', read_only=True)
 
-class CSerial(serializers.ModelSerializer):
-    phases = PhaseRel(many=True,read_only=False)
-    #phases = PhaseSerial(read_only=False,many=True)
     class Meta:
         model = webmodels.Competition
+        read_only_fields = ['image_url_base']

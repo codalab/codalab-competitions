@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -16,61 +17,6 @@ class ContentVisibility(models.Model):
 
     def __unicode__(self):
         return self.name
-
-# class ContentContainerType(models.Model):
-#     name = models.CharField(max_length=50)
-#     codename = models.SlugField(max_length=50,unique=True)
-#     is_active = models.BooleanField(default=True)
-
-#     def __unicode__(self):
-#         return self.name
-
-# class ContentContainer(models.Model):
-#     name = models.CharField(max_length=30)
-#     type = models.ForeignKey(ContentContainerType, unique=True)
-
-#     def __unicode__(self):
-#         return "%s %s" % (self.name,self.type.name)
-
-# class ContentEntity(MPTTModel):
-#     parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
-#     container = models.ForeignKey(ContentContainer, related_name='entities')
-#     visibility = models.ForeignKey(ContentVisibility)
-#     label = models.CharField(max_length=50)
-#     codename = models.SlugField(max_length=81,null=True,blank=True)
-#     rank = models.IntegerField(default=0)
-#     max_items = models.IntegerField(default=1)
-
-#     class Meta:
-#         ordering = ['rank']
-#         unique_together = (('label','container'),)
-
-#     def __unicode__(self):
-#         return "%s - %s" % (self.container.name, self.label)
-
-#     def make_codename(self):
-#         return slugify("%s %s" % (self.container.type.codename, self.label))
-    
-#     def save(self,*args,**kwargs):
-#         if not self.codename:
-#             self.codename = self.make_codename()
-#         return super(ContentEntity,self).save(*args,**kwargs)
-    
-#     @property
-#     def toplevel(self):
-#         return self.parent is None
-
-# class PageContainer(models.Model):
-#     entity = TreeForeignKey(ContentEntity)
-#     content_type = models.ForeignKey(ContentType)
-#     object_id = models.PositiveIntegerField(db_index=True)
-#     owner = generic.GenericForeignKey('content_type', 'object_id')
-
-#     class Meta:
-#         unique_together = (('object_id','content_type','entity'),)
-        
-#     def __unicode__(self):
-#         return "%s [%s]" % (self.owner.__unicode__(), self.entity.__unicode__())
 
 class ContentCategory(MPTTModel):
     parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
@@ -93,30 +39,6 @@ class DefaultContentItem(models.Model):
     def __unicode__(self):
         return self.label
 
-# class ContentList(models.Model):
-#     category = TreeForeignKey(ContentCategory)
-#     title = models.CharField(max_length=100)
-#     content_type = models.ForeignKey(ContentType)
-#     object_id = models.PositiveIntegerField(db_index=True)
-#     owner = generic.GenericForeignKey('content_type', 'object_id')
-    
-#     def __unicode__(self):
-#         return self.title
-
-#     def save(self,*args,**kwargs):
-#         if not self.title:
-#             self.title = "%s - %s" % (self.owner.__unicode__(),self.category.name)
-#         return super(ContentList,self).save(*args,**kwargs)
-        
-
-# class ContentItem(models.Model):
-#     category = TreeForeignKey(ContentCategory)
-#     defaults = models.ForeignKey(DefaultContentItem,null=True,blank=True)
-#     label = models.CharField(max_length=100)
-#     rank = models.IntegerField(default=0)
-#     visibility = models.ForeignKey(ContentVisibility)
-
-
 class PageContainer(models.Model):
     name = models.CharField(max_length=200,blank=True)
     content_type = models.ForeignKey(ContentType)
@@ -129,16 +51,15 @@ class PageContainer(models.Model):
     def __unicode__(self):
         return self.name
 
-    def save(self,*args,**kwargs):
-        if not self.name:
-            self.name = "%s - %s" % (self.owner.__unicode__(), self.name)
+    def save(self,*args,**kwargs):      
+        self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
 
    
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
-    container = models.ForeignKey(PageContainer,related_name='pages')
+    container = models.ForeignKey(PageContainer, related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100)
     rank = models.IntegerField(default=0)
@@ -157,6 +78,8 @@ class Page(models.Model):
         ordering = ['rank']
 
     def save(self,*args,**kwargs):
+        if not self.title:
+            self.title = "%s - %s" % ( self.container.name,self.label) 
         if self.defaults:
             if self.category != self.defaults.category:
                 raise IntegrityError("Defaults category must match Item category")
@@ -203,6 +126,7 @@ class Competition(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='logos',null=True,blank=True)
+    image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False)
     end_date = models.DateField(null=True,blank=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
@@ -222,6 +146,15 @@ class Competition(models.Model):
     
     def set_owner(self,user):
         return assign_perm('view_task', user, self)
+    
+    def save(self,*args,**kwargs):
+        self.image_url_base = self.image.storage.url('')
+        return super(Competition,self).save(*args,**kwargs)
+        
+    def image_url(self):
+        if self.image:
+            return os.path.join(self.image_url_base,self.image.name)
+        return None
         
     @property
     def is_active(self):

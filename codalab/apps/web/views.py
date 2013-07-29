@@ -75,7 +75,7 @@ class CompetitionEdit(UpdateWithInlinesView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
         # context['pages'] = .pagecontainer.pages
-        context.update(get_content_context(typename='competition_detail'))
+        # context.update(get_content_context(typename='competition_detail'))
         return context
 
 class CompetitionDelete(DeleteView):
@@ -134,9 +134,9 @@ class MyCreateCompetition(LoginRequiredMixin,TemplateView):
         return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
     
 
-class MyEditCompetition(LoginRequiredMixin,UpdateView):
+class MyEditCompetition(LoginRequiredMixin,TemplateView):
     
-    template_name = 'web/my/edit.html'
+    template_name = 'web/my/edit2.html'
 
     def post(self,request,competition_id=None):
         form = MyEditWizardForm(request.POST)
@@ -149,8 +149,8 @@ class MyEditCompetition(LoginRequiredMixin,UpdateView):
         context = super(MyEditCompetition,self).get_context_data(**kwargs)
         comp = models.Competition.objects.get(pk=self.kwargs['pk'])
         context['competition'] = comp
-        context['pages'] = comp.pagecontainer.pages
-        context['content'] = models.ContentContainer.objects.all()
+        context['pages'] = comp.pagecontent.pages if comp.pagecontent else []
+        #context['content'] = models.ContentContainer.objects.all()
         return context
  
 

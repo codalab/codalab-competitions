@@ -61,7 +61,7 @@
                             </div>
                             <div>
                                 
-				<input id="Title" class="text-box single-line" type="text" value="Untitled" name="Title"/>
+				<input id="Title" class="text-box single-line" type="text" value="{{competition.title|default:"Untitled"}}" name="Title"/>
                                 <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
                                 <div>
 				    <textarea id="Description" rows="2" name="Description" cols="20">{{ competition.description|default:"" }}</textarea>
