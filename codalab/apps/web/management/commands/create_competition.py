@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
+from django.utils.timezone import utc
 from django.core.files import File
 from apps.web.models import Competition,CompetitionPhase
 from django.conf import settings
@@ -48,6 +49,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        print " ----- "
+        print "Creating competition"
+        
         creator_email = options['creator']
         title = options['title']
         description = options['description']
@@ -55,12 +59,15 @@ class Command(BaseCommand):
         phasedates = []
         try:
             for d in options['phasedates'].split(','):
-                phasedates.append(datetime.datetime.strptime(d, "%Y-%m-%d"))
+                phasedates.append(datetime.datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=utc))
+            if len(phasedates) != numphases:
+                raise Exception("Not enough dates for phases")
+       
         except AttributeError as e:
             if numphases > 0:
                 raise e
             pass
-
+        
         if not creator_email or not title or not description:
             print "Need a title, description and email of creator"
             exit(1)
@@ -90,5 +97,14 @@ class Command(BaseCommand):
         if f:
             competition.image=File(f)
         competition.save()
+        for n in range(0,numphases):
+            p = CompetitionPhase.objects.create(competition=competition,
+                                                phasenumber=n,
+                                                label = "Phase #%d" % n,
+                                                start_date=phasedates[n])
+        print "Created %d phases" % numphases
+        print " ----- "
+        print "Competition, %s, created. ID: %d" % (competition.title,competition.pk)
+        print " ----- "
         
  
