@@ -147,6 +147,7 @@ class Base(Settings):
      )
 
    INSTALLED_APPS = (
+    # Standard django apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -155,25 +156,33 @@ class Base(Settings):
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
+    # Analytics app that works with many services - IRJ 2013.7.29
+    'analytical',
+    'rest_framework',
+
+    # TODO: Document the need for these
     'mptt',
-   
     'django_config_gen',
     'compressor',
     'django_js_reverse',
-    'rest_framework',
     'guardian',
     'publish',
+    'storages',
+
+    # Search app
     'haystack',
 
+    # Migration app
+    'south',
+
+    # CodaLab apps
     'apps.api',
     'apps.web',
 
+    # Authentication app, enables social authentication
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
-    'storages',
-    # 'south',
    )
 
    OPTIONAL_APPS = [ 'django_wsgiserver',]
