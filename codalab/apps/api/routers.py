@@ -3,9 +3,9 @@ from . import views
 from django.conf.urls import patterns, url
 router = routers.DefaultRouter()
 
-
 router.register(r'competition/participant', views.CompetitionParticipantAPIViewSet)
 #router.register(r'competition', views.CompetitionAPIViewset)
+
 router.register(r'competition/submission', views.CompetitionSubmissionViewSet)
 #router.register(r'contentcontainers', views.ContentContainerViewSet)
 router.register(r'defaultcontent', views.DefaultContentViewSet)

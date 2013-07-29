@@ -1,0 +1,77 @@
+/* line 19, ../sass/settings.scss */
+* {
+  font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+  font-size: 100%;
+  font-weight: normal;
+}
+
+/* line 25, ../sass/settings.scss */
+.middle {
+  vertical-align: middle;
+}
+
+/* line 28, ../sass/settings.scss */
+.banner {
+  background: #ebf2fb;
+}
+
+/* line 32, ../sass/settings.scss */
+.footer {
+  font-size: small;
+  background: #3694d6;
+  color: white;
+  height: 25px;
+}
+
+/* line 39, ../sass/settings.scss */
+.topbar-title {
+  font-size: x-large;
+  font-weight: light;
+}
+
+/* line 44, ../sass/settings.scss */
+.homepageBanner {
+  min-height: 255px;
+  background: #ebf2fb;
+}
+
+/* line 48, ../sass/settings.scss */
+.bannerBlock {
+  width: 50%;
+  padding-left: 85px;
+  display: table-cell;
+  padding-top: 60px;
+  height: 200px;
+  padding-right: 20px;
+}
+
+/* line 56, ../sass/settings.scss */
+.bannerBlockContainer {
+  width: 1000px;
+  display: table;
+  margin: auto;
+}
+
+/* line 61, ../sass/settings.scss */
+.bannerBlockHead {
+  font-size: 60px;
+  color: #454545;
+  display: table-row;
+  vertical-align: top;
+  line-height: 65px;
+}
+
+/* line 68, ../sass/settings.scss */
+.bannerBlocklabl {
+  font-size: 30px;
+  color: #454545;
+  display: table-row;
+  vertical-align: top;
+}
+
+/* line 74, ../sass/settings.scss */
+.bannertxtBlock {
+  display: inline-block;
+  vertical-align: top;
+  padding-left: 20px;
+}
