@@ -16,28 +16,35 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 from configurations import importer
 importer.install()
 
-from django.contrib.auth.models import User
+from django.core.files import File
+from django.contrib.auth import get_user_model
 from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant, CompetitionPhase
+
+User = get_user_model()
 
 # Get a user to be the creator
 guest1 = User.objects.get(username="guest1")
 
-# # BRaTS 2012
-# brats12_name = "MICCAI Multimodal Brain Tumor Segmentation (BRaTS) Challenge 2012"
-# brats12_description = """
-# 	The BRaTS challenge is designed to gauge the current state-of-the-art in automated brain tumor segmentation 
-# 	and to compare between different methods. It is organized in conjuction with the MICCAI 2012 conference.
-# 	"""
-# brats_logo = os.path.join(root_dir, "fixtures", "images", "brats.jpg")
-# brats2012 = Competition.objects.create(title=brats12_name, creator=guest1, modified_by=guest1, description=brats12_description)
+# BRaTS 2012
+brats12_name = "MICCAI Multimodal Brain Tumor Segmentation (BRaTS) Challenge 2012"
+brats12_description = """
+	The BRaTS challenge is designed to gauge the current state-of-the-art in automated brain tumor segmentation 
+	and to compare between different methods. It is organized in conjuction with the MICCAI 2012 conference.
+	"""
+brats_logo = open(os.path.join(root_dir, "fixtures", "images", "brats.jpg"), 'rb')
+brats2012 = Competition.objects.create(title=brats12_name, creator=guest1, modified_by=guest1, description=brats12_description)
+brats2012.image = File(brats_logo)
+brats2012.save()
 
-# # Spine Localization
-# spine_name = "Spine Localization Example"
-# spine_description = """
-# 	Test for server side execution of evaluation program.
-# """
-# spine_logo = os.path.join(root_dir, "fixtures", "images", "spine.jpg")
-# spine = Competition.objects.create(title=spine_name, creator=guest1, modified_by=guest1, description=spine_description)
+# Spine Localization
+spine_name = "Spine Localization Example"
+spine_description = """
+	Test for server side execution of evaluation program.
+"""
+spine_logo = open(os.path.join(root_dir, "fixtures", "images", "spine.jpg"), 'rb')
+spine = Competition.objects.create(title=spine_name, creator=guest1, modified_by=guest1, description=spine_description)
+spine.image = File(spine_logo)
+spine.save()
 
 # ACM SIG Spatial Cup
 sigsc_name = "ACM SIGSPATIAL Cup"
@@ -45,8 +52,10 @@ sigsc_description = """
 	With the goal of encouraging innovation in a fun way, ACM SIGSPATIAL is hosting an algorithm contest about 
 	map matching, which is the problem of correctly matching a sequence of location measurements to roads.
 """
-sigsc_logo = os.path.join(root_dir, "fixtures", "images", "sigspatial.jpg")
+sigsc_logo = open(os.path.join(root_dir, "fixtures", "images", "sigspatial.png"), 'rb')
 sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
+sigsc.image=File(sigsc_logo)
+sigsc.save()
 # print sigsc
 
 # # Data for the competition phases

@@ -17,7 +17,8 @@ from configurations import importer
 importer.install()
 
 # Import the user model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 # Make some users
 for i in range(1,10):
