@@ -49,18 +49,17 @@ sigsc_logo = os.path.join(root_dir, "fixtures", "images", "sigspatial.jpg")
 sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
 # print sigsc
 
-# # Data for the competition
-# TODO: Creating phases won't work until I figure out how to create data files/sets. IRJ 2013.7.29
+# # Data for the competition phases
 # # Fake dataset for now
 # datafile = ExternalFile.objects.create(type=External)
 # data_set = None
 
-# # Phases for the competition
-# start_date = datetime.date.today()
-# day_delta = datetime.timedelta(days=10)
-# for phase in [1, 2]:
-# 	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
-# 														start_date=start_date + (day_delta * phase), max_submissions=4, dataset=data_set)
+# Phases for the competition
+start_date = datetime.date.today()
+day_delta = datetime.timedelta(days=10)
+for phase in [1, 2]:
+	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
+														start_date=start_date + (day_delta * phase), max_submissions=4)
 
 # Participants for the competition
 participants = [ User.objects.get(username="guest%d" % i) for i in [2, 4, 5, 7]]
