@@ -17,12 +17,18 @@ from apps.web import forms
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
 def competition_index(request):
-    competitions = models.Competition.objects.all()
-    for c in competitions:
-        print c
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
-        'competitions' : competitions,
+        'competitions' : models.Competition.objects.all(),
+        })
+    return HttpResponse(template.render(context))
+
+@login_required
+def my_index(request):
+    template = loader.get_template("web/my/index.html")
+    context = RequestContext(request, {
+        'my_competitions' : models.Competition.objects.all(),
+        'competitions_im_in' : models.Competition.objects.all()
         })
     return HttpResponse(template.render(context))
 

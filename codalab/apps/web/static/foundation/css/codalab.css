@@ -63,27 +63,44 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 34, ../sass/_settings.scss */
+/* line 32, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 40, ../sass/_settings.scss */
-.competition-summary {
-  background: #fafafa;
+/* line 38, ../sass/_settings.scss */
+.competition-preview {
   border: 1px dotted #666666;
-  height: 100px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
-/* line 46, ../sass/_settings.scss */
+/* line 44, ../sass/_settings.scss */
+.competition-summary {
+  background: #fafafa;
+  height: 100px;
+  overflow: hidden;
+}
+
+/* line 50, ../sass/_settings.scss */
+.competition-preview > .columns > .button.small {
+  vertical-align: middle;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  text-align: center;
+  background: #ffac31;
+  border-color: #ffac31;
+}
+
+/* line 59, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 51, ../sass/_settings.scss */
+/* line 64, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3694d6;
@@ -92,7 +109,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 0px;
 }
 
-/* line 59, ../sass/_settings.scss */
+/* line 72, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -100,31 +117,31 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 66, ../sass/_settings.scss */
+/* line 79, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 70, ../sass/_settings.scss */
+/* line 83, ../sass/_settings.scss */
 .competition-title {
   color: #3694d6;
   text-align: left;
 }
 
-/* line 75, ../sass/_settings.scss */
+/* line 88, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 81, ../sass/_settings.scss */
+/* line 94, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
 }
 
-/* line 85, ../sass/_settings.scss */
+/* line 98, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -140,20 +157,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 100, ../sass/_settings.scss */
+/* line 113, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 105, ../sass/_settings.scss */
+/* line 118, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3694d6;
   color: white;
 }
 
-/* line 111, ../sass/_settings.scss */
+/* line 124, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
@@ -4382,7 +4399,7 @@ label.error {
 .section-container.accordion > section > .content,
 .section-container.accordion > .section > .content {
   padding: 0.9375em;
-  background-color: #3694d6;
+  background-color: white;
   border: solid 1px #cccccc;
 }
 /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -4535,7 +4552,7 @@ label.error {
 /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
 .section-container.tabs > section > .content, .section-container.tabs > .section > .content {
   padding: 0.9375em;
-  background-color: #3694d6;
+  background-color: white;
   border: solid 1px #cccccc;
 }
 /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -4633,7 +4650,7 @@ label.error {
   /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
   .section-container.auto > section > .content, .section-container.auto > .section > .content {
     padding: 0.9375em;
-    background-color: #3694d6;
+    background-color: white;
     border: solid 1px #cccccc;
   }
   /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -4751,7 +4768,7 @@ label.error {
   /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .content, .section-container.vertical-tabs > .section > .content {
     padding: 0.9375em;
-    background-color: #3694d6;
+    background-color: white;
     border: solid 1px #cccccc;
   }
   /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -4880,7 +4897,7 @@ label.error {
   /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .content, .section-container.vertical-nav > .section > .content {
     padding: 0.9375em;
-    background-color: #3694d6;
+    background-color: white;
     border: solid 1px #cccccc;
   }
   /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -5003,7 +5020,7 @@ label.error {
   /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .content, .section-container.horizontal-nav > .section > .content {
     padding: 0.9375em;
-    background-color: #3694d6;
+    background-color: white;
     border: solid 1px #cccccc;
   }
   /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
@@ -5105,7 +5122,7 @@ label.error {
 /* line 220, /dev/foundation/scss/foundation/components/_section.scss */
 .no-js .section-container > section > .content, .no-js .section-container > .section > .content {
   padding: 0.9375em;
-  background-color: #3694d6;
+  background-color: white;
   border: solid 1px #cccccc;
 }
 /* line 225, /dev/foundation/scss/foundation/components/_section.scss */
