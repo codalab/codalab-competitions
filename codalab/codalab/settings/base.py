@@ -21,6 +21,7 @@ class Base(Settings):
                    'celery': ['localhost'],
                    }
 
+   AUTH_USER_MODEL = 'authenz.User'
    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'] }
 
    HAYSTACK_CONNECTIONS = {
@@ -166,16 +167,17 @@ class Base(Settings):
     'compressor',
     'django_js_reverse',
     'guardian',
-    'publish',
+    
     'storages',
 
     # Search app
     'haystack',
 
     # Migration app
-    'south',
+    #'south',
 
     # CodaLab apps
+    'apps.authenz',
     'apps.api',
     'apps.web',
 

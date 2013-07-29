@@ -10,7 +10,6 @@ django-extensions>=1.1.1
 django-guardian==1.1.1
 django-haystack==2.0.0
 django-js-reverse>=0.2.0
--e git+https://github.com/johnsensible/django-publish.git@d347373ae4d695fff030c299362c3ee846a0c3db#egg=django_publish-dev
 djangorestframework==2.3.6
 oauthlib==0.4.2
 python-openid==2.2.5
@@ -23,7 +22,4 @@ django-mptt==0.5.5
 django-storages==1.1.8
 South==0.8.1
 django-extra-views==0.6.3
-celery==3.0.21
-fabric-virtualenv==0.2.1
-Fabric==1.6.1
-django-analytical
+django-analytical==0.15.0
