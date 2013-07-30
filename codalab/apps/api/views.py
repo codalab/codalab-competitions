@@ -141,12 +141,18 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
 
     @property
     def pagecontainer(self):
-        if self._pagecontainer_q is not None and self._pagecontainer is None:
-            self._pagecontainer = self._pagecontainer_q.get()
-            
+        if self._pagecontainer_q is not None and self._pagecontainer is None: 
+            try:
+                self._pagecontainer = self._pagecontainer_q.get()
+            except ObjectDoesNotExist:
+                self._pagecontainer = None
         return self._pagecontainer
     
     def new_pagecontainer(self,competition_id):
+        try:
+            competition=webmodels.Competition.objects.get(pk=competition_id)
+        except ObjectDoesNotExist:
+            raise Http404
         self._pagecontainer = webmodels.PageContainer.objects.create(object_id=competition_id,
                                                                      content_type=self.content_type)
         return self._pagecontainer
@@ -157,14 +163,10 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             ctx.update({'container': self.pagecontainer})
         return ctx
 
-    def create(self,request,*args,**kwargs):
-        try:
-            container = self.pagecontainer
-            print "Has Container"
-        except ObjectDoesNotExist:
-            
-            container = self.new_pagecontainer(self.kwargs.get('competition_id'))
-            print "Creating container"
+    def create(self,request,*args,**kwargs):        
+        container = self.pagecontainer
+        if not container:
+            container = self.new_pagecontainer(self.kwargs.get('competition_id'))           
         return  super(CompetitionPageViewSet,self).create(request,*args,**kwargs)
 
 competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create','put':'update','patch':'partial_update'})
