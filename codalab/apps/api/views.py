@@ -13,7 +13,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     queryset = webmodels.Competition.objects.all()
 
 
-    @action(#permission_classes=[permissions.IsAuthenticated]
+    @action(permission_classes=[permissions.IsAuthenticated]
             )
     def participate(self,request,pk=None):
         comp = self.get_object()
@@ -33,7 +33,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             resp = {'status': 'none', 'reason': None}
         return Response(resp,status=200)
 
-    @action(methods=['POST','PUT','GET'], #permission_classes=[permissions.IsAuthenticated]
+    @action(methods=['POST','PUT','GET'], permission_classes=[permissions.IsAuthenticated]
           )
     def userstatus(self,request,pk=None):
         if request.method == 'GET':
@@ -57,7 +57,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         return Response(resp,status=201)
             
            
-    @action(#permission_classes=[permissions.IsAuthenticated]
+    @action(permission_classes=[permissions.IsAuthenticated]
           )
     def info(self,request,*args,**kwargs):
         comp = self.get_object()
@@ -66,7 +66,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         comp.save()
         return Response({"data":{"title":comp.title,"description":comp.description,"imageUrl":comp.image.url if comp.image else None},"published":3},status=200)
 
-competition_list =   CompetitionAPIViewSet.as_view({'get':'list','post':'create'})
+competition_list =   CompetitionAPIViewSet.as_view({'get':'list','post':'create', 'post': 'participate',})
 competition_retrieve =   CompetitionAPIViewSet.as_view({'get':'retrieve','put':'update', 'patch': 'partial_update'})
 
 class CompetitionPhaseEditView(views.APIView):
