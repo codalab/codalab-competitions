@@ -5,9 +5,7 @@ router = routers.DefaultRouter()
 
 router.register(r'competition/participant', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
-
 router.register(r'competition/submission', views.CompetitionSubmissionViewSet)
-
 router.register(r'defaultcontent', views.DefaultContentViewSet)
 
 urlpatterns = router.urls

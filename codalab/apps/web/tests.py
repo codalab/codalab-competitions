@@ -33,7 +33,7 @@ class Competitions(TestCase):
     def test_create_competition_api(self):
         # TODO: This will need authentication at some point
         client = Client()
-        res = client.post(reverse('api_competition'), {'title': 'Test Title',
+        res = client.post(reverse('competition-list'), {'title': 'Test Title',
                                                  'description': 'Description',
                                                  'creator': self.user.pk,
                                                  'modified_by': self.user.pk,
