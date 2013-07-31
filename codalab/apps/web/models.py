@@ -9,7 +9,6 @@ from django.utils.timezone import utc,now
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
-
 # Competition Content
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
