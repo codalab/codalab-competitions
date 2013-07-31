@@ -105,12 +105,12 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
         kw = {}
         if competition_id:
             kw['pk'] = competition_id
-        if number:
+        if phasenumber:
             kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
 
-competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create','put':'update'})
-competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'})
+competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create'})
+competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve','put':'update','patch':'partial_update'})
 
 
 class CompetitionPageViewSet(viewsets.ModelViewSet):

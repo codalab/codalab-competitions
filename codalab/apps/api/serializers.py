@@ -84,15 +84,17 @@ class PhaseRel(serializers.RelatedField):
         return o.data
 
         
-    def from_native(self,data=None,files=None):
+    def from_native(self,data=None,files=None):       
         kw = {'data': data,'partial':self.partial}
         args = []
-        if data['id']:
+        print data
+        print type(data)
+        if 'id' in data:
             instance = webmodels.CompetitionPhase.objects.filter(pk=data['id']).get()
             args.append(instance)
             print instance
         o = PhaseSerial(*args,**kw)
-        print o
+        
         if o.is_valid():
             return o.object
         else:
