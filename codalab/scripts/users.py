@@ -17,10 +17,17 @@ from configurations import importer
 importer.install()
 
 # Import the user model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 # Make some users
 for i in range(1,10):
- 	new_user = User(email="guest%d@live.com" % i, username="guest%d" % i)
- 	new_user.set_password("abc123")
+	name = "guest%d" % i
+	email = "%s@live.com" % name
+	password = "abc123"
+
+	print "Creating user %s with email %s and password %s" % (name, email, password)
+
+ 	new_user = User(email=email, username=name)
+ 	new_user.set_password(password)
  	new_user.save()
