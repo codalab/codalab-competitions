@@ -161,20 +161,26 @@ class Base(Settings):
     'analytical',
     'rest_framework',
 
-    # TODO: Document the need for these
+    # WYSIWYG Editor for Content pages
+    #'django_wysiwyg',
+
+    # This is used to manage the HTML page hierarchy for the competition
     'mptt',
+
+    # TODO: Document the need for these
     'django_config_gen',
     'compressor',
     'django_js_reverse',
     'guardian',
     
+    # Storage API
     'storages',
 
     # Search app
     'haystack',
-
     # Migration app
     #'south',
+
 
     # CodaLab apps
     'apps.authenz',

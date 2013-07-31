@@ -23,6 +23,17 @@ def competition_index(request):
         })
     return HttpResponse(template.render(context))
 
+def competition_view(request, id):
+    template = loader.get_template("web/competitions/view.html")
+    competition = models.Competition.objects.get(id=id)
+    phases = competition.phases.all().order_by("start_date")
+    context = RequestContext(request, {
+        'competition' : competition,
+        'phase1' : phases[0],
+        'phase2' : phases[1],
+        })
+    return HttpResponse(template.render(context))
+
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")

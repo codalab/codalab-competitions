@@ -10,6 +10,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
 
+# Competition Content
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -54,8 +55,7 @@ class PageContainer(models.Model):
     def save(self,*args,**kwargs):      
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
-
-   
+  
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
@@ -86,8 +86,8 @@ class Page(models.Model):
             if self.defaults.required and self.visibility is False:
                 raise IntegrityError("Item is required and must be visible")
         return super(Page,self).save(*args,**kwargs)
-    
-        
+
+# External Files (These might be able to be removed, per a discussion 2013.7.29)    
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -113,7 +113,10 @@ class ExternalFile(models.Model):
 
     def __unicode__(self):
         return self.name
+# End External File Models
 
+
+# Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30)
@@ -122,7 +125,9 @@ class ParticipantStatus(models.Model):
     def __unicode__(self):
         return self.name
 
-# Competition Models
+class CompetitionPageSection(models.Model):
+    title = models.CharField(max_length=32)
+    slug = models.CharField(max_length=16)
 
 class Competition(models.Model):
     """ This is the base competition. """
@@ -136,6 +141,7 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
+    page_sections = models.ManyToManyField(CompetitionPageSection)
 
     class Meta:
         permissions = (
@@ -151,10 +157,13 @@ class Competition(models.Model):
         return assign_perm('view_task', user, self)
     
     def save(self,*args,**kwargs):
+        # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
+        # Do the real save
         return super(Competition,self).save(*args,**kwargs)
         
     def image_url(self):
+        # Return the transformed image_url
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
@@ -163,6 +172,13 @@ class Competition(models.Model):
     def is_active(self):
         return self.end_date < now().date()
 
+class CompetitionPageSubSection(models.Model):
+    title = models.CharField(max_length=32)
+    content = models.TextField(null=True, blank=True)
+    slug = models.CharField(max_length=16)
+    section = models.ForeignKey(CompetitionPageSection, related_name='sections')
+
+# Dataset model
 class Dataset(models.Model):
     """ 
         This is a dataset for a competition. 
@@ -180,6 +196,7 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
+# Competition Phase 
 class CompetitionPhase(models.Model):
     """ 
         A phase of a competition.
@@ -202,6 +219,7 @@ class CompetitionPhase(models.Model):
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
         return self.start_date <= now().date() and (next_phase and next_phase[0].start_date > now().date())
 
+# Competition Participant
 class CompetitionParticipant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='participation')
     competition = models.ForeignKey(Competition,related_name='participants')
@@ -214,7 +232,7 @@ class CompetitionParticipant(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
 
-
+# Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20)
@@ -222,6 +240,7 @@ class CompetitionSubmissionStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+# Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
@@ -237,11 +256,10 @@ class CompetitionSubmission(models.Model):
             raise IntegrityError("Participant can only submit their own files")
         return super(CompetitionSubmission,self).save(*args,**kwargs)
 
+# Competition Submission Results
 class CompetitionSubmissionResults(models.Model):
     submission = models.ForeignKey(CompetitionSubmission)
     payload = models.TextField()
-
-
 
 # Bundle Model
 class Bundle(models.Model):
@@ -255,6 +273,7 @@ class Bundle(models.Model):
   def __unicode__(self):
     return self.title
 
+# Run Model
 class Run(models.Model):
     bundle = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255)
