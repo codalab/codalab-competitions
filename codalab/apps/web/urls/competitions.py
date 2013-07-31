@@ -10,6 +10,7 @@ partials_patterns = patterns('',
 
 urlpatterns = patterns('',
                        url(r'^$', views.competition_index, name='competitions'),
+                       url(r'^(?P<id>\d+)$', views.competition_view, name='competition_view'),
                        # url(r'^$', TemplateView.as_view(template_name='web/competitions/index.html'), name='competitions'),
                        url(r'^_partials/', include(partials_patterns)),
                        url(r'^details/(?P<pk>\d+)$', views.CompetitionDetailView.as_view(template_name='web/competitions/details.html'),  name='competition_details'),
