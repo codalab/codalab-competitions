@@ -1,5 +1,7 @@
 {% load url from future %}
 {% load account %}
+{% load analytical %}
+
 <!DOCTYPE html>
 
 <!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
@@ -30,6 +32,8 @@
   {% endblock %}
 
   {% block extra_headers %}{% endblock extra_headers %}
+  {% analytical_head_top %}
+  {% analytical_head_bottom %}
   </head>
 
   <body class="body">
@@ -51,9 +55,7 @@
               <!-- Left Nav Section -->
               <ul class="left">
                 <li><a href="/competitions">Competitions</a></li>
-<!--                 <li><a href="/experiments">Experiments</a></li>
-                <li><a href="/my">My CodaLab</a></li>
- -->               
+                <!-- <li><a href="/experiments">Experiments</a></li>                -->
                 <li><a href="/my">My CodaLab</a></li>
                 <li><a href="/help/about.html">About</a></li>
               </ul>
@@ -99,19 +101,24 @@
     <footer id="footer">
         <div class="small-6 columns">
           <ul class="inline-list left">
-            <li><a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
-                <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a></li>
-                <li><a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
-                    <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a></li>
-                </ul>
-            </div>
-            <div class="small-6 columns">
-              <ul class="inline-list right">
-                <li><a href="/help">Help</a></li>
-                <li><a href="#">Feedback</a></li>
-                <li><a href="#">Notices</a></li>
-                <li><a href="http://github.com/codalab/codalab">Developers</a></li>
-            </ul>
+            <li>
+                <a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
+                <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a>
+            </li>
+            <li>
+                <a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
+                  <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a>
+            </li>
+          </ul>
+        </div>
+        <div class="small-6 columns">
+          <ul class="inline-list right">
+            <!-- <li>CodaLab v.0 ()</li> -->
+            <li><a href="/help">Help</a></li>
+            <li><a href="#">Feedback</a></li>
+            <li><a href="#">Notices</a></li>
+            <li><a href="http://github.com/codalab/codalab">Developers</a></li>
+          </ul>
         </div>
     </footer>
 
@@ -121,8 +128,6 @@
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/underscore-min.js"></script>  
-    <script src="{{ STATIC_URL }}foundation/js/vendor/backbone-min.js"></script>
 
     <!-- Initialize JS Plugins -->
     <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
@@ -133,5 +138,7 @@
         {% endblock js %}
     </script>
 
+  {% analytical_body_top %}
+  {% analytical_body_bottom %}
   </body>
 </html>
