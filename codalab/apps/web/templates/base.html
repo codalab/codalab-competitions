@@ -30,6 +30,8 @@
   {% endblock %}
 
   {% block extra_headers %}{% endblock extra_headers %}
+  {% analytical_head_top %}
+  {% analytical_head_bottom %}
   </head>
 
   <body class="body">
@@ -129,5 +131,7 @@
         {% endblock js %}
     </script>
 
+  {% analytical_body_top %}
+  {% analytical_body_bottom %}
   </body>
 </html>

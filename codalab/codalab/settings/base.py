@@ -178,9 +178,9 @@ class Base(Settings):
 
     # Search app
     'haystack',
+    
     # Migration app
     #'south',
-
 
     # CodaLab apps
     'apps.authenz',
@@ -196,15 +196,18 @@ class Base(Settings):
    OPTIONAL_APPS = [ 'django_wsgiserver',]
    INTERNAL_IPS = []
 
+   # Authentication configuration
    LOGIN_REDIRECT_URL = '/my'
-
    ANONYMOUS_USER_ID = -1
-
    ACCOUNT_AUTHENTICATION_METHOD='username_email'
    ACCOUNT_EMAIL_REQUIRED=True
    ACCOUNT_USERNAME_REQUIRED=False
    ACCOUNT_EMAIL_VERIFICATION='none'
 
+   # Django Analytical configuration
+   GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
+
+   # Compress Configuration
    COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc {infile} {outfile}'),
     ('text/typescript', 'tsc {infile} --out {outfile}'),
