@@ -86,16 +86,21 @@ class CompetitionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
+
+        # This assumes the tabs were created in the correct order
+        # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
-        for t in list(set([x.category for x in context['object'].pagecontent.pages.all()])):
-            tc = [x for x in context['object'].pagecontent.pages.filter(category=t)]
-            side_tabs[t] = tc
+        for category in models.ContentCategory.objects.all():
+            tc = [x for x in context['object'].pagecontent.pages.filter(category=category)]
+            side_tabs[category] = tc
         context['tabs'] = side_tabs
+
         try:
             if self.request.user.is_authenticated():
                 context['participation'] = self.request.user.participation.filter(competition=self.object)
         except ObjectDoesNotExist:
             pass
+
         return context
 
 class CompetitionUpdate(UpdateView):

@@ -63,6 +63,7 @@ Page.objects.create(category=details_category, container=pc, label="Organizers",
 
 Page.objects.create(category=participate_category, container=pc, label="Get Data", rank=0,
                     html=open(os.path.join(os.path.dirname(__file__), "brats2012_data.html")).read())
+Page.objects.create(category=participate_category, container=pc, label="Submit Results", rank=1, html="")
 
 # Logo
 brats2012.image = File( open(os.path.join(root_dir, "fixtures", "images", "brats.jpg"), 'rb'))

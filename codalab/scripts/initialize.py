@@ -53,6 +53,14 @@ ccs = [
     'visibility' : content_visibility_items['visible'],
     'is_menu' : True,
     'content_limit' : 1
+  },
+  { 
+    'parent' : None,
+    'name' : "Results",
+    'codename' : "results",
+    'visibility' : content_visibility_items['visible'],
+    'is_menu' : True,
+    'content_limit' : 1
   }
 ]
 
@@ -92,6 +100,13 @@ cis = [
     'required' : True,
     'rank' : 0,
     'label' : "Get Data"
+  },
+  {
+    'category' : content_categories['participate'],
+    'initial_visibility' : content_visibility_items['visible'],
+    'required' : True,
+    'rank' : 1,
+    'label' : "Submit Results"
   }
 ]
 
