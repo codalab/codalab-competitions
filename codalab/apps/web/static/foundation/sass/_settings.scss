@@ -35,6 +35,16 @@ $panel-padding-bottom: 0px;
 	font-weight: normal;
 }
 
+.competitionProcessHeader > ul > li {
+	height: 100%;
+}
+.competitionProcessHeader > ul > li > a {
+	color: $foreground;
+	font-size: 13px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
 .competition-preview {
 	border: 1px dotted $gray;
 	margin-top: 5px;
