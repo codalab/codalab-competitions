@@ -176,6 +176,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   font-weight: light;
 }
 
+/* line 129, ../sass/_settings.scss */
+.header {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+/* line 137, ../sass/_settings.scss */
+.container {
+  padding-top: 45px;
+}
+
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";
