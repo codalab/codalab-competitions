@@ -125,3 +125,15 @@ $panel-padding-bottom: 0px;
 	font-size: x-large;
 	font-weight: light;
 }
+
+.header{
+	position:fixed;
+	left:0;
+	width:100%;
+	top:0;
+	z-index:1000;
+}
+
+.container {
+	padding-top:45px;
+}
