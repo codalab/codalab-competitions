@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% block title %}My CodaLab{% endblock %}
-{% block subheader %}<H4>My CodaLab</H4>{% endblock subheader %}
 {% block content %}
 <div class="row">
     <!-- Main Content Section -->
@@ -8,28 +7,22 @@
     <div class="large-9 push-3 columns">
         <div class="section-container auto" data-section data-section-resized data-options="deep_linking:true">
           <section>
-            <p class="title" data-section-title><a href="#manage">Competitions I'm Running</a></p>
+            <p class="title" id="managed" data-section-title>
+                <a href="#manage">Competitions I'm Running</a>
+            </p>
             <div class="content" data-section-content>
-                <ul>
-                    {% for item in my_competitions %}
-                        {% include "web/competitions/competition_summary.html" with competition=item edit="yes" %}
-                    {% empty %}
-                        <li>There are no competitions in CodaLab.</li>
-                    {% endfor %}
-                </ul>
+                <div class="my_managed">
+                    {% include "web/my/_managed.html" with competitions=my_competitions %}
+                </div>
             </div>
           </section>
           <section>
-            <p class="title" data-section-title><a href="#participate">Competitions I'm Participating In</a></p>
+            <p class="title" id="participating" data-section-title>
+                <a href="#participate">Competitions I'm Participating In</a>
+            </p>
             <div class="content" data-section-content>
-                <div>
-                    {% for item in competitions_im_in %}
-                        <a href="/competitions/{{item.id}}">
-                            {% include "web/competitions/competition_summary.html" with competition=item %}
-                        </a>
-                    {% empty %}
-                        <li>There are no competitions in CodaLab.</li>
-                    {% endfor %}
+                <div class="my_participating">
+                    <!-- This will fill in from Javascript -->
                 </div>
             </div>
           </section>
@@ -38,14 +31,20 @@
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 pull-9 columns">
-        <a href="#" class="button">New Competition</a>
+        <a href="/my/create_competition" class="button">New Competition</a>
     </div>
 </div>
 {% endblock content %}
 
 {% block js %}
 $('document').ready(function() {
+    // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-    $('section-container').css('visibility', 'visible');
+
+    // Ajax load the participating competitions when the section title is clicked
+    $('#participating').click(function() {
+        console.log("Fetching particpating...");
+        $('.my_participating').html('&nbsp;').load('/my/_partials/_competitions_entered');
+    });
 });
 {% endblock js %}

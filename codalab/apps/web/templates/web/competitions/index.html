@@ -5,16 +5,8 @@
 <div class="row">
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns">
-        <ul>
-            {% for item in competitions %}
-            <a href="/competitions/{{item.id}}">
-                {% include "web/competitions/competition_summary.html" with competition=item %}
-            </a>
-            {% empty %}
-            <li>There are no competitions in CodaLab.</li>
-            {% endfor %}
-        </ul>
+    <div class="large-9 push-3 columns competitions">
+        {% include "web/competitions/_indexpage.html" %}
     </div>
     <div class="large-3 pull-9 columns">
     </div>

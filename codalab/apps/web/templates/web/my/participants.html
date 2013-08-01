@@ -4,99 +4,105 @@
 {% block extra_head %}
 <script src="{% static 'site/js/ParticipantsTs.js' %}"></script>
 {% endblock %}
-{% block body %}
-<div class="mainContainer">
-<div class="compBlockTbl">
-    <div class="compProfileContainer" style="display:none">
-            <div class="container">
-                <div class="profileImage">
-                    <!-- Image-------------- -->
-                    <figure class="userImage"></figure>
-                    <div class="userSocialNetworkBlock">
-                        <div class="fBIcon"></div>
-                        <div class="twitIcon"></div>
-                        <div class="linkedIcon"></div>
-                    </div>
-                    <!-- Image-------------- -->
-                </div>
-                <div class="profileContentArea">
-                    <h3>My Username</h3>
-                    <div class="subContainer">
-                        <p class="containerTextS">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.</p>
-                    </div>
-                </div>
-                <div class="ProjectDetailArea">
-                    <div>
-                        <label>projects:</label>
-                        <label>285</label>
-                    </div>
-                    <div>
-                        <label>projects:</label>
-                        <label>285</label>
-                    </div>
-                    <div>
-                        <label>projects:</label>
-                        <label>285</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <div class="compBlockRightContainer">
-        <div class="container myCodalabBlock">
-            <h2>Participants</h2>
-            <input id="competitionID" type="hidden" value="{{ competition_id }}" />
-            <div class="container">
-	      {% if not object_list %}
-                    <p>There are no participants.</p>
-               {% else %}
-                    {% for item in object_list %}
-                    <div class="competitionUserBlock">
-                                <div class="subContainerPadding">
-                                    <div class="articleHeadingContainer">
-                                        <h3>{{ item.user.username }}</h3>
-                                    </div>
-				    {% if item.status.codename == 'pending' %}
-                                             <p>Participation pending approval</p>
-                                    {% elif item.status.codename == 'approved' %}
-                                            <p>Participation approved</p>
-                                    {% elif item.status.codename == 'denied' %}
-                                         <p>Participation rejected</p>
-                                            <p style="color:red;">Reason: {{ item.reason }}</p>
-                                    {% else %}
-                                         <p>Unknown Status</p>
-			            {% endif %}
+{% block content %}
+<div class="row">
+    <!-- Main Content Section -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-12 large-centered columns participants">
 
-                                    {% if item.status.codename == 'pending' %}
-                                            
-                                               <div class="competitionUserBtnBlock">
-                                                   <a id="A{{item.pk}}" class="buttonAccept approve">Approve</a>
-                                                   <a id="R{{item.pk}}" class="buttonReject reject">Reject</a>
-                                               </div>
-                                    {% endif %} 
-                                    <div class="buttonPreloader"></div>
-                                    
+        <div class="mainContainer">
+            <div class="compBlockTbl">
+                <div class="compProfileContainer" style="display:none">
+                    <div class="container">
+                        <div class="profileImage">
+                            <!-- Image-------------- -->
+                            <figure class="userImage"></figure>
+                            <div class="userSocialNetworkBlock">
+                                <div class="fBIcon"></div>
+                                <div class="twitIcon"></div>
+                                <div class="linkedIcon"></div>
+                            </div>
+                            <!-- Image-------------- -->
+                        </div>
+                        <div class="profileContentArea">
+                            <h3>My Username</h3>
+                            <div class="subContainer">
+                                <p class="containerTextS">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.</p>
+                            </div>
+                        </div>
+                        <div class="ProjectDetailArea">
+                            <div>
+                                <label>projects:</label>
+                                <label>285</label>
+                            </div>
+                            <div>
+                                <label>projects:</label>
+                                <label>285</label>
+                            </div>
+                            <div>
+                                <label>projects:</label>
+                                <label>285</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="compBlockRightContainer">
+                    <div class="container myCodalabBlock">
+                        <h2>Participants</h2>
+                        <input id="competitionID" type="hidden" value="{{ competition_id }}" />
+                        <div class="container">
+                           {% if not object_list %}
+                           <p>There are no participants.</p>
+                           {% else %}
+                           {% for item in object_list %}
+                           <div class="competitionUserBlock">
+                            <div class="subContainerPadding">
+                                <div class="articleHeadingContainer">
+                                    <h3>{{ item.user.username }}</h3>
                                 </div>
-                    </div>                
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-     <div class="popupContainer">
-        <div class="popupContainerBorder">
-            <div class="popupBlock">
-                <h1>Main Popup</h1>
-                <div class="containerSpace">
-                    <textarea  id="reason" style="width:540px;height:110px;"></textarea>
+                                {% if item.status.codename == 'pending' %}
+                                <p>Participation pending approval</p>
+                                {% elif item.status.codename == 'approved' %}
+                                <p>Participation approved</p>
+                                {% elif item.status.codename == 'denied' %}
+                                <p>Participation rejected</p>
+                                <p style="color:red;">Reason: {{ item.reason }}</p>
+                                {% else %}
+                                <p>Unknown Status</p>
+                                {% endif %}
+
+                                {% if item.status.codename == 'pending' %}
+
+                                <div class="competitionUserBtnBlock">
+                                   <a id="A{{item.pk}}" class="buttonAccept approve">Approve</a>
+                                   <a id="R{{item.pk}}" class="buttonReject reject">Reject</a>
+                               </div>
+                               {% endif %} 
+                               <div class="buttonPreloader"></div>
+
+                           </div>
+                       </div>                
+                       {% endfor %}
+                       {% endif %}
+                   </div>
+               </div>
+           </div>
+           <div class="popupContainer">
+            <div class="popupContainerBorder">
+                <div class="popupBlock">
+                    <h1>Main Popup</h1>
+                    <div class="containerSpace">
+                        <textarea  id="reason" style="width:540px;height:110px;"></textarea>
+                    </div>
+                </div>
+                <div class="container">
+                    <a class="button2Small rFloat cancel">cancel</a>
+                    <a id="btnOk" class="button3Small rFloat ok">ok</a>
                 </div>
             </div>
-            <div class="container">
-                <a class="button2Small rFloat cancel">cancel</a>
-                <a id="btnOk" class="button3Small rFloat ok">ok</a>
-            </div>
         </div>
-    </div>
-    <div class="grayOverlaper"></div>
-</div></div>
-
+        <div class="grayOverlaper"></div>
+    </div></div>
+</div>
+</div>
 {% endblock %}
