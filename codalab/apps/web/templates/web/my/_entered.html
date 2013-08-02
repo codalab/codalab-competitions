@@ -2,7 +2,7 @@
     <p>You have not participated in any competitions.</p>
 {% else %}
   {% for item in participations %}
-     <div class="competitionTile">
+     <div class="competition-tile">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
             <div class="competitionTileLftStrip"></div>
