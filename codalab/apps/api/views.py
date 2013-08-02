@@ -13,8 +13,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     queryset = webmodels.Competition.objects.all()
 
 
-    @action(permission_classes=[permissions.IsAuthenticated]
-            )
+    @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
@@ -33,8 +32,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             resp = {'status': 'none', 'reason': None}
         return Response(resp,status=200)
 
-    @action(methods=['POST','PUT','GET'], permission_classes=[permissions.IsAuthenticated]
-          )
+    @action(methods=['POST','PUT','GET'], permission_classes=[permissions.IsAuthenticated])
     def userstatus(self,request,pk=None):
         if request.method == 'GET':
             return self._get_userstatus(request,pk)

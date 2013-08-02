@@ -22,7 +22,10 @@
 
   {% block css %}
       <!-- Included CSS Files (Compressed) -->
-      <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
+      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
+      <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
+      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+
       <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
       <!-- IE Fix for HTML5 Tags -->
@@ -90,7 +93,7 @@
         {% block hero_subheader %}
         {% endblock hero_subheader %}
 
-        <div class="large-12 large-centered columns">
+        <div class="large-12 large-centered columns content">
           {% block content %}{% endblock content %}
         </div>
         <div id="layout_footer"></div>
@@ -125,6 +128,8 @@
 
     <!-- Check for Zepto support, load jQuery if necessary -->
     <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.validate.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.dataTables.min.js"></script>
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>

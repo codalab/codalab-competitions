@@ -1,9 +1,12 @@
-$background: #3694D6;
+$background: #3684D6;
 $foreground: white;
 $banner: #EBF2FB;
 $highlight: #3684d6;
 $active: #ffac31;
 $gray: #666;
+$light-gray: #ccc;
+$medium-light-gray: #999;
+$dark-gray: #333;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -29,14 +32,47 @@ $side-nav-link-color-active: $active;
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
 
+$button-font-color: $foreground;
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
 	font-weight: normal;
 }
 
+.user_results, .competition_results {
+	padding-top: 10px;
+}
+.globalBlueButton a, .globalBlueButton a:hover {
+	color: $foreground;
+}
+
+.content > h3 {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.content > p {
+	font-size: 13px;
+}
+
+.section-container.vertical-tabs > section > .content {
+	border: 0px;
+	color: #3b3b3b;
+}
+
+.competitionProcessHeader > ul > li {
+	height: 100%;
+}
+.competitionProcessHeader > ul > li > a {
+	color: $foreground;
+	font-size: 13px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
 .competition-preview {
-	border: 1px dotted $gray;
+	border: 1px solid $light-gray;
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
@@ -81,8 +117,9 @@ $panel-padding-bottom: 0px;
 	margin: 0px;
 }
 .competition-title {
-	color: $background;
+	color: $dark-gray;
 	text-align: left;
+	font-size:15px;
 }
 
 .large-12 > .competition-label {
@@ -93,6 +130,7 @@ $panel-padding-bottom: 0px;
 
 .competition-description, .competition-owner {
 	font-size: small;
+	color:$medium-light-gray;
 }
 
 .slider {
@@ -103,7 +141,7 @@ $panel-padding-bottom: 0px;
 	position: relative;
 	text-align: center;
 	background: #D7CDBF;
-	padding-top: 70px;
+	padding-top: 105px;
 	margin: 0 auto;
 	width: 100%;
 	min-height: 200px;
@@ -124,4 +162,47 @@ $panel-padding-bottom: 0px;
 .topbar-title {
 	font-size: x-large;
 	font-weight: light;
+}
+
+.header{
+	position:fixed;
+	left:0;
+	width:100%;
+	top:0;
+	z-index:1000;
+}
+
+.container {
+	padding-top:45px;
+	padding-bottom:20px;
+}
+
+.competition-paragraph {
+	font-size:12px;
+	color:$gray;
+	line-height:16px;
+}
+
+.competition-info {
+	height:90px;
+	overflow:hidden;
+	padding-top:5px;
+}
+
+.competition-image > img {
+	height:90px;
+	margin-top:5px;
+}
+
+.competition-preview.panel {
+	background:#fafafa;
+}
+
+.competition-tile {
+	margin-bottom:10px;
+}
+
+.competition-tile h3 {
+	font-size:16px;
+	color:$dark-gray;
 }
