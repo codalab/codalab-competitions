@@ -35,18 +35,9 @@ class ParticipantStatusAdmin(admin.ModelAdmin):
 admin.site.register(models.ParticipantStatus, ParticipantStatusAdmin)
 
 
-# class ContentContainerTypeAdmin(admin.ModelAdmin):
-#     pass
-# admin.site.register(models.ContentContainerType, ContentContainerTypeAdmin)
-
-# class ContentContainerAdmin(admin.ModelAdmin):
-#     pass
-# admin.site.register(models.ContentContainer, ContentContainerAdmin)
-
-
-# class ContentEntityAdmin(MPTTModelAdmin):
-#     pass
-# admin.site.register(models.ContentEntity, ContentEntityAdmin)
+class SubmissionStatusAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(models.CompetitionSubmissionStatus, SubmissionStatusAdmin)
 
 class ExternalFileAdmin(admin.ModelAdmin):
     pass

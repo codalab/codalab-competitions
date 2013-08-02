@@ -154,5 +154,45 @@
     "name": "Pending", 
     "description": "Participation is pending approval."
   }
+},
+{
+  "pk": 1, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "submitted", 
+    "name": "Submitted"
+  }
+},
+{
+  "pk": 2, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "processing", 
+    "name": "Processing"
+  }
+},
+{
+  "pk": 3, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "processing_failed", 
+    "name": "Processing Failed"
+  }
+},
+{
+  "pk": 4, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "accepted", 
+    "name": "Accepted"
+  }
+},
+{
+  "pk": 5, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "rejected", 
+    "name": "Rejected"
+  }
 }
 ]

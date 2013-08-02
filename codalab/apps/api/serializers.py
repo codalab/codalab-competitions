@@ -46,11 +46,18 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
+class SubmissionResultSerial(serializers.ModelSerializer):
+
+    class Meta:
+        model = webmodels.SubmissionResult
+        read_only_field = ('scores',)
+
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
+    result = SubmissionResultSerial(read_only=True)
     
     class Meta:
         model = webmodels.CompetitionSubmission
-        read_only_fields = ('status','status_details')
+        read_only_fields = ('status','status_details','submitted_at')
 
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
@@ -67,6 +74,12 @@ class CompetitionPhaseSerial(serializers.ModelSerializer):
         model = webmodels.Competition
         fields = ['end_date','phases']
 
+class LeaderBoardSerial(serializers.ModelSerializer):
+    entries =  CompetitionSubmissionSerial(read_only=True, source='submissions')
+
+    class Meta:
+        model = webmodels.PhaseLeaderBoard
+        
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True)
