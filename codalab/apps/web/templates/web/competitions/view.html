@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block title %}Competition - [{{ competition.title }}]{% endblock %}
-{% block extra_head %}
-<script src="{% static "site/js/FileUpload.js" %}"></script>
-<script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
-<script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
-{% endblock %}
+}
 {% block content %}
 <div class="row">
     <div class="large-12 large-centered columns">
@@ -106,5 +102,16 @@
         // This helps make sections appear with Foundation
         $(this).foundation('section', 'reflow');
         $("#participate_form").validate();
+        $("#user_results").dataTable({
+            'bPaginate' : false,
+            'bInfo'     : false,
+            'bFilter'   : false,
+            'bAutoWidth': false
+        });
+        $("#competition_results").dataTable({
+            'bPaginate' : false,
+            'bInfo'     : false,
+            'bFilter'   : false
+        });
     });
 {% endblock js %}

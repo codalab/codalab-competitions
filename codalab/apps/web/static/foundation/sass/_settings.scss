@@ -40,6 +40,9 @@ $button-font-color: $foreground;
 	font-weight: normal;
 }
 
+.user_results, .competition_results {
+	padding-top: 10px;
+}
 .globalBlueButton a, .globalBlueButton a:hover {
 	color: $foreground;
 }
