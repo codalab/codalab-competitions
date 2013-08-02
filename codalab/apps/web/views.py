@@ -83,8 +83,12 @@ class CompetitionDetailView(DetailView):
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
         for category in models.ContentCategory.objects.all():
-            tc = [x for x in context['object'].pagecontent.pages.filter(category=category)]
-            side_tabs[category] = tc
+            pagecontent = context['object'].pagecontent
+            if pagecontent is not None:
+                tc = [x for x in pagecontent.pages.filter(category=category)]
+            else:
+                tc = []
+            side_tabs[category] = tc 
         context['tabs'] = side_tabs
 
         try:
