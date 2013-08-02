@@ -2,214 +2,96 @@
 {% load staticfiles %}
 {% block title %}Competition - [{{ competition.title }}]{% endblock %}
 {% block extra_head %}
-    <script src="{% static "site/js/FileUpload.js" %}"></script>
-    <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
+<script src="{% static "site/js/FileUpload.js" %}"></script>
+<script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
 {% endblock %}
 {% block content %}
-<div class="mainContainer">
-    <div class="CompetitionsDetailContainer">
-        <section class="competitionsDetailHeader">
-            <figure class="competitionsProfileImage">
-              {% if competition.image_url %}
-                <img id="imgProfileImage" src="{{ competition.image_url }}" width="133" height="94">
-              {% else %}
-                <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
-              {% endif %}
-          </figure>
-          <div class="competitionsHeaderTitle">
-            <div class="container">
-                <h2>{{ competition.title }}</h2>
-                <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>                    
-                <input id="submissionId" name="submissionId"  type="hidden" />
-                <input id="activePhase" name="activePhase"  type="hidden" />
-                <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
-                <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
-            </div>
-            <div class="StatusStripContainer">
-                <div class="challStatusStripTxt">
-                    <div class="dataStatusHolder">
-                        <span></span>
-                    </div>
-                </div>
-                <div class="challStatusStrip">
-                    <div class="challStatusStripLevel">
-                    </div>
-                    <section class="challStatusStripSection">
-                    {% for phase in competition.phases.all %}
-                        <section>
-                            <label>
-                                <span>{{phase.label}}</span> 
-                                <br>
-                                <span>{{phase.start_date}}</span>
-                            </label>
-                        </section>
-                    {% endfor %}
-                    <section>
-                        <label>
-                            <span>Competition Ends</span> 
-                            <br>
-                            <span>{{competition.end_date|default:"Never"}}</span>
-                        </label>
-                    </section>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </section>
-    <div class="section-container auto" data-section data-section-resized data-options="deep_linking:true">
-        {% for tab, contents in tabs.items %}
-        <section>
-            <p class="title" id="{{tab.name}}" data-section-title>
-                <a href="#{{tab.codname}}">{{tab.name}}</a>
-            </p>
-            <div class="content" data-slug="{{tab.codename}}" data-section-content>
-                <div class="section-container vertical-tabs" data-section="vertical-tabs" data-section-resized data-options="deep_linking:true">
-                    {% for subsection in contents %}
-                    <section>
-                        <p class="title" data-section-title><a href="#{{tab.codename}}-{{subsection.id}}">{{subsection.label}}</a></p>
-                        <div class="content" data-slug="{{tab.codename}}-{{subsection.id}}" data-section-content>
-                            {{subsection.html|safe}}
+<div class="row">
+    <div class="large-12 large-centered columns">
+        <div class="CompetitionsDetailContainer">
+            <section class="competitionsDetailHeader">
+                <figure class="competitionsProfileImage">
+                    {% if competition.image_url %}
+                    <img id="imgProfileImage" src="{{ competition.image_url }}" width="133px">
+                    {% else %}
+                    <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133px" height="94">
+                    {% endif %}
+                </figure>
+                <div class="competitionsHeaderTitle">
+                        <h2>{{ competition.title }}</h2>
+                        <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>                    
+                        <input id="submissionId" name="submissionId"  type="hidden" />
+                        <input id="activePhase" name="activePhase"  type="hidden" />
+                        <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
+                        <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
+                    <div class="StatusStripContainer">
+                        <div class="challStatusStripTxt">
+                            <div class="dataStatusHolder">
+                                <span></span>
+                            </div>
                         </div>
-                    </section>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-        {% endfor %}
-<!--             <section>
-                <p class="title" id="participate" data-section-title>
-                    <a href="#participate">Participate</a>
-                </p>
-                <div class="content" data-section-content>
-                    <div class="participate">
+                        <div class="challStatusStrip">
+                            <div class="challStatusStripLevel">
+                            </div>
+                            <section class="challStatusStripSection">
+                                {% for phase in competition.phases.all %}
+                                <section>
+                                    <label>
+                                        <span>{{phase.label}}</span> 
+                                        <br>
+                                        <span>{{phase.start_date}}</span>
+                                    </label>
+                                </section>
+                                {% endfor %}
+                                <section>
+                                    <label>
+                                        <span>Competition Ends</span> 
+                                        <br>
+                                        <span>{{competition.end_date|default:"Never"}}</span>
+                                    </label>
+                                </section>
+                            </section>
+                        </div>
                     </div>
                 </div>
             </section>
-            <section>
-                <p class="title" id="results" data-section-title>
-                    <a href="#participate">Results</a>
-                </p>
-                <div class="content" data-section-content>
-                    <div class="results">
-                    </div>
-                </div>
-            </section> -->
-    </div>
-<!--     <section class="competitionsDetailTabArea">
-        <ul class="competitionsDetailTabTop">
-            <li class="tab1 active">Learn the details</li>
-            <li class="tab2" id="tabA">Participate</li>
-            <li class="tab3">See the results</li>
-        </ul>
-        <ul class="competitionsDetailTabBlock">
-            <li class="tab1">
-                <div class="competitionsDetailTab">
-                    <div class="CompetitionsDetailLft">
-                        <nav>
-                            <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftLtd">
-                               <li title="TestTitle" tabindex="TestIndex" id="tab1"><a>example</a></li>
-                           </ul>
-                       </nav>
-                   </div>
-                   <div class="CompetitionsDetailRit">
-                    <div id="subContainerBlock">
-                        Content?
-                    </div>
-                    <div>
-                </div>
-            </div>
-        </li>
-        <li class="tab2">
-            <section class="phaseToggleBtnContainer" id="phaseToggleBtnContainerSubmitPage">
-            </section>
-            <div class="">
-                <div class="participateInfoBlock" id="participateInfoBlock">
-                    <div class="infoStatusBar"></div>
-                    <div class="labelArea">
-                        <label id="registerCompetitionLabel" class="regApprovLabel">
-                            {% if not user.is_authenticated %}
-                            You must be logged in before you can register
-                            {% elif not participation %}
-                            You have not yet registered for this competition
-                            {% elif participation.status.codename == 'pending' %}
-                            Your registration is pending approval
-                            {% elif participation.status.codename == 'rejected' %}
-                            Your registration has been rejected.
+            <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true">
+                {% for tab, contents in tabs.items %}
+                <section>
+                    <p class="title" id="{{tab.name}}" data-section-title>
+                        <a href="#{{tab.codname}}">{{tab.name}}</a>
+                    </p>
+                    <div class="content" data-slug="{{tab.codename}}" data-section-content>
+                        {% if tab.codename == "participate" and not user.is_authenticated %}
+                            <strong>You must be logged in to participate in competitions.</strong>
+                            <br/>
+                            <div class="globalBlueButtonAtag">
+                                <a href="{% url 'account_login' %}">Sign in</a>
+                            </div>
+                        {% else %}
+                            {% if tab.codename == "participate" and not participant %}
+                                <strong>You have not yet registered for this competition.</strong>
+                                <br/>
+                                <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
+                                <br/>
+                                I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
+                                <div class="globalBlueButtonAtag">
+                                    <a href="/api/competition/{{competition.id}}/participate/">Register</a>
+                                </div>         
                             {% endif %}
-                        </label>
-                        <label id="rejectionReasonLabel" class="regApprovLabel noBold" ></label>
-                        <input id="CompetitionId" type="hidden" value="{{ competition.pk }}" />
-                        {% if user.is_authenticated %}
-
-
-                        <script type="text/javascript">
-                        $(document).ready(function () {
-                            var CompetitionDetails = new Competition.CompetitionDetails();
-                            CompetitionDetails.checkRegisterStatus();
-                            $("#termsAndConditions").click(function () { CompetitionDetails.redirectToCompetitionRules(); });
-                        });
-                        </script>
-
-                        <div class="container" id="registerOptionContainer">
-                            <div class="containerSpace">
-                                <p>To participate in this competition, you must accept its specific terms and conditions.
-                                 After you register, the competition organizer will review your application and notify you
-                                 when your participation is approved.
-                             </p>
-                         </div>
-                         <div class="chkRegisterContainer">
-                            <input id="chkRegister" type="checkbox" />
-                            <span>I accept the  <a id="termsAndConditions"> terms and conditions </a> of the competition</span>
-                        </div>
-
-                        <div class="containerSpace">
-                            <div class="globalBlueButtonAtag lFloat">
-                             <a class="registerCompetition" id="registerCompetition">register</a>
-                             <div class="buttonPreloader"></div>
-                         </div>
-                     </div>
-                 </div>
-                 {% else %}
-                 <div class="globalBlueButtonAtag"><a href="{% url 'account_login' %}">Login</a>  <a href="{% url 'account_signup' %}">Register</a></div>
-                 {% endif %}
-             </div>
-
-         </div>
-         <div class="competitionsDetailTab" id="tabParticipantContainer" style="display: none;">
-
-            <div class="CompetitionsDetailLft">
-                <nav>
-                    <ul class="CompetitionsDetailLftUl" id="CompetitionsDetailLftParticipate">
-                    </ul>
-                </nav>
-                {# @Html.ActionLink("Help: Create a Competition", "../Help/CreateCompetition") #}
-            </div>
-            <div class="CompetitionsDetailRit">
-                <div id="subContainerBlockForParticipate"></div>
-                <div class="preloader" style="display: none;"></div>
+                        {% endif %}
+                        {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
+                    </div>
+                </section>
+                {% endfor %}
             </div>
         </div>
     </div>
-</li>
-<li class="tab3">
-    <section class="phaseToggleBtnContainer" id="phaseToggleBtnContainerResultpage">
-    </section>
-    <div class="">
-        <div class="seeTheResults">
-            <table class="prevResultSubmission" id="seeTheResults">  
-
-            </table>
-        </div>
-
-    </div>
-</li>
-</ul>
-</section> -->
-</div></div>
+</div>
 {% endblock %}
 {% block js %}
 $('document').ready(function() {
-    // This helps make sections appear with Foundation
-    $(this).foundation('section', 'reflow');
+// This helps make sections appear with Foundation
+$(this).foundation('section', 'reflow');
 });
 {% endblock js %}

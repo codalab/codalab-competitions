@@ -3,6 +3,11 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 	margin:0;
 	padding:0;
 }
+
+#lblLastModifiedDate {
+    padding: 0px;
+    margin: 0px;
+}
 *{
     font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:100%;
@@ -936,7 +941,7 @@ input[type="submit"][value="Delete"]
 .mainContainer {
     width:1024px;
     margin:auto;
-    padding:16px 0;
+    padding:30px 0;
 }
 .mainContainer h2
 {
@@ -1479,6 +1484,7 @@ div.articleImageContainer
     overflow:hidden;
 }
 .CompetitionsDetailContainer h2 {
+    margin-top: 10px;
     padding:0;
     font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 }
@@ -1493,11 +1499,13 @@ div.articleImageContainer
     display:block;
     font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 }
+
 .CompetitionsDetailContainer p {
-    font:normal 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 16px/19px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
     color:#777;
-    padding-bottom:20px;
+    font-weight: 400
 }
+
 .CompetitionsDetailLft {
     display:table-cell;
     vertical-align:top;
@@ -1625,7 +1633,7 @@ ul.myCodalabTabContent li.tab1 {
 .competitionsHeaderTitle {
     display:table-cell;
     vertical-align:top;
-    padding-left:25px;
+    padding-left:5px;
 }
 .competitionsHeaderTitle label {
     display:block;
@@ -1633,7 +1641,7 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
-    margin-top:15px;
+    margin-top:5px;
 }
 .competitionsDetailTab {
     display:table;

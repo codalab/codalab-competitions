@@ -1,0 +1,10 @@
+<div class="section-container vertical-tabs" data-section="vertical-tabs" data-section-resized data-options="deep_linking:true">
+    {% for subsection in contents %}
+    <section>
+        <p class="title CompetitionsDetailLftUl" data-section-title><a href="#{{tab.codename}}-{{subsection.id}}">{{subsection.label}}</a></p>
+        <div class="content" data-slug="{{tab.codename}}-{{subsection.id}}" data-section-content>
+            {{subsection.html|safe}}
+        </div>
+    </section>
+    {% endfor %}
+</div>

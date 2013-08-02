@@ -1,4 +1,4 @@
-$background: #3694D6;
+$background: #3684D6;
 $foreground: white;
 $banner: #EBF2FB;
 $highlight: #3684d6;
@@ -31,6 +31,8 @@ $side-nav-link-color-active: $active;
 
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
+
+$button-font-color: $foreground;
 
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
@@ -118,7 +120,7 @@ $panel-padding-bottom: 0px;
 	position: relative;
 	text-align: center;
 	background: #D7CDBF;
-	padding-top: 70px;
+	padding-top: 105px;
 	margin: 0 auto;
 	width: 100%;
 	min-height: 200px;
