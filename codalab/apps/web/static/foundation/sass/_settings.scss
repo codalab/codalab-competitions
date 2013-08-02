@@ -40,6 +40,21 @@ $button-font-color: $foreground;
 	font-weight: normal;
 }
 
+.menu-icon {
+	background: $background;
+}
+
+.menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
+	border-bottom-style: none;
+	border: 0px;
+	padding: 2px;
+}
+
+a > i {
+	height: 100%;
+	color: $foreground;
+}
+
 .user_results, .competition_results {
 	padding-top: 10px;
 }

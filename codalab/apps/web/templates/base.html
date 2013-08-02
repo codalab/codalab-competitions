@@ -71,6 +71,11 @@
                   </form>
                 </li> -->
                 {% if user.is_authenticated %}
+                  <li class="menu-icon">
+                    <span data-tooltip class="has-tip" title="{{user.username}}">
+                      <a href="#profile"><i class="social-foundicon-torso"></i></a>
+                    </span>
+                  </li>
                   <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>  
                 {% else %}
                   <li class="menu-icon"><a href="{% url 'account_signup' %}">Sign Up</a></li>                

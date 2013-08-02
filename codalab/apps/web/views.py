@@ -92,8 +92,10 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
 
         try:
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
                 context['participant'] = self.request.user in [x.user for x in context['object'].participants.all()]
+                context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
+
         except ObjectDoesNotExist:
             pass
 

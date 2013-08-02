@@ -67,8 +67,8 @@
                                     <a href="{% url 'account_login' %}">Sign in</a>
                                 </div>
                             {% else %}
-                                {% if not participant %}
-                                    <form id="participate_form" action="/api/competition/{{competition.id}}/participate/" method="POST">
+                                {% if my_status == "unknown" %}
+                                    <form id="participate_form">
                                         {% csrf_token %}
                                         <p><strong>You have not yet registered for this competition.</strong></p>
 
@@ -83,12 +83,19 @@
                                         </label>
                                         <input type="submit" class="globalBlueButton" value="Register" />
                                     </form>
-                                {% else %} 
+                                {% endif %}
+                                {% if my_status == "pending" %}
+                                    <p>You've already requested to participate in this challenge and your status is pending.</p>
+                                {% endif %}
+                                {% if my_status == "denied" %}
+                                    <p>Your request to register for this competition was denied.</p>
+                                {% endif %}
+                                {% if my_status == "approved" %} 
                                     {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
                                 {% endif %}
                             {% endif %}
                         {% else %}
-                            {% if tab.codename == "results" and user.is_authenticated and participant %}
+                            {% if tab.codename == "results" and user.is_authenticated and my_status == "approved" %}
                                 {% include "web/competitions/_results.html" with tab=tab contents=contents %}
                             {% endif %}
                             {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
@@ -113,6 +120,33 @@
                             }
         });
 
+        /* attach a submit handler to the form */
+        $("#participate_form").submit(function(event) {
+
+          /* stop form from submitting normally */
+          event.preventDefault();
+
+          /*clear result div*/
+           $("#result").html('');
+
+          /* get some values from elements on the page: */
+           var values = $(this).serialize();
+
+          /* Send the data using post and put the results in a div */
+            $.ajax({
+              url: "/api/competition/{{competition.id}}/participate/",
+              type: "post",
+              data: values,
+              success: function(){
+                  alert("success");
+                   $("#result").html('submitted successfully');
+              },
+              error:function(){
+                  alert("failure");
+                  $("#result").html('there is error while submit');
+              }   
+            }); 
+        });
         // In partials loaded, initialize the data tables
         $("#user_results").dataTable({
             'bPaginate' : false,
