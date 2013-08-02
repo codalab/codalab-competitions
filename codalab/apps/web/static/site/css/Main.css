@@ -505,7 +505,7 @@ ul.headerNavigation li.active a {
 /*Button----------------------------------------*/
 input[type="submit"],input[type="submit"][value="Delete"]
 {
-    margin-top:10px;
+    /*margin-top:10px;*/
     cursor:pointer;
     text-decoration:none;
 }
@@ -1491,7 +1491,7 @@ div.articleImageContainer
 .CompetitionsDetailContainer label {
     font:normal 13px arial;
     color:#adadad;
-    padding-bottom:40px;
+    /*padding-bottom:40px;*/
     padding-top:10px;
 }
 .container.tabArea > label {
