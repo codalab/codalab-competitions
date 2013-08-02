@@ -119,7 +119,7 @@ for dci in cis:
 pss = [
   ("Unknown", "unknown", "Status is unknown."),
   ("Denied", "denied", "Paricipation was denied."),
-  ("Approved", "pending", "Paricipation was approved."),
+  ("Approved", "approved", "Paricipation was approved."),
   ("Pending", "pending", "Paricipation is pending approval.")
 ]
 
