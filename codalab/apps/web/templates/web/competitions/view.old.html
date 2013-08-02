@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Competitions{% endblock %}
+{% block content %}
+
+<div class="row">
+    <!-- Main Content Section -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-12 large-centered columns">
+        <div class="row">
+            <div class="large-2 columns">
+                <img src="{{ MEDIA_URL }}{{ competition.image }}"/>
+            </div>
+            <div class="large-10 columns">
+                <div class="row">
+                    {{competition.title}}
+                </div>
+                <div class="row">
+                    by {{competition.creator}} - Last modified: {{competition.last_modified}}
+                </div>
+                <div class="row">
+                    <div class="large-4 columns">
+                        <div class="row">
+                            {{phase1.label}}
+                        </div>
+                        <div class="row">
+                            {{phase1.start_date}}
+                        </div>
+                    </div>
+                    <div class="large-4 columns">
+                        <div class="row">
+                            {{phase2.label}}
+                        </div>
+                        <div class="row">
+                            {{phase2.start_date}}
+                        </div>
+                    </div>
+                    <div class="large-4 columns">
+                        <div class="row">
+                            Competition
+                        </div>
+                        <div class="row">
+                            {{competition.end_date|default:"has no end"}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-container auto" data-section data-section-resized data-options="deep_linking:true">
+            {% for section in competition.page_sections.all %}
+            <section>
+                <p class="title" data-section-title><a href="#{{section.slug}}">{{section.title}}</a></p>
+                <div class="content" data-slug="{{section.slug}}" data-section-content>
+                    <div class="section-container vertical-tabs" data-section="vertical-tabs" data-section-resized data-options="deep_linking:true">
+                        {% for subsection in section.sections.all %}
+                        <section>
+                            <p class="title" data-section-title><a href="#{{section.slug}}-{{subsection.slug}}">{{subsection.title}}</a></p>
+                            <div class="content" data-slug="{{section.slug}}-{{subsection.slug}}" data-section-content>
+                                <p>{{subsection.content}}</p>
+                            </div>
+                        </section>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
+    
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+    $('document').ready(function() {
+        $(this).foundation('section', 'reflow');
+        $('section-container').css('visibility', 'visible');
+});
+{% endblock js %}

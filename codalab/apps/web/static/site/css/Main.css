@@ -611,7 +611,6 @@ input[type="submit"][value="Delete"]
 
 }
 .globalYellowButtonSmall,.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
-    height:20px;
     line-height:18px;
     float:none !important;
     font-size:12px;
@@ -1136,8 +1135,10 @@ figure.userImage {
 }
 .articleHeadingContainer h3
 {
+    font-size: x-large;
     display:inline-block;
     color:#3684d6;
+    padding-bottom: 5px;
 }
 /*SubPage----------------------------------------*/
 .compBlockRightContainer {
@@ -1273,7 +1274,7 @@ div.articleImageContainer
 }
 .competitionProcessHeader {
     position:absolute;
-    top:86px;
+    /*top:86px;*/
     left:0;
     right:0;
     padding:6px;
@@ -1446,13 +1447,14 @@ div.articleImageContainer
 /*CompetitionProcess-----------------------------*/
 /*SaveContainer------------------------------------*/
 .saveContainer {
-    padding:10px 0 20px;
-    height:30px;
-    position:fixed;
-    bottom:0;
-    background:#2A2A2C;
-    right:0;
-    left:0;
+    /*padding: 10px 0 20px;*/
+    height: 30px;
+    width: 100%;
+    /*position:fixed;*/
+    padding-bottom: 25px;
+    bottom:0px;
+    /*background:#2A2A2C;*/
+;
 }
 .saveBtnHolder {
     margin:auto;

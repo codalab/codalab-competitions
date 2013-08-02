@@ -1,0 +1,33 @@
+{% load static %}
+<form method="POST" id="comp_info_form">{% csrf_token %}
+    <div class="CompetitionTypeDetailrowDate detailsUpload">
+        <div class="CompetitionTypeDetailTBL">
+            <div class="CompetitionTypeDetailrow">
+             <input type="hidden"  name="competition" value="{{ competition.pk }}"/>
+             <div class="thumbnailContainer">
+                <figure class="competitionsProfileImage">
+                    {% if competition.image %}
+                        <img id="imgProfileImage" src="{{ competition.image.url }}" width="133" height="94">
+                    {% else %}
+                        <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133" height="94">
+                    {% endif %}
+                </figure>
+                <div>
+                    <input id="UploadReason" value ="1" type="hidden" />
+                    <label class="uploadLabel">Change thumbnail</label>
+                    <input class="uploadImage" type="file" id="uploadLogo" name="uploadLogo">
+                    <span id="imageProcess" class="preloaderInputImg"></span>
+                </div>
+            </div>
+            <div>
+                <input id="Title" class="text-box single-line" type="text" value="{{ competition.title }}" name="Title"/>
+                <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
+                <div>
+                    <textarea id="Description" rows="2" name="Description" cols="20">{{ competition.description|default:"" }}</textarea>
+                    <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Description"></span>
+                </div>
+
+            </div>
+        </div><a class="helpLinkIcon" href="{% url 'help_create_competition' %}#overview"  title="Get help with creating a competition" target="_blank"></a> 
+    </div>
+</form>
