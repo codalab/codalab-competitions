@@ -1,5 +1,7 @@
 import os
 from django.db import models
+from django.dispatch import receiver
+import django.dispatch
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -136,7 +138,7 @@ class Competition(models.Model):
     image = models.FileField(upload_to='logos',null=True,blank=True)
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False)
-    end_date = models.DateField(null=True,blank=True)
+    end_date = models.DateTimeField(null=True,blank=True)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
@@ -217,7 +219,8 @@ class CompetitionPhase(models.Model):
     @property
     def is_active(self):
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        return self.start_date <= now().date() and (next_phase and next_phase[0].start_date > now().date())
+        return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+
 
 # Competition Participant
 class CompetitionParticipant(models.Model):
@@ -240,26 +243,82 @@ class CompetitionSubmissionStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+# Signal for submission processing
+# TODO: move to separate signals module
+do_submission = django.dispatch.Signal(providing_args=["instance"])
+
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.ForeignKey(ExternalFile)
+    file = models.FileField(upload_to='submissions')
     submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(CompetitionSubmissionStatus)
-    status_details = models.CharField(max_length=100)   
+    status_details = models.CharField(max_length=100,null=True,blank=True)   
+    
+    _do_submission = False
+
+    def __unicode__(self):
+        return "%d %s %s %s" % (self.pk, self.phase.competition.title,self.phase.label,self.participant.user.email)
 
     def save(self,*args,**kwargs):
+        # only at save on object creation should it be submitted
+        if not self.pk:
+            self._do_submission = True
+            self.set_status('submitted',force_save=False)
+        else:
+            self._do_submission = False
         if self.participant.competition != self.phase.competition:
             raise IntegrityError("Competition for phase and participant must be the same")
-        if self.participant.user != self.file.creator:
-            raise IntegrityError("Participant can only submit their own files")
-        return super(CompetitionSubmission,self).save(*args,**kwargs)
+        res = super(CompetitionSubmission,self).save(*args,**kwargs)
+        if self._do_submission:
+            do_submission.send(sender=CompetitionSubmission, instance=self)
+        return res
+
+    def set_status(self,status,force_save=False):
+        self.status = CompetitionSubmissionStatus.objects.get(codename=status)
+        if force_save:
+            self.save()
+
+# Dummy processor for submissions for initial testing
+# Does not care about the file submitted
+# TODO: Do some real processing
+@receiver(do_submission,sender=CompetitionSubmission)
+def fake_process_submission(sender,instance=None,**kwargs):
+    import random
+    sr = SubmissionResult.objects.create(submission=instance,
+                                         aggregate=(100*random.random()))
+    instance.set_status('accepted',force_save=True)
 
 # Competition Submission Results
-class CompetitionSubmissionResults(models.Model):
-    submission = models.ForeignKey(CompetitionSubmission)
-    payload = models.TextField()
+class SubmissionResult(models.Model):
+    submission = models.OneToOneField(CompetitionSubmission,related_name='result')
+    aggregate = models.DecimalField(max_digits=22,decimal_places=10)
+
+class SubmissionScore(models.Model):
+    result = models.ForeignKey(SubmissionResult,related_name='scores')
+    label = models.CharField(max_length=100)
+    value = models.DecimalField(max_digits=20,decimal_places=10)
+
+    class Meta:
+        ordering = ['label']
+
+class PhaseLeaderBoard(models.Model):
+    phase = models.OneToOneField(CompetitionPhase,related_name='board')
+    is_open = models.BooleanField(default=True)
+    
+    def submissions(self):
+        return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
+    
+    def __unicode__(self):
+        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')   
+       
+class PhaseLeaderBoardEntry(models.Model):
+    board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')
+    submission = models.ForeignKey(CompetitionSubmission,related_name='leaderboard_entry')
+            
+    class Meta:
+        unique_together = (('board','submission'),)
 
 # Bundle Model
 class Bundle(models.Model):

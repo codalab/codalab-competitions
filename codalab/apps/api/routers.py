@@ -5,7 +5,8 @@ router = routers.DefaultRouter()
 
 router.register(r'competition/participant', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
-router.register(r'competition/submission', views.CompetitionSubmissionViewSet)
+router.register(r'competition/(?P<competition_id>\d+)/submission', views.CompetitionSubmissionViewSet)
+router.register(r'competition/(?P<competition_id>\d+)/leaderboards', views.LeaderBoardViewSet)
 router.register(r'defaultcontent', views.DefaultContentViewSet)
 
 urlpatterns = router.urls
@@ -13,6 +14,7 @@ urlpatterns = router.urls
 urlpatterns += (
 
     url(r'^competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),
+    url(r'^competition/(?P<competition_id>\d+)/phases/(?P<phase_id>\d+)/leaderboard$',views.leaderboard_retrieve, name='api_phase_leaderboard'),
     url(r'^competition/(?P<pk>\d+)/phases/$',views.competitionphase_list,name='api_competitionphases_list'),
 
     url(r'^competitionphases/(?P<competition_id>\d+)/$',views.CompetitionPhaseEditView.as_view(), name='api_competitionphases'),

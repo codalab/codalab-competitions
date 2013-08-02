@@ -99,7 +99,7 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
     queryset = webmodels.Competition.objects.all()
     
-    def get_query_set(self):
+    def get_queryset(self):
         competition_id = self.kwargs.get('pk',None)
         phasenumber = self.kwargs.get('phasenumber',None)
         kw = {}
@@ -169,12 +169,15 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             container = self.new_pagecontainer(self.kwargs.get('competition_id'))           
         return  super(CompetitionPageViewSet,self).create(request,*args,**kwargs)
 
-competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create','put':'update','patch':'partial_update'})
-competition_page = CompetitionPageViewSet.as_view({'get':'retrieve'})
+competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create'})
+competition_page = CompetitionPageViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'})
 
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSubmissionSerial
     queryset = webmodels.CompetitionSubmission.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
         if not obj.status:
@@ -182,6 +185,38 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not obj.participant:
             obj.participant = self.request.user
         
+
+    @action( permission_classes=[permissions.IsAuthenticated]
+            )
+    def leaderboard(self, request, pk=None,competition_id=None):
+        submission = self.get_object()
+        if True or submission.phase.is_active:
+            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
+                                                                    defaults={'is_open': True})
+            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
+                                                                           submission=submission)
+            return Response(status=(201 if cr else 200))
+        else:
+            return Response(status=400)
+
+class LeaderBoardViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.LeaderBoardSerial
+    queryset = webmodels.PhaseLeaderBoard.objects.all()
+
+    def get_queryset(self):
+        kw = {}
+        competition_id = self.kwargs.get('competition_id',None)
+        phase_id = self.kwargs.get('phase_id',None)
+        if phase_id:
+            kw['phase__pk'] = phase_id
+        if competition_id:
+            kw['phase__competition__pk'] = competition_id
+        return self.queryset.filter(**kw)
+
+leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
+leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'}   )
+
+
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
