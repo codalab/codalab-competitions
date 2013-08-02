@@ -40,6 +40,24 @@ $button-font-color: $foreground;
 	font-weight: normal;
 }
 
+.globalBlueButton a, .globalBlueButton a:hover {
+	color: $foreground;
+}
+
+.content > h3 {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.content > p {
+	font-size: 13px;
+}
+
+.section-container.vertical-tabs > section > .content {
+	border: 0px;
+	color: #3b3b3b;
+}
+
 .competitionProcessHeader > ul > li {
 	height: 100%;
 }

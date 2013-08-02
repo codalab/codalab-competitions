@@ -86,9 +86,10 @@ class CompetitionDetailView(DetailView):
             tc = [x for x in context['object'].pagecontent.pages.filter(category=category)]
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+
         try:
             if self.request.user.is_authenticated():
-                context['participant'] = self.request.user in context['object'].participants.all()
+                context['participant'] = self.request.user in [x.user for x in context['object'].participants.all()]
         except ObjectDoesNotExist:
             pass
 
