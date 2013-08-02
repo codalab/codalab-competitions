@@ -16,30 +16,35 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
+        status = webmodels.ParticipantStatus.objects.get(codename='pending')
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
-                                                                   defaults={'status': webmodels.ParticipantStatus.objects.get(codename='pending'),
+                                                                   defaults={'status': status,
                                                                              'reason': None})
         return Response(status=(201 if cr else 200))
     
     def _get_userstatus(self,request,pk=None,participant_id=None):
         comp = self.get_object()
         resp = {}
+        status = 200
         try:
             p = webmodels.CompetitionParticipant.objects.get(user=self.request.user,competition=comp)
             resp = {'status': p.status.codename, 'reason': p.reason}
         except ObjectDoesNotExist:
-            resp = {'status': 'none', 'reason': None}
-        return Response(resp,status=200)
+            resp = {'status': None, 'reason': None}
+            status = 400
+        return Response(resp,status=status)
 
-    @action(methods=['POST','PUT','GET'], permission_classes=[permissions.IsAuthenticated])
-    def userstatus(self,request,pk=None):
-        if request.method == 'GET':
-            return self._get_userstatus(request,pk)
+    @link(permission_classes=[permissions.IsAuthenticated])
+    def mystatus(self,request,pk=None):
+        return self._get_userstatus(request,pk)
+
+    @action(methods=['POST','PUT'], permission_classes=[permissions.IsAuthenticated])
+    def participation_status(self,request,pk=None):
         comp = self.get_object()
         resp = {}
-        status = request.DATA['operation']
-        part = request.DATA['participantId']
+        status = request.DATA['status']
+        part = request.DATA['participant_id']
         reason = request.DATA['reason']
         try:
             p = webmodels.CompetitionParticipant.objects.get(competition=comp,
@@ -47,12 +52,12 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             p.status = webmodels.ParticipantStatus.objects.get(codename=status)
             p.reason = reason
             p.save()
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist as e:            
             return Response(status=400)
         resp = { 'status': status,
                  'participantId': part,
                  'reason': reason }
-        return Response(resp,status=201)
+        return Response(resp,status=200)
             
            
     @action(permission_classes=[permissions.IsAuthenticated]
@@ -91,7 +96,10 @@ class CompetitionPhaseEditView(views.APIView):
 class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionParticipantSerial
     queryset = webmodels.CompetitionParticipant.objects.all()
-
+    
+    def get_queryset(self):
+        competition_id = self.kwargs.get('competition_id',None)
+        return self.queryset.filter(competition__pk=competition_id)
 
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
