@@ -4,24 +4,22 @@
 {% block extra_head %}
 <script src="{% static "site/js/CompetitionDelete.js" %}"></script>
 {% endblock %}
-{% block body %}
+{% block content %}
 <div class="mainContainer">
     <h2>Create Competition Wizard</h2>
-
     <form method="POST">{% csrf_token %}
         <input type='hidden' name='title' value='Untitled'/>
         <p>
             This wizard will guide you through the steps to create a competition. Just click to get started.
         </p>
-	<div>
-	  
-	</div>
+        <div>
+
+        </div>
         <div>
             <input type="submit" class="globalBlueButtonInput" value="Start" />
             <a class="helpLinkIcon startHelp" href="{% url 'help_create_competition' %}" title="Get help with creating a competition"></a>
         </div>
     </form>
-
     <div>
     </div>
 </div>

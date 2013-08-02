@@ -1,58 +1,35 @@
-﻿{% if not object_list %}
+﻿{% if not competitions %}
     <p>You do not manage any competitions.</p>
 {% else %}
-{% for item in object_list %}
+    {% for item in competitions %}
     <div class="competitionTile">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.pk }}" />
             <div class="competitionTileLftStrip"></div>
-
             <div class="articleTextArea">
                 <div class="articleTextAreaContainer">
                     <div class="articleImageContainer">
                         <div class="subContainerPadding">
-                            <!-- Image-------------- -->
-                            <figure class="articleImage">
-			       {% if item.image_url %}
-                                 <img src="{{ item.image_url }}" width="115" height="90">
-                               {% endif %}
-                            </figure>
-                            <!-- Image-------------- -->
-                        </div>
+                            <img src="{{ item.image_url }}" width="100px">
+                      </div>
+                  </div>
+                  <div class="subContainerPadding">
+                    <div class="articleHeadingContainer">
+                        <h3>{{ item.title }}</h3>
+                        <label>by {{ item.created_by }}</label>
                     </div>
-                    <div class="subContainerPadding">
-                        <div class="articleHeadingContainer">
-                            <h3>{{ item.title }}</h3>
-                            <label>by {{ item.created_by }}</label>
-                        </div>
-                        <p>{{ item.description }}</p>
-                    </div>
-                </div>
-                <div class="globalYellowButtonSmallAtag">
-		     <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
-		    <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
-		    <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
-                    
-                  {#  @Html.ActionLink("Manage co-owners", "Coowners", new { id = item.CompetitionId }) #}
+                    <p>{{ item.description }}</p>
                 </div>
             </div>
-            {% comment %} <div class="CompetitionDetail">
-                <div class="CompetitionDetailBox">
-                    <div class="CompetitionDetailTbl">
-                        <label>deadline:</label>
-                        <label>10-10-10</label>
-                    </div>
-                    <div class="CompetitionDetailTbl">
-                        <label>rewards:</label>
-                        <label>information</label>
-                    </div>
-                    <div class="CompetitionDetailTbl">
-                        <label>applicants:</label>
-                        <label>2,002</label>
-                    </div>
-                </div>
-            </div> {% endcomment %}
-        </article>
+            <div class="globalYellowButtonSmallAtag">
+             <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
+             <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
+             <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
+
+             {#  @Html.ActionLink("Manage co-owners", "Coowners", new { id = item.CompetitionId }) #}
+         </div>
+     </div>
+    </article>
     </div>                
-{% endfor %}    
+    {% endfor %}    
 {% endif %}

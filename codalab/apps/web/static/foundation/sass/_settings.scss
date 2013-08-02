@@ -35,6 +35,16 @@ $panel-padding-bottom: 0px;
 	font-weight: normal;
 }
 
+.competitionProcessHeader > ul > li {
+	height: 100%;
+}
+.competitionProcessHeader > ul > li > a {
+	color: $foreground;
+	font-size: 13px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
 .competition-preview {
 	border: 1px dotted $gray;
 	margin-top: 5px;
@@ -124,4 +134,16 @@ $panel-padding-bottom: 0px;
 .topbar-title {
 	font-size: x-large;
 	font-weight: light;
+}
+
+.header{
+	position:fixed;
+	left:0;
+	width:100%;
+	top:0;
+	z-index:1000;
+}
+
+.container {
+	padding-top:45px;
 }
