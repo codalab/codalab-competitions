@@ -88,6 +88,9 @@
                                 {% endif %}
                             {% endif %}
                         {% else %}
+                            {% if tab.codename == "results" and user.is_authenticated and participant %}
+                                {% include "web/competitions/_results.html" with tab=tab contents=contents %}
+                            {% endif %}
                             {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
                         {% endif %}
                     </div>
