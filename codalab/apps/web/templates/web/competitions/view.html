@@ -4,6 +4,7 @@
 {% block extra_head %}
 <script src="{% static "site/js/FileUpload.js" %}"></script>
 <script src="{% static "site/js/CompetitionDetailsTs.js" %}"></script>
+<script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -62,25 +63,33 @@
                         <a href="#{{tab.codname}}">{{tab.name}}</a>
                     </p>
                     <div class="content" data-slug="{{tab.codename}}" data-section-content>
-                        {% if tab.codename == "participate" and not user.is_authenticated %}
-                            <strong>You must be logged in to participate in competitions.</strong>
-                            <br/>
-                            <div class="globalBlueButtonAtag">
-                                <a href="{% url 'account_login' %}">Sign in</a>
-                            </div>
-                        {% else %}
-                            {% if tab.codename == "participate" and not participant %}
-                                <strong>You have not yet registered for this competition.</strong>
+                        {% if tab.codename == "participate" %}
+                            {% if not user.is_authenticated %}
+                                <strong>You must be logged in to participate in competitions.</strong>
                                 <br/>
-                                <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
-                                <br/>
-                                I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
                                 <div class="globalBlueButtonAtag">
-                                    <a href="/api/competition/{{competition.id}}/participate/">Register</a>
-                                </div>         
+                                    <a href="{% url 'account_login' %}">Sign in</a>
+                                </div>
+                            {% else %}
+                                {% if not participant %}
+                                    <form class="participate_form" id="participate_form" action="/api/competition/{{competition.id}}/participate/" method="POST">
+                                        {% csrf_token %}
+                                        <p><strong>You have not yet registered for this competition.</strong></p>
+                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
+                                        <label for="checkbox1">
+                                            <input type="checkbox" id="checkbox1" required>
+                                            <span class="checkbox"></span>
+                                            I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
+                                        </label>
+                                        <input type="submit" class="globalBlueButton" value="Register" />
+                                    </form>
+                                {% else %} 
+                                    {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
+                                {% endif %}
                             {% endif %}
+                        {% else %}
+                            {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
                         {% endif %}
-                        {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
                     </div>
                 </section>
                 {% endfor %}
@@ -90,8 +99,9 @@
 </div>
 {% endblock %}
 {% block js %}
-$('document').ready(function() {
-// This helps make sections appear with Foundation
-$(this).foundation('section', 'reflow');
-});
+    $('document').ready(function() {
+        // This helps make sections appear with Foundation
+        $(this).foundation('section', 'reflow');
+        $("#participate_form").validate();
+    });
 {% endblock js %}

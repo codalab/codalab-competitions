@@ -3,6 +3,7 @@
 {% block title %}Participants{% endblock %}
 {% block extra_head %}
 <script src="{% static 'site/js/ParticipantsTs.js' %}"></script>
+<script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
 {% block content %}
 <div class="row">
@@ -74,8 +75,12 @@
                                 {% if item.status.codename == 'pending' %}
 
                                 <div class="competitionUserBtnBlock">
-                                   <a id="A{{item.pk}}" class="buttonAccept approve">Approve</a>
-                                   <a id="R{{item.pk}}" class="buttonReject reject">Reject</a>
+                                    <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
+                                        <label for="accept"><input name="request" type="radio" id="accept">Accept</label>
+                                        <label for="deny">  <input name="request" type="radio" id="deny">Deny</label>
+                                        <textarea id="deny_reason" name="deny_reason"></textarea>
+                                        <input type="submit" class="globalBlueButtonAtag" value="Process" />
+                                    </form>
                                </div>
                                {% endif %} 
                                <div class="buttonPreloader"></div>
@@ -106,3 +111,21 @@
 </div>
 </div>
 {% endblock %}
+
+{% block js %}
+    $("#deny").change(function() {
+        $("#deny_reason").toggle(this.checked)
+    });
+
+    $("#process_request").validate({
+        rules : {
+            'deny_reason' : {
+                required: {
+                    depends : function(element) {
+                        return $("input[name='deny_reason']").is(":checked");
+                    }
+                }
+            }
+        }
+    });
+{% endblock js %}
