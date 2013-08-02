@@ -897,7 +897,7 @@ input[type="submit"][value="Delete"]
 {
     border:0;
 }
-.compBlockRightContainer .competitionTile,.competitionTilePreload
+.compBlockRightContainer .competition-tile,.competitionTilePreload
 {   
     border:solid 1px #ccc;
     margin-bottom:10px;
@@ -911,7 +911,7 @@ input[type="submit"][value="Delete"]
     position:relative;
     padding:0;
 }
-.compBlockRightContainer .competitionTile{
+.compBlockRightContainer .competition-tile {
     border:0;
 }
 .competitionTilePreload
