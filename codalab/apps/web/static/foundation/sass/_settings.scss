@@ -4,6 +4,9 @@ $banner: #EBF2FB;
 $highlight: #3684d6;
 $active: #ffac31;
 $gray: #666;
+$Lgray: #ccc;
+$MLgray: #999;
+$Dgray: #333;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -46,7 +49,7 @@ $panel-padding-bottom: 0px;
 }
 
 .competition-preview {
-	border: 1px dotted $gray;
+	border: 1px solid $Lgray;
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
@@ -91,8 +94,9 @@ $panel-padding-bottom: 0px;
 	margin: 0px;
 }
 .competition-title {
-	color: $background;
+	color: $Dgray;
 	text-align: left;
+	font-size:15px;
 }
 
 .large-12 > .competition-label {
@@ -103,6 +107,7 @@ $panel-padding-bottom: 0px;
 
 .competition-description, .competition-owner {
 	font-size: small;
+	color:$MLgray;
 }
 
 .slider {
@@ -147,4 +152,28 @@ $panel-padding-bottom: 0px;
 .container {
 	padding-top:45px;
 	padding-bottom:20px;
+}
+.copetition-Para{
+	font-size:12px;
+	color:$gray;
+	line-height:16px;
+}
+.competition-info{
+	height:90px;
+	overflow:hidden;
+	padding-top:5px;
+}
+.competition-image > img{
+	height:90px;
+	margin-top:5px;
+}
+.competition-preview.panel{
+	background:#fafafa;
+}
+.competitionTile{
+	margin-bottom:10px;
+}
+.competitionTile h3{
+	font-size:16px;
+	color:$Dgray;
 }
