@@ -24,7 +24,7 @@ class ContentVisibility(models.Model):
 class ContentCategory(MPTTModel):
     parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
     name = models.CharField(max_length=100)
-    codename = models.SlugField(max_length=100)
+    codename = models.SlugField(max_length=100,unique=True)
     visibility = models.ForeignKey(ContentVisibility)
     is_menu = models.BooleanField(default=True)
     content_limit = models.PositiveIntegerField(default=1)
@@ -93,14 +93,14 @@ class Page(models.Model):
 
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
-    codename = models.SlugField(max_length=20)
+    codename = models.SlugField(max_length=20,unique=True)
 
     def __unicode__(self):
         return self.name
 
 class ExternalFileSource(models.Model):
     name = models.CharField(max_length=50)
-    codename = models.SlugField(max_length=50)
+    codename = models.SlugField(max_length=50,unique=True)
     service_url = models.URLField(null=True,blank=True)
 
     def __unicode__(self):
@@ -121,8 +121,10 @@ class ExternalFile(models.Model):
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
     name = models.CharField(max_length=30)
-    codename = models.CharField(max_length=30)
+    codename = models.CharField(max_length=30,unique=True)
     description = models.CharField(max_length=50)
+
+
 
     def __unicode__(self):
         return self.name
@@ -238,7 +240,7 @@ class CompetitionParticipant(models.Model):
 # Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):
     name = models.CharField(max_length=20)
-    codename = models.SlugField(max_length=20)
+    codename = models.SlugField(max_length=20,unique=True)
     
     def __unicode__(self):
         return self.name
