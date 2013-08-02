@@ -22,14 +22,6 @@ def competition_index(request):
         })
     return HttpResponse(template.render(context))
 
-def competition_view(request, id):
-    template = loader.get_template("web/competitions/view.html")
-    competition = models.Competition.objects.get(id=id)
-    context = RequestContext(request, {
-        'competition' : competition
-        })
-    return HttpResponse(template.render(context))
-
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
@@ -94,10 +86,9 @@ class CompetitionDetailView(DetailView):
             tc = [x for x in context['object'].pagecontent.pages.filter(category=category)]
             side_tabs[category] = tc
         context['tabs'] = side_tabs
-
         try:
             if self.request.user.is_authenticated():
-                context['participation'] = self.request.user.participation.filter(competition=self.object)
+                context['participant'] = self.request.user in context['object'].participants.all()
         except ObjectDoesNotExist:
             pass
 
@@ -207,7 +198,7 @@ class MyCompetitionsEnteredPartial(ListView):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-
+        
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
