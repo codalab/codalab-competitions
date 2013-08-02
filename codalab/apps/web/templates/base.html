@@ -22,6 +22,7 @@
 
   {% block css %}
       <!-- Included CSS Files (Compressed) -->
+      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
       <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
       <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
 
@@ -127,6 +128,8 @@
 
     <!-- Check for Zepto support, load jQuery if necessary -->
     <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.validate.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.dataTables.min.js"></script>
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>

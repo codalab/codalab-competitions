@@ -71,33 +71,38 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 
 /* line 43, ../sass/_settings.scss */
+.user_results, .competition_results {
+  padding-top: 10px;
+}
+
+/* line 46, ../sass/_settings.scss */
 .globalBlueButton a, .globalBlueButton a:hover {
   color: white;
 }
 
-/* line 47, ../sass/_settings.scss */
+/* line 50, ../sass/_settings.scss */
 .content > h3 {
   font-size: 14px;
   font-weight: 700;
 }
 
-/* line 52, ../sass/_settings.scss */
+/* line 55, ../sass/_settings.scss */
 .content > p {
   font-size: 13px;
 }
 
-/* line 56, ../sass/_settings.scss */
+/* line 59, ../sass/_settings.scss */
 .section-container.vertical-tabs > section > .content {
   border: 0px;
   color: #3b3b3b;
 }
 
-/* line 61, ../sass/_settings.scss */
+/* line 64, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li {
   height: 100%;
 }
 
-/* line 64, ../sass/_settings.scss */
+/* line 67, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li > a {
   color: white;
   font-size: 13px;
@@ -105,21 +110,21 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-right: 40px;
 }
 
-/* line 71, ../sass/_settings.scss */
+/* line 74, ../sass/_settings.scss */
 .competition-preview {
   border: 1px solid #cccccc;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-/* line 77, ../sass/_settings.scss */
+/* line 80, ../sass/_settings.scss */
 .competition-summary {
   background: #fafafa;
   height: 100px;
   overflow: hidden;
 }
 
-/* line 83, ../sass/_settings.scss */
+/* line 86, ../sass/_settings.scss */
 .competition-preview > .columns > .button.small {
   vertical-align: middle;
   margin-bottom: 5px;
@@ -129,13 +134,13 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   border-color: #ffac31;
 }
 
-/* line 92, ../sass/_settings.scss */
+/* line 95, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 97, ../sass/_settings.scss */
+/* line 100, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3684d6;
@@ -144,7 +149,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 0px;
 }
 
-/* line 105, ../sass/_settings.scss */
+/* line 108, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -152,33 +157,33 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 112, ../sass/_settings.scss */
+/* line 115, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 116, ../sass/_settings.scss */
+/* line 119, ../sass/_settings.scss */
 .competition-title {
   color: #333333;
   text-align: left;
   font-size: 15px;
 }
 
-/* line 122, ../sass/_settings.scss */
+/* line 125, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 128, ../sass/_settings.scss */
+/* line 131, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
   color: #999999;
 }
 
-/* line 133, ../sass/_settings.scss */
+/* line 136, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -194,26 +199,26 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 148, ../sass/_settings.scss */
+/* line 151, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 153, ../sass/_settings.scss */
+/* line 156, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3684d6;
   color: white;
 }
 
-/* line 159, ../sass/_settings.scss */
+/* line 162, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
 }
 
-/* line 164, ../sass/_settings.scss */
+/* line 167, ../sass/_settings.scss */
 .header {
   position: fixed;
   left: 0;
@@ -222,43 +227,43 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   z-index: 1000;
 }
 
-/* line 172, ../sass/_settings.scss */
+/* line 175, ../sass/_settings.scss */
 .container {
   padding-top: 45px;
   padding-bottom: 20px;
 }
 
-/* line 177, ../sass/_settings.scss */
+/* line 180, ../sass/_settings.scss */
 .competition-paragraph {
   font-size: 12px;
   color: #666666;
   line-height: 16px;
 }
 
-/* line 183, ../sass/_settings.scss */
+/* line 186, ../sass/_settings.scss */
 .competition-info {
   height: 90px;
   overflow: hidden;
   padding-top: 5px;
 }
 
-/* line 189, ../sass/_settings.scss */
+/* line 192, ../sass/_settings.scss */
 .competition-image > img {
   height: 90px;
   margin-top: 5px;
 }
 
-/* line 194, ../sass/_settings.scss */
+/* line 197, ../sass/_settings.scss */
 .competition-preview.panel {
   background: #fafafa;
 }
 
-/* line 198, ../sass/_settings.scss */
+/* line 201, ../sass/_settings.scss */
 .competition-tile {
   margin-bottom: 10px;
 }
 
-/* line 202, ../sass/_settings.scss */
+/* line 205, ../sass/_settings.scss */
 .competition-tile h3 {
   font-size: 16px;
   color: #333333;
