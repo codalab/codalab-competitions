@@ -186,6 +186,7 @@ class Base(Settings):
     'apps.authenz',
     'apps.api',
     'apps.web',
+    'apps.common',
 
     # Authentication app, enables social authentication
     'allauth',

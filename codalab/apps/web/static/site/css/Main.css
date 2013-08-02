@@ -3,6 +3,11 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 	margin:0;
 	padding:0;
 }
+
+#lblLastModifiedDate {
+    padding: 0px;
+    margin: 0px;
+}
 *{
     font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:100%;
@@ -19,9 +24,9 @@ address,caption,cite,code,dfn,em,strong,th,var {
 	font-style:normal;
 	font-weight:normal;
 }
-ol,ul,li {
+/*ol,ul,li {
 	list-style:none;
-}
+}*/
 caption,th {
 	text-align:left;
 }
@@ -611,7 +616,6 @@ input[type="submit"][value="Delete"]
 
 }
 .globalYellowButtonSmall,.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
-    height:20px;
     line-height:18px;
     float:none !important;
     font-size:12px;
@@ -738,7 +742,7 @@ input[type="submit"][value="Delete"]
 }
 .CompetitionsDetailContainer .CompetitionsDetailLft p {
     font:normal 11px/16px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#7c7c7c;
+    /*color:#7c7c7c;*/
     text-align:left;
     padding:10px 10px 0 0;
     clear:left;
@@ -898,7 +902,7 @@ input[type="submit"][value="Delete"]
 {
     border:0;
 }
-.compBlockRightContainer .competitionTile,.competitionTilePreload
+.compBlockRightContainer .competition-tile,.competitionTilePreload
 {   
     border:solid 1px #ccc;
     margin-bottom:10px;
@@ -912,7 +916,7 @@ input[type="submit"][value="Delete"]
     position:relative;
     padding:0;
 }
-.compBlockRightContainer .competitionTile{
+.compBlockRightContainer .competition-tile {
     border:0;
 }
 .competitionTilePreload
@@ -937,7 +941,7 @@ input[type="submit"][value="Delete"]
 .mainContainer {
     width:1024px;
     margin:auto;
-    padding:16px 0;
+    padding:30px 0;
 }
 .mainContainer h2
 {
@@ -1136,8 +1140,10 @@ figure.userImage {
 }
 .articleHeadingContainer h3
 {
+    font-size: x-large;
     display:inline-block;
     color:#3684d6;
+    padding-bottom: 5px;
 }
 /*SubPage----------------------------------------*/
 .compBlockRightContainer {
@@ -1273,7 +1279,7 @@ div.articleImageContainer
 }
 .competitionProcessHeader {
     position:absolute;
-    top:86px;
+    /*top:86px;*/
     left:0;
     right:0;
     padding:6px;
@@ -1446,13 +1452,14 @@ div.articleImageContainer
 /*CompetitionProcess-----------------------------*/
 /*SaveContainer------------------------------------*/
 .saveContainer {
-    padding:10px 0 20px;
-    height:30px;
-    position:fixed;
-    bottom:0;
-    background:#2A2A2C;
-    right:0;
-    left:0;
+    /*padding: 10px 0 20px;*/
+    height: 30px;
+    width: 100%;
+    /*position:fixed;*/
+    padding-bottom: 25px;
+    bottom:0px;
+    /*background:#2A2A2C;*/
+;
 }
 .saveBtnHolder {
     margin:auto;
@@ -1477,6 +1484,7 @@ div.articleImageContainer
     overflow:hidden;
 }
 .CompetitionsDetailContainer h2 {
+    margin-top: 10px;
     padding:0;
     font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 }
@@ -1491,11 +1499,13 @@ div.articleImageContainer
     display:block;
     font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 }
+
 .CompetitionsDetailContainer p {
-    font:normal 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#777;
-    padding-bottom:20px;
+    font:normal 16px/19px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    /*color:#777;*/
+    font-weight: 400
 }
+
 .CompetitionsDetailLft {
     display:table-cell;
     vertical-align:top;
@@ -1623,7 +1633,7 @@ ul.myCodalabTabContent li.tab1 {
 .competitionsHeaderTitle {
     display:table-cell;
     vertical-align:top;
-    padding-left:25px;
+    padding-left:5px;
 }
 .competitionsHeaderTitle label {
     display:block;
@@ -1631,7 +1641,7 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
-    margin-top:15px;
+    margin-top:5px;
 }
 .competitionsDetailTab {
     display:table;
