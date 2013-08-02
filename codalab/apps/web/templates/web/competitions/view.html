@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% block title %}Competition - [{{ competition.title }}]{% endblock %}
-}
+{% block title %}Competition - [{{ competition.title }}]{% endblock title %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 large-centered columns">
@@ -68,13 +68,17 @@
                                 </div>
                             {% else %}
                                 {% if not participant %}
-                                    <form class="participate_form" id="participate_form" action="/api/competition/{{competition.id}}/participate/" method="POST">
+                                    <form id="participate_form" action="/api/competition/{{competition.id}}/participate/" method="POST">
                                         {% csrf_token %}
                                         <p><strong>You have not yet registered for this competition.</strong></p>
-                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
-                                        <label for="checkbox1">
-                                            <input type="checkbox" id="checkbox1" required>
-                                            <span class="checkbox"></span>
+
+                                        <p>
+                                            To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
+                                        </p>
+
+                                        <label id="terms" for="checkbox">
+                                            <input type="checkbox" name="agreed_terms" id="checkbox" required>
+                                            <span class="custom checkbox"></span> 
                                             I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
                                         </label>
                                         <input type="submit" class="globalBlueButton" value="Register" />
@@ -101,7 +105,15 @@
     $('document').ready(function() {
         // This helps make sections appear with Foundation
         $(this).foundation('section', 'reflow');
-        $("#participate_form").validate();
+
+        // Validate the form (ensure they have checked accept terms and conditions)
+        $("#participate_form").validate({
+            errorPlacement: function(error, element) {
+                                error.appendTo("#terms");
+                            }
+        });
+
+        // In partials loaded, initialize the data tables
         $("#user_results").dataTable({
             'bPaginate' : false,
             'bInfo'     : false,
