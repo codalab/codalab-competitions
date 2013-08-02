@@ -3,7 +3,7 @@ from . import views
 from django.conf.urls import patterns, url
 router = routers.DefaultRouter()
 
-router.register(r'competition/participant', views.CompetitionParticipantAPIViewSet)
+router.register(r'competition/(?P<competition_id>\d+)/participants', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
 router.register(r'competition/(?P<competition_id>\d+)/submission', views.CompetitionSubmissionViewSet)
 router.register(r'competition/(?P<competition_id>\d+)/leaderboards', views.LeaderBoardViewSet)
