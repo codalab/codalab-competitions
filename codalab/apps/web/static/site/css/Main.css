@@ -1615,10 +1615,12 @@ ul.myCodalabTabContent li.tab1 {
     display:table;
     width:100%;
 }
+
 .competitionsDetailTabArea {
     overflow:hidden;
     margin-top:17px;
 }
+
 .competitionsProfileImage {
     width:175px;
     display:table-cell;
