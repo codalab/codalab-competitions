@@ -2,130 +2,56 @@
 {% load staticfiles %}
 {% block title %}Participants{% endblock %}
 {% block extra_head %}
-<script src="{% static 'site/js/ParticipantsTs.js' %}"></script>
-<script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
+    <script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
+{% block subheader %}
+    <h4>Participants</h4>
+{% endblock subheader %}
 {% block content %}
-<div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-12 large-centered columns participants">
-
-        <div class="mainContainer">
-            <div class="compBlockTbl">
-                <div class="compProfileContainer" style="display:none">
-                    <div class="container">
-                        <div class="profileImage">
-                            <!-- Image-------------- -->
-                            <figure class="userImage"></figure>
-                            <div class="userSocialNetworkBlock">
-                                <div class="fBIcon"></div>
-                                <div class="twitIcon"></div>
-                                <div class="linkedIcon"></div>
-                            </div>
-                            <!-- Image-------------- -->
-                        </div>
-                        <div class="profileContentArea">
-                            <h3>My Username</h3>
-                            <div class="subContainer">
-                                <p class="containerTextS">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.</p>
-                            </div>
-                        </div>
-                        <div class="ProjectDetailArea">
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="compBlockRightContainer">
-                    <div class="container myCodalabBlock">
-                        <h2>Participants</h2>
-                        <input id="competitionID" type="hidden" value="{{ competition_id }}" />
-                        <div class="container">
-                           {% if not object_list %}
-                           <p>There are no participants.</p>
-                           {% else %}
-                           {% for item in object_list %}
-                           <div class="competitionUserBlock">
-                            <div class="subContainerPadding">
-                                <div class="articleHeadingContainer">
-                                    <h3>{{ item.user.username }}</h3>
-                                </div>
-                                {% if item.status.codename == 'pending' %}
-                                <p>Participation pending approval</p>
-                                {% elif item.status.codename == 'approved' %}
-                                <p>Participation approved</p>
-                                {% elif item.status.codename == 'denied' %}
-                                <p>Participation rejected</p>
-                                <p style="color:red;">Reason: {{ item.reason }}</p>
-                                {% else %}
-                                <p>Unknown Status</p>
-                                {% endif %}
-
-                                {% if item.status.codename == 'pending' %}
-
-                                <div class="competitionUserBtnBlock">
-                                    <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
-                                        <label for="accept"><input name="request" type="radio" id="accept">Accept</label>
-                                        <label for="deny">  <input name="request" type="radio" id="deny">Deny</label>
+<div class="large-12 large-centered columns participants content">
+    {% if not object_list %}
+        <p>There are no participants.</p>
+    {% else %}
+        {% for item in object_list %}
+            <div class="row">
+                <div class="competitionUserBlock">
+                    <div class="large-4 push-8 columns process_participant_request">
+                        {% if item.status.codename == 'pending' %}
+                                <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
+                                    <div class="small-6 push-6 columns">
+                                        <label for="accept"><input name="request" type="radio" id="accept"/> Accept</label>
+                                    </div>
+                                    <div class="small-6 pull-6 columns">
+                                        <label for="deny"><input name="request" type="radio" id="deny"/> Deny</label>
+                                    </div>
+                                    <label for="deny_reason">
+                                        <strong>Reason :</strong>
                                         <textarea id="deny_reason" name="deny_reason"></textarea>
-                                        <input type="submit" class="globalBlueButtonAtag" value="Process" />
-                                    </form>
-                               </div>
-                               {% endif %} 
-                               <div class="buttonPreloader"></div>
-
-                           </div>
-                       </div>                
-                       {% endfor %}
-                       {% endif %}
-                   </div>
-               </div>
-           </div>
-           <div class="popupContainer">
-            <div class="popupContainerBorder">
-                <div class="popupBlock">
-                    <h1>Main Popup</h1>
-                    <div class="containerSpace">
-                        <textarea  id="reason" style="width:540px;height:110px;"></textarea>
+                                    </label>
+                                    <input type="submit" class="globalBlueButtonAtag" value="Process" />
+                                </form>
+                        {% endif %} 
+                    </div>
+                    <div class="large-8 pull-4 columns">
+                        <h3>{{ item.user.username }}</h3>
+                        {% if item.status.codename == 'pending' %}
+                            <p>Participation pending approval</p>
+                        {% elif item.status.codename == 'approved' %}
+                            <p>Participation approved</p>
+                        {% elif item.status.codename == 'denied' %}
+                            <p>Participation rejected</p>
+                            <p style="color:red;">Reason: {{ item.reason }}</p>
+                        {% else %}
+                            <p>Unknown Status</p>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="container">
-                    <a class="button2Small rFloat cancel">cancel</a>
-                    <a id="btnOk" class="button3Small rFloat ok">ok</a>
-                </div>
-            </div>
-        </div>
-        <div class="grayOverlaper"></div>
-    </div></div>
-</div>
+            </div>               
+        {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block js %}
-    $("#deny").change(function() {
-        $("#deny_reason").toggle(this.checked)
-    });
-
-    $("#process_request").validate({
-        rules : {
-            'deny_reason' : {
-                required: {
-                    depends : function(element) {
-                        return $("input[name='deny_reason']").is(":checked");
-                    }
-                }
-            }
-        }
-    });
+    $("#process_request").validate();
 {% endblock js %}

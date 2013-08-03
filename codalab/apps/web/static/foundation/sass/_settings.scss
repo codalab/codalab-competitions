@@ -59,6 +59,21 @@ a > i {
 	color: $foreground;
 }
 
+.process_participant_request {
+	padding-top: 10px;
+}
+
+.competitionUserBlock
+{
+    border:solid 1px #ccc;
+    margin-bottom:10px;
+    position:relative;
+    padding:0;
+}
+
+.competitionUserBlock p {
+	font-size: 13px;
+}
 .user_results, .competition_results {
 	padding-top: 10px;
 }
