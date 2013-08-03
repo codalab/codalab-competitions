@@ -3,27 +3,27 @@
 ## This will eventually be a bit more configurable
 
 THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-pushd `pwd` > /dev/null
+pushd `pwd` 2>&1 > /dev/null
 cd $THIS_DIR
 
 U=$1
 
-if [[ "$U" == ""  ]] ; then
-  echo "Specify user"
-  exit 1
-fi
-if ! id -u "$U" > /dev/null; then
-  sudo useradd -m -s /bin/bash $U
-  sudo passwd $U
+if [[ $U =~ [a-zA-Z0-9][\-\_a-zA-Z0-9]+[a-zA-Z0-9] ]] ; then
+  if ! id -u "$U" 2>&1 > /dev/null; then
+    echo "User will be added."
+    sudo useradd -m -s /bin/bash $U
+    sudo passwd $U
+  fi
+else
+  echo "User not specified or username has bad characters"
   exit 1
 fi
 
 echo "Installing codalab dependency meta-package..."
 sudo dpkg -i *.deb > /dev/null && \
 sudo apt-get -f install > /dev/null && \
-echo "Updaing some user permissions..." && \
+echo "Updaing some group permissions..." && \
 sudo chgrp -R www-data /var/log/nginx /var/lib/nginx && \
 sudo chmod -R g+rw   /var/log/nginx /var/lib/nginx && \
 sudo usermod -a -G www-data $U
-
-
+popd > /dev/null
