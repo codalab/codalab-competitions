@@ -34,6 +34,10 @@ $panel-padding-bottom: 0px;
 
 $button-font-color: $foreground;
 
+$section-title-color: $highlight;
+$section-title-color-active: $gray;
+$section-title-bg-hover: none;
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
@@ -57,6 +61,15 @@ td > a > i {
 a > i {
 	height: 100%;
 	color: $foreground;
+}
+
+.competitionsDetailTabArea > section > .title {
+    font-size: 19px;
+    font-weight: 400;
+}
+
+.competitionsDetailTabArea > section > .title a:hover {
+	color: $active;
 }
 
 .process_participant_request {

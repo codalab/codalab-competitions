@@ -63,42 +63,53 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 37, ../sass/_settings.scss */
+/* line 41, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 43, ../sass/_settings.scss */
+/* line 47, ../sass/_settings.scss */
 .menu-icon {
   background: #3684d6;
 }
 
-/* line 47, ../sass/_settings.scss */
+/* line 51, ../sass/_settings.scss */
 .menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
   border-bottom-style: none;
   border: 0px;
   padding: 2px;
 }
 
-/* line 53, ../sass/_settings.scss */
+/* line 57, ../sass/_settings.scss */
 td > a > i {
   color: #3684d6;
 }
 
-/* line 57, ../sass/_settings.scss */
+/* line 61, ../sass/_settings.scss */
 a > i {
   height: 100%;
   color: white;
 }
 
-/* line 62, ../sass/_settings.scss */
+/* line 66, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title {
+  font-size: 19px;
+  font-weight: 400;
+}
+
+/* line 71, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title a:hover {
+  color: #ffac31;
+}
+
+/* line 75, ../sass/_settings.scss */
 .process_participant_request {
   padding-top: 10px;
 }
 
-/* line 67, ../sass/_settings.scss */
+/* line 80, ../sass/_settings.scss */
 .competitionUserBlock {
   border: solid 1px #ccc;
   margin-bottom: 10px;
@@ -106,44 +117,44 @@ a > i {
   padding: 0;
 }
 
-/* line 74, ../sass/_settings.scss */
+/* line 87, ../sass/_settings.scss */
 .competitionUserBlock p {
   font-size: 13px;
 }
 
-/* line 77, ../sass/_settings.scss */
+/* line 90, ../sass/_settings.scss */
 .user_results, .competition_results {
   padding-top: 10px;
 }
 
-/* line 80, ../sass/_settings.scss */
+/* line 93, ../sass/_settings.scss */
 .globalBlueButton a, .globalBlueButton a:hover {
   color: white;
 }
 
-/* line 84, ../sass/_settings.scss */
+/* line 97, ../sass/_settings.scss */
 .content > h3 {
   font-size: 14px;
   font-weight: 700;
 }
 
-/* line 89, ../sass/_settings.scss */
+/* line 102, ../sass/_settings.scss */
 .content > p {
   font-size: 13px;
 }
 
-/* line 93, ../sass/_settings.scss */
+/* line 106, ../sass/_settings.scss */
 .section-container.vertical-tabs > section > .content {
   border: 0px;
   color: #3b3b3b;
 }
 
-/* line 98, ../sass/_settings.scss */
+/* line 111, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li {
   height: 100%;
 }
 
-/* line 101, ../sass/_settings.scss */
+/* line 114, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li > a {
   color: white;
   font-size: 13px;
@@ -151,21 +162,21 @@ a > i {
   padding-right: 40px;
 }
 
-/* line 108, ../sass/_settings.scss */
+/* line 121, ../sass/_settings.scss */
 .competition-preview {
   border: 1px solid #cccccc;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-/* line 114, ../sass/_settings.scss */
+/* line 127, ../sass/_settings.scss */
 .competition-summary {
   background: #fafafa;
   height: 100px;
   overflow: hidden;
 }
 
-/* line 120, ../sass/_settings.scss */
+/* line 133, ../sass/_settings.scss */
 .competition-preview > .columns > .button.small {
   vertical-align: middle;
   margin-bottom: 5px;
@@ -175,13 +186,13 @@ a > i {
   border-color: #ffac31;
 }
 
-/* line 129, ../sass/_settings.scss */
+/* line 142, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 134, ../sass/_settings.scss */
+/* line 147, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3684d6;
@@ -190,7 +201,7 @@ a > i {
   padding-left: 0px;
 }
 
-/* line 142, ../sass/_settings.scss */
+/* line 155, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -198,33 +209,33 @@ a > i {
   vertical-align: middle;
 }
 
-/* line 149, ../sass/_settings.scss */
+/* line 162, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 153, ../sass/_settings.scss */
+/* line 166, ../sass/_settings.scss */
 .competition-title {
   color: #333333;
   text-align: left;
   font-size: 15px;
 }
 
-/* line 159, ../sass/_settings.scss */
+/* line 172, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 165, ../sass/_settings.scss */
+/* line 178, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
   color: #999999;
 }
 
-/* line 170, ../sass/_settings.scss */
+/* line 183, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -240,26 +251,26 @@ a > i {
   vertical-align: middle;
 }
 
-/* line 185, ../sass/_settings.scss */
+/* line 198, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 190, ../sass/_settings.scss */
+/* line 203, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3684d6;
   color: white;
 }
 
-/* line 196, ../sass/_settings.scss */
+/* line 209, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
 }
 
-/* line 201, ../sass/_settings.scss */
+/* line 214, ../sass/_settings.scss */
 .header {
   position: fixed;
   left: 0;
@@ -268,43 +279,43 @@ a > i {
   z-index: 1000;
 }
 
-/* line 209, ../sass/_settings.scss */
+/* line 222, ../sass/_settings.scss */
 .container {
   padding-top: 45px;
   padding-bottom: 20px;
 }
 
-/* line 214, ../sass/_settings.scss */
+/* line 227, ../sass/_settings.scss */
 .competition-paragraph {
   font-size: 12px;
   color: #666666;
   line-height: 16px;
 }
 
-/* line 220, ../sass/_settings.scss */
+/* line 233, ../sass/_settings.scss */
 .competition-info {
   height: 90px;
   overflow: hidden;
   padding-top: 5px;
 }
 
-/* line 226, ../sass/_settings.scss */
+/* line 239, ../sass/_settings.scss */
 .competition-image > img {
   height: 90px;
   margin-top: 5px;
 }
 
-/* line 231, ../sass/_settings.scss */
+/* line 244, ../sass/_settings.scss */
 .competition-preview.panel {
   background: #fafafa;
 }
 
-/* line 235, ../sass/_settings.scss */
+/* line 248, ../sass/_settings.scss */
 .competition-tile {
   margin-bottom: 10px;
 }
 
-/* line 239, ../sass/_settings.scss */
+/* line 252, ../sass/_settings.scss */
 .competition-tile h3 {
   font-size: 16px;
   color: #333333;
@@ -4506,7 +4517,7 @@ label.error {
 .section-container.accordion > section > .title a,
 .section-container.accordion > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
@@ -4520,7 +4531,7 @@ label.error {
 .section-container.horizontal-nav > .section > .title:hover,
 .section-container.accordion > section > .title:hover,
 .section-container.accordion > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .section-container.auto > section > .content, .section-container.auto > .section > .content,
@@ -4594,7 +4605,7 @@ label.error {
 .section-container.horizontal-nav > .section.active > .title a,
 .section-container.accordion > section.active > .title a,
 .section-container.accordion > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active),
@@ -4675,13 +4686,13 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title a, .section-container.tabs > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
 /* line 217, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title:hover, .section-container.tabs > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .content, .section-container.tabs > .section > .content {
@@ -4707,7 +4718,7 @@ label.error {
 }
 /* line 233, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section.active > .title a, .section-container.tabs > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section:not(.active), .section-container.tabs > .section:not(.active) {
@@ -4773,13 +4784,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title a, .section-container.auto > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title:hover, .section-container.auto > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .content, .section-container.auto > .section > .content {
@@ -4805,7 +4816,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active) {
@@ -4891,13 +4902,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title a, .section-container.vertical-tabs > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title:hover, .section-container.vertical-tabs > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .content, .section-container.vertical-tabs > .section > .content {
@@ -4923,7 +4934,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section.active > .title a, .section-container.vertical-tabs > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section:not(.active), .section-container.vertical-tabs > .section:not(.active) {
@@ -5020,13 +5031,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title a, .section-container.vertical-nav > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title:hover, .section-container.vertical-nav > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .content, .section-container.vertical-nav > .section > .content {
@@ -5052,7 +5063,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section.active > .title a, .section-container.vertical-nav > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section:not(.active), .section-container.vertical-nav > .section:not(.active) {
@@ -5143,13 +5154,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title a, .section-container.horizontal-nav > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title:hover, .section-container.horizontal-nav > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .content, .section-container.horizontal-nav > .section > .content {
@@ -5175,7 +5186,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section.active > .title a, .section-container.horizontal-nav > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section:not(.active), .section-container.horizontal-nav > .section:not(.active) {
@@ -5245,13 +5256,13 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title a, .no-js .section-container > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
 /* line 217, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title:hover, .no-js .section-container > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .content, .no-js .section-container > .section > .content {
@@ -5277,7 +5288,7 @@ label.error {
 }
 /* line 233, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section.active > .title a, .no-js .section-container > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section:not(.active), .no-js .section-container > .section:not(.active) {

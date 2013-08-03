@@ -22,7 +22,7 @@
             </p>
             <div class="content" data-section-content>
                 <div class="my_participating">
-                    <!-- This will fill in from Javascript -->
+                    {% include "web/my/_entered.html" with competitions=my_competitions %}
                 </div>
             </div>
           </section>
@@ -31,7 +31,9 @@
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
     <div class="large-3 pull-9 columns">
-        <a href="/my/create_competition" class="button">New Competition</a>
+        <div class="globalBlueButtonAtag">
+            <a href="/my/create_competition" class="button">New Competition</a>
+        </div>
     </div>
 </div>
 {% endblock content %}
@@ -40,11 +42,5 @@
 $('document').ready(function() {
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-
-    // Ajax load the participating competitions when the section title is clicked
-    $('#participating').click(function() {
-        console.log("Fetching particpating...");
-        $('.my_participating').html('&nbsp;').load('/my/_partials/_competitions_entered');
-    });
 });
 {% endblock js %}
