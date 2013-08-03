@@ -50,6 +50,10 @@ $button-font-color: $foreground;
 	padding: 2px;
 }
 
+td > a > i {
+	color: $background;
+}
+
 a > i {
 	height: 100%;
 	color: $foreground;
