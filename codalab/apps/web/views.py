@@ -26,8 +26,8 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.all(),
-        'competitions_im_in' : models.Competition.objects.all()
+        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'competitions_im_in' : request.user.participation.all()
         })
     return HttpResponse(template.render(context))
 
