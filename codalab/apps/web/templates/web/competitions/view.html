@@ -109,6 +109,19 @@
 </div>
 {% endblock %}
 {% block js %}
+
+    function fnFormatDetails ( prTable, nTr )
+    {
+        var aData = prTable.fnGetData( nTr );
+        var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+        sOut += '<tr><td>Rendering engine:</td><td>'+aData[1]+' '+aData[4]+'</td></tr>';
+        sOut += '<tr><td>Link to source:</td><td>Could provide a link here</td></tr>';
+        sOut += '<tr><td>Extra info:</td><td>And any further details here (images etc)</td></tr>';
+        sOut += '</table>';
+         
+        return sOut;
+    }
+
     $('document').ready(function() {
         // This helps make sections appear with Foundation
         $(this).foundation('section', 'reflow');
@@ -148,16 +161,36 @@
             }); 
         });
         // In partials loaded, initialize the data tables
-        $("#user_results").dataTable({
+        var prTable = $("#user_results").dataTable({
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false,
             'bAutoWidth': false
         });
-        $("#competition_results").dataTable({
+        var crTable = $("#competition_results").dataTable({
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false
         });
+
+    /* Add event listener for opening and closing details
+     * Note that the indicator for showing which row is open is not controlled by DataTables,
+     * rather it is done here
+     */
+    $('#user_results tbody td img').live('click', function () {
+        var nTr = $(this).parents('tr')[0];
+        if ( prTable.fnIsOpen(nTr) )
+        {
+            /* This row is already open - close it */
+            this.src = "../examples_support/details_open.png";
+            prTable.fnClose( nTr );
+        }
+        else
+        {
+            /* Open this row */
+            this.src = "../examples_support/details_close.png";
+            prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+        }
+    } );
     });
 {% endblock js %}
