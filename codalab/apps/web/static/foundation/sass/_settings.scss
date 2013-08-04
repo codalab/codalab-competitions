@@ -39,6 +39,10 @@ $section-title-color-active: $gray;
 $section-title-bg-hover: none;
 
 $tooltip-bg: $background;
+$tooltip-close-font-color: $foreground;
+$has-tip-border-bottom: 0px;
+$has-tip-border-bottom-hover: 0px;
+$has-tip-cursor-type: none;
 
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
@@ -56,6 +60,9 @@ $tooltip-bg: $background;
 	padding: 2px;
 }
 
+span.has-tip {
+	border-bottom: 0px;
+}
 
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
  	color: $active;
