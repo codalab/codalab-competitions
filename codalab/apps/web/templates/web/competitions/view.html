@@ -83,14 +83,14 @@
                                         </label>
                                         <input type="submit" class="globalBlueButton" value="Register" />
                                     </form>
-                                {% endif %}
-                                {% if my_status == "pending" %}
+                                {% elif my_status == "pending" %}
+                                pending
                                     <p>You've already requested to participate in this challenge and your status is pending.</p>
-                                {% endif %}
-                                {% if my_status == "denied" %}
+                                {% elif my_status == "denied" %}
+                                denied
                                     <p>Your request to register for this competition was denied.</p>
-                                {% endif %}
-                                {% if my_status == "approved" %} 
+                                {% elif my_status == "approved" %} 
+                                approved
                                     {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
                                 {% endif %}
                             {% endif %}
