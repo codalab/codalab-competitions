@@ -56,6 +56,28 @@ $tooltip-bg: $background;
 	padding: 2px;
 }
 
+
+div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
+ 	color: $active;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
+	background: transparent;
+}
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
+	border: 0px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
+	padding: 2px;
+	text-align: right;
+	border: 0px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
+	border: 0px;
+}
+
 td > a > i {
 	color: $background;
 }
