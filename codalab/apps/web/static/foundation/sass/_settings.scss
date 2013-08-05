@@ -94,6 +94,20 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 	border: 0px;
 }
 
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
+	margin-left: 10px;
+	font-size: 13px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
+	list-style: disc;
+	margin-left: 20px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content em {
+	font-size: 13px;
+}
+
 td > a > i {
 	color: $background;
 }
@@ -122,10 +136,6 @@ a > i {
     margin-bottom:10px;
     position:relative;
     padding:0;
-}
-
-.competitionUserBlock p {
-	font-size: 13px;
 }
 
 .user_results, .competition_results {
