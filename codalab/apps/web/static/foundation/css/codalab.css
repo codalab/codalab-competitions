@@ -1,4 +1,4 @@
-/* line 17, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 17, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -20,123 +20,123 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
-/* line 22, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 22, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 html {
   line-height: 1;
 }
 
-/* line 24, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 24, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 ol, ul {
   list-style: none;
 }
 
-/* line 26, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 26, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
-/* line 28, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 28, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 caption, th, td {
   text-align: left;
   font-weight: normal;
   vertical-align: middle;
 }
 
-/* line 30, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 30, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 q, blockquote {
   quotes: none;
 }
-/* line 103, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 103, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 q:before, q:after, blockquote:before, blockquote:after {
   content: "";
   content: none;
 }
 
-/* line 32, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 32, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 a img {
   border: none;
 }
 
-/* line 116, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 116, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
   display: block;
 }
 
-/* line 43, ../sass/_settings.scss */
+/* line 44, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 49, ../sass/_settings.scss */
+/* line 50, ../sass/_settings.scss */
 .menu-icon {
   background: #3684d6;
 }
 
-/* line 53, ../sass/_settings.scss */
+/* line 54, ../sass/_settings.scss */
 .menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
   border-bottom-style: none;
   border: 0px;
   padding: 2px;
 }
 
-/* line 60, ../sass/_settings.scss */
+/* line 61, ../sass/_settings.scss */
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
   color: #ffac31;
 }
 
-/* line 64, ../sass/_settings.scss */
+/* line 65, ../sass/_settings.scss */
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
   background: transparent;
 }
 
-/* line 67, ../sass/_settings.scss */
+/* line 68, ../sass/_settings.scss */
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
   border: 0px;
 }
 
-/* line 71, ../sass/_settings.scss */
+/* line 72, ../sass/_settings.scss */
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
   padding: 2px;
   text-align: right;
   border: 0px;
 }
 
-/* line 77, ../sass/_settings.scss */
+/* line 78, ../sass/_settings.scss */
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
   border: 0px;
 }
 
-/* line 81, ../sass/_settings.scss */
+/* line 82, ../sass/_settings.scss */
 td > a > i {
   color: #3684d6;
 }
 
-/* line 85, ../sass/_settings.scss */
+/* line 86, ../sass/_settings.scss */
 a > i {
   height: 100%;
   color: white;
 }
 
-/* line 90, ../sass/_settings.scss */
+/* line 91, ../sass/_settings.scss */
 .competitionsDetailTabArea > section > .title {
   font-size: 19px;
   font-weight: 400;
 }
 
-/* line 95, ../sass/_settings.scss */
+/* line 96, ../sass/_settings.scss */
 .competitionsDetailTabArea > section > .title a:hover {
   color: #ffac31;
 }
 
-/* line 99, ../sass/_settings.scss */
+/* line 100, ../sass/_settings.scss */
 .process_participant_request {
   padding-top: 10px;
 }
 
-/* line 104, ../sass/_settings.scss */
+/* line 105, ../sass/_settings.scss */
 .competitionUserBlock {
   border: solid 1px #ccc;
   margin-bottom: 10px;
@@ -144,44 +144,44 @@ a > i {
   padding: 0;
 }
 
-/* line 111, ../sass/_settings.scss */
+/* line 112, ../sass/_settings.scss */
 .competitionUserBlock p {
   font-size: 13px;
 }
 
-/* line 115, ../sass/_settings.scss */
+/* line 116, ../sass/_settings.scss */
 .user_results, .competition_results {
   padding-top: 10px;
 }
 
-/* line 118, ../sass/_settings.scss */
+/* line 119, ../sass/_settings.scss */
 .globalBlueButton a, .globalBlueButton a:hover {
   color: white;
 }
 
-/* line 122, ../sass/_settings.scss */
+/* line 123, ../sass/_settings.scss */
 .content > h3 {
   font-size: 14px;
   font-weight: 700;
 }
 
-/* line 127, ../sass/_settings.scss */
+/* line 128, ../sass/_settings.scss */
 .content > p {
   font-size: 13px;
 }
 
-/* line 131, ../sass/_settings.scss */
+/* line 132, ../sass/_settings.scss */
 .section-container.vertical-tabs > section > .content {
   border: 0px;
   color: #3b3b3b;
 }
 
-/* line 136, ../sass/_settings.scss */
+/* line 137, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li {
   height: 100%;
 }
 
-/* line 139, ../sass/_settings.scss */
+/* line 140, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li > a {
   color: white;
   font-size: 13px;
@@ -189,21 +189,21 @@ a > i {
   padding-right: 40px;
 }
 
-/* line 146, ../sass/_settings.scss */
+/* line 147, ../sass/_settings.scss */
 .competition-preview {
   border: 1px solid #cccccc;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-/* line 152, ../sass/_settings.scss */
+/* line 153, ../sass/_settings.scss */
 .competition-summary {
   background: #fafafa;
   height: 100px;
   overflow: hidden;
 }
 
-/* line 158, ../sass/_settings.scss */
+/* line 159, ../sass/_settings.scss */
 .competition-preview > .columns > .button.small {
   vertical-align: middle;
   margin-bottom: 5px;
@@ -213,13 +213,13 @@ a > i {
   border-color: #ffac31;
 }
 
-/* line 167, ../sass/_settings.scss */
+/* line 168, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 172, ../sass/_settings.scss */
+/* line 173, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3684d6;
@@ -228,7 +228,7 @@ a > i {
   padding-left: 0px;
 }
 
-/* line 180, ../sass/_settings.scss */
+/* line 181, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -236,33 +236,33 @@ a > i {
   vertical-align: middle;
 }
 
-/* line 187, ../sass/_settings.scss */
+/* line 188, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 191, ../sass/_settings.scss */
+/* line 192, ../sass/_settings.scss */
 .competition-title {
   color: #333333;
   text-align: left;
   font-size: 15px;
 }
 
-/* line 197, ../sass/_settings.scss */
+/* line 198, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 203, ../sass/_settings.scss */
+/* line 204, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
   color: #999999;
 }
 
-/* line 208, ../sass/_settings.scss */
+/* line 209, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -278,26 +278,26 @@ a > i {
   vertical-align: middle;
 }
 
-/* line 223, ../sass/_settings.scss */
+/* line 224, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 228, ../sass/_settings.scss */
+/* line 229, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3684d6;
   color: white;
 }
 
-/* line 234, ../sass/_settings.scss */
+/* line 235, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
 }
 
-/* line 239, ../sass/_settings.scss */
+/* line 240, ../sass/_settings.scss */
 .header {
   position: fixed;
   left: 0;
@@ -306,46 +306,60 @@ a > i {
   z-index: 1000;
 }
 
-/* line 247, ../sass/_settings.scss */
+/* line 248, ../sass/_settings.scss */
 .container {
   padding-top: 45px;
   padding-bottom: 20px;
 }
 
-/* line 252, ../sass/_settings.scss */
-.competition-paragraph {
-  font-size: 12px;
+/* line 253, ../sass/_settings.scss */
+p.competition-paragraph {
+  font-size: 11px;
   color: #666666;
-  line-height: 16px;
+  line-height: 15px;
+  margin-bottom: 0;
 }
 
-/* line 258, ../sass/_settings.scss */
+/* line 260, ../sass/_settings.scss */
 .competition-info {
   height: 90px;
   overflow: hidden;
   padding-top: 5px;
 }
 
-/* line 264, ../sass/_settings.scss */
+/* line 266, ../sass/_settings.scss */
 .competition-image > img {
   height: 90px;
   margin-top: 5px;
 }
 
-/* line 269, ../sass/_settings.scss */
+/* line 271, ../sass/_settings.scss */
 .competition-preview.panel {
   background: #fafafa;
 }
 
-/* line 273, ../sass/_settings.scss */
+/* line 275, ../sass/_settings.scss */
 .competition-tile {
   margin-bottom: 10px;
 }
 
-/* line 277, ../sass/_settings.scss */
+/* line 279, ../sass/_settings.scss */
 .competition-tile h3 {
   font-size: 16px;
   color: #333333;
+}
+
+/* line 284, ../sass/_settings.scss */
+.articleHeadingContainer h3 {
+  margin: 0;
+  line-height: 100%;
+}
+
+/* line 289, ../sass/_settings.scss */
+.articleHeadingContainer label {
+  color: #a4a4a4;
+  margin-bottom: 14px;
+  font-size: 12px;
 }
 
 /* font-face */
@@ -8011,12 +8025,12 @@ a.th {
   max-width: 800px;
 }
 
-/* line 10, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 10, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 html, body {
   height: 100%;
 }
 
-/* line 12, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 12, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 #layout {
   clear: both;
   min-height: 100%;
@@ -8024,12 +8038,12 @@ html, body {
   height: 100%;
   margin-bottom: -25px;
 }
-/* line 18, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 18, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 #layout #layout_footer {
   height: 25px;
 }
 
-/* line 20, ../../../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 20, ../../../../../../../../Ruby200-x64/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 #footer {
   clear: both;
   position: relative;
