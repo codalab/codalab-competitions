@@ -8,6 +8,7 @@ $light-gray: #ccc;
 $light-medium-gray: #a4a4a4;
 $medium-light-gray: #999;
 $dark-gray: #333;
+$light-background-blue:#eff2f9;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -290,4 +291,31 @@ p.competition-paragraph {
 	color:$light-medium-gray;
 	margin-bottom:14px;
 	font-size:12px;
+}
+
+.signin-centered-container {
+	margin:auto !important;
+	float:none !important;
+	background:$light-background-blue;
+	padding:25px;
+}
+
+.small-6.pull-6.columns > .globalBlueButton {
+	float:right
+}
+.signin-formfields p:nth-child(3) > input {
+	float:left;
+	position:relative;
+	top:-20px;
+}
+.signin-formfields p:nth-child(3) > label {
+	padding-left:20px;
+}
+
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
+	box-shadow:none;
+	white-space:nowrap;
+}
+.signin-centered-container > p > a {
+	display:inline-block;
 }
