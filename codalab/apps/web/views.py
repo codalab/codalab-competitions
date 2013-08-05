@@ -62,7 +62,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/my/edit.html'
+    template_name = 'web/competition/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -70,7 +70,8 @@ class CompetitionEdit(UpdateWithInlinesView):
 
 class CompetitionDelete(DeleteView):
     model = models.Competition
-    success_url = reverse_lazy('competition-list')
+    # success_url = reverse_lazy('competition-list')
+    template_name = 'web/competitions/confirm-delete.html'
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()

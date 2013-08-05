@@ -50,6 +50,15 @@ $has-tip-cursor-type: none;
 	font-weight: normal;
 }
 
+
+select {
+	color: $dark-gray;
+}
+
+form textarea {
+	color: $dark-gray;
+	font-size: 16px;
+}
 .menu-icon {
 	background: $background;
 }

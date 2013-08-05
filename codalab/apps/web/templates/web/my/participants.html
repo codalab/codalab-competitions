@@ -2,56 +2,87 @@
 {% load staticfiles %}
 {% block title %}Participants{% endblock %}
 {% block extra_head %}
-    <script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
+<script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
 {% block subheader %}
-    <h4>Participants</h4>
+<h4>Participants</h4>
 {% endblock subheader %}
 {% block content %}
 <div class="large-12 large-centered columns participants content">
     {% if not object_list %}
-        <p>There are no participants.</p>
+    <p>There are no participants.</p>
     {% else %}
-        {% for item in object_list %}
-            <div class="row">
-                <div class="competitionUserBlock">
-                    <div class="large-4 push-8 columns process_participant_request">
-                        {% if item.status.codename == 'pending' %}
-                                <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
-                                    <div class="small-6 push-6 columns">
-                                        <label for="accept"><input name="request" type="radio" id="accept"/> Accept</label>
-                                    </div>
-                                    <div class="small-6 pull-6 columns">
-                                        <label for="deny"><input name="request" type="radio" id="deny"/> Deny</label>
-                                    </div>
-                                    <label for="deny_reason">
-                                        <strong>Reason :</strong>
-                                        <textarea id="deny_reason" name="deny_reason"></textarea>
-                                    </label>
-                                    <input type="submit" class="globalBlueButtonAtag" value="Process" />
-                                </form>
-                        {% endif %} 
+    {% for item in object_list %}
+    <div class="row">
+        <div class="competitionUserBlock competitionUserBlock_{{item.id}}">
+            <div class="large-8 push-4 columns process_participant_request">
+                {% if item.status.codename == 'pending' %}
+                <form class="custom process_request" id="process_request_{{item.id}}">
+                    {% csrf_token %}
+                    <input type="hidden" name="participant_id" value="{{item.id}}"/> 
+                    <div class="row">
+                    <div class="small-8 push-4 columns">
+                        <label for="reason">Reason:</label>
+                        <textarea id="reason" name="reason"></textarea>
                     </div>
-                    <div class="large-8 pull-4 columns">
-                        <h3>{{ item.user.username }}</h3>
-                        {% if item.status.codename == 'pending' %}
-                            <p>Participation pending approval</p>
-                        {% elif item.status.codename == 'approved' %}
-                            <p>Participation approved</p>
-                        {% elif item.status.codename == 'denied' %}
-                            <p>Participation rejected</p>
-                            <p style="color:red;">Reason: {{ item.reason }}</p>
-                        {% else %}
-                            <p>Unknown Status</p>
-                        {% endif %}
+                    <div class="small-4 pull-8 columns">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status">
+                            <option value="approved">Approve</option>
+                            <option value="denied">Deny</option>
+                        </select>
                     </div>
                 </div>
-            </div>               
-        {% endfor %}
+                    <input type="submit" class="globalBlueButton" value="Process" />
+                </form>
+                {% endif %} 
+            </div>
+            <div class="large-4 pull-8 columns">
+                <h3>{{ item.user.username }}</h3>
+                {% if item.status.codename == 'pending' %}
+                <p>Participation pending approval</p>
+                {% elif item.status.codename == 'approved' %}
+                <p>Participation approved</p>
+                {% elif item.status.codename == 'denied' %}
+                <p>Participation rejected</p>
+                <p style="color:red;">Reason: {{ item.reason }}</p>
+                {% else %}
+                <p>Unknown Status</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>               
+    {% endfor %}
     {% endif %}
 </div>
 {% endblock %}
 
 {% block js %}
-    $("#process_request").validate();
+/* $("#process_request").validate(); */
+
+
+/* attach a submit handler to the form */
+$("form").submit(function(event) {
+
+    /* stop form from submitting normally */
+    event.preventDefault();
+
+    /* get some values from elements on the page: */
+    var values = $(this).serialize();
+    var fid = $(this).attr('id');
+
+    /* Send the data using post and put the results in a div */
+    request = $.ajax({
+        url: "/api/competition/{{competition_id}}/participation_status/",
+        type: "post",
+        dataType: "text",
+        data: values,
+        success: function(response, textStatus, jqXHR) {
+            $(fid).remove();
+        },
+        error: function(jsXHR, textStatus, errorThrown) {
+            alert("There was a problem processing this request for this competition.");;
+        }
+    });
+});
 {% endblock js %}
