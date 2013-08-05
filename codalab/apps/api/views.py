@@ -1,3 +1,4 @@
+import json
 from . import serializers
 from rest_framework import (viewsets,views,permissions)
 from rest_framework.decorators import action,link
@@ -12,16 +13,21 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
 
-
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
+        terms = request.DATA['agreed_terms']
         status = webmodels.ParticipantStatus.objects.get(codename='pending')
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
                                                                    defaults={'status': status,
                                                                              'reason': None})
-        return Response(status=(201 if cr else 200))
+        response_data = {
+            'result' : 201 if cr else 200,
+            'id' : p.id
+        }
+
+        return Response(json.dumps(response_data), content_type="application/json")
     
     def _get_userstatus(self,request,pk=None,participant_id=None):
         comp = self.get_object()
@@ -41,23 +47,29 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST','PUT'], permission_classes=[permissions.IsAuthenticated])
     def participation_status(self,request,pk=None):
+        print "made it into handler"
         comp = self.get_object()
         resp = {}
         status = request.DATA['status']
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
+
         try:
-            p = webmodels.CompetitionParticipant.objects.get(competition=comp,
-                                                   pk=part)
+            p = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=part)
             p.status = webmodels.ParticipantStatus.objects.get(codename=status)
             p.reason = reason
             p.save()
-        except ObjectDoesNotExist as e:            
-            return Response(status=400)
-        resp = { 'status': status,
-                 'participantId': part,
-                 'reason': reason }
-        return Response(resp,status=200)
+            resp = { 
+                'status': status,
+                'participantId': part,
+                'reason': reason 
+                }
+        except ObjectDoesNotExist as e:
+            resp = {
+                'status' : 400
+                }      
+        
+        return Response(json.dumps(resp), content_type="application/json")
             
            
     @action(permission_classes=[permissions.IsAuthenticated]

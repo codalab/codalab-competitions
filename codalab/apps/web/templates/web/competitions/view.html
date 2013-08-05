@@ -71,11 +71,9 @@
                                     <form id="participate_form">
                                         {% csrf_token %}
                                         <p><strong>You have not yet registered for this competition.</strong></p>
-
                                         <p>
                                             To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                         </p>
-
                                         <label id="terms" for="checkbox">
                                             <input type="checkbox" name="agreed_terms" id="checkbox" required>
                                             <span class="custom checkbox"></span> 
@@ -143,20 +141,20 @@
            var values = $(this).serialize();
 
           /* Send the data using post and put the results in a div */
-            $.ajax({
-              url: "/api/competition/{{competition.id}}/participate/",
-              type: "post",
-              data: values,
-              success: function(){
-                  alert("success");
-                   $("#result").html('submitted successfully');
-              },
-              error:function(){
-                  alert("failure");
-                  $("#result").html('there is error while submit');
-              }   
-            }); 
+            request = $.ajax({
+                url: "/api/competition/{{competition.id}}/participate/",
+                type: "post",
+                dataType: "text",
+                data: values,
+                success: function(response, textStatus, jqXHR) {
+                        $('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
+                    },
+                error: function(jsXHR, textStatus, errorThrown) {
+                        alert("There was a problem registering for this competition.");;
+                    }
+            });
         });
+
         // In partials loaded, initialize the data tables
         var prTable = $("#user_results").dataTable({
             'bPaginate' : false,
@@ -169,25 +167,5 @@
             'bInfo'     : false,
             'bFilter'   : false
         });
-
-    /* Add event listener for opening and closing details
-     * Note that the indicator for showing which row is open is not controlled by DataTables,
-     * rather it is done here
-     */
-    $('#user_results tbody td img').live('click', function () {
-        var nTr = $(this).parents('tr')[0];
-        if ( prTable.fnIsOpen(nTr) )
-        {
-            /* This row is already open - close it */
-            this.src = "../examples_support/details_open.png";
-            prTable.fnClose( nTr );
-        }
-        else
-        {
-            /* Open this row */
-            this.src = "../examples_support/details_close.png";
-            prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
-        }
-    } );
     });
 {% endblock js %}
