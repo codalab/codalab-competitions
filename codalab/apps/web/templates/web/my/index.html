@@ -2,10 +2,8 @@
 {% block title %}My CodaLab{% endblock %}
 {% block content %}
 <div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 push-3 columns">
-        <div class="section-container auto" data-section data-section-resized data-options="deep_linking:true">
+        <div class="section-container auto" data-section data-section-resized>
           <section>
             <p class="title" id="managed" data-section-title>
                 <a href="#manage">Competitions I'm Running</a>
@@ -22,7 +20,7 @@
             </p>
             <div class="content" data-section-content>
                 <div class="my_participating">
-                    {% include "web/my/_entered.html" with competitions=my_competitions %}
+                    {% include "web/my/_entered.html" with competitions=competitions_im_in %}
                 </div>
             </div>
           </section>

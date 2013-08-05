@@ -203,9 +203,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not obj.participant:
             obj.participant = self.request.user
         
-
-    @action( permission_classes=[permissions.IsAuthenticated]
-            )
+    @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None,competition_id=None):
         submission = self.get_object()
         if True or submission.phase.is_active:

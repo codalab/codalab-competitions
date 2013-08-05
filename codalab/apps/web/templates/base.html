@@ -1,6 +1,7 @@
 {% load url from future %}
 {% load account %}
 {% load analytical %}
+{% load compress %}
 
 <!DOCTYPE html>
 
@@ -21,18 +22,22 @@
   <title>CodaLab - {% block head_title %}{% endblock %}</title>
 
   {% block css %}
-      <!-- Included CSS Files (Compressed) -->
-      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
-      <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
-      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+    {% compress css %}
+        <!-- Included CSS Files (Compressed) -->
+        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+    {% endcompress %}
 
-      <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+    {% compress js %}
+        <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
-      <!-- IE Fix for HTML5 Tags -->
-      <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
-  {% endblock %}
+        <!-- IE Fix for HTML5 Tags -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    {% endcompress %}
+  {% endblock css %}
 
   {% block extra_headers %}{% endblock extra_headers %}
   {% analytical_head_top %}

@@ -78,6 +78,7 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 0,
+    'codename' : "overview",
     'label' : "Overview"
   },
   {
@@ -85,13 +86,15 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 1,
-    'label' : "Evaluate"
+    'codename' : "evaluation",
+    'label' : "Evaluation"
   },
   {
     'category' : content_categories['learn_the_details'],
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 2,
+    'codename' : "terms_and_conditions",
     'label' : "Terms and Conditions"
   },
   {
@@ -99,6 +102,7 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 0,
+    'codename' : "get_data",
     'label' : "Get Data"
   },
   {
@@ -106,13 +110,14 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 1,
+    'codename' : 'submit_results',
     'label' : "Submit Results"
   }
 ]
 
 for dci in cis:
   dcii, created = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
-                            rank=dci['rank'], required=dci['required'],
+                            rank=dci['rank'], required=dci['required'],codename=dci['codename'],
                             initial_visibility=dci['initial_visibility'])
   dcii.save()
 
