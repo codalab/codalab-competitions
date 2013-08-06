@@ -1,35 +1,33 @@
 ﻿{% if not competitions %}
-    <p>You do not manage any competitions.</p>
+  <p>You do not manage any competitions.</p>
 {% else %}
-    {% for item in competitions %}
+  {% for item in competitions %}
     <div class="competition-tile">
-        <article class="subContainer">
-            <input id="competitionID" type="hidden" value="{{ item.pk }}" />
-            <div class="competitionTileLftStrip"></div>
-            <div class="articleTextArea">
-                <div class="articleTextAreaContainer">
-                    <div class="articleImageContainer">
-                        <div class="subContainerPadding">
-                            <img src="{{ item.image_url }}" width="100px">
-                      </div>
-                  </div>
-                  <div class="subContainerPadding">
-                    <div class="articleHeadingContainer">
-                        <h3>{{ item.title }}</h3>
-                        <label>by {{ item.created_by }}</label>
-                    </div>
-                    <p>{{ item.description }}</p>
-                </div>
+      <article class="subContainer">
+        <input id="competitionID" type="hidden" value="{{ item.pk }}" />
+        <div class="competitionTileLftStrip"></div>
+        <div class="articleTextArea">
+          <div class="articleTextAreaContainer">
+            <div class="articleImageContainer">
+              <div class="subContainerPadding">
+                <img src="{{ item.image_url }}" width="100px">
+              </div>
             </div>
-            <div class="globalYellowButtonSmallAtag">
-             <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
-             <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
-             <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
-
-             {#  @Html.ActionLink("Manage co-owners", "Coowners", new { id = item.CompetitionId }) #}
+            <div class="subContainerPadding">
+              <div class="articleHeadingContainer">
+                <h3>{{ item.title }}</h3>
+                <label>by {{ item.created_by }}</label>
+              </div>
+              <p>{{ item.description }}</p>
+            </div>
+          </div>
+          <div class="globalYellowButtonSmallAtag">
+            <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
+            <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
          </div>
-     </div>
-    </article>
+       </div>
+     </article>
     </div>                
-    {% endfor %}    
+  {% endfor %}    
 {% endif %}

@@ -34,6 +34,7 @@ class ContentCategory(MPTTModel):
 class DefaultContentItem(models.Model):
     category = TreeForeignKey(ContentCategory)
     label = models.CharField(max_length=100)
+    codename = models.SlugField(max_length=100,unique=True)
     rank = models.IntegerField(default=0)
     required = models.BooleanField(default=False)
     initial_visibility =  models.ForeignKey(ContentVisibility)
@@ -60,6 +61,7 @@ class PageContainer(models.Model):
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    codename = models.SlugField(max_length=100,unique=True)
     container = models.ForeignKey(PageContainer, related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100)
@@ -116,21 +118,14 @@ class ExternalFile(models.Model):
         return self.name
 # End External File Models
 
-
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30,unique=True)
     description = models.CharField(max_length=50)
 
-
-
     def __unicode__(self):
         return self.name
-
-class CompetitionPageSection(models.Model):
-    title = models.CharField(max_length=32)
-    slug = models.CharField(max_length=16)
 
 class Competition(models.Model):
     """ This is the base competition. """
@@ -144,7 +139,6 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
-    page_sections = models.ManyToManyField(CompetitionPageSection)
 
     class Meta:
         permissions = (
@@ -174,12 +168,6 @@ class Competition(models.Model):
     @property
     def is_active(self):
         return self.end_date < now().date()
-
-class CompetitionPageSubSection(models.Model):
-    title = models.CharField(max_length=32)
-    content = models.TextField(null=True, blank=True)
-    slug = models.CharField(max_length=16)
-    section = models.ForeignKey(CompetitionPageSection, related_name='sections')
 
 # Dataset model
 class Dataset(models.Model):
