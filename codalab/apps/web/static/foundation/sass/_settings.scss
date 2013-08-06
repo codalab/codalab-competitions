@@ -9,6 +9,8 @@ $light-medium-gray: #a4a4a4;
 $medium-light-gray: #999;
 $dark-gray: #333;
 $light-background-blue:#eff2f9;
+$link-color: #3684d6;
+
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -41,6 +43,11 @@ $section-title-color-active: $gray;
 $section-title-bg-hover: none;
 
 $tooltip-bg: $background;
+
+@mixin linkStyle {
+	color:$link-color;
+	font-size:14px;
+}
 
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
@@ -316,6 +323,64 @@ p.competition-paragraph {
 	box-shadow:none;
 	white-space:nowrap;
 }
+
 .signin-centered-container > p > a {
 	display:inline-block;
+}
+
+ul.side-nav {
+	 padding-top:0;
+	 position:fixed;
+	 li {
+		margin-bottom:2px;
+	 }
+	 li a {
+		@include linkStyle;
+		&:hover{color:$active}
+		&:active{background:none}
+	  }
+	li.active a {
+		color:$gray !important
+	}
+}
+.glossary-page-container {
+	h6 { 
+		font-size:14px; 
+		color:$gray
+		}
+
+	p { 
+		font-size:12px; 
+		color:$gray
+		}
+
+	ol { 
+		font-size:13px; color:$gray;
+
+		li {
+			padding-bottom:10px;
+			list-style-type:disc;
+		}
+	}
+
+	ul { 
+		font-size:13px; 
+		color:$gray;
+		margin-left:20px;
+
+		li{
+			padding-bottom:10px;
+			list-style-type:disc;
+		}
+	}
+
+	pre {
+		padding:10px;
+		background:$banner;
+		margin-bottom:15px;
+		}
+
+	a {
+		color:$link-color
+		}
 }
