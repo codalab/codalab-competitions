@@ -1,9 +1,10 @@
 <div class="section-container vertical-tabs" data-section="vertical-tabs" data-section-resized data-options="deep_linking:true">
     {% for subsection in contents %}
     <section>
-        <p class="title CompetitionsDetailLftUl" data-section-title><a href="#{{tab.codename}}-{{subsection.id}}">{{subsection.label}}</a></p>
-        <div class="content" data-slug="{{tab.codename}}-{{subsection.id}}" data-section-content>
+        <p class="title CompetitionsDetailLftUl" data-section-title><a href="#{{tab.codename}}-{{subsection.codename}}">{{subsection.label}}</a></p>
+        <div class="content" data-slug="{{tab.codename}}-{{subsection.codename}}" data-section-content>
             {% if subsection.id == 8 %}
+            {{subsection.codename}}
                 {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
             {% else %}
                 {{subsection.html|safe}}

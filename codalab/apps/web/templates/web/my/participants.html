@@ -2,130 +2,87 @@
 {% load staticfiles %}
 {% block title %}Participants{% endblock %}
 {% block extra_head %}
-<script src="{% static 'site/js/ParticipantsTs.js' %}"></script>
 <script src="{% static "foundation/js/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
+{% block subheader %}
+<h4>Participants</h4>
+{% endblock subheader %}
 {% block content %}
-<div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-12 large-centered columns participants">
-
-        <div class="mainContainer">
-            <div class="compBlockTbl">
-                <div class="compProfileContainer" style="display:none">
-                    <div class="container">
-                        <div class="profileImage">
-                            <!-- Image-------------- -->
-                            <figure class="userImage"></figure>
-                            <div class="userSocialNetworkBlock">
-                                <div class="fBIcon"></div>
-                                <div class="twitIcon"></div>
-                                <div class="linkedIcon"></div>
-                            </div>
-                            <!-- Image-------------- -->
-                        </div>
-                        <div class="profileContentArea">
-                            <h3>My Username</h3>
-                            <div class="subContainer">
-                                <p class="containerTextS">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sodales viverra tellus vitae rutrum. Nunc vehicula luctus mauris, vel gravida quam cursus quis. Nam blandit elit nec leo congue eu rhoncus dolor fermentum.</p>
-                            </div>
-                        </div>
-                        <div class="ProjectDetailArea">
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                            <div>
-                                <label>projects:</label>
-                                <label>285</label>
-                            </div>
-                        </div>
+<div class="large-12 large-centered columns participants content">
+    {% if not object_list %}
+    <p>There are no participants.</p>
+    {% else %}
+    {% for item in object_list %}
+    <div class="row">
+        <div class="competitionUserBlock competitionUserBlock_{{item.id}}">
+            <div class="large-8 push-4 columns process_participant_request">
+                {% if item.status.codename == 'pending' %}
+                <form class="custom process_request" id="process_request_{{item.id}}">
+                    {% csrf_token %}
+                    <input type="hidden" name="participant_id" value="{{item.id}}"/> 
+                    <div class="row">
+                    <div class="small-8 push-4 columns">
+                        <label for="reason">Reason:</label>
+                        <textarea id="reason" name="reason"></textarea>
+                    </div>
+                    <div class="small-4 pull-8 columns">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status">
+                            <option value="approved">Approve</option>
+                            <option value="denied">Deny</option>
+                        </select>
                     </div>
                 </div>
-                <div class="compBlockRightContainer">
-                    <div class="container myCodalabBlock">
-                        <h2>Participants</h2>
-                        <input id="competitionID" type="hidden" value="{{ competition_id }}" />
-                        <div class="container">
-                           {% if not object_list %}
-                           <p>There are no participants.</p>
-                           {% else %}
-                           {% for item in object_list %}
-                           <div class="competitionUserBlock">
-                            <div class="subContainerPadding">
-                                <div class="articleHeadingContainer">
-                                    <h3>{{ item.user.username }}</h3>
-                                </div>
-                                {% if item.status.codename == 'pending' %}
-                                <p>Participation pending approval</p>
-                                {% elif item.status.codename == 'approved' %}
-                                <p>Participation approved</p>
-                                {% elif item.status.codename == 'denied' %}
-                                <p>Participation rejected</p>
-                                <p style="color:red;">Reason: {{ item.reason }}</p>
-                                {% else %}
-                                <p>Unknown Status</p>
-                                {% endif %}
-
-                                {% if item.status.codename == 'pending' %}
-
-                                <div class="competitionUserBtnBlock">
-                                    <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
-                                        <label for="accept"><input name="request" type="radio" id="accept">Accept</label>
-                                        <label for="deny">  <input name="request" type="radio" id="deny">Deny</label>
-                                        <textarea id="deny_reason" name="deny_reason"></textarea>
-                                        <input type="submit" class="globalBlueButtonAtag" value="Process" />
-                                    </form>
-                               </div>
-                               {% endif %} 
-                               <div class="buttonPreloader"></div>
-
-                           </div>
-                       </div>                
-                       {% endfor %}
-                       {% endif %}
-                   </div>
-               </div>
-           </div>
-           <div class="popupContainer">
-            <div class="popupContainerBorder">
-                <div class="popupBlock">
-                    <h1>Main Popup</h1>
-                    <div class="containerSpace">
-                        <textarea  id="reason" style="width:540px;height:110px;"></textarea>
-                    </div>
-                </div>
-                <div class="container">
-                    <a class="button2Small rFloat cancel">cancel</a>
-                    <a id="btnOk" class="button3Small rFloat ok">ok</a>
-                </div>
+                    <input type="submit" class="globalBlueButton" value="Process" />
+                </form>
+                {% endif %} 
+            </div>
+            <div class="large-4 pull-8 columns">
+                <h3>{{ item.user.username }}</h3>
+                {% if item.status.codename == 'pending' %}
+                <p>Participation pending approval</p>
+                {% elif item.status.codename == 'approved' %}
+                <p>Participation approved</p>
+                {% elif item.status.codename == 'denied' %}
+                <p>Participation rejected</p>
+                <p style="color:red;">Reason: {{ item.reason }}</p>
+                {% else %}
+                <p>Unknown Status</p>
+                {% endif %}
             </div>
         </div>
-        <div class="grayOverlaper"></div>
-    </div></div>
-</div>
+    </div>               
+    {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block js %}
-    $("#deny").change(function() {
-        $("#deny_reason").toggle(this.checked)
-    });
+/* $("#process_request").validate(); */
 
-    $("#process_request").validate({
-        rules : {
-            'deny_reason' : {
-                required: {
-                    depends : function(element) {
-                        return $("input[name='deny_reason']").is(":checked");
-                    }
-                }
-            }
+
+/* attach a submit handler to the form */
+$("form").submit(function(event) {
+
+    /* stop form from submitting normally */
+    event.preventDefault();
+
+    /* get some values from elements on the page: */
+    var values = $(this).serialize();
+    var fid = $(this).attr('id');
+
+    /* Send the data using post and put the results in a div */
+    request = $.ajax({
+        url: "/api/competition/{{competition_id}}/participation_status/",
+        type: "post",
+        dataType: "text",
+        data: values,
+        success: function(response, textStatus, jqXHR) {
+            $(fid).remove();
+        },
+        error: function(jsXHR, textStatus, errorThrown) {
+            alert("There was a problem processing this request for this competition.");;
         }
     });
+});
 {% endblock js %}

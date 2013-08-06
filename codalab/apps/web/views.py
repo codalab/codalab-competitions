@@ -26,8 +26,8 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.all(),
-        'competitions_im_in' : models.Competition.objects.all()
+        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'competitions_im_in' : request.user.participation.all()
         })
     return HttpResponse(template.render(context))
 
@@ -62,7 +62,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/my/edit.html'
+    template_name = 'web/competition/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -70,7 +70,8 @@ class CompetitionEdit(UpdateWithInlinesView):
 
 class CompetitionDelete(DeleteView):
     model = models.Competition
-    success_url = reverse_lazy('competition-list')
+    # success_url = reverse_lazy('competition-list')
+    template_name = 'web/competitions/confirm-delete.html'
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -92,8 +93,11 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
 
         try:
-            if self.request.user.is_authenticated():
-                context['participant'] = self.request.user in [x.user for x in context['object'].participants.all()]
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
+                context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
+            else:
+                context['my_status'] = "unknown"
+
         except ObjectDoesNotExist:
             pass
 
