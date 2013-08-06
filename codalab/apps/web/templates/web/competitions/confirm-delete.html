@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block subheader %}Delete Competition{% endblock subheader %}
+{% block content %}
+	<p>Really delete {{ competition }}?</p>
+
+	<form class="wide" action="." method="post">
+		{% csrf_token %}
+		<input type="submit" class="submit globalYellowButtonSmall" value="Yes, delete the competition.">
+	</form>
+{% endblock %}

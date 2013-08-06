@@ -1,7 +1,8 @@
 # CodaLab Files #
 #################
 codalab/config/generated
-codalab/static/*/*
+codalab/static/**/**
+codalab/media/**/**
 /bundles/*
 
 # Virtuelenv files #

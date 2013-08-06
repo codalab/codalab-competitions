@@ -1,6 +1,7 @@
 {% load url from future %}
 {% load account %}
 {% load analytical %}
+{% load compress %}
 
 <!DOCTYPE html>
 
@@ -21,18 +22,22 @@
   <title>CodaLab - {% block head_title %}{% endblock %}</title>
 
   {% block css %}
-      <!-- Included CSS Files (Compressed) -->
-      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
-      <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
-      <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+    {% compress css %}
+        <!-- Included CSS Files (Compressed) -->
+        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+    {% endcompress %}
 
-      <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+    {% compress js %}
+        <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
-      <!-- IE Fix for HTML5 Tags -->
-      <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
-  {% endblock %}
+        <!-- IE Fix for HTML5 Tags -->
+        <!--[if lt IE 9]>
+          <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    {% endcompress %}
+  {% endblock css %}
 
   {% block extra_headers %}{% endblock extra_headers %}
   {% analytical_head_top %}
@@ -71,9 +76,16 @@
                   </form>
                 </li> -->
                 {% if user.is_authenticated %}
-                  <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>  
+                  <li class="menu-icon has-dropdown">
+                      <a href="#profile"><i class="social-foundicon-torso"></i></a>
+                      <ul class="dropdown">
+                        <li><label>{{user.username}}</label></li>
+                        <li><a href="#">My Profile</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{% url 'account_logout' %}">Sign out</a></li>
+                      </ul>
+                  </li>
                 {% else %}
-                  <li class="menu-icon"><a href="{% url 'account_signup' %}">Sign Up</a></li>                
                   <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>  
                 {% endif %}      
               </ul>

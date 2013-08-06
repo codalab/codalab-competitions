@@ -63,46 +63,153 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 37, ../sass/_settings.scss */
+/* line 64, ../sass/_settings.scss */
 * {
   font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
 
-/* line 43, ../sass/_settings.scss */
+/* line 70, ../sass/_settings.scss */
+select {
+  color: #333333;
+}
+
+/* line 74, ../sass/_settings.scss */
+form textarea {
+  color: #333333;
+  font-size: 16px;
+}
+
+/* line 79, ../sass/_settings.scss */
+.menu-icon {
+  background: #3684d6;
+}
+
+/* line 83, ../sass/_settings.scss */
+.menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
+  border-bottom-style: none;
+  border: 0px;
+  padding: 2px;
+}
+
+/* line 89, ../sass/_settings.scss */
+span.has-tip {
+  border-bottom: 0px;
+}
+
+/* line 93, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
+  color: #ffac31;
+}
+
+/* line 97, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
+  background: transparent;
+}
+
+/* line 101, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
+  border: 0px;
+}
+
+/* line 105, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
+  padding: 2px;
+  text-align: right;
+  border: 0px;
+}
+
+/* line 111, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
+  border: 0px;
+}
+
+/* line 115, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+/* line 120, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+/* line 125, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content em {
+  font-size: 13px;
+}
+
+/* line 129, ../sass/_settings.scss */
+td > a > i {
+  color: #3684d6;
+}
+
+/* line 133, ../sass/_settings.scss */
+a > i {
+  height: 100%;
+  color: white;
+}
+
+/* line 138, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title {
+  font-size: 19px;
+  font-weight: 400;
+}
+
+/* line 143, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title a:hover {
+  color: #ffac31;
+}
+
+/* line 147, ../sass/_settings.scss */
+.process_participant_request {
+  padding-top: 10px;
+}
+
+/* line 152, ../sass/_settings.scss */
+.competitionUserBlock {
+  border: solid 1px #ccc;
+  margin-bottom: 10px;
+  position: relative;
+  padding: 0;
+}
+
+/* line 159, ../sass/_settings.scss */
 .user_results, .competition_results {
   padding-top: 10px;
 }
 
-/* line 46, ../sass/_settings.scss */
+/* line 163, ../sass/_settings.scss */
 .globalBlueButton a, .globalBlueButton a:hover {
   color: white;
 }
 
-/* line 50, ../sass/_settings.scss */
+/* line 167, ../sass/_settings.scss */
 .content > h3 {
   font-size: 14px;
   font-weight: 700;
 }
 
-/* line 55, ../sass/_settings.scss */
+/* line 172, ../sass/_settings.scss */
 .content > p {
   font-size: 13px;
 }
 
-/* line 59, ../sass/_settings.scss */
+/* line 176, ../sass/_settings.scss */
 .section-container.vertical-tabs > section > .content {
   border: 0px;
   color: #3b3b3b;
 }
 
-/* line 64, ../sass/_settings.scss */
+/* line 181, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li {
   height: 100%;
 }
 
-/* line 67, ../sass/_settings.scss */
+/* line 185, ../sass/_settings.scss */
 .competitionProcessHeader > ul > li > a {
   color: white;
   font-size: 13px;
@@ -110,21 +217,21 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-right: 40px;
 }
 
-/* line 74, ../sass/_settings.scss */
+/* line 192, ../sass/_settings.scss */
 .competition-preview {
   border: 1px solid #cccccc;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-/* line 80, ../sass/_settings.scss */
+/* line 198, ../sass/_settings.scss */
 .competition-summary {
   background: #fafafa;
   height: 100px;
   overflow: hidden;
 }
 
-/* line 86, ../sass/_settings.scss */
+/* line 204, ../sass/_settings.scss */
 .competition-preview > .columns > .button.small {
   vertical-align: middle;
   margin-bottom: 5px;
@@ -134,13 +241,13 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   border-color: #ffac31;
 }
 
-/* line 95, ../sass/_settings.scss */
+/* line 213, ../sass/_settings.scss */
 .competition-summary > .columns {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 100, ../sass/_settings.scss */
+/* line 218, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
   background: #3684d6;
@@ -149,7 +256,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 0px;
 }
 
-/* line 108, ../sass/_settings.scss */
+/* line 226, ../sass/_settings.scss */
 .competition-image {
   padding: 0px;
   margin: 0px;
@@ -157,33 +264,33 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   vertical-align: middle;
 }
 
-/* line 115, ../sass/_settings.scss */
+/* line 233, ../sass/_settings.scss */
 .competition-info .columns {
   padding: 0px;
   margin: 0px;
 }
 
-/* line 119, ../sass/_settings.scss */
+/* line 238, ../sass/_settings.scss */
 .competition-title {
   color: #333333;
   text-align: left;
   font-size: 15px;
 }
 
-/* line 125, ../sass/_settings.scss */
+/* line 244, ../sass/_settings.scss */
 .large-12 > .competition-label {
   margin: 0px;
   padding: 0px;
   width: 30px;
 }
 
-/* line 131, ../sass/_settings.scss */
+/* line 250, ../sass/_settings.scss */
 .competition-description, .competition-owner {
   font-size: small;
   color: #999999;
 }
 
-/* line 136, ../sass/_settings.scss */
+/* line 255, ../sass/_settings.scss */
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -192,33 +299,33 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   position: relative;
   text-align: center;
   background: #D7CDBF;
-  padding-top: 105px;
+  padding-top: 70px;
   margin: 0 auto;
   width: 100%;
   min-height: 200px;
   vertical-align: middle;
 }
 
-/* line 151, ../sass/_settings.scss */
+/* line 270, ../sass/_settings.scss */
 .subheader {
   height: auto;
   padding-bottom: 10px;
 }
 
-/* line 156, ../sass/_settings.scss */
+/* line 275, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
   background: #3684d6;
   color: white;
 }
 
-/* line 162, ../sass/_settings.scss */
+/* line 281, ../sass/_settings.scss */
 .topbar-title {
   font-size: x-large;
   font-weight: light;
 }
 
-/* line 167, ../sass/_settings.scss */
+/* line 286, ../sass/_settings.scss */
 .header {
   position: fixed;
   left: 0;
@@ -227,46 +334,225 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   z-index: 1000;
 }
 
-/* line 175, ../sass/_settings.scss */
+/* line 294, ../sass/_settings.scss */
 .container {
   padding-top: 45px;
   padding-bottom: 20px;
 }
 
-/* line 180, ../sass/_settings.scss */
-.competition-paragraph {
-  font-size: 12px;
+/* line 299, ../sass/_settings.scss */
+p.competition-paragraph {
+  font-size: 11px;
   color: #666666;
-  line-height: 16px;
+  line-height: 15px;
+  margin-bottom: 0;
 }
 
-/* line 186, ../sass/_settings.scss */
+/* line 306, ../sass/_settings.scss */
 .competition-info {
   height: 90px;
   overflow: hidden;
   padding-top: 5px;
 }
 
-/* line 192, ../sass/_settings.scss */
+/* line 312, ../sass/_settings.scss */
 .competition-image > img {
   height: 90px;
   margin-top: 5px;
 }
 
-/* line 197, ../sass/_settings.scss */
+/* line 317, ../sass/_settings.scss */
 .competition-preview.panel {
   background: #fafafa;
 }
 
-/* line 201, ../sass/_settings.scss */
+/* line 321, ../sass/_settings.scss */
 .competition-tile {
   margin-bottom: 10px;
 }
 
-/* line 205, ../sass/_settings.scss */
+/* line 325, ../sass/_settings.scss */
 .competition-tile h3 {
   font-size: 16px;
   color: #333333;
+}
+
+/* line 330, ../sass/_settings.scss */
+.articleHeadingContainer h3 {
+  margin: 0;
+  line-height: 100%;
+}
+
+/* line 335, ../sass/_settings.scss */
+.articleHeadingContainer label {
+  color: #a4a4a4;
+  margin-top: 4px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+/* line 342, ../sass/_settings.scss */
+.signin-centered-container {
+  margin: auto !important;
+  float: none !important;
+  background: #eff2f9;
+  padding: 25px;
+}
+
+/* line 349, ../sass/_settings.scss */
+.small-6.pull-6.columns > .globalBlueButton {
+  float: right;
+}
+
+/* line 353, ../sass/_settings.scss */
+.signin-formfields p:nth-child(3) > input {
+  float: left;
+  position: relative;
+  top: -20px;
+}
+
+/* line 359, ../sass/_settings.scss */
+.signin-formfields p:nth-child(3) > label {
+  padding-left: 20px;
+}
+
+/* line 363, ../sass/_settings.scss */
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* line 368, ../sass/_settings.scss */
+.signin-centered-container > p > a {
+  display: inline-block;
+}
+
+/* line 372, ../sass/_settings.scss */
+ul.side-nav {
+  padding-top: 0;
+  position: fixed;
+}
+/* line 375, ../sass/_settings.scss */
+ul.side-nav li {
+  margin-bottom: 2px;
+}
+/* line 378, ../sass/_settings.scss */
+ul.side-nav li a {
+  color: #3684d6 !important;
+  font-size: 15px !important;
+}
+/* line 380, ../sass/_settings.scss */
+ul.side-nav li a:hover {
+  color: #ffac31;
+}
+/* line 381, ../sass/_settings.scss */
+ul.side-nav li a:active {
+  background: none;
+}
+/* line 383, ../sass/_settings.scss */
+ul.side-nav li.active a {
+  color: #666666 !important;
+}
+
+/* line 389, ../sass/_settings.scss */
+.glossary-page-container h6, competitions-block-Styling h6, .section-container.vertical-tabs .content h6 {
+  font-size: 14px;
+  color: #666666;
+}
+/* line 394, ../sass/_settings.scss */
+.glossary-page-container p, competitions-block-Styling p, .section-container.vertical-tabs .content p {
+  font-size: 12px;
+  color: #666666;
+}
+/* line 399, ../sass/_settings.scss */
+.glossary-page-container ol, competitions-block-Styling ol, .section-container.vertical-tabs .content ol {
+  font-size: 13px;
+  color: #666666;
+}
+/* line 402, ../sass/_settings.scss */
+.glossary-page-container ol li, competitions-block-Styling ol li, .section-container.vertical-tabs .content ol li {
+  padding-bottom: 10px;
+  list-style-type: disc;
+}
+/* line 408, ../sass/_settings.scss */
+.glossary-page-container ul, competitions-block-Styling ul, .section-container.vertical-tabs .content ul {
+  font-size: 13px;
+  color: #666666;
+  margin-left: 20px;
+}
+/* line 413, ../sass/_settings.scss */
+.glossary-page-container ul li, competitions-block-Styling ul li, .section-container.vertical-tabs .content ul li {
+  padding-bottom: 10px;
+  list-style-type: disc;
+}
+/* line 419, ../sass/_settings.scss */
+.glossary-page-container pre, competitions-block-Styling pre, .section-container.vertical-tabs .content pre {
+  padding: 10px;
+  background: #ebf2fb;
+  margin-bottom: 15px;
+}
+/* line 425, ../sass/_settings.scss */
+.glossary-page-container a, competitions-block-Styling a, .section-container.vertical-tabs .content a {
+  color: #3684d6;
+}
+/* line 429, ../sass/_settings.scss */
+.glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
+  color: #666666;
+}
+
+/* line 435, ../sass/_settings.scss */
+div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
+  background: white;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+  font-size: 19px;
+}
+
+/* line 443, ../sass/_settings.scss */
+.auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
+  background: #f8f8f8 !important;
+}
+
+/* line 447, ../sass/_settings.scss */
+.auto.section-container > section.active > .title {
+  border-bottom: solid 1px #f8f8f8 !important;
+}
+/* line 449, ../sass/_settings.scss */
+.auto.section-container > section.active > .title a {
+  background: #f8f8f8 !important;
+}
+
+/* line 455, ../sass/_settings.scss */
+.section-container.vertical-tabs .content {
+  padding-top: 1px !important;
+}
+/* line 458, ../sass/_settings.scss */
+.section-container.vertical-tabs .content p {
+  color: #3b3b3b;
+  font-size: 13px;
+  line-height: 22px;
+}
+/* line 463, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl {
+  margin-bottom: 2px;
+}
+/* line 466, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl a {
+  color: #3684d6 !important;
+  font-size: 15px !important;
+}
+/* line 468, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl a:hover {
+  color: #ffac31 !important;
+}
+/* line 469, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl a:active {
+  background: none !important;
+}
+/* line 473, ../sass/_settings.scss */
+.section-container.vertical-tabs .active a {
+  color: #666666 !important;
+  font-weight: bold;
 }
 
 /* font-face */
@@ -4465,7 +4751,7 @@ label.error {
 .section-container.accordion > section > .title a,
 .section-container.accordion > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
@@ -4479,7 +4765,7 @@ label.error {
 .section-container.horizontal-nav > .section > .title:hover,
 .section-container.accordion > section > .title:hover,
 .section-container.accordion > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .section-container.auto > section > .content, .section-container.auto > .section > .content,
@@ -4553,7 +4839,7 @@ label.error {
 .section-container.horizontal-nav > .section.active > .title a,
 .section-container.accordion > section.active > .title a,
 .section-container.accordion > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active),
@@ -4634,13 +4920,13 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title a, .section-container.tabs > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
 /* line 217, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title:hover, .section-container.tabs > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .content, .section-container.tabs > .section > .content {
@@ -4666,7 +4952,7 @@ label.error {
 }
 /* line 233, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section.active > .title a, .section-container.tabs > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section:not(.active), .section-container.tabs > .section:not(.active) {
@@ -4732,13 +5018,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title a, .section-container.auto > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title:hover, .section-container.auto > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .content, .section-container.auto > .section > .content {
@@ -4764,7 +5050,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active) {
@@ -4850,13 +5136,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title a, .section-container.vertical-tabs > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title:hover, .section-container.vertical-tabs > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .content, .section-container.vertical-tabs > .section > .content {
@@ -4882,7 +5168,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section.active > .title a, .section-container.vertical-tabs > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section:not(.active), .section-container.vertical-tabs > .section:not(.active) {
@@ -4979,13 +5265,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title a, .section-container.vertical-nav > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title:hover, .section-container.vertical-nav > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .content, .section-container.vertical-nav > .section > .content {
@@ -5011,7 +5297,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section.active > .title a, .section-container.vertical-nav > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section:not(.active), .section-container.vertical-nav > .section:not(.active) {
@@ -5102,13 +5388,13 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title a, .section-container.horizontal-nav > .section > .title a {
     padding: 0.9375em;
-    color: #333333;
+    color: #3684d6;
     font-size: 0.875em;
     background: none;
   }
   /* line 217, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title:hover, .section-container.horizontal-nav > .section > .title:hover {
-    background-color: #e2e2e2;
+    background-color: none;
   }
   /* line 220, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .content, .section-container.horizontal-nav > .section > .content {
@@ -5134,7 +5420,7 @@ label.error {
   }
   /* line 233, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section.active > .title a, .section-container.horizontal-nav > .section.active > .title a {
-    color: #333333;
+    color: #666666;
   }
   /* line 237, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section:not(.active), .section-container.horizontal-nav > .section:not(.active) {
@@ -5204,13 +5490,13 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title a, .no-js .section-container > .section > .title a {
   padding: 0.9375em;
-  color: #333333;
+  color: #3684d6;
   font-size: 0.875em;
   background: none;
 }
 /* line 217, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title:hover, .no-js .section-container > .section > .title:hover {
-  background-color: #e2e2e2;
+  background-color: none;
 }
 /* line 220, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .content, .no-js .section-container > .section > .content {
@@ -5236,7 +5522,7 @@ label.error {
 }
 /* line 233, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section.active > .title a, .no-js .section-container > .section.active > .title a {
-  color: #333333;
+  color: #666666;
 }
 /* line 237, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section:not(.active), .no-js .section-container > .section:not(.active) {
@@ -7714,14 +8000,14 @@ a.th {
 /* Tooltips */
 /* line 29, ../scss/foundation/components/_tooltips.scss */
 .has-tip {
-  border-bottom: dotted 1px #cccccc;
-  cursor: help;
+  border-bottom: 0px;
+  cursor: none;
   font-weight: bold;
   color: #333333;
 }
 /* line 36, ../scss/foundation/components/_tooltips.scss */
 .has-tip:hover, .has-tip:focus {
-  border-bottom: dotted 1px #196177;
+  border-bottom: 0px;
   color: #2ba6cb;
 }
 /* line 42, ../scss/foundation/components/_tooltips.scss */
@@ -7742,7 +8028,7 @@ a.th {
   left: 50%;
   width: 100%;
   color: white;
-  background: black;
+  background: #3684d6;
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
@@ -7754,32 +8040,32 @@ a.th {
   width: 0;
   height: 0;
   border: solid 5px;
-  border-color: transparent transparent black transparent;
+  border-color: transparent transparent #3684d6 transparent;
   top: -10px;
 }
 /* line 71, ../scss/foundation/components/_tooltips.scss */
 .tooltip.opened {
   color: #2ba6cb !important;
-  border-bottom: dotted 1px #196177 !important;
+  border-bottom: 0px !important;
 }
 
 /* line 77, ../scss/foundation/components/_tooltips.scss */
 .tap-to-close {
   display: block;
   font-size: 0.625em;
-  color: #888888;
+  color: white;
   font-weight: normal;
 }
 
 @media only screen and (min-width: 768px) {
   /* line 86, ../scss/foundation/components/_tooltips.scss */
   .tooltip > .nub {
-    border-color: transparent transparent black transparent;
+    border-color: transparent transparent #3684d6 transparent;
     top: -10px;
   }
   /* line 90, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-top > .nub {
-    border-color: black transparent transparent transparent;
+    border-color: #3684d6 transparent transparent transparent;
     top: auto;
     bottom: -10px;
   }
@@ -7789,7 +8075,7 @@ a.th {
   }
   /* line 99, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-left > .nub {
-    border-color: transparent transparent transparent black;
+    border-color: transparent transparent transparent #3684d6;
     right: -10px;
     left: auto;
     top: 50%;
@@ -7797,7 +8083,7 @@ a.th {
   }
   /* line 106, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-right > .nub {
-    border-color: transparent black transparent transparent;
+    border-color: transparent #3684d6 transparent transparent;
     right: auto;
     left: -10px;
     top: 50%;
