@@ -10,6 +10,9 @@ $medium-light-gray: #999;
 $dark-gray: #333;
 $light-background-blue:#eff2f9;
 $link-color: #3684d6;
+$background-gray:#f8f8f8;
+$white:#fff;
+$text-color-gray:#3b3b3b;
 
 
 $body-font-color: $gray;
@@ -45,8 +48,14 @@ $section-title-bg-hover: none;
 $tooltip-bg: $background;
 
 @mixin linkStyle {
-	color:$link-color;
-	font-size:14px;
+	color:$link-color !important;
+	font-size:15px !important;
+}
+
+@mixin paragraph-Style {
+	color:$text-color-gray;
+	font-size:13px;
+	line-height:22px;
 }
 
 *{
@@ -343,7 +352,8 @@ ul.side-nav {
 		color:$gray !important
 	}
 }
-.glossary-page-container {
+
+.glossary-page-container, competitions-block-Styling {
 	h6 { 
 		font-size:14px; 
 		color:$gray
@@ -383,4 +393,52 @@ ul.side-nav {
 	a {
 		color:$link-color
 		}
+
+	b {
+		color:$gray
+	}
+}
+
+div.auto.section-container > section > .title, .auto.section-container > .section > .title{
+		a{
+		background:$white;
+		padding-left:40px !important;
+		padding-right:40px !important;
+		font-size:19px;
+		}
+}
+
+.auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
+	background:$background-gray !important;
+}
+
+.auto.section-container > section.active > .title {
+	border-bottom:solid 1px $background-gray !important;
+	a {
+		background:$background-gray !important;
+	}
+}
+.section-container.vertical-tabs{
+	 .content{
+			padding-top:1px !important;
+			@extend competitions-block-Styling;
+				p {
+					@include paragraph-Style;
+				}
+			}
+	
+	.CompetitionsDetailLftUl {
+		margin-bottom:2px;
+
+		a {
+			@include linkStyle;
+			&:hover{color:$active !important}
+			&:active{background:none !important}
+		}
+	}
+
+	.active a {
+			color:$gray !important;
+			font-weight:bold;
+	}
 }
