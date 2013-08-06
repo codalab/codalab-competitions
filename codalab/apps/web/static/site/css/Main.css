@@ -505,7 +505,7 @@ ul.headerNavigation li.active a {
 /*Button----------------------------------------*/
 input[type="submit"],input[type="submit"][value="Delete"]
 {
-    margin-top:10px;
+    /*margin-top:10px;*/
     cursor:pointer;
     text-decoration:none;
 }
@@ -909,13 +909,7 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-.competitionUserBlock
-{
-    border:solid 1px #ccc;
-    margin-bottom:10px;
-    position:relative;
-    padding:0;
-}
+
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -1491,7 +1485,7 @@ div.articleImageContainer
 .CompetitionsDetailContainer label {
     font:normal 13px arial;
     color:#adadad;
-    padding-bottom:40px;
+    /*padding-bottom:40px;*/
     padding-top:10px;
 }
 .container.tabArea > label {
@@ -1621,10 +1615,12 @@ ul.myCodalabTabContent li.tab1 {
     display:table;
     width:100%;
 }
+
 .competitionsDetailTabArea {
     overflow:hidden;
     margin-top:17px;
 }
+
 .competitionsProfileImage {
     width:175px;
     display:table-cell;

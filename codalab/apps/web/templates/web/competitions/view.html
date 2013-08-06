@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% block title %}Competition - [{{ competition.title }}]{% endblock %}
-}
+{% block title %}Competition - [{{ competition.title }}]{% endblock title %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 large-centered columns">
@@ -67,24 +67,30 @@
                                     <a href="{% url 'account_login' %}">Sign in</a>
                                 </div>
                             {% else %}
-                                {% if not participant %}
-                                    <form class="participate_form" id="participate_form" action="/api/competition/{{competition.id}}/participate/" method="POST">
+                                {% if my_status == "unknown" %}
+                                    <form id="participate_form">
                                         {% csrf_token %}
                                         <p><strong>You have not yet registered for this competition.</strong></p>
-                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
-                                        <label for="checkbox1">
-                                            <input type="checkbox" id="checkbox1" required>
-                                            <span class="checkbox"></span>
+                                        <p>
+                                            To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
+                                        </p>
+                                        <label id="terms" for="checkbox">
+                                            <input type="checkbox" name="agreed_terms" id="checkbox" required>
+                                            <span class="custom checkbox"></span> 
                                             I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
                                         </label>
                                         <input type="submit" class="globalBlueButton" value="Register" />
                                     </form>
-                                {% else %} 
+                                {% elif my_status == "pending" %}
+                                    <p>You've already requested to participate in this challenge and your status is pending.</p>
+                                {% elif my_status == "denied" %}
+                                    <p>Your request to register for this competition was denied.</p>
+                                {% elif my_status == "approved" %} 
                                     {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
                                 {% endif %}
                             {% endif %}
                         {% else %}
-                            {% if tab.codename == "results" and user.is_authenticated and participant %}
+                            {% if tab.codename == "results" %}
                                 {% include "web/competitions/_results.html" with tab=tab contents=contents %}
                             {% endif %}
                             {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
@@ -98,17 +104,65 @@
 </div>
 {% endblock %}
 {% block js %}
+
+    function fnFormatDetails ( prTable, nTr )
+    {
+        var aData = prTable.fnGetData( nTr );
+        var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+        sOut += '<tr><td>Rendering engine:</td><td>'+aData[1]+' '+aData[4]+'</td></tr>';
+        sOut += '<tr><td>Link to source:</td><td>Could provide a link here</td></tr>';
+        sOut += '<tr><td>Extra info:</td><td>And any further details here (images etc)</td></tr>';
+        sOut += '</table>';
+         
+        return sOut;
+    }
+
     $('document').ready(function() {
         // This helps make sections appear with Foundation
         $(this).foundation('section', 'reflow');
-        $("#participate_form").validate();
-        $("#user_results").dataTable({
+
+        // Validate the form (ensure they have checked accept terms and conditions)
+        $("#participate_form").validate({
+            errorPlacement: function(error, element) {
+                                error.appendTo("#terms");
+                            }
+        });
+
+        /* attach a submit handler to the form */
+        $("#participate_form").submit(function(event) {
+
+          /* stop form from submitting normally */
+          event.preventDefault();
+
+          /*clear result div*/
+           $("#result").html('');
+
+          /* get some values from elements on the page: */
+           var values = $(this).serialize();
+
+          /* Send the data using post and put the results in a div */
+            request = $.ajax({
+                url: "/api/competition/{{competition.id}}/participate/",
+                type: "post",
+                dataType: "text",
+                data: values,
+                success: function(response, textStatus, jqXHR) {
+                        $('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
+                    },
+                error: function(jsXHR, textStatus, errorThrown) {
+                        alert("There was a problem registering for this competition.");;
+                    }
+            });
+        });
+
+        // In partials loaded, initialize the data tables
+        var prTable = $("#user_results").dataTable({
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false,
             'bAutoWidth': false
         });
-        $("#competition_results").dataTable({
+        var crTable = $("#competition_results").dataTable({
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false
