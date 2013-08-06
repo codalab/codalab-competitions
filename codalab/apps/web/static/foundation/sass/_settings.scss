@@ -5,8 +5,10 @@ $highlight: #3684d6;
 $active: #ffac31;
 $gray: #666;
 $light-gray: #ccc;
+$light-medium-gray: #a4a4a4;
 $medium-light-gray: #999;
 $dark-gray: #333;
+$light-background-blue:#eff2f9;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -295,10 +297,11 @@ a > i {
 	padding-bottom:20px;
 }
 
-.competition-paragraph {
-	font-size:12px;
+p.competition-paragraph {
+	font-size:11px;
 	color:$gray;
-	line-height:16px;
+	line-height:15px;
+	margin-bottom:0;
 }
 
 .competition-info {
@@ -323,4 +326,16 @@ a > i {
 .competition-tile h3 {
 	font-size:16px;
 	color:$dark-gray;
+}
+
+.articleHeadingContainer h3 {
+	margin:0;
+	line-height:100%;
+}
+
+.articleHeadingContainer label {
+	color:$light-medium-gray;
+	margin-top:4px;
+	margin-bottom:14px;
+	font-size:12px;
 }

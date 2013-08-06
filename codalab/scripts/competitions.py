@@ -49,7 +49,6 @@ pc = PageContainer.objects.create(object_id=brats2012.id, content_type=ContentTy
 brats2012.pagecontent = pc
 brats2012.save()
 
-DefaultContentItem.objects.get(codename="overview")
 Page.objects.create(category=details_category, container=pc, label="Overview", rank=0, codename="overview",
                     html=open(os.path.join(os.path.dirname(__file__), "brats2012_overview.html")).read())
 Page.objects.create(category=details_category, container=pc, label="Evaluation", rank=1, codename="evaluation",
