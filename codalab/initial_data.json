@@ -73,6 +73,7 @@
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
+	"codename": "page1",
     "required": true, 
     "rank": 0, 
     "label": "Overview"
@@ -84,6 +85,7 @@
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
+	"codename": "page2",
     "required": true, 
     "rank": 1, 
     "label": "Evaluate"
@@ -95,6 +97,7 @@
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
+	"codename": "page3",
     "required": true, 
     "rank": 2, 
     "label": "Terms and Conditions"
@@ -106,6 +109,7 @@
   "fields": {
     "category": 2, 
     "initial_visibility": 1, 
+	"codename": "page4",
     "required": true, 
     "rank": 0, 
     "label": "Get data"
