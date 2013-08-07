@@ -1,3 +1,4 @@
+{% load codalab %}
 <div class="row">
 	<div class="small-4 columns push right">
 		<div class="row">
@@ -25,7 +26,7 @@
         <tr>
           <th>Submission</th>
           <th width="150px">Name</th>
-          <th>Date</th>
+          <th width="200px">Date</th>
           <th>Score</th>
           <th width="75px">Status</th>
           <th width="50px"></th>
@@ -33,24 +34,17 @@
         </tr>
       </thead>
       <tbody>
+        {% for submission in my_submissions %}
         <tr>
-          <td>1</td>
-          <td>2011-07-28_12-54-39_944.jpg</td>
-          <td>7/17/2013 6:31:05 PM</td>
+          <td>{{submission.id}}</td>
+          <td><span data-tooltip class="has-tip" title="{{submission.file}}">{{submission.file|filename}}</span></td>
+          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
           <td>0.000000</td>
-          <td>Failed</td>
+          <td>{{submission.status}}</td>
           <td><i class="enclosed-foundicon-check"></i></td>
           <td><a href="#"><i class="enclosed-foundicon-plus"></i></a></td>
         </tr>
-        <tr>
-          <td>2</td>
-          <td>2011-07-28_12-54-39_944.jpg</td>
-          <td>7/17/2013 6:31:05 PM</td>
-          <td>0.000000</td>
-          <td>Failed</td>
-          <td></td>
-          <td><a href="#"><i class="enclosed-foundicon-plus"></i></a></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
