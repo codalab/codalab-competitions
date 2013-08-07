@@ -60,7 +60,6 @@ class Command(BaseCommand):
             i = 0
             for c in clist:
                 sel.append((c.competition,c))              
-                print "  %d) %s - %s" % (i+1,c.competition.title,c.label)
                 i = i + 1
             try:
                 inp =  int(raw_input("\n Enter number --> "))
@@ -78,11 +77,9 @@ class Command(BaseCommand):
                                                   competition=competition
                                                   )       
         submission_file = File(open(options['submission'],'rb'))
-        
-        s = CompetitionSubmission.objects.create(participant=part,phase=phase,file=submission_file)
-        
-        print "OK. Submission Created"
-           
+        s = CompetitionSubmission.objects.create(participant=part, phase=phase, file=submission_file)
+     
+    
 
         
         

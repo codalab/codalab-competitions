@@ -1,32 +1,16 @@
 from __future__ import absolute_import
 
-from celery import Celery
-from celery import task
+from celerysrv import celery
 
-celery = Celery('tasks', backend='amqp', )
-celery.config_from_object('celeryconfig')
-
-# Optional configuration, see the application user guide.
-celery.conf.update(
-    CELERY_TASK_RESULT_EXPIRES=3600,
-)
-
-
-# Tasks for competitions
-# Currently stubs to test functionality
-@task
+@celery.task(name='competition.validate_submission')
 def validate_submission(url):
     """
     Will validate the format of a submission.
     """
+    print "VALIDATION %s" % url
     return url
 
-@task
+@celery.task(name='competition.evaluation_submission')
 def evaluate_submission(url):
     # evaluate(inputdir, standard, outputdir)
     return url
-
-
-# For starting the process
-if __name__ == '__main__':
-    celery.start()
