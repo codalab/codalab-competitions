@@ -4,17 +4,14 @@
 {% for item in competitions %}
 <div class="competition-tile">
     <a href="/competitions/{{item.competition.id}}">
-
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
             <div class="competitionTileLftStrip"></div>
             <div class="articleImageContainer">
                 <div class="subContainerPadding">
-                    <figure class="articleImage">
-                        {% if item.competition.image_url %}
-                        <img src="{{ item.competition.image_url }}" width="115" height="90">
-                        {% endif %}
-                    </figure>
+                    {% if item.competition.image_url %}
+                    <img src="{{ item.competition.image_url }}" width="115" height="90">
+                    {% endif %}
                 </div>
             </div>
             <div class="articleTextArea">
