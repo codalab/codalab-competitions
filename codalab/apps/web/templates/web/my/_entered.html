@@ -3,7 +3,7 @@
 {% else %}
 {% for item in competitions %}
 <div class="competition-tile">
-    <a href="/competition/{{item.competition.id}}">
+    <a href="/competitions/{{item.competition.id}}">
 
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />

@@ -91,11 +91,12 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc 
         context['tabs'] = side_tabs
-
+        phase = 1
         try:
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
                 context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
                 context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
+                context['my_submissions'] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
             else:
                 context['my_status'] = "unknown"
 
