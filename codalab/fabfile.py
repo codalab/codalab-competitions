@@ -7,32 +7,51 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 VENV_PATH = os.path.join(THIS_DIR,'venv')
 THIS_SETTINGS_DIR = os.path.join(THIS_DIR,'codalab','settings')
 
+env.conf.DEPLOY_USER = 'wwwuser'
+env.conf.DEPLOY_PATH = 'codalab_src'
+
 def env_setup(config=env.CONFIG,settings_module='codalab.settings'):
+    if config is None:
+        
     sys.path.append('.')
     os.environ['DJANGO_CONFIGURATION'] = config
-    os.environ["DJANGO_SETTINGS_MODULE"]= settings_module
+    os.environ["DJANGO_SETTINGS_MODULE"] = settings_module
+    from fabric.contrib import django
     
     from configurations import importer
 
     importer.install()
-    from fabric.contrib import django
+    
     django.settings_module(settings_module)
-    from django.conf import settings
+    from django.conf import settings as django_settings
 
-    #env.roledefs = settings.DEPLOY_ROLES
-    env.django_settings = settings
-env_setup()
+    env.roledefs = django_settings.DEPLOY_ROLES
+    env.django_settings = django_settings
 
 @task
-def local():    
+def local(**kwargs):    
     env.run = lrun
+    env_setup(**kwargs)
+
+@task
+def remote(**kwargs):    
+    env.run = run
+    env_setup(**kwargs)
+
+@task
+def clone_repo(repo_url='https://github.com/codalab/codalab.git',path=env.conf.DEPLOY_PATH):
+    env.run('git clone %s %s' % (repo_url, path))
     
 @task
-def remote():    
-    env.run = run
-
+def provision(config='Dev'):
+    clone_repo()
+    with cd(env.conf.DEPLOY_PATH):
+        sudo('/bin/bash codalab/scripts/provision %s' % env.conf.DEPLOY_USER)
+        sudo('python manage.py config_gen --configuration=%s' % config,
+             user=env.conf.DEPLOY_USER)
+        
 @task
-def bootstrap_on_linux():
+def bootstrap():
     make_virtualenv(path='venv', system_site_packages=False)
     with virtualenv('venv'):
         run('pip install --upgrade pip')
