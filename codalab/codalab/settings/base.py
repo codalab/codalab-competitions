@@ -138,7 +138,7 @@ class Base(Settings):
    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
      "allauth.account.context_processors.account",
      "allauth.socialaccount.context_processors.socialaccount",
-   
+     "codalab.context_processors.app_version_proc",
    )
 
    AUTHENTICATION_BACKENDS = (
@@ -205,6 +205,11 @@ class Base(Settings):
    ACCOUNT_USERNAME_REQUIRED=False
    ACCOUNT_EMAIL_VERIFICATION='none'
 
+   # Our versioning
+   CODALAB_VERSION = open(os.path.join(os.path.dirname(__file__), "version.txt"), 'rb').readline().replace("\r\n", "\n")
+   CODALAB_VERSION.strip()
+   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/%s" % CODALAB_VERSION.split()[6]
+   
    # Django Analytical configuration
    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
 
