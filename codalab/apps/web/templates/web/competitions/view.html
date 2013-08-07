@@ -108,11 +108,22 @@
     function fnFormatDetails ( prTable, nTr )
     {
         var aData = prTable.fnGetData( nTr );
-        var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-        sOut += '<tr><td>Rendering engine:</td><td>'+aData[1]+' '+aData[4]+'</td></tr>';
-        sOut += '<tr><td>Link to source:</td><td>Could provide a link here</td></tr>';
-        sOut += '<tr><td>Extra info:</td><td>And any further details here (images etc)</td></tr>';
-        sOut += '</table>';
+        var sOut = '<div class="submission_details">';
+        sOut += '<div class="small-4 push-8 columns">';
+        if (aData[5]) {
+            sOut += '<a class="globalBlueButton rFloat leaderboardUpdate" href="#"'+aData[0]+'>'+aData[5]+' Remove from Leaderboard</a>';
+        } else {
+            sOut += '<a class="globalBlueButton rFloat leaderboardUpdate" href="#"'+aData[0]+'>Submit to Leaderboard</a>';
+        }
+        sOut += '</div>';        
+
+        sOut += '<div class="small-8 pull-4 columns">';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Scoring Details</a>';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Output</a>';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Error</a>';
+        sOut += '</div>';
+
+        sOut += '</div>';
          
         return sOut;
     }
@@ -167,7 +178,24 @@
             'bInfo'     : false,
             'bFilter'   : false
         });
+ 
+     $('#user_results tbody tr td i').on('click', function () {
+            var nTr = $(this).parents('tr')[0];
+            if ( prTable.fnIsOpen(nTr) )
+            {
+                /* This row is already open - close it */
+                /* this.class = "enclosed-foundicon-plus"; */
+                prTable.fnClose( nTr );
+            }
+            else
+            {
+                /* Open this row */
+                /* this.class = "enclosed-foundicon-minus"; */
+                prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+            }
+        });
     });
+
 
 
     $(document).ready(function ()

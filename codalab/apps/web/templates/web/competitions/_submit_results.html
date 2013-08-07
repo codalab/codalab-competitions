@@ -39,10 +39,10 @@
           <td>{{submission.id}}</td>
           <td><span data-tooltip class="has-tip" title="{{submission.file}}">{{submission.file|filename}}</span></td>
           <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-          <td>0.000000</td>
+          <td>{{submission.result.aggregate}}</td>
           <td>{{submission.status}}</td>
           <td><i class="enclosed-foundicon-check"></i></td>
-          <td><a href="#"><i class="enclosed-foundicon-plus"></i></a></td>
+          <td><i class="enclosed-foundicon-plus"></i></td>
         </tr>
         {% endfor %}
       </tbody>
