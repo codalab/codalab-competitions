@@ -58,6 +58,11 @@ $tooltip-bg: $background;
 	line-height:22px;
 }
 
+@mixin textbox-style {
+	box-shadow:inset 0 0 8px #ccc;
+	border-radius:5px;
+}
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
@@ -454,4 +459,18 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 
 .participateInfoBlock p {
 	@include paragraph-Style;
+}
+
+.deny_reason {
+	@include textbox-style;
+}
+
+div.pending-approval-select.columns {
+	padding-left:0.93em;
+}
+.competitionUserBlock {
+	 h3 {
+		color:$highlight;
+		margin-bottom:2px;
+	 }
 }
