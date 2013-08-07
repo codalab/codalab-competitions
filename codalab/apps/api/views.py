@@ -193,13 +193,12 @@ competition_page = CompetitionPageViewSet.as_view({'get':'retrieve','put':'updat
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSubmissionSerial
     queryset = webmodels.CompetitionSubmission.objects.all()
+    _file = None
 
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        print obj
-        print obj.status_id
         if obj.status_id is None:
             obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
         if obj.participant_id is None:

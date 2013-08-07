@@ -59,8 +59,9 @@ class Command(BaseCommand):
             sel = []
             i = 0
             for c in clist:
-                sel.append((c.competition,c))              
+                sel.append((c.competition,c))         
                 i = i + 1
+                print "%d) %s %s" % (i,c.competition,c)
             try:
                 inp =  int(raw_input("\n Enter number --> "))
                 idx = inp - 1
