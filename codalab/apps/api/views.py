@@ -198,8 +198,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        if not obj.status:
-            obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
+        obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
         if not obj.participant:
             obj.participant = self.request.user
         

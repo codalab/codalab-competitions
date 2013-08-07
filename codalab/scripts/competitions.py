@@ -75,25 +75,23 @@ brats2012.save()
 
 # Phases for the competition
 day_delta = datetime.timedelta(days=30)
-for phase in [1, 2]:
-	phase_start = start_date + (day_delta * phase)
+p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 7, 6), datetime.time()), timezone.get_current_timezone())
+p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 10, 1), datetime.time()), timezone.get_current_timezone())
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=1, label="Training Phase",
-													start_date=datetime.date(2012, 7, 6), max_submissions=100)
+													start_date=p1date, max_submissions=100)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
-													start_date=datetime.date(2012, 10, 1), max_submissions=1)
+													start_date=p2date, max_submissions=1)
 
 # Participants for the competition
 participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
-# print participants
 
 # Participant statuses, if they haven't been created before
 statuses = ParticipantStatus.objects.all()
-# print statuses
 
 # Add participants to the competition with random statuses
 for participant in participants:
 	status = random.choice(statuses)
-	# print "Adding %s to competition %s with status %s" % (participant, brats2012, status)
+	print "Adding %s to competition %s with status %s" % (participant, brats2012, status)
 	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=brats2012, 
 																				  defaults={'status':status})
 #

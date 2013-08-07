@@ -248,7 +248,7 @@ class CompetitionSubmission(models.Model):
     _do_submission = False
 
     def __unicode__(self):
-        return "%d %s %s %s" % (self.pk, self.phase.competition.title,self.phase.label,self.participant.user.email)
+        return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label,self.participant.user.email)
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted

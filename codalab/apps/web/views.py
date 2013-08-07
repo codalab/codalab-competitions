@@ -95,6 +95,7 @@ class CompetitionDetailView(DetailView):
         try:
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
                 context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
+                context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
             else:
                 context['my_status'] = "unknown"
 

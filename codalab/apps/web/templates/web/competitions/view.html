@@ -180,7 +180,7 @@
         csrfmiddlewaretoken: '{{ csrf_token }}',
         customParams: {
           'phase': '1',
-          'participant' : '5',
+          'participant' : '{{my_participant_id}}',
           'csrfmiddlewaretoken' : '{{ csrf_token }}'
         },
         before: function ()
