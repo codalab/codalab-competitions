@@ -9,6 +9,10 @@ $light-medium-gray: #a4a4a4;
 $medium-light-gray: #999;
 $dark-gray: #333;
 $light-background-blue:#eff2f9;
+$link-color: #3684d6;
+$background-gray:#f8f8f8;
+$white:#fff;
+$text-color-gray:#3b3b3b;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -50,12 +54,22 @@ $side-nav-link-color-active: $active;
 $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
 
+@mixin linkStyle {
+	color:$link-color !important;
+	font-size:15px !important;
+}
+
+@mixin paragraph-Style {
+	color:$text-color-gray;
+	font-size:13px;
+	line-height:22px;
+}
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
 	font-weight: normal;
 }
-
 
 select {
 	color: $dark-gray;
@@ -65,6 +79,7 @@ form textarea {
 	color: $dark-gray;
 	font-size: 16px;
 }
+
 .menu-icon {
 	background: $background;
 }
@@ -86,6 +101,7 @@ div.CompetitionsDetailContainer div.section-container section:not(.active) p a:h
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
 	background: transparent;
 }
+
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
 	border: 0px;
 }
@@ -163,6 +179,7 @@ a > i {
 .user_results, .competition_results {
 	padding-top: 10px;
 }
+
 .globalBlueButton a, .globalBlueButton a:hover {
 	color: $foreground;
 }
@@ -184,6 +201,7 @@ a > i {
 .competitionProcessHeader > ul > li {
 	height: 100%;
 }
+
 .competitionProcessHeader > ul > li > a {
 	color: $foreground;
 	font-size: 13px;
@@ -236,6 +254,7 @@ a > i {
 	padding: 0px;
 	margin: 0px;
 }
+
 .competition-title {
 	color: $dark-gray;
 	text-align: left;
@@ -338,4 +357,141 @@ p.competition-paragraph {
 	margin-top:4px;
 	margin-bottom:14px;
 	font-size:12px;
+}
+
+.signin-centered-container {
+	margin:auto !important;
+	float:none !important;
+	background:$light-background-blue;
+	padding:25px;
+}
+
+.small-6.pull-6.columns > .globalBlueButton {
+	float:right
+}
+
+.signin-formfields p:nth-child(3) > input {
+	float:left;
+	position:relative;
+	top:-20px;
+}
+
+.signin-formfields p:nth-child(3) > label {
+	padding-left:20px;
+}
+
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
+	box-shadow:none;
+	white-space:nowrap;
+}
+
+.signin-centered-container > p > a {
+	display:inline-block;
+}
+
+ul.side-nav {
+	 padding-top:0;
+	 position:fixed;
+	 li {
+		margin-bottom:2px;
+	 }
+	 li a {
+		@include linkStyle;
+		&:hover{color:$active}
+		&:active{background:none}
+	  }
+	li.active a {
+		color:$gray !important
+	}
+}
+
+.glossary-page-container, competitions-block-Styling {
+	h6 { 
+		font-size:14px; 
+		color:$gray
+		}
+
+	p { 
+		font-size:12px; 
+		color:$gray
+		}
+
+	ol { 
+		font-size:13px; color:$gray;
+
+		li {
+			padding-bottom:10px;
+			list-style-type:disc;
+		}
+	}
+
+	ul { 
+		font-size:13px; 
+		color:$gray;
+		margin-left:20px;
+
+		li{
+			padding-bottom:10px;
+			list-style-type:disc;
+		}
+	}
+
+	pre {
+		padding:10px;
+		background:$banner;
+		margin-bottom:15px;
+		}
+
+	a {
+		color:$link-color
+		}
+
+	b {
+		color:$gray
+	}
+}
+
+div.auto.section-container > section > .title, .auto.section-container > .section > .title{
+		a{
+		background:$white;
+		padding-left:40px !important;
+		padding-right:40px !important;
+		font-size:19px;
+		}
+}
+
+.auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
+	background:$background-gray !important;
+}
+
+.auto.section-container > section.active > .title {
+	border-bottom:solid 1px $background-gray !important;
+	a {
+		background:$background-gray !important;
+	}
+}
+
+.section-container.vertical-tabs{
+	 .content{
+			padding-top:1px !important;
+			@extend competitions-block-Styling;
+				p {
+					@include paragraph-Style;
+				}
+			}
+	
+	.CompetitionsDetailLftUl {
+		margin-bottom:2px;
+
+		a {
+			@include linkStyle;
+			&:hover{color:$active !important}
+			&:active{background:none !important}
+		}
+	}
+
+	.active a {
+			color:$gray !important;
+			font-weight:bold;
+	}
 }
