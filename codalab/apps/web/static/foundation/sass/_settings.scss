@@ -133,6 +133,11 @@ a > i {
 .user_results, .competition_results {
 	padding-top: 10px;
 }
+
+.user_results {
+	margin-left:15px;
+}
+
 .globalBlueButton a, .globalBlueButton a:hover {
 	color: $foreground;
 }
@@ -331,6 +336,9 @@ p.competition-paragraph {
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
 	box-shadow:none;
 	white-space:nowrap;
+	a {
+		&:focus{color:$white !important}
+	}
 }
 
 .signin-centered-container > p > a {
@@ -390,7 +398,7 @@ ul.side-nav {
 		margin-bottom:15px;
 		}
 
-	a {
+	p a {
 		color:$link-color
 		}
 
@@ -405,6 +413,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 		padding-left:40px !important;
 		padding-right:40px !important;
 		font-size:19px;
+		height:57px;
 		}
 }
 
@@ -418,7 +427,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 		background:$background-gray !important;
 	}
 }
-.section-container.vertical-tabs{
+.section-container.vertical-tabs {
 	 .content{
 			padding-top:1px !important;
 			@extend competitions-block-Styling;
@@ -430,15 +439,19 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 	.CompetitionsDetailLftUl {
 		margin-bottom:2px;
 
-		a {
+		p a {
 			@include linkStyle;
 			&:hover{color:$active !important}
 			&:active{background:none !important}
 		}
 	}
 
-	.active a {
+	.active p a {
 			color:$gray !important;
 			font-weight:bold;
 	}
+}
+
+.participateInfoBlock p {
+	@include paragraph-Style;
 }

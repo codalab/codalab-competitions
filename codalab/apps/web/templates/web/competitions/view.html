@@ -61,34 +61,55 @@
                     <div class="content" data-slug="{{tab.codename}}" data-section-content>
                         {% if tab.codename == "participate" %}
                             {% if not user.is_authenticated %}
-                                <strong>You must be logged in to participate in competitions.</strong>
-                                <br/>
+                        <div class="participateInfoBlock">
+                            <div class="infoStatusBar"></div>
+                            <div class="labelArea">
+                                <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
+                                <label></label>
                                 <div class="globalBlueButtonAtag">
-                                    <a href="{% url 'account_login' %}">Sign in</a>
+                                    <a class="registerCompetition" href="{% url 'account_login' %}">Sign in</a>
                                 </div>
+                            </div>
+                        </div>
                             {% else %}
                                 {% if my_status == "unknown" %}
                                     <form id="participate_form">
                                         {% csrf_token %}
-                                        <p><strong>You have not yet registered for this competition.</strong></p>
-
-                                        <p>
-                                            To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
-                                        </p>
-
-                                        <label id="terms" for="checkbox">
-                                            <input type="checkbox" name="agreed_terms" id="checkbox" required>
-                                            <span class="custom checkbox"></span> 
-                                            I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
-                                        </label>
-                                        <input type="submit" class="globalBlueButton" value="Register" />
+                                        <div class="participateInfoBlock">
+                                            <div class="infoStatusBar"></div>
+                                            <div class="labelArea">
+                                                <label class="regApprovLabel">You have not yet registered for this competition.</label>
+                                                <label></label>
+                                                <p>
+                                                    To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
+                                                </p>
+                                                <label id="terms" for="checkbox">
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required>
+                                                <span class="custom checkbox"></span> 
+                                                I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
+                                                </label>
+                                                <input type="submit" class="globalBlueButton" value="Register" />
+                                            </div>
+                                        </div>
                                     </form>
                                 {% endif %}
                                 {% if my_status == "pending" %}
-                                    <p>You've already requested to participate in this challenge and your status is pending.</p>
+                                <div class="participateInfoBlock pendingApproval">
+                            <div class="infoStatusBar"></div>
+                            <div class="labelArea">
+                                <label class="regApprovLabel">You've already requested to participate in this challenge and your status is pending.</label>
+                                <label></label>
+                            </div>
+                        </div>
                                 {% endif %}
                                 {% if my_status == "denied" %}
-                                    <p>Your request to register for this competition was denied.</p>
+                        <div class="participateInfoBlock rejectedApproval">
+                            <div class="infoStatusBar"></div>
+                            <div class="labelArea">
+                                <label class="regApprovLabel">Your request to register for this competition was denied.</label>
+                                <label></label>
+                            </div>
+                        </div>
                                 {% endif %}
                                 {% if my_status == "approved" %} 
                                     {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
