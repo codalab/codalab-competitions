@@ -1,5 +1,6 @@
 import os
 from django.db import models
+from django.db.models import Max
 from django.dispatch import receiver
 import django.dispatch
 from django.conf import settings
@@ -11,8 +12,8 @@ from django.utils.timezone import utc,now
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
-from . import signals
-from . import tasks
+import signals
+import tasks
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -235,27 +236,42 @@ class CompetitionSubmissionStatus(models.Model):
     def __unicode__(self):
         return self.name
 
-# Signal for submission processing
-# TODO: move to separate signals module
-do_submission = django.dispatch.Signal(providing_args=["instance"])
 
+
+def submission_file_name(instance,filename):
+    
+    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
+                                                                    instance.phase.pk,
+                                                                    instance.participant.user.pk,
+                                                                    instance.pk)
+        
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to='submissions')
-    file_url_base = models.CharField(max_length=2000)
+    file = models.FileField(upload_to=submission_file_name, null=True,blank=True)
+    file_url_base = models.CharField(max_length=2000,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100,null=True,blank=True)   
+    submission_number = models.PositiveIntegerField(default=0)
     
+    _fileobj = None
     _do_submission = False
+
+    class Meta:
+        unique_together = (('submission_number','phase'),)
 
     def __unicode__(self):
         return "%d %s %s %s" % (self.pk if self.pk else 0, self.phase.competition.title, self.phase.label,self.participant.user.email)
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
+        subnum = CompetitionSubmission.objects.select_for_update().aggregate(Max('pk'))['pk__max']
+        if subnum is not None:
+            self.submission_number = subnum + 1
+        else:
+            self.submission_number = 1
         if not self.pk:
             self._do_submission = True
             self.set_status('submitted',force_save=False)
@@ -279,15 +295,9 @@ class CompetitionSubmission(models.Model):
         if force_save:
             self.save()
 
-# Dummy processor for submissions for initial testing
-# Does not care about the file submitted
-# TODO: Do some real processing
-#@receiver(do_submission,sender=CompetitionSubmission)
-def fake_process_submission(sender,instance=None,**kwargs):
-    import random
-    sr = SubmissionResult.objects.create(submission=instance,
-                                         aggregate=(100*random.random()))
-    instance.set_status('accepted',force_save=True)
+@receiver(signals.do_submission)
+def do_submission_task(sender,instance=None,**kwargs):
+    tasks.validate_submission.delay(instance.file_url(), instance.pk)
 
 # Competition Submission Results
 class SubmissionResult(models.Model):
