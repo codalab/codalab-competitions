@@ -65,6 +65,11 @@ $side-nav-font-size: 15px;
 	line-height:22px;
 }
 
+@mixin textbox-style {
+	box-shadow:inset 0 0 8px #ccc;
+	border-radius:5px;
+}
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
@@ -383,6 +388,9 @@ p.competition-paragraph {
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
 	box-shadow:none;
 	white-space:nowrap;
+	a {
+		&:focus{color:$white !important}
+	}
 }
 
 .signin-centered-container > p > a {
@@ -442,7 +450,7 @@ ul.side-nav {
 		margin-bottom:15px;
 		}
 
-	a {
+	p a {
 		color:$link-color
 		}
 
@@ -457,6 +465,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 		padding-left:40px !important;
 		padding-right:40px !important;
 		font-size:19px;
+		height:57px;
 		}
 }
 
@@ -471,7 +480,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 	}
 }
 
-.section-container.vertical-tabs{
+.section-container.vertical-tabs {
 	 .content{
 			padding-top:1px !important;
 			@extend competitions-block-Styling;
@@ -483,15 +492,33 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 	.CompetitionsDetailLftUl {
 		margin-bottom:2px;
 
-		a {
+		p a {
 			@include linkStyle;
 			&:hover{color:$active !important}
 			&:active{background:none !important}
 		}
 	}
 
-	.active a {
+	.active p a {
 			color:$gray !important;
 			font-weight:bold;
 	}
+}
+
+.participateInfoBlock p {
+	@include paragraph-Style;
+}
+
+.deny_reason {
+	@include textbox-style;
+}
+
+div.pending-approval-select.columns {
+	padding-left:0.93em;
+}
+.competitionUserBlock {
+	 h3 {
+		color:$highlight;
+		margin-bottom:2px;
+	 }
 }
