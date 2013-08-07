@@ -15,32 +15,39 @@
         {% for item in object_list %}
             <div class="row">
                 <div class="competitionUserBlock">
-                    <div class="large-4 push-8 columns process_participant_request">
+                    <div class="large-8 push-4 columns process_participant_request">
                         {% if item.status.codename == 'pending' %}
                                 <form class="process_request" id="process_request" action="/api/competition/{{competition.id}}/participate/" method="POST">{% csrf_token %}
-                                    <div class="small-6 push-6 columns">
-                                        <label for="accept"><input name="request" type="radio" id="accept"/> Accept</label>
+                                    <div class="row">
+                                        <div class="small-3 push-1 columns pending-approval-select">
+                                            <label for="accept"><input name="request" type="radio" id="accept"/> Accept</label>
+                                        </div>
+                                        <div class="small-3 pull-6 columns pending-approval-select">
+                                            <label for="deny"><input name="request" type="radio" id="deny"/> Deny</label>
+                                        </div>
                                     </div>
-                                    <div class="small-6 pull-6 columns">
-                                        <label for="deny"><input name="request" type="radio" id="deny"/> Deny</label>
+                                    <div class="row">
+                                        <div class="small-9 push-1 columns">
+                                            <label for="deny_reason">
+                                                <textarea id="deny_reason" name="deny_reason" class="deny_reason" placeholder="Reason :"></textarea>
+                                            </label>
+                                        </div>
+                                        <div class="small-2 pull-0 columns">
+                                            <input type="submit" class="globalBlueButtonSmall" value="Process" />
+                                        </div>
                                     </div>
-                                    <label for="deny_reason">
-                                        <strong>Reason :</strong>
-                                        <textarea id="deny_reason" name="deny_reason"></textarea>
-                                    </label>
-                                    <input type="submit" class="globalBlueButtonAtag" value="Process" />
                                 </form>
                         {% endif %} 
                     </div>
-                    <div class="large-8 pull-4 columns">
+                    <div class="large-4 pull-8 columns">
                         <h3>{{ item.user.username }}</h3>
                         {% if item.status.codename == 'pending' %}
                             <p>Participation pending approval</p>
                         {% elif item.status.codename == 'approved' %}
                             <p>Participation approved</p>
                         {% elif item.status.codename == 'denied' %}
-                            <p>Participation rejected</p>
-                            <p style="color:red;">Reason: {{ item.reason }}</p>
+                            <p>Participation rejected <br /><span style="color:red;"> Reason: {{ item.reason }}</span></p>
+                            
                         {% else %}
                             <p>Unknown Status</p>
                         {% endif %}
