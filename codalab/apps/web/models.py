@@ -11,6 +11,9 @@ from django.utils.timezone import utc,now
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
+from . import signals
+from . import tasks
+
 # Competition Content
 class ContentVisibility(models.Model):
     name = models.CharField(max_length=20)
@@ -241,6 +244,7 @@ class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
     file = models.FileField(upload_to='submissions')
+    file_url_base = models.CharField(max_length=2000)
     submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100,null=True,blank=True)   
@@ -248,7 +252,7 @@ class CompetitionSubmission(models.Model):
     _do_submission = False
 
     def __unicode__(self):
-        return "%d %s %s %s" % (self.pk, self.phase.competition.title,self.phase.label,self.participant.user.email)
+        return "%d %s %s %s" % (self.pk if self.pk else 0, self.phase.competition.title, self.phase.label,self.participant.user.email)
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
@@ -259,10 +263,16 @@ class CompetitionSubmission(models.Model):
             self._do_submission = False
         if self.participant.competition != self.phase.competition:
             raise IntegrityError("Competition for phase and participant must be the same")
+        self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         if self._do_submission:
-            do_submission.send(sender=CompetitionSubmission, instance=self)
+            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
+    
+    def file_url(self):
+        if self.file:
+            return os.path.join(self.file_url_base, self.file.name)
+        return None
 
     def set_status(self,status,force_save=False):
         self.status = CompetitionSubmissionStatus.objects.get(codename=status)
@@ -272,7 +282,7 @@ class CompetitionSubmission(models.Model):
 # Dummy processor for submissions for initial testing
 # Does not care about the file submitted
 # TODO: Do some real processing
-@receiver(do_submission,sender=CompetitionSubmission)
+#@receiver(do_submission,sender=CompetitionSubmission)
 def fake_process_submission(sender,instance=None,**kwargs):
     import random
     sr = SubmissionResult.objects.create(submission=instance,

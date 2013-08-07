@@ -17,12 +17,16 @@ class Base(Settings):
    DOMAIN_NAME='localhost'
    SERVER_NAME='localhost'
 
-   DEPLOY_ROLES = {'web': ['localhost'],
+   DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
                    }
 
    AUTH_USER_MODEL = 'authenz.User'
-   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'] }
+
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+                  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join(['site_configuration','celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
+                  }
 
    HAYSTACK_CONNECTIONS = {
       'default': {

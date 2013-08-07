@@ -198,15 +198,18 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        if not obj.status:
+        print obj
+        print obj.status_id
+        if obj.status_id is None:
             obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
-        if not obj.participant:
+        if obj.participant_id is None:
+            print "No Participant"
             obj.participant = self.request.user
         
     @action(permission_classes=[permissions.IsAuthenticated])
-    def leaderboard(self, request, pk=None,competition_id=None):
+    def leaderboard(self, request, pk=None, competition_id=None):
         submission = self.get_object()
-        if True or submission.phase.is_active:
+        if submission.phase.is_active:
             lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
                                                                     defaults={'is_open': True})
             lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
@@ -230,7 +233,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
-leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'}   )
+leaderboard_retrieve = LeaderBoardViewSet.as_view( {'get':'retrieve','put':'update','patch':'partial_update'} )
 
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
