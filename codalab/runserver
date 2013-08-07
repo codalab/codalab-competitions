@@ -1,7 +1,12 @@
 #!/bin/bash
 
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd `pwd` > /dev/null
+cd $THIS_DIR
+
 source ./config/generated/startup_env.sh
 echo " .... "
 echo "$DJANGO_CONFIGURATION Configuration"
 echo " .... "
-python manage.py runserver $1 $2
+/bin/bash manage runserver "$@"
+popd
