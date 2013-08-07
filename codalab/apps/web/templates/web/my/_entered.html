@@ -1,7 +1,7 @@
-﻿{% if not participations %}
+﻿{% if not competitions %}
     <p>You have not participated in any competitions.</p>
 {% else %}
-  {% for item in participations %}
+  {% for item in competitions %}
      <div class="competition-tile">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
