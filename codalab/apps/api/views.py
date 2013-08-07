@@ -71,7 +71,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         
         return Response(json.dumps(resp), content_type="application/json")
             
-           
     @action(permission_classes=[permissions.IsAuthenticated]
           )
     def info(self,request,*args,**kwargs):
@@ -205,14 +204,17 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None,competition_id=None):
         submission = self.get_object()
+        response = dict()
         if True or submission.phase.is_active:
             lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
                                                                     defaults={'is_open': True})
             lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
                                                                            submission=submission)
-            return Response(status=(201 if cr else 200))
+            response['status'] = (201 if cr else 200)
         else:
-            return Response(status=400)
+            response['status'] = 400
+        
+        return Response(response, content_type="application/json")
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial

@@ -136,10 +136,11 @@
         var aData = prTable.fnGetData( nTr );
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
+        alert("Data: " + aData[5]);
         if (aData[5]) {
-            sOut += '<a class="globalBlueButton rFloat leaderboardUpdate" href="#"'+aData[0]+'>'+aData[5]+' Remove from Leaderboard</a>';
+            sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick="leaderBoardSubmit({{competition.id}},'+aData[0]+', \'post\')">Submit to Leaderboard</button>';
         } else {
-            sOut += '<a class="globalBlueButton rFloat leaderboardUpdate" href="#"'+aData[0]+'>Submit to Leaderboard</a>';
+            sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick="leaderBoardSubmit({{competition.id}},'+aData[0]+', \'delete\')">Remove from Leaderboard</button>';
         }
         sOut += '</div>';        
 
@@ -150,9 +151,26 @@
         sOut += '</div>';
 
         sOut += '</div>';
-         
         return sOut;
     }
+
+     function leaderBoardSubmit(competition, submission, op) {
+        console.log(op+"ing : "+submission+" to Competition: " + competition);
+        request = $.ajax({
+        url: "/api/competition/"+competition+"/submission/"+submission+"/leaderboard/",
+        type: op,
+        datatype: 'text',
+        data: {
+            'csrfmiddlewaretoken' : '{{ csrf_token }}',
+        },
+        success: function(response, textStatus, jqXHR) {
+                        alert("Submitted!");
+                    },
+        error: function(jsXHR, textStatus, errorThrown) {
+                        alert("Submission Failed ("+errorThrown+": "+textStatus);
+                    }
+                });
+    };
 
     $('document').ready(function() {
         // This helps make sections appear with Foundation
@@ -204,7 +222,7 @@
             'bInfo'     : false,
             'bFilter'   : false
         });
- 
+
      $('#user_results tbody tr td i').on('click', function () {
             var nTr = $(this).parents('tr')[0];
             if ( prTable.fnIsOpen(nTr) )
@@ -221,8 +239,6 @@
             }
         });
     });
-
-
 
     $(document).ready(function ()
     {
