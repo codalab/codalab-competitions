@@ -43,7 +43,11 @@
           <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
           <td>{{submission.result.aggregate}}</td>
           <td>{{submission.status}}</td>
-          <td><i class="enclosed-foundicon-checkmark"></i></td>
+          {% if false %}
+            <td><i class="enclosed-foundicon-checkmark"></i></td>
+          {% else %}
+            <td></td>
+          {% endif %}
           <td><i class="enclosed-foundicon-plus"></i></td>
         </tr>
         {% endfor %}
