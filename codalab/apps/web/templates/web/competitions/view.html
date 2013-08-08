@@ -134,12 +134,13 @@
     function fnFormatDetails ( prTable, nTr )
     {
         var aData = prTable.fnGetData( nTr );
+        console.log();
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
-        if (aData[5]) {
-            sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick="leaderBoardSubmit({{competition.id}},'+aData[0]+', \'post\')">Submit to Leaderboard</button>';
+        if ($(nTr).find(".status").hasClass("submitted")) {
+            sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick="leaderBoardSubmit({{competition.id}},{{active_phase.id}}, \'delete\')">Remove from Leaderboard</button>';
         } else {
-            sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick="leaderBoardSubmit({{competition.id}},'+aData[0]+', \'delete\')">Remove from Leaderboard</button>';
+            sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick="leaderBoardSubmit({{competition.id}},{{active_phase.id}}, \'post\')">Submit to Leaderboard</button>';
         }
         sOut += '</div>';        
 
