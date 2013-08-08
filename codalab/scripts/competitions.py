@@ -82,15 +82,17 @@ p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phase
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
 													start_date=p2date, max_submissions=1)
 
+# Participant statuses, if they haven't been created before
+statuses = ParticipantStatus.objects.all()
+
 # Participants for the competition
-participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
+participants = [ (statuses[i-2], User.objects.get(username="guest%d" % i)) for i in range(2,len(statuses)+2)]
 
 # Participant statuses, if they haven't been created before
 statuses = ParticipantStatus.objects.all()
 
 # Add participants to the competition with random statuses
-for participant in participants:
-	status = random.choice(statuses)
+for status, participant in participants:
 	print "Adding %s to competition %s with status %s" % (participant, brats2012, status)
 	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=brats2012, 
 																				  defaults={'status':status})
