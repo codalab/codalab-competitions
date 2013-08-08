@@ -1,6 +1,6 @@
 $background: #3684D6;
 $foreground: white;
-$banner: #EBF2FB;
+$banner: #f5f5f5;
 $highlight: #3684d6;
 $active: #ffac31;
 $gray: #666;
@@ -13,12 +13,15 @@ $link-color: #3684d6;
 $background-gray:#f8f8f8;
 $white:#fff;
 $text-color-gray:#3b3b3b;
+$text-link-color:#8a8a8a;
+$grayish-blue:#85acc6;
+
 
 
 $body-font-color: $gray;
 $header-font-color: $gray;
 
-$topbar-bg: $background;
+$topbar-bg: $banner;
 $topbar-fg: $foreground;
 $topbar-margin-bottom: 0px;
 $topbar-title-weight: normal;
@@ -79,6 +82,38 @@ $tooltip-bg: $background;
 	padding: 2px;
 }
 
+.top-bar {
+	box-shadow:0 3px 5px #666;
+	height:60px !important;
+}
+
+nav.top-bar .name h1 {
+	line-height:60px;
+}
+
+nav.top-bar .name h1 a {
+ color:$grayish-blue;
+}
+
+section.top-bar-section ul li > a {
+	color:$text-link-color;
+	line-height:60px;
+}
+section.top-bar-section li a:not(.button) {
+	line-height:60px;
+}
+
+.has-tip,.menu-icon {
+	background:$banner !important;
+}
+
+.social-foundicon-torso {
+	color:$grayish-blue !important;
+}
+
+#footer, #footer a, #footer a:hover {
+	background:$grayish-blue !important;
+}
 
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
  	color: $active;
@@ -237,14 +272,14 @@ a > i {
 	color: $foreground;
    	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 	font-size: 3.5em;
-	font-weight: 100;
+	font-weight: lighter;
 	position: relative;
 	text-align: center;
-	background: #D7CDBF;
-	padding-top: 70px;
+	background: $grayish-blue;
+	padding-top: 120px;
 	margin: 0 auto;
 	width: 100%;
-	min-height: 200px;
+	min-height: 300px;
 	vertical-align: middle;
 }
 

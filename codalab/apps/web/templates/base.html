@@ -55,13 +55,7 @@
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
             </ul>
             <section class="top-bar-section">
-              <!-- Left Nav Section -->
-              <ul class="left">
-                <li><a href="/competitions">Competitions</a></li>
-                <!-- <li><a href="/experiments">Experiments</a></li>                -->
-                <li><a href="/my">My CodaLab</a></li>
-                <li><a href="/help/about.html">About</a></li>
-              </ul>
+              
 
               <!-- Right Nav Section -->
               <ul class="right">
@@ -71,16 +65,23 @@
                   </form>
                 </li> -->
                 {% if user.is_authenticated %}
+                  <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>  
                   <li class="menu-icon">
                     <span data-tooltip class="has-tip" title="{{user.username}}">
                       <a href="#profile"><i class="social-foundicon-torso"></i></a>
                     </span>
                   </li>
-                  <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>  
                 {% else %}
                   <li class="menu-icon"><a href="{% url 'account_signup' %}">Sign Up</a></li>                
                   <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>  
                 {% endif %}      
+              </ul>
+                <!-- Left Nav Section -->
+              <ul class="right">
+                <li><a href="/competitions">Competitions</a></li>
+                <!-- <li><a href="/experiments">Experiments</a></li>                -->
+                <li><a href="/my">My CodaLab</a></li>
+                <li><a href="/help/about.html">About</a></li>
               </ul>
             </section>
           </nav>
