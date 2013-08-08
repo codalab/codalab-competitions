@@ -205,11 +205,9 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     def leaderboard(self, request, pk=None,competition_id=None):
         submission = self.get_object()
         response = dict()
-        if True or submission.phase.is_active:
-            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
-                                                                    defaults={'is_open': True})
-            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
-                                                                           submission=submission)
+        if submission.phase.is_active:
+            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, submission=submission)
             response['status'] = (201 if cr else 200)
         else:
             response['status'] = 400
