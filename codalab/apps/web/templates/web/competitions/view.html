@@ -136,7 +136,6 @@
         var aData = prTable.fnGetData( nTr );
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
-        alert("Data: " + aData[5]);
         if (aData[5]) {
             sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick="leaderBoardSubmit({{competition.id}},'+aData[0]+', \'post\')">Submit to Leaderboard</button>';
         } else {
@@ -215,7 +214,8 @@
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false,
-            'bAutoWidth': false
+            'bAutoWidth': false,
+            'bSort'     : false
         });
         var crTable = $("#competition_results").dataTable({
             'bPaginate' : false,
