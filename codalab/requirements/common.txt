@@ -3,6 +3,7 @@ Django==1.5.1
 pytz==2013b
 argparse==1.2.1
 django-allauth==0.11.1
+django-celery==3.0.21
 django-compressor==1.3
 django-config-gen==1.0.8
 django-configurations==0.3
