@@ -23,6 +23,10 @@ django-storages==1.1.8
 South==0.8.1
 django-extra-views==0.6.3
 django-analytical==0.15.0
+azure==0.6.2
+billiard==2.7.3.31
+celery==3.0.21
+kombu==2.5.12
 # Not included now, but for rich editing these are on the radar
 #django-wysiwyg
 #html5lib
