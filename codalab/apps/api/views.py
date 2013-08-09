@@ -233,7 +233,6 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
 leaderboard_retrieve = LeaderBoardViewSet.as_view( {'get':'retrieve','put':'update','patch':'partial_update'} )
 
-
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
