@@ -1,12 +1,19 @@
-from configurations import importer
-importer.install()
+#from configurations import importer
+#importer.install()
 
 from django.conf import settings
 from django.dispatch import receiver
-from compsrv.celerysrv import celery
+#from compsrv.celerysrv import celery
+import celery
 from celery.signals import task_success, task_failure, task_revoked, task_sent
 
 import models
+
+@celery.task(name='competition.create_submission_run')
+def submission_run(url,submission_id):
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    
+    
 
 @celery.task(name='competition.validate_submission')
 def validate_submission(url,submission_id):
