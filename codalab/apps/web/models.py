@@ -263,7 +263,8 @@ class CompetitionSubmission(models.Model):
         unique_together = (('submission_number','phase','participant'),)
 
     def __unicode__(self):
-        return "%d %s %s %s" % (self.pk if self.pk else 0, self.phase.competition.title, self.phase.label,self.participant.user.email)
+        return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label,self.participant.user.email)
+
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
@@ -320,7 +321,14 @@ class PhaseLeaderBoard(models.Model):
         return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
     
     def __unicode__(self):
-        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')   
+        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
+
+    def is_open(self):
+        """
+        The default implementation passes through the leaderboard is_open check to the phase is_active check.
+        """
+        self.is_open = self.phase.is_active
+        return self.phase.is_active
        
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')

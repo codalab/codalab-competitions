@@ -21,7 +21,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 # Make some users
-for i in range(1,10):
+for i in range(1,11):
 	name = "guest%d" % i
 	email = "%s@live.com" % name
 	password = "abc123"
