@@ -170,8 +170,11 @@
                     },
         error: function(jsXHR, textStatus, errorThrown) {
                         alert("Submission Failed ("+errorThrown+": "+textStatus);
-                    }
-                });
+                    },
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+            }
+        });
     };
 
     $('document').ready(function() {
