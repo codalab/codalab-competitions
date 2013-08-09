@@ -203,6 +203,20 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if obj.participant_id is None:
             obj.participant = self.request.user
         
+    @action(permission_classes=[permissions.IsAuthenticated], methods=["DELETE"])
+    def leaderboard_remove(self, request, pk=None, competition_id=None):
+        submission = self.get_object()
+        response = dict()
+        if submission.phase.is_active:
+            lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
+            lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, submission=submission)
+            lbe.delete()
+            response['status'] = lbe.id
+        else:
+            response['status'] = 400
+        
+        return Response(response, content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None, competition_id=None):
         submission = self.get_object()
