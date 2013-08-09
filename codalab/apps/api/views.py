@@ -13,6 +13,20 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
 
+    def destroy(self, request, pk):
+        """
+        Cleanup the destruction of a competition.
+
+        This requires removing phases, submissions, and participants. We should try to design 
+        the models to make the cleanup simpler if we can.
+        """
+        # Get the competition
+        c = Competition.objects.get(id=pk)
+
+        # for each phase, cleanup the leaderboard and submissions
+        print "You called destroy on %s!" % pk
+        return Response(json.dumps(dict()), content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
@@ -71,8 +85,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         
         return Response(json.dumps(resp), content_type="application/json")
             
-    @action(permission_classes=[permissions.IsAuthenticated]
-          )
+    @action(permission_classes=[permissions.IsAuthenticated])
     def info(self,request,*args,**kwargs):
         comp = self.get_object()
         comp.title = request.DATA.get('title')
@@ -203,6 +216,20 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if obj.participant_id is None:
             obj.participant = self.request.user
         
+    @action(permission_classes=[permissions.IsAuthenticated], methods=["DELETE"])
+    def leaderboard_remove(self, request, pk=None, competition_id=None):
+        submission = self.get_object()
+        response = dict()
+        if submission.phase.is_active:
+            lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
+            lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, submission=submission)
+            lbe.delete()
+            response['status'] = lbe.id
+        else:
+            response['status'] = 400
+        
+        return Response(response, content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None, competition_id=None):
         submission = self.get_object()
@@ -232,7 +259,6 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
 leaderboard_retrieve = LeaderBoardViewSet.as_view( {'get':'retrieve','put':'update','patch':'partial_update'} )
-
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
