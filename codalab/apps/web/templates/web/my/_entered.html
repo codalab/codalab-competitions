@@ -1,20 +1,17 @@
-﻿{% if not participations %}
-    <p>You have not participated in any competitions.</p>
+﻿{% if not competitions %}
+<p>You have not participated in any competitions.</p>
 {% else %}
-  {% for item in participations %}
-     <div class="competition-tile">
+{% for item in competitions %}
+<div class="competition-tile">
+    <a href="/competitions/{{item.competition.id}}">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
             <div class="competitionTileLftStrip"></div>
             <div class="articleImageContainer">
                 <div class="subContainerPadding">
-                    <!-- Image-------------- -->
-                    <figure class="articleImage">
-                        {% if item.competition.image_url %}
-                            <img src="{{ item.competition.image_url }}" width="115" height="90">
-                       {% endif %}
-                    </figure>
-                    <!-- Image-------------- -->
+                    {% if item.competition.image_url %}
+                    <img src="{{ item.competition.image_url }}" width="115" height="90">
+                    {% endif %}
                 </div>
             </div>
             <div class="articleTextArea">
@@ -25,27 +22,12 @@
                     </div>
                     <p>{{ item.competition.description }}</p>
                     <div class="competitionActions">
-		     	 <label class="status{{item.status.name}}">{{ item.status.description }}</label>
-                    </div>
-                </div>
-            </div>
-            {% comment %}<div class="CompetitionDetail">
-                <div class="CompetitionDetailBox">
-                    <div class="CompetitionDetailTbl">
-                        <label>deadline:</label>
-                        <label>10-10-10</label>
-                    </div>
-                    <div class="CompetitionDetailTbl">
-                        <label>rewards:</label>
-                        <label>information</label>
-                    </div>
-                    <div class="CompetitionDetailTbl">
-                        <label>applicants:</label>
-                        <label>2,002</label>
-                    </div>
-                </div>
-            </div>{% endcomment %}
-        </article>
-    </div>                
-  {% endfor %}
+                       <label class="status{{item.status.name}}">{{ item.status.description }}</label>
+                   </div>
+               </div>
+           </div>
+       </article>
+   </a>
+</div>                
+{% endfor %}
 {% endif %}

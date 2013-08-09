@@ -71,7 +71,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         
         return Response(json.dumps(resp), content_type="application/json")
             
-           
     @action(permission_classes=[permissions.IsAuthenticated]
           )
     def info(self,request,*args,**kwargs):
@@ -198,25 +197,23 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        print obj
-        print obj.status_id
         if obj.status_id is None:
             obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
         if obj.participant_id is None:
-            print "No Participant"
             obj.participant = self.request.user
         
     @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None, competition_id=None):
         submission = self.get_object()
+
+        response = dict()
         if submission.phase.is_active:
-            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
-                                                                    defaults={'is_open': True})
-            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
-                                                                           submission=submission)
-            return Response(status=(201 if cr else 200))
+            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, submission=submission)
+            response['status'] = (201 if cr else 200)
         else:
-            return Response(status=400)
+            response['status'] = 400
+        return Response(response, status=response['status'], content_type="application/json")
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial

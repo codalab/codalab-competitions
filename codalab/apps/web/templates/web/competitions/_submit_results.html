@@ -1,20 +1,24 @@
-<div class="row">
-	<div class="small-4 columns push right">
-		<div class="row">
-      <div class="globalBlueButton phaseToggleBtn lFloat">
-       <a href="#">Phase 1</a> 
-     </div>
-     <div class="globalBlueButton phaseToggleBtn lFloat">
-       <a href="#">Phase 2</a> 
-     </div>
-   </div>
- </div>
+{% load codalab %}
+
+<div class="row right">
+  <div class="small-12 columns">
+    {% for phase in competition.phases.all %}
+      {% if phase == active_phase %}
+        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+      {% else %}
+        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+      {% endif %}
+    {% endfor %}
+  </div>
 </div>
-
-<p>Submit a new result set or view your previous submissions.</p>
-
-<div class="globalBlueButton">
-	<a href="#">Submit Results</a> 
+<div class="row"
+  <p>Submit a new result set or view your previous submissions.</p>
+</div>
+<div class="row">
+  <input type="file" name="file" id="fileUpload" class="fileUpload" />
+  <div id="details"></div>
+  <div id="response"></div>
+  <div id="previews"></div>
 </div>
 
 <div class="row">
@@ -24,7 +28,7 @@
         <tr>
           <th>Submission</th>
           <th width="150px">Name</th>
-          <th>Date</th>
+          <th width="200px">Date</th>
           <th>Score</th>
           <th width="75px">Status</th>
           <th width="50px"></th>
@@ -32,24 +36,21 @@
         </tr>
       </thead>
       <tbody>
+        {% for submission in active_phase_submissions %}
         <tr>
-          <td>1</td>
-          <td>2011-07-28_12-54-39_944.jpg</td>
-          <td>7/17/2013 6:31:05 PM</td>
-          <td>0.000000</td>
-          <td>Failed</td>
-          <td><i class="enclosed-foundicon-check"></i></td>
-          <td><a href="#"><i class="enclosed-foundicon-plus"></i></a></td>
+          <td>{{submission.id}}</td>
+          <td><span data-tooltip class="has-tip" title="{{submission.file}}">{{submission.file|filename}}</span></td>
+          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+          <td>{{submission.result.aggregate}}</td>
+          <td>{{submission.status}}</td>
+          {% if submission in active_phase.board.submissions %}
+            <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+          {% else %}
+            <td class="status not_submitted"></td>
+          {% endif %}
+          <td><i class="enclosed-foundicon-plus"></i></td>
         </tr>
-        <tr>
-          <td>2</td>
-          <td>2011-07-28_12-54-39_944.jpg</td>
-          <td>7/17/2013 6:31:05 PM</td>
-          <td>0.000000</td>
-          <td>Failed</td>
-          <td></td>
-          <td><a href="#"><i class="enclosed-foundicon-plus"></i></a></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>

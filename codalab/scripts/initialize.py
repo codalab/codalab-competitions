@@ -130,3 +130,14 @@ pss = [
 
 for name, codename, description in pss:
   pstatus, created = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
+
+css = [
+  ("Submitted", "submitted"),
+  ("Processing", "processing"),
+  ("Failed", "failed"),
+  ("Accepted", "accepted"),
+  ("Rejected", "rejected"),
+]
+
+for name, codename in css:
+  csstatus, created = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)

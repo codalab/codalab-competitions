@@ -61,31 +61,57 @@
                     <div class="content" data-slug="{{tab.codename}}" data-section-content>
                         {% if tab.codename == "participate" %}
                             {% if not user.is_authenticated %}
-                                <strong>You must be logged in to participate in competitions.</strong>
-                                <br/>
-                                <div class="globalBlueButtonAtag">
-                                    <a href="{% url 'account_login' %}">Sign in</a>
+                            <div class="participateInfoBlock">
+                                <div class="infoStatusBar"></div>
+                                <div class="labelArea">
+                                    <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
+                                    <label></label>
+                                    <div class="globalBlueButtonAtag">
+                                        <a class="registerCompetition" href="{% url 'account_login' %}">Sign in</a>
+                                    </div>
                                 </div>
+                            </div>
                             {% else %}
                                 {% if my_status == "unknown" %}
-                                    <form id="participate_form">
-                                        {% csrf_token %}
-                                        <p><strong>You have not yet registered for this competition.</strong></p>
-                                        <p>
-                                            To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
-                                        </p>
-                                        <label id="terms" for="checkbox">
+                                <form id="participate_form">
+                                    {% csrf_token %}
+                                    <div class="participateInfoBlock">
+                                        <div class="infoStatusBar"></div>
+                                        <div class="labelArea">
+                                            <label class="regApprovLabel">You have not yet registered for this competition.</label>
+                                            <label></label>
+                                            <p>
+                                                To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
+                                            </p>
+                                            <label id="terms" for="checkbox">
                                             <input type="checkbox" name="agreed_terms" id="checkbox" required>
                                             <span class="custom checkbox"></span> 
                                             I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
-                                        </label>
-                                        <input type="submit" class="globalBlueButton" value="Register" />
-                                    </form>
-                                {% elif my_status == "pending" %}
-                                    <p>You've already requested to participate in this challenge and your status is pending.</p>
-                                {% elif my_status == "denied" %}
-                                    <p>Your request to register for this competition was denied.</p>
-                                {% elif my_status == "approved" %} 
+                                            </label>
+                                            <input type="submit" class="globalBlueButton" value="Register" />
+                                        </div>
+                                    </div>
+                                </form>
+                                {% endif %}
+                                {% if my_status == "pending" %}
+                                <div class="participateInfoBlock pendingApproval">
+                                    <div class="infoStatusBar"></div>
+                                    <div class="labelArea">
+                                        <label class="regApprovLabel">You've already requested to participate in this challenge and your status is pending.</label>
+                                        <label></label>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if my_status == "denied" %}
+                                <div class="participateInfoBlock rejectedApproval">
+                                    <div class="infoStatusBar"></div>
+                                    <div class="labelArea">
+                                        <label class="regApprovLabel">Your request to register for this competition was denied.</label>
+                                        <label></label>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if my_status == "approved" %} 
                                     {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
                                 {% endif %}
                             {% endif %}
@@ -108,14 +134,45 @@
     function fnFormatDetails ( prTable, nTr )
     {
         var aData = prTable.fnGetData( nTr );
-        var sOut = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-        sOut += '<tr><td>Rendering engine:</td><td>'+aData[1]+' '+aData[4]+'</td></tr>';
-        sOut += '<tr><td>Link to source:</td><td>Could provide a link here</td></tr>';
-        sOut += '<tr><td>Extra info:</td><td>And any further details here (images etc)</td></tr>';
-        sOut += '</table>';
-         
+        console.log(aData);
+        var sOut = '<div class="submission_details">';
+        sOut += '<div class="small-4 push-8 columns">';
+        if ($(nTr).find(".status").hasClass("submitted")) {
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'delete\')\"";
+            sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick='+clickStr+'>Remove from Leaderboard</button>';
+        } else {
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'post\')\"";
+            sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick='+clickStr+'>Submit to Leaderboard</button>';
+        }
+        sOut += '</div>';        
+
+        sOut += '<div class="small-8 pull-4 columns">';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Scoring Details</a>';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Output</a>';
+        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Error</a>';
+        sOut += '</div>';
+
+        sOut += '</div>';
         return sOut;
     }
+
+     function leaderBoardSubmit(competition, submission, op) {
+        console.log(op+"ing : "+submission+" to Competition: " + competition);
+        request = $.ajax({
+        url: "/api/competition/"+competition+"/submission/"+submission+"/leaderboard/",
+        type: op,
+        datatype: 'text',
+        data: {
+            'csrfmiddlewaretoken' : '{{ csrf_token }}',
+        },
+        success: function(response, textStatus, jqXHR) {
+                        alert("Submitted!");
+                    },
+        error: function(jsXHR, textStatus, errorThrown) {
+                        alert("Submission Failed ("+errorThrown+": "+textStatus);
+                    }
+                });
+    };
 
     $('document').ready(function() {
         // This helps make sections appear with Foundation
@@ -160,12 +217,89 @@
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false,
-            'bAutoWidth': false
+            'bAutoWidth': false,
+            'bSort'     : false
         });
         var crTable = $("#competition_results").dataTable({
+            "fnDrawCallback": function ( oSettings ) {
+                /* Need to redo the counters if filtered or sorted */
+                if ( oSettings.bSorted || oSettings.bFiltered )
+                {
+                    for ( var i=0, iLen=oSettings.aiDisplay.length ; i<iLen ; i++ )
+                    {
+                        $('td:eq(0)', oSettings.aoData[ oSettings.aiDisplay[i] ].nTr ).html( i+1 );
+                    }
+                }
+            },
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": [ 0 ] }
+            ],
+            "aaSorting": [[ 1, 'asc' ]],
             'bPaginate' : false,
             'bInfo'     : false,
             'bFilter'   : false
         });
+
+     $('#user_results tbody tr td i').on('click', function () {
+            var nTr = $(this).parents('tr')[0];
+            if ( prTable.fnIsOpen(nTr) )
+            {
+                /* This row is already open - close it */
+                /* this.class = "enclosed-foundicon-plus"; */
+                prTable.fnClose( nTr );
+            }
+            else
+            {
+                /* Open this row */
+                /* this.class = "enclosed-foundicon-minus"; */
+                prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+            }
+        });
     });
+
+    $(document).ready(function ()
+    {
+      $('#fileUpload').liteUploader(
+      {
+        script: '/api/competition/{{competition.id}}/submission/',
+        allowedFileTypes: 'application/zip,application/x-zip-compressed',
+        maxSizeInBytes: 1000000000,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        customParams: {
+          'phase': '1',
+          'participant' : '{{my_participant_id}}',
+          'csrfmiddlewaretoken' : '{{ csrf_token }}'
+        },
+        before: function ()
+        {
+          $('#details, #previews').empty();
+          $('#response').html('Uploading...');
+
+          return true;
+        },
+        each: function (file, errors)
+        {
+          var i, errorsDisp = '';
+          if (errors.length > 0)
+          {
+            $('#response').html('One or more files did not pass validation');
+            $.each(errors, function(i, error)
+            {
+              errorsDisp += '<br /><span class="error">' + error.type + ' error - Rule: ' + error.rule + '</span>';
+            });
+          }
+          $('#details').append('<p>name: ' + file.name + ', type: ' + file.type + ', size:' + file.size + errorsDisp + '</p>');
+        },
+        success: function (response)
+        {
+          var response = $.parseJSON(response);
+          $.each(response.urls, function(i, url)
+          {
+            $('#previews').append($('<img>', {'src': url, 'width': 200}));
+          });
+          $('#response').html(response.message);
+        }
+      });
+    });
+
 {% endblock js %}

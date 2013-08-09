@@ -117,13 +117,12 @@
         <div class="small-6 columns">
           <ul class="inline-list left">
             <li>
-                <a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
-                <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a>
+                <span>
+                  <a href="http://codalab.github.io/codalab/" target="_blank">CodaLab</a>
+                  <a href="https://github.com/codalab/codalab/commit/141e74ef4e7f4bf558970848196e36e7c8639565">v.{{app_version}}</a>
+                </span>
             </li>
-            <li>
-                <a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
-                  <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a>
-            </li>
+
           </ul>
         </div>
         <div class="small-6 columns">
@@ -131,17 +130,19 @@
             <!-- <li>CodaLab v.0 ()</li> -->
             <li><a href="/help">Help</a></li>
             <li><a href="#">Feedback</a></li>
-            <li><a href="#">Notices</a></li>
-            <li><a href="http://github.com/codalab/codalab">Developers</a></li>
+            <li><a href="https://github.com/codalab/codalab">Developers</a></li>
+            <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
+            <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>
           </ul>
         </div>
     </footer>
 
 
     <!-- Check for Zepto support, load jQuery if necessary -->
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.validate.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.dataTables.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.liteuploader-1.4.1.min.js"></script>
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
