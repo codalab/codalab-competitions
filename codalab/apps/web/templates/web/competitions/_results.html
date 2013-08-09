@@ -1,14 +1,13 @@
-<div class="row">
-	<div class="small-4 columns push right">
-		<div class="row">
-      <div class="globalBlueButton phaseToggleBtn lFloat">
-       <a href="#">Phase 1</a> 
-     </div>
-     <div class="globalBlueButton phaseToggleBtn lFloat">
-       <a href="#">Phase 2</a> 
-     </div>
-   </div>
- </div>
+<div class="row right">
+  <div class="small-12 columns">
+    {% for phase in competition.phases.all %}
+      {% if not phase.is_active %}
+        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+      {% else %}
+        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+      {% endif %}
+    {% endfor %}
+  </div>
 </div>
 
 <div class="row">
@@ -25,46 +24,16 @@
         </tr>
       </thead>
       <tbody>
+        {% for submission in active_phase.board.submissions %}
         <tr>
-          <td>1</td>
-          <td>guest2</td>
-          <td>1</td>
-          <td>6/18/2013 9:01:50 PM</td>
-          <td>0.841</td>
-          <td>0.2</td>
+          <td></td>
+          <td>{{submission.participant.user.username}}</td>
+          <td>{{submission.id}}</td>
+          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+          <td>{{submission.result.aggregate}}</td>
+          <td>{{submission.result.aggregate}}</td>
         </tr>
-        <tr>
-          <td>2</td>
-          <td>guest3</td>
-          <td>1</td>
-          <td>6/18/2013 9:01:51 PM</td>
-          <td>0.825</td>
-          <td>0.3</td>
-        </tr>   
-        <tr>
-          <td>3</td>
-          <td>guest4</td>
-          <td>2</td>
-          <td>6/18/2013 9:01:56 PM</td>
-          <td>0.825</td>
-          <td>0.5</td>
-        </tr>   
-        <tr>
-          <td>4</td>
-          <td>guest1</td>
-          <td>6</td>
-          <td>6/19/2013 11:16:25 PM</td>
-          <td>0.694967609688159</td>
-          <td>0.551469933032743</td>
-        </tr>   
-        <tr>
-          <td>5</td>
-          <td>guest5</td>
-          <td>1</td>
-          <td>6/18/2013 9:01:53 PM</td>
-          <td>0.688</td>
-          <td>0.6</td>
-        </tr>
+        {% endfor %}        
       </tbody>
     </table>
   </div>

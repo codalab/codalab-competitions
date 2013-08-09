@@ -3,8 +3,7 @@
     <section>
         <p class="title CompetitionsDetailLftUl" data-section-title><a href="#{{tab.codename}}-{{subsection.codename}}">{{subsection.label}}</a></p>
         <div class="content" data-slug="{{tab.codename}}-{{subsection.codename}}" data-section-content>
-            {% if subsection.id == 8 %}
-            {{subsection.codename}}
+            {% if subsection.codename == "submit_results" %}
                 {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
             {% else %}
                 {{subsection.html|safe}}

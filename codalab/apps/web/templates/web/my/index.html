@@ -3,24 +3,23 @@
 {% block content %}
 <div class="row">
     <div class="large-9 push-3 columns">
-        <div class="section-container auto" data-section data-section-resized>
+        <div class="section-container auto competitionsDetailTabArea " data-section data-section-resized>
           <section>
+            <p class="title active" id="participating" data-section-title>
+                <a href="#participate">Competitions I'm Participating In</a>
+            </p>
+            <div class="content" data-section-content>
+                <div class="my_participating">
+                    {% include "web/my/_entered.html" with competitions=competitions_im_in %}
+                </div>
+            </div>
+          </section>          <section>
             <p class="title" id="managed" data-section-title>
                 <a href="#manage">Competitions I'm Running</a>
             </p>
             <div class="content" data-section-content>
                 <div class="my_managed">
                     {% include "web/my/_managed.html" with competitions=my_competitions %}
-                </div>
-            </div>
-          </section>
-          <section>
-            <p class="title" id="participating" data-section-title>
-                <a href="#participate">Competitions I'm Participating In</a>
-            </p>
-            <div class="content" data-section-content>
-                <div class="my_participating">
-                    {% include "web/my/_entered.html" with competitions=competitions_im_in %}
                 </div>
             </div>
           </section>
