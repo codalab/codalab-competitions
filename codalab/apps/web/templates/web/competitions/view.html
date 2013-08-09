@@ -158,8 +158,15 @@
 
      function leaderBoardSubmit(competition, submission, op) {
         console.log(op+"ing : "+submission+" to Competition: " + competition);
+        url = "/api/competition/"+competition+"/submission/"+submission+"/leaderboard";
+        if (op == "delete") {
+            url += "_remove/";
+            op = "delete";
+        } else {
+            url += "/";
+        }
         request = $.ajax({
-        url: "/api/competition/"+competition+"/submission/"+submission+"/leaderboard/",
+        url: url,
         type: op,
         datatype: 'text',
         data: {
