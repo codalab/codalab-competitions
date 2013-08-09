@@ -156,8 +156,7 @@
         return sOut;
     }
 
-     function leaderBoardSubmit(competition, submission, op) {
-        console.log(op+"ing : "+submission+" to Competition: " + competition);
+    function leaderBoardSubmit(competition, submission, op) {
         url = "/api/competition/"+competition+"/submission/"+submission+"/leaderboard";
         if (op == "delete") {
             url += "_remove/";

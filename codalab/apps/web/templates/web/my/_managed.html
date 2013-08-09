@@ -22,7 +22,7 @@
             </div>
           </div>
           <div class="globalYellowButtonSmallAtag">
-            <a href="{% url 'my_delete_competition' pk=item.pk %}">Delete</a> 
+            <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
             <a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a>
          </div>
