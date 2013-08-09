@@ -1,6 +1,8 @@
 from configurations import Settings
 from configurations.utils import uppercase_attributes
-import os,sys
+import os,sys,pkgutil
+import djcelery
+djcelery.setup_loader()
 
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,9 +25,15 @@ class Base(Settings):
 
    AUTH_USER_MODEL = 'authenz.User'
 
+   # CELERY CONFIG
+   BROKER_URL = "amqp://guest:guest@localhost:5672//"
+   CELERY_RESULT_BACKEND = "amqp"
+   CELERY_TASK_RESULT_EXPIRES=3600
+   ##
+
    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
                   'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join(['site_configuration','celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
+                #  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join([os.path.dirname(os.environ['DJANGO_SETTINGS_MODULE']),'celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
                   }
 
    HAYSTACK_CONNECTIONS = {
@@ -161,6 +169,7 @@ class Base(Settings):
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
+    'djcelery',
     # Analytics app that works with many services - IRJ 2013.7.29
     'analytical',
     'rest_framework',

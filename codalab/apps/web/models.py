@@ -243,7 +243,7 @@ def submission_file_name(instance,filename):
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
-                                                                    instance.pk)
+                                                                    instance.submission_number)
         
 # Competition Submission
 class CompetitionSubmission(models.Model):
@@ -260,7 +260,7 @@ class CompetitionSubmission(models.Model):
     _do_submission = False
 
     class Meta:
-        unique_together = (('submission_number','phase'),)
+        unique_together = (('submission_number','phase','participant'),)
 
     def __unicode__(self):
         return "%d %s %s %s" % (self.pk if self.pk else 0, self.phase.competition.title, self.phase.label,self.participant.user.email)
