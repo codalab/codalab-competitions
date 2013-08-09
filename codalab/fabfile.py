@@ -1,33 +1,59 @@
-import os,sys
+import os,sys,datetime
 from fabric.operations import local as lrun, run, put
-from fabric.api import env, task, hosts, roles, cd
+from fabric.api import env, task, hosts, roles, cd, shell_env, sudo, lcd, settings, prefix
+from fabric.contrib.files import exists
 from fabvenv import make_virtualenv, virtualenv
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 VENV_PATH = os.path.join(THIS_DIR,'venv')
 THIS_SETTINGS_DIR = os.path.join(THIS_DIR,'codalab','settings')
 
-env.conf.DEPLOY_USER = 'wwwuser'
-env.conf.DEPLOY_PATH = 'codalab_src'
 
-def env_setup(config=env.CONFIG,settings_module='codalab.settings'):
-    if config is None:
-        
-    sys.path.append('.')
-    os.environ['DJANGO_CONFIGURATION'] = config
-    os.environ["DJANGO_SETTINGS_MODULE"] = settings_module
-    from fabric.contrib import django
+# Environment variables will take precidence
+
+## Use fab --set key=value,... to alter these
+try:
+    env.DJANGO_CONFIG
+except AttributeError:
+    env.DJANGO_CONFIG = 'Dev'
+try:
+    env.SETTINGS_MODULE
+except AttributeError:
+    env.SETTINGS_MODULE = 'codalab.settings'
+
+sys.path.append('.')
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", env.SETTINGS_MODULE)
+os.environ.setdefault('DJANGO_CONFIGURATION', env.DJANGO_CONFIG)
+
+env.django_configuration = os.environ['DJANGO_CONFIGURATION']
+env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
+
+from fabric.contrib import django
+
+from configurations import importer
+importer.install()
+
+django.settings_module(env.django_settings_module)
+from django.conf import settings as django_settings
+
+
+env.REMOTE_USER = 'djangodev'
+env.DEPLOY_USER = 'djangodev'
+env.DEPLOY_PATH = 'codalab'
+
+env.venvpath = os.path.join('/home',env.DEPLOY_USER,'venv')
+
+def env_setup(config=env.DJANGO_CONFIG, settings_module='codalab.settings', fab_module='codalab.settings.fabfile'):
+    try:
+        fab_module = __import__(fab_module)
+        from fab_module import *
+    except ImportError:
+        print "fab module not found to import"
+        pass
     
-    from configurations import importer
 
-    importer.install()
     
-    django.settings_module(settings_module)
-    from django.conf import settings as django_settings
-
-    env.roledefs = django_settings.DEPLOY_ROLES
-    env.django_settings = django_settings
-
 @task
 def local(**kwargs):    
     env.run = lrun
@@ -38,28 +64,43 @@ def remote(**kwargs):
     env.run = run
     env_setup(**kwargs)
 
+ 
 @task
-def clone_repo(repo_url='https://github.com/codalab/codalab.git',path=env.conf.DEPLOY_PATH):
-    env.run('git clone %s %s' % (repo_url, path))
-    
+def clone_repo(url='https://github.com/codalab/codalab.git',target=env.DEPLOY_PATH):
+    run("git clone %s %s" % (url, target))
+   
 @task
-def provision(config='Dev'):
-    clone_repo()
-    with cd(env.conf.DEPLOY_PATH):
-        sudo('/bin/bash codalab/scripts/provision %s' % env.conf.DEPLOY_USER)
-        sudo('python manage.py config_gen --configuration=%s' % config,
-             user=env.conf.DEPLOY_USER)
-        
-@task
-def bootstrap():
-    make_virtualenv(path='venv', system_site_packages=False)
-    with virtualenv('venv'):
-        run('pip install --upgrade pip')
-        run('pip install --upgrade distribute')
-        run('rm -rf codalab_src')
-        run("git clone %s codalab_src" % env.django_settings.SOURCE_GIT_URL)
-    put(os.path.join(THIS_SETTINGS_DIR,'deploy.py'), 'codalab_src/codalab/codalab/settings')
+def provision():
+    """
+    This will copy the provision script from the repo and execute it.
+    """
+    run('mkdir -p codalab_scripts')
+    put(os.path.join(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/', mirror_local_mode=True)
+    sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
+@task
+def config_gen():
+    with cd(env.DEPLOY_PATH), shell_env(DJANGO_CONFIGURATION=env.django_configuration,DJANGO_SETTINGS_MODULE=env.django_settings_module):
+        sudo('python manage.py config_gen' % config,
+             user=env.DEPLOY_USER) 
+@task
+def bootstrap():    
+    make_virtualenv(path=env.venvpath, system_site_packages=False)
+    #run('virtualenv --distribute %s' % env.venvpath)
+    #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
+    with virtualenv(env.venvpath):
+        run('pip install --upgrade pip')
+        run('pip install --upgrade Distribute')
+        if exists(env.DEPLOY_PATH):
+            run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%s%f'))))
+            #sudo('rm -rf %s' % env.DEPLOY_PATH)
+        clone_repo(target=env.DEPLOY_PATH)
+        with cd(env.DEPLOY_PATH):
+            run('./requirements dev.txt azure.txt')
+    #put(os.path.join(THIS_SETTINGS_DIR,'deploy.py'), '%s/codalab/codalab/settings' % env.DEPLOY_PATH)
+
+@task
+def requirements():
     with virtualenv('venv'):
         run('cd codalab_src && bash ./requirements')
             
@@ -67,3 +108,9 @@ def bootstrap():
 @task
 def install():
     env.run('deploymentcmd')
+
+@task
+def whoami():
+    with settings(sudo_user=env.DEPLOY_USER):
+        sudo('whoami')
+

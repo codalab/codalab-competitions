@@ -9,6 +9,7 @@ cd $THIS_DIR
 U=$1
 
 if [[ $U =~ [a-zA-Z0-9][\-\_a-zA-Z0-9]+[a-zA-Z0-9] ]] ; then
+  if [ $(id -u $U) -lt 1000 ]; then echo "Invalid user specified"; exit 1; fi
   if ! id -u "$U" 2>&1 > /dev/null; then
     echo "User will be added."
     sudo useradd -m -s /bin/bash $U
