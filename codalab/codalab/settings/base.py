@@ -4,6 +4,8 @@ import os,sys,pkgutil
 import djcelery
 djcelery.setup_loader()
 
+import version
+
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -220,9 +222,8 @@ class Base(Settings):
    ACCOUNT_EMAIL_VERIFICATION='none'
 
    # Our versioning
-   CODALAB_VERSION = open(os.path.join(os.path.dirname(__file__), "version.txt"), 'rb').readline().replace("\r\n", "\n")
-   CODALAB_VERSION.strip()
-   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/%s" % CODALAB_VERSION.split()[6]
+   CODALAB_VERSION = version.CODALAB_VERSION
+   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/%s" % CODALAB_VERSION.split()[0]
    
    # Django Analytical configuration
    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
