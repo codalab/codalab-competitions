@@ -26,9 +26,10 @@ class Base(Settings):
    AUTH_USER_MODEL = 'authenz.User'
 
    # CELERY CONFIG
-   BROKER_URL = "amqp://guest:guest@localhost:5672//"
-   CELERY_RESULT_BACKEND = "amqp"
+   BROKER_URL = "memory://"
+   CELERY_RESULT_BACKEND = "cache"
    CELERY_TASK_RESULT_EXPIRES=3600
+   # CELERY_CACHE_BACKEND = "memory://"
    ##
 
    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
@@ -284,6 +285,15 @@ class DevBase(Base):
           'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
       },
    }
+
+   INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
+   
+   # CELERY CONFIG
+   BROKER_URL = "django://"
+   #CELERY_RESULT_BACKEND = "django"
+   CELERY_TASK_RESULT_EXPIRES=3600
+   # CELERY_CACHE_BACKEND = "memory://"
+   ##
 
    DATABASES = {
      'default': {
