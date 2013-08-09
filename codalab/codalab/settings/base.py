@@ -222,7 +222,6 @@ class Base(Settings):
    ACCOUNT_EMAIL_VERIFICATION='none'
 
    # Our versioning
-   print "|%s|" % CODALAB_VERSION
    CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
    
    # Django Analytical configuration
