@@ -36,6 +36,26 @@
 {% endblock content %}
 
 {% block js %}
+
+function deleteCompetition(competition) {
+    console.log("Delete Competition! "+competition);
+    url = "/api/competition/"+competition;
+    request = $.ajax({
+        url: url,
+        type: "delete",
+        datatype: 'text',
+        success: function(response, textStatus, jqXHR) {
+                        alert("Submitted!");
+                    },
+        error: function(jsXHR, textStatus, errorThrown) {
+                        alert("Submission Failed ("+errorThrown+": "+textStatus);
+                    },
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+            }
+    });
+};
+
 $('document').ready(function() {
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
