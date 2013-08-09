@@ -3,13 +3,39 @@
 {% block content %}
 
 <div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns competitions">
-        {% include "web/competitions/_indexpage.html" %}
-    </div>
-    <div class="large-3 pull-9 columns">
-    </div>
-</div>
+	<!-- Main Content Section -->
+	<!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+	<div class="large-9 push-3 columns competitions">
+		{% if not competitions %}
+		<p>There are no competitions.</p>
+		{% else %}
+		{% for item in competitions %}
+		<a href="/competitions/{{item.id}}">
+			<div class="competition-tile">
+				<article class="subContainer">
+					<input id="competitionID" type="hidden" value="{{ item.id }}" />
+					<div class="competitionTileLftStrip"></div>
+					<div class="articleImageContainer">
+						<div class="subContainerPadding">
+							<img src="{{ item.image_url }}">
+						</div>
+					</div>
+					<div class="articleTextArea">
+						<div class="subContainerPadding">
+							<div class="articleHeadingContainer">
+								<h3>{{ item.title }}</h3>
+								<label>{{ item.creator }}</label></div>
+								<p class="competition-paragraph">{{ item.description }}</p>
+							</div>
+						</div>
+					</article>
+				</a>
+			</div>                
+			{% endfor %}
+			{% endif %}
+		</div>
+		<div class="large-3 pull-9 columns">
+		</div>
+	</div>
 
-{% endblock %}
+	{% endblock %}
