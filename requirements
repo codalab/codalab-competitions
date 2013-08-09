@@ -1,7 +1,10 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then echo "NEED Arguments!"; exit 1; fi
 THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd `pwd`
-cd $THIS_DIR
-pip install -r codalab/requirements/dev.txt
+cd $THIS_DIR/codalab/requirements
+ARGS=""
+for a in $@; do ARGS="$ARGS -r $a"; done
+pip install $ARGS 
 popd

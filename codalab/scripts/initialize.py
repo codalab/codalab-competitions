@@ -33,7 +33,7 @@ cvs = [
 
 content_visibility_items = dict()
 for name, codename, classname in cvs:
-  ncv, created = ContentVisibility.objects.get_or_create(name=name, codename=codename, classname=classname)
+  ncv, created = ContentVisibility.objects.get_or_create(codename=codename, defaults = {'classname': classname, 'name': name})
   ncv.save()
   content_visibility_items[codename] = ncv
 
@@ -66,9 +66,9 @@ ccs = [
 
 content_categories = dict()
 for category in ccs:
-  nc, created = ContentCategory.objects.get_or_create(parent=category['parent'], name=category['name'], 
-                       codename=category['codename'], visibility=category['visibility'], 
-                       is_menu=category['is_menu'], content_limit=category['content_limit'])
+  nc, created = ContentCategory.objects.get_or_create(codename=category['codename'], defaults=dict(parent=category['parent'], name=category['name'], 
+                       visibility=category['visibility'], 
+                       is_menu=category['is_menu'], content_limit=category['content_limit']))
   nc.save()
   content_categories[category['codename']] = nc
 
@@ -116,9 +116,9 @@ cis = [
 ]
 
 for dci in cis:
-  dcii, created = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
-                            rank=dci['rank'], required=dci['required'],codename=dci['codename'],
-                            initial_visibility=dci['initial_visibility'])
+  dcii, created = DefaultContentItem.objects.get_or_create(codename=dci['codename'] , defaults=dict(category=dci['category'], label=dci['label'],
+                            rank=dci['rank'], required=dci['required'],
+                            initial_visibility=dci['initial_visibility']))
   dcii.save()
 
 pss = [
@@ -129,7 +129,7 @@ pss = [
 ]
 
 for name, codename, description in pss:
-  pstatus, created = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
+  pstatus, created = ParticipantStatus.objects.get_or_create(codename=codename, defaults=dict(name=name,description=description))
 
 css = [
   ("Submitted", "submitted"),
@@ -140,4 +140,4 @@ css = [
 ]
 
 for name, codename in css:
-  csstatus, created = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)
+  csstatus, created = CompetitionSubmissionStatus.objects.get_or_create(codename=codename,defaults=dict(name=name))
