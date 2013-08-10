@@ -1,6 +1,6 @@
 from configurations import Settings
 from configurations.utils import uppercase_attributes
-import os,sys,pkgutil
+import os, sys, pkgutil, subprocess
 import djcelery
 djcelery.setup_loader()
 
@@ -24,6 +24,8 @@ class Base(Settings):
                    }
 
    AUTH_USER_MODEL = 'authenz.User'
+
+   CODALAB_VERSION = subprocess.check_output(["git", "log", "-n 1", "--pretty=format:\"%H (%aD)\""])[1:-1]
 
    # CELERY CONFIG
    BROKER_URL = "memory://"
@@ -220,9 +222,7 @@ class Base(Settings):
    ACCOUNT_EMAIL_VERIFICATION='none'
 
    # Our versioning
-   CODALAB_VERSION = open(os.path.join(os.path.dirname(__file__), "version.txt"), 'rb').readline().replace("\r\n", "\n")
-   CODALAB_VERSION.strip()
-   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/%s" % CODALAB_VERSION.split()[6]
+   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
    
    # Django Analytical configuration
    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
