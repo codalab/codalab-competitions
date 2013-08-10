@@ -143,7 +143,7 @@ def update():
             
 @task
 def requirements():
-    env.run('./requirements dev.txt azure.txt')
+    env.run('./requirements dev.txt azure.txt nix.txt')
             
         
 @task
