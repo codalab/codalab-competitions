@@ -99,6 +99,7 @@ def bootstrap():
     make_virtualenv(path=env.venvpath, system_site_packages=False)
     #run('virtualenv --distribute %s' % env.venvpath)
     #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
+    env.run('killall supervisord')
     with virtualenv(env.venvpath):
         env.run('pip install --upgrade pip')
         env.run('pip install --upgrade Distribute')
