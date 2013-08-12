@@ -11,8 +11,8 @@ THIS_SETTINGS_DIR = os.path.join(THIS_DIR,'codalab','settings')
 @task
 def set_env(**kwargs):
     env.repo_tag = 'master'
-    env.REMOTE_USER = 'djangodev'
-    env.DEPLOY_USER = 'djangodev'
+    env.REMOTE_USER = 'siteadmin'
+    env.DEPLOY_USER = 'siteadmin'
     env.DEPLOY_PATH = 'codalab'
     env.CONFIG_GEN_PATH = os.path.join(env.DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
@@ -84,6 +84,7 @@ def provision():
     """
     This will copy the provision script from the repo and execute it.
     """
+    env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
     put(os.path.join(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/', mirror_local_mode=True)
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)

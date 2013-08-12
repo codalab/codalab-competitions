@@ -12,8 +12,8 @@ if [[ $U =~ [a-zA-Z0-9][\-\_a-zA-Z0-9]+[a-zA-Z0-9] ]] ; then
   if [ $(id -u $U) -lt 1000 ]; then echo "Invalid user specified"; exit 1; fi
   if ! id -u "$U" 2>&1 > /dev/null; then
     echo "User will be added."
-    sudo useradd -m -s /bin/bash $U
-    sudo passwd $U
+    useradd -m -s /bin/bash $U
+    passwd $U
   fi
 else
   echo "User not specified or username has bad characters"
@@ -21,10 +21,19 @@ else
 fi
 
 echo "Installing codalab dependency meta-package..."
-sudo dpkg -i *.deb > /dev/null && \
-sudo apt-get -f install > /dev/null && \
+## gdebi will install a .deb and all the dependencies
+apt-get install -y gdebi-core && \
+#dpkg -i *.deb 2>&1 /dev/null && \
+gdebi -q -n *.deb && \
+#echo "Installing dependencies..." && \
+#apt-get -f install > /dev/null && \
 echo "Updaing some group permissions..." && \
-sudo chgrp -R www-data /var/log/nginx /var/lib/nginx && \
-sudo chmod -R g+rw   /var/log/nginx /var/lib/nginx && \
-sudo usermod -a -G www-data $U
+chgrp -R www-data /var/log/nginx /var/lib/nginx && \
+chmod -R g+rw   /var/log/nginx /var/lib/nginx && \
+usermod -a -G www-data $U
+rc=$?
+if [[ $rc != 0 ]] ; then
+   echo "*** There was an error setting up the server."
+   exit $rc
+fi
 popd > /dev/null
