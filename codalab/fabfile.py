@@ -106,11 +106,7 @@ def bootstrap():
             env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%s%f'))))
             #sudo('rm -rf %s' % env.DEPLOY_PATH)
         clone_repo(target=env.DEPLOY_PATH)
-        with cd(env.DEPLOY_PATH):
-            update_to_tag(tag=env.repo_tag)
-            requirements()
-            #config_gen(config=env.django_configuration, settings_module=env.django_settings_module)
-        
+
 
 @task
 def update_to_tag(tag=None):
@@ -134,7 +130,7 @@ def update():
         with cd(env.DEPLOY_PATH):
             env.run('git pull')
             update_to_tag(tag=env.repo_tag)
-            requirements()            
+            requirements()          
             with cd('codalab'):
                 config_gen(config=env.django_configuration,settings_module=env.django_settings_module)
                 env.run('./manage syncdb --noinput')
