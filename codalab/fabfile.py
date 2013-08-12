@@ -41,13 +41,13 @@ os.environ.setdefault('DJANGO_CONFIGURATION', env.DJANGO_CONFIG)
 env.django_configuration = os.environ['DJANGO_CONFIGURATION']
 env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
 
-from fabric.contrib import django
+#from fabric.contrib import django
 
-from configurations import importer
-importer.install()
+#from configurations import importer
+#importer.install()
 
-django.settings_module(env.django_settings_module)
-from django.conf import settings as django_settings
+#django.settings_module(env.django_settings_module)
+#from django.conf import settings as django_settings
 
 env.EXTERNAL_SITE_CONFIG = False
 
