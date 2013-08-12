@@ -21,6 +21,8 @@ else
 fi
 
 echo "Installing codalab dependency meta-package..."
+apt-get -y remove codalab-reqs
+apt-get -y autoremove && \
 ## gdebi will install a .deb and all the dependencies
 apt-get install -y gdebi-core && \
 #dpkg -i *.deb 2>&1 /dev/null && \

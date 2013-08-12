@@ -27,6 +27,7 @@ billiard==2.7.3.31
 celery==3.0.21
 kombu==2.5.12
 anyjson==0.3.3
+django-appconf==0.6
 # Not included now, but for rich editing these are on the radar
 #django-wysiwyg
 #html5lib

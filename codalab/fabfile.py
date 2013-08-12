@@ -91,7 +91,7 @@ def provision():
 
 @task
 def config_gen(config=None,settings_module=None):
-    with cd('codalab'), shell_env(DJANGO_CONFIGURATION=config,DJANGO_SETTINGS_MODULE=settings_module):
+    with shell_env(DJANGO_CONFIGURATION=config,DJANGO_SETTINGS_MODULE=settings_module):
         env.run('python manage.py config_gen')
 
 @task
@@ -109,7 +109,7 @@ def bootstrap():
         with cd(env.DEPLOY_PATH):
             update_to_tag(tag=env.repo_tag)
             requirements()
-            config_gen(config=env.django_configuration, settings_module=env.django_settings_module)
+            #config_gen(config=env.django_configuration, settings_module=env.django_settings_module)
         
 
 @task
@@ -134,9 +134,9 @@ def update():
         with cd(env.DEPLOY_PATH):
             env.run('git pull')
             update_to_tag(tag=env.repo_tag)
-            requirements()
-            config_gen(config=env.django_configuration,settings_module=env.django_settings_module)
+            requirements()            
             with cd('codalab'):
+                config_gen(config=env.django_configuration,settings_module=env.django_settings_module)
                 env.run('./manage syncdb --noinput')
                 # When South is enabled
                 #env.run('./manage migrate')
