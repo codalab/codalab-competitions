@@ -13,8 +13,8 @@ THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
 @task
 def set_env(**kwargs):
     env.repo_tag = 'master'
-    env.REMOTE_USER = 'siteadmin'
-    env.DEPLOY_USER = 'siteadmin'
+    env.REMOTE_USER = env.user
+    env.DEPLOY_USER = env.user
     env.DEPLOY_PATH = 'codalab'
     env.CONFIG_GEN_PATH = pathjoin(env.DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
@@ -88,7 +88,8 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    put(pathjoin(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/', mirror_local_mode=True)
+    put(pathjoin(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
+    env.run('chmod a+x codalab_scripts/ubuntu/provision')
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
 @task
