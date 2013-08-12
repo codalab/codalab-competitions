@@ -4,9 +4,11 @@ from fabric.api import env, task, hosts, roles, cd, shell_env, sudo, lcd, settin
 from fabric.contrib.files import exists
 from fabvenv import make_virtualenv, virtualenv
 
+pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 VENV_PATH = os.path.join(THIS_DIR,'venv')
-THIS_SETTINGS_DIR = os.path.join(THIS_DIR,'codalab','settings')
+THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
 
 @task
 def set_env(**kwargs):
@@ -14,9 +16,9 @@ def set_env(**kwargs):
     env.REMOTE_USER = 'siteadmin'
     env.DEPLOY_USER = 'siteadmin'
     env.DEPLOY_PATH = 'codalab'
-    env.CONFIG_GEN_PATH = os.path.join(env.DEPLOY_PATH,'codalab','config','generated')
+    env.CONFIG_GEN_PATH = pathjoin(env.DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = os.path.join('/home',env.DEPLOY_USER,'venv')
+    env.venvpath = pathjoin('/home',env.DEPLOY_USER,'venv')
 
 # Environment variables will take precidence
 try:
@@ -86,7 +88,7 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    put(os.path.join(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/', mirror_local_mode=True)
+    put(pathjoin(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/', mirror_local_mode=True)
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
 @task
@@ -115,7 +117,7 @@ def update_to_tag(tag=None):
 
 @task
 def start_supervisor():
-    env.run('supervisord -c %s' % os.path.join(env.CONFIG_GEN_PATH,'supervisor.conf'))
+    env.run('supervisord -c %s' % pathjoin(env.CONFIG_GEN_PATH,'supervisor.conf'))
 
 @task
 def restart_supervisor():
