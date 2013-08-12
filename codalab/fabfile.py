@@ -123,7 +123,8 @@ def restart_supervisor():
         if not exists('codalab/var/supervisor.pid'):
             env.run('./supervisor')
         else:
-            env.run('./supervisorctl restart')
+            env.run('./supervisorctl update')
+            env.run('./supervisorctl restart all')
 
 @task
 def update():
