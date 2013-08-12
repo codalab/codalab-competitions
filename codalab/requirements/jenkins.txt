@@ -1,0 +1,4 @@
+django-jenkins
+nosexcover
+pep8
+pyflakes

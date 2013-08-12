@@ -173,6 +173,10 @@ class Base(Settings):
     'django.contrib.admin',
 
     'djcelery',
+
+    # Django / Jenkins CI support
+    'django_jenkins',
+    
     # Analytics app that works with many services - IRJ 2013.7.29
     'analytical',
     'rest_framework',
