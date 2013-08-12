@@ -120,7 +120,7 @@ def start_supervisor():
 @task
 def restart_supervisor():
     with virtualenv(env.venvpath),cd(env.DEPLOY_PATH):
-        if not exists('codalab/var/supervisor.pid'):
+        if not exists('codalab/var/supervisord.pid', verbose=True):
             env.run('./supervisor')
         else:
             env.run('./supervisorctl update')
