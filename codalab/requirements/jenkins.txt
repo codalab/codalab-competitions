@@ -3,3 +3,4 @@ nosexcover
 pep8
 pyflakes
 pylint
+mock
