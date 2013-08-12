@@ -15,6 +15,8 @@ $white:#fff;
 $text-color-gray:#3b3b3b;
 $text-link-color:#8a8a8a;
 $grayish-blue:#85acc6;
+$text-color-light-gray:#797979;
+$dropdown-gray:#d6d6d6;
 
 
 
@@ -60,10 +62,28 @@ $tooltip-bg: $background;
 	font-size:13px;
 	line-height:22px;
 }
+@mixin h4-Style {
+	color:$text-color-light-gray;
+	font-size:28px;
+	font-weight:normal;
+}
 
 @mixin textbox-style {
 	box-shadow:inset 0 0 8px #ccc;
 	border-radius:5px;
+}
+@mixin button-Style-Brown {
+    padding:15px;
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:2px;
+    color:#bbb9bd !important;
+    background:#676278;
+    border:0;
+    text-transform:uppercase;
+    margin-left:10px;
+    width:112px;
+    cursor:pointer;
 }
 
 *{
@@ -379,6 +399,7 @@ p.competition-paragraph {
 	a {
 		&:focus{color:$white !important}
 	}
+	@include button-Style-Brown;
 }
 
 .signin-centered-container > p > a {
@@ -509,3 +530,64 @@ div.pending-approval-select.columns {
 		margin-bottom:2px;
 	 }
 }
+/*Homepage-------------------*/
+
+body{
+	
+	 p {
+		color:$text-color-light-gray
+	}
+	h4 {
+		@include h4-Style;
+	}
+}
+
+.horizontal-ruler {
+	margin-top:0px;
+	hr {
+		margin-top:0;
+	}
+}
+
+body ul.banner-navigation{
+	padding:20px 0 30px;
+	margin:0;
+	li {
+		height:auto;
+	}
+	a {
+		width:10px;
+		height:10px;
+		border-radius:10px;
+		background:#c2c2c2;
+		border:solid 1px #929292;
+		padding:2px !important;
+	}
+	li.current a{
+		background:#8d8d8d !important;
+	}
+}
+body ul.signin-dropdown {
+	background:$dropdown-gray;
+	padding:10px;
+	width:200px;
+	li {
+	width:100%;
+		&:hover{background:none !important;}
+		& > a{
+			background:none !important;
+			&:hover{background:none !important}
+			
+		}
+	}
+	.button-Style-Brown {
+		width:100% !important;
+		@include button-Style-Brown;
+		margin:10px 0;
+		min-height:44px;
+		line-height:16px;
+	}
+}
+
+
+/*Homepage-------------------*/
