@@ -1,3 +1,7 @@
+from configurations import importer
+if not importer.installed:
+   importer.install() 
+
 from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
@@ -40,6 +44,7 @@ class Base(Settings):
 
    # CELERY CONFIG
    # BROKER_URL = "memory://"
+   CELERY_IMPORTS=['configurations.management']
    djcelery.setup_loader()
    BROKER_URL = 'amqp://guest:guest@localhost:5672/' # for testing purposes
    # CELERY_RESULT_BACKEND = "cache"
