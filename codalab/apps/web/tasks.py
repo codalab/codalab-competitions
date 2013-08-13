@@ -32,4 +32,4 @@ def evaluate_submission(url,submission_id):
 def task_success_handler(sender, result=None, **kwargs):
     s = models.CompetitionSubmission.objects.get(pk=result)
     s.set_status('accepted', force_save=True)
-   
+    print " ACCEPTED SUBMISSION "
