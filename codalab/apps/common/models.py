@@ -21,7 +21,7 @@ signals.post_syncdb.disconnect(
 # Create our own test user automatically.
 
 def create_adminuser(app, created_models, verbosity, **kwargs):
-  if not settings.DEBUG:
+  if settings.DEBUG is False:
     return
   name="admin"
   email="admin@codalab.com"
