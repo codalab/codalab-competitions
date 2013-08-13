@@ -3,7 +3,14 @@ from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
 import djcelery
+__version__ = 'N/A'
 
+try:
+   
+   import codalab.version
+   __version__ = codalab.version.__version__
+except ImportError:
+   pass
 
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +36,7 @@ class Base(Settings):
 
    AUTH_USER_MODEL = 'authenz.User'
 
-   CODALAB_VERSION = subprocess.check_output(["git", "log", "-n 1", "--pretty=format:\"%H (%aD)\""])[1:-1]
+   CODALAB_VERSION = __version__
 
    # CELERY CONFIG
    # BROKER_URL = "memory://"
