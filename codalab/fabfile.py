@@ -166,5 +166,5 @@ def requirements():
 
 @task
 def initialize_brats():
-    with virtualenv(env.venvpath):
+    with virtualenv(env.venvpath),cd(env.DEPLOY_PATH):
         env.run('codalab/scripts/init.sh')
