@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Competitions{% endblock title %}
+{% block content %}
+
+<div class="row">
+
+ <!-- Nav Sidebar -->
+ <!-- This is source ordered to be pulled to the left on larger screens -->
+ <div class="large-3 columns ">
+  <img src="http://placehold.it/300x240&text=[stats]" />
+  <div class="panel">
+    <input placeholder="search" type="search"></input>
+    <h5>Show Only:</h5>
+    <div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
+      <ul>
+        <li>
+          <input type="checkbox">&nbsp; Medial Imaging</input>
+        </li>
+        <li>
+          <input type="checkbox">&nbsp; Machine Learning</input>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Main Feed -->
+<!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+<div class="large-9 columns">
+
+  <dl class="sub-nav">
+    <dt>Sort by:</dt>
+    <dd class="active"><a href="#">New</a></dd>
+    <dd><a href="#">Most Active</a></dd>
+  </dl>
+
+
+<div class="row">
+  <!-- Main Content Section -->
+  <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+  {% if not competitions %}
+    <p>There are no competitions.</p>
+  {% else %}
+    {% for item in competitions %}
+      <a href="/competitions/{{item.id}}">
+        <div class="competition-tile">
+          <article class="subContainer">
+            <input id="competitionID" type="hidden" value="{{ item.id }}" />
+            <div class="competitionTileLftStrip"></div>
+            <div class="articleImageContainer">
+              <div class="subContainerPadding">
+                <img src="{{ item.image_url }}">
+              </div>
+            </div>
+            <div class="articleTextArea">
+              <div class="subContainerPadding">
+                <div class="articleHeadingContainer">
+                  <h3>{{ item.title }}</h3>
+                  <label>{{ item.creator }}</label></div>
+                  <p class="competition-paragraph">{{ item.description }}</p>
+                </div>
+              </div>
+            </article>
+          </a>
+        </div>                
+      {% endfor %}
+    {% endif %}
+    <div class="large-3 pull-9 columns">
+    </div>
+  </div>
+
+</div>
+</div>
+
+{% endblock content %}
