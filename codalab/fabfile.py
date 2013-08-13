@@ -75,12 +75,12 @@ def site_config(path=None,url=None,module=None):
         fname = 'latest_msr_config.tar.gz'
         tmpf =  os.path.join(tmp,fname)
         path = path.rstrip('/')
-        lrun('git archive --prefix=%s -o %s HEAD' % (os.path.basename(path),tmpf))
+        lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
     env.run('mkdir -p %s' % spath)
     put(tmpf)
-    env.run('tar -xvzf %s' % fname)
-    with virtualenv(env.venvpath), cd(spath):           
-        env.run('pip install --force-reinstall ./%s' % os.path.basename(path))
+    env.run('tar -C %s -xvzf %s' % (spath,fname))
+    with virtualenv(env.venvpath), cd(spath):       
+        env.run('pip install -U --force-reinstall ./%s' % os.path.basename(path))
     env.EXTERNAL_SITE_CONFIG = True
 
 @task
