@@ -58,7 +58,7 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.CompetitionSubmission
-        read_only_fields = ('status','status_details','submitted_at','file_url_base','submission_number')
+        read_only_fields = ('status','status_details','submitted_at','file_url_base','submission_number','execution_key')
 
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
