@@ -53,8 +53,8 @@ env.EXTERNAL_SITE_CONFIG = False
 
     
 @task
-def tag(tag='master'):
-    env.repo_tag = tag
+def repotag(name='master'):
+    env.repo_tag = name
     
 @task
 def site_config(path=None,url=None,module=None):
