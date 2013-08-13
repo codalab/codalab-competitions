@@ -12,6 +12,8 @@ from django.utils.timezone import utc,now
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
+from os.path import abspath, basename, dirname, join, normpath
+
 import signals
 import tasks
 
@@ -337,32 +339,54 @@ class PhaseLeaderBoardEntry(models.Model):
     class Meta:
         unique_together = (('board','submission'),)
 
+
 # Bundle Model
 class Bundle(models.Model):
-  title = models.CharField(max_length=100,null=True,blank=True)
-  created = models.DateTimeField(auto_now_add=True)
-  #submitter = models.ForeignKey(User)
-  #published = models.BooleanField(default=True)
-  url = models.URLField("URL", max_length=250, blank=True)
-  description = models.TextField(blank=True)
+    path = models.CharField(max_length=100, blank=True)
+    inputpath = models.CharField(max_length=100, blank=True)
+    outputpath = models.CharField(max_length=100, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    #owner = models.ForeignKey(User, blank=True, null=True)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(blank=True)
+    version = models.CharField(max_length=100)
+    metadata = models.CharField(max_length=500)
+    private = models.BooleanField()
+  
+    class Meta:
+        ordering = ['name']
     
-  def __unicode__(self):
-    return self.title
+    def __unicode__(self):
+        return self.name
+  
+    def get_absolute_url(self):
+        return ('project_bundle_detail', (), {'slug': self.slug})
+    get_absolute_url = models.permalink(get_absolute_url)
+
+
+
 
 # Run Model
 class Run(models.Model):
-    bundle = models.CharField(max_length=255)
+    bundle = models.ForeignKey(Bundle)
+    created = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, max_length=255)
     metadata = models.CharField(max_length=255)
-    program = models.CharField(max_length=255)
-    #published = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-
+    bundlePath = dirname(dirname(abspath(__file__)))
+    programPath = models.CharField(max_length=100)
+    inputPath = models.CharField(max_length=100)
+    outputPath = models.CharField(max_length=100)
+    cellout = models.FloatField(blank=True, null=True)
+  
+    objects = models.Manager() 
+  
     class Meta:
         ordering = ['-created']
-
+    
     def __unicode__(self):
         return u'%s' % self.bundle
-
+  
     def get_absolute_url(self):
-        return reverse('bundle.views.run', args=[self.slug])
+        return ('bundle_run_detail', (), {'object_id': self.id })
+    get_absolute_url = models.permalink(get_absolute_url)
