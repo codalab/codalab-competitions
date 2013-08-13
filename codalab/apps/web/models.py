@@ -1,4 +1,5 @@
 import os
+import requests
 from django.db import models
 from django.db.models import Max
 from django.dispatch import receiver
@@ -8,7 +9,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-
+#from django.utils.module_loading import import_by_path
+from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
@@ -16,6 +18,16 @@ from os.path import abspath, basename, dirname, join, normpath
 
 import signals
 import tasks
+
+## Needed for computation service handling
+## Hack for now
+PrivateStorageClass = get_storage_class(settings.PRIVATE_FILE_STORAGE)
+try:
+    PrivateStorage = PrivateStorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
+                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
+                                         azure_container=settings.PRIVATE_AZURE_CONTAINER)
+except:
+    PrivateStorage = PrivateStorageClass()
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -246,14 +258,26 @@ def submission_file_name(instance,filename):
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
                                                                     instance.submission_number)
-        
+def submission_inputfile_name(instance,filename):
+     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
+                                                               instance.phase.pk,
+                                                               instance.participant.user.pk,
+                                                               instance.submission_number)
+def submission_runfile_name(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to=submission_file_name, null=True,blank=True)
+    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage,null=True,blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage,null=True,blank=True)
+    runfile = models.FileField(upload_to=submission_runfile_name, storage=PrivateStorage,null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100,null=True,blank=True)   
     submission_number = models.PositiveIntegerField(default=0)
@@ -270,12 +294,12 @@ class CompetitionSubmission(models.Model):
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
-        subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase).aggregate(Max('submission_number'))['submission_number__max']
-        if subnum is not None:
-            self.submission_number = subnum + 1
-        else:
-            self.submission_number = 1
         if not self.pk:
+            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase).aggregate(Max('submission_number'))['submission_number__max']
+            if subnum is not None:
+                self.submission_number = subnum + 1
+            else:
+                self.submission_number = 1
             self._do_submission = True
             self.set_status('submitted',force_save=False)
         else:
@@ -291,6 +315,23 @@ class CompetitionSubmission(models.Model):
     def file_url(self):
         if self.file:
             return os.path.join(self.file_url_base, self.file.name)
+        return None
+
+    def runfile_url(self):
+        if self.runfile:
+            return os.path.join(self.file_url_base, self.runfile.name)
+        return None
+
+    def inputfile_url(self):
+        if self.inputfile:
+            return os.path.join(self.file_url_base, self.inputfile.name)
+        return None
+
+    def get_execution_status(self):
+        if self.execution_key:
+            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
+            if res.status_code in (200,):
+                return res.json()
         return None
 
     def set_status(self,status,force_save=False):
