@@ -81,3 +81,6 @@ admin.site.register(models.Page, PageAdmin)
 class BundleAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Bundle, BundleAdmin)
+
+class RunAdmin(admin.ModelAdmin): pass
+admin.site.register(models.Run, RunAdmin)
