@@ -35,6 +35,15 @@ def evaluate_submission(url,submission_id):
 
 @task_success.connect(sender=submission_run)
 def task_success_handler(sender, result=None, **kwargs):
-    #s = models.CompetitionSubmission.objects.get(pk=result)
-    #s.set_status('accepted', force_save=True)
+    import random
+    s = models.CompetitionSubmission.objects.get(pk=result)
+    s.set_status('accepted', force_save=True)
+    subres = models.SubmissionResult.objects.create(submission=s,aggregate=0)
+    scores = []
+    for s in ['score1','score2','score3']:
+        rs = random.random()*10
+        sc = models.SubmissionScore.objects.create(result=subres,label=s,value=rs)
+        scores.append(rs)
+    subres.aggregate = sum(scores)/len(scores)
+    subres.save()
     print " ACCEPTED SUBMISSION %s" % str(sender)
