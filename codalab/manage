@@ -4,4 +4,4 @@ source ./config/generated/startup_env.sh
 echo " .... "
 echo "$DJANGO_CONFIGURATION Configuration"
 echo " .... "
-python manage.py "$@"
+exec python manage.py "$@"
