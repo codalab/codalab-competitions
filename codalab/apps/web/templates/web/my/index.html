@@ -2,7 +2,7 @@
 {% block title %}My CodaLab{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="large-9 push-3 columns">
+    <div class="large-10 columns">
         <div class="section-container auto competitionsDetailTabArea " data-section data-section-resized>
           <section>
             <p class="title active" id="participating" data-section-title>
@@ -13,23 +13,24 @@
                     {% include "web/my/_entered.html" with competitions=competitions_im_in %}
                 </div>
             </div>
-          </section>          <section>
+          </section>
+          <section>
             <p class="title" id="managed" data-section-title>
                 <a href="#manage">Competitions I'm Running</a>
             </p>
             <div class="content" data-section-content>
-                <div class="my_managed">
-                    {% include "web/my/_managed.html" with competitions=my_competitions %}
+                <div class="row">
+                    <div class="large-9 push-3 columns my_managed">
+                        {% include "web/my/_managed.html" with competitions=my_competitions %}
+                    </div>
+                    <div class="large-3 pull-9 columns">
+                        <div class="globalBlueButtonAtag">
+                            <a href="/my/create_competition" class="button">New Competition</a>
+                        </div>
+                    </div>
                 </div>
             </div>
           </section>
-        </div>
-    </div>
-    <!-- Nav Sidebar -->
-    <!-- This is source ordered to be pulled to the left on larger screens -->
-    <div class="large-3 pull-9 columns">
-        <div class="globalBlueButtonAtag">
-            <a href="/my/create_competition" class="button">New Competition</a>
         </div>
     </div>
 </div>
