@@ -42,30 +42,32 @@ brats12_description = """
 	The BRaTS challenge is designed to gauge the current state-of-the-art in automated brain tumor segmentation 
 	and to compare between different methods. It is organized in conjuction with the MICCAI 2012 conference.
 	"""
-brats2012 = Competition.objects.create(title=brats12_name, creator=guest1, modified_by=guest1, description=brats12_description)
+brats2012,_ = Competition.objects.get_or_create(title=brats12_name, creator=guest1, modified_by=guest1,defaults=dict(description=brats12_description))
 details_category = ContentCategory.objects.get(name="Learn the Details")
 participate_category = ContentCategory.objects.get(name="Participate")
-pc = PageContainer.objects.create(object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
+pc,_ = PageContainer.objects.get_or_create(object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
 brats2012.pagecontent = pc
 brats2012.save()
 
-Page.objects.create(category=details_category, container=pc, label="Overview", rank=0, codename="overview",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_overview.html")).read())
-Page.objects.create(category=details_category, container=pc, label="Evaluation", rank=1, codename="evaluation",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_evaluation.html")).read())
-Page.objects.create(category=details_category, container=pc, label="Terms and Conditions", codename="terms_and_conditions",
-                    rank=2, html=open(os.path.join(os.path.dirname(__file__), "brats2012_terms_and_conditions.html")).read())
+Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+			   defaults=dict(label="Overview", rank=0,
+					 html=open(os.path.join(os.path.dirname(__file__), "brats2012_overview.html")).read()))
+Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation", 
+			   defaults=dict(label="Evaluation", rank=1,
+					 html=open(os.path.join(os.path.dirname(__file__), "brats2012_evaluation.html")).read()))
+Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+                    defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "brats2012_terms_and_conditions.html")).read()))
 
-Page.objects.create(category=details_category, container=pc, label="FAQ", rank=3, codename="faq",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_faq.html")).read())
-Page.objects.create(category=details_category, container=pc, label="Key Dates", rank=4, codename="key_dates",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_key_dates.html")).read())
-Page.objects.create(category=details_category, container=pc, label="Organizers", rank=5, codename="organizers",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_organizers.html")).read())
+Page.objects.get_or_create(category=details_category, container=pc,  codename="faq",
+			   defaults=dict(label="FAQ", rank=3, html=open(os.path.join(os.path.dirname(__file__), "brats2012_faq.html")).read()))
+Page.objects.get_or_create(category=details_category, container=pc,  codename="key_dates",
+			   defaults=dict(label="Key Dates", rank=4, html=open(os.path.join(os.path.dirname(__file__), "brats2012_key_dates.html")).read()))
+Page.objects.get_or_create(category=details_category, container=pc,  codename="organizers",
+			   defaults=dict(label="Organizers", rank=5,html=open(os.path.join(os.path.dirname(__file__), "brats2012_organizers.html")).read()))
 
-Page.objects.create(category=participate_category, container=pc, label="Get Data", rank=0, codename="get_data",
-                    html=open(os.path.join(os.path.dirname(__file__), "brats2012_data.html")).read())
-Page.objects.create(category=participate_category, container=pc, label="Submit Results", rank=1, codename="submit_results", html="")
+Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+                    defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "brats2012_data.html")).read()))
+Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
 
 # Logo
 brats2012.image = File( open(os.path.join(root_dir, "fixtures", "images", "brats.jpg"), 'rb'))
