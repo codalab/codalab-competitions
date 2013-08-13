@@ -78,7 +78,8 @@ class Command(BaseCommand):
                                                   competition=competition
                                                   )       
         submission_file = File(open(options['submission'],'rb'))
-        s = CompetitionSubmission.objects.create(participant=part, phase=phase, file=submission_file)
+        s = CompetitionSubmission(participant=part, phase=phase, file=submission_file)
+        s.save()
      
     
 

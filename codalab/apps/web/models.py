@@ -268,7 +268,7 @@ class CompetitionSubmission(models.Model):
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
-        subnum = CompetitionSubmission.objects.select_for_update().aggregate(Max('pk'))['pk__max']
+        subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase).aggregate(Max('submission_number'))['submission_number__max']
         if subnum is not None:
             self.submission_number = subnum + 1
         else:
@@ -298,7 +298,7 @@ class CompetitionSubmission(models.Model):
 
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
-    tasks.validate_submission.delay(instance.file_url(), instance.pk)
+    tasks.submission_run.delay(instance.file_url(), instance.pk)
 
 # Competition Submission Results
 class SubmissionResult(models.Model):
