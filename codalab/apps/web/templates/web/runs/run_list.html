@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h3>Bundle Run List</h3>
+<p>if you like to submit a run, click below</p>
+<a class="btn btn-large" href="/runs/create_run">Create Run</a>
+<hr>
+
+  {% for run in object_list %}
+    
+
+<div class="well well-small">
+  <h4>Bundle Run : {{ run.slug }}</h4>  
+  <label>ID: {{run.id}} | latest run : {{run.created}} </label>
+<br>
+  
+  <ul class="inline">
+  <li>
+    <dt>Metadata</dt>
+    <dd>{{ run.metadata }}</dd>
+  </li>
+    
+    
+    <li>
+
+    <dt>Cellout</dt>
+    <dd>{{ run.cellout }}</dd>
+  </li>
+      
+  <li>
+    
+    <dt>Program Path</dt>
+    <dd>{{ run.programPath }}</dd>
+  </li>
+    
+   <li>
+       <dt>Input Path</dt>
+    <dd>{{ run.inputPath }}</dd>
+   </li>
+     
+     <li>
+     
+       <dt>Output</dt>
+    <dd>{{ run.outputPath }}</dd>
+   </li>  
+    
+</ul>
+  
+</div>
+
+
+  {% endfor %}
+
+
+
+{% endblock %}

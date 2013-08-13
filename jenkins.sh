@@ -10,4 +10,10 @@ else
 	exit 1
 fi
 
-pip install -r codalab/codalab/requirements/jenkins.txt
+pip install -r codalab/requirements/jenkins.txt
+
+python codalab/manage.py jenkins
+
+#nosetests --with-xcoverage --with-xunit --cover-erase
+
+#pylint -f parseable . | tee pylint.out
