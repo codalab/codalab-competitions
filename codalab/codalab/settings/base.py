@@ -38,6 +38,9 @@ class Base(Settings):
                    'celery': ['localhost'],
                    }
 
+   PRIVATE_FILE_STORAGE = Settings.DEFAULT_FILE_STORAGE
+   
+
    AUTH_USER_MODEL = 'authenz.User'
 
    CODALAB_VERSION = __version__
