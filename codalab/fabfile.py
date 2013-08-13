@@ -59,13 +59,24 @@ def tag(tag='master'):
 @task
 def site_config(path=None,url=None,module=None):
     spath = 'src'
-    if path and os.path.exists(path):       
-        run('mkdir -p %s' % spath)
-        put(path, spath)
-        path = path.rstrip('/')
-        with virtualenv(env.venvpath), cd(spath):           
-            run('pip install ./%s' % os.path.basename(path))
-        env.EXTERNAL_SITE_CONFIG = True
+    if path and os.path.exists(path):
+        path = os.path.abspath(path)
+    elif module:
+        mod = __import__(module)
+        if os.path.isdir(mod.__path__[0]):
+            path = mod.__path__[0]
+        else:
+            raise Exception("Must be a directory module")
+    with settings(warn_ony=True),lcd(path):
+        res = lrun('git diff --exit-code')
+        if res.return_code != 0:
+            raise Exception("*** Module has local changes. You must commit them.") 
+    env.run('mkdir -p %s' % spath)
+    put(path, spath)
+    path = path.rstrip('/')
+    with virtualenv(env.venvpath), cd(spath):           
+        env.run('pip install ./%s' % os.path.basename(path))
+    env.EXTERNAL_SITE_CONFIG = True
 
 @task
 def local(**kwargs):

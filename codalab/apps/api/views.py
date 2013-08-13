@@ -228,7 +228,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         else:
             response['status'] = 400
         
-        return Response(response, content_type="application/json")
+        return Response(response, status=response['status'], content_type="application/json")
 
     @action(permission_classes=[permissions.IsAuthenticated])
     def leaderboard(self, request, pk=None, competition_id=None):
