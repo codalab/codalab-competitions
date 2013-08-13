@@ -1,4 +1,4 @@
-import os,sys,datetime
+import os,sys,datetime,tempfile
 from fabric.operations import local as lrun, run, put
 from fabric.api import env, task, hosts, roles, cd, shell_env, sudo, lcd, settings, prefix
 from fabric.contrib.files import exists
@@ -55,7 +55,7 @@ env.EXTERNAL_SITE_CONFIG = False
 @task
 def repotag(name='master'):
     env.repo_tag = name
-    
+        
 @task
 def site_config(path=None,url=None,module=None):
     spath = 'src'
@@ -70,12 +70,17 @@ def site_config(path=None,url=None,module=None):
     with settings(warn_ony=True),lcd(path):
         res = lrun('git diff --exit-code')
         if res.return_code != 0:
-            raise Exception("*** Module has local changes. You must commit them.") 
+            raise Exception("*** Module has local changes. You must commit them.")
+        tmp = tempfile.mkdtemp()
+        fname = 'latest_msr_config.tar.gz'
+        tmpf =  os.path.join(tmp,fname)
+        path = path.rstrip('/')
+        lrun('git archive --prefix=%s -o %s HEAD' % (os.path.basename(path),tmpf))
     env.run('mkdir -p %s' % spath)
-    put(path, spath)
-    path = path.rstrip('/')
+    put(tmpf)
+    env.run('tar -xvzf %s' % fname)
     with virtualenv(env.venvpath), cd(spath):           
-        env.run('pip install ./%s' % os.path.basename(path))
+        env.run('pip install --force-reinstall ./%s' % os.path.basename(path))
     env.EXTERNAL_SITE_CONFIG = True
 
 @task
