@@ -89,9 +89,9 @@ class Page(models.Model):
             self.title = "%s - %s" % ( self.container.name,self.label) 
         if self.defaults:
             if self.category != self.defaults.category:
-                raise IntegrityError("Defaults category must match Item category")
+                raise Exception("Defaults category must match Item category")
             if self.defaults.required and self.visibility is False:
-                raise IntegrityError("Item is required and must be visible")
+                raise Exception("Item is required and must be visible")
         return super(Page,self).save(*args,**kwargs)
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)    
@@ -279,7 +279,7 @@ class CompetitionSubmission(models.Model):
         else:
             self._do_submission = False
         if self.participant.competition != self.phase.competition:
-            raise IntegrityError("Competition for phase and participant must be the same")
+            raise Exception("Competition for phase and participant must be the same")
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         if self._do_submission:
@@ -298,7 +298,7 @@ class CompetitionSubmission(models.Model):
 
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), instance.pk)
+    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
 
 # Competition Submission Results
 class SubmissionResult(models.Model):

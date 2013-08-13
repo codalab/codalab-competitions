@@ -1,6 +1,7 @@
 #from configurations import importer
 #importer.install()
 
+import time
 from django.conf import settings
 from django.dispatch import receiver
 #from compsrv.celerysrv import celery
@@ -12,7 +13,11 @@ import models
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
     ## Only a simulation
+    
+    time.sleep(3) # This is here because of sqlite
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    
+    print "Submitting"
     return submission.pk
 
 @celery.task(name='competition.validate_submission')
@@ -28,8 +33,8 @@ def evaluate_submission(url,submission_id):
     # evaluate(inputdir, standard, outputdir)
     return submission_id
 
-@task_success.connect(sender='competition.submission_run')
+@task_success.connect(sender=submission_run)
 def task_success_handler(sender, result=None, **kwargs):
-    s = models.CompetitionSubmission.objects.get(pk=result)
-    s.set_status('accepted', force_save=True)
-    print " ACCEPTED SUBMISSION "
+    #s = models.CompetitionSubmission.objects.get(pk=result)
+    #s.set_status('accepted', force_save=True)
+    print " ACCEPTED SUBMISSION %s" % str(sender)
