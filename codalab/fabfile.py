@@ -163,13 +163,8 @@ def update():
 def requirements():
     env.run('./requirements dev.txt azure.txt nix.txt')
             
-        
-@task
-def install():
-    env.run('deploymentcmd')
 
 @task
-def whoami():
-    with settings(sudo_user=env.DEPLOY_USER):
-        sudo('whoami')
-
+def initialize_brats():
+    with virtualenv(env.venvpath):
+        env.run('codalab/scripts/init.sh')
