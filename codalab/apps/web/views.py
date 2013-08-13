@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 from apps.web import models
 from apps.web import forms
+from apps.web import tasks
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
@@ -218,12 +219,56 @@ class MyCompetitionsEnteredPartial(ListView):
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
-class BundleView(TemplateView):
-  model = models.Bundle
-  template_name = 'web/bundle/index.html'
+
+
+# Bundle Views
+
+class BundleListView(ListView):
+    model = models.Bundle
+    queryset = models.Bundle.objects.all()
   
-  def get_context_data(self, **kwargs):
-    context = super(BundleView, self).get_context_data(**kwargs)
-    context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
-    return context
-    
+
+class BundleCreateView(CreateView):
+    model = models.Bundle
+    action = "created"
+    form_class = forms.BundleForm
+  
+    def form_valid(self, form):
+        f = form.save(commit=False)
+        f.save()
+        tasks.create_directory.delay(f.id)
+        return HttpResponseRedirect('/bundles')
+  
+
+class BundleDetailView(DetailView):
+    model = models.Bundle
+
+    def get_context_data(self, **kwargs):
+        context = super(BundleDetailView, self).get_context_data(**kwargs)
+        return context
+
+
+
+# Bundle Run Views
+
+class RunListView(ListView):
+    model = models.Run
+    queryset = models.Run.objects.all()
+   
+class RunCreateView(CreateView):
+    model = models.Run
+    action = "created"
+    form_class = forms.RunForm
+  
+    def form_valid(self, form):
+        f = form.save(commit=False)
+        f.save()
+        return HttpResponseRedirect('/runs')
+  
+  
+class RunDetailView(DetailView):
+    model = models.Run
+
+    def get_context_data(self, **kwargs):
+        context = super(RunDetailView, self).get_context_data(**kwargs)
+        return context

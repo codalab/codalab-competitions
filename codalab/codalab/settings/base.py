@@ -1,8 +1,9 @@
 from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
+from os.path import abspath, basename, dirname, join, normpath
 import djcelery
-djcelery.setup_loader()
+
 
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,6 +14,9 @@ class Base(Settings):
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
+
+   DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+   SITE_ROOT = dirname(DJANGO_ROOT)
 
    SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
@@ -28,9 +32,11 @@ class Base(Settings):
    CODALAB_VERSION = subprocess.check_output(["git", "log", "-n 1", "--pretty=format:\"%H (%aD)\""])[1:-1]
 
    # CELERY CONFIG
-   BROKER_URL = "memory://"
-   CELERY_RESULT_BACKEND = "cache"
-   CELERY_TASK_RESULT_EXPIRES=3600
+   # BROKER_URL = "memory://"
+   djcelery.setup_loader()
+   BROKER_URL = 'amqp://guest:guest@localhost:5672/' # for testing purposes
+   # CELERY_RESULT_BACKEND = "cache"
+   # CELERY_TASK_RESULT_EXPIRES=3600
    # CELERY_CACHE_BACKEND = "memory://"
    ##
 
@@ -297,12 +303,7 @@ class DevBase(Base):
 
    INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
    
-   # CELERY CONFIG
-   BROKER_URL = "django://"
-   #CELERY_RESULT_BACKEND = "django"
-   CELERY_TASK_RESULT_EXPIRES=3600
-   # CELERY_CACHE_BACKEND = "memory://"
-   ##
+  
 
    DATABASES = {
      'default': {
