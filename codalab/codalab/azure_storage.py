@@ -77,6 +77,7 @@ class AzureStorage(Storage):
 
     def get_available_name(self,name):
         dir_path, file_name = os.path.split(name)
+	name = name.replace('\\','/')
         try:
             file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$',file_name).groups()
         except AttributeError:
