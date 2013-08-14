@@ -26,8 +26,12 @@ try:
     PrivateStorage = PrivateStorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
                                          account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
+    BundleStorage = PrivateStorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
 except:
     PrivateStorage = PrivateStorageClass()
+    BundleStorage = PrivateStorageClass()
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -293,10 +297,10 @@ def submission_runfile_name(instance,filename):
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage, null=True,blank=True)
+    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
-    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage, null=True,blank=True)
-    runfile = models.FileField(upload_to=submission_runfile_name, storage=PrivateStorage, null=True,blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage, null=True, blank=True)
+    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
@@ -379,7 +383,7 @@ class SubmissionScore(models.Model):
 
 class PhaseLeaderBoard(models.Model):
     phase = models.OneToOneField(CompetitionPhase,related_name='board')
-    is_open = models.BooleanField(default=True)1
+    is_open = models.BooleanField(default=True)
     
     def submissions(self):
         return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
