@@ -105,6 +105,12 @@ span.has-tip {
 	border-bottom: 0px;
 }
 
+html.js body.body div#layout.container div.header nav.top-bar section.top-bar-section ul.right {
+	color: $foreground;
+	background: $background;
+	vertical-align: text-bottom;
+}
+
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
  	color: $active;
 }
