@@ -24,8 +24,8 @@
           </div>
           <div class="small-10 small-centered columns">
             <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
-            <button class="globalYellowButtonSmall"><a href="{% url 'my_edit_competition' pk=item.pk %}">Edit</a></button>
-            <button class="globalYellowButtonSmall"><a href="{% url 'my_competition_participants' competition_id=item.pk %}">Participants</a></button>
+            <a href="{% url 'my_edit_competition' pk=item.pk %}"><button class="globalYellowButtonSmall">Edit</button></a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="globalYellowButtonSmall">Participants</button></a>
          </div>
        </div>
      </article>
