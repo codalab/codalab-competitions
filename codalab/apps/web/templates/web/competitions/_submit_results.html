@@ -15,7 +15,8 @@
   <p>Submit a new result set or view your previous submissions.</p>
 </div>
 <div class="row">
-  <input type="file" name="file" id="fileUpload" class="fileUpload" />
+  <button class="globalBlueButton" onclick="$('#fileUpload').click()">Submit Results</button>
+  <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
   <div id="details"></div>
   <div id="response"></div>
   <div id="previews"></div>
