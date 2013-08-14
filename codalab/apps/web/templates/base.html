@@ -54,7 +54,7 @@
             <ul class="title-area">
               <!-- Title Area -->
               <li class="name">
-                <h1><a href="/">CodaLab</a></h1>
+                <a href="/"> <img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a>
               </li>
               <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
@@ -64,7 +64,11 @@
               <ul class="left">
                 <li><a href="/competitions">Competitions</a></li>
                 <!-- <li><a href="/experiments">Experiments</a></li>                -->
-                <li><a href="/my">My CodaLab</a></li>
+                {% if user.is_authenticated %}
+                  <li><a href="/my">My CodaLab</a></li>
+                {% else %}
+                  <li><a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
+                {% endif %}
                 <li><a href="/help/about.html">About</a></li>
               </ul>
 
