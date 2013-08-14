@@ -91,16 +91,15 @@ $("form").submit(function(event) {
         success: function(response, textStatus, jqXHR) {
             $('#'+fid).remove();
             var data = $.parseJSON(response);
-            console.log(typeof data);
-     
+         
             var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
            
-            console.log(data.status);
+           
             pid.text(ParticipateStatusText[data.status]);
-            console.log(ParticipationReasonStyle[data.status]);
+          
             if(data.reason) {
                var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
-               console.log(reasontext);
+             
                pid.append(reasontext);
            }
              
