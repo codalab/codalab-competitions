@@ -88,7 +88,7 @@
                                             <span class="custom checkbox"></span> 
                                             I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
                                             </label>
-                                            <input type="submit" class="globalBlueButton" value="Register" />
+                                            <input type="submit" id="participateButton" class="globalBlueButton" value="Register" />
                                         </div>
                                     </div>
                                 </form>
@@ -219,6 +219,7 @@
                         alert("There was a problem registering for this competition.");;
                     }
             });
+            return false;
         });
 
         // In partials loaded, initialize the data tables
@@ -268,6 +269,7 @@
 
     $(document).ready(function ()
     {
+      
       $('#fileUpload').liteUploader(
       {
         script: '/api/competition/{{competition.id}}/submission/',
