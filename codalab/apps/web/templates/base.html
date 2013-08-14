@@ -77,20 +77,28 @@
                         <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>
                         <li class="menu-icon">
                             <a href="#" data-dropdown="drop1"><i class="social-foundicon-torso"></i></a>
-                            <ul id="drop1" class="f-dropdown signin-dropdown">
+                            <ul id="drop1" class="f-dropdown signin-dropdown" >
                                 <li>
-                                    <label for="">Username:</label>
-                                    <input type="text" name="" value="" />
-                                    <label for="">Password:</label>
-                                    <input type="text" name="" value="" />
+                                    <p>
+                                        <label for="">Username:</label>
+                                        <input type="text" name="" value="" />
+                                    </p>
+                                    <p>
+                                        <label for="">Password:</label>
+                                        <input type="text" name="" value="" />
+                                    </p>
                                     <div class="row">
                                         <div class="globalBlueButtonAtag">
                                             <a class="button secondaryAction button-Style-Brown" href="">login</a>
+                                            <div class="login-button-separator">
+                                                <hr />
+                                                <label>OR</label>
+                                                <hr />
+                                            </div>
                                             <button class="primaryAction button-Style-Brown" type="submit">signup</button>
                                         </div>
                                     </div>
                                 </li>
-                                <li><a href="#">This is another</a></li>
                             </ul>
                         </li>
                         {% endif %}      
@@ -105,15 +113,15 @@
                 </section>
             </nav>
         </div>
-    <!-- End Nav -->
+        <!-- End Nav -->
 
-    {% block nosubheader %}
+        {% block nosubheader %}
         <div class="row">
             <div class="subheader small-centered">
                 {% block subheader %} {% endblock subheader %}
             </div>
         </div>
-    {% endblock nosubheader %}
+        {% endblock nosubheader %}
 
         {% block hero_subheader %}
         {% endblock hero_subheader %}
@@ -121,7 +129,7 @@
         <div class="large-12 large-centered columns content">
             {% block content %}{% endblock content %}
         </div>
-    <div id="layout_footer"></div>
+        <div id="layout_footer"></div>
     </div>
     <!-- End Main Content and Sidebar -->
 

@@ -396,6 +396,8 @@ p.competition-paragraph {
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
 	box-shadow:none;
 	white-space:nowrap;
+	height:44px;
+	padding:11px !important;
 	a {
 		&:focus{color:$white !important}
 	}
@@ -570,7 +572,13 @@ body ul.banner-navigation{
 body ul.signin-dropdown {
 	background:$dropdown-gray;
 	padding:10px;
-	width:200px;
+	width:300px;
+	&:after {
+		display:none !important;
+	}
+	&:before {
+		display:none !important;
+	}
 	li {
 	width:100%;
 		&:hover{background:none !important;}
@@ -585,9 +593,27 @@ body ul.signin-dropdown {
 		@include button-Style-Brown;
 		margin:10px 0;
 		min-height:44px;
-		line-height:16px;
+	}
+	label {
+		display:table-cell;
 	}
 }
-
+.login-button-separator {
+	width:90%;
+	margin:auto;
+	display:table;
+	hr {
+		background:red;
+		border-bottom:solid 1px $text-link-color
+	}
+	label {
+		display:table-cell;
+		vertical-align:middle;
+		width:30px;
+		text-align:center;
+		font-weight:bold;
+		color:$text-link-color;
+	}
+}
 
 /*Homepage-------------------*/
