@@ -39,16 +39,18 @@
             </div>
             <div class="large-4 pull-8 columns">
                 <h3>{{ item.user.username }}</h3>
+		<p class="participationStatus">
                 {% if item.status.codename == 'pending' %}
-                <p>Participation pending approval</p>
+                Participation pending approval
                 {% elif item.status.codename == 'approved' %}
-                <p>Participation approved</p>
+                Participation approved
                 {% elif item.status.codename == 'denied' %}
-                <p>Participation rejected</p>
+                Participation rejected
                 <p style="color:red;">Reason: {{ item.reason }}</p>
                 {% else %}
-                <p>Unknown Status</p>
+                Unknown Status
                 {% endif %}
+		</p>
             </div>
         </div>
     </div>               
@@ -60,6 +62,14 @@
 {% block js %}
 /* $("#process_request").validate(); */
 
+var ParticipateStatusText = { 'approved': 'Participation approved',
+                              'denied': 'Participation rejected',
+                              'pending': 'Participation pending',
+                              'unknown': 'Unknown' };
+var ParticipationReasonStyle = {'denied': 'color:red',
+                                'unknown': '',
+                                'pending': '',
+                                'approved': '' };
 
 /* attach a submit handler to the form */
 $("form").submit(function(event) {
@@ -75,10 +85,24 @@ $("form").submit(function(event) {
     request = $.ajax({
         url: "/api/competition/{{competition_id}}/participation_status/",
         type: "post",
-        dataType: "text",
+        dataType: "json",
+        accept: {'json': "application/json" },
         data: values,
         success: function(response, textStatus, jqXHR) {
-            $(fid).remove();
+            $('#'+fid).remove();
+            var data = $.parseJSON(response);
+         
+            var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+           
+           
+            pid.text(ParticipateStatusText[data.status]);
+          
+            if(data.reason) {
+               var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
+             
+               pid.append(reasontext);
+           }
+             
         },
         error: function(jsXHR, textStatus, errorThrown) {
             alert("There was a problem processing this request for this competition.");;

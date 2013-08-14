@@ -26,8 +26,12 @@ try:
     PrivateStorage = PrivateStorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
                                          account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
+    BundleStorage = PrivateStorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
 except:
     PrivateStorage = PrivateStorageClass()
+    BundleStorage = PrivateStorageClass()
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -216,7 +220,8 @@ class CompetitionPhase(models.Model):
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-
+    # Temp fields for testing
+    
     class Meta:
         ordering = ['phasenumber']
 
@@ -227,6 +232,26 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
         return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+
+
+def phase_data_prefix(instance,filename):
+    return "competition/%d/%d/data/" % (instance.competition.pk,
+                                        instance.pk,)
+
+def phase_data_program_file(instance,filename):
+    return phase_data_prefix(instance,filename) + 'program.zip'
+
+def phase_data_file(instance,filename):
+    return phase_data_prefix(instance,filename) + 'data.zip'
+
+
+class PhaseData(models.Model):
+    phase = models.ForeignKey(CompetitionPhase)
+    programfile = models.FileField(upload_to=phase_data_program_file, storage=PrivateStorage,null=True,blank=True)
+    datafile = models.FileField(upload_to=phase_data_program_file, storage=PrivateStorage,null=True,blank=True)
+    
+    def __unicode__(self):
+        return self.phase.__unicode__()
 
 
 # Competition Participant
@@ -272,10 +297,10 @@ def submission_runfile_name(instance,filename):
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage,null=True,blank=True)
+    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
-    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage,null=True,blank=True)
-    runfile = models.FileField(upload_to=submission_runfile_name, storage=PrivateStorage,null=True,blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage, null=True, blank=True)
+    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
@@ -289,7 +314,7 @@ class CompetitionSubmission(models.Model):
         unique_together = (('submission_number','phase','participant'),)
 
     def __unicode__(self):
-        return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label,self.participant.user.email)
+        return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
 
     def save(self,*args,**kwargs):
@@ -403,7 +428,7 @@ class Bundle(models.Model):
   
     def get_absolute_url(self):
         return ('project_bundle_detail', (), {'slug': self.slug})
-    get_absolute_url = models.permalink(get_absolute_url)
+    #get_absolute_url = models.permalink(get_absolute_url)
 
 
 
@@ -420,7 +445,7 @@ class Run(models.Model):
     outputPath = models.CharField(max_length=100)
     cellout = models.FloatField(blank=True, null=True)
   
-    objects = models.Manager() 
+    #objects = models.Manager() 
   
     class Meta:
         ordering = ['-created']
@@ -430,4 +455,4 @@ class Run(models.Model):
   
     def get_absolute_url(self):
         return ('bundle_run_detail', (), {'object_id': self.id })
-    get_absolute_url = models.permalink(get_absolute_url)
+    #get_absolute_url = models.permalink(get_absolute_url)
