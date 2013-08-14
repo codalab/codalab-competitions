@@ -64,7 +64,11 @@
               <ul class="left">
                 <li><a href="/competitions">Competitions</a></li>
                 <!-- <li><a href="/experiments">Experiments</a></li>                -->
-                <li><a href="/my">My CodaLab</a></li>
+                {% if user.is_authenticated %}
+                  <li><a href="/my">My CodaLab</a></li>
+                {% else %}
+                  <li><a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
+                {% endif %}
                 <li><a href="/help/about.html">About</a></li>
               </ul>
 
