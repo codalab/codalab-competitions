@@ -33,7 +33,6 @@ def my_index(request):
     return HttpResponse(template.render(context))
 
 class LoginRequiredMixin(object):
-
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
