@@ -5,6 +5,8 @@ from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 from io import RawIOBase, BufferedRWPair, BufferedWriter
 
+#keep consistent path separators
+pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 try:
     import azure
@@ -79,7 +81,7 @@ class AzureStorage(Storage):
             file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$',file_name).groups()
         except AttributeError:
             file_root, file_ext = (file_name,'')
-        path_prefix = os.path.join(dir_path,file_root)
+        path_prefix = pathjoin(dir_path,file_root)
         file_list = {f.name: True for f in self.connection.list_blobs(self.azure_container,path_prefix)}
         ct = itertools.count(1)
         while name in file_list:            
@@ -101,7 +103,7 @@ class AzureBlockBlobFile(RawIOBase):
                 self.properties
                 if 'a' not in mode:
                     raise Exception("File Already Exists.")               
-            except azure.WindowsAzureMissingResourceError:
+            except azure.WindowsAzureMissingResourceError as e:
                 res = self.connection.put_blob(self.container,self.name,'',"BlockBlob")
         self._cur = 0
         self._end = (int(self.properties['content-length']) - 1) if int(self.properties['content-length']) > 0 else 0
