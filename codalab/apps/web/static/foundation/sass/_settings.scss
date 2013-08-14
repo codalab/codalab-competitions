@@ -105,7 +105,12 @@ span.has-tip {
 	border-bottom: 0px;
 }
 
-html.js body.body div#layout.container div.header nav.top-bar section.top-bar-section ul.right {
+
+html.js body.body div#layout.container div.large-12 div.row div.large-10 div.section-container section.active div.content div.row div.large-9 div.competition-tile article.subContainer div.articleTextArea div.small-10 button.globalYellowButtonSmall a {
+	color: $foreground;
+}
+
+nav.top-bar section.top-bar-section ul.right {
 	color: $foreground;
 	background: $background;
 	vertical-align: text-bottom;
