@@ -8,7 +8,7 @@ codalab/media/**/**
 # Virtuelenv files #
 ####################
 venv/*/*
-venv/*
+/venv/*
 
 # Compass/SASS generated files #
 ################################
