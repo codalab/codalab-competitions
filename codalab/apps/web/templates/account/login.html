@@ -20,7 +20,6 @@
 				</ul>
 				<div class="login-or">{% trans 'or' %}</div>
 			</div>
-
 			{% include "socialaccount/snippets/login_extra.html" %}
 		{% endif %}
 
@@ -31,14 +30,12 @@
 			<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
 			{% endif %}
 			<div class="row">
-				<div class="small-6 push-6 columns">
-					<div class="globalBlueButtonAtag">
-						<a class="button secondaryAction"  data-reveal-id="forgotpasswd-modal" data-reveal-ajax="true" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-					</div>
-				</div>
-				<div class="small-6 pull-6 columns">
+				<div class="small-4 right columns">
 					<button class="primaryAction globalBlueButton" type="submit">{% trans "Sign In" %}</button>
 				</div>
+			</div>
+			<div class="row">
+				<a data-reveal-id="signup-modal" data-reveal-ajax="true" href="{{signup_url}}">Register!</a> &nbsp; if you don't have an account.
 			</div>
 		</form>
 {% endblock %}
