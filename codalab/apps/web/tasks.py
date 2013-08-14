@@ -50,6 +50,7 @@ input: %s
         print res.text
         submission.set_status('processing_failed')
     submission.save()
+    submission_get_results.delay(submission.pk,1)
     return submission.pk
 
 @celery.task(name='competition.validate_submission')
@@ -65,20 +66,53 @@ def evaluate_submission(url,submission_id):
     # evaluate(inputdir, standard, outputdir)
     return submission_id
 
+@celery.task(name='competition.submission_get_results')
+def submission_get_results(submission_id,ct):
+    # TODO: Refactor
+    # Hard-coded limits for now
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    if ct > 1000:
+        # return None to indicate baling on checking
+        return (submission.pk,ct,'limit_exceeded',None)
+    status = submission.get_execution_status()
+    
+    if status:
+        if status['Status'] in ("Submitted","Running"):
+            return (submission.pk,ct+1,'rerun',None)
+        else:
+            return (submission.pk,ct,'complete',status)
+    else:
+        return (submission.pk,ct,'failure',None)
+    
+@task_success.connect(sender=submission_get_results)
+def submission_results_success_handler(sender,result=None,**kwargs):
+    submission_id,ct,state,status = result
+    print status
+    if state == 'rerun':
+        print "Querying for results again"
+        submission_get_results.apply_async((submission_id,ct),countdown=5)
+    elif state == 'complete':
+        print "Run is complete"
+    elif state == 'limit_exceeded':
+        print "Run limit, or time limit exceeded."
+    elif state == 'failure':
+        print "Some failure happened"
+
 @task_success.connect(sender=submission_run)
-def task_success_handler(sender, result=None, **kwargs):
-    import random
-    s = models.CompetitionSubmission.objects.get(pk=result)
-    s.set_status('accepted', force_save=True)
-    subres = models.SubmissionResult.objects.create(submission=s,aggregate=0)
-    scores = []
-    for s in ['score1','score2','score3']:
-        rs = random.random()*10
-        sc = models.SubmissionScore.objects.create(result=subres,label=s,value=rs)
-        scores.append(rs)
-    subres.aggregate = sum(scores)/len(scores)
-    subres.save()
-    print " ACCEPTED SUBMISSION %s" % str(sender)
+def submission_run_success_handler(sender, result=None, **kwargs):
+    print "Successful submission"
+    # import random
+    # s = models.CompetitionSubmission.objects.get(pk=result)
+    # s.set_status('accepted', force_save=True)
+    # subres = models.SubmissionResult.objects.create(submission=s,aggregate=0)
+    # scores = []
+    # for s in ['score1','score2','score3']:
+    #     rs = random.random()*10
+    #     sc = models.SubmissionScore.objects.create(result=subres,label=s,value=rs)
+    #     scores.append(rs)
+    # subres.aggregate = sum(scores)/len(scores)
+    # subres.save()
+    # print " ACCEPTED SUBMISSION %s" % str(sender)
 
 # Bundle Tasks
 @celery.task
