@@ -1,18 +1,16 @@
-{% extends "account/base.html" %}
 
 {% load i18n %}
 {% load account %}
 {% load url from future %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
 {% block subheader %}<H4>{% trans "Sign In" %}</h4>{% endblock subheader %}
 
 {% block content %}
-	<div class="small-3 columns account_widget">
+	<div class="small-12 columns account_widget">
 		{% if socialaccount.providers  %}
 			<p>
 				{% blocktrans with site.name as site_name %}Please sign in with one
-				of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a> 
+				of your existing third party accounts. Or, <a href="{{ signup_url }} data-reveal-id="signup-modal" data-reveal-ajax="true"">sign up</a> 
 				for a {{site_name}} account and sign in below:{% endblocktrans %}
 			</p>
 
@@ -35,7 +33,7 @@
 			<div class="row">
 				<div class="small-6 push-6 columns">
 					<div class="globalBlueButtonAtag">
-						<a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+						<a class="button secondaryAction"  data-reveal-id="forgotpasswd-modal" data-reveal-ajax="true" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
 					</div>
 				</div>
 				<div class="small-6 pull-6 columns">

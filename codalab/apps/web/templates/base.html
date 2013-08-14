@@ -76,17 +76,19 @@
                   </form>
                 </li> -->
                 {% if user.is_authenticated %}
-                  <li class="menu-icon has-dropdown">
-                      <a href="#profile"><i class="social-foundicon-torso"></i></a>
+                  <li class="has-dropdown">
+                      <a href="#profile">{{user.username}}</a>
                       <ul class="dropdown">
-                        <li><label>{{user.username}}</label></li>
                         <!-- <li><a href="#">My Profile</a></li> -->
                         <li class="divider"></li>
-                        <li><a href="{% url 'account_logout' %}">Sign out</a></li>
+                        <li>
+                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                        </li>
                       </ul>
                   </li>
                 {% else %}
-                  <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>  
+                  <li class="menu-icon">
+                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -158,5 +160,11 @@
 
   {% analytical_body_top %}
   {% analytical_body_bottom %}
+
+  <div id="login-modal" class="reveal-modal small"></div>
+  <div id="logout-modal" class="reveal-modal small"></div>
+  <div id="signup-modal" class="reveal-modal small"></div>
+  <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+
   </body>
 </html>
