@@ -17,6 +17,7 @@ $text-link-color:#8a8a8a;
 $grayish-blue:#85acc6;
 $text-color-light-gray:#797979;
 $dropdown-gray:#d6d6d6;
+$purple-gray:#7a768b;
 
 
 
@@ -39,7 +40,7 @@ $anchor-font-color-active: $active;
 
 $inline-list-bottom-margin: 0;
 
-$side-nav-link-color-active: $active;
+$side-nav-link-color-active: $purple-gray;;
 
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
@@ -53,8 +54,8 @@ $section-title-bg-hover: none;
 $tooltip-bg: $background;
 
 @mixin linkStyle {
-	color:$link-color !important;
-	font-size:15px !important;
+	color:$purple-gray !important;
+	font-size:1.320em !important;
 }
 
 @mixin paragraph-Style {
@@ -84,12 +85,24 @@ $tooltip-bg: $background;
     margin-left:10px;
     width:112px;
     cursor:pointer;
+	&:hover{opacity:0.7}
+	&:focus{color:$white !important; opacity:0.9}
+}
+@mixin Main-font-normal{
+    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+	font-weight: normal;
+}
+@mixin Main-font-light{
+    font-family: Segoe UI Light,'Segoe UI Light', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+	font-weight: normal;
 }
 
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
 	font-weight: normal;
+	font-smoothing: antialiased !important;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.004) !important;
 }
 
 .menu-icon {
@@ -290,7 +303,6 @@ a > i {
 
 .slider {
 	color: $foreground;
-   	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 	font-size: 3.5em;
 	font-weight: lighter;
 	position: relative;
@@ -301,6 +313,7 @@ a > i {
 	width: 100%;
 	min-height: 300px;
 	vertical-align: middle;
+	@include Main-font-light;
 }
 
 .subheader {
@@ -398,8 +411,13 @@ p.competition-paragraph {
 	white-space:nowrap;
 	height:44px;
 	padding:11px !important;
-	a {
-		&:focus{color:$white !important}
+	min-width:112px !important;
+	width:auto !important;
+	&:hover{@include button-Style-Brown; opacity:0.7}
+	&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
+	a {	
+		&:hover{@include button-Style-Brown; opacity:0.7}
+		&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
 	}
 	@include button-Style-Brown;
 }
@@ -410,14 +428,15 @@ p.competition-paragraph {
 
 ul.side-nav {
 	 padding-top:0;
-	 position:fixed;
 	 li {
 		margin-bottom:2px;
+		padding-bottom:0 !important;
 	 }
 	 li a {
+		font-weight:normal;
 		@include linkStyle;
-		&:hover{color:$active}
-		&:active{background:none}
+		&:hover{color:$purple-gray; font-weight:bold}
+		&:active{background:none; font-weight:bold}
 	  }
 	li.active a {
 		color:$gray !important
@@ -425,14 +444,25 @@ ul.side-nav {
 }
 
 .glossary-page-container, competitions-block-Styling {
+	.fixed {
+		left:auto;
+		top:auto;
+		margin-left:0;
+		a {
+			display:inline-block
+		}
+	}
 	h6 { 
-		font-size:14px; 
-		color:$gray
+		font-size:16px; 
+		color:$purple-gray;
+		margin-bottom:0px;
 		}
 
 	p { 
-		font-size:12px; 
-		color:$gray
+		font-size:15px; 
+		color:$purple-gray;
+		padding-bottom:14px;
+		
 		}
 
 	ol { 
@@ -445,13 +475,16 @@ ul.side-nav {
 	}
 
 	ul { 
-		font-size:13px; 
-		color:$gray;
+		font-size:15px; 
+		color:$purple-gray;
 		margin-left:20px;
 
 		li{
 			padding-bottom:10px;
-			list-style-type:disc;
+			list-style-type:none;
+			b { 
+				color:$purple-gray;
+			}
 		}
 	}
 
@@ -541,6 +574,7 @@ body{
 	}
 	h4 {
 		@include h4-Style;
+		@include Main-font-light;
 	}
 }
 
@@ -615,5 +649,23 @@ body ul.signin-dropdown {
 		color:$text-link-color;
 	}
 }
-
 /*Homepage-------------------*/
+
+/*SubPage-------------------*/
+
+body .subheader-strip{
+	margin-top:16px;
+	background:$grayish-blue;
+	padding:5px 0;
+	min-height:95px;
+	margin-bottom:32px;
+	h4 {
+		font-size:40px;
+		color:#fff;
+		@include Main-font-light;
+		margin-bottom:0;
+	}
+}
+
+/*SubPage-------------------*/
+
