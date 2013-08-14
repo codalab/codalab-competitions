@@ -19,7 +19,7 @@ pip install --upgrade pip
 pip install --upgrade distribute
 
 REM Install development requirements
-pip install -r codalab\requirements\dev.txt
+pip install -r codalab\requirements\dev_azure.txt
 
 REM If an old database exists, move it out of the way
 if exist dev_db.sqlite move dev_db.sqlite dev_db.sqlite.bak

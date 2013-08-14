@@ -20,13 +20,11 @@
             </p>
             <div class="content" data-section-content>
                 <div class="row">
-                    <div class="large-9 push-3 columns my_managed">
+                    <div class="large-9 push-3 columns ">
                         {% include "web/my/_managed.html" with competitions=my_competitions %}
                     </div>
                     <div class="large-3 pull-9 columns">
-                        <div class="globalBlueButtonAtag">
-                            <a href="/my/create_competition" class="button">New Competition</a>
-                        </div>
+                        <a href="/my/create_competition"><button class="globalBlueButtonSmall">Create Competition</button></a>
                     </div>
                 </div>
             </div>
