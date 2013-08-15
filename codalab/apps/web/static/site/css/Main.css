@@ -323,7 +323,7 @@ header {
     height:58px;
     padding:8px 0 20px 0;
     margin:auto;
-    background:#3684d6;
+    background:#739CB9;
     overflow:hidden;
 }
 .headerContent {
@@ -357,7 +357,7 @@ ul.headerNavigation li a{
     color:#fff;
     font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
     text-decoration:none;
-    border-bottom:solid 7px #3684d6;
+    border-bottom:solid 7px #739CB9;
     padding-bottom:1px;
     text-transform:lowercase;
 }
@@ -377,7 +377,7 @@ ul.headerNavigation li.active a {
     width:318px;
     height:30px;
     background: #f5f5f5;
-    border:solid 1px #3684d6;
+    border:solid 1px #739CB9;
 
 }
 .searchBar input[type="text"] {
@@ -771,7 +771,7 @@ input[type="submit"][value="Delete"]
 }
 .CompetitionsDetailLft nav ul li a{
     font:normal 16px/20px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#3684d6;
+    color:#739CB9;
     display:block;
     text-align:right;
     padding:0 5px;
@@ -955,11 +955,11 @@ input[type="submit"][value="Delete"]
     padding:10px;
 }
 .competitionTileLftStrip{
-    background:#3684d6 url('../Images/icon_competition_sm.png') no-repeat center 2px;
+    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 2px;
     display:table-cell;
     width:35px;
     padding:0 !important;
-    border:solid 1px #3684d6 !important;
+    border:solid 1px #739CB9 !important;
 }
 .subContainerMain {
     background:#f5f5f5;
@@ -1136,7 +1136,7 @@ figure.userImage {
 {
     font-size: x-large;
     display:inline-block;
-    color:#3684d6;
+    color:#739CB9;
     padding-bottom: 5px;
 }
 /*SubPage----------------------------------------*/
@@ -1656,7 +1656,7 @@ ul.competitionsDetailTabTop li, .myCodalabTabArea li{
     display:inline-block;
     font:normal 19px/50px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
     padding:0 40px;
-    color:#3684d6;
+    color:#739CB9;
     cursor:pointer;
     border:solid 1px #ccc;
     border-bottom:0;
@@ -1708,7 +1708,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     background:#ea5a23;
 }
 .approvedApproval .infoStatusBar {
-    background:#3684d6;
+    background:#739CB9;
 }
 .participateInfoBlock .labelArea {
     overflow:hidden;
@@ -1763,7 +1763,7 @@ font-weight:normal !important;
 .chkRegisterContainer span a
 {
     font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
-    color:#3684D6;
+    color:#739CB9;
 }
 .chkRegisterContainer input {
     float:left;
@@ -2179,7 +2179,7 @@ code {
     line-height:22px;
 }
 /*.phaseToggleBtn {
-    background:#3684d6 ;
+    background:#739CB9 ;
     padding:8px 15px 4px;
     float:right;
     position:relative;
@@ -2509,7 +2509,7 @@ ul.leftNavigation a{
     float:right;
     text-align:right;
     cursor:pointer;
-    color:#3684d6;
+    color:#739CB9;
     font-size:15px;
 }
 ul.leftNavigation li.active a{
@@ -2569,7 +2569,7 @@ ul.leftNavigation li.active a{
     color:#666;
 }
 .mainPageContainer .rightContentArea a{
-    color:#3684d6;
+    color:#739CB9;
     text-decoration:none;
 }
 .mainPageContainer .rightContentArea pre{
@@ -2586,7 +2586,7 @@ ul.leftNavigation li.active a{
 }
 .breadcrumb label,.breadcrumb span{
     font-size:15px;
-    color:#3684d6;
+    color:#739CB9;
     padding-right:10px;
 }
 .breadcrumb label{
