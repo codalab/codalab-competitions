@@ -40,8 +40,8 @@
         {% for submission in active_phase_submissions %}
           {% for result in submission.result.all %}
           <tr>
-            <td>{{submission.id}}</td>
-            <td><span data-tooltip class="has-tip" title="{{result.name}}">{{result.id}}</span></td>
+            <td>{{result.id}}</td>
+            <td>{{result.name}}</td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
             <td>{{result.aggregate}}</td>
             <td>{{submission.status}}</td>
