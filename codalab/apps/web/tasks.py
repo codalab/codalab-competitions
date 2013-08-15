@@ -1,7 +1,7 @@
 import time
 import requests
 import json
-#from StringIO import StringIO
+import re
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.files import File
@@ -15,29 +15,40 @@ import models
 
 main = base.Base.SITE_ROOT
 
+## Needed as the computation service runs on windows
+cvl = lambda x: re.sub("\r(?!\n)|(?<!\r)\n", "\r\n",x)
+
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
     time.sleep(4) # Needed temporarily for using sqlite. Race.
-    program = 'competition1/phase1/program.zip'
-    dataset = 'competition1/phase1/reference.zip'
-
+    program = 'competition/1/1/data/program.zip'
+    dataset = 'competition/1/1/data/reference.zip'
+    
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    inputfile = ContentFile(
+    inputdata = cvl(
 """ref: %s
 ref: %s
-""" % (dataset, submission.file.name))   
+""" % (dataset, submission.file.name)
+)
+    inputdata
+    inputfile = ContentFile(inputdata)   
     submission.inputfile.save('input.txt', inputfile)
     
-
-    runfile = ContentFile(
+    rundata = cvl(
 """program: %s
 input: %s
 """ % (program, submission.inputfile.name))
+    rundata
+    runfile = ContentFile(rundata)
+
     submission.runfile.save('run.txt', runfile)
     
     submission.save()
     headers = {'content-type': 'application/json'}
-    res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=json.dumps(submission.runfile.name), headers=headers)
+    data = json.dumps(submission.runfile.name)
+    print data
+    print submission.runfile.name
+    res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
     print "submitting: %s" % submission.runfile.name
     if res.status_code in (200,201):
         print res.text

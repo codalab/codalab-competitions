@@ -26,6 +26,7 @@ try:
     PrivateStorage = PrivateStorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
                                          account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
+
     BundleStorage = PrivateStorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                         account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
@@ -297,9 +298,9 @@ def submission_runfile_name(instance,filename):
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage, null=True, blank=True)
+    file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
-    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage, null=True, blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     execution_key = models.TextField(blank=True,default="")
@@ -344,12 +345,12 @@ class CompetitionSubmission(models.Model):
 
     def runfile_url(self):
         if self.runfile:
-            return os.path.join(self.file_url_base, self.runfile.name)
+            return os.path.join(self.runfile.storage.url(''), self.runfile.name)
         return None
 
     def inputfile_url(self):
         if self.inputfile:
-            return os.path.join(self.file_url_base, self.inputfile.name)
+            return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
         return None
 
     def get_execution_status(self):
