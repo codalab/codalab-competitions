@@ -27,11 +27,11 @@
         {% for submission in active_phase.board.submissions %}
         <tr>
           <td></td>
-          <td>{{submission.participant.user.username}}</td>
+          <td>{{submission.submission.participant.user.username}}</td>
           <td>{{submission.id}}</td>
-          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-          <td>{{submission.result.aggregate}}</td>
-          <td>{{submission.result.aggregate}}</td>
+          <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+          <td>{{submission.aggregate}}</td>
+          <td>{{submission.aggregate}}</td>
         </tr>
         {% endfor %}        
       </tbody>
