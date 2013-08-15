@@ -9,7 +9,7 @@ pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DEPLOY_PATH='codalab'
-VENV_PATH = pathjoin(THIS_DIR,DEPLOY_PATH,'venv')
+
 THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
 
 @task
@@ -17,9 +17,11 @@ def set_env(**kwargs):
     env.repo_tag = 'master'
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
-    env.CONFIG_GEN_PATH = pathjoin(env.DEPLOY_PATH,'codalab','config','generated')
+    env.DEPLOY_PATH=DEPLOY_PATH
+    env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = VENV_PATH
+    env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venv')
+    VENV_PATH = env.venvpath
 
 # Environment variables will take precidence
 try:
@@ -72,8 +74,9 @@ def site_config(path=None,archive_name='latest_codalab_config.tar.gz',url=None,m
     env.run('mkdir -p %s' % spath)
     put(tmpf)
     env.run('tar -C %s -xvzf %s' % (spath,fname))
-    with virtualenv(env.venvpath), cd(spath):     
-        env.run('pip install -U --force-reinstall ./%s' % os.path.basename(path))
+    
+    with virtualenv(env.venvpath):
+        env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath,os.path.basename(path)))
     env.EXTERNAL_SITE_CONFIG = True
 
 @task
@@ -107,8 +110,13 @@ def config_gen(config=None,settings_module=None):
         env.run('python manage.py config_gen')
 
 @task
-def bootstrap():    
+def makevenv(path=env.venvpath):
     make_virtualenv(path=env.venvpath, system_site_packages=False)
+
+
+@task
+def bootstrap():    
+    makevenv(path=env.venvpath)
     #run('virtualenv --distribute %s' % env.venvpath)
     #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
     env.run('killall supervisord')
@@ -137,6 +145,11 @@ def restart_supervisor():
         else:
             env.run('./supervisorctl update')
             env.run('./supervisorctl restart all')
+
+@task
+def rm_sqlite():
+    with cd(pathjoin(env.DEPLOY_PATH,'codalab')):
+        env.run('rm dev_db.sqlite')
 
 @task
 def update():
