@@ -21,17 +21,24 @@ import tasks
 
 ## Needed for computation service handling
 ## Hack for now
-PrivateStorageClass = get_storage_class(settings.PRIVATE_FILE_STORAGE)
+PrivateStorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
-    PrivateStorage = PrivateStorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
-                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
+    PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                         account_key=settings.AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
-    BundleStorage = PrivateStorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
+
+    BundleStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                        account_key=settings.AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
+
+    PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                        account_key=settings.AZURE_ACCOUNT_KEY,
+                                        azure_container=settings.PUBLIC_AZURE_CONTAINER)
+
 except:
-    PrivateStorage = PrivateStorageClass()
-    BundleStorage = PrivateStorageClass()
+    PrivateStorage = settings.DEFAULT_FILE_STORAGE
+    BundleStorage = settings.DEFAULT_FILE_STORAGE
+    PublicStorage = settings.DEFAULT_FILE_STORAGE
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -153,7 +160,7 @@ class Competition(models.Model):
     """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos',null=True,blank=True)
+    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True)
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False)
     end_date = models.DateTimeField(null=True,blank=True)
@@ -220,7 +227,6 @@ class CompetitionPhase(models.Model):
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    # Temp fields for testing
     
     class Meta:
         ordering = ['phasenumber']
@@ -244,11 +250,10 @@ def phase_data_program_file(instance,filename):
 def phase_data_file(instance,filename):
     return phase_data_prefix(instance,filename) + 'data.zip'
 
-
 class PhaseData(models.Model):
     phase = models.ForeignKey(CompetitionPhase)
-    programfile = models.FileField(upload_to=phase_data_program_file, storage=PrivateStorage,null=True,blank=True)
-    datafile = models.FileField(upload_to=phase_data_program_file, storage=PrivateStorage,null=True,blank=True)
+    programfile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
+    datafile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
     
     def __unicode__(self):
         return self.phase.__unicode__()
@@ -278,35 +283,59 @@ class CompetitionSubmissionStatus(models.Model):
 
 
 def submission_file_name(instance,filename):
-    
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
                                                                     instance.submission_number)
-def submission_inputfile_name(instance,filename):
+def submission_inputfile_name(instance, filename):
      return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
                                                                instance.phase.pk,
                                                                instance.participant.user.pk,
                                                                instance.submission_number)
-def submission_runfile_name(instance,filename):
+def submission_runfile_name(instance, filename):
     return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
                                                             instance.phase.pk,
                                                             instance.participant.user.pk,
                                                             instance.submission_number)
+
+def submission_output_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/output.zip" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_stdout_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/stdout.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_stderr_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/stderr.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_file_blobkey(instance, filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number,
+                                                            filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to=submission_file_name, storage=PrivateStorage, null=True, blank=True)
+    file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
-    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=PrivateStorage, null=True, blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100,null=True,blank=True)   
     submission_number = models.PositiveIntegerField(default=0)
-    
+    output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
+    stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
+    stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+
     _fileobj = None
     _do_submission = False
 
@@ -315,7 +344,6 @@ class CompetitionSubmission(models.Model):
 
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
-
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
@@ -344,12 +372,12 @@ class CompetitionSubmission(models.Model):
 
     def runfile_url(self):
         if self.runfile:
-            return os.path.join(self.file_url_base, self.runfile.name)
+            return os.path.join(self.runfile.storage.url(''), self.runfile.name)
         return None
 
     def inputfile_url(self):
         if self.inputfile:
-            return os.path.join(self.file_url_base, self.inputfile.name)
+            return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
         return None
 
     def get_execution_status(self):
@@ -370,7 +398,9 @@ def do_submission_task(sender,instance=None,**kwargs):
 
 # Competition Submission Results
 class SubmissionResult(models.Model):
-    submission = models.OneToOneField(CompetitionSubmission,related_name='result')
+    submission = models.ForeignKey(CompetitionSubmission,related_name='result')
+    name = models.CharField(max_length=256)
+    notes = models.TextField()
     aggregate = models.DecimalField(max_digits=22,decimal_places=10)
 
 class SubmissionScore(models.Model):
