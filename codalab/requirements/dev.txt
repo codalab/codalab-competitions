@@ -1,4 +1,4 @@
 -r common.txt
 Whoosh==2.4.1
-django-debug-toolbar
 django-jenkins==0.14.0
+django-debug-toolbar==0.9.4
