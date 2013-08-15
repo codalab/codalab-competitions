@@ -550,14 +550,14 @@ input[type="submit"][value="Delete"]
 }
 .globalBlueButton:active, .globalBlueButtonBig:active, .globalBlueButtonInput:active,.globalBlueButtonAtag > a:active,.globalBlueButtonSmallAtag > a:active,.globalBlueButtonSmall:active,.globalBlueButtonSmallFlexi:active,.buttonAccept:active{
     border-color:#4f98f8;
-    background: #2676ef; /* Old browsers */
-    background: -moz-linear-gradient(top,  #2676ef 0%, #1359ca 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#2676ef), color-stop(100%,#1359ca)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #2676ef 0%,#1359ca 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2676ef', endColorstr='#1359ca',GradientType=0 ); /* IE6-9 */
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #1359ca 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#1359ca)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#1359ca 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#1359ca 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#1359ca 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#1359ca 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#1359ca',GradientType=0 ); /* IE6-9 */
 }
 .globalBlueButtonBig{
 
@@ -2472,7 +2472,7 @@ body .ui-datepicker-prev span{
 .manageUserListAddedBlock .manageUser span{display:block}
 .manageUserListAddedBlock .manageUser input [type="checkbox"]{ display:none}
 .selectedColoumHeader {
-    background: #4E8EE0 !important;
+    background: #739CB9 !important;
 }
 .selectedColoumRow{
     background: #f2faff !important;

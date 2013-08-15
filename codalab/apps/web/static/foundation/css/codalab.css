@@ -485,7 +485,7 @@ ul.side-nav li {
 }
 /* line 426, ../sass/_settings.scss */
 ul.side-nav li a {
-  color: #739cb9 !important;
+  color: #676278 !important;
   font-size: 15px !important;
 }
 /* line 428, ../sass/_settings.scss */
@@ -540,7 +540,7 @@ ul.side-nav li.active a {
 }
 /* line 473, ../sass/_settings.scss */
 .glossary-page-container p a, competitions-block-Styling p a, .section-container.vertical-tabs .content p a {
-  color: #739cb9;
+  color: #676278;
 }
 /* line 477, ../sass/_settings.scss */
 .glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
@@ -586,7 +586,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 /* line 515, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl p a {
-  color: #739cb9 !important;
+  color: #676278 !important;
   font-size: 15px !important;
 }
 /* line 517, ../sass/_settings.scss */
