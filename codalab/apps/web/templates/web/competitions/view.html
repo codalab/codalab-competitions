@@ -67,7 +67,7 @@
                                     <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
                                     <label></label>
                                     <div class="globalBlueButtonAtag">
-                                        <a class="registerCompetition" href="{% url 'account_login' %}">Sign in</a>
+                                        <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/competitions/{{competition.id}}#participate-submit_results">Sign in</a></li>  
                                     </div>
                                 </div>
                             </div>
