@@ -137,11 +137,13 @@
         console.log(aData);
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
+	submission = aData[0].split("-")[0];
+	result = aData[0].split("-")[1];
         if ($(nTr).find(".status").hasClass("submitted")) {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+","+aData[1]+", \'delete\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+submission+","+result+", \'delete\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick='+clickStr+'>Remove from Leaderboard</button>';
         } else {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+","+aData[1]+", \'post\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+submission+","+result+", \'post\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick='+clickStr+'>Submit to Leaderboard</button>';
         }
         sOut += '</div>';        
