@@ -279,7 +279,6 @@ class CompetitionSubmissionStatus(models.Model):
 
 
 def submission_file_name(instance,filename):
-    
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
@@ -294,6 +293,7 @@ def submission_runfile_name(instance,filename):
                                                             instance.phase.pk,
                                                             instance.participant.user.pk,
                                                             instance.submission_number)
+
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
@@ -316,7 +316,6 @@ class CompetitionSubmission(models.Model):
 
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
-
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
