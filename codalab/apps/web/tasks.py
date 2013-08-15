@@ -113,8 +113,6 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                 result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
                 labels = ["Filename", "Dice", "Jaccard", "Sensitivity", "Precision", "Average Distance", "Hausdorff Distance", "Kappa", "Labels"]
                 for label,value in zip(labels, line.split(",")):
-                    print "Label: %s" % label
-                    print "Value: %s" % value
                     if label == "Filename":
                         result.name = value.lstrip("..\\input\\res\\")
                         result.save()
