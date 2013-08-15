@@ -15,50 +15,33 @@ import models
 
 main = base.Base.SITE_ROOT
 
-## Needed as the computation service runs on windows
-cvl = lambda x: re.sub("\r(?!\n)|(?<!\r)\n", "\r\n",x)
-
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
     time.sleep(4) # Needed temporarily for using sqlite. Race.
     program = 'competition/1/1/data/program.zip'
     dataset = 'competition/1/1/data/reference.zip'
-    
+
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    inputdata = cvl(
+    inputfile = ContentFile(
 """ref: %s
-ref: %s
-""" % (dataset, submission.file.name)
-)
-    inputdata
-    inputfile = ContentFile(inputdata)   
+res: %s
+""" % (dataset, submission.file.name))   
     submission.inputfile.save('input.txt', inputfile)
-    
-    rundata = cvl(
+    runfile = ContentFile(
 """program: %s
 input: %s
 """ % (program, submission.inputfile.name))
-    rundata
-    runfile = ContentFile(rundata)
-
     submission.runfile.save('run.txt', runfile)
-    
     submission.save()
     headers = {'content-type': 'application/json'}
     data = json.dumps(submission.runfile.name)
-    print data
-    print submission.runfile.name
     res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
     print "submitting: %s" % submission.runfile.name
     if res.status_code in (200,201):
-        print res.text
         data = res.json()
         submission.execution_key = data['Id']
         submission.set_status('processing')
     else:
-        print res.status_code
-        print res.headers
-        print res.text
         submission.set_status('processing_failed')
     submission.save()
     submission_get_results.delay(submission.pk,1)
@@ -83,15 +66,18 @@ def submission_get_results(submission_id,ct):
     # Hard-coded limits for now
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     if ct > 1000:
-        # return None to indicate baling on checking
+        # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
     status = submission.get_execution_status()
     
     if status:
         if status['Status'] in ("Submitted","Running"):
-            return (submission.pk,ct+1,'rerun',None)
-        else:
-            return (submission.pk,ct,'complete',status)
+            return (submission.pk, ct+1, 'rerun', None)
+        elif status['Status'] == "Finished":
+            
+            return (submission.pk, ct, 'complete', status)
+        elif status['Status'] == "Failed":
+            return (submission.pk, ct, 'failed', status)
     else:
         return (submission.pk,ct,'failure',None)
     
