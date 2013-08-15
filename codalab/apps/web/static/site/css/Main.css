@@ -1186,13 +1186,18 @@ figure.userImage {
 .competitionActions label
 {
     font-size:12px;
-    color:#fff;
+    color:#222;
     padding:2px 5px;
     display:inline-block;
     border-radius:3px;
     -webkit-border-radius:3px;
     -moz-border-radius:3px;
 }
+.competitionActions label.statusDenied {
+   color: #dd1122;
+
+}
+
 .compBlockFilter{ background:#ebf2fb; padding:10px; min-height:270px;}
 .compBlockFilter input[type="text"]
 {
