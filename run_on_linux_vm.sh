@@ -17,18 +17,22 @@ fi
 
 STARTUP="codalab/config/generated/startup_env.sh"
 # Check for settings
-if [ -x $STARTUP ]; then
+if [ -e $STARTUP ]; then
+	echo "Sourcing django configuratoin setup."
 	source $STARTUP
 else
 	echo "Startup configuration not present. Did you run 'python manage.py config_gen' yet?"
 	exit 1
 fi
 
+# Go to the lower level directory
+cd codalab
+
 # Run the django app using nohup (man nohup), so it continues to run after you log out.
-nohup python ./codalab/manage.py runserver 0.0.0.0:8000 2>&1 >& codalab.output &
+nohup python ./manage.py runserver 0.0.0.0:8000 2>&1 >& codalab.output &
 
 # Run the celery process
-nohup python ./codalab/manage.py celery worker -P solo 2>&1 >& celery.output &
+nohup python ./manage.py celery worker -P solo 2>&1 >& celery.output &
 
 # Exit cleanly
 exit 0
