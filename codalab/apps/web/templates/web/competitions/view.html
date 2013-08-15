@@ -138,10 +138,10 @@
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
         if ($(nTr).find(".status").hasClass("submitted")) {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'delete\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+","+aData[1].split(">")[1].split("<")[0]+", \'delete\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick='+clickStr+'>Remove from Leaderboard</button>';
         } else {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'post\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+","+aData[1].split(">")[1].split("<")[0]+", \'post\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick='+clickStr+'>Submit to Leaderboard</button>';
         }
         sOut += '</div>';        
@@ -156,8 +156,8 @@
         return sOut;
     }
 
-    function leaderBoardSubmit(competition, submission, op) {
-        url = "/api/competition/"+competition+"/submission/"+submission+"/leaderboard";
+    function leaderBoardSubmit(competition, submission, result, op) {
+        url = "/api/competition/"+competition+"/submission/"+submission+"/result/"+result+"/leaderboard";
         if (op == "delete") {
             url += "_remove/";
             op = "delete";

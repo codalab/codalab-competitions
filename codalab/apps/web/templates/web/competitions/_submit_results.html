@@ -38,19 +38,21 @@
       </thead>
       <tbody>
         {% for submission in active_phase_submissions %}
-        <tr>
-          <td>{{submission.id}}</td>
-          <td><span data-tooltip class="has-tip" title="{{submission.file}}">{{submission.file|filename}}</span></td>
-          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-          <td>{{submission.result.aggregate}}</td>
-          <td>{{submission.status}}</td>
-          {% if submission in active_phase.board.submissions %}
-            <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-          {% else %}
-            <td class="status not_submitted"></td>
-          {% endif %}
-          <td><i class="enclosed-foundicon-plus"></i></td>
-        </tr>
+          {% for result in submission.result.all %}
+          <tr>
+            <td>{{submission.id}}</td>
+            <td><span data-tooltip class="has-tip" title="{{result.name}}">{{result.id}}</span></td>
+            <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+            <td>{{result.aggregate}}</td>
+            <td>{{submission.status}}</td>
+            {% if result in active_phase.board.submissions %}
+              <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+            {% else %}
+              <td class="status not_submitted"></td>
+            {% endif %}
+            <td><i class="enclosed-foundicon-plus"></i></td>
+          </tr>
+          {% endfor %}
         {% endfor %}
       </tbody>
     </table>
