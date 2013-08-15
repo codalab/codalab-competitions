@@ -955,7 +955,7 @@ input[type="submit"][value="Delete"]
     padding:10px;
 }
 .competitionTileLftStrip{
-    background:#3684d6 url('../Images/icon2Small.png') no-repeat center 2px;
+    background:#3684d6 url('../Images/icon_competition_sm.png') no-repeat center 2px;
     display:table-cell;
     width:35px;
     padding:0 !important;
