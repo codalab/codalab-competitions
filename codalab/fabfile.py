@@ -6,8 +6,10 @@ from fabvenv import make_virtualenv, virtualenv
 
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-VENV_PATH = os.path.join(THIS_DIR,'venv')
+DEPLOY_PATH='codalab'
+VENV_PATH = pathjoin(THIS_DIR,DEPLOY_PATH,'venv')
 THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
 
 @task
@@ -15,10 +17,9 @@ def set_env(**kwargs):
     env.repo_tag = 'master'
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
-    env.DEPLOY_PATH = 'codalab'
     env.CONFIG_GEN_PATH = pathjoin(env.DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = pathjoin('/home',env.DEPLOY_USER,'venv')
+    env.venvpath = VENV_PATH
 
 # Environment variables will take precidence
 try:
@@ -41,14 +42,6 @@ os.environ.setdefault('DJANGO_CONFIGURATION', env.DJANGO_CONFIG)
 env.django_configuration = os.environ['DJANGO_CONFIGURATION']
 env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
 
-#from fabric.contrib import django
-
-#from configurations import importer
-#importer.install()
-
-#django.settings_module(env.django_settings_module)
-#from django.conf import settings as django_settings
-
 env.EXTERNAL_SITE_CONFIG = False
 
     
@@ -57,7 +50,7 @@ def repotag(name='master'):
     env.repo_tag = name
         
 @task
-def site_config(path=None,url=None,module=None):
+def site_config(path=None,archive_name='latest_codalab_config.tar.gz',url=None,module=None):
     spath = 'src'
     if path and os.path.exists(path):
         path = os.path.abspath(path)
@@ -72,14 +65,14 @@ def site_config(path=None,url=None,module=None):
         if res.return_code != 0:
             raise Exception("*** Module has local changes. You must commit them.")
         tmp = tempfile.mkdtemp()
-        fname = 'latest_msr_config.tar.gz'
+        fname = archive_name
         tmpf =  os.path.join(tmp,fname)
         path = path.rstrip('/')
         lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
     env.run('mkdir -p %s' % spath)
     put(tmpf)
     env.run('tar -C %s -xvzf %s' % (spath,fname))
-    with virtualenv(env.venvpath), cd(spath):       
+    with virtualenv(env.venvpath), cd(spath):     
         env.run('pip install -U --force-reinstall ./%s' % os.path.basename(path))
     env.EXTERNAL_SITE_CONFIG = True
 
