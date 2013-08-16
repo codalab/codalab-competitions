@@ -253,19 +253,23 @@
             'bFilter'   : false
         });
 
-     $('#user_results tbody tr td i').on('click', function () {
-            var nTr = $(this).parents('tr')[0];
-            if ( prTable.fnIsOpen(nTr) )
+     $('#user_results .enclosed-foundicon-plus').on('click', function () {
+            console.log(this);
+            if (this.className == "enclosed-foundicon-plus" || this.className == "enclosed-foundicon-minus") 
             {
-                /* This row is already open - close it */
-                /* this.class = "enclosed-foundicon-plus"; */
-                prTable.fnClose( nTr );
-            }
-            else
-            {
-                /* Open this row */
-                /* this.class = "enclosed-foundicon-minus"; */
-                prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+                var nTr = $(this).parents('tr')[0];
+                if ( prTable.fnIsOpen(nTr) )
+                {
+                    /* This row is already open - close it */
+                    this.className = "enclosed-foundicon-plus";
+                    prTable.fnClose( nTr );
+                }
+                else
+                {
+                    /* Open this row */
+                    this.className = "enclosed-foundicon-minus";
+                    prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+                }
             }
         });
     });

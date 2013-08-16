@@ -29,7 +29,14 @@
         <tr>
           <td></td>
           <td>{{submission.submission.participant.user.username}}</td>
-          <td>{{submission.name}}</td>
+          <td>
+              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{submission.name}}</a>
+              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
+                {% for score in submission.scores.all %}
+                  <li>{{score.label}} : {{score.value}} </li>
+                {% endfor %}
+              </ul>
+          </td>
           <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
           <td>{{submission.notes}}</td>
             <td>
