@@ -37,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for submission in active_phase_submissions %}
+        {% for submission in my_active_phase_submissions %}
           {% for result in submission.result.all %}
           <tr id="{{submission.id}}-{{result.id}}">
             <td>{{result.name}}</td>
