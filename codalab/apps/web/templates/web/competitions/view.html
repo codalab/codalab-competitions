@@ -105,7 +105,7 @@
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
                                         <label class="regApprovLabel">Your request to register for this competition was denied.</label>
-                                        <label></label>
+                                        <label>Reason: {{my_participant.reason}}</label>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -281,7 +281,7 @@
         csrfmiddlewaretoken: '{{ csrf_token }}',
         customParams: {
           'phase': '1',
-          'participant' : '{{my_participant_id}}',
+          'participant' : '{{my_participant.id}}',
           'csrfmiddlewaretoken' : '{{ csrf_token }}'
         },
         before: function ()

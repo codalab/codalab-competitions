@@ -26,9 +26,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
+    denied=models.ParticipantStatus.objects.get(codename="denied")
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
-        'competitions_im_in' : request.user.participation.all()
+        'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
 
@@ -96,9 +97,9 @@ class CompetitionDetailView(DetailView):
         try:
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
                 context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
-                context['my_participant_id'] = competition.participants.get(user=self.request.user).id
+                context['my_participant'] = competition.participants.get(user=self.request.user)
                 for phase in competition.phases.all():
-                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
+                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
                         context['my_active_phase_submissions'] = submissions[phase]

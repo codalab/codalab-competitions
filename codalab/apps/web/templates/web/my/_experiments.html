@@ -1,0 +1,34 @@
+{% if not experiments %}
+  <p>You have not created any experiments.</p>
+{% else %}
+  {% for item in experiments %}
+    <div class="competition-tile">
+      <article class="subContainer">
+        <input id="competitionID" type="hidden" value="{{ item.pk }}" />
+        <div class="competitionTileLftStrip"></div>
+        <div class="articleTextArea">
+          <div class="articleTextAreaContainer">
+            <div class="articleImageContainer">
+              <div class="subContainerPadding">
+                <img src="{{ item.image_url }}" width="100px">
+              </div>
+            </div>
+            
+            <div class="subContainerPadding">
+              <div class="articleHeadingContainer">
+                <h3>{{ item.title }}</h3>
+                <label>{{ item.creator }}</label>
+              </div>
+              <p>{{ item.description }}</p>
+            </div>
+          </div>
+          <div class="small-10 small-centered columns">
+            <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
+            <a href="#"><button class="globalYellowButtonSmall">Edit</button></a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="globalYellowButtonSmall">Participants</button></a>
+         </div>
+       </div>
+     </article>
+    </div>                
+  {% endfor %}    
+{% endif %}
