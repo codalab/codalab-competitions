@@ -12,6 +12,8 @@ DEPLOY_PATH='codalab'
 
 THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
 
+sys.path.append('.')
+
 @task
 def set_env(**kwargs):
     env.repo_tag = 'master'
@@ -23,28 +25,10 @@ def set_env(**kwargs):
     env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venv')
     VENV_PATH = env.venvpath
 
-# Environment variables will take precidence
-try:
-    env.DJANGO_CONFIG
-except AttributeError:
-    env.DJANGO_CONFIG = 'Dev'
-try:
-    env.SETTINGS_MODULE
-except AttributeError:
-    env.SETTINGS_MODULE = 'codalab.settings'
-set_env()
+    #env.django_configuration = os.environ['DJANGO_CONFIGURATION']
+    #env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
 
-
-
-sys.path.append('.')
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", env.SETTINGS_MODULE)
-os.environ.setdefault('DJANGO_CONFIGURATION', env.DJANGO_CONFIG)
-
-env.django_configuration = os.environ['DJANGO_CONFIGURATION']
-env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
-
-env.EXTERNAL_SITE_CONFIG = False
+    env.EXTERNAL_SITE_CONFIG = False
 
     
 @task
@@ -52,7 +36,7 @@ def repotag(name='master'):
     env.repo_tag = name
         
 @task
-def site_config(path=None,archive_name='latest_codalab_config.tar.gz',url=None,module=None):
+def site_config(path=None,archive_name='latest_codalab_config.tar',url=None,module=None):
     spath = 'src'
     if path and os.path.exists(path):
         path = os.path.abspath(path)
@@ -73,7 +57,7 @@ def site_config(path=None,archive_name='latest_codalab_config.tar.gz',url=None,m
         lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
     env.run('mkdir -p %s' % spath)
     put(tmpf)
-    env.run('tar -C %s -xvzf %s' % (spath,fname))
+    env.run('tar -C %s -xvf %s' % (spath,fname))
     
     with virtualenv(env.venvpath):
         env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath,os.path.basename(path)))
@@ -90,7 +74,7 @@ def remote(**kwargs):
     env.run = run
    
 @task
-def clone_repo(url=env.REPO_URL,target=env.DEPLOY_PATH):
+def clone_repo(url='https://github.com/codalab/codalab.git',target='codalab'):
     env.run("git clone %s %s" % (url, target))
    
 @task
@@ -110,7 +94,7 @@ def config_gen(config=None,settings_module=None):
         env.run('python manage.py config_gen')
 
 @task
-def makevenv(path=env.venvpath):
+def makevenv(path=None):
     make_virtualenv(path=env.venvpath, system_site_packages=False)
 
 
@@ -119,7 +103,8 @@ def bootstrap():
     makevenv(path=env.venvpath)
     #run('virtualenv --distribute %s' % env.venvpath)
     #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
-    env.run('killall supervisord')
+    with settings(warn_only=True):
+       env.run('killall supervisord')
     with virtualenv(env.venvpath):
         env.run('pip install --upgrade pip')
         env.run('pip install --upgrade Distribute')
@@ -159,7 +144,7 @@ def update():
             update_to_tag(tag=env.repo_tag)
             requirements()          
             with cd('codalab'):
-                config_gen(config=env.django_configuration,settings_module=env.django_settings_module)
+                config_gen(config=env.DJANGO_CONFIG,settings_module=env.SETTINGS_MODULE)
                 env.run('./manage syncdb --noinput')
                 # When South is enabled
                 #env.run('./manage migrate')
