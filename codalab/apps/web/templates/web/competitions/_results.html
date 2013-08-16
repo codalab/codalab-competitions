@@ -32,8 +32,20 @@
           <td>{{submission.name}}</td>
           <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
           <td>{{submission.notes}}</td>
-          <td>{{submission.aggregate}}</td>
-          <td>{{submission.aggregate}}</td>
+            <td>
+              {% for score in submission.scores.all %}
+                {% if score.label == "Dice" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {% for score in submission.scores.all %}
+                {% if score.label == "Hausdorff Distance" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
         </tr>
         {% endfor %}        
       </tbody>

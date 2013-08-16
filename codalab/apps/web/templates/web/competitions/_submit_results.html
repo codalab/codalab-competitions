@@ -43,8 +43,20 @@
             <td>{{result.name}}</td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
             <td>{{result.notes}}</td>
-            <td>{{result.aggregate}}</td>
-            <td>{{result.aggregate}}</td>
+            <td>
+              {% for score in result.scores.all %}
+                {% if score.label == "Dice" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {% for score in result.scores.all %}
+                {% if score.label == "Hausdorff Distance" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
             {% if result in active_phase.board.submissions %}
               <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
             {% else %}
