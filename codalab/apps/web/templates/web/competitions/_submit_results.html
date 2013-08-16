@@ -40,7 +40,14 @@
         {% for submission in my_active_phase_submissions %}
           {% for result in submission.result.all %}
           <tr id="{{submission.id}}-{{result.id}}">
-            <td>{{result.name}}</td>
+            <td>
+              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{result.name}}</a>
+              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
+                {% for score in result.scores.all %}
+                  <li>{{score.label}} : {{score.value}} </li>
+                {% endfor %}
+              </ul>
+            </td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
             <td>{{result.notes}}</td>
             <td>
