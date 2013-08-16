@@ -22,7 +22,7 @@ def set_env(**kwargs):
     env.DEPLOY_PATH=DEPLOY_PATH
     env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venv')
+    env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venvd')
     VENV_PATH = env.venvpath
 
     #env.django_configuration = os.environ['DJANGO_CONFIGURATION']
@@ -99,7 +99,15 @@ def makevenv(path=None):
 
 
 @task
-def bootstrap():    
+def bootstrap(tag=None):    
+    with settings(warn_only=True):
+       env.run('killall supervisord')
+    if exists(env.DEPLOY_PATH):
+       env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%f%S'))))
+    clone_repo(target=env.DEPLOY_PATH)
+    with cd(env.DEPLOY_PATH):
+       if tag:	     
+          update_to_tag(tag=tag)
     makevenv(path=env.venvpath)
     #run('virtualenv --distribute %s' % env.venvpath)
     #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
@@ -108,10 +116,6 @@ def bootstrap():
     with virtualenv(env.venvpath):
         env.run('pip install --upgrade pip')
         env.run('pip install --upgrade Distribute')
-        if exists(env.DEPLOY_PATH):
-            env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%s%f'))))
-            #sudo('rm -rf %s' % env.DEPLOY_PATH)
-        clone_repo(target=env.DEPLOY_PATH)
 
 
 @task
@@ -137,11 +141,12 @@ def rm_sqlite():
         env.run('rm dev_db.sqlite')
 
 @task
-def update():
+def update(tag=None):
     with virtualenv(env.venvpath):
         with cd(env.DEPLOY_PATH):
             env.run('git pull')
-            update_to_tag(tag=env.repo_tag)
+            if tag:
+               update_to_tag(tag=tag)
             requirements()          
             with cd('codalab'):
                 config_gen(config=env.DJANGO_CONFIG,settings_module=env.SETTINGS_MODULE)
