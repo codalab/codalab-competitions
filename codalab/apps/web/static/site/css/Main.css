@@ -519,7 +519,7 @@ input[type="submit"][value="Delete"]
     min-width:103px;
     color:#fff !important;
     text-align:center;
-    border:solid 1px #7cb6f2;
+    border:solid 1px #524E5F;
     border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
@@ -527,20 +527,20 @@ input[type="submit"][value="Delete"]
     font-size:15px;
     display:inline-block;
     text-decoration:none !important;
-    background: #529ded; /* Old browsers */
-    background: -moz-linear-gradient(top,  #529ded 0%, #3784d7 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#529ded), color-stop(100%,#3784d7)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #529ded 0%,#3784d7 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#529ded', endColorstr='#3784d7',GradientType=0 ); /* IE6-9 */
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
 
 }
 .globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
     border-color:#a2cef7;
     background: #62a9e5; /* Old browsers */
-    background: -moz-linear-gradient(top,  #7cbcf3 0%, #62a9e5 100%); /* FF3.6+ */
+    background: -moz-linear-gradient(top,  #x 0%, #62a9e5 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7cbcf3), color-stop(100%,#62a9e5)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Chrome10+,Safari5.1+ */
     background: -o-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Opera 11.10+ */
@@ -551,13 +551,13 @@ input[type="submit"][value="Delete"]
 .globalBlueButton:active, .globalBlueButtonBig:active, .globalBlueButtonInput:active,.globalBlueButtonAtag > a:active,.globalBlueButtonSmallAtag > a:active,.globalBlueButtonSmall:active,.globalBlueButtonSmallFlexi:active,.buttonAccept:active{
     border-color:#4f98f8;
     background: #676278; /* Old browsers */
-    background: -moz-linear-gradient(top,  #676278 0%, #1359ca 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#1359ca)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #676278 0%,#1359ca 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #676278 0%,#1359ca 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #676278 0%,#1359ca 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #676278 0%,#1359ca 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#1359ca',GradientType=0 ); /* IE6-9 */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
 }
 .globalBlueButtonBig{
 
@@ -574,7 +574,7 @@ input[type="submit"][value="Delete"]
     min-width:103px;
     color:#fff !important;
     text-align:center;
-    border:solid 1px #ffc061;
+    border:solid 1px #BBAB81;
     border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
@@ -582,14 +582,14 @@ input[type="submit"][value="Delete"]
     font-size:15px;
     display:inline-block;
     text-decoration:none !important;
-    background: #ffab2f; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ffab2f 0%, #ffa528 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffab2f), color-stop(100%,#ffa528)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ffab2f 0%,#ffa528 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffab2f', endColorstr='#ffa528',GradientType=0 ); /* IE6-9 */
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
 
 }
 .globalYellowButton:hover, .globalYellowButtonSmall:hover, .globalYellowButtonInput:hover,.globalYellowButtonAtag > a:hover,.globalYellowButtonSmallAtag > a:hover,.globalYellowButtonSmallFlex:hover,.buttonReject:hover{
