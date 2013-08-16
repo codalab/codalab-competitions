@@ -1,3 +1,4 @@
 supervisor==3.0b2
 uWSGI==1.9.14
 pycrypto==2.6
+psycopg2>=2.5.1
