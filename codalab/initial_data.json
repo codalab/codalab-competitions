@@ -127,22 +127,13 @@
   "pk": 1, 
   "model": "web.participantstatus", 
   "fields": {
-    "codename": "unknown", 
-    "name": "Unknown", 
-    "description": "Status is unknown"
-  }
-},
-{
-  "pk": 2, 
-  "model": "web.participantstatus", 
-  "fields": {
     "codename": "denied", 
     "name": "Denied", 
     "description": "Participation is denied. Check reason."
   }
 },
 {
-  "pk": 3, 
+  "pk": 2, 
   "model": "web.participantstatus", 
   "fields": {
     "codename": "approved", 
@@ -151,7 +142,7 @@
   }
 },
 {
-  "pk": 4, 
+  "pk": 3, 
   "model": "web.participantstatus", 
   "fields": {
     "codename": "pending", 

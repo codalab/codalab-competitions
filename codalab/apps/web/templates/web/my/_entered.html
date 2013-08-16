@@ -1,5 +1,5 @@
 ﻿{% if not competitions %}
-<p>You have not participated in any competitions. Check out the <a href="/competitions">list of competitions</a> you could participate in.</p>
+<p>You have not participated in any competitions.</p>
 {% else %}
 {% for item in competitions %}
 <div class="competition-tile">
@@ -21,9 +21,6 @@
                         <label>{{ item.competition.creator }}</label>
                     </div>
                     <p>{{ item.competition.description }}</p>
-                    <div class="competitionActions">
-                       <label class="status{{item.status.name}}">{{ item.status.description }}: {{item.reason}}</label>
-                   </div>
                </div>
            </div>
        </article>

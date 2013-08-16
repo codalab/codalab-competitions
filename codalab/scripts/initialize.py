@@ -122,7 +122,6 @@ for dci in cis:
   dcii.save()
 
 pss = [
-  ("Unknown", "unknown", "Status is unknown."),
   ("Denied", "denied", "Participation was denied."),
   ("Approved", "approved", "Participation was approved."),
   ("Pending", "pending", "Participation is pending approval.")
