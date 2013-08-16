@@ -44,7 +44,7 @@ table.dataTable tr.even td.sorting_1 { background-color: #E7F5FF; }
 table.dataTable tr.even td.sorting_2 { background-color: #F2F3FF; }
 table.dataTable tr.even td.sorting_3 { background-color: #F9F9FF; }
 
-table.dataTable th.sorting_asc, table.dataTable th.sorting_desc { background-color: #4E8EE0;}
+table.dataTable th.sorting_asc, table.dataTable th.sorting_desc { background-color: #739CB9;}
 /*
  * Table wrapper
  */

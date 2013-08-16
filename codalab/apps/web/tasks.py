@@ -2,6 +2,8 @@ import time
 import requests
 import json
 import re
+import zipfile
+import io
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.files import File
@@ -10,6 +12,8 @@ from django.core.files.base import ContentFile
 import celery
 from celery.signals import task_success, task_failure, task_revoked, task_sent
 from codalab.settings import base
+
+from azure.storage import *
 
 import models
 
@@ -71,10 +75,10 @@ def submission_get_results(submission_id,ct):
     status = submission.get_execution_status()
     
     if status:
+        submission.set_status(status['Status'].lower(), force_save=True)
         if status['Status'] in ("Submitted","Running"):
             return (submission.pk, ct+1, 'rerun', None)
         elif status['Status'] == "Finished":
-            
             return (submission.pk, ct, 'complete', status)
         elif status['Status'] == "Failed":
             return (submission.pk, ct, 'failed', status)
@@ -84,12 +88,46 @@ def submission_get_results(submission_id,ct):
 @task_success.connect(sender=submission_get_results)
 def submission_results_success_handler(sender,result=None,**kwargs):
     submission_id,ct,state,status = result
-    print status
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     if state == 'rerun':
         print "Querying for results again"
         submission_get_results.apply_async((submission_id,ct),countdown=5)
     elif state == 'complete':
         print "Run is complete"
+        # Get files
+        blobservice = BlobService(account_name=settings.AZURE_ACCOUNT_NAME, account_key=settings.AZURE_ACCOUNT_KEY)
+        output_keyname = models.submission_file_blobkey(submission, "run/output.zip")
+        stdout_keyname = models.submission_file_blobkey(submission, "run/stdout.txt")
+        # stderr_keyname = models.submission_file_blobkey(submission, "stderr.txt")
+        print "Retrieving blobs..."
+        stdout = blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, stdout_keyname)
+        # stderr = blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, stderr_keyname)
+
+        # Open the zip file and extract scores.txt
+        ozip = zipfile.ZipFile(io.BytesIO(blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, output_keyname)))
+        print "Retrieved all blobs and opened output.zip."
+        scores = open(ozip.extract('scores.txt'), 'r').read()
+        print "Processing scores..."
+        for line in scores.split("\n"):
+            if len(line) > 0:
+                result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
+                labels = ["Filename", "Dice", "Jaccard", "Sensitivity", "Precision", "Average Distance", "Hausdorff Distance", "Kappa", "Labels"]
+                for label,value in zip(labels, line.split(",")):
+                    print "Label: %s" % label
+                    print "Value: %s" % value
+                    if label == "Filename":
+                        result.name = value.lstrip("..\\input\\res\\")
+                        result.save()
+                    elif label == "Labels":
+                        result.notes = value
+                        result.save()
+                    elif label not in ["Filename", "Labels"]:
+                        if label == "Dice":
+                            result.aggregate = float(value)
+                            result.save()
+                        models.SubmissionScore.objects.create(result=result, label=label, value=float(value))
+                    else:
+                        print "Error parsing scores.txt"
     elif state == 'limit_exceeded':
         print "Run limit, or time limit exceeded."
     elif state == 'failure':
@@ -98,6 +136,7 @@ def submission_results_success_handler(sender,result=None,**kwargs):
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
     print "Successful submission"
+    # Fill in Dummy data
     # import random
     # s = models.CompetitionSubmission.objects.get(pk=result)
     # s.set_status('accepted', force_save=True)

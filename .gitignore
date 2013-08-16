@@ -12,6 +12,7 @@ venv/*/*
 # Compass/SASS generated files #
 ################################
 **/**/.sass-cache
+.sass-cache*
 
 # Python specific files #
 #########################
