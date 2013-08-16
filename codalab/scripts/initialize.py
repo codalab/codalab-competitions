@@ -134,9 +134,11 @@ for name, codename, description in pss:
 css = [
   ("Submitted", "submitted"),
   ("Processing", "processing"),
+  ("Running", "running"),
   ("Failed", "failed"),
   ("Accepted", "accepted"),
   ("Rejected", "rejected"),
+  ("Finished", "finished")
 ]
 
 for name, codename in css:

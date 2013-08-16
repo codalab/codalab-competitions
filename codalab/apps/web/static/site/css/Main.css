@@ -323,7 +323,7 @@ header {
     height:58px;
     padding:8px 0 20px 0;
     margin:auto;
-    background:#3684d6;
+    background:#739CB9;
     overflow:hidden;
 }
 .headerContent {
@@ -357,7 +357,7 @@ ul.headerNavigation li a{
     color:#fff;
     font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
     text-decoration:none;
-    border-bottom:solid 7px #3684d6;
+    border-bottom:solid 7px #739CB9;
     padding-bottom:1px;
     text-transform:lowercase;
 }
@@ -377,7 +377,7 @@ ul.headerNavigation li.active a {
     width:318px;
     height:30px;
     background: #f5f5f5;
-    border:solid 1px #3684d6;
+    border:solid 1px #739CB9;
 
 }
 .searchBar input[type="text"] {
@@ -519,7 +519,7 @@ input[type="submit"][value="Delete"]
     min-width:103px;
     color:#fff !important;
     text-align:center;
-    border:solid 1px #7cb6f2;
+    border:solid 1px #524E5F;
     border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
@@ -527,14 +527,14 @@ input[type="submit"][value="Delete"]
     font-size:15px;
     display:inline-block;
     text-decoration:none !important;
-    background: #529ded; /* Old browsers */
-    background: -moz-linear-gradient(top,  #529ded 0%, #3784d7 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#529ded), color-stop(100%,#3784d7)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #529ded 0%,#3784d7 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #529ded 0%,#3784d7 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#529ded', endColorstr='#3784d7',GradientType=0 ); /* IE6-9 */
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
 
 }
 .globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
@@ -550,14 +550,14 @@ input[type="submit"][value="Delete"]
 }
 .globalBlueButton:active, .globalBlueButtonBig:active, .globalBlueButtonInput:active,.globalBlueButtonAtag > a:active,.globalBlueButtonSmallAtag > a:active,.globalBlueButtonSmall:active,.globalBlueButtonSmallFlexi:active,.buttonAccept:active{
     border-color:#4f98f8;
-    background: #2676ef; /* Old browsers */
-    background: -moz-linear-gradient(top,  #2676ef 0%, #1359ca 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#2676ef), color-stop(100%,#1359ca)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #2676ef 0%,#1359ca 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #2676ef 0%,#1359ca 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2676ef', endColorstr='#1359ca',GradientType=0 ); /* IE6-9 */
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
 }
 .globalBlueButtonBig{
 
@@ -574,7 +574,7 @@ input[type="submit"][value="Delete"]
     min-width:103px;
     color:#fff !important;
     text-align:center;
-    border:solid 1px #ffc061;
+    border:solid 1px #B8A87F;
     border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
@@ -582,37 +582,37 @@ input[type="submit"][value="Delete"]
     font-size:15px;
     display:inline-block;
     text-decoration:none !important;
-    background: #ffab2f; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ffab2f 0%, #ffa528 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffab2f), color-stop(100%,#ffa528)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ffab2f 0%,#ffa528 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ffab2f 0%,#ffa528 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffab2f', endColorstr='#ffa528',GradientType=0 ); /* IE6-9 */
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
 
 }
 .globalYellowButton:hover, .globalYellowButtonSmall:hover, .globalYellowButtonInput:hover,.globalYellowButtonAtag > a:hover,.globalYellowButtonSmallAtag > a:hover,.globalYellowButtonSmallFlex:hover,.buttonReject:hover{
-    border-color:#ffd386;
-    background: #ffc455; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ffc455 0%, #ffbf49 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffc455), color-stop(100%,#ffbf49)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ffc455 0%,#ffbf49 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffc455', endColorstr='#ffbf49',GradientType=0 ); /* IE6-9 */
+    border-color:#D1BF90;
+    background: #EBD7A2; /* Old browsers */
+    background: -moz-linear-gradient(top,  #EBD7A2 0%, #EBD7A2 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EBD7A2), color-stop(100%,#EBD7A2)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #EBD7A2 0%,#EBD7A2 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#EBD7A2', endColorstr='#EBD7A2',GradientType=0 ); /* IE6-9 */
 }
 .globalYellowButton:active, .globalYellowButtonSmall:active, .globalYellowButtonInput:active,.globalYellowButtonAtag > a:active,.globalYellowButtonSmallAtag > a:active,.globalYellowButtonSmallFlex:active,.buttonReject:active{
-    border-color:#ff9d33;
-    background: #ff8310; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ff8310 0%, #ff7905 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff8310), color-stop(100%,#ff7905)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ff8310 0%,#ff7905 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff8310', endColorstr='#ff7905',GradientType=0 ); /* IE6-9 */
+    border-color:#B8A87F;
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
 
 }
 .globalYellowButtonSmall,.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
@@ -771,7 +771,7 @@ input[type="submit"][value="Delete"]
 }
 .CompetitionsDetailLft nav ul li a{
     font:normal 16px/20px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#3684d6;
+    color:#739CB9;
     display:block;
     text-align:right;
     padding:0 5px;
@@ -955,11 +955,11 @@ input[type="submit"][value="Delete"]
     padding:10px;
 }
 .competitionTileLftStrip{
-    background:#3684d6 url('../Images/icon_competition_sm.png') no-repeat center 2px;
+    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 2px;
     display:table-cell;
     width:35px;
     padding:0 !important;
-    border:solid 1px #3684d6 !important;
+    border:solid 1px #739CB9 !important;
 }
 .subContainerMain {
     background:#f5f5f5;
@@ -1136,7 +1136,7 @@ figure.userImage {
 {
     font-size: x-large;
     display:inline-block;
-    color:#3684d6;
+    color:#739CB9;
     padding-bottom: 5px;
 }
 /*SubPage----------------------------------------*/
@@ -1656,7 +1656,7 @@ ul.competitionsDetailTabTop li, .myCodalabTabArea li{
     display:inline-block;
     font:normal 19px/50px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
     padding:0 40px;
-    color:#3684d6;
+    color:#739CB9;
     cursor:pointer;
     border:solid 1px #ccc;
     border-bottom:0;
@@ -1708,7 +1708,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     background:#ea5a23;
 }
 .approvedApproval .infoStatusBar {
-    background:#3684d6;
+    background:#739CB9;
 }
 .participateInfoBlock .labelArea {
     overflow:hidden;
@@ -1763,7 +1763,7 @@ font-weight:normal !important;
 .chkRegisterContainer span a
 {
     font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
-    color:#3684D6;
+    color:#739CB9;
 }
 .chkRegisterContainer input {
     float:left;
@@ -2179,7 +2179,7 @@ code {
     line-height:22px;
 }
 /*.phaseToggleBtn {
-    background:#3684d6 ;
+    background:#739CB9 ;
     padding:8px 15px 4px;
     float:right;
     position:relative;
@@ -2472,7 +2472,7 @@ body .ui-datepicker-prev span{
 .manageUserListAddedBlock .manageUser span{display:block}
 .manageUserListAddedBlock .manageUser input [type="checkbox"]{ display:none}
 .selectedColoumHeader {
-    background: #4E8EE0 !important;
+    background: #739CB9 !important;
 }
 .selectedColoumRow{
     background: #f2faff !important;
@@ -2509,7 +2509,7 @@ ul.leftNavigation a{
     float:right;
     text-align:right;
     cursor:pointer;
-    color:#3684d6;
+    color:#739CB9;
     font-size:15px;
 }
 ul.leftNavigation li.active a{
@@ -2569,7 +2569,7 @@ ul.leftNavigation li.active a{
     color:#666;
 }
 .mainPageContainer .rightContentArea a{
-    color:#3684d6;
+    color:#739CB9;
     text-decoration:none;
 }
 .mainPageContainer .rightContentArea pre{
@@ -2586,7 +2586,7 @@ ul.leftNavigation li.active a{
 }
 .breadcrumb label,.breadcrumb span{
     font-size:15px;
-    color:#3684d6;
+    color:#739CB9;
     padding-right:10px;
 }
 .breadcrumb label{
@@ -2711,3 +2711,10 @@ ul.leftNavigation li.active a{
 {
     line-height:10px;
 }
+
+
+/*  /////  TEMP STYLES  /////  */
+.cl-logo  {
+    padding: 7px 7px 0 14px;
+}
+
