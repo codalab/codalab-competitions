@@ -975,11 +975,6 @@ ul li.name.cl-logo a {
   color: #79a2c0 !important;
 }
 
-/* line 759, ../sass/_settings.scss */
-body .reveal-modal-bg {
-  display: none !important;
-}
-
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";
