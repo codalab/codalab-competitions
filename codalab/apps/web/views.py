@@ -198,7 +198,6 @@ class CompetitionIndexPartial(TemplateView):
         return context
 
 class MyCompetitionsManagedPartial(ListView):
-    
     model = models.Competition
     template_name = 'web/my/_managed.html'
     queryset = models.Competition.objects.all()
@@ -207,7 +206,6 @@ class MyCompetitionsManagedPartial(ListView):
         return self.queryset.filter(creator=self.request.user)
 
 class MyCompetitionsEnteredPartial(ListView):
-    
     model = models.CompetitionParticipant
     template_name = 'web/my/_entered.html'
     queryset = models.CompetitionParticipant.objects.all()
