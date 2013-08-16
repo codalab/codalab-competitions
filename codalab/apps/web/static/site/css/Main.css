@@ -540,7 +540,7 @@ input[type="submit"][value="Delete"]
 .globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
     border-color:#a2cef7;
     background: #62a9e5; /* Old browsers */
-    background: -moz-linear-gradient(top,  #x 0%, #62a9e5 100%); /* FF3.6+ */
+    background: -moz-linear-gradient(top,  #7cbcf3 0%, #62a9e5 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7cbcf3), color-stop(100%,#62a9e5)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Chrome10+,Safari5.1+ */
     background: -o-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Opera 11.10+ */
@@ -574,7 +574,7 @@ input[type="submit"][value="Delete"]
     min-width:103px;
     color:#fff !important;
     text-align:center;
-    border:solid 1px #BBAB81;
+    border:solid 1px #B8A87F;
     border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
@@ -593,26 +593,26 @@ input[type="submit"][value="Delete"]
 
 }
 .globalYellowButton:hover, .globalYellowButtonSmall:hover, .globalYellowButtonInput:hover,.globalYellowButtonAtag > a:hover,.globalYellowButtonSmallAtag > a:hover,.globalYellowButtonSmallFlex:hover,.buttonReject:hover{
-    border-color:#ffd386;
-    background: #ffc455; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ffc455 0%, #ffbf49 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffc455), color-stop(100%,#ffbf49)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ffc455 0%,#ffbf49 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ffc455 0%,#ffbf49 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffc455', endColorstr='#ffbf49',GradientType=0 ); /* IE6-9 */
+    border-color:#D1BF90;
+    background: #EBD7A2; /* Old browsers */
+    background: -moz-linear-gradient(top,  #EBD7A2 0%, #EBD7A2 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EBD7A2), color-stop(100%,#EBD7A2)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #EBD7A2 0%,#EBD7A2 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#EBD7A2', endColorstr='#EBD7A2',GradientType=0 ); /* IE6-9 */
 }
 .globalYellowButton:active, .globalYellowButtonSmall:active, .globalYellowButtonInput:active,.globalYellowButtonAtag > a:active,.globalYellowButtonSmallAtag > a:active,.globalYellowButtonSmallFlex:active,.buttonReject:active{
-    border-color:#ff9d33;
-    background: #ff8310; /* Old browsers */
-    background: -moz-linear-gradient(top,  #ff8310 0%, #ff7905 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff8310), color-stop(100%,#ff7905)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #ff8310 0%,#ff7905 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #ff8310 0%,#ff7905 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff8310', endColorstr='#ff7905',GradientType=0 ); /* IE6-9 */
+    border-color:#B8A87F;
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
 
 }
 .globalYellowButtonSmall,.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
