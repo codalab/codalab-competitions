@@ -2,11 +2,11 @@
 {% block title %}My CodaLab{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="large-10 columns">
+    <div class="large-10 push-2 columns">
         <div class="section-container auto competitionsDetailTabArea " data-section data-section-resized>
           <section>
             <p class="title active" id="participating" data-section-title>
-                <a href="#participate">Competitions I'm Participating In</a>
+                <a href="#participate">Competitions I'm In</a>
             </p>
             <div class="content" data-section-content>
                 <div class="my_participating">
@@ -24,12 +24,26 @@
                         {% include "web/my/_managed.html" with competitions=my_competitions %}
                     </div>
                     <div class="large-3 pull-9 columns">
-                        <a href="/my/create_competition"><button class="globalBlueButtonSmall">Create Competition</button></a>
+                        <a href="#"><button class="globalBlueButtonSmall">Create Competition</button></a>
                     </div>
                 </div>
             </div>
           </section>
+          <section>
+            <p class="title active" id="experimentation" data-section-title>
+                <a href="#participate">My Experiments</a>
+            </p>
+            <div class="content" data-section-content>
+                <div class="my_experiments">
+                    Experiments I have created would be here.
+                </div>
+            </div>
+          </section>
         </div>
+    </div>
+    <div class="large-2 pull-10 columns">
+        <p><img src="http://placehold.it/300x240&text=[Profile Picture]" /></p>
+        <p>Hi, {{user.username}}!</p>
     </div>
 </div>
 {% endblock content %}
@@ -38,6 +52,7 @@
 
 function deleteCompetition(competition) {
     console.log("Delete Competition! "+competition);
+    /*
     url = "/api/competition/"+competition;
     request = $.ajax({
         url: url,
@@ -53,6 +68,7 @@ function deleteCompetition(competition) {
             xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
             }
     });
+    */
 };
 
 $('document').ready(function() {
