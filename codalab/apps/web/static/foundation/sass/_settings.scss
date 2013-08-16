@@ -1,7 +1,7 @@
-$background: #3684D6;
+$background: #739CB9;
 $foreground: white;
-$banner: #f5f5f5;
-$highlight: #3684d6;
+$banner: #EBF2FB;
+$highlight: #739CB9;
 $active: #ffac31;
 $gray: #666;
 $light-gray: #ccc;
@@ -9,22 +9,22 @@ $light-medium-gray: #a4a4a4;
 $medium-light-gray: #999;
 $dark-gray: #333;
 $light-background-blue:#eff2f9;
-$link-color: #3684d6;
+$link-color: #676278;
 $background-gray:#f8f8f8;
 $white:#fff;
 $text-color-gray:#3b3b3b;
 $text-link-color:#8a8a8a;
-$grayish-blue:#85acc6;
+$grayish-blue:#79a2c0;
 $text-color-light-gray:#797979;
 $dropdown-gray:#d6d6d6;
 $purple-gray:#7a768b;
 
-
+$primary: $background;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
 
-$topbar-bg: $banner;
+$topbar-bg: $background;
 $topbar-fg: $foreground;
 $topbar-margin-bottom: 0px;
 $topbar-title-weight: normal;
@@ -40,8 +40,6 @@ $anchor-font-color-active: $active;
 
 $inline-list-bottom-margin: 0;
 
-$side-nav-link-color-active: $purple-gray;;
-
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
 
@@ -52,10 +50,20 @@ $section-title-color-active: $gray;
 $section-title-bg-hover: none;
 
 $tooltip-bg: $background;
+$tooltip-close-font-color: $foreground;
+$has-tip-border-bottom: 0px;
+$has-tip-border-bottom-hover: 0px;
+$has-tip-cursor-type: none;
+
+$side-nav-list-margin: 0px;
+$side-nav-link-color: $background;
+$side-nav-link-color-active: $active;
+$side-nav-link-color-hover: $active;
+$side-nav-font-size: 15px;
 
 @mixin linkStyle {
 	color:$purple-gray !important;
-	font-size:1.320em !important;
+	font-size:1.10 !important;
 }
 
 @mixin paragraph-Style {
@@ -73,12 +81,17 @@ $tooltip-bg: $background;
 	box-shadow:inset 0 0 8px #ccc;
 	border-radius:5px;
 }
+
+@mixin textbox-style-square {
+	box-shadow:inset 0 0 8px #ccc;
+	height:30px;
+}
 @mixin button-Style-Brown {
     padding:15px;
     font-size:13px;
     font-weight:bold;
     letter-spacing:2px;
-    color:#bbb9bd !important;
+    color:$white !important;
     background:#676278;
     border:0;
     text-transform:uppercase;
@@ -97,12 +110,20 @@ $tooltip-bg: $background;
 	font-weight: normal;
 }
 
+
 *{
     font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
 	font-size:   100%;
 	font-weight: normal;
-	font-smoothing: antialiased !important;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.004) !important;
+}
+
+select {
+	color: $dark-gray;
+}
+
+form textarea {
+	color: $dark-gray;
+	font-size: 16px;
 }
 
 .menu-icon {
@@ -115,9 +136,31 @@ $tooltip-bg: $background;
 	padding: 2px;
 }
 
+div.large-12 div.row div.small-12 div.panel p {
+	font-size: .9em;
+}
+
+span.has-tip {
+	border-bottom: 0px;
+}
+
+html.js body.body div#layout.container div.large-12 div.row div.large-10 div.section-container section.active div.content div.row div.large-3 {
+	padding-top: 13px;
+}
+
+div.competition-tile article.subContainer div.articleTextArea div.small-10 button.globalYellowButtonSmall a {
+	color: $foreground;
+}
+
+nav.top-bar section.top-bar-section ul.right {
+	color: $foreground;
+	background: $background;
+	vertical-align: text-bottom;
+}
 .top-bar {
 	box-shadow:0 3px 5px #666;
 	height:60px !important;
+	background:$white !important;
 }
 
 nav.top-bar .name h1 {
@@ -128,24 +171,25 @@ nav.top-bar .name h1 a {
  color:$grayish-blue;
 }
 
-section.top-bar-section ul li > a {
+section.top-bar-section  > ul  {
+	background:$white !important;
+	li > a {
 	color:$text-link-color;
 	line-height:60px;
+	}
 }
-section.top-bar-section li a:not(.button) {
+
+section.top-bar-section li {
+	a:not(.button) {
 	line-height:60px;
-}
-
-.has-tip,.menu-icon {
-	background:$banner !important;
-}
-
-.social-foundicon-torso {
-	color:$grayish-blue !important;
-}
-
-#footer, #footer a, #footer a:hover {
-	background:$grayish-blue !important;
+	background:$white;
+	}
+	.dropdown{
+		a:not(.button) {
+			background:$gray;
+			line-height:25px;
+		}
+	}
 }
 
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
@@ -155,6 +199,7 @@ div.CompetitionsDetailContainer div.section-container section:not(.active) p a:h
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
 	background: transparent;
 }
+
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
 	border: 0px;
 }
@@ -169,13 +214,43 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 	border: 0px;
 }
 
-td > a > i {
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
+	margin-left: 10px;
+	font-size: 13px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
+	list-style: disc;
+	margin-left: 20px;
+}
+
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content em {
+	font-size: 13px;
+}
+
+#layout.container div.large-12 div.row div div.large-3 ul {
+	text-align: right;
+}
+
+#layout.container div.large-12 div.row div div.large-3 ul a:hover {
+	color: $active;
+}
+
+#layout.container div.large-12 div.row div.large-9 {
+	font-size: 13px;
+}
+
+#layout.container div.large-12 div.row div div.large-3 ul {
+	padding: 0px;
+}
+
+td > i {
 	color: $background;
 }
 
 a > i {
 	height: 100%;
-	color: $foreground;
+	color: $grayish-blue;
 }
 
 .competitionsDetailTabArea > section > .title {
@@ -199,16 +274,8 @@ a > i {
     padding:0;
 }
 
-.competitionUserBlock p {
-	font-size: 13px;
-}
-
 .user_results, .competition_results {
 	padding-top: 10px;
-}
-
-.user_results {
-	margin-left:15px;
 }
 
 .globalBlueButton a, .globalBlueButton a:hover {
@@ -232,6 +299,7 @@ a > i {
 .competitionProcessHeader > ul > li {
 	height: 100%;
 }
+
 .competitionProcessHeader > ul > li > a {
 	color: $foreground;
 	font-size: 13px;
@@ -284,6 +352,7 @@ a > i {
 	padding: 0px;
 	margin: 0px;
 }
+
 .competition-title {
 	color: $dark-gray;
 	text-align: left;
@@ -397,14 +466,6 @@ p.competition-paragraph {
 .small-6.pull-6.columns > .globalBlueButton {
 	float:right
 }
-.signin-formfields p:nth-child(3) > input {
-	float:left;
-	position:relative;
-	top:-20px;
-}
-.signin-formfields p:nth-child(3) > label {
-	padding-left:20px;
-}
 
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
 	box-shadow:none;
@@ -413,11 +474,13 @@ p.competition-paragraph {
 	padding:11px !important;
 	min-width:112px !important;
 	width:auto !important;
+	margin-top:0;
 	&:hover{@include button-Style-Brown; opacity:0.7}
 	&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
 	a {	
 		&:hover{@include button-Style-Brown; opacity:0.7}
 		&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
+		margin-top:0;
 	}
 	@include button-Style-Brown;
 }
@@ -523,6 +586,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 		background:$background-gray !important;
 	}
 }
+
 .section-container.vertical-tabs {
 	 .content{
 			padding-top:1px !important;
@@ -603,15 +667,19 @@ body ul.banner-navigation{
 		background:#8d8d8d !important;
 	}
 }
-body ul.signin-dropdown {
-	background:$dropdown-gray;
+body section.top-bar-section ul.signin-dropdown {
+	background:$dropdown-gray !important;
 	padding:10px;
-	width:300px;
+	width:250px;
+	max-width:250px;
 	&:after {
 		display:none !important;
 	}
 	&:before {
 		display:none !important;
+	}
+	input[type="text"],input[type="password"] {
+		@include textbox-style-square;
 	}
 	li {
 	width:100%;
@@ -625,7 +693,7 @@ body ul.signin-dropdown {
 	.button-Style-Brown {
 		width:100% !important;
 		@include button-Style-Brown;
-		margin:10px 0;
+		margin:0;
 		min-height:44px;
 	}
 	label {
@@ -649,13 +717,29 @@ body ul.signin-dropdown {
 		color:$text-link-color;
 	}
 }
+
+body .login > p {
+padding-top:0px;
+}
+body .login > p:nth-child(4) > input {
+	float:left;
+	position:relative;
+	top:-24px;
+	padding-left:0;
+}
+
+body .login > p:nth-child(4) > label {
+	padding-left:20px;
+	display:inline-block;
+}
+
 /*Homepage-------------------*/
 
 /*SubPage-------------------*/
 
 body .subheader-strip{
 	margin-top:16px;
-	background:$grayish-blue;
+	background:$grayish-blue url("../../site/images/headerBg.jpg") repeat-x;
 	padding:5px 0;
 	min-height:95px;
 	margin-bottom:32px;
@@ -666,6 +750,12 @@ body .subheader-strip{
 		margin-bottom:0;
 	}
 }
-
-/*SubPage-------------------*/
-
+ul li.name.cl-logo {
+	margin-top:10px;
+	a {
+		color: $grayish-blue !important;
+	}
+}
+body .reveal-modal-bg {
+	display: none !important;
+}

@@ -1,6 +1,20 @@
+from configurations import importer
+if not importer.installed:
+   importer.install() 
+
 from configurations import Settings
 from configurations.utils import uppercase_attributes
-import os,sys
+import os, sys, pkgutil, subprocess
+from os.path import abspath, basename, dirname, join, normpath
+import djcelery
+__version__ = 'N/A'
+
+try:
+   
+   import codalab.version
+   __version__ = codalab.version.__version__
+except ImportError:
+   pass
 
 class Base(Settings):
    SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -12,17 +26,36 @@ class Base(Settings):
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
+   DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+   SITE_ROOT = dirname(DJANGO_ROOT)
+
    SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
    DOMAIN_NAME='localhost'
    SERVER_NAME='localhost'
 
-   DEPLOY_ROLES = {'web': ['localhost'],
+   DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
                    }
-
+   
    AUTH_USER_MODEL = 'authenz.User'
-   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'] }
+
+   CODALAB_VERSION = __version__
+
+   # CELERY CONFIG
+   # BROKER_URL = "memory://"
+   CELERY_IMPORTS=['configurations.management']
+   djcelery.setup_loader()
+   BROKER_URL = 'amqp://guest:guest@localhost:5672/' # for testing purposes
+   # CELERY_RESULT_BACKEND = "cache"
+   # CELERY_TASK_RESULT_EXPIRES=3600
+   # CELERY_CACHE_BACKEND = "memory://"
+   ##
+
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+                #  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join([os.path.dirname(os.environ['DJANGO_SETTINGS_MODULE']),'celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
+                  }
 
    HAYSTACK_CONNECTIONS = {
       'default': {
@@ -138,7 +171,7 @@ class Base(Settings):
    TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
      "allauth.account.context_processors.account",
      "allauth.socialaccount.context_processors.socialaccount",
-   
+     "codalab.context_processors.app_version_proc",
    )
 
    AUTHENTICATION_BACKENDS = (
@@ -157,6 +190,11 @@ class Base(Settings):
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
+    'djcelery',
+
+    # Django / Jenkins CI support
+    'django_jenkins',
+    
     # Analytics app that works with many services - IRJ 2013.7.29
     'analytical',
     'rest_framework',
@@ -205,6 +243,9 @@ class Base(Settings):
    ACCOUNT_USERNAME_REQUIRED=False
    ACCOUNT_EMAIL_VERIFICATION='none'
 
+   # Our versioning
+   CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
+   
    # Django Analytical configuration
    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
 
@@ -213,7 +254,6 @@ class Base(Settings):
     ('text/less', 'lessc {infile} {outfile}'),
     ('text/typescript', 'tsc {infile} --out {outfile}'),
     )
-
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -273,10 +313,14 @@ class DevBase(Base):
       },
    }
 
+   INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
+   
+  
+
    DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-         'NAME': 'dev_db.sqlite',                      # Or path to database file if using sqlite3.
+         'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'),                      # Or path to database file if using sqlite3.
          # The following settings are not used with sqlite3:
          'USER': '',
          'PASSWORD': '',

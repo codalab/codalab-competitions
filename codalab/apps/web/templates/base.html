@@ -1,6 +1,7 @@
 {% load url from future %}
 {% load account %}
 {% load analytical %}
+{% load compress %}
 
 <!DOCTYPE html>
 
@@ -22,18 +23,22 @@
   <title>CodaLab - {% block head_title %}{% endblock %}</title>
 
     {% block css %}
-      <!-- Included CSS Files (Compressed) -->
+    {% compress css %}
+        <!-- Included CSS Files (Compressed) -->
     <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
     <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
     <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+    {% endcompress %}
 
-    <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+    {% compress js %}
+        <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
 
     <!-- IE Fix for HTML5 Tags -->
     <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
-    {% endblock %}
+          <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    {% endcompress %}
+  {% endblock css %}
 
   {% block extra_headers %}{% endblock extra_headers %}
   {% analytical_head_top %}
@@ -49,8 +54,9 @@
             <nav class="top-bar">
                 <ul class="title-area">
                     <!-- Title Area -->
-                    <li class="name">
-                        <h1><a href="/">CodaLab</a></h1>
+                    <li class="name cl-logo">
+                        <a href="/">
+                            <img src="{{STATIC_URL}}site/Images/CL_Header_Logo_new.png" alt="Home"></a>
                     </li>
                     <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
                     <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
@@ -66,38 +72,26 @@
                   </form>
                 </li> -->
                         {% if user.is_authenticated %}
-                  <li class="menu-icon"><a href="{% url 'account_logout' %}">Sign out</a></li>
-                        <li class="menu-icon">
-                            <span data-tooltip class="has-tip" title="{{user.username}}">
-                                <a href="#profile"><i class="social-foundicon-torso"></i></a>
-                            </span>
-                        </li>
+                  <li class="has-dropdown">
+                      <a href="#profile">{{user.username}}</a>
+                      <ul class="dropdown f-dropdown signin-dropdown">
+                          <li>
+                              <div class="globalBlueButtonAtag">
+                                    <a class="globalBlueButton button-Style-Brown" href="#">My Profile</a>
+                                  <br />
+                                     <a class="globalBlueButton button-Style-Brown" href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                              </div>
+                         </li>
+                      </ul>
+                  </li>
                         {% else %}
-                  <li class="menu-icon"><a href="{% url 'account_signup' %}">Sign Up</a></li>
-                        <li class="menu-icon"><a href="{% url 'account_login' %}">Sign in</a></li>
+                  <li class="menu-icon">
+                      <!--<a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a></li>-->
                         <li class="menu-icon">
-                            <a href="#" data-dropdown="drop1"><i class="social-foundicon-torso"></i></a>
-                            <ul id="drop1" class="f-dropdown signin-dropdown" >
+                            <a data-dropdown="drop1" href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" ><i class="social-foundicon-torso"></i></a>
+                            <ul id="drop1" class="f-dropdown signin-dropdown">
                                 <li>
-                                    <p>
-                                        <label for="">Username:</label>
-                                        <input type="text" name="" value="" />
-                                    </p>
-                                    <p>
-                                        <label for="">Password:</label>
-                                        <input type="text" name="" value="" />
-                                    </p>
-                                    <div class="row">
-                                        <div class="globalBlueButtonAtag">
-                                            <a class="button secondaryAction button-Style-Brown" href="">login</a>
-                                            <div class="login-button-separator">
-                                                <hr />
-                                                <label>OR</label>
-                                                <hr />
-                                            </div>
-                                            <button class="primaryAction button-Style-Brown" type="submit">signup</button>
-                                        </div>
-                                    </div>
+                                    <div id="login-modal" class=""></div>
                                 </li>
                             </ul>
                         </li>
@@ -107,8 +101,12 @@
                     <ul class="right">
                         <li><a href="/competitions">Competitions</a></li>
                         <!-- <li><a href="/experiments">Experiments</a></li>                -->
-                        <li><a href="/my">My CodaLab</a></li>
-                        <li><a href="/help/about.html">About</a></li>
+                        {% if user.is_authenticated %}
+                  <li><a href="/my">My CodaLab</a></li>
+                        {% else %}
+                  <li><a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>
+                        {% endif %}
+                <li><a href="/help/about.html">About</a></li>
                     </ul>
                 </section>
             </nav>
@@ -140,31 +138,32 @@
         <div class="small-6 columns">
             <ul class="inline-list left">
                 <li>
-                    <a href="http://research.microsoft.com/en-us/collaboration/" target="_blank">
-                        <img border="0" src="{{ STATIC_URL }}foundation/img/msr.png"></a>
+                    <span>
+                        <a href="http://codalab.github.io/codalab/" target="_blank">CodaLab</a>
+                        <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
+                    </span>
                 </li>
-                <li>
-                    <a class="footer-link-credits" href="https://github.com/codalab/codalab/" target="_blank">
-                        <img border="0" src="{{ STATIC_URL }}foundation/img/github.png"></a>
-                </li>
+
             </ul>
         </div>
         <div class="small-6 columns">
             <ul class="inline-list right">
                 <!-- <li>CodaLab v.0 ()</li> -->
                 <li><a href="/help">Help</a></li>
-                <li><a href="#">Feedback</a></li>
-                <li><a href="#">Notices</a></li>
-                <li><a href="http://github.com/codalab/codalab">Developers</a></li>
+                <li><a href="mailto:info@codalab.org">Feedback</a></li>
+                <li><a href="https://github.com/codalab/codalab">Developers</a></li>
+                <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
+                <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>
             </ul>
         </div>
     </footer>
 
 
     <!-- Check for Zepto support, load jQuery if necessary -->
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery-1.10.2.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.validate.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.dataTables.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.liteuploader-1.4.1.min.js"></script>
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
@@ -180,5 +179,12 @@
 
     {% analytical_body_top %}
   {% analytical_body_bottom %}
+
+  <div id="login-modal1" class="reveal-modal small"></div>
+    <div id="logout-modal" class="reveal-modal small"></div>
+    <div id="signup-modal" class="reveal-modal small"></div>
+    <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+    <!--<div class="reveal-modal-bg" style="display: none"></div>-->
+
 </body>
 </html>

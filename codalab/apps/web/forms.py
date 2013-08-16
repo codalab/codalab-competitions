@@ -23,7 +23,6 @@ class CompetitionPhaseForm(forms.ModelForm):
         return super(CompetitionPhaseForm, self).save(commit)
 
 class CompetitionParticipantForm(forms.ModelForm):
-    
     class Meta:
         model = models.CompetitionParticipant
 
@@ -32,5 +31,11 @@ class CompetitionDatasetForm(forms.ModelForm):
         model = models.Dataset
 
 
+class RunForm(forms.ModelForm):
+    class Meta:
+        model = models.Run
 
 
+class BundleForm(forms.ModelForm):
+    class Meta:
+        model = models.Bundle

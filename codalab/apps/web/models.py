@@ -1,5 +1,7 @@
 import os
+import requests
 from django.db import models
+from django.db.models import Max
 from django.dispatch import receiver
 import django.dispatch
 from django.conf import settings
@@ -7,9 +9,36 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-
+#from django.utils.module_loading import import_by_path
+from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
+
+from os.path import abspath, basename, dirname, join, normpath
+
+import signals
+import tasks
+
+## Needed for computation service handling
+## Hack for now
+PrivateStorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+try:
+    PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                         account_key=settings.AZURE_ACCOUNT_KEY,
+                                         azure_container=settings.PRIVATE_AZURE_CONTAINER)
+
+    BundleStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                        account_key=settings.AZURE_ACCOUNT_KEY,
+                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
+
+    PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+                                        account_key=settings.AZURE_ACCOUNT_KEY,
+                                        azure_container=settings.PUBLIC_AZURE_CONTAINER)
+
+except:
+    PrivateStorage = settings.DEFAULT_FILE_STORAGE
+    BundleStorage = settings.DEFAULT_FILE_STORAGE
+    PublicStorage = settings.DEFAULT_FILE_STORAGE
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -34,6 +63,7 @@ class ContentCategory(MPTTModel):
 class DefaultContentItem(models.Model):
     category = TreeForeignKey(ContentCategory)
     label = models.CharField(max_length=100)
+    codename = models.SlugField(max_length=100,unique=True)
     rank = models.IntegerField(default=0)
     required = models.BooleanField(default=False)
     initial_visibility =  models.ForeignKey(ContentVisibility)
@@ -60,6 +90,7 @@ class PageContainer(models.Model):
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    codename = models.SlugField(max_length=100,unique=True)
     container = models.ForeignKey(PageContainer, related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100)
@@ -83,9 +114,9 @@ class Page(models.Model):
             self.title = "%s - %s" % ( self.container.name,self.label) 
         if self.defaults:
             if self.category != self.defaults.category:
-                raise IntegrityError("Defaults category must match Item category")
+                raise Exception("Defaults category must match Item category")
             if self.defaults.required and self.visibility is False:
-                raise IntegrityError("Item is required and must be visible")
+                raise Exception("Item is required and must be visible")
         return super(Page,self).save(*args,**kwargs)
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)    
@@ -116,27 +147,20 @@ class ExternalFile(models.Model):
         return self.name
 # End External File Models
 
-
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30,unique=True)
     description = models.CharField(max_length=50)
 
-
-
     def __unicode__(self):
         return self.name
-
-class CompetitionPageSection(models.Model):
-    title = models.CharField(max_length=32)
-    slug = models.CharField(max_length=16)
 
 class Competition(models.Model):
     """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos',null=True,blank=True)
+    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True)
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False)
     end_date = models.DateTimeField(null=True,blank=True)
@@ -144,7 +168,6 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
-    page_sections = models.ManyToManyField(CompetitionPageSection)
 
     class Meta:
         permissions = (
@@ -175,12 +198,6 @@ class Competition(models.Model):
     def is_active(self):
         return self.end_date < now().date()
 
-class CompetitionPageSubSection(models.Model):
-    title = models.CharField(max_length=32)
-    content = models.TextField(null=True, blank=True)
-    slug = models.CharField(max_length=16)
-    section = models.ForeignKey(CompetitionPageSection, related_name='sections')
-
 # Dataset model
 class Dataset(models.Model):
     """ 
@@ -210,7 +227,7 @@ class CompetitionPhase(models.Model):
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-
+    
     class Meta:
         ordering = ['phasenumber']
 
@@ -221,6 +238,25 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
         return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+
+
+def phase_data_prefix(instance,filename):
+    return "competition/%d/%d/data/" % (instance.competition.pk,
+                                        instance.pk,)
+
+def phase_data_program_file(instance,filename):
+    return phase_data_prefix(instance,filename) + 'program.zip'
+
+def phase_data_file(instance,filename):
+    return phase_data_prefix(instance,filename) + 'data.zip'
+
+class PhaseData(models.Model):
+    phase = models.ForeignKey(CompetitionPhase)
+    programfile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
+    datafile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
+    
+    def __unicode__(self):
+        return self.phase.__unicode__()
 
 
 # Competition Participant
@@ -244,56 +280,127 @@ class CompetitionSubmissionStatus(models.Model):
     def __unicode__(self):
         return self.name
 
-# Signal for submission processing
-# TODO: move to separate signals module
-do_submission = django.dispatch.Signal(providing_args=["instance"])
 
+
+def submission_file_name(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
+                                                                    instance.phase.pk,
+                                                                    instance.participant.user.pk,
+                                                                    instance.submission_number)
+def submission_inputfile_name(instance, filename):
+     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
+                                                               instance.phase.pk,
+                                                               instance.participant.user.pk,
+                                                               instance.submission_number)
+def submission_runfile_name(instance, filename):
+    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+
+def submission_output_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/output.zip" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_stdout_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/stdout.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_stderr_filename(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/stderr.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+def submission_file_blobkey(instance, filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number,
+                                                            filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant)
     phase = models.ForeignKey(CompetitionPhase)
-    file = models.FileField(upload_to='submissions')
+    file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
+    file_url_base = models.CharField(max_length=2000,blank=True)
+    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
+    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100,null=True,blank=True)   
-    
+    submission_number = models.PositiveIntegerField(default=0)
+    output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
+    stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
+    stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+
+    _fileobj = None
     _do_submission = False
 
+    class Meta:
+        unique_together = (('submission_number','phase','participant'),)
+
     def __unicode__(self):
-        return "%d %s %s %s" % (self.pk, self.phase.competition.title,self.phase.label,self.participant.user.email)
+        return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
     def save(self,*args,**kwargs):
         # only at save on object creation should it be submitted
         if not self.pk:
+            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase).aggregate(Max('submission_number'))['submission_number__max']
+            if subnum is not None:
+                self.submission_number = subnum + 1
+            else:
+                self.submission_number = 1
             self._do_submission = True
             self.set_status('submitted',force_save=False)
         else:
             self._do_submission = False
         if self.participant.competition != self.phase.competition:
-            raise IntegrityError("Competition for phase and participant must be the same")
+            raise Exception("Competition for phase and participant must be the same")
+        self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         if self._do_submission:
-            do_submission.send(sender=CompetitionSubmission, instance=self)
+            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
+    
+    def file_url(self):
+        if self.file:
+            return os.path.join(self.file_url_base, self.file.name)
+        return None
+
+    def runfile_url(self):
+        if self.runfile:
+            return os.path.join(self.runfile.storage.url(''), self.runfile.name)
+        return None
+
+    def inputfile_url(self):
+        if self.inputfile:
+            return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
+        return None
+
+    def get_execution_status(self):
+        if self.execution_key:
+            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
+            if res.status_code in (200,):
+                return res.json()
+        return None
 
     def set_status(self,status,force_save=False):
         self.status = CompetitionSubmissionStatus.objects.get(codename=status)
         if force_save:
             self.save()
 
-# Dummy processor for submissions for initial testing
-# Does not care about the file submitted
-# TODO: Do some real processing
-@receiver(do_submission,sender=CompetitionSubmission)
-def fake_process_submission(sender,instance=None,**kwargs):
-    import random
-    sr = SubmissionResult.objects.create(submission=instance,
-                                         aggregate=(100*random.random()))
-    instance.set_status('accepted',force_save=True)
+@receiver(signals.do_submission)
+def do_submission_task(sender,instance=None,**kwargs):
+    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
 
 # Competition Submission Results
 class SubmissionResult(models.Model):
-    submission = models.OneToOneField(CompetitionSubmission,related_name='result')
+    submission = models.ForeignKey(CompetitionSubmission,related_name='result')
+    name = models.CharField(max_length=256)
+    notes = models.TextField()
     aggregate = models.DecimalField(max_digits=22,decimal_places=10)
 
 class SubmissionScore(models.Model):
@@ -312,7 +419,14 @@ class PhaseLeaderBoard(models.Model):
         return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
     
     def __unicode__(self):
-        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')   
+        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
+
+    def is_open(self):
+        """
+        The default implementation passes through the leaderboard is_open check to the phase is_active check.
+        """
+        self.is_open = self.phase.is_active
+        return self.phase.is_active
        
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')
@@ -321,32 +435,54 @@ class PhaseLeaderBoardEntry(models.Model):
     class Meta:
         unique_together = (('board','submission'),)
 
+
 # Bundle Model
 class Bundle(models.Model):
-  title = models.CharField(max_length=100,null=True,blank=True)
-  created = models.DateTimeField(auto_now_add=True)
-  #submitter = models.ForeignKey(User)
-  #published = models.BooleanField(default=True)
-  url = models.URLField("URL", max_length=250, blank=True)
-  description = models.TextField(blank=True)
+    path = models.CharField(max_length=100, blank=True)
+    inputpath = models.CharField(max_length=100, blank=True)
+    outputpath = models.CharField(max_length=100, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    #owner = models.ForeignKey(User, blank=True, null=True)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(blank=True)
+    version = models.CharField(max_length=100)
+    metadata = models.CharField(max_length=500)
+    private = models.BooleanField()
+  
+    class Meta:
+        ordering = ['name']
     
-  def __unicode__(self):
-    return self.title
+    def __unicode__(self):
+        return self.name
+  
+    def get_absolute_url(self):
+        return ('project_bundle_detail', (), {'slug': self.slug})
+    #get_absolute_url = models.permalink(get_absolute_url)
+
+
+
 
 # Run Model
 class Run(models.Model):
-    bundle = models.CharField(max_length=255)
+    bundle = models.ForeignKey(Bundle)
+    created = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, max_length=255)
     metadata = models.CharField(max_length=255)
-    program = models.CharField(max_length=255)
-    #published = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-
+    bundlePath = dirname(dirname(abspath(__file__)))
+    programPath = models.CharField(max_length=100)
+    inputPath = models.CharField(max_length=100)
+    outputPath = models.CharField(max_length=100)
+    cellout = models.FloatField(blank=True, null=True)
+  
+    #objects = models.Manager() 
+  
     class Meta:
         ordering = ['-created']
-
+    
     def __unicode__(self):
         return u'%s' % self.bundle
-
+  
     def get_absolute_url(self):
-        return reverse('bundle.views.run', args=[self.slug])
+        return ('bundle_run_detail', (), {'object_id': self.id })
+    #get_absolute_url = models.permalink(get_absolute_url)

@@ -1,3 +1,4 @@
+import json
 from . import serializers
 from rest_framework import (viewsets,views,permissions)
 from rest_framework.decorators import action,link
@@ -12,16 +13,35 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
 
+    def destroy(self, request, pk):
+        """
+        Cleanup the destruction of a competition.
+
+        This requires removing phases, submissions, and participants. We should try to design 
+        the models to make the cleanup simpler if we can.
+        """
+        # Get the competition
+        c = Competition.objects.get(id=pk)
+
+        # for each phase, cleanup the leaderboard and submissions
+        print "You called destroy on %s!" % pk
+        return Response(json.dumps(dict()), content_type="application/json")
 
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
+        terms = request.DATA['agreed_terms']
         status = webmodels.ParticipantStatus.objects.get(codename='pending')
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
                                                                    defaults={'status': status,
                                                                              'reason': None})
-        return Response(status=(201 if cr else 200))
+        response_data = {
+            'result' : 201 if cr else 200,
+            'id' : p.id
+        }
+
+        return Response(json.dumps(response_data), content_type="application/json")
     
     def _get_userstatus(self,request,pk=None,participant_id=None):
         comp = self.get_object()
@@ -41,27 +61,31 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST','PUT'], permission_classes=[permissions.IsAuthenticated])
     def participation_status(self,request,pk=None):
+        print "made it into handler"
         comp = self.get_object()
         resp = {}
         status = request.DATA['status']
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
+
         try:
-            p = webmodels.CompetitionParticipant.objects.get(competition=comp,
-                                                   pk=part)
+            p = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=part)
             p.status = webmodels.ParticipantStatus.objects.get(codename=status)
             p.reason = reason
             p.save()
-        except ObjectDoesNotExist as e:            
-            return Response(status=400)
-        resp = { 'status': status,
-                 'participantId': part,
-                 'reason': reason }
-        return Response(resp,status=200)
+            resp = { 
+                'status': status,
+                'participantId': part,
+                'reason': reason 
+                }
+        except ObjectDoesNotExist as e:
+            resp = {
+                'status' : 400
+                }      
+        
+        return Response(json.dumps(resp), content_type="application/json")
             
-           
-    @action(permission_classes=[permissions.IsAuthenticated]
-          )
+    @action(permission_classes=[permissions.IsAuthenticated])
     def info(self,request,*args,**kwargs):
         comp = self.get_object()
         comp.title = request.DATA.get('title')
@@ -181,29 +205,43 @@ competition_page = CompetitionPageViewSet.as_view({'get':'retrieve','put':'updat
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSubmissionSerial
     queryset = webmodels.CompetitionSubmission.objects.all()
+    _file = None
 
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        if not obj.status:
+        if obj.status_id is None:
             obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
-        if not obj.participant:
+        if obj.participant_id is None:
             obj.participant = self.request.user
         
-
-    @action( permission_classes=[permissions.IsAuthenticated]
-            )
-    def leaderboard(self, request, pk=None,competition_id=None):
+    @action(permission_classes=[permissions.IsAuthenticated], methods=["DELETE"])
+    def leaderboard_remove(self, request, pk=None, competition_id=None):
         submission = self.get_object()
-        if True or submission.phase.is_active:
-            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase,
-                                                                    defaults={'is_open': True})
-            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb,
-                                                                           submission=submission)
-            return Response(status=(201 if cr else 200))
+        response = dict()
+        if submission.phase.is_active:
+            lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
+            lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, submission=submission)
+            lbe.delete()
+            response['status'] = lbe.id
         else:
-            return Response(status=400)
+            response['status'] = 400
+        
+        return Response(response, status=response['status'], content_type="application/json")
+
+    @action(permission_classes=[permissions.IsAuthenticated])
+    def leaderboard(self, request, pk=None, competition_id=None):
+        submission = self.get_object()
+
+        response = dict()
+        if submission.phase.is_active:
+            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, submission=submission)
+            response['status'] = (201 if cr else 200)
+        else:
+            response['status'] = 400
+        return Response(response, status=response['status'], content_type="application/json")
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial
@@ -220,8 +258,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
-leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'}   )
-
+leaderboard_retrieve = LeaderBoardViewSet.as_view( {'get':'retrieve','put':'update','patch':'partial_update'} )
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()

@@ -33,7 +33,7 @@ cvs = [
 
 content_visibility_items = dict()
 for name, codename, classname in cvs:
-  ncv, created = ContentVisibility.objects.get_or_create(name=name, codename=codename, classname=classname)
+  ncv, created = ContentVisibility.objects.get_or_create(codename=codename, defaults = {'classname': classname, 'name': name})
   ncv.save()
   content_visibility_items[codename] = ncv
 
@@ -66,9 +66,9 @@ ccs = [
 
 content_categories = dict()
 for category in ccs:
-  nc, created = ContentCategory.objects.get_or_create(parent=category['parent'], name=category['name'], 
-                       codename=category['codename'], visibility=category['visibility'], 
-                       is_menu=category['is_menu'], content_limit=category['content_limit'])
+  nc, created = ContentCategory.objects.get_or_create(codename=category['codename'], defaults=dict(parent=category['parent'], name=category['name'], 
+                       visibility=category['visibility'], 
+                       is_menu=category['is_menu'], content_limit=category['content_limit']))
   nc.save()
   content_categories[category['codename']] = nc
 
@@ -78,6 +78,7 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 0,
+    'codename' : "overview",
     'label' : "Overview"
   },
   {
@@ -85,13 +86,15 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 1,
-    'label' : "Evaluate"
+    'codename' : "evaluation",
+    'label' : "Evaluation"
   },
   {
     'category' : content_categories['learn_the_details'],
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 2,
+    'codename' : "terms_and_conditions",
     'label' : "Terms and Conditions"
   },
   {
@@ -99,6 +102,7 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 0,
+    'codename' : "get_data",
     'label' : "Get Data"
   },
   {
@@ -106,22 +110,36 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 1,
+    'codename' : 'submit_results',
     'label' : "Submit Results"
   }
 ]
 
 for dci in cis:
-  dcii, created = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
+  dcii, created = DefaultContentItem.objects.get_or_create(codename=dci['codename'] , defaults=dict(category=dci['category'], label=dci['label'],
                             rank=dci['rank'], required=dci['required'],
-                            initial_visibility=dci['initial_visibility'])
+                            initial_visibility=dci['initial_visibility']))
   dcii.save()
 
 pss = [
   ("Unknown", "unknown", "Status is unknown."),
-  ("Denied", "denied", "Paricipation was denied."),
-  ("Approved", "approved", "Paricipation was approved."),
-  ("Pending", "pending", "Paricipation is pending approval.")
+  ("Denied", "denied", "Participation was denied."),
+  ("Approved", "approved", "Participation was approved."),
+  ("Pending", "pending", "Participation is pending approval.")
 ]
 
 for name, codename, description in pss:
-  pstatus, created = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
+  pstatus, created = ParticipantStatus.objects.get_or_create(codename=codename, defaults=dict(name=name,description=description))
+
+css = [
+  ("Submitted", "submitted"),
+  ("Processing", "processing"),
+  ("Running", "running"),
+  ("Failed", "failed"),
+  ("Accepted", "accepted"),
+  ("Rejected", "rejected"),
+  ("Finished", "finished")
+]
+
+for name, codename in css:
+  csstatus, created = CompetitionSubmissionStatus.objects.get_or_create(codename=codename,defaults=dict(name=name))

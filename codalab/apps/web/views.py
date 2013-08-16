@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 from apps.web import models
 from apps.web import forms
+from apps.web import tasks
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
@@ -26,13 +27,12 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.all(),
-        'competitions_im_in' : models.Competition.objects.all()
+        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'competitions_im_in' : request.user.participation.all()
         })
     return HttpResponse(template.render(context))
 
 class LoginRequiredMixin(object):
-
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
@@ -62,7 +62,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/my/edit.html'
+    template_name = 'web/competition/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -70,7 +70,8 @@ class CompetitionEdit(UpdateWithInlinesView):
 
 class CompetitionDelete(DeleteView):
     model = models.Competition
-    success_url = reverse_lazy('competition-list')
+    # success_url = reverse_lazy('competition-list')
+    template_name = 'web/competitions/confirm-delete.html'
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -90,11 +91,19 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc 
         context['tabs'] = side_tabs
-
+        submissions=dict()
         try:
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
-                context['participant'] = self.request.user in [x.user for x in context['object'].participants.all()]
                 context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
+                context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
+                for phase in context['object'].phases.all():
+                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
+                    if phase.is_active:
+                        context['active_phase'] = phase
+                        context['active_phase_submissions'] = submissions[phase]
+                context['my_submissions'] = submissions
+            else:
+                context['my_status'] = "unknown"
 
         except ObjectDoesNotExist:
             pass
@@ -209,12 +218,56 @@ class MyCompetitionsEnteredPartial(ListView):
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
-class BundleView(TemplateView):
-  model = models.Bundle
-  template_name = 'web/bundle/index.html'
+
+
+# Bundle Views
+
+class BundleListView(ListView):
+    model = models.Bundle
+    queryset = models.Bundle.objects.all()
   
-  def get_context_data(self, **kwargs):
-    context = super(BundleView, self).get_context_data(**kwargs)
-    context['bundle'] = Bundle.objects.get(pk=self.kwargs.get('bundle_id', None))
-    return context
-    
+
+class BundleCreateView(CreateView):
+    model = models.Bundle
+    action = "created"
+    form_class = forms.BundleForm
+  
+    def form_valid(self, form):
+        f = form.save(commit=False)
+        f.save()
+        tasks.create_directory.delay(f.id)
+        return HttpResponseRedirect('/bundles')
+  
+
+class BundleDetailView(DetailView):
+    model = models.Bundle
+
+    def get_context_data(self, **kwargs):
+        context = super(BundleDetailView, self).get_context_data(**kwargs)
+        return context
+
+
+
+# Bundle Run Views
+
+class RunListView(ListView):
+    model = models.Run
+    queryset = models.Run.objects.all()
+   
+class RunCreateView(CreateView):
+    model = models.Run
+    action = "created"
+    form_class = forms.RunForm
+  
+    def form_valid(self, form):
+        f = form.save(commit=False)
+        f.save()
+        return HttpResponseRedirect('/runs')
+  
+  
+class RunDetailView(DetailView):
+    model = models.Run
+
+    def get_context_data(self, **kwargs):
+        context = super(RunDetailView, self).get_context_data(**kwargs)
+        return context
