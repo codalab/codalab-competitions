@@ -134,11 +134,12 @@
     function fnFormatDetails ( prTable, nTr )
     {
         var aData = prTable.fnGetData( nTr );
+        console.log(nTr.id);
         console.log(aData);
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
-        submission = aData[0].split("-")[0];
-        result = aData[0].split("-")[1];
+        submission = nTr.id.split("-")[0];
+        result = nTr.id.split("-")[1];
         if ($(nTr).find(".status").hasClass("submitted")) {
             var clickStr = "\"leaderBoardSubmit({{competition.id}},"+submission+","+result+", \'delete\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick='+clickStr+'>Remove from Leaderboard</button>';
@@ -176,10 +177,10 @@
             'csrfmiddlewaretoken' : '{{ csrf_token }}',
         },
         success: function(response, textStatus, jqXHR) {
-                        alert("Submitted!");
+                        /* alert("Submitted!"); */
                     },
         error: function(jsXHR, textStatus, errorThrown) {
-                        alert("Submission Failed ("+errorThrown+": "+textStatus);
+                        /* alert("Submission Failed ("+errorThrown+": "+textStatus); */
                     },
         beforeSend: function(xhr) {
             xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
