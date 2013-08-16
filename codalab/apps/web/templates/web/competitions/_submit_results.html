@@ -24,14 +24,13 @@
 
 <div class="row">
   <div class="user_results">
-    <table class="prevResultSubmission resultSubResultsContainer dataTable" id="user_results">
+    <table class="prevResultSubmission dataTable" id="user_results">
       <thead>
         <tr>
-          <th>Submission</th>
-          <th width="150px">Name</th>
-          <th width="200px">Date</th>
-          <th>Score</th>
-          <th width="75px">Status</th>
+          <th width="250px">Name</th>
+          <th width="140px">Date</th>
+          <th>Dice</th>
+          <th>Hausdorff</th>
           <th width="50px"></th>
           <th width="50px"></th>
         </tr>
@@ -39,12 +38,11 @@
       <tbody>
         {% for submission in active_phase_submissions %}
           {% for result in submission.result.all %}
-          <tr>
-            <td>{{submission.id}}-{{result.id}}</td>
+          <tr id="{{submission.id}}-{{result.id}}">
             <td>{{result.name}}</td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
             <td>{{result.aggregate}}</td>
-            <td>{{submission.status}}</td>
+            <td>{{result.aggregate}}</td>
             {% if result in active_phase.board.submissions %}
               <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
             {% else %}
