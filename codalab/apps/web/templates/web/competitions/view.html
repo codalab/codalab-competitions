@@ -92,8 +92,7 @@
                                         </div>
                                     </div>
                                 </form>
-                                {% endif %}
-                                {% if my_status == "pending" %}
+                                {% elif my_status == "pending" %}
                                 <div class="participateInfoBlock pendingApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
@@ -101,8 +100,7 @@
                                         <label></label>
                                     </div>
                                 </div>
-                                {% endif %}
-                                {% if my_status == "denied" %}
+                                {% elif my_status == "denied" %}
                                 <div class="participateInfoBlock rejectedApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
@@ -112,14 +110,14 @@
                                 </div>
                                 {% endif %}
                                 {% if my_status == "approved" %} 
-                                    {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
+                                    {% include "web/competitions/_participate.html" %}      
                                 {% endif %}
                             {% endif %}
                         {% else %}
                             {% if tab.codename == "results" %}
-                                {% include "web/competitions/_results.html" with tab=tab contents=contents %}
+                                {% include "web/competitions/_results.html"%}
                             {% endif %}
-                            {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
+                            {% include "web/competitions/_participate.html" %}
                         {% endif %}
                     </div>
                 </section>
