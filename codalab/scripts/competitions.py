@@ -108,123 +108,118 @@ for status, participant in participants:
 #  Start SIG Spatial Cup ----
 #
 
-# # ACM SIG Spatial Cup
-# sigsc_name = "ACM SIGSPATIAL Cup"
-# sigsc_description = """
-# 	With the goal of encouraging innovation in a fun way, ACM SIGSPATIAL is hosting an algorithm contest about 
-# 	map matching, which is the problem of correctly matching a sequence of location measurements to roads.
-# """
-# sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
+# ACM SIG Spatial Cup
+sigsc_name = "ACM SIGSPATIAL Cup"
+sigsc_description = """
+	With the goal of encouraging innovation in a fun way, ACM SIGSPATIAL is hosting an algorithm contest about 
+	map matching, which is the problem of correctly matching a sequence of location measurements to roads.
+"""
+sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
 
-# # Default pages
-# ltdp = CompetitionPageSection.objects.create(title="Learn the details", slug="details")
-# ltdp.save()
-# pp = CompetitionPageSection.objects.create(title="Participate", slug="participate")
-# pp.save()
-# rp = CompetitionPageSection.objects.create(titl="See the results", slug="results")
-# rp.save()
-# # Default sections
-# ltdpo = CompetitionPageSubSection(title="Overview", slug="overview", content="Use this page to give an overall description of the competition.", section=ltdp)
-# ltdpo.save()
-# ltdpe = CompetitionPageSubSection(title="Evaluation", slug="evaluation", content="Use this page to specify how the evaulation of results will be conducted.", section=ltdp)
-# ltdpe.save()
-# ltdpt = CompetitionPageSubSection(title="Terms and Conditions", slug="terms", content="Use this page to specify terms and conditions that participant must agree to.", section=ltdp)
-# ltdpt.save()
-# ppg = CompetitionPageSubSection(title="Get data", slug="getdata", content="Use this page to give participants access to the data of the competition.", section=pp)
-# ppg.save()
-# sigsc.page_sections.add(ltdp)
-# sigsc.page_sections.add(pp)
-# sigsc.page_sections.add(rp)
+details_category = ContentCategory.objects.get(name="Learn the Details")
+participate_category = ContentCategory.objects.get(name="Participate")
+pc,_ = PageContainer.objects.get_or_create(object_id=sigsc.id, content_type=ContentType.objects.get_for_model(Competition))
+sigsc.pagecontent = pc
+sigsc.save()
 
-# # Logo
-# sigsc.image=File(open(os.path.join(root_dir, "fixtures", "images", "sigspatial.png"), 'rb'))
+# Page.objects.create(category=details_category, container=pc,  codename="overview",
+# 			   		defaults=dict(label="Overview", rank=0,
+# 					html=open(os.path.join(os.path.dirname(__file__), "example_overview.html")).read()))
+# Page.objects.create(category=details_category, container=pc,  codename="evaluation", 
+# 			   		defaults=dict(label="Evaluation", rank=1,
+# 					html=open(os.path.join(os.path.dirname(__file__), "example_evaluation.html")).read()))
+# Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
+#                     defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "example_terms_and_conditions.html")).read()))
+# Page.objects.create(category=participate_category, container=pc,  codename="get_data",
+#                     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "example_data.html")).read()))
+# Page.objects.create(category=participate_category, container=pc,  codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
 
-# # Save the updates
-# sigsc.save()
-# # print sigsc
+# Logo
+sigsc.image=File(open(os.path.join(root_dir, "fixtures", "images", "sigspatial.png"), 'rb'))
 
-# # Phases for the competition
-# day_delta = datetime.timedelta(days=30)
-# for phase in [1, 2]:
-# 	phase_start = start_date + (day_delta * phase)
-# 	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
-# 														start_date=phase_start, max_submissions=4)
+# Save the updates
+sigsc.save()
+# print sigsc
 
-# # Participants for the competition
-# participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
-# # print participants
+# Phases for the competition
+day_delta = datetime.timedelta(days=30)
+for phase in [1, 2]:
+	phase_start = start_date + (day_delta * phase)
+	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
+														start_date=phase_start, max_submissions=4)
 
-# # Participant statuses, if they haven't been created before
-# statuses = ParticipantStatus.objects.all()
-# # print statuses
+# Participants for the competition
+participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
+# print participants
 
-# # Add participants to the competition with random statuses
-# for participant in participants:
-# 	status = random.choice(statuses)
-# 	# print "Adding %s to competition %s with status %s" % (participant, sigsc, status)
-# 	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=sigsc, 
-# 																				  defaults={'status':status})
+# Participant statuses, if they haven't been created before
+statuses = ParticipantStatus.objects.all()
+# print statuses
 
-# #
-# #  End SIG Spatial Cup / Start Spine Localization ----
-# #
+# Add participants to the competition with random statuses
+for participant in participants:
+	status = random.choice(statuses)
+	# print "Adding %s to competition %s with status %s" % (participant, sigsc, status)
+	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=sigsc, 
+																				  defaults={'status':status})
 
-# # Spine Localization
-# spine_name = "Spine Localization Example"
-# spine_description = """
-# 	Test for server side execution of evaluation program.
-# """
-# spine,created = Competition.objects.get_or_create(title=spine_name, creator=guest1, modified_by=guest1, 
-# 												  description=spine_description, has_registration=True)
+#
+#  End SIG Spatial Cup / Start Spine Localization ----
+#
 
-# # Default pages
-# ltdp = CompetitionPageSection.objects.create(title="Learn the details", slug="details")
-# ltdp.save()
-# pp   = CompetitionPageSection.objects.create(title="Participate", slug="participate")
-# pp.save()
-# rp = CompetitionPageSection.objects.create(title="See the results", slug="results")
-# rp.save()
-# # Default sections
-# ltdpo = CompetitionPageSubSection(title="Overview", slug="overview", content="Use this page to give an overall description of the competition.", section=ltdp)
-# ltdpo.save()
-# ltdpe = CompetitionPageSubSection(title="Evaluation", slug="evaluation", content="Use this page to specify how the evaulation of results will be conducted.", section=ltdp)
-# ltdpe.save()
-# ltdpt = CompetitionPageSubSection(title="Terms and Conditions", slug="terms", content="Use this page to specify terms and conditions that participant must agree to.", section=ltdp)
-# ltdpt.save()
-# ppg = CompetitionPageSubSection(title="Get data", slug="getdata", content="Use this page to give participants access to the data of the competition.", section=pp)
-# ppg.save()
-# spine.page_sections.add(ltdp)
-# spine.page_sections.add(pp)
-# spine.page_sections.add(rp)
+# Spine Localization
+spine_name = "Spine Localization Example"
+spine_description = """
+	Test for server side execution of evaluation program.
+"""
+spine,created = Competition.objects.get_or_create(title=spine_name, creator=guest1, modified_by=guest1, 
+												  description=spine_description, has_registration=True)
 
-# # Logo
-# spine.image = File(open(os.path.join(root_dir, "fixtures", "images", "spine.jpg"), 'rb'))
+details_category = ContentCategory.objects.get(name="Learn the Details")
+participate_category = ContentCategory.objects.get(name="Participate")
+pc,_ = PageContainer.objects.get_or_create(object_id=spine.id, content_type=ContentType.objects.get_for_model(Competition))
+spine.pagecontent = pc
+spine.save()
 
-# # Save updates
-# spine.save()
+# Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+# 			   		defaults=dict(label="Overview", rank=0,
+# 					 html=open(os.path.join(os.path.dirname(__file__), "example_overview.html")).read()))
+# Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation", 
+# 			   		defaults=dict(label="Evaluation", rank=1,
+# 					 html=open(os.path.join(os.path.dirname(__file__), "example_evaluation.html")).read()))
+# Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+#                     defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "example_terms_and_conditions.html")).read()))
+# Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+#                     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "example_data.html")).read()))
+# Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
 
-# # Phases for the competition
-# day_delta = datetime.timedelta(days=30)
-# for phase in [1, 2]:
-# 	phase_start = start_date + (day_delta * phase)
-# 	p, created = CompetitionPhase.objects.get_or_create(competition=spine, phasenumber=phase, label="Phase %d" % phase,
-# 														start_date=phase_start, max_submissions=4)
+# Logo
+spine.image = File(open(os.path.join(root_dir, "fixtures", "images", "spine.jpg"), 'rb'))
 
-# # Participants for the competition
-# participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
-# # print participants
+# Save updates
+spine.save()
 
-# # Participant statuses, if they haven't been created before
-# statuses = ParticipantStatus.objects.all()
-# # print statuses
+# Phases for the competition
+day_delta = datetime.timedelta(days=30)
+for phase in [1, 2]:
+	phase_start = start_date + (day_delta * phase)
+	p, created = CompetitionPhase.objects.get_or_create(competition=spine, phasenumber=phase, label="Phase %d" % phase,
+														start_date=phase_start, max_submissions=4)
 
-# # Add participants to the competition with random statuses
-# for participant in participants:
-# 	status = random.choice(statuses)
-# 	# print "Adding %s to competition %s with status %s" % (participant, spine, status)
-# 	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=spine, 
-# 																				  defaults={'status':status})
+# Participants for the competition
+participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
+# print participants
 
+# Participant statuses, if they haven't been created before
+statuses = ParticipantStatus.objects.all()
+# print statuses
+
+# Add participants to the competition with random statuses
+for participant in participants:
+	status = random.choice(statuses)
+	# print "Adding %s to competition %s with status %s" % (participant, spine, status)
+	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=spine, 
+																				  defaults={'status':status})
 #
 #  End Spine Localization ----
 #

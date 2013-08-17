@@ -6,6 +6,7 @@ router = routers.DefaultRouter()
 router.register(r'competition/(?P<competition_id>\d+)/participants', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
 router.register(r'competition/(?P<competition_id>\d+)/submission', views.CompetitionSubmissionViewSet)
+router.register(r'competition/(?P<competition_id>\d+)/submission/(?P<submission_id>\d+)/result', views.CompetitionSubmissionResultViewSet)
 router.register(r'competition/(?P<competition_id>\d+)/leaderboards', views.LeaderBoardViewSet)
 router.register(r'defaultcontent', views.DefaultContentViewSet)
 
