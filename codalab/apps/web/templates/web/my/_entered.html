@@ -18,12 +18,9 @@
                 <div class="subContainerPadding">
                     <div class="articleHeadingContainer">
                         <h3>{{ item.competition.title }}</h3>
-                        <label>by {{ item.competition.created_by }}</label>
+                        <label>{{ item.competition.creator }}</label>
                     </div>
                     <p>{{ item.competition.description }}</p>
-                    <div class="competitionActions">
-                       <label class="status{{item.status.name}}">{{ item.status.description }}</label>
-                   </div>
                </div>
            </div>
        </article>

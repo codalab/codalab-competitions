@@ -14,7 +14,7 @@ $background-gray:#f8f8f8;
 $white:#fff;
 $text-color-gray:#3b3b3b;
 
-$primary: $background;
+$primary-color: $background;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -171,7 +171,7 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 	padding: 0px;
 }
 
-td > i {
+td > i, td > a > i {
 	color: $background;
 }
 
@@ -304,7 +304,7 @@ a > i {
 	font-weight: 100;
 	position: relative;
 	text-align: center;
-	background: #D7CDBF;
+	background: #D0D0D0;
 	padding-top: 70px;
 	margin: 0 auto;
 	width: 100%;

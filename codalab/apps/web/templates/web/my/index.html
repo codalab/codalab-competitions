@@ -2,61 +2,92 @@
 {% block title %}My CodaLab{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="large-10 columns">
+    <div class="large-10 push-2 columns">
         <div class="section-container auto competitionsDetailTabArea " data-section data-section-resized>
           <section>
             <p class="title active" id="participating" data-section-title>
-                <a href="#participate">Competitions I'm Participating In</a>
+                <a href="#participate">Competitions I'm In</a>
             </p>
             <div class="content" data-section-content>
-                <div class="my_participating">
-                    {% include "web/my/_entered.html" with competitions=competitions_im_in %}
+                <div class="row">
+                    <div class="large-9 push-3 columns">
+                        <div class="my_participating">
+                            {% include "web/my/_entered.html" with competitions=competitions_im_in %}
+                        </div>
+                    </div>
+                    <div class="large-3 pull-9 columns">
+                        <a href="/competitions"><button class="globalBlueButtonSmall">View Competitions</button></a>
+                    </div>
                 </div>
             </div>
-          </section>
-          <section>
+        </section>
+        <section>
             <p class="title" id="managed" data-section-title>
                 <a href="#manage">Competitions I'm Running</a>
             </p>
             <div class="content" data-section-content>
                 <div class="row">
                     <div class="large-9 push-3 columns ">
-                        {% include "web/my/_managed.html" with competitions=my_competitions %}
+                        <div class="my_managing">
+                            {% include "web/my/_managed.html" with competitions=my_competitions %}
+                        </div>
                     </div>
                     <div class="large-3 pull-9 columns">
-                        <a href="/my/create_competition"><button class="globalBlueButtonSmall">Create Competition</button></a>
+                        <a href="#"><button class="globalBlueButtonSmall">Create Competition</button></a>
                     </div>
                 </div>
             </div>
-          </section>
-        </div>
+        </section>
+        <section>
+            <p class="title active" id="experimentation" data-section-title>
+                <a href="#participate">My Experiments</a>
+            </p>
+            <div class="content" data-section-content>
+                <div class="row">
+                    <div class="large-9 push-3 columns ">
+                        <div class="my_managing">
+                            {% include "web/my/_experiments.html" %}
+                        </div>
+                    </div>
+                    <div class="large-3 pull-9 columns">
+                        <a href="#"><button class="globalBlueButtonSmall">Create Experiment</button></a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+</div>
+<div class="large-2 pull-10 columns">
+    <p><img src="http://placehold.it/150x120&text=[Profile Picture]" /></p>
+</div>
 </div>
 {% endblock content %}
 
 {% block js %}
 
 function deleteCompetition(competition) {
-    console.log("Delete Competition! "+competition);
-    url = "/api/competition/"+competition;
-    request = $.ajax({
-        url: url,
-        type: "delete",
-        datatype: 'text',
-        success: function(response, textStatus, jqXHR) {
-                        alert("Submitted!");
-                    },
-        error: function(jsXHR, textStatus, errorThrown) {
-                        alert("Submission Failed ("+errorThrown+": "+textStatus);
-                    },
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-            }
-    });
+console.log("Delete Competition! "+competition);
+/*
+url = "/api/competition/"+competition;
+request = $.ajax({
+url: url,
+type: "delete",
+datatype: 'text',
+success: function(response, textStatus, jqXHR) {
+alert("Submitted!");
+},
+error: function(jsXHR, textStatus, errorThrown) {
+alert("Submission Failed ("+errorThrown+": "+textStatus);
+},
+beforeSend: function(xhr) {
+xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+}
+});
+*/
 };
 
 $('document').ready(function() {
-    // This helps make sections appear with Foundation
-    $(this).foundation('section', 'reflow');
+// This helps make sections appear with Foundation
+$(this).foundation('section', 'reflow');
 });
 {% endblock js %}

@@ -416,7 +416,7 @@ class PhaseLeaderBoard(models.Model):
     is_open = models.BooleanField(default=True)
     
     def submissions(self):
-        return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
+        return SubmissionResult.objects.filter(leaderboard_entry_result__board=self)
     
     def __unicode__(self):
         return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
@@ -431,9 +431,10 @@ class PhaseLeaderBoard(models.Model):
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')
     submission = models.ForeignKey(CompetitionSubmission,related_name='leaderboard_entry')
-            
+    result = models.ForeignKey(SubmissionResult, related_name='leaderboard_entry_result')
+
     class Meta:
-        unique_together = (('board','submission'),)
+        unique_together = (('board','submission', 'result'),)
 
 
 # Bundle Model
