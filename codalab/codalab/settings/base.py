@@ -37,10 +37,7 @@ class Base(Settings):
    DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
                    }
-
-   PRIVATE_FILE_STORAGE = Settings.DEFAULT_FILE_STORAGE
    
-
    AUTH_USER_MODEL = 'authenz.User'
 
    CODALAB_VERSION = __version__
@@ -196,7 +193,7 @@ class Base(Settings):
     'djcelery',
 
     # Django / Jenkins CI support
-    'django_jenkins',
+    #'django_jenkins',
     
     # Analytics app that works with many services - IRJ 2013.7.29
     'analytical',

@@ -83,7 +83,7 @@ form textarea {
 
 /* line 90, ../sass/_settings.scss */
 .menu-icon {
-  background: #3684d6;
+  background: #739cb9;
 }
 
 /* line 94, ../sass/_settings.scss */
@@ -105,7 +105,7 @@ span.has-tip {
 
 /* line 108, ../sass/_settings.scss */
 html.js body.body div#layout.container div.large-12 div.row div.large-10 div.section-container section.active div.content div.row div.large-3 {
-  padding-top: 12px;
+  padding-top: 13px;
 }
 
 /* line 112, ../sass/_settings.scss */
@@ -116,7 +116,7 @@ div.competition-tile article.subContainer div.articleTextArea div.small-10 butto
 /* line 116, ../sass/_settings.scss */
 nav.top-bar section.top-bar-section ul.right {
   color: white;
-  background: #3684d6;
+  background: #739cb9;
   vertical-align: text-bottom;
 }
 
@@ -185,8 +185,8 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 }
 
 /* line 174, ../sass/_settings.scss */
-td > i {
-  color: #3684d6;
+td > i, td > a > i {
+  color: #739cb9;
 }
 
 /* line 178, ../sass/_settings.scss */
@@ -292,7 +292,7 @@ a > i {
 /* line 263, ../sass/_settings.scss */
 .competition-label {
   height: 100px;
-  background: #3684d6;
+  background: #739cb9;
   color: white;
   padding-right: 0px;
   padding-left: 0px;
@@ -340,7 +340,7 @@ a > i {
   font-weight: 100;
   position: relative;
   text-align: center;
-  background: #D7CDBF;
+  background: #D0D0D0;
   padding-top: 70px;
   margin: 0 auto;
   width: 100%;
@@ -357,7 +357,7 @@ a > i {
 /* line 320, ../sass/_settings.scss */
 #footer, #footer a, #footer a:hover {
   font-size: small;
-  background: #3684d6;
+  background: #739cb9;
   color: white;
 }
 
@@ -484,7 +484,7 @@ ul.side-nav li {
 }
 /* line 426, ../sass/_settings.scss */
 ul.side-nav li a {
-  color: #3684d6 !important;
+  color: #676278 !important;
   font-size: 15px !important;
 }
 /* line 428, ../sass/_settings.scss */
@@ -539,7 +539,7 @@ ul.side-nav li.active a {
 }
 /* line 473, ../sass/_settings.scss */
 .glossary-page-container p a, competitions-block-Styling p a, .section-container.vertical-tabs .content p a {
-  color: #3684d6;
+  color: #676278;
 }
 /* line 477, ../sass/_settings.scss */
 .glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
@@ -585,7 +585,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 /* line 515, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl p a {
-  color: #3684d6 !important;
+  color: #676278 !important;
   font-size: 15px !important;
 }
 /* line 517, ../sass/_settings.scss */
@@ -622,7 +622,7 @@ div.pending-approval-select.columns {
 
 /* line 540, ../sass/_settings.scss */
 .competitionUserBlock h3 {
-  color: #3684d6;
+  color: #739cb9;
   margin-bottom: 2px;
 }
 
@@ -3092,13 +3092,13 @@ td {
 /* Default Link Styles */
 /* line 151, ../scss/foundation/components/_type.scss */
 a {
-  color: #3684d6;
+  color: #739cb9;
   text-decoration: none;
   line-height: inherit;
 }
 /* line 157, ../scss/foundation/components/_type.scss */
 a:hover, a:focus {
-  color: #3684d6;
+  color: #739cb9;
 }
 /* line 159, ../scss/foundation/components/_type.scss */
 a img {
@@ -3502,13 +3502,13 @@ button, .button {
   padding-bottom: 0.8125em;
   padding-left: 1.5em;
   font-size: 1em;
-  background-color: #2ba6cb;
-  border-color: #2284a1;
+  background-color: #739cb9;
+  border-color: #5384a6;
   color: white;
 }
 /* line 122, ../scss/foundation/components/_buttons.scss */
 button:hover, button:focus, .button:hover, .button:focus {
-  background-color: #2284a1;
+  background-color: #5384a6;
 }
 /* line 133, ../scss/foundation/components/_buttons.scss */
 button:hover, button:focus, .button:hover, .button:focus {
@@ -3598,8 +3598,8 @@ button.right-align, .button.right-align {
 }
 /* line 188, ../scss/foundation/components/_buttons.scss */
 button.disabled, button[disabled], .button.disabled, .button[disabled] {
-  background-color: #2ba6cb;
-  border-color: #2284a1;
+  background-color: #739cb9;
+  border-color: #5384a6;
   color: white;
   cursor: default;
   opacity: 0.6;
@@ -3608,7 +3608,7 @@ button.disabled, button[disabled], .button.disabled, .button[disabled] {
 }
 /* line 122, ../scss/foundation/components/_buttons.scss */
 button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #2284a1;
+  background-color: #5384a6;
 }
 /* line 133, ../scss/foundation/components/_buttons.scss */
 button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
@@ -3616,7 +3616,7 @@ button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[dis
 }
 /* line 146, ../scss/foundation/components/_buttons.scss */
 button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
-  background-color: #2ba6cb;
+  background-color: #739cb9;
 }
 /* line 189, ../scss/foundation/components/_buttons.scss */
 button.disabled.secondary, button[disabled].secondary, .button.disabled.secondary, .button[disabled].secondary {
@@ -4414,7 +4414,7 @@ label.error {
 }
 /* line 79, ../scss/foundation/components/_split-buttons.scss */
 .split.button span {
-  border-left-color: #1e728c;
+  border-left-color: #4b7695;
 }
 /* line 116, ../scss/foundation/components/_split-buttons.scss */
 .split.button span {
@@ -4822,7 +4822,7 @@ label.error {
 .section-container.accordion > section > .title a,
 .section-container.accordion > .section > .title a {
   padding: 0.9375em;
-  color: #3684d6;
+  color: #739cb9;
   font-size: 0.875em;
   background: none;
 }
@@ -4991,7 +4991,7 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title a, .section-container.tabs > .section > .title a {
   padding: 0.9375em;
-  color: #3684d6;
+  color: #739cb9;
   font-size: 0.875em;
   background: none;
 }
@@ -5089,7 +5089,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title a, .section-container.auto > .section > .title a {
     padding: 0.9375em;
-    color: #3684d6;
+    color: #739cb9;
     font-size: 0.875em;
     background: none;
   }
@@ -5207,7 +5207,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title a, .section-container.vertical-tabs > .section > .title a {
     padding: 0.9375em;
-    color: #3684d6;
+    color: #739cb9;
     font-size: 0.875em;
     background: none;
   }
@@ -5336,7 +5336,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title a, .section-container.vertical-nav > .section > .title a {
     padding: 0.9375em;
-    color: #3684d6;
+    color: #739cb9;
     font-size: 0.875em;
     background: none;
   }
@@ -5459,7 +5459,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title a, .section-container.horizontal-nav > .section > .title a {
     padding: 0.9375em;
-    color: #3684d6;
+    color: #739cb9;
     font-size: 0.875em;
     background: none;
   }
@@ -5561,7 +5561,7 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title a, .no-js .section-container > .section > .title a {
   padding: 0.9375em;
-  color: #3684d6;
+  color: #739cb9;
   font-size: 0.875em;
   background: none;
 }
@@ -5608,7 +5608,7 @@ label.error {
 /* line 67, ../scss/foundation/components/_top-bar.scss */
 .contain-to-grid {
   width: 100%;
-  background: #3684d6;
+  background: #739cb9;
 }
 /* line 71, ../scss/foundation/components/_top-bar.scss */
 .contain-to-grid .top-bar {
@@ -5630,7 +5630,7 @@ label.error {
   height: 45px;
   line-height: 45px;
   position: relative;
-  background: #3684d6;
+  background: #739cb9;
   margin-bottom: 0px;
 }
 /* line 92, ../scss/foundation/components/_top-bar.scss */
@@ -5733,7 +5733,7 @@ label.error {
 }
 /* line 189, ../scss/foundation/components/_top-bar.scss */
 .top-bar.expanded .title-area {
-  background: #3684d6;
+  background: #739cb9;
 }
 /* line 192, ../scss/foundation/components/_top-bar.scss */
 .top-bar.expanded .toggle-topbar a {
@@ -5766,8 +5766,8 @@ label.error {
 /* line 227, ../scss/foundation/components/_top-bar.scss */
 .top-bar-section .divider,
 .top-bar-section [role="separator"] {
-  border-bottom: solid 1px #609edf;
-  border-top: solid 1px #256bb4;
+  border-bottom: solid 1px #95b4ca;
+  border-top: solid 1px #5384a6;
   clear: both;
   height: 1px;
   width: 100%;
@@ -5785,12 +5785,12 @@ label.error {
 }
 /* line 246, ../scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button {
-  background: #2ba6cb;
+  background: #739cb9;
   font-size: 100%;
 }
 /* line 249, ../scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.hover {
-  background: #2284a1;
+  background: #5384a6;
 }
 /* line 253, ../scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.secondary {
@@ -5818,7 +5818,7 @@ label.error {
 }
 /* line 275, ../scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li.hover > a {
-  background: #2b7cd2;
+  background: #6995b4;
   color: white;
 }
 /* line 281, ../scss/foundation/components/_top-bar.scss */
@@ -5913,7 +5913,7 @@ label.error {
 @media only screen and (min-width: 58.75em) {
   /* line 362, ../scss/foundation/components/_top-bar.scss */
   .top-bar {
-    background: #3684d6;
+    background: #739cb9;
     *zoom: 1;
     overflow: visible;
   }
@@ -5950,7 +5950,7 @@ label.error {
   }
   /* line 382, ../scss/foundation/components/_top-bar.scss */
   .top-bar.expanded {
-    background: #3684d6;
+    background: #739cb9;
   }
 
   /* line 385, ../scss/foundation/components/_top-bar.scss */
@@ -5985,7 +5985,7 @@ label.error {
   .top-bar-section li a:not(.button) {
     padding: 0 15px;
     line-height: 45px;
-    background: #3684d6;
+    background: #739cb9;
   }
   /* line 411, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section li a:not(.button).hover {
@@ -6039,12 +6039,12 @@ label.error {
     line-height: 1;
     white-space: nowrap;
     padding: 7px 15px;
-    background: #4b91da;
+    background: #84a8c2;
   }
   /* line 464, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section .dropdown li label {
     white-space: nowrap;
-    background: #4b91da;
+    background: #84a8c2;
   }
   /* line 470, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section .dropdown li .dropdown {
@@ -6055,15 +6055,15 @@ label.error {
   .top-bar-section > ul > .divider, .top-bar-section > ul > [role="separator"] {
     border-bottom: none;
     border-top: none;
-    border-right: solid 1px #609edf;
-    border-left: solid 1px #256bb4;
+    border-right: solid 1px #95b4ca;
+    border-left: solid 1px #5384a6;
     clear: none;
     height: 45px;
     width: 0px;
   }
   /* line 488, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section .has-form {
-    background: #3684d6;
+    background: #739cb9;
     padding: 0 15px;
     height: 45px;
   }
@@ -6079,7 +6079,7 @@ label.error {
 
   /* line 510, ../scss/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:hover > a {
-    background: #2b7cd2;
+    background: #6995b4;
     color: white;
   }
   /* line 516, ../scss/foundation/components/_top-bar.scss */
@@ -6955,8 +6955,8 @@ label.error {
   position: relative;
   padding: 0.6875em 1.3125em 0.75em 0.6875em;
   font-size: 0.875em;
-  background-color: #2ba6cb;
-  border-color: #2284a1;
+  background-color: #739cb9;
+  border-color: #5384a6;
   color: white;
 }
 /* line 97, ../scss/foundation/components/_alert-boxes.scss */
@@ -7033,7 +7033,7 @@ label.error {
 .breadcrumbs > * a,
 .breadcrumbs > * span {
   text-transform: uppercase;
-  color: #2ba6cb;
+  color: #739cb9;
 }
 /* line 69, ../scss/foundation/components/_breadcrumbs.scss */
 .breadcrumbs > *.current {
@@ -7375,7 +7375,7 @@ kbd {
   position: relative;
   padding: 0.1875em 0.625em 0.25em;
   font-size: 0.875em;
-  background-color: #2ba6cb;
+  background-color: #739cb9;
   color: white;
 }
 /* line 77, ../scss/foundation/components/_labels.scss */
@@ -7462,14 +7462,14 @@ ul.pagination li.unavailable:hover a, ul.pagination li.unavailable a:focus {
 }
 /* line 57, ../scss/foundation/components/_pagination.scss */
 ul.pagination li.current a {
-  background: #2ba6cb;
+  background: #739cb9;
   color: white;
   font-weight: bold;
   cursor: default;
 }
 /* line 64, ../scss/foundation/components/_pagination.scss */
 ul.pagination li.current a:hover, ul.pagination li.current a:focus {
-  background: #2ba6cb;
+  background: #739cb9;
 }
 /* line 110, ../scss/foundation/components/_pagination.scss */
 ul.pagination li {
@@ -7523,10 +7523,10 @@ ul.pagination li {
 .panel.callout {
   border-style: solid;
   border-width: 1px;
-  border-color: #2284a1;
+  border-color: #5384a6;
   margin-bottom: 0px;
   padding: 1.25em;
-  background: #2ba6cb;
+  background: #739cb9;
   -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
@@ -7538,9 +7538,9 @@ ul.pagination li {
 .panel.callout > :last-child {
   margin-bottom: 0;
 }
-/* line 51, ../scss/foundation/components/_panels.scss */
+/* line 50, ../scss/foundation/components/_panels.scss */
 .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6, .panel.callout p {
-  color: white;
+  color: #333333;
 }
 /* line 54, ../scss/foundation/components/_panels.scss */
 .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6 {
@@ -7626,7 +7626,7 @@ ul.pagination li {
 }
 /* line 54, ../scss/foundation/components/_progress-bars.scss */
 .progress .meter {
-  background: #2ba6cb;
+  background: #739cb9;
   height: 100%;
   display: block;
 }
@@ -7686,7 +7686,7 @@ ul.pagination li {
 /* line 43, ../scss/foundation/components/_side-nav.scss */
 .side-nav li a {
   display: block;
-  color: #3684d6;
+  color: #739cb9;
 }
 /* line 48, ../scss/foundation/components/_side-nav.scss */
 .side-nav li.active > a:first-child {
@@ -7735,7 +7735,7 @@ ul.pagination li {
   -webkit-border-radius: 1000px;
   border-radius: 1000px;
   font-weight: bold;
-  background: #2ba6cb;
+  background: #739cb9;
   padding: 0.1875em 0.5625em;
   cursor: default;
   color: white;
@@ -8054,8 +8054,8 @@ table tfoot tr td {
 }
 /* line 32, ../scss/foundation/components/_thumbs.scss */
 .th:hover, .th:focus {
-  -webkit-box-shadow: 0 0 6px 1px rgba(43, 166, 203, 0.5);
-  box-shadow: 0 0 6px 1px rgba(43, 166, 203, 0.5);
+  -webkit-box-shadow: 0 0 6px 1px rgba(115, 156, 185, 0.5);
+  box-shadow: 0 0 6px 1px rgba(115, 156, 185, 0.5);
 }
 /* line 49, ../scss/foundation/components/_thumbs.scss */
 .th.radius {
@@ -8079,7 +8079,7 @@ a.th {
 /* line 36, ../scss/foundation/components/_tooltips.scss */
 .has-tip:hover, .has-tip:focus {
   border-bottom: 0px;
-  color: #2ba6cb;
+  color: #739cb9;
 }
 /* line 42, ../scss/foundation/components/_tooltips.scss */
 .has-tip.tip-left, .has-tip.tip-right {
@@ -8099,7 +8099,7 @@ a.th {
   left: 50%;
   width: 100%;
   color: white;
-  background: #3684d6;
+  background: #739cb9;
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
@@ -8111,12 +8111,12 @@ a.th {
   width: 0;
   height: 0;
   border: solid 5px;
-  border-color: transparent transparent #3684d6 transparent;
+  border-color: transparent transparent #739cb9 transparent;
   top: -10px;
 }
 /* line 71, ../scss/foundation/components/_tooltips.scss */
 .tooltip.opened {
-  color: #2ba6cb !important;
+  color: #739cb9 !important;
   border-bottom: 0px !important;
 }
 
@@ -8131,12 +8131,12 @@ a.th {
 @media only screen and (min-width: 768px) {
   /* line 86, ../scss/foundation/components/_tooltips.scss */
   .tooltip > .nub {
-    border-color: transparent transparent #3684d6 transparent;
+    border-color: transparent transparent #739cb9 transparent;
     top: -10px;
   }
   /* line 90, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-top > .nub {
-    border-color: #3684d6 transparent transparent transparent;
+    border-color: #739cb9 transparent transparent transparent;
     top: auto;
     bottom: -10px;
   }
@@ -8146,7 +8146,7 @@ a.th {
   }
   /* line 99, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-left > .nub {
-    border-color: transparent transparent transparent #3684d6;
+    border-color: transparent transparent transparent #739cb9;
     right: -10px;
     left: auto;
     top: 50%;
@@ -8154,7 +8154,7 @@ a.th {
   }
   /* line 106, ../scss/foundation/components/_tooltips.scss */
   .tooltip.tip-right > .nub {
-    border-color: transparent #3684d6 transparent transparent;
+    border-color: transparent #739cb9 transparent transparent;
     right: auto;
     left: -10px;
     top: 50%;

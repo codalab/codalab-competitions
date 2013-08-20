@@ -67,7 +67,7 @@
                                     <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
                                     <label></label>
                                     <div class="globalBlueButtonAtag">
-                                        <a class="registerCompetition" href="{% url 'account_login' %}">Sign in</a>
+                                        <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/competitions/{{competition.id}}#participate-submit_results">Sign in</a></li>  
                                     </div>
                                 </div>
                             </div>
@@ -92,8 +92,7 @@
                                         </div>
                                     </div>
                                 </form>
-                                {% endif %}
-                                {% if my_status == "pending" %}
+                                {% elif my_status == "pending" %}
                                 <div class="participateInfoBlock pendingApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
@@ -101,25 +100,24 @@
                                         <label></label>
                                     </div>
                                 </div>
-                                {% endif %}
-                                {% if my_status == "denied" %}
+                                {% elif my_status == "denied" %}
                                 <div class="participateInfoBlock rejectedApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
                                         <label class="regApprovLabel">Your request to register for this competition was denied.</label>
-                                        <label></label>
+                                        <label>Reason: {{my_participant.reason}}</label>
                                     </div>
                                 </div>
                                 {% endif %}
                                 {% if my_status == "approved" %} 
-                                    {% include "web/competitions/_participate.html" with tab=tab contents=contents %}      
+                                    {% include "web/competitions/_participate.html" %}      
                                 {% endif %}
                             {% endif %}
                         {% else %}
                             {% if tab.codename == "results" %}
-                                {% include "web/competitions/_results.html" with tab=tab contents=contents %}
+                                {% include "web/competitions/_results.html"%}
                             {% endif %}
-                            {% include "web/competitions/_participate.html" with tab=tab contents=contents %}
+                            {% include "web/competitions/_participate.html" %}
                         {% endif %}
                     </div>
                 </section>
@@ -134,30 +132,35 @@
     function fnFormatDetails ( prTable, nTr )
     {
         var aData = prTable.fnGetData( nTr );
+        console.log(nTr.id);
         console.log(aData);
         var sOut = '<div class="submission_details">';
         sOut += '<div class="small-4 push-8 columns">';
+        submission = nTr.id.split("-")[0];
+        result = nTr.id.split("-")[1];
         if ($(nTr).find(".status").hasClass("submitted")) {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'delete\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+submission+","+result+", \'delete\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardRemove" onclick='+clickStr+'>Remove from Leaderboard</button>';
         } else {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+aData[0]+", \'post\')\"";
+            var clickStr = "\"leaderBoardSubmit({{competition.id}},"+submission+","+result+", \'post\')\"";
             sOut += '<button class="globalBlueButton rFloat leaderBoardSubmit" onclick='+clickStr+'>Submit to Leaderboard</button>';
         }
         sOut += '</div>';        
 
         sOut += '<div class="small-8 pull-4 columns">';
+        /*
         sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Scoring Details</a>';
         sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Output</a>';
         sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Error</a>';
+        */
         sOut += '</div>';
 
         sOut += '</div>';
         return sOut;
     }
 
-    function leaderBoardSubmit(competition, submission, op) {
-        url = "/api/competition/"+competition+"/submission/"+submission+"/leaderboard";
+    function leaderBoardSubmit(competition, submission, result, op) {
+        url = "/api/competition/"+competition+"/submission/"+submission+"/result/"+result+"/leaderboard";
         if (op == "delete") {
             url += "_remove/";
             op = "delete";
@@ -172,10 +175,10 @@
             'csrfmiddlewaretoken' : '{{ csrf_token }}',
         },
         success: function(response, textStatus, jqXHR) {
-                        alert("Submitted!");
+                        /* alert("Submitted!"); */
                     },
         error: function(jsXHR, textStatus, errorThrown) {
-                        alert("Submission Failed ("+errorThrown+": "+textStatus);
+                        /* alert("Submission Failed ("+errorThrown+": "+textStatus); */
                     },
         beforeSend: function(xhr) {
             xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
@@ -250,19 +253,23 @@
             'bFilter'   : false
         });
 
-     $('#user_results tbody tr td i').on('click', function () {
-            var nTr = $(this).parents('tr')[0];
-            if ( prTable.fnIsOpen(nTr) )
+     $('#user_results .enclosed-foundicon-plus').on('click', function () {
+            console.log(this);
+            if (this.className == "enclosed-foundicon-plus" || this.className == "enclosed-foundicon-minus") 
             {
-                /* This row is already open - close it */
-                /* this.class = "enclosed-foundicon-plus"; */
-                prTable.fnClose( nTr );
-            }
-            else
-            {
-                /* Open this row */
-                /* this.class = "enclosed-foundicon-minus"; */
-                prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+                var nTr = $(this).parents('tr')[0];
+                if ( prTable.fnIsOpen(nTr) )
+                {
+                    /* This row is already open - close it */
+                    this.className = "enclosed-foundicon-plus";
+                    prTable.fnClose( nTr );
+                }
+                else
+                {
+                    /* Open this row */
+                    this.className = "enclosed-foundicon-minus";
+                    prTable.fnOpen( nTr, fnFormatDetails(prTable, nTr), 'details' );
+                }
             }
         });
     });
@@ -278,7 +285,7 @@
         csrfmiddlewaretoken: '{{ csrf_token }}',
         customParams: {
           'phase': '1',
-          'participant' : '{{my_participant_id}}',
+          'participant' : '{{my_participant.id}}',
           'csrfmiddlewaretoken' : '{{ csrf_token }}'
         },
         before: function ()
