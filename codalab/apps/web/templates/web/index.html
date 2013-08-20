@@ -39,18 +39,20 @@
       <img class="left" src="{{ STATIC_URL }}foundation/img/news-csr.png" width="50px">
       <h6>CodaLab</h6>
       <div class="row"></div>
-      <p>
-        CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.
-      </p>
-      <div class="small-3 columns right">
-        <div class="globalBlueButtonAtag">
-          <a href="{% url 'account_signup' %}" data-reveal-id="signup-modal" data-reveal-ajax="true" class="radius button right">Sign Up</a>
+      <div class="row">
+        <div class="small-10 columns">
+          <p>
+            CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.
+          </p>
+        </div>
+        <div class="small-2 columns">
+          <div class="globalBlueButtonAtag">
+            <a href="{% url 'account_signup' %}" data-reveal-id="signup-modal" data-reveal-ajax="true" class="radius button">Sign Up</a>
+          </div>
         </div>
       </div>
     </div>      
   </div>
-</div>
-
 </div>
 
 {% endblock %}
