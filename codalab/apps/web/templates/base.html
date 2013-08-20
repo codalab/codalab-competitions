@@ -54,7 +54,7 @@
             <ul class="title-area">
               <!-- Title Area -->
               <li class="name">
-                <a href="/"> <img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a>
+                <h1><a href="/">CodaLab</a></h1>
               </li>
               <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
@@ -62,8 +62,8 @@
             <section class="top-bar-section">
               <!-- Left Nav Section -->
               <ul class="left">
+                <li><a href="/experiments">Experiments</a></li>               
                 <li><a href="/competitions">Competitions</a></li>
-                <!-- <li><a href="/experiments">Experiments</a></li>                -->
                 {% if user.is_authenticated %}
                   <li><a href="/my">My CodaLab</a></li>
                 {% else %}
@@ -124,7 +124,7 @@
           <ul class="inline-list left">
             <li>
                 <span>
-                  <a href="http://codalab.github.io/codalab/" target="_blank">CodaLab</a>
+                  <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
                 </span>
             </li>
@@ -136,7 +136,6 @@
             <!-- <li>CodaLab v.0 ()</li> -->
             <li><a href="/help">Help</a></li>
             <li><a href="mailto:info@codalab.org">Feedback</a></li>
-            <li><a href="https://github.com/codalab/codalab">Developers</a></li>
             <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
             <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>
           </ul>
@@ -169,6 +168,5 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
-
   </body>
 </html>

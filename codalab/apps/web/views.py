@@ -26,9 +26,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
+    denied=models.ParticipantStatus.objects.get(codename="denied")
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
-        'competitions_im_in' : request.user.participation.all()
+        'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
 
@@ -79,7 +80,7 @@ class CompetitionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
-
+        competition = context['object']
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
@@ -92,18 +93,24 @@ class CompetitionDetailView(DetailView):
             side_tabs[category] = tc 
         context['tabs'] = side_tabs
         submissions=dict()
+        all_submissions=dict()
         try:
-            if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
-                context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
-                context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
-                for phase in context['object'].phases.all():
-                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
+                context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
+                context['my_participant'] = competition.participants.get(user=self.request.user)
+                for phase in competition.phases.all():
+                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
-                        context['active_phase_submissions'] = submissions[phase]
+                        context['my_active_phase_submissions'] = submissions[phase]
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
+                for phase in competition.phases.all():
+                    if phase.is_active:
+                        context['active_phase'] = phase
+                    all_submissions[phase] = phase.competitionsubmission_set.all()
+                context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
             pass
@@ -198,7 +205,6 @@ class CompetitionIndexPartial(TemplateView):
         return context
 
 class MyCompetitionsManagedPartial(ListView):
-    
     model = models.Competition
     template_name = 'web/my/_managed.html'
     queryset = models.Competition.objects.all()
@@ -207,7 +213,6 @@ class MyCompetitionsManagedPartial(ListView):
         return self.queryset.filter(creator=self.request.user)
 
 class MyCompetitionsEnteredPartial(ListView):
-    
     model = models.CompetitionParticipant
     template_name = 'web/my/_entered.html'
     queryset = models.CompetitionParticipant.objects.all()
