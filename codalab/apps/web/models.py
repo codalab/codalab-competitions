@@ -21,7 +21,7 @@ import tasks
 
 ## Needed for computation service handling
 ## Hack for now
-PrivateStorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
     PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                          account_key=settings.AZURE_ACCOUNT_KEY,
@@ -33,12 +33,12 @@ try:
 
     PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                         account_key=settings.AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.PUBLIC_AZURE_CONTAINER)
+                                        azure_container=settings.AZURE_CONTAINER)
 
 except:
-    PrivateStorage = settings.DEFAULT_FILE_STORAGE
-    BundleStorage = settings.DEFAULT_FILE_STORAGE
-    PublicStorage = settings.DEFAULT_FILE_STORAGE
+    PrivateStorage = StorageClass()
+    BundleStorage = StorageClass()
+    PublicStorage = StorageClass()
 
 # Competition Content
 class ContentVisibility(models.Model):
