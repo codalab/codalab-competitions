@@ -66,7 +66,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 
 /* line 75, ../sass/_settings.scss */
 * {
-  font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+  font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 100%;
   font-weight: normal;
 }
@@ -502,48 +502,48 @@ ul.side-nav li.active a {
 }
 
 /* line 437, ../sass/_settings.scss */
-.glossary-page-container h6, competitions-block-Styling h6, .section-container.vertical-tabs .content h6 {
+.glossary-page-container h6, .competitions-block-Styling h6 {
   font-size: 14px;
   color: #666666;
 }
 /* line 442, ../sass/_settings.scss */
-.glossary-page-container p, competitions-block-Styling p, .section-container.vertical-tabs .content p {
+.glossary-page-container p, .competitions-block-Styling p {
   font-size: 12px;
   color: #666666;
 }
 /* line 447, ../sass/_settings.scss */
-.glossary-page-container ol, competitions-block-Styling ol, .section-container.vertical-tabs .content ol {
+.glossary-page-container ol, .competitions-block-Styling ol {
   font-size: 13px;
   color: #666666;
 }
 /* line 450, ../sass/_settings.scss */
-.glossary-page-container ol li, competitions-block-Styling ol li, .section-container.vertical-tabs .content ol li {
+.glossary-page-container ol li, .competitions-block-Styling ol li {
   padding-bottom: 10px;
   list-style-type: disc;
 }
 /* line 456, ../sass/_settings.scss */
-.glossary-page-container ul, competitions-block-Styling ul, .section-container.vertical-tabs .content ul {
+.glossary-page-container ul, .competitions-block-Styling ul {
   font-size: 13px;
   color: #666666;
   margin-left: 20px;
 }
 /* line 461, ../sass/_settings.scss */
-.glossary-page-container ul li, competitions-block-Styling ul li, .section-container.vertical-tabs .content ul li {
+.glossary-page-container ul li, .competitions-block-Styling ul li {
   padding-bottom: 10px;
   list-style-type: disc;
 }
 /* line 467, ../sass/_settings.scss */
-.glossary-page-container pre, competitions-block-Styling pre, .section-container.vertical-tabs .content pre {
+.glossary-page-container pre, .competitions-block-Styling pre {
   padding: 10px;
   background: #ebf2fb;
   margin-bottom: 15px;
 }
 /* line 473, ../sass/_settings.scss */
-.glossary-page-container p a, competitions-block-Styling p a, .section-container.vertical-tabs .content p a {
+.glossary-page-container p a, .competitions-block-Styling p a {
   color: #676278;
 }
 /* line 477, ../sass/_settings.scss */
-.glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
+.glossary-page-container b, .competitions-block-Styling b {
   color: #666666;
 }
 
@@ -3126,10 +3126,10 @@ p aside {
 /* Default header styles */
 /* line 181, ../scss/foundation/components/_type.scss */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-  font-weight: bold;
+  font-family: 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: lighter;
   font-style: normal;
-  color: #666666;
+  color: #777;
   text-rendering: optimizeLegibility;
   margin-top: 0.2em;
   margin-bottom: 0.5em;
