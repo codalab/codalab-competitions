@@ -431,21 +431,21 @@ ul.side-nav {
 	li.active a {
 		color:$gray !important
 	}
-}
+} 
 
-.glossary-page-container, .competitions-block-Styling {
+.glossary-page-container, competitions-block-Styling {
 	h6 { 
-		font-size:14px; 
-		color:$gray
+		font-size:18px; 
+		color:$gray;
 		}
 
 	p { 
-		font-size:12px; 
-		color:$gray
+		font-size:14px; 
+		color:$gray;
 		}
 
 	ol { 
-		font-size:13px; color:$gray;
+		font-size:14px; color:$gray;
 
 		li {
 			padding-bottom:10px;
@@ -454,7 +454,7 @@ ul.side-nav {
 	}
 
 	ul { 
-		font-size:13px; 
+		font-size:14px; 
 		color:$gray;
 		margin-left:20px;
 
@@ -471,11 +471,11 @@ ul.side-nav {
 		}
 
 	p a {
-		color:$link-color
+		color:$link-color;
 		}
 
 	b {
-		color:$gray
+		color:$gray;
 	}
 }
 
@@ -514,8 +514,8 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 
 		p a {
 			@include linkStyle;
-			&:hover{color:$active !important}
-			&:active{background:none !important}
+			&:hover{color:$active !important;}
+			&:active{background:none !important;}
 		}
 	}
 
