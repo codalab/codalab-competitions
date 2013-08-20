@@ -1,6 +1,8 @@
 //
 // Button Variables
 //
+$primary-button-color: #676278;
+
 $include-html-button-classes: $include-html-classes !default;
 
 // We use these to build padding for buttons.
@@ -108,7 +110,7 @@ $button-disabled-opacity: 0.6 !default;
 }
 
 // We use this mixin to add button color styles
-@mixin button-style($bg:$primary-color, $radius:false, $disabled:false) {
+@mixin button-style($bg:$primary-button-color, $radius:false, $disabled:false) {
 
   // We control which background styles are used,
   // these can be removed by setting $bg:false
@@ -117,7 +119,7 @@ $button-disabled-opacity: 0.6 !default;
     $bg-lightness: lightness($bg);
 
     background-color: $bg;
-    border-color: darken($bg, $button-function-factor);
+    border-color: lighten($bg, $button-function-factor);
     &:hover,
     &:focus { background-color: darken($bg, $button-function-factor); }
 
