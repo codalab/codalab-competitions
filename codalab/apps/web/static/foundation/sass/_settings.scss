@@ -73,7 +73,7 @@ $side-nav-font-size: 15px;
 }
 
 *{
-    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:   100%;
 	font-weight: normal;
 }
@@ -433,7 +433,7 @@ ul.side-nav {
 	}
 }
 
-.glossary-page-container, competitions-block-Styling {
+.glossary-page-container, .competitions-block-Styling {
 	h6 { 
 		font-size:14px; 
 		color:$gray
