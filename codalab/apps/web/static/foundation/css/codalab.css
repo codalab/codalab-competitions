@@ -3137,8 +3137,8 @@ h1, h2, h3 {
 }
 /* line 191, ../scss/foundation/components/_type.scss */
 h1 small, h2 small, h3 small {
-  font-size: 60%;
-  color: #b3b3b3;
+  font-size: 70%;
+  color: #999999;
   line-height: 0;
 }
 
@@ -3155,8 +3155,8 @@ h4, h5, h6 {
 }
 /* line 207, ../scss/foundation/components/_type.scss */
 h4 small, h5 small, h6 small {
-  font-size: 60%;
-  color: #b3b3b3;
+  font-size: 70%;
+  color: #999999;
   line-height: 0;
 }
 
@@ -3216,7 +3216,7 @@ b {
 
 /* line 244, ../scss/foundation/components/_type.scss */
 small {
-  font-size: 60%;
+  font-size: 70%;
   line-height: inherit;
 }
 
