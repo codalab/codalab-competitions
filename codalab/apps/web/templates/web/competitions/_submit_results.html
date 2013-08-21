@@ -1,4 +1,5 @@
 {% load codalab %}
+{% load staticfiles %}
 
 <div class="row right">
   <div class="small-12 columns">
@@ -23,9 +24,9 @@
 </div>
 
 <div class="row">
-  <div class="user_results">
-    <table class="prevResultSubmission dataTable" id="user_results">
-      <thead>
+  <div class="user_results" id="user_results_container">
+ <table class="prevResultSubmission dataTable" id="user_results">
+   <thead>
         <tr>
           <th width="250px">Submission</th>
           <th width="140px">Date</th>
@@ -36,44 +37,9 @@
           <th width="50px"></th>
         </tr>
       </thead>
-      <tbody>
-        {% for submission in my_active_phase_submissions %}
-          {% for result in submission.result.all %}
-          <tr id="{{submission.id}}-{{result.id}}">
-            <td>
-              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{result.name}}</a>
-              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
-                {% for score in result.scores.all %}
-                  <li>{{score.label}} : {{score.value}} </li>
-                {% endfor %}
-              </ul>
-            </td>
-            <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-            <td>{{result.notes}}</td>
-            <td>
-              {% for score in result.scores.all %}
-                {% if score.label == "Dice" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-            <td>
-              {% for score in result.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-            {% if result in active_phase.board.submissions %}
-              <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-            {% else %}
-              <td class="status not_submitted"></td>
-            {% endif %}
-            <td><i class="enclosed-foundicon-plus"></i></td>
-          </tr>
-          {% endfor %}
-        {% endfor %}
-      </tbody>
-    </table>
+     <tbody>
+     </tbody>
+ </table>
   </div>
 </div>
+
