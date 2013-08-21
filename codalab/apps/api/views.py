@@ -270,3 +270,21 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
     
+class SubmissionScoreViewSet(viewsets.ModelViewSet):
+    queryset = webmodels.SubmissionResult.objects.all()
+    serializer_class = serializers.CompetitionScoresSerial
+
+    def get_queryset(self):
+        kw = {}
+        competition_id = self.kwargs.get('competition_id',None)
+        phase_id = self.kwargs.get('phase_id',None)
+        participant_id = self.kwargs.get('participant_id',None)
+        if competition_id:
+            kw['submission__phase__competition__pk'] = competition_id
+        if phase_id:
+            kw['submission__phase__pk'] = phase_id
+        if participant_id:
+            kw['submission__participant__pk'] = participant_id
+        return self.queryset.filter(**kw)
+        
+competition_scores_list = SubmissionScoreViewSet.as_view( {'get':'list'} )

@@ -122,3 +122,20 @@ class CompetitionSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.Competition
         read_only_fields = ['image_url_base']
+
+class ScoreSerial(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.SubmissionScore
+        
+
+class CompetitionScoresSerial(serializers.ModelSerializer):
+    competition_id = serializers.IntegerField(source='submission.phase.competition.pk')
+    phase_id = serializers.IntegerField(source='submission.phase.pk')
+    phasenumber = serializers.IntegerField(source='submission.phase.pk')
+    partitipant_id = serializers.IntegerField(source='submission.participant.pk')
+    status = serializers.CharField(source='submission.status.codename')
+    status_details = serializers.CharField(source='submission.status_details')
+    scores = ScoreSerial(read_only=True)
+
+    class Meta:
+        model = webmodels.SubmissionResult
