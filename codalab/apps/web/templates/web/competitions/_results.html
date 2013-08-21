@@ -15,12 +15,12 @@
     <table class="prevResultSubmission dataTable" id="competition_results">
       <thead>
         <tr>
-          <th width="50px">Rank</th>
-          <th width="50px">User</th>
-          <th width="250px">Submission</th>
+          <th width="75px">Rank</th>
+          <th width="150px">User</th>
+          <th width="125px">Submission</th>
           <th width="140px">Date</th>
-          <th width="100px">Labels</th>
-          <th width="50px">Dice</th>
+          <th width="50px"></th>
+          <th width="100px">Dice</th>
           <th width="100px">Hausdorff</th>
         </tr>
       </thead>
@@ -48,7 +48,7 @@
             </td>
             <td>
               {% for score in submission.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
+                {% if score.label == "Hausdorff" %}
                   {{ score.value }}
                 {% endif %}
               {% endfor %}

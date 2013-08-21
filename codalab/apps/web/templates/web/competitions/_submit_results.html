@@ -27,9 +27,9 @@
     <table class="prevResultSubmission dataTable" id="user_results">
       <thead>
         <tr>
-          <th width="250px">Submission</th>
+          <th width="150px">Submission</th>
           <th width="140px">Date</th>
-          <th>Labels</th>
+          <th></th>
           <th>Dice</th>
           <th>Hausdorff</th>
           <th width="50px"></th>
@@ -59,7 +59,7 @@
             </td>
             <td>
               {% for score in result.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
+                {% if score.label == "Hausdorff" %}
                   {{ score.value }}
                 {% endif %}
               {% endfor %}
