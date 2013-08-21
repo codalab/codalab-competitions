@@ -73,7 +73,7 @@ def submission_get_results(submission_id,ct):
         # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
     status = submission.get_execution_status()
-    
+    print "Status: %s" % str(status)
     if status:
         submission.set_status(status['Status'].lower(), force_save=True)
         if status['Status'] in ("Submitted","Running"):
@@ -134,7 +134,7 @@ def submission_results_success_handler(sender,result=None,**kwargs):
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
     print "Successful submission"
-    # Fill in Dummy data
+    #Fill in Dummy data
     # import random
     # s = models.CompetitionSubmission.objects.get(pk=result)
     # s.set_status('accepted', force_save=True)
