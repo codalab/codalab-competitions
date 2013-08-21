@@ -1,7 +1,6 @@
 //
 // Button Variables
 //
-$primary-button-color: #676278;
 
 $include-html-button-classes: $include-html-classes !default;
 
@@ -119,9 +118,9 @@ $button-disabled-opacity: 0.6 !default;
     $bg-lightness: lightness($bg);
 
     background-color: $bg;
-    border-color: lighten($bg, $button-function-factor);
+    border-color: darken($bg, $button-function-factor);
     &:hover,
-    &:focus { background-color: darken($bg, $button-function-factor); }
+    &:focus { background-color: lighten($bg, $button-function-factor); }
 
     // We control the text color for you based on the background color.
     @if $bg-lightness > 70% {
@@ -206,7 +205,6 @@ $button-disabled-opacity: 0.6 !default;
   @media only screen {
 
     button, .button {
-      @include inset-shadow();
       @include single-transition(background-color);
 
       &.large  { @include button-size($padding:false, $full-width:false); }
