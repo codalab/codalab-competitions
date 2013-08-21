@@ -3,10 +3,7 @@ from django.views.generic import TemplateView
 
 from .. import views
 
-# partials_patterns = patterns('',
-#                              url(r'^indexpage$', views.CompetitionIndexPartial.as_view(template_name='web/competitions/_indexpage.html'),
-#                                  name='_competition_indexpage'),
-#                              )
+
 
 urlpatterns = patterns('',
                        url(r'^$', views.competition_index, name='competitions'),
