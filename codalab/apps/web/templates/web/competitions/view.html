@@ -128,6 +128,19 @@
 </div>
 {% endblock %}
 {% block js %}
+function load_user_results(participantid,phaseid) {
+
+ $.ajax({
+ type: 'GET',
+ url: '/my/_partials/' + phaseid + '/' + participantid + '/_submission_results',
+ cache: false,
+ success: function(data,status,xhdr) {
+   $('#user_results').html(data);
+   
+ }
+ });  
+
+}
 
     function fnFormatDetails ( prTable, nTr )
     {
@@ -233,6 +246,10 @@
             'bAutoWidth': false,
             'bSort'     : false
         });
+        $("#user_results_container").change(function() {
+           
+           prTable.fnDraw();
+        });
         var crTable = $("#competition_results").dataTable({
             "fnDrawCallback": function ( oSettings ) {
                 /* Need to redo the counters if filtered or sorted */
@@ -276,7 +293,7 @@
 
     $(document).ready(function ()
     {
-      
+      load_user_results({{my_participant.pk}},{{active_phase.pk}});
       $('#fileUpload').liteUploader(
       {
         script: '/api/competition/{{competition.id}}/submission/',
@@ -310,12 +327,16 @@
         },
         success: function (response)
         {
-          var response = $.parseJSON(response);
-          $.each(response.urls, function(i, url)
-          {
-            $('#previews').append($('<img>', {'src': url, 'width': 200}));
-          });
-          $('#response').html(response.message);
+          console.log(response);
+          // var response = $.parseJSON(response);
+          
+         // $.each(response.urls, function(i, url)
+         // { 
+         //   console.log(url);
+         //   $('#previews').append($('<img>', {'src': url, 'width': 200}));
+         // });
+          $('#response').html('Submitted');
+          $('#user_results_container').trigger('change');
         }
       });
     });
