@@ -4,7 +4,7 @@
 $include-html-panel-classes: $include-html-classes !default;
 
 // We use these to control the background and border styles
-$panel-bg: darken(#fff, 5%) !default;
+$panel-bg: darken(#fff, 8%) !default;
 $panel-border-style: solid !default;
 $panel-border-size: 1px !default;
 
@@ -17,7 +17,7 @@ $panel-margin-bottom: emCalc(20) !default;
 $panel-padding: emCalc(20) !default;
 
 // We use these to set default font colors
-$panel-font-color: #333 !default;
+$panel-font-color: #555 !default;
 $panel-font-color-alt: #fff !default;
 
 $panel-header-adjust: true !default;
