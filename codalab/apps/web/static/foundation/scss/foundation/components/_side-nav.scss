@@ -48,8 +48,6 @@ $side-nav-divider-color: darken(#fff, 10%) !default;
     &.active > a:first-child {
       color: $side-nav-link-color-active;
       font-weight: $side-nav-font-weight;
-      border-left: #676278 4px solid;
-      text-indent: 10px;
     }
 
     &.divider {
