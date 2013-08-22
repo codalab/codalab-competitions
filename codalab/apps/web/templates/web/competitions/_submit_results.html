@@ -29,7 +29,7 @@
         <tr>
           <th width="250px">Submission</th>
           <th width="140px">Date</th>
-          <th>Labels</th>
+          <th></th>
           <th>Dice</th>
           <th>Hausdorff</th>
           <th width="50px"></th>
@@ -49,7 +49,7 @@
               </ul>
             </td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-            <td>{{result.notes}}</td>
+            <td></td>
             <td>
               {% for score in result.scores.all %}
                 {% if score.label == "Dice" %}
@@ -59,7 +59,7 @@
             </td>
             <td>
               {% for score in result.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
+                {% if score.label == "Hausdorff" %}
                   {{ score.value }}
                 {% endif %}
               {% endfor %}

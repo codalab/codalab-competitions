@@ -23,15 +23,15 @@ import tasks
 ## Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
-    PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                         account_key=settings.AZURE_ACCOUNT_KEY,
+    PrivateStorage = StorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
+                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
 
-    BundleStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
+    BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
 
-    PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+    PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                         account_key=settings.AZURE_ACCOUNT_KEY,
                                         azure_container=settings.AZURE_CONTAINER)
 
