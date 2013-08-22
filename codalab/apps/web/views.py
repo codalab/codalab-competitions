@@ -74,6 +74,8 @@ class CompetitionDelete(DeleteView):
     # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
 
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
@@ -109,7 +111,7 @@ class CompetitionDetailView(DetailView):
                 for phase in competition.phases.all():
                     if phase.is_active:
                         context['active_phase'] = phase
-                    all_submissions[phase] = phase.competitionsubmission_set.all()
+                    all_submissions[phase] = phase.submissions.all()
                 context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
@@ -223,7 +225,49 @@ class MyCompetitionsEnteredPartial(ListView):
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
+class MySubmissionResultsPartial(TemplateView):
+    template_name = 'web/my/_submission_results.html'
+    
+    def get_context_data(self,**kwargs):
+        ctx = super(MySubmissionResultsPartial,self).get_context_data(**kwargs)
 
+        participant_id = kwargs.get('participant_id')
+        participant = models.CompetitionParticipant.objects.get(pk=participant_id)
+
+        phase_id = kwargs.get('phase_id')
+        phase = models.CompetitionPhase.objects.get(pk=phase_id)
+
+        ctx['active_phase'] = phase
+        ctx['my_active_phase_submissions'] = phase.submissions.filter(participant=participant)
+        
+        return ctx
+
+class MyCompetitionSubmisisonOutput(View):
+
+    def get(self,request,*args,**kwargs):
+        submission=models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        filetype = kwargs.get('filetype')
+        ext = kwargs.get('ext')
+        fileattr = filetype +'_file'
+        if hasattr(submission, fileattr):
+            f = getattr(submission, fileattr)
+            if f:                
+                return HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
+            else:
+                return HttpResponse(status=404) 
+        return HttpResponse(status=400) 
+                                                            
+        
+class SubmissionsTest(TemplateView):
+    template_name = 'web/my/submissions_test.html'
+
+    def get_context_data(self):
+        ctx = super(SubmissionsTest,self).get_context_data()
+
+        ctx['phase_id'] = self.kwargs.get('phase_id')
+        ctx['participant_id'] = self.kwargs.get('participant_id')
+        
+        return ctx
 
 # Bundle Views
 
