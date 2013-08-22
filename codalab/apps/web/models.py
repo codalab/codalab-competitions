@@ -321,8 +321,8 @@ def submission_file_blobkey(instance, filename="output.zip"):
                                                             filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
-    participant = models.ForeignKey(CompetitionParticipant)
-    phase = models.ForeignKey(CompetitionPhase)
+    participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
+    phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
