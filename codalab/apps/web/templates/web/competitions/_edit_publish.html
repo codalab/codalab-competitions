@@ -14,10 +14,10 @@
       <div class="CompetitionTypeDetailrow makePublicContainer">
         <div>
           {% if object.public and object.has_edits %}
-          <a id="btnPublish" class="globalBlueButton">publish changes</a>
+          <a id="btnPublish" class="small button">Publish Changes</a>
           {% else %}
 
-          <a id="btnPublish" class="globalBlueButton disabledStatus">publish changes</a>
+          <a id="btnPublish" class="small button disabledStatus">Publish Changes</a>
           {% endif %}
           <a class="helpLinkIcon publishHelp" href="{% url 'help_create_competition' %}#publish" title="Get help with creating a competition" target="_blank"></a>
         </div>

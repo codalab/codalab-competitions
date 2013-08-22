@@ -4,9 +4,9 @@
   <div class="small-12 columns">
     {% for phase in competition.phases.all %}
       {% if phase == active_phase %}
-        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button" id="phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
   </div>
@@ -15,7 +15,7 @@
   <p>Submit a new result set or view your previous submissions.</p>
 </div>
 <div class="row">
-  <button class="globalBlueButton" onclick="$('#fileUpload').click()">Submit Results</button>
+  <button class="button" onclick="$('#fileUpload').click()">Submit Results</button>
   <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
   <div id="details"></div>
   <div id="response"></div>
@@ -29,7 +29,7 @@
         <tr>
           <th width="250px">Submission</th>
           <th width="140px">Date</th>
-          <th>Labels</th>
+          <th></th>
           <th>Dice</th>
           <th>Hausdorff</th>
           <th width="50px"></th>
@@ -49,7 +49,7 @@
               </ul>
             </td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-            <td>{{result.notes}}</td>
+            <td></td>
             <td>
               {% for score in result.scores.all %}
                 {% if score.label == "Dice" %}
@@ -59,7 +59,7 @@
             </td>
             <td>
               {% for score in result.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
+                {% if score.label == "Hausdorff" %}
                   {{ score.value }}
                 {% endif %}
               {% endfor %}
