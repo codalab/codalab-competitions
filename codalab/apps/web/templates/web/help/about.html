@@ -1,11 +1,19 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}About{% endblock head_title %}
 {% block content %}
-
-<div class="row">
+<div class="row glossary-page-container">
+     <div class="large-3 columns">
+        <ul class="side-nav fixed">
+            <li class="active"><a href="#codalab">About CodaLab</a></li>
+            <li><a href="#collaborate">Collaborate with Experiments</a></li>
+            <li><a href="#compete">Compete in Challenges</a></li>
+            <li><a href="#yourdata">Your data in the cloud</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+        </ul>
+    </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns glossary-page-container">
+    <div class="large-9 columns">
         <a id="codalab"></a>
         <h4 class="firstrow">About CodaLab</h4>
         <p>
@@ -61,15 +69,14 @@
     </div>    
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->
-    <div class="large-3 pull-9 columns">
-        <ul class="side-nav">
-            <li class="active"><a href="#codalab">About CodaLab</a></li>
-            <li><a href="#collaborate">Collaborate with Experiments</a></li>
-            <li><a href="#compete">Compete in Challenges</a></li>
-            <li><a href="#yourdata">Your data in the cloud</a></li>
-            <li><a href="#glossary">Glossary</a></li>
-        </ul>
-    </div>
+   
 </div>
-
+ <script>
+     $(function() {
+         $(".side-nav > li").click(function () {
+             $(".side-nav > li").removeClass("active");
+             $(this).addClass("active");
+         });
+     });
+    </script>
 {% endblock content %}
