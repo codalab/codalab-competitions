@@ -23,15 +23,15 @@ import tasks
 ## Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
-    PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                         account_key=settings.AZURE_ACCOUNT_KEY,
+    PrivateStorage = StorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
+                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
 
-    BundleStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
+    BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
 
-    PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+    PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                         account_key=settings.AZURE_ACCOUNT_KEY,
                                         azure_container=settings.AZURE_CONTAINER)
 
@@ -321,8 +321,8 @@ def submission_file_blobkey(instance, filename="output.zip"):
                                                             filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
-    participant = models.ForeignKey(CompetitionParticipant)
-    phase = models.ForeignKey(CompetitionPhase)
+    participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
+    phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)

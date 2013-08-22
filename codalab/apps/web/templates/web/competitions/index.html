@@ -9,7 +9,7 @@
 	<div class="large-9 push-3 columns competitions">
 		<dl class="sub-nav">
 			<dt>Sort by:</dt>
-			<dd class="active"><a href="#">Newest</a></dd>
+			<dd class="active"><a href="#">Most Recent</a></dd>
 			<dd><a href="#">Most Active</a></dd>
 		</dl>
 		{% if not competitions %}
@@ -42,9 +42,10 @@
 		</div>
 		<div class="large-3  pull-9 columns ">
 			<img src="http://placehold.it/300x240&text=[stats]" />
+			<br><br>
 			<div class="panel">
-				<input placeholder="Filter Text" type="search"></input>
-				<h5>Show Only:</h5>
+				<input type="text" placeholder="Filter by Keyword"></input>
+				<h5>Show:</h5>
 				<div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
 					<ul>
 						<li>

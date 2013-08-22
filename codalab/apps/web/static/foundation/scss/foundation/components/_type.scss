@@ -29,8 +29,8 @@ $subheader-top-margin: .2em !default;
 $subheader-bottom-margin: .5em !default;
 
 // A general <small> styling
-$small-font-size: 60% !default;
-$small-font-color: lighten($header-font-color, 30%) !default;
+$small-font-size: 70% !default;
+$small-font-color: lighten($header-font-color, 20%) !default;
 
 // We use these to style paragraphs
 $paragraph-font-family: inherit !default;
@@ -152,6 +152,7 @@ $microformat-abbr-font-decoration: none !default;
     color: $anchor-font-color;
     text-decoration: $anchor-text-decoration;
     line-height: inherit;
+    font-weight: bold;
 
     &:hover,
     &:focus { color: $anchor-font-color-hover; }
