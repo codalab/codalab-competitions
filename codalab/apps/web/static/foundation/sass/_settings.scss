@@ -56,6 +56,7 @@ $side-nav-link-color: $background;
 $side-nav-link-color-active: $active;
 $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
+$purple-gray:#7a768b;
 
 @mixin linkStyle {
 	color:$link-color !important;
@@ -545,3 +546,63 @@ div.pending-approval-select.columns {
 		margin-bottom:2px;
 	 }
 }
+
+.glossary-page-container {
+       .fixed {
+              left:auto;
+              top:auto;
+              margin-left:0;
+              a {
+                     display:inline-block
+              }
+       }
+       h6 { 
+              font-size:16px; 
+              color:$purple-gray;
+              margin-bottom:0px;
+              }
+  
+       p { 
+              font-size:15px; 
+              color:$purple-gray;
+              padding-bottom:14px;
+              
+              }
+  
+       ol { 
+              font-size:13px; color:$gray;
+  
+              li {
+                     padding-bottom:10px;
+                     list-style-type:disc;
+              }
+       }
+  
+       ul { 
+              font-size:15px; 
+              color:$purple-gray;
+              margin-left:20px;
+  
+              li{
+                     padding-bottom:10px;
+                     list-style-type:none;
+                     b { 
+                           color:$purple-gray;
+                     }
+              }
+       }
+  
+       pre {
+              padding:10px;
+              background:$banner;
+              margin-bottom:15px;
+              }
+  
+       p a {
+              color:$link-color
+              }
+  
+       b {
+              color:$gray
+       }
+  }
