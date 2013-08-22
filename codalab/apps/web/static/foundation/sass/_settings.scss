@@ -2,7 +2,7 @@ $background: #739CB9;
 $foreground: white;
 $banner: #EBF2FB;
 $highlight: #739CB9;
-$active: #ffac31;
+$active: #676278;
 $gray: #666;
 $light-gray: #ccc;
 $light-medium-gray: #a4a4a4;
@@ -29,7 +29,7 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$anchor-font-color: $background;
+$anchor-font-color: $link-color;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
 
@@ -430,7 +430,9 @@ ul.side-nav {
 		&:active{background:none}
 	  }
 	li.active a {
-		color:$gray !important
+		color:$gray !important;
+		border-left: #676278 4px solid;
+		text-indent: 10px;
 	}
 } 
 

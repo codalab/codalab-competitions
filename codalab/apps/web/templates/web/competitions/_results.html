@@ -2,9 +2,9 @@
   <div class="small-12 columns">
     {% for phase in competition.phases.all %}
       {% if not phase.is_active %}
-        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button" id="phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
   </div>

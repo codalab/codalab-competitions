@@ -582,7 +582,6 @@ input[type="submit"][value="Delete"]
     color:#fff !important;
     text-align:center;
     border:solid 1px #B8A87F;
-    border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
     margin-right:14px;
@@ -964,9 +963,9 @@ input[type="submit"][value="Delete"]
     padding:10px;
 }
 .competitionTileLftStrip{
-    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 2px;
+    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 4px;
     display:table-cell;
-    width:35px;
+    width:30px;
     padding:0 !important;
     border:solid 1px #739CB9 !important;
 }
@@ -1704,16 +1703,16 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
 }
 .participateInfoBlock .infoStatusBar {
     height:18px;
-    background:#78ade6;
+    background:#739CB9;
 }
 .unResisted .infoStatusBar {
-    background:#d0eff6;
+    background:#8BC7BF;
 }
 .pendingApproval .infoStatusBar { 
-    background:#ffac31; 
+    background:#D1BF90; 
 }
 .rejectedApproval .infoStatusBar {
-    background:#ea5a23;
+    background:#477473;
 }
 .approvedApproval .infoStatusBar {
     background:#739CB9;
@@ -1742,7 +1741,7 @@ font-weight:normal !important;
 }
 .prevResultSubmission th {
     text-transform:uppercase;
-    background:#4e82bd;
+    background:#739CB9;
     padding:13px 10px;
     text-align:left;
     font-size:13px;
@@ -2729,5 +2728,14 @@ ul.leftNavigation li.active a{
     font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
     font-style: italic;
     color: #777;
+}
+.button a, .button a:hover {
+    color: #FFF;
+}
+.glossary-page-container h4 {
+    padding-top: 60px;
+}
+.glossary-page-container h4.firstrow {
+    margin-top: -60px;
 }
 
