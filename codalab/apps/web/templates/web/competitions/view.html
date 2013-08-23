@@ -135,6 +135,7 @@
         console.log(nTr.id);
         console.log(aData);
         var sOut = '<div class="submission_details">';
+
         sOut += '<div class="small-4 push-8 columns">';
         submission = nTr.id.split("-")[0];
         result = nTr.id.split("-")[1];
@@ -148,11 +149,9 @@
         sOut += '</div>';        
 
         sOut += '<div class="small-8 pull-4 columns">';
-        /*
-        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Scoring Details</a>';
-        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Output</a>';
-        sOut += '<a class="globalBlueButtonSmallFlexi" href="#"'+aData[0]+'>Standard Error</a>';
-        */
+        sOut += '<a href="/my/competition/submission/' + submission + '/output.zip">Scoring output</a></br>';
+        sOut += '<a href="/my/competition/submission/' + submission + '/stdout.txt" target="_blank">Standard output</a></br>';
+        sOut += '<a href="/my/competition/submission/' + submission + '/stderr.txt" target="_blank">Standard error</a>';
         sOut += '</div>';
 
         sOut += '</div>';

@@ -140,7 +140,7 @@ class AzureBlockBlobFile(RawIOBase):
         return content
     
     def write(self,data):
-        blockid = str(uuid.uuid4().hex) + str(uuid.uuid4().hex)
+        blockid = "%6d" % len(self._block_list)
         try:
             self.connection.put_block(self.container, self.name, data, blockid)
             self._block_list.append((blockid,len(data)))
