@@ -691,6 +691,11 @@ div.pending-approval-select.columns {
   color: #666666;
 }
 
+/* line 611, ../sass/_settings.scss */
+.hide {
+  display: none !important;
+}
+
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";

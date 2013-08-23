@@ -1,6 +1,6 @@
 $background: #739CB9;
 $foreground: white;
-$banner: #f5f5f5;
+$banner: #F5F5F5;
 $highlight: #739CB9;
 $active: #676278;
 $gray: #666;
@@ -606,3 +606,8 @@ div.pending-approval-select.columns {
               color:$gray
        }
   }
+  
+.hide
+{
+	display:none !important;
+}
