@@ -16,6 +16,14 @@ from apps.web import tasks
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
+try:
+    import azure
+    import azure.storage
+except ImportError:
+    raise ImproperlyConfigured(
+        "Could not load Azure bindings. "
+        "See https://github.com/WindowsAzure/azure-sdk-for-python")
+
 def competition_index(request):
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
@@ -242,21 +250,27 @@ class MySubmissionResultsPartial(TemplateView):
         
         return ctx
 
-class MyCompetitionSubmisisonOutput(View):
+class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
 
     def get(self,request,*args,**kwargs):
         submission=models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
-        ext = kwargs.get('ext')
-        fileattr = filetype +'_file'
+        name, ext = filetype.split('.')
+        fileattr = name +'_file'
+        resp = None
         if hasattr(submission, fileattr):
             f = getattr(submission, fileattr)
-            if f:                
-                return HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
-            else:
-                return HttpResponse(status=404) 
-        return HttpResponse(status=400) 
-                                                            
+            if f:   
+                try:             
+                    resp = HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
+                except azure.WindowsAzureMissingResourceError:
+                    # for stderr.txt which does not exist when no errors have occurred
+                    # this may hide a true 404 in an unexpected circumstances
+                    resp = HttpResponse("", status=200, content_type='text/plain')
+                except:
+                    resp = HttpResponse("There was an error retrieving file '%s'. Please try again later or report the issue." % filetype, status=200, content_type='text/plain')
+        return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
+                                                           
         
 class SubmissionsTest(TemplateView):
     template_name = 'web/my/submissions_test.html'

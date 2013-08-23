@@ -298,27 +298,27 @@ def submission_runfile_name(instance, filename):
                                                             instance.participant.user.pk,
                                                             instance.submission_number)
 
-def submission_output_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/output.zip" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_stdout_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/stdout.txt" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_stderr_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/stderr.txt" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_file_blobkey(instance, filename="output.zip"):
+def submission_output_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stdout_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stderr_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_file_blobkey(instance, filename="run/output.zip"):
     return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number,
-                                                            filename)
+                                                       instance.phase.pk,
+                                                       instance.participant.user.pk,
+                                                       instance.submission_number,
+                                                       filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
