@@ -266,7 +266,7 @@ $cursor-text-value: text !default;
   }
 
   html,
-  body { font-size: $base-font-size; }
+  body { font-size: $base-font-size; overflow: auto; }
 
   // Default body styles
   body {
