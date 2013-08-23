@@ -10,7 +10,8 @@
 		<dl class="sub-nav">
 			<dt>Sort by:</dt>
 			<dd class="active"><a href="#">Most Recent</a></dd>
-			<dd><a href="#">Most Active</a></dd>
+			<dd><!-- ////////////////  Commented out until we have activity metrics  /////////////////
+			<a href="#">Most Active</a></dd> -->
 		</dl>
 		{% if not competitions %}
 		<p>There are no competitions.</p>
@@ -36,13 +37,13 @@
 						</div>
 					</article>
 				</a>
-			</div>                
+			</div>                	
 			{% endfor %}
 			{% endif %}
 		</div>
 		<div class="large-3  pull-9 columns ">
-			<img src="http://placehold.it/300x240&text=[stats]" />
-			<br><br>
+			<!-- ////////////////  Commented out until we have stats  /////////////////
+			<img src="http://placehold.it/300x240&text=[stats]" />  -->
 			<div class="panel">
 				<input type="text" placeholder="Filter by Keyword"></input>
 				<h5>Show:</h5>
