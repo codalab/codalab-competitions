@@ -71,12 +71,14 @@
     <!-- This is source ordered to be pulled to the left on larger screens -->
    
 </div>
- <script>
-     $(function() {
-         $(".side-nav > li").click(function () {
-             $(".side-nav > li").removeClass("active");
-             $(this).addClass("active");
-         });
-     });
-    </script>
 {% endblock content %}
+{% block js %}
+    $(function () {
+        $(".side-nav > li").click(function () {
+            $(".side-nav > li").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liAbout").addClass("active");
+    });
+    {% endblock js %}
