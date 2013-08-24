@@ -104,69 +104,6 @@ for status, participant in participants:
 #  End BRaTS 2012 ----
 #
 
-#
-###  Start SIG Spatial Cup ----
-###
-##
-### ACM SIG Spatial Cup
-##sigsc_name = "ACM SIGSPATIAL Cup"
-##sigsc_description = """
-##	With the goal of encouraging innovation in a fun way, ACM SIGSPATIAL is hosting an algorithm contest about 
-##	map matching, which is the problem of correctly matching a sequence of location measurements to roads.
-##"""
-##sigsc, created = Competition.objects.get_or_create(title=sigsc_name, creator=guest1, modified_by=guest1, description=sigsc_description)
-##
-##details_category = ContentCategory.objects.get(name="Learn the Details")
-##participate_category = ContentCategory.objects.get(name="Participate")
-##pc,_ = PageContainer.objects.get_or_create(object_id=sigsc.id, content_type=ContentType.objects.get_for_model(Competition))
-##sigsc.pagecontent = pc
-##sigsc.save()
-##
-### Page.objects.create(category=details_category, container=pc,  codename="overview",
-### 			   		defaults=dict(label="Overview", rank=0,
-### 					html=open(os.path.join(os.path.dirname(__file__), "example_overview.html")).read()))
-### Page.objects.create(category=details_category, container=pc,  codename="evaluation", 
-### 			   		defaults=dict(label="Evaluation", rank=1,
-### 					html=open(os.path.join(os.path.dirname(__file__), "example_evaluation.html")).read()))
-### Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
-###                     defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "example_terms_and_conditions.html")).read()))
-### Page.objects.create(category=participate_category, container=pc,  codename="get_data",
-###                     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "example_data.html")).read()))
-### Page.objects.create(category=participate_category, container=pc,  codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
-##
-### Logo
-##sigsc.image=File(open(os.path.join(root_dir, "fixtures", "images", "sigspatial.png"), 'rb'))
-##
-### Save the updates
-##sigsc.save()
-### print sigsc
-##
-### Phases for the competition
-##day_delta = datetime.timedelta(days=30)
-##for phase in [1, 2]:
-##	phase_start = start_date + (day_delta * phase)
-##	p, created = CompetitionPhase.objects.get_or_create(competition=sigsc, phasenumber=phase, label="Phase %d" % phase,
-##														start_date=phase_start, max_submissions=4)
-##
-### Participants for the competition
-##participants = [ User.objects.get(username="guest%d" % random.choice(range(1,10))) for i in range(random.choice(range(1, 5)))]
-### print participants
-##
-### Participant statuses, if they haven't been created before
-##statuses = ParticipantStatus.objects.all()
-### print statuses
-##
-### Add participants to the competition with random statuses
-##for participant in participants:
-##	status = random.choice(statuses)
-##	# print "Adding %s to competition %s with status %s" % (participant, sigsc, status)
-##	resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=sigsc, 
-##																				  defaults={'status':status})
-##
-###
-###  End SIG Spatial Cup / Start Spine Localization ----
-###
-
 # Spine Localization
 spine_name = "Spine Localization Example"
 spine_description = """
