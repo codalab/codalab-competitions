@@ -34,6 +34,6 @@ REM Make test users
 python codalab\scripts\users.py
 
 REM Make example challenges
-python codalab\scripts\challenges.py
+python codalab\scripts\competitions.py
 
 ECHO "You are now ready to run: python codalab\manage.py runserver"
