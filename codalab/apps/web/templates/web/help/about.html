@@ -4,7 +4,7 @@
 <div class="row glossary-page-container">
      <div class="large-3 columns">
         <ul class="side-nav fixed">
-            <li class="active"><a href="#codalab">About CodaLab</a></li>
+            <li><a href="#codalab" class="active">About CodaLab</a></li>
             <li><a href="#collaborate">Collaborate with Experiments</a></li>
             <li><a href="#compete">Compete in Challenges</a></li>
             <li><a href="#yourdata">Your data in the cloud</a></li>
@@ -74,11 +74,11 @@
 {% endblock content %}
 {% block js %}
     $(function () {
-        $(".side-nav > li").click(function () {
-            $(".side-nav > li").removeClass("active");
+        $(".side-nav > li > a").click(function () {
+            $(".side-nav > li > a").removeClass("active");
             $(this).addClass("active");
         });
-        $(".top-bar-section ul > li").removeClass("active");
+        $(".top-bar-section ul > li > a").removeClass("active");
         $("#liAbout").addClass("active");
     });
     {% endblock js %}

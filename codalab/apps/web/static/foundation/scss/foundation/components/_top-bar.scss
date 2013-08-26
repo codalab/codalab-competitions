@@ -76,7 +76,7 @@ $topbar-sticky-class: ".sticky" !default;
 
   // Wrapped around .top-bar to make it stick to the top
   .fixed {
-    width: 100%;
+    // width: 100%; /////// commented out b/c it was breaking side-nav on about page
     #{$default-float}: 0;
     position: fixed;
     top: 0;
