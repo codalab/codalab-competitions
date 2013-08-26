@@ -16,6 +16,14 @@ from apps.web import tasks
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
+try:
+    import azure
+    import azure.storage
+except ImportError:
+    raise ImproperlyConfigured(
+        "Could not load Azure bindings. "
+        "See https://github.com/WindowsAzure/azure-sdk-for-python")
+
 def competition_index(request):
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
@@ -26,9 +34,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
+    denied=models.ParticipantStatus.objects.get(codename="denied")
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
-        'competitions_im_in' : request.user.participation.all()
+        'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
 
@@ -73,13 +82,15 @@ class CompetitionDelete(DeleteView):
     # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
 
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
-
+        competition = context['object']
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
@@ -92,18 +103,24 @@ class CompetitionDetailView(DetailView):
             side_tabs[category] = tc 
         context['tabs'] = side_tabs
         submissions=dict()
+        all_submissions=dict()
         try:
-            if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
-                context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
-                context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
-                for phase in context['object'].phases.all():
-                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
+                context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
+                context['my_participant'] = competition.participants.get(user=self.request.user)
+                for phase in competition.phases.all():
+                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
-                        context['active_phase_submissions'] = submissions[phase]
+                        context['my_active_phase_submissions'] = submissions[phase]
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
+                for phase in competition.phases.all():
+                    if phase.is_active:
+                        context['active_phase'] = phase
+                    all_submissions[phase] = phase.submissions.all()
+                context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
             pass
@@ -198,7 +215,6 @@ class CompetitionIndexPartial(TemplateView):
         return context
 
 class MyCompetitionsManagedPartial(ListView):
-    
     model = models.Competition
     template_name = 'web/my/_managed.html'
     queryset = models.Competition.objects.all()
@@ -207,7 +223,6 @@ class MyCompetitionsManagedPartial(ListView):
         return self.queryset.filter(creator=self.request.user)
 
 class MyCompetitionsEnteredPartial(ListView):
-    
     model = models.CompetitionParticipant
     template_name = 'web/my/_entered.html'
     queryset = models.CompetitionParticipant.objects.all()
@@ -218,7 +233,55 @@ class MyCompetitionsEnteredPartial(ListView):
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
+class MySubmissionResultsPartial(TemplateView):
+    template_name = 'web/my/_submission_results.html'
+    
+    def get_context_data(self,**kwargs):
+        ctx = super(MySubmissionResultsPartial,self).get_context_data(**kwargs)
 
+        participant_id = kwargs.get('participant_id')
+        participant = models.CompetitionParticipant.objects.get(pk=participant_id)
+
+        phase_id = kwargs.get('phase_id')
+        phase = models.CompetitionPhase.objects.get(pk=phase_id)
+
+        ctx['active_phase'] = phase
+        ctx['my_active_phase_submissions'] = phase.submissions.filter(participant=participant)
+        
+        return ctx
+
+class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+
+    def get(self,request,*args,**kwargs):
+        submission=models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        filetype = kwargs.get('filetype')
+        name, ext = filetype.split('.')
+        fileattr = name +'_file'
+        resp = None
+        if hasattr(submission, fileattr):
+            f = getattr(submission, fileattr)
+            if f:   
+                try:             
+                    resp = HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
+                except azure.WindowsAzureMissingResourceError:
+                    # for stderr.txt which does not exist when no errors have occurred
+                    # this may hide a true 404 in an unexpected circumstances
+                    resp = HttpResponse("", status=200, content_type='text/plain')
+                except:
+                    resp = HttpResponse("There was an error retrieving file '%s'. Please try again later or report the issue." % filetype, status=200, content_type='text/plain')
+        return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
+                                                           
+        
+class SubmissionsTest(TemplateView):
+    template_name = 'web/my/submissions_test.html'
+
+    def get_context_data(self):
+        ctx = super(SubmissionsTest,self).get_context_data()
+
+        ctx['phase_id'] = self.kwargs.get('phase_id')
+        ctx['participant_id'] = self.kwargs.get('participant_id')
+        
+        return ctx
 
 # Bundle Views
 

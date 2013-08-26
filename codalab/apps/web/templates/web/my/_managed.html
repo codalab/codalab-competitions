@@ -17,15 +17,15 @@
             <div class="subContainerPadding">
               <div class="articleHeadingContainer">
                 <h3>{{ item.title }}</h3>
-                <label>by {{ item.created_by }}</label>
+                <label>{{ item.creator }}</label>
               </div>
               <p>{{ item.description }}</p>
             </div>
           </div>
           <div class="small-10 small-centered columns">
-            <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
-            <a href="{% url 'my_edit_competition' pk=item.pk %}"><button class="globalYellowButtonSmall">Edit</button></a>
-            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="globalYellowButtonSmall">Participants</button></a>
+            <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
+            <a href="#"><button class="secondary button">Edit</button></a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
          </div>
        </div>
      </article>

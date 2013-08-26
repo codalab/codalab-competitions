@@ -4,8 +4,8 @@
 $include-html-type-classes: $include-html-classes !default;
 
 // We use these to control header font styles
-$header-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !default;
-$header-font-weight: bold !default;
+$header-font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$header-font-weight: lighter !default;
 $header-font-style: normal !default;
 $header-font-color: #222 !default;
 $header-line-height: 1.4 !default;
@@ -29,8 +29,8 @@ $subheader-top-margin: .2em !default;
 $subheader-bottom-margin: .5em !default;
 
 // A general <small> styling
-$small-font-size: 60% !default;
-$small-font-color: lighten($header-font-color, 30%) !default;
+$small-font-size: 70% !default;
+$small-font-color: lighten($header-font-color, 20%) !default;
 
 // We use these to style paragraphs
 $paragraph-font-family: inherit !default;
@@ -152,6 +152,7 @@ $microformat-abbr-font-decoration: none !default;
     color: $anchor-font-color;
     text-decoration: $anchor-text-decoration;
     line-height: inherit;
+    font-weight: bold;
 
     &:hover,
     &:focus { color: $anchor-font-color-hover; }
@@ -178,7 +179,23 @@ $microformat-abbr-font-decoration: none !default;
   }
 
   /* Default header styles */
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3 {
+    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: lighter;
+    font-style: $header-font-style;
+    color: $header-font-color;
+    text-rendering: $header-text-rendering;
+    margin-top: $header-top-margin;
+    margin-bottom: $header-bottom-margin;
+    line-height: $header-line-height - emCalc(3);
+
+    small {
+      font-size: $small-font-size;
+      color: $small-font-color;
+      line-height: 0;
+    }
+  }
+  h4, h5, h6 {
     font-family: $header-font-family;
     font-weight: $header-font-weight;
     font-style: $header-font-style;
@@ -193,7 +210,7 @@ $microformat-abbr-font-decoration: none !default;
       color: $small-font-color;
       line-height: 0;
     }
-  }
+  } 
 
   h1 { font-size: $h1-font-size - emCalc(10); }
   h2 { font-size: $h2-font-size - emCalc(10); }

@@ -26,17 +26,26 @@ def submission_run(url,submission_id):
     dataset = 'competition/1/1/data/reference.zip'
 
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
     inputfile = ContentFile(
 """ref: %s
 res: %s
 """ % (dataset, submission.file.name))   
     submission.inputfile.save('input.txt', inputfile)
+    # Generate run bundle, which binds the input bundle to the scoring program
     runfile = ContentFile(
 """program: %s
 input: %s
 """ % (program, submission.inputfile.name))
     submission.runfile.save('run.txt', runfile)
+    # Log start of evaluation to stdout.txt
+    stdoutfile = ContentFile(
+"""Standard output file for submission #%s:
+
+""" % (submission.submission_number))
+    submission.stdout_file.save('run/stdout.txt', stdoutfile)
     submission.save()
+    # Submit the request to the computation service
     headers = {'content-type': 'application/json'}
     data = json.dumps(submission.runfile.name)
     res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
@@ -73,7 +82,7 @@ def submission_get_results(submission_id,ct):
         # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
     status = submission.get_execution_status()
-    
+    print "Status: %s" % str(status)
     if status:
         submission.set_status(status['Status'].lower(), force_save=True)
         if status['Status'] in ("Submitted","Running"):
@@ -93,50 +102,36 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         print "Querying for results again"
         submission_get_results.apply_async((submission_id,ct),countdown=5)
     elif state == 'complete':
-        print "Run is complete"
-        # Get files
-        blobservice = BlobService(account_name=settings.AZURE_ACCOUNT_NAME, account_key=settings.AZURE_ACCOUNT_KEY)
-        output_keyname = models.submission_file_blobkey(submission, "run/output.zip")
-        stdout_keyname = models.submission_file_blobkey(submission, "run/stdout.txt")
-        # stderr_keyname = models.submission_file_blobkey(submission, "stderr.txt")
-        print "Retrieving blobs..."
-        stdout = blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, stdout_keyname)
-        # stderr = blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, stderr_keyname)
-
-        # Open the zip file and extract scores.txt
-        ozip = zipfile.ZipFile(io.BytesIO(blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, output_keyname)))
-        print "Retrieved all blobs and opened output.zip."
+        print "Run is complete (submission.id: %s)" % submission.id
+        submission.output_file.name = models.submission_file_blobkey(submission)
+        submission.stderr_file.name = models.submission_stderr_filename(submission)
+        submission.save()
+        print "Retrieving output.zip and 'scores.txt' file"
+        ozip = zipfile.ZipFile(io.BytesIO(submission.output_file.read()))
         scores = open(ozip.extract('scores.txt'), 'r').read()
         print "Processing scores..."
+        first = True
+        result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
+        result.name = submission.submission_number
+        result.save()
         for line in scores.split("\n"):
             if len(line) > 0:
-                result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
-                labels = ["Filename", "Dice", "Jaccard", "Sensitivity", "Precision", "Average Distance", "Hausdorff Distance", "Kappa", "Labels"]
-                for label,value in zip(labels, line.split(",")):
-                    print "Label: %s" % label
-                    print "Value: %s" % value
-                    if label == "Filename":
-                        result.name = value.lstrip("..\\input\\res\\")
-                        result.save()
-                    elif label == "Labels":
-                        result.notes = value
-                        result.save()
-                    elif label not in ["Filename", "Labels"]:
-                        if label == "Dice":
-                            result.aggregate = float(value)
-                            result.save()
-                        models.SubmissionScore.objects.create(result=result, label=label, value=float(value))
-                    else:
-                        print "Error parsing scores.txt"
+                label, value = line.split(":")
+                if first:
+                    first = False
+                    result.aggregate = float(value)
+                    result.save()
+                models.SubmissionScore.objects.create(result=result, label=label.strip(), value=float(value))
+        print "Done processing scores..."
     elif state == 'limit_exceeded':
         print "Run limit, or time limit exceeded."
-    elif state == 'failure':
-        print "Some failure happened"
+    else:
+        print "A failure happened"
 
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
     print "Successful submission"
-    # Fill in Dummy data
+    #Fill in Dummy data
     # import random
     # s = models.CompetitionSubmission.objects.get(pk=result)
     # s.set_status('accepted', force_save=True)

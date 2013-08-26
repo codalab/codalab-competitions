@@ -42,6 +42,7 @@
   {% block extra_headers %}{% endblock extra_headers %}
   {% analytical_head_top %}
   {% analytical_head_bottom %}
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
   </head>
 
   <body class="body">
@@ -53,23 +54,21 @@
           <nav class="top-bar">
             <ul class="title-area">
               <!-- Title Area -->
-              <li class="name cl-logo">
-                <a href="/"> <img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a>
-              </li>
+              <li class="name cl-logo"><a href="/"><img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a></li>
               <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
             </ul>
             <section class="top-bar-section">
               <!-- Left Nav Section -->
               <ul class="left">
-                <li><a href="/competitions">Competitions</a></li>
-                <!-- <li><a href="/experiments">Experiments</a></li>                -->
+                <li id="liExperiments"><a href="/experiments">Experiments</a></li>               
+                <li id="liCompetitions"><a href="/competitions">Competitions</a></li>
                 {% if user.is_authenticated %}
-                  <li><a href="/my">My CodaLab</a></li>
+                  <li id="liMyCodalab"><a href="/my">My CodaLab</a></li>
                 {% else %}
                   <li><a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
-                <li><a href="/help/about.html">About</a></li>
+                <li id="liAbout"><a href="/help/about.html">About</a></li>
               </ul>
 
               <!-- Right Nav Section -->
@@ -124,7 +123,7 @@
           <ul class="inline-list left">
             <li>
                 <span>
-                  <a href="http://codalab.github.io/codalab/" target="_blank">CodaLab</a>
+                  <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
                 </span>
             </li>
@@ -136,7 +135,6 @@
             <!-- <li>CodaLab v.0 ()</li> -->
             <li><a href="/help">Help</a></li>
             <li><a href="mailto:info@codalab.org">Feedback</a></li>
-            <li><a href="https://github.com/codalab/codalab">Developers</a></li>
             <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
             <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>
           </ul>
@@ -145,7 +143,6 @@
 
 
     <!-- Check for Zepto support, load jQuery if necessary -->
-    <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
     <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.liteuploader-1.4.1.min.js"></script>
@@ -169,6 +166,5 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
-
   </body>
 </html>

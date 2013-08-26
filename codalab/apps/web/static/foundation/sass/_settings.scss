@@ -1,8 +1,8 @@
 $background: #739CB9;
 $foreground: white;
-$banner: #EBF2FB;
+$banner: #F5F5F5;
 $highlight: #739CB9;
-$active: #ffac31;
+$active: #676278;
 $gray: #666;
 $light-gray: #ccc;
 $light-medium-gray: #a4a4a4;
@@ -14,7 +14,7 @@ $background-gray:#f8f8f8;
 $white:#fff;
 $text-color-gray:#3b3b3b;
 
-$primary: $background;
+$primary-color: $background;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -29,7 +29,7 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$anchor-font-color: $background;
+$anchor-font-color: $link-color;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
 
@@ -38,6 +38,7 @@ $inline-list-bottom-margin: 0;
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
 
+$primary-button-color: #676278;
 $button-font-color: $foreground;
 
 $section-title-color: $highlight;
@@ -55,6 +56,7 @@ $side-nav-link-color: $background;
 $side-nav-link-color-active: $active;
 $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
+$purple-gray:#7a768b;
 
 @mixin linkStyle {
 	color:$link-color !important;
@@ -73,7 +75,7 @@ $side-nav-font-size: 15px;
 }
 
 *{
-    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:   100%;
 	font-weight: normal;
 }
@@ -171,7 +173,7 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 	padding: 0px;
 }
 
-td > i {
+td > i, td > a > i {
 	color: $background;
 }
 
@@ -304,7 +306,7 @@ a > i {
 	font-weight: 100;
 	position: relative;
 	text-align: center;
-	background: #D7CDBF;
+	background: #D0D0D0;
 	padding-top: 70px;
 	margin: 0 auto;
 	width: 100%;
@@ -429,23 +431,25 @@ ul.side-nav {
 		&:active{background:none}
 	  }
 	li.active a {
-		color:$gray !important
+		color:$gray !important;
+		border-left: #676278 4px solid;
+		text-indent: 10px;
 	}
-}
+} 
 
 .glossary-page-container, competitions-block-Styling {
 	h6 { 
-		font-size:14px; 
-		color:$gray
+		font-size:18px; 
+		color:$gray;
 		}
 
 	p { 
-		font-size:12px; 
-		color:$gray
+		font-size:14px; 
+		color:$gray;
 		}
 
 	ol { 
-		font-size:13px; color:$gray;
+		font-size:14px; color:$gray;
 
 		li {
 			padding-bottom:10px;
@@ -454,7 +458,7 @@ ul.side-nav {
 	}
 
 	ul { 
-		font-size:13px; 
+		font-size:14px; 
 		color:$gray;
 		margin-left:20px;
 
@@ -471,11 +475,11 @@ ul.side-nav {
 		}
 
 	p a {
-		color:$link-color
+		color:$link-color;
 		}
 
 	b {
-		color:$gray
+		color:$gray;
 	}
 }
 
@@ -514,8 +518,8 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 
 		p a {
 			@include linkStyle;
-			&:hover{color:$active !important}
-			&:active{background:none !important}
+			&:hover{color:$active !important;}
+			&:active{background:none !important;}
 		}
 	}
 
@@ -541,4 +545,69 @@ div.pending-approval-select.columns {
 		color:$highlight;
 		margin-bottom:2px;
 	 }
+}
+
+.glossary-page-container {
+       .fixed {
+              left:auto;
+              top:auto;
+              margin-left:0;
+              a {
+                     display:inline-block
+              }
+       }
+       h6 { 
+              font-size:16px; 
+              color:$purple-gray;
+              margin-bottom:0px;
+              }
+  
+       p { 
+              font-size:15px; 
+              color:$purple-gray;
+              padding-bottom:14px;
+              
+              }
+  
+       ol { 
+              font-size:13px; color:$gray;
+  
+              li {
+                     padding-bottom:10px;
+                     list-style-type:disc;
+              }
+       }
+  
+       ul { 
+              font-size:15px; 
+              color:$purple-gray;
+              margin-left:20px;
+  
+              li{
+                     padding-bottom:10px;
+                     list-style-type:none;
+                     b { 
+                           color:$purple-gray;
+                     }
+              }
+       }
+  
+       pre {
+              padding:10px;
+              background:$banner;
+              margin-bottom:15px;
+              }
+  
+       p a {
+              color:$link-color
+              }
+  
+       b {
+              color:$gray
+       }
+  }
+  
+.hide
+{
+	display:none !important;
 }

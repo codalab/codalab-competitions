@@ -1,37 +1,45 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}About{% endblock head_title %}
 {% block content %}
-
-<div class="row">
+<div class="row glossary-page-container">
+     <div class="large-3 columns">
+        <ul class="side-nav fixed">
+            <li><a href="#codalab" class="active">About CodaLab</a></li>
+            <li><a href="#collaborate">Collaborate with Experiments</a></li>
+            <li><a href="#compete">Compete in Challenges</a></li>
+            <li><a href="#yourdata">Your data in the cloud</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+        </ul>
+    </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns glossary-page-container">
-        <h6>About CodaLab</h6>
-        <a id="codaLab"></a>
+    <div class="large-9 columns">
+        <a id="codalab"></a>
+        <h4 class="firstrow">About CodaLab</h4>
         <p>
             CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
         </p>
 
-        <h6>Collaborate with Experiments</h6>
         <a id="collaborate"></a>
+        <h4>Collaborate with Experiments</h4>
         <p>
             CodaLab Experiments are a unique amalgamation of documentation and code that you can use to express ideas programmatically and collaborate with others. CodaLab experiments utilize the <a href="http://www.python.org/">Python</a> programming language and <a href="http://daringfireball.net/projects/markdown/basics">Markdown</a> syntax. A wide variety of libraries for mathematics, charting and more are installed and available for use.
         </p>
 
-        <h6>Compete in Challenges</h6>
         <a id="compete"></a>
+        <h4>Compete in Challenges</h4>
         <p>
             Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>.
         </p>
 
-        <h6>Your Data in the Cloud</h6>
         <a id="yourdata"></a>
+        <h4>Your Data in the Cloud</h4>
         <p>
             Datasets form the basis for competitions. CodaLab gives you the ability to upload data to Microsoft Azure&#8482; for use in competitions. Datasets can include CT scans, MRIs, and other types of images. Each dataset represents a problem or set of problems to solve. For example, a competition could be created to find the most efficient way of segmenting mitochondria in a scanned cross-section of a human brain.
         </p>
 
-        <h6>Glossary</h6>
         <a id="glossary"></a>
+        <h4>Glossary</h4>
         <ul>
             <li>
                 <b>Bundle</b> - A generalization of a dataset that is used to represent both datasets, statistics, trained models, and predictions. A bundle is essentially a directory that contains various types of data, such as datasets uploaded by a user, as well as program output. 
@@ -58,20 +66,19 @@
                 <b>ePaper</b> - The basic unit of organization of bundles and programs. A notebook is a document that lists and describes bundles and programs. Similar to an <a href="http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html">IPython notebook</a>, CodaLab notebooks are a sequence of HTML/Markdown blocks interleaved with blocks of code from programs, datasets and experiments.
             </li>
         </ul>
-    </div>
-    <div>
-        <!-- Nav Sidebar -->
-        <!-- This is source ordered to be pulled to the left on larger screens -->
-        <div class="large-3 pull-9 columns">
-            <ul class="five side-nav">
-                <li class="active"><a href="#codalab">About CodaLab</a></li>
-                <li><a href="#collaborate">Collaborate with Experiments</a></li>
-                <li><a href="#compete">Compete in Challenges</a></li>
-                <li><a href="#yourdata">Your data in the cloud</a></li>
-                <li><a href="#glossary">Glossary</a></li>
-            </ul>
-        </div>
-    </div>
+    </div>    
+    <!-- Nav Sidebar -->
+    <!-- This is source ordered to be pulled to the left on larger screens -->
+   
 </div>
-
 {% endblock content %}
+{% block js %}
+    $(function () {
+        $(".side-nav > li > a").click(function () {
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liAbout").addClass("active");
+    });
+    {% endblock js %}

@@ -21,24 +21,24 @@ import tasks
 
 ## Needed for computation service handling
 ## Hack for now
-PrivateStorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
-    PrivateStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                         account_key=settings.AZURE_ACCOUNT_KEY,
+    PrivateStorage = StorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
+                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
                                          azure_container=settings.PRIVATE_AZURE_CONTAINER)
 
-    BundleStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
+    BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
 
-    PublicStorage = PrivateStorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
+    PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                         account_key=settings.AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.PUBLIC_AZURE_CONTAINER)
+                                        azure_container=settings.AZURE_CONTAINER)
 
 except:
-    PrivateStorage = settings.DEFAULT_FILE_STORAGE
-    BundleStorage = settings.DEFAULT_FILE_STORAGE
-    PublicStorage = settings.DEFAULT_FILE_STORAGE
+    PrivateStorage = StorageClass()
+    BundleStorage = StorageClass()
+    PublicStorage = StorageClass()
 
 # Competition Content
 class ContentVisibility(models.Model):
@@ -298,31 +298,31 @@ def submission_runfile_name(instance, filename):
                                                             instance.participant.user.pk,
                                                             instance.submission_number)
 
-def submission_output_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/output.zip" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_stdout_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/stdout.txt" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_stderr_filename(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/stderr.txt" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-def submission_file_blobkey(instance, filename="output.zip"):
+def submission_output_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stdout_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stderr_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_file_blobkey(instance, filename="run/output.zip"):
     return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number,
-                                                            filename)
+                                                       instance.phase.pk,
+                                                       instance.participant.user.pk,
+                                                       instance.submission_number,
+                                                       filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
-    participant = models.ForeignKey(CompetitionParticipant)
-    phase = models.ForeignKey(CompetitionPhase)
+    participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
+    phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000,blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
@@ -416,7 +416,7 @@ class PhaseLeaderBoard(models.Model):
     is_open = models.BooleanField(default=True)
     
     def submissions(self):
-        return CompetitionSubmission.objects.filter(leaderboard_entry__board=self)
+        return SubmissionResult.objects.filter(leaderboard_entry_result__board=self)
     
     def __unicode__(self):
         return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
@@ -431,9 +431,10 @@ class PhaseLeaderBoard(models.Model):
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')
     submission = models.ForeignKey(CompetitionSubmission,related_name='leaderboard_entry')
-            
+    result = models.ForeignKey(SubmissionResult, related_name='leaderboard_entry_result')
+
     class Meta:
-        unique_together = (('board','submission'),)
+        unique_together = (('board','submission', 'result'),)
 
 
 # Bundle Model
