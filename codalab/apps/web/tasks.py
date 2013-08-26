@@ -121,7 +121,13 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                     first = False
                     result.aggregate = float(value)
                     result.save()
-                models.SubmissionScore.objects.create(result=result, label=label.strip(), value=float(value))
+                try:
+                    scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
+                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))
+                except SubmissionScoreDef.DoesNotExist as e:
+                    print "Score %s does not exist" % label
+                    pass
+                    
         print "Done processing scores..."
     elif state == 'limit_exceeded':
         print "Run limit, or time limit exceeded."

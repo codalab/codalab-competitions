@@ -1,6 +1,7 @@
 import os
 import requests
 from django.db import models
+from django.db import IntegrityError
 from django.db.models import Max
 from django.dispatch import receiver
 import django.dispatch
@@ -403,13 +404,55 @@ class SubmissionResult(models.Model):
     notes = models.TextField()
     aggregate = models.DecimalField(max_digits=22,decimal_places=10)
 
+class SubmissionScoreDef(models.Model):
+    competition = models.ForeignKey(Competition)
+    key = models.SlugField(max_length=20)
+    label = models.CharField(max_length=50)
+    sorting = models.SlugField(max_length=20,default='asc',choices=(('asc','Ascending'),('desc','Descending')))
+    numeric_format = models.CharField(max_length=20,blank=True,null=True)
+    computed = models.BooleanField(default=False)
+    phases = models.ManyToManyField(CompetitionPhase,through='SubmissionScorePhase')
+
+    class Meta:
+        unique_together = (('key','competition'),)
+
+    def __unicode__(self):
+        return self.label
+
+class SubmissionScoreGroup(MPTTModel):
+    parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
+    label = models.CharField(max_length=20)
+    scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+    
+
+    def __unicode__(self):
+        return "%s %s" % (self.parent, self.label)
+
+class SubmissionScorePhase(models.Model):
+    scoredef = models.ForeignKey(SubmissionScoreDef)
+    phase = models.ForeignKey(CompetitionPhase)
+
+    class Meta:
+        unique_together = (('scoredef','phase'),)
+    
+    def __unicode__(self):
+        return "%s %s" % (self.scoredef,self.phase)
+
+    def save(self,*args,**kwargs):
+        if self.scoredef.competition != self.phase.competition:
+            raise IntegrityError("Score Def competition and phase compeition must be the same")
+        super(SubmissionScorePhase,self).save(*args,**kwargs)
+    
+    
 class SubmissionScore(models.Model):
     result = models.ForeignKey(SubmissionResult,related_name='scores')
-    label = models.CharField(max_length=100)
+    scoredef = models.ForeignKey(SubmissionScoreDef)
     value = models.DecimalField(max_digits=20,decimal_places=10)
 
     class Meta:
-        ordering = ['label']
+        #ordering = ['label']
+        unique_together = (('result','scoredef'),)
+        
 
 class PhaseLeaderBoard(models.Model):
     phase = models.OneToOneField(CompetitionPhase,related_name='board')
