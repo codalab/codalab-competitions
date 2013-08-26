@@ -1,3 +1,7 @@
+@import "../scss/foundation/variables";
+@import "../scss/foundation/components/global";
+@import "../scss/foundation/components/alert-boxes";
+
 $background: #739CB9;
 $foreground: white;
 $banner: #F5F5F5;
@@ -72,6 +76,11 @@ $purple-gray:#7a768b;
 @mixin textbox-style {
 	box-shadow:inset 0 0 8px #ccc;
 	border-radius:5px;
+}
+@mixin alert-style-error{
+	background-color: #ff6c3c !important;
+	border-color: #ff4609 !important;
+	box-radius:2px;
 }
 
 *{
@@ -610,4 +619,13 @@ div.pending-approval-select.columns {
 .hide
 {
 	display:none !important;
+}
+.alert-error {
+	margin:10px;
+  top:50px;
+	@include alert-base;
+	@include alert-style-error;
+  @include alert-style;
+  .close { @include alert-close; }
+  
 }

@@ -214,7 +214,8 @@
                 dataType: "text",
                 data: values,
                 success: function(response, textStatus, jqXHR) {
-                        $('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
+                        //$('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
+                        $("#participate_form").submit();
                     },
                 error: function(jsXHR, textStatus, errorThrown) {
                         alert("There was a problem registering for this competition.");;
@@ -316,6 +317,30 @@
           $('#response').html(response.message);
         }
       });
+
+      $("#phase_buttons .button").each(function(e,index){
+                $(this).click(function(){  
+                        getResultForEachPhases(this); 
+                });
+      });
+
+        function getResultForEachPhases(obj){
+
+          var xUrl = "/competitions/{{competition.id}}/results/" + $.trim($(obj).attr("id").replace("phase_",""));
+          $(".competition_results").html("").append("<div class='competitionPreloader'></div>").children().css({'top':'200px','display':'block'});
+          $.ajax({
+                type: "GET",
+                url: xUrl,
+                cache: false,
+                success: function(data)
+                        {
+                          $(".competition_results").html(data);
+                        },
+                error: function(xhr, status, err){
+                            $(".competition_results").html("<div class='alert-error'> err </div>")
+                        }
+            });     
+        }
     });
 
 {% endblock js %}
