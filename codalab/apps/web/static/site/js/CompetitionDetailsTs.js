@@ -31,7 +31,7 @@ var Competition;
                     if(pageId === 10) {
                         CompetitionDetails.pageSubmission = 0;
                         $("#resultSubmissionResults > tr").remove();
-                        $("#selctedPhaseButton").val($("#activePhase").val());
+                        $("#selectedPhaseButton").val($("#activePhase").val());
                         CompetitionDetails.prototype.getSubmissionsPageResults($("#activePhase").val());
                         CompetitionDetails.prototype.togglePhases($("#activePhase").val());
                         $("#uploadFile").change(function () {
@@ -189,7 +189,7 @@ var Competition;
                                 CompetitionDetails.page = 0;
                                 $("#selectedRank").val($(this).children("input:hidden").val());
                                 $('#seeTheResults tr:gt(0)').remove();
-                                CompetitionDetails.prototype.getCompetitionResults($("#selctedPhaseButton").val());
+                                CompetitionDetails.prototype.getCompetitionResults($("#selectedPhaseButton").val());
                             });
                         });
                     } else {
@@ -318,13 +318,13 @@ var Competition;
             }
         };
         CompetitionDetails.prototype.openSubStandardWindow = function (submissionValue, type) {
-            var selectedPhaseValue = $("#selctedPhaseButton").val();
+            var selectedPhaseValue = $("#selectedPhaseButton").val();
             var competitionId = $("#CompetitionId").val();
             var URL = "" + "/" + competitionId + "/" + selectedPhaseValue + "/" + submissionValue + "/" + type;
             window.open(URL);
         };
         CompetitionDetails.prototype.getCurrentLederBoardDetails = function () {
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selectedPhaseButton").val() + "/submission/1";
             var onSuccess = function (data) {
                 var currentTickElement = $(".resultSubResultsContainer").find("tr td:first:contains('" + (data.number) + "')").siblings("td.ticked").find("div");
                 $(currentTickElement).removeClass("leaderboardHidden");
@@ -338,7 +338,7 @@ var Competition;
         };
         CompetitionDetails.prototype.updateLeaderBoard = function (submissionID, obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/" + submissionID;
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selectedPhaseButton").val() + "/submission/" + submissionID;
             var filedata = new FormData();
             if(filedata !== undefined) {
                 filedata.append("submissionId", 2);
@@ -361,7 +361,7 @@ var Competition;
         };
         CompetitionDetails.prototype.deleteLeaderBoard = function (obj) {
             $(obj).addClass("disabledStatus");
-            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selctedPhaseButton").val() + "/submission/1/";
+            var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/leaderboard/entry/" + $("#selectedPhaseButton").val() + "/submission/1/";
             var onSuccess = function (data) {
                 $(".leaderboardVisible").addClass("leaderboardHidden");
                 $(obj).siblings("a").removeClass("leaderboardbuttonHidden");
@@ -380,7 +380,7 @@ var Competition;
             var xUrl = "/api/competition/" + parseInt($("#CompetitionId").val()) + "/active-phase";
             var onSuccess = function (data) {
                 $("#activePhase").val(data.active);
-                $("#selctedPhaseButton").val(data.active);
+                $("#selectedPhaseButton").val(data.active);
                 var strHtmlStrip = "";
                 for(var v in data.phases.phases) {
                     strHtmlStrip = strHtmlStrip + "<section><label>" + data.phases.phases[v].label + "</br>";
@@ -455,7 +455,7 @@ var Competition;
                     $(this).addClass("");
                     $('#resultSubmissionResults tr:gt(0)').remove();
                     var currentPhase = (parseInt($.trim($(this).attr("id").replace("submission", ""))) + 1);
-                    $("#selctedPhaseButton").val(currentPhase.toString());
+                    $("#selectedPhaseButton").val(currentPhase.toString());
                     if(currentPhase < parseInt($("#activePhase").val())) {
                         $("#plblSubmission").text("View your previous submissions");
                     } else {
@@ -466,18 +466,18 @@ var Competition;
                         }
                     }
                     Competition.CompetitionDetails.pageSubmission = 0;
-                    CompetitionDetails.prototype.getSubmissionsPageResults($("#selctedPhaseButton").val());
+                    CompetitionDetails.prototype.getSubmissionsPageResults($("#selectedPhaseButton").val());
                 });
             });
             $("#phaseToggleBtnContainerResultpage div").each(function () {
                 $(this).click(function () {
                     $("#phaseToggleBtnContainerResultpage div").addClass("disabledStatus");
                     $(this).removeClass("disabledStatus");
-                    $("#selctedPhaseButton").val((parseInt($.trim($(this).attr("id").replace("result", ""))) + 1).toString());
+                    $("#selectedPhaseButton").val((parseInt($.trim($(this).attr("id").replace("result", ""))) + 1).toString());
                     $('#seeTheResults tr:gt(0)').remove();
                     Competition.CompetitionDetails.page = 0;
                     $("#selectedRank").val("1");
-                    CompetitionDetails.prototype.getCompetitionResults($("#selctedPhaseButton").val());
+                    CompetitionDetails.prototype.getCompetitionResults($("#selectedPhaseButton").val());
                 });
             });
         };
@@ -595,7 +595,7 @@ $(function () {
                 }
                 Competition.CompetitionDetails.page = 0;
                 $("#seeTheResults > tr").remove();
-                $("#selctedPhaseButton").val($("#activePhase").val());
+                $("#selectedPhaseButton").val($("#activePhase").val());
                 CompetitionDetails.getCompetitionResults($("#activePhase").val());
             } else {
                 if($(this).hasClass("tab2")) {
@@ -619,7 +619,7 @@ $(function () {
     });
     window.onresize = function () {
         if(Competition.CompetitionDetails.loadSucess) {
-            CompetitionDetails.getCompetitionResults($("#selctedPhaseButton").val());
+            CompetitionDetails.getCompetitionResults($("#selectedPhaseButton").val());
         }
     };
     CompetitionDetails.getAcivePhase();
@@ -627,11 +627,11 @@ $(function () {
     window.onscroll = function () {
         if($(window).scrollTop() == $(document).height() - $(window).height() - 1) {
             if($(".competitionsDetailTabTop > li.active").hasClass("tab3")) {
-                CompetitionDetails.getCompetitionResults($("#selctedPhaseButton").val());
+                CompetitionDetails.getCompetitionResults($("#selectedPhaseButton").val());
             } else {
                 if($(".competitionsDetailTabTop > li.active").hasClass("tab2")) {
                     if($("#tab10").hasClass("active")) {
-                        CompetitionDetails.getSubmissionsPageResults($("#selctedPhaseButton").val());
+                        CompetitionDetails.getSubmissionsPageResults($("#selectedPhaseButton").val());
                     }
                 }
             }
