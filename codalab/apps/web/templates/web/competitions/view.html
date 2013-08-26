@@ -273,49 +273,49 @@
     });
 
     $(document).ready(function ()
-    {
-      
-      $('#fileUpload').liteUploader(
-      {
-        script: '/api/competition/{{competition.id}}/submission/',
-        allowedFileTypes: 'application/zip,application/x-zip-compressed',
-        maxSizeInBytes: 1000000000,
-        csrfmiddlewaretoken: '{{ csrf_token }}',
-        customParams: {
-          'phase': '1',
-          'participant' : '{{my_participant.id}}',
-          'csrfmiddlewaretoken' : '{{ csrf_token }}'
-        },
-        before: function ()
+    {      
+        $('#fileUpload').liteUploader(
         {
-          $('#details, #previews').empty();
-          $('#response').html('Uploading...');
-
-          return true;
-        },
-        each: function (file, errors)
-        {
-          var i, errorsDisp = '';
-          if (errors.length > 0)
-          {
-            $('#response').html('One or more files did not pass validation');
-            $.each(errors, function(i, error)
+            script: '/api/competition/{{competition.id}}/submission/',
+            allowedFileTypes: 'application/zip,application/x-zip-compressed',
+            maxSizeInBytes: 1000000000,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            customParams: {
+                'phase': '1',
+                'participant' : '{{my_participant.id}}',
+                'csrfmiddlewaretoken' : '{{ csrf_token }}'
+            },
+            before: function ()
             {
-              errorsDisp += '<br /><span class="error">' + error.type + ' error - Rule: ' + error.rule + '</span>';
-            });
-          }
-          $('#details').append('<p>name: ' + file.name + ', type: ' + file.type + ', size:' + file.size + errorsDisp + '</p>');
-        },
-        success: function (response)
-        {
-          var response = $.parseJSON(response);
-          $.each(response.urls, function(i, url)
-          {
-            $('#previews').append($('<img>', {'src': url, 'width': 200}));
-          });
-          $('#response').html(response.message);
-        }
-      });
+                $('#details, #previews').empty();
+                $('#response').html('Uploading...');
+                return true;
+            },
+            each: function (file, errors)
+            {
+                var i, errorsDisp = '';
+                if (errors.length > 0)
+                {
+                    $('#response').html('One or more files did not pass validation');
+                    $.each(errors, function(i, error)
+                    {
+                      errorsDisp += '<br /><span class="error">' + error.type + ' error - Rule: ' + error.rule + '</span>';
+                    });
+                }
+                $('#details').append('<p>name: ' + file.name + ', type: ' + file.type + ', size:' + file.size + errorsDisp + '</p>');
+            },
+            success: function (response)
+            {
+                var response = $.parseJSON(response);
+                $.each(response.urls, function(i, url)
+                {
+                    $('#previews').append($('<img>', {'src': url, 'width': 200}));
+                });
+                $('#response').html(response.message);
+            }
+        });
+        $(".top-bar-section ul > li").removeClass("active");  
+        $("#liCompetitions").addClass("active");  
     });
 
 {% endblock js %}
