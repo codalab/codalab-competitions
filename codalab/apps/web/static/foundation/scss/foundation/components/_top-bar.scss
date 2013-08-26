@@ -4,10 +4,10 @@
 $include-html-top-bar-classes: $include-html-classes !default;
 
 // Background color for the top bar
-$topbar-bg: #111 !default;
+$topbar-bg: #FFF !default;
 
 // Height and margin
-$topbar-height: 45px !default;
+$topbar-height: 49px !default;
 $topbar-margin-bottom: emCalc(30) !default;
 
 // Control Input height for top bar
@@ -32,8 +32,11 @@ $topbar-link-color-active: #fff !default;
 $topbar-link-weight: bold !default;
 $topbar-link-font-size: emCalc(13) !default;
 $topbar-link-hover-lightness: -30% !default; // Darken by 30%
-$topbar-link-bg-hover: darken($topbar-bg, 3%) !default;
-$topbar-link-bg-active: darken($topbar-bg, 3%) !default;
+$topbar-link-bg-hover: lighten($topbar-bg, 3%) !default;
+$topbar-link-bg-active: lighten($topbar-bg, 3%) !default;
+$topbar-border-bottom: 4px $background solid;
+$topbar-border-bottom-hover: 4px lighten($topbar-bg, 3%) solid;
+$topbar-border-bottom-active: 4px #CCC solid;
 
 $topbar-dropdown-label-color: #555 !default;
 $topbar-dropdown-label-text-transform: uppercase !default;
@@ -275,12 +278,14 @@ $topbar-sticky-class: ".sticky" !default;
       &.hover > a {
         background: $topbar-link-bg-hover;
         color: $topbar-link-color-hover;
+        border-bottom: $topbar-border-bottom-hover;
       }
 
       // Apply the active link color when it has that class
       &.active > a {
-        background: $topbar-link-bg-active;
+        //background: $topbar-link-bg-active;
         color: $topbar-link-color-active;
+        border-bottom: $topbar-border-bottom-active;
       }
     }
 
@@ -407,7 +412,9 @@ $topbar-sticky-class: ".sticky" !default;
         a:not(.button) {
           padding: 0 $topbar-height / 3;
           line-height: $topbar-height;
-          background: $topbar-bg;
+          height: $topbar-height;
+          background: $background;
+          border-bottom: $topbar-border-bottom;
           &.hover { background: adjust-color($topbar-dropdown-bg, $lightness: $topbar-link-hover-lightness); }
         }
       }
