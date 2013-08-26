@@ -214,8 +214,7 @@
                 dataType: "text",
                 data: values,
                 success: function(response, textStatus, jqXHR) {
-                        //$('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
-                        $("#participate_form").submit();
+                        $('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
                     },
                 error: function(jsXHR, textStatus, errorThrown) {
                         alert("There was a problem registering for this competition.");;
