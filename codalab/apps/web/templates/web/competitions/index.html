@@ -3,9 +3,16 @@
 {% block content %}
 
 <div class="row">
+
 	<!-- Main Content Section -->
 	<!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
 	<div class="large-9 push-3 columns competitions">
+		<dl class="sub-nav">
+			<dt>Sort by:</dt>
+			<dd class="active"><a href="#">Most Recent</a></dd>
+			<dd><!-- ////////////////  Commented out until we have activity metrics  /////////////////
+			<a href="#">Most Active</a></dd> -->
+		</dl>
 		{% if not competitions %}
 		<p>There are no competitions.</p>
 		{% else %}
@@ -30,12 +37,37 @@
 						</div>
 					</article>
 				</a>
-			</div>                
+			</div>                	
 			{% endfor %}
 			{% endif %}
 		</div>
-		<div class="large-3 pull-9 columns">
-		</div>
-	</div>
+		<div class="large-3  pull-9 columns ">
+			<img src="http://placehold.it/300x240&text=[stats]" class="stats_placeholder"/>
+			<!-- ////////////////  Commented out until we have stats  /////////////////
+			<div class="panel">
+				<input type="text" placeholder="Filter by Keyword"></input>
+				<h5>Show:</h5>
+				<div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
+					<ul>
+						<li>
+							<input type="checkbox">&nbsp; Medical Imaging</input>
+						</li>
+						<li>
+							<input type="checkbox">&nbsp; Quick Filter #2</input>
+						</li>
+						<li>
+						</ul>
+					</div>
+				</div>
+			</div>  -->
 
-	{% endblock %}
+		</div>
+
+		{% endblock %}
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liCompetitions").addClass("active");
+    });
+
+  {% endblock js %}
