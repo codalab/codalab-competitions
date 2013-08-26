@@ -75,6 +75,33 @@ brats2012.image = File( open(os.path.join(root_dir, "fixtures", "images", "brats
 # Save the updates
 brats2012.save()
 
+## Score Definitions
+
+for s in ( {'Dice': {'subs': (('dice_complete','Complete'),('dice_core','Core'),('dice_enhancing','Enhancing'))  } },
+	   {'Sensitivity': {'subs': (('sensitivity_complete','Complete'),('sensitivity_core','Core'),('sensitivity_enhancing','Enhancing'))  }},
+	   {'Specificity': {'subs': (('specific_complete','Complete'),('specific_core','Core'),('specific_enhancing','Enhancing')) }},
+	   {'Hausdorff': {'subs': (('hausdorff_complete','Complete'),('hausdorff_core','Core'),('hausdorf_enhancing','Enhancing'))}},
+	   {'Kappa': {'def':  ('kappa','Kappa')}}
+	   ):
+	for label,e in s.items():
+		g,cr = models.SubmissionScoreGroup.objects.get_or_create(label=label)
+		for t,defs in e.items():
+			if t == 'subs':
+				for sub in defs:
+					sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
+												defaults=dict(label=sub[1]))
+					g2,cr = models.SubmissionScoreGroup.objects.get_or_create(parent=g,label=sub[1],
+												  defaults=dict(scoredef=sd))
+					
+			elif t == 'def':
+				sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,
+											key=defs[0],
+											defaults = dict(label=defs[1]))
+				g.scoredef = sd
+				g.save()
+					
+	    
+
 # Phases for the competition
 day_delta = datetime.timedelta(days=30)
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 7, 6), datetime.time()), timezone.get_current_timezone())
