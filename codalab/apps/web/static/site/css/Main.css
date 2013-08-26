@@ -2738,4 +2738,7 @@ ul.leftNavigation li.active a{
 .glossary-page-container h4.firstrow {
     margin-top: -60px;
 }
+.stats_placeholder {
+    padding-top: 39px;
+}
 
