@@ -5714,7 +5714,6 @@ label.error {
 
 /* line 78, ../scss/foundation/components/_top-bar.scss */
 .fixed {
-  width: 100%;
   left: 0;
   position: fixed;
   top: 0;
@@ -7789,8 +7788,8 @@ ul.pagination li {
   display: block;
   color: #739cb9;
 }
-/* line 48, ../scss/foundation/components/_side-nav.scss */
-.side-nav li.active > a:first-child {
+/* line 47, ../scss/foundation/components/_side-nav.scss */
+.side-nav li a.active {
   color: #676278;
   font-weight: bold;
   border-left: #676278 4px solid;
