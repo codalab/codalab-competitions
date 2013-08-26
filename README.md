@@ -8,5 +8,5 @@ Take a look at the [developing specification](docs/SPECIFICATION.md) and browse 
 
 ## Getting started
 
-Read [this page](https://github.com/codalab/codalab/wiki/50.-Getting-Started-for-Developers) to learn how to start developing and contributing to CodaLab.
+Read [this page](https://github.com/codalab/codalab/wiki/20.-Getting-Started-for-Developers) to learn how to start developing and contributing to CodaLab.
 
