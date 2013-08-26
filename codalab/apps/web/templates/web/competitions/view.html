@@ -15,12 +15,12 @@
                     {% endif %}
                 </figure>
                 <div class="competitionsHeaderTitle">
-                        <h2>{{ competition.title }}</h2>
-                        <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>                    
-                        <input id="submissionId" name="submissionId"  type="hidden" />
-                        <input id="activePhase" name="activePhase"  type="hidden" />
-                        <input id="selctedPhaseButton" name="selctedPhaseButton"  type="hidden" />
-                        <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
+                    <h2>{{ competition.title }}</h2>
+                    <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
+                    <input id="submissionId" name="submissionId"  type="hidden" />
+                    <input id="activePhase" name="activePhase"  type="hidden" />
+                    <input id="selectedPhaseButton" name="selectedPhaseButton"  type="hidden" />
+                    <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
                     <div class="StatusStripContainer">
                         <div class="challStatusStripTxt">
                             <div class="dataStatusHolder">
@@ -67,7 +67,7 @@
                                     <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
                                     <label></label>
                                     <div class="button">
-                                        <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id}}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a>
+                                        <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a>
                                     </div>
                                 </div>
                             </div>
@@ -84,9 +84,9 @@
                                                 To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                             </p>
                                             <label id="terms" for="checkbox">
-                                            <input type="checkbox" name="agreed_terms" id="checkbox" required>
-                                            <span class="custom checkbox"></span> 
-                                            I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required >
+                                                <span class="custom checkbox"></span> 
+                                                I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
                                             </label>
                                             <input type="submit" id="participateButton" class="button" value="Register" />
                                         </div>
@@ -96,7 +96,7 @@
                                 <div class="participateInfoBlock pendingApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">You've already requested to participate in this challenge and your status is pending.</label>
+                                        <label class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</label>
                                         <label></label>
                                     </div>
                                 </div>
@@ -104,20 +104,19 @@
                                 <div class="participateInfoBlock rejectedApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">Your request to register for this competition was denied.</label>
+                                        <label class="regApprovLabel">Your request to participate in this competition was denied.</label>
                                         <label>Reason: {{my_participant.reason}}</label>
                                     </div>
                                 </div>
                                 {% endif %}
                                 {% if my_status == "approved" %} 
-                                    {% include "web/competitions/_participate.html" %}      
+                                    {% include "web/competitions/_innertabs.html" %}      
                                 {% endif %}
                             {% endif %}
+                        {% elif tab.codename == 'results' %}
+                            {% include "web/competitions/_results.html"%}
                         {% else %}
-                            {% if tab.codename == "results" %}
-                                {% include "web/competitions/_results.html"%}
-                            {% endif %}
-                            {% include "web/competitions/_participate.html" %}
+                            {% include "web/competitions/_innertabs.html" %}
                         {% endif %}
                     </div>
                 </section>
