@@ -17,7 +17,7 @@
 		<p>There are no competitions.</p>
 		{% else %}
 		{% for item in competitions %}
-		<a href="/competitions/{{item.id}}">
+		<a href="/competitions/{{item.id}}#learn_the_details">
 			<div class="competition-tile">
 				<article class="subContainer">
 					<input id="competitionID" type="hidden" value="{{ item.id }}" />
