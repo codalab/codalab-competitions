@@ -152,7 +152,7 @@ $microformat-abbr-font-decoration: none !default;
     color: $anchor-font-color;
     text-decoration: $anchor-text-decoration;
     line-height: inherit;
-    font-weight: bold;
+    font-weight: bold; 
 
     &:hover,
     &:focus { color: $anchor-font-color-hover; }

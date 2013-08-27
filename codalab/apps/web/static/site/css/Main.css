@@ -1136,9 +1136,10 @@ figure.userImage {
     padding-bottom:20px;
 }
 .subContainer p {
-    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#787878;
+    font:normal 1em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #666;
     padding-bottom:4px;
+    line-height: 1.6em;
 }
 .articleHeadingContainer h3
 {
@@ -2738,4 +2739,9 @@ ul.leftNavigation li.active a{
 .glossary-page-container h4.firstrow {
     margin-top: -60px;
 }
-
+.stats_placeholder {
+    padding-top: 39px;
+}
+#footer a {
+    font-weight: normal;
+}

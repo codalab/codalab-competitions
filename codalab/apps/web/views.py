@@ -138,7 +138,13 @@ class CompetitionSubmissionsPage(TemplateView):
     pass
 
 class CompetitionResultsPage(TemplateView):
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionResultsPage,self).get_context_data(**kwargs)
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        context['phase'] = competition.phases.get(pk=self.kwargs['phase'])
+        return context
+
 
 class CompetitionDownloadDataset(TemplateView):
     pass
