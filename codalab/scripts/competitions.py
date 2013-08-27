@@ -84,17 +84,17 @@ for s in ( {'Dice': {'subs': (('dice_complete','Complete'),('dice_core','Core'),
 	   {'Kappa': {'def':  ('kappa','Kappa')}}
 	   ):
 	for label,e in s.items():
-		g,cr = models.SubmissionScoreGroup.objects.get_or_create(label=label)
+		g,cr = SubmissionScoreGroup.objects.get_or_create(label=label)
 		for t,defs in e.items():
 			if t == 'subs':
 				for sub in defs:
-					sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
+					sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
 												defaults=dict(label=sub[1]))
-					g2,cr = models.SubmissionScoreGroup.objects.get_or_create(parent=g,label=sub[1],
+					g2,cr = SubmissionScoreGroup.objects.get_or_create(parent=g,label=sub[1],
 												  defaults=dict(scoredef=sd))
 					
 			elif t == 'def':
-				sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,
+				sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,
 											key=defs[0],
 											defaults = dict(label=defs[1]))
 				g.scoredef = sd
