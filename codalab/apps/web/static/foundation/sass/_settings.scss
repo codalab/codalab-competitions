@@ -56,7 +56,6 @@ $side-nav-link-color: $background;
 $side-nav-link-color-active: $active;
 $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
-$purple-gray:#7a768b;
 
 @mixin linkStyle {
 	color:$link-color !important;
@@ -344,9 +343,9 @@ a > i {
 }
 
 p.competition-paragraph {
-	font-size:11px;
+	font-size: 1em;
 	color:$gray;
-	line-height:15px;
+	line-height: 1.6em;
 	margin-bottom:0;
 }
 
@@ -558,13 +557,13 @@ div.pending-approval-select.columns {
        }
        h6 { 
               font-size:16px; 
-              color:$purple-gray;
+              color:$gray;
               margin-bottom:0px;
               }
   
        p { 
               font-size:15px; 
-              color:$purple-gray;
+              color:$gray;
               padding-bottom:14px;
               
               }
@@ -580,14 +579,14 @@ div.pending-approval-select.columns {
   
        ul { 
               font-size:15px; 
-              color:$purple-gray;
+              color:$gray;
               margin-left:20px;
   
               li{
                      padding-bottom:10px;
                      list-style-type:none;
                      b { 
-                           color:$purple-gray;
+                           color:$gray;
                      }
               }
        }

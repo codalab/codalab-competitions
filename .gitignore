@@ -73,4 +73,5 @@ codalab/config/generated
 # pip on windows does not do the right thing.
 src/
 requirements/src/
+*.dump
 
