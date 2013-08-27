@@ -84,30 +84,29 @@ for s in ( {'Dice': {'subs': (('dice_complete','Complete'),('dice_core','Core'),
 	   {'Kappa': {'def':  ('kappa','Kappa')}}
 	   ):
 	for label,e in s.items():
-		g,cr = models.SubmissionScoreGroup.objects.get_or_create(label=label)
+		g,cr = SubmissionScoreGroup.objects.get_or_create(label=label)
 		for t,defs in e.items():
 			if t == 'subs':
 				for sub in defs:
-					sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
+					sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
 												defaults=dict(label=sub[1]))
-					g2,cr = models.SubmissionScoreGroup.objects.get_or_create(parent=g,label=sub[1],
+					g2,cr = SubmissionScoreGroup.objects.get_or_create(parent=g,label=sub[1],
 												  defaults=dict(scoredef=sd))
 					
 			elif t == 'def':
-				sd,cr = models.SubmissionScoreDef.objects.get_or_create(competition=brats2012,
+				sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,
 											key=defs[0],
 											defaults = dict(label=defs[1]))
 				g.scoredef = sd
 				g.save()
-					
-	    
+
 
 # Phases for the competition
 day_delta = datetime.timedelta(days=30)
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 7, 6), datetime.time()), timezone.get_current_timezone())
 p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 10, 1), datetime.time()), timezone.get_current_timezone())
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 7, 15), datetime.time()), timezone.get_current_timezone())
-p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 22), datetime.time()), timezone.get_current_timezone())
+p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 30), datetime.time()), timezone.get_current_timezone())
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=1, label="Training Phase",
 													start_date=p1date, max_submissions=100)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
