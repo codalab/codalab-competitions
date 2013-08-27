@@ -81,6 +81,10 @@ $side-nav-font-size: 15px;
 	border-color: #ff4609 !important;
 	box-radius:2px;
 }
+@mixin table-header-white{
+	background:#648ca8 !important;
+	color:#fff;
+	    }
 
 *{
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -626,5 +630,36 @@ div.pending-approval-select.columns {
 	@include alert-style-error;
   @include alert-style;
   .close { @include alert-close; }
-  
+}
+.leaderboard-result-table{
+	overflow-x:auto;
+	clear:both;
+	min-height:400px;
+	table{
+			table-layout:auto;
+		tr{
+			th{ vertical-align:top;
+				border:solid 1px #8eb0c7; 
+				text-align:center;
+				background:#dce9f2;
+				color:#648ca8;
+			}
+			th[colspan="3"]{
+				@include table-header-white;
+			}
+
+			td{}
+		}
+		tr:nth-child(1){
+			th:nth-child(1){
+				@include table-header-white;
+			}
+			th:nth-child(2){
+				@include table-header-white;
+			}
+			th:last-child{
+				@include table-header-white;
+			}
+		}
+	}
 }
