@@ -1,0 +1,49 @@
+<div class="row">
+  <div class="competition_results">
+    <table class="prevResultSubmission dataTable" id="competition_results">
+      <thead>
+        <tr>
+          <th width="70px">Rank</th>
+          <th width="100px">User</th>
+          <th width="225px">Submission</th>
+          <th width="140px">Date</th>
+          <th width="5px"></th>
+          <th width="100px">Dice</th>
+          <th width="100px">Hausdorff</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for submission in phase.board.submissions %}
+        <tr>
+          <td></td>
+          <td>{{submission.submission.participant.user.username}}</td>
+          <td>
+              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{submission.name}}</a>
+              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
+                {% for score in submission.scores.all %}
+                  <li>{{score.label}} : {{score.value}} </li>
+                {% endfor %}
+              </ul>
+          </td>
+          <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+          <td></td>
+            <td>
+              {% for score in submission.scores.all %}
+                {% if score.label == "Dice" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {% for score in submission.scores.all %}
+                {% if score.label == "Hausdorff" %}
+                  {{ score.value }}
+                {% endif %}
+              {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}        
+      </tbody>
+    </table>
+  </div>
+</div>

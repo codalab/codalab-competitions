@@ -99,15 +99,14 @@ for s in ( {'Dice': {'subs': (('dice_complete','Complete'),('dice_core','Core'),
 											defaults = dict(label=defs[1]))
 				g.scoredef = sd
 				g.save()
-					
-	    
+
 
 # Phases for the competition
 day_delta = datetime.timedelta(days=30)
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 7, 6), datetime.time()), timezone.get_current_timezone())
 p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 10, 1), datetime.time()), timezone.get_current_timezone())
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 7, 15), datetime.time()), timezone.get_current_timezone())
-p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 22), datetime.time()), timezone.get_current_timezone())
+p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 30), datetime.time()), timezone.get_current_timezone())
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=1, label="Training Phase",
 													start_date=p1date, max_submissions=100)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
