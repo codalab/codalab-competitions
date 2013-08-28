@@ -264,35 +264,36 @@ class CompetitionPhase(models.Model):
                 label_key = label
                 d = []
             if group_key not in LABELS:
-                LABELS[group_key] = { 'label':group_label, 'values':[] }
+                LABELS[group_key] = { 'label':group_label, 'headers':[], 'scores': {} }
+            SCORES=LABELS[group_key]['scores']
             if group_key not in CUR:
                 CUR[group_key] = { }
             if label_key not in CUR[group_key]:
                 CUR[group_key][label_key] = {label_key:[]}
-                LABELS[group_key]['values'].append(CUR[group_key][label_key])
+                LABELS[group_key]['headers'].append(CUR[group_key][label_key])
             CUR[group_key][label_key][label_key].extend(d)
 
             if x.scoredef.computed is True:
                 AGG_OP = getattr(models,x.scoredef.computed_score.operation)
                 for s in SubmissionScore.objects.filter(scoredef__key__in=COMP_KEYS,scoredef__phases__in=[self],**score_filters).values('result__pk').annotate(value=AGG_OP('value')):
                     pk = s['result__pk']
-                    if group_key not in SCORES:
-                        SCORES[group_key] = {}
-                    if pk not in SCORES[group_key]:
-                        SCORES[group_key][pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
-                                                  'scores': []}
-                    SCORES[group_key][pk]['scores'].append(dict(value=s['value'],key=x.scoredef.key))
+                    #if group_key not in SCORES:
+                    #    SCORES[group_key] = {}
+                    if pk not in SCORES:
+                        SCORES[pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
+                                       'values': []}
+                    SCORES[pk]['values'].append(dict(value=s['value'],key=x.scoredef.key))
                                 
             else:
                 for s in x.scoredef.submissionscore_set.order_by('result__pk').filter(**score_filters):
-                    if group_key not in SCORES:
-                        SCORES[group_key] = {}
-                    if s.result.pk not in SCORES[group_key]:
-                        SCORES[group_key][s.result.pk] = { 'username': s.result.submission.participant.user.username,
-                                                           'scores': []}
-                    SCORES[group_key][s.result.pk]['scores'].append(dict(value=s.value,key=s.scoredef.key))
+                    #if group_key not in SCORES:
+                    #    SCORES[group_key] = {}
+                    if s.result.pk not in SCORES:
+                        SCORES[s.result.pk] = { 'username': s.result.submission.participant.user.username,
+                                                'values': []}
+                    SCORES[s.result.pk]['values'].append(dict(value=s.value,key=s.scoredef.key))
 
-        return {'labels': LABELS, 'scores': SCORES}
+        return LABELS
 
 def phase_data_prefix(instance,filename):
     return "competition/%d/%d/data/" % (instance.competition.pk,
