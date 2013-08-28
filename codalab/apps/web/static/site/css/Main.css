@@ -1756,6 +1756,8 @@ font-weight:normal !important;
     color:#5c5c5c;
     text-align:left;
     font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    border: #DDD 1px solid;
 }
 /*result table--------------*/
 .chkRegisterContainer {

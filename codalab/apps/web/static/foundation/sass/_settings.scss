@@ -1,7 +1,3 @@
-@import "../scss/foundation/variables";
-@import "../scss/foundation/components/global";
-@import "../scss/foundation/components/alert-boxes";
-
 $background: #739CB9;
 $foreground: white;
 $banner: #F5F5F5;
@@ -76,15 +72,11 @@ $side-nav-font-size: 15px;
 	box-shadow:inset 0 0 8px #ccc;
 	border-radius:5px;
 }
-@mixin alert-style-error{
-	background-color: #ff6c3c !important;
-	border-color: #ff4609 !important;
-	box-radius:2px;
-}
-@mixin table-header-white{
-	background:#648ca8 !important;
-	color:#fff;
-	    }
+
+@mixin table-header-white {
+	background:#648ca8 !important;  
+	color:#fff;  
+}  
 
 *{
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -623,41 +615,34 @@ div.pending-approval-select.columns {
 {
 	display:none !important;
 }
-.alert-error {
-	margin:10px;
-  top:50px;
-	@include alert-base;
-	@include alert-style-error;
-  @include alert-style;
-  .close { @include alert-close; }
-}
-.leaderboard-result-table{
+
+.leaderboard-result-table {
 	overflow-x:auto;
 	clear:both;
 	min-height:400px;
-	table{
-			table-layout:auto;
-		tr{
-			th{ vertical-align:top;
+	table {
+		table-layout:auto;
+		tr {
+			th { 
+				vertical-align:top;
 				border:solid 1px #8eb0c7; 
 				text-align:center;
 				background:#dce9f2;
 				color:#648ca8;
 			}
-			th[colspan="3"]{
+			th[colspan="3"] {
 				@include table-header-white;
 			}
-
-			td{}
+			td {}
 		}
-		tr:nth-child(1){
-			th:nth-child(1){
+		tr:nth-child(1) {
+			th:nth-child(1) {
 				@include table-header-white;
 			}
-			th:nth-child(2){
+			th:nth-child(2) {
 				@include table-header-white;
 			}
-			th:last-child{
+			th:last-child {
 				@include table-header-white;
 			}
 		}
