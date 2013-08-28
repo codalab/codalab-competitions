@@ -222,6 +222,26 @@
         return sOut;
     }
 
+  function getTabSelectionIdentifiersFromURL() {
+            var arrTabs = window.location.hash.split("#")
+            if (arrTabs !== undefined) {
+                switch (arrTabs.length) {
+                    case 1:
+                        if ($.trim(arrTabs[0]) !== "") {
+                            if ($.trim(arrTabs[0].replace("#", "")) == "results"){
+                                    $('#Results').click();
+                                }
+                        }
+                        break;
+                    case 2:
+                         if ($.trim(arrTabs[1].replace("#", "")) == "results"){
+                                    $('#Results').click();
+                                }
+                        break;
+                }
+            }
+        }
+
 //})(Competition || (Competition = {}));
 
 $(document).ready(function () {
@@ -347,7 +367,7 @@ $(document).ready(function () {
         }
         btn.click();
     });
-
+    getTabSelectionIdentifiersFromURL();
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
 
