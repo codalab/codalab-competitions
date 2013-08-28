@@ -56,7 +56,7 @@
                 {% for tab, contents in tabs.items %}
                 <section>
                     <p class="title" id="{{tab.name}}" data-section-title>
-                        <a href="#{{tab.codname}}">{{tab.name}}</a>
+                        <a href="#{{tab.codename}}">{{tab.name}}</a>
                     </p>
                     <div class="content" data-slug="{{tab.codename}}" data-section-content>
                         {% if tab.codename == "participate" %}
@@ -86,9 +86,9 @@
                                             <label id="terms" for="checkbox">
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required >
                                                 <span class="custom checkbox"></span> 
-                                                I accept the <a href="#learn_the_details-3">terms and conditions</a> of the competition.
+                                                I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </label>
-                                            <input type="submit" id="participateButton" class="button" value="Register" />
+                                            <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
                                         </div>
                                     </div>
                                 </form>
@@ -201,37 +201,47 @@
             }
         });
     };
+
+    function registationCanProceed() {
+        if ($("#checkbox").is(":checked") === true) {
+            $("#participateButton").removeClass("disabledStatus");
+        } else {
+            $("#participateButton").addClass("disabledStatus");
+        };
+    };
+
+    function displayRegistrationStatus() {
+        var sOut = "";
+        sOut = "<div class='participateInfoBlock pendingApproval'>"
+        sOut += "<div class='infoStatusBar'></div>"
+        sOut += "<div class='labelArea'>"
+        sOut += "<label class='regApprovLabel'>Your request to participate in this challenge has been received and a decision is pending.</label>"
+        sOut +="<label></label>"
+        sOut += "</div>"
+        sOut += "</div>"
+        return sOut;
+    }
+
 //})(Competition || (Competition = {}));
 
 $(document).ready(function () {
 
-    // Validate the form (ensure they have checked accept terms and conditions)
-    $("#participate_form").validate({
-        errorPlacement: function (error, element) {
-            error.appendTo("#terms");
-        }
-    });
+    $("#checkbox").click(function (e) { registationCanProceed(); });
 
-    /* attach a submit handler to the form */
     $("#participate_form").submit(function (event) {
-
-        /* stop form from submitting normally */
         event.preventDefault();
-
-        /*clear result div*/
+        if ($("#participateButton").hasClass("disabledStatus")) {
+            return false;
+        }
         $("#result").html('');
-
-        /* get some values from elements on the page: */
         var values = $(this).serialize();
-
-        /* Send the data using post and put the results in a div */
         request = $.ajax({
             url: "/api/competition/{{competition.id}}/participate/",
             type: "post",
             dataType: "text",
             data: values,
             success: function (response, textStatus, jqXHR) {
-                $('.content form').replaceWith('<p>Your request to participate was successfully submitted.</p>');
+                $('.content form').replaceWith(displayRegistrationStatus());
             },
             error: function (jsXHR, textStatus, errorThrown) {
                 alert("There was a problem registering for this competition.");;
