@@ -31,37 +31,39 @@
 						<div class="subContainerPadding">
 							<div class="articleHeadingContainer">
 								<h3>{{ item.title }}</h3>
-								<label>{{ item.creator }}</label></div>
-								<p class="competition-paragraph">{{ item.description }}</p>
+								<label>{{ item.creator }}</label>
 							</div>
+							<p class="competition-paragraph">{{ item.description }}</p>
 						</div>
-					</article>
-				</a>
-			</div>                	
+					</div>
+				</article>
+			</div> 
+		</a>
+	               	
 			{% endfor %}
 			{% endif %}
+	</div>
+	<div class="large-3  pull-9 columns ">
+		<img src="http://placehold.it/300x240&text=[stats]" class="stats_placeholder"/>
+		<!-- ////////////////  Commented out until we have stats  /////////////////
+		<div class="panel">
+			<input type="text" placeholder="Filter by Keyword"></input>
+			<h5>Show:</h5>
+			<div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
+			<ul>
+				<li>
+					<input type="checkbox">&nbsp; Medical Imaging</input>
+				</li>
+				<li>
+					<input type="checkbox">&nbsp; Quick Filter #2</input>
+				</li>
+				<li>
+				</ul>
+			</div>
 		</div>
-		<div class="large-3  pull-9 columns ">
-			<img src="http://placehold.it/300x240&text=[stats]" class="stats_placeholder"/>
-			<!-- ////////////////  Commented out until we have stats  /////////////////
-			<div class="panel">
-				<input type="text" placeholder="Filter by Keyword"></input>
-				<h5>Show:</h5>
-				<div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
-					<ul>
-						<li>
-							<input type="checkbox">&nbsp; Medical Imaging</input>
-						</li>
-						<li>
-							<input type="checkbox">&nbsp; Quick Filter #2</input>
-						</li>
-						<li>
-						</ul>
-					</div>
-				</div>
-			</div>  -->
+	</div>  -->
 
-		</div>
+	</div>		
 
 		{% endblock %}
 {% block js %}
