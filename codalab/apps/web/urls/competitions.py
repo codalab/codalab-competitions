@@ -26,6 +26,10 @@ urlpatterns = patterns('',
                        url(r'^(?P<id>\d+)/dataset/(?P<dataset_id>\d+)$',
                            views.CompetitionDownloadDataset.as_view(template_name='web/competitions/download_dataset.html'), 
                            name='competition_download_dataset'),
+
+                       url(r'^scores$',views.ScoresTestView.as_view(template_name='web/competitions/scores.html'),
+                           name='scores_test'),
+
                        )
 
                         
