@@ -698,7 +698,7 @@ div.pending-approval-select.columns {
 
 /* line 619, ../sass/_settings.scss */
 .leaderboard-result-table {
-  margin: 0 20px;
+  margin: 0 15px;
   overflow-x: auto;
   clear: both;
   min-height: 400px;
