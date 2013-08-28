@@ -23,15 +23,15 @@
 </div>
 
 <div class="row">
-  <div class="user_results">
+  <div class="dataTable user_results submission-table">
     <table class="prevResultSubmission dataTable" id="user_results">
       <thead>
         <tr>
           <th width="250px">Submission</th>
-          <th width="140px">Date</th>
-          <th></th>
-          <th>Dice</th>
-          <th>Hausdorff</th>
+          <th width="140px">Submitted</th>
+          <th>status</th>
+          <th>status Updated</th>
+
           <th width="50px"></th>
           <th width="50px"></th>
         </tr>
@@ -49,7 +49,6 @@
               </ul>
             </td>
             <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-            <td></td>
             <td>
               {% for score in result.scores.all %}
                 {% if score.label == "Dice" %}

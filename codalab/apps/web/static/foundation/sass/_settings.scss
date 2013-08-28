@@ -616,7 +616,7 @@ div.pending-approval-select.columns {
 	display:none !important;
 }
 
-.leaderboard-result-table {
+.leaderboard-result-table, table-styling {
 	overflow-x:auto;
 	clear:both;
 	min-height:400px;
@@ -633,7 +633,9 @@ div.pending-approval-select.columns {
 			th[colspan="3"] {
 				@include table-header-white;
 			}
-			td {}
+			td {
+				padding:10px;
+			}
 		}
 		tr:nth-child(1) {
 			th:nth-child(1) {
@@ -645,6 +647,28 @@ div.pending-approval-select.columns {
 			th:last-child {
 				@include table-header-white;
 			}
+		}
+	}
+}
+.submission-table{
+	@extend table-styling;
+	thead{
+		tr{
+			th{
+				@include table-header-white;
+				vertical-align:middle;
+			}
+		}
+		
+	}
+	tr.odd{
+		td:nth-last-child(-n+2){
+			text-align:center;
+		}
+	}
+	tr.even{
+		td:nth-last-child(-n+2){
+			text-align:center;
 		}
 	}
 }

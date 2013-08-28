@@ -696,17 +696,17 @@ div.pending-approval-select.columns {
 }
 
 /* line 619, ../sass/_settings.scss */
-.leaderboard-result-table {
+.leaderboard-result-table, table-styling, .submission-table {
   overflow-x: auto;
   clear: both;
   min-height: 400px;
 }
 /* line 623, ../sass/_settings.scss */
-.leaderboard-result-table table {
+.leaderboard-result-table table, table-styling table, .submission-table table {
   table-layout: auto;
 }
 /* line 626, ../sass/_settings.scss */
-.leaderboard-result-table table tr th {
+.leaderboard-result-table table tr th, table-styling table tr th, .submission-table table tr th {
   vertical-align: top;
   border: solid 1px #8eb0c7;
   text-align: center;
@@ -714,24 +714,43 @@ div.pending-approval-select.columns {
   color: #648ca8;
 }
 /* line 633, ../sass/_settings.scss */
-.leaderboard-result-table table tr th[colspan="3"] {
+.leaderboard-result-table table tr th[colspan="3"], table-styling table tr th[colspan="3"], .submission-table table tr th[colspan="3"] {
   background: #648ca8 !important;
   color: #fff;
 }
-/* line 639, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(1) th:nth-child(1) {
+/* line 636, ../sass/_settings.scss */
+.leaderboard-result-table table tr td, table-styling table tr td, .submission-table table tr td {
+  padding: 10px;
+}
+/* line 641, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(1) th:nth-child(1), table-styling table tr:nth-child(1) th:nth-child(1), .submission-table table tr:nth-child(1) th:nth-child(1) {
   background: #648ca8 !important;
   color: #fff;
 }
-/* line 642, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(1) th:nth-child(2) {
+/* line 644, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(1) th:nth-child(2), table-styling table tr:nth-child(1) th:nth-child(2), .submission-table table tr:nth-child(1) th:nth-child(2) {
   background: #648ca8 !important;
   color: #fff;
 }
-/* line 645, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(1) th:last-child {
+/* line 647, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(1) th:last-child, table-styling table tr:nth-child(1) th:last-child, .submission-table table tr:nth-child(1) th:last-child {
   background: #648ca8 !important;
   color: #fff;
+}
+
+/* line 657, ../sass/_settings.scss */
+.submission-table thead tr th {
+  background: #648ca8 !important;
+  color: #fff;
+  vertical-align: middle;
+}
+/* line 665, ../sass/_settings.scss */
+.submission-table tr.odd td:nth-last-child(-n+2) {
+  text-align: center;
+}
+/* line 670, ../sass/_settings.scss */
+.submission-table tr.even td:nth-last-child(-n+2) {
+  text-align: center;
 }
 
 /* font-face */
