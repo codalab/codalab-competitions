@@ -617,6 +617,7 @@ div.pending-approval-select.columns {
 }
 
 .leaderboard-result-table {
+	margin: 0 20px;
 	overflow-x:auto;
 	clear:both;
 	min-height:400px;
@@ -629,13 +630,14 @@ div.pending-approval-select.columns {
 				text-align:center;
 				background:#dce9f2;
 				color:#648ca8;
+				font-size: 12px;
 			}
 			th[colspan="3"] {
 				@include table-header-white;
 			}
 			td {}
 		}
-		tr:nth-child(1) {
+		tr:nth-child(2) {
 			th:nth-child(1) {
 				@include table-header-white;
 			}
@@ -648,3 +650,13 @@ div.pending-approval-select.columns {
 		}
 	}
 }
+.leaderboard-result-table .table-title th {
+	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	color: #FFF;
+	font-weight: lighter;
+	font-size: 1.4em;
+	background-color: #676278;
+	text-transform: none;
+	text-align: left;
+}
+
