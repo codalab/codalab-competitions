@@ -270,58 +270,7 @@ result2 = SubmissionResult.objects.get_or_create(submission=submission2,name='Te
 for s in SubmissionScoreDef.objects.filter(computed=False):
     score = SubmissionScore.objects.get_or_create(scoredef=s,result=result,defaults=(dict(value=random.random())))
     score = SubmissionScore.objects.get_or_create(scoredef=s,result=result2,defaults=(dict(value=random.random())))
+lb = PhaseLeaderBoard.objects.get_or_create(phase=phase)[0]
+lbe = PhaseLeaderBoardEntry.objects.get_or_create(board=lb,result=result2)[0]
 
 
-from django.db import models as djmodels
-
-
-LABELS = {}
-VALUES = {}
-CUR={}
-SCORES={}
-for x in SubmissionScoreGroup.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,  scoredef__phases__in=[phase]):
-        label = x.label
-	group_key = x.scoredef.group.key
-	group_label = x.scoredef.group.label
-
-        if x.scoredef.computed is True: 
-                COMP_KEYS = [cf.scoredef.key for cf in x.scoredef.computed_score.fields.all()]
-                if not COMP_KEYS:
-                        continue
-
-        if x.parent is not None:
-                label_key = x.parent.label
-                d = [label]
-        else:
-                label_key = label
-                d = []
-	if group_key not in LABELS:
-		LABELS[group_key] = { 'label':group_label, 'values':[] }
-	if group_key not in CUR:
-		CUR[group_key] = { }
-        if label_key not in CUR[group_key]:
-                CUR[group_key][label_key] = {label_key:[]}
-                LABELS[group_key]['values'].append(CUR[group_key][label_key])
-        CUR[group_key][label_key][label_key].extend(d)
-
-        if x.scoredef.computed is True:
-                AGG_OP = getattr(djmodels,x.scoredef.computed_score.operation)
-                for s in SubmissionScore.objects.filter(scoredef__key__in=COMP_KEYS,scoredef__phases__in=[phase]).values('result__pk').annotate(value=AGG_OP('value')):
-                        pk = s['result__pk']
-			if group_key not in SCORES:
-				SCORES[group_key] = {}
-                        if pk not in SCORES[group_key]:
-                                SCORES[group_key][pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
-							  'scores': []}
-                        SCORES[group_key][pk]['scores'].append(dict(value=s['value'],key=x.scoredef.key))
-                                
-        else:
-                for s in x.scoredef.submissionscore_set.order_by('result__pk').all():
-			if group_key not in SCORES:
-				SCORES[group_key] = {}
-                        if s.result.pk not in SCORES[group_key]:
-                                SCORES[group_key][s.result.pk] = { 'username': s.result.submission.participant.user.username,
-                                                        'scores': []}
-                        SCORES[group_key][s.result.pk]['scores'].append(dict(value=s.value,key=s.scoredef.key))
-print LABELS
-print SCORES
