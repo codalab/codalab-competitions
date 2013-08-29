@@ -8,14 +8,15 @@ description:
   misclassified examples).
 
 blocks:
+
 - We first insert Weka, a suite of basic machine learning utilities,
   which includes many learning algorithms as well as helpers for
   splitting data, performing evaluation, etc.
 - var: weka
-  name: base/weka  
+  name: pliang/weka  
 - We insert a small dataset from the UCI repository on Congressional voting records.
 - var: dataset
-  name: base/uci_arff/vote
+  name: pliang/uci_arff/vote
 
 - Split this dataset into training and test portions using the Weka
   utilities.  4 specifies the number of folds (3/4 is used for training,
@@ -51,6 +52,7 @@ blocks:
 - var: predictor
   base: ^weka
   command: $program/base/predict $input $output
+  outputFormat: pliang/simple_predictions
 - var: modelAndData
   model: ^model/output
   data: ^strippedTestData/output

@@ -1,3 +1,4 @@
+title: Weka
 description:
   Weka is a collection of machine learning algorithms for data mining tasks.
   The algorithms can either be applied directly to a dataset or called from
@@ -6,3 +7,6 @@ description:
   It is also well-suited for developing new machine learning schemes.
 source: http://www.cs.waikato.ac.nz/ml/weka/
 requirements: Linux
+license: GPL
+language: Java
+tags: MachineLearning
