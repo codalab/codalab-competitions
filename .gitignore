@@ -3,7 +3,15 @@
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**
-/bundles/*
+
+# Bundles prototype #
+#####################
+bundles/pliang
+bundles/generated
+bundles/html_out
+bundles/README.html
+bundles/bundles.db
+bundles/bundles.fs
 
 # Virtuelenv files #
 ####################
@@ -68,7 +76,6 @@ Thumbs.db
 /other/*
 *_db.sqlite
 codalab/static/*/*
-/bundles/*
 codalab/config/generated
 # pip on windows does not do the right thing.
 src/
