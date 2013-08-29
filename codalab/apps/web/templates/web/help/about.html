@@ -21,9 +21,12 @@
         </p>
 
         <a id="collaborate"></a>
-        <h4>Collaborate with Experiments</h4>
+        <h4>Develop with Experiments</h4>
         <p>
-            CodaLab Experiments are a unique amalgamation of documentation and code that you can use to express ideas programmatically and collaborate with others. CodaLab experiments utilize the <a href="http://www.python.org/" target="_blank">Python</a> programming language and <a href="http://daringfireball.net/projects/markdown/basics" target="_blank">Markdown</a> syntax. A wide variety of libraries for mathematics, charting and more are installed and available for use.
+        The experimental platform allows you to upload datasets and algorithms, run
+        algorithms on datasets (either yours or existing ones), and download and visualize the results.  The platform keeps
+        track of dependencies, so that experiments are reproducible and easy to
+        share with others.
         </p>
 
         <a id="compete"></a>
@@ -42,28 +45,16 @@
         <h4>Glossary</h4>
         <ul>
             <li>
-                <b>Bundle</b> - A generalization of a dataset that is used to represent both datasets, statistics, trained models, and predictions. A bundle is essentially a directory that contains various types of data, such as datasets uploaded by a user, as well as program output. 
-            </li>
-            <li>
                 <b>Competition</b> - An organized way for users to upload either a program or a bundle with predictions. An evaluation program will automatically score these predictions against the dataset provided by the competition organizer.
             </li>
             <li>
-                <b>Dataset</b> - Contains the information used to train and evaluate a machine learning algorithm.
+              <b>Bundle</b> - An immutable directory which could contain the code or data.  A Bundle can depend on other Bundles.
             </li>
             <li>
-                <b>Experiment</b> - Represents the execution of a program on a specific bundle. An experiment contains the output of a program and various statistics about the actual experiment (resource usage, etc.). Experiments can be further embellished with notes, to form the basis of a "notebook" and eventually get published as an "ePaper".
+              <b>Run</b> - A type of Bundle which is equipped with a command-line string, which specifies how to execute the code in the Bundle.  Execution produces an output directory and various statistics.
             </li>
             <li>
-                <b>Macro</b> - Provides a way to easily create multiple related experiments given a set of arguments.
-            </li>
-            <li>
-                <b>Program</b> - An executable that takes a bundle as an input and outputs a bundle as output.
-            </li>
-            <li>
-                <b>User</b> - Someone who creates programs, datasets, experiments and/or notebooks.
-            </li>
-            <li>
-                <b>ePaper</b> - The basic unit of organization of bundles and programs. A notebook is a document that lists and describes bundles and programs. Similar to an <a href="http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html" target="_blank">IPython notebook</a>, CodaLab notebooks are a sequence of HTML/Markdown blocks interleaved with blocks of code from programs, datasets and experiments.
+                <b>User</b> - Someone who creates programs, datasets, experiments, and participates in competitions.
             </li>
         </ul>
     </div>    
