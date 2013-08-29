@@ -13,3 +13,4 @@ source = input + '/data.csv'
 dest = output + '/data.arff'
 puts "Converting #{source} => #{dest}"
 system "#{runjava} weka.core.converters.CSVLoader '#{source}' > '#{dest}'" or exit 1
+# TODO: return proper exit code
