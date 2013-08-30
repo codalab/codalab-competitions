@@ -21,4 +21,5 @@ predictions=$(./codalab.py run $weka $modelAndData '$program/predict $input $out
 predictionsAndData=$(./codalab.py make predictions:$predictions data:$split/test)
 evaluation=$(./codalab.py run $weka $predictionsAndData '$program/evaluate $input $output')
 
+./codalab.py wait $evaluation
 ./codalab.py info $evaluation

@@ -4,7 +4,7 @@
 This is a prototype command-line utility for CodaLab.
 """
 
-import re, os, sys, yaml, sqlite3, time, tempfile
+import re, os, sys, yaml, sqlite3, time, tempfile, random
 
 # The base directory where all the Bundles are stored.
 bundlesPath = os.path.join(os.path.dirname(__file__), 'bundles.fs')
@@ -238,9 +238,9 @@ class BundleServer:
     bundle, isNew = self.createBundle(None, None, command, deps)
     return bundle
 
-  def commentBundle(self, message):
+  def noteBundle(self, message):
     # Put it in the title for now
-    bundle, isNew = self.createBundle(message, None, None, {}, 'message='+message)
+    bundle, isNew = self.createBundle(message, None, None, {}, "%032x" % random.getrandbits(128))
     return bundle
 
   # Download the Bundle into the outPath.
@@ -252,6 +252,15 @@ class BundleServer:
       systemOrDie('cp -a %s %s' % (inPath, outPath))
       print >>sys.stderr, 'Downloaded bundle %s to %s' % (bundle, outPath)
 
+  # Wait, printing out status for the Bundle to finish
+  def waitBundle(self, bundle):
+    while True:
+      bundle = self.parseBundle(str(bundle.bundleId))  # TODO: do this more directly
+      if bundle.status in ['done', 'failed']:
+        return
+      time.sleep(1)
+
+  # Print out the contents of <bundle>/<key> to stdout.
   def catFile(self, bundle, key):
     keyPath = os.path.join(bundle.path, key)
     if os.path.isfile(keyPath):
@@ -264,7 +273,7 @@ class BundleServer:
     # TODO: warn user about downstream dependencies
     cur = self.bundlesDb.cursor()
     cur.execute('DELETE FROM Bundles WHERE Id = ?', (bundle.bundleId,))
-    systemOrDie('rm -r %s' % bundle.path)
+    systemOrDie('rm -rf %s' % bundle.path)
     print >>sys.stderr, 'Permanently deleted %s' % bundle.bundleId
 
   def getDeps(self, bundle):
@@ -332,11 +341,12 @@ class BundleServer:
     # Setup a scratch directory
     runPath = tempfile.mkdtemp(prefix='run-', dir='.')
 
+    self.updateStatus(bundle, 'running')
     success = self.runInPath(bundle, runPath)
     status = 'done' if success else 'failed'
     self.updateStatus(bundle, status)
 
-    systemOrDie('rm -r %s' % runPath)
+    systemOrDie('rm -rf %s' % runPath)
 
   def runInPath(self, bundle, runPath):
     if not self.installDependencies(bundle, runPath):
@@ -362,14 +372,14 @@ class BundleServer:
     status['elapsedTime'] = elapsedTime
     status['maxMemoryUsed'] = 100 # TODO
     writeYaml(status, os.path.join(runPath, 'status'))
-    print open(stdoutPath).read(),
-    print open(stderrPath).read(),
+    sys.stdout.write(open(stdoutPath).read())
+    sys.stdout.write(open(stderrPath).read())
 
     print "END %s ====== run(%s) ====== [exitCode %s, %.4f seconds]" % (bundle.bundleId, bundle.command, exitCode, elapsedTime)
 
     # Copy output files back
     # TODO: copy back stderr/stdout incrementally as the process is running
-    for filename in ['stderr', 'stdout', 'output']:
+    for filename in ['status', 'stderr', 'stdout', 'output']:
       systemOrDie('cp -a %s %s' % (os.path.join(runPath, filename), bundle.path))
 
     return exitCode == 0
@@ -395,7 +405,8 @@ Commands that return bundles:
   upload <directory>
   make <key>:<bundle>[/<directory>]* [command:<command string (e.g., "$program/run $input $output")>]
   run <program bundle> <input bundle> <command string>
-  comment <text>: write comments
+  note <text>: write a note
+  wait <bundle>: wait until bundle is done
 
   download <bundle>
   list <bundle>
@@ -419,12 +430,14 @@ args = sys.argv[2:]
 server = BundleServer()
 
 # TODO: maintain consistency between the metadata file and the database
-# TODO: allow update title, description, tags of a bundle
+# TODO: commands to update title, description, tags of a bundle
 # TODO: print out things that use a particular bundle
-# TODO: display size of dataset
-# TODO: implement new experiment / tagging system
+# TODO: display date created
+# TODO: display size of bundles
+# TODO: implement tagging system
+# TODO: implement versioning system (backpointers)
 
-if command == 'upload':
+if command == 'up' or command == 'upload':
   for arg in args:
     bundle = server.uploadBundle(arg)
     print bundle.bundleId
@@ -458,7 +471,7 @@ elif command == 'list' or command == 'info':
   for arg in args:
     bundles = server.parseBundles(arg)
     server.showBundles(bundles, command == 'info')
-elif command == 'delete':
+elif command == 'rm' or command == 'delete':
   for arg in args:
     for bundle in server.parseBundles(arg):
       server.deleteBundle(bundle)
@@ -466,9 +479,14 @@ elif command == 'download':
   for arg in args:
     for bundle in server.parseBundles(arg):
       server.downloadBundle(bundle, str(bundle.bundleId))
-elif command == 'comment':
-  bundle = server.commentBundle(' '.join(args))
+elif command == 'note':
+  bundle = server.noteBundle(' '.join(args))
   print bundle.bundleId
+elif command == 'wait':
+  for arg in args:
+    for bundle in server.parseBundles(arg):
+      server.waitBundle(bundle)
+      print bundle.bundleId
 elif command == 'cat':
   for arg in args:
     if '/' not in arg: arg += '/'
