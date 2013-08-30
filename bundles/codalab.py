@@ -252,6 +252,13 @@ class BundleServer:
       systemOrDie('cp -a %s %s' % (inPath, outPath))
       print >>sys.stderr, 'Downloaded bundle %s to %s' % (bundle, outPath)
 
+  def catFile(self, bundle, key):
+    keyPath = os.path.join(bundle.path, key)
+    if os.path.isfile(keyPath):
+      systemOrDie('cat %s' % keyPath)
+    else:
+      systemOrDie('ls -l %s' % keyPath)
+
   # Delete Bundles matching this query.
   def deleteBundle(self, bundle):
     # TODO: warn user about downstream dependencies
@@ -394,6 +401,7 @@ Commands that return bundles:
   list <bundle>
   info <bundle>
   delete <bundle>
+  cat <bundle>[/<directory>]
 
   worker: runs the worker loop
 
@@ -461,6 +469,12 @@ elif command == 'download':
 elif command == 'comment':
   bundle = server.commentBundle(' '.join(args))
   print bundle.bundleId
+elif command == 'cat':
+  for arg in args:
+    if '/' not in arg: arg += '/'
+    bundleId, key = arg.split('/', 1)
+    bundle = server.parseBundle(bundleId)
+    server.catFile(bundle, key)
 elif command == 'worker':
   server.workerLoop()
 else:
