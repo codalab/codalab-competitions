@@ -1,6 +1,6 @@
 ### Standard programs and datasets
 
-To download the relevant, type:
+To download some relevant programs and datasets, type:
 
     ./download.sh
 

@@ -7,8 +7,8 @@ This is a prototype command-line utility for CodaLab.
 import os, sys, yaml, sqlite3, time, tempfile
 
 # The base directory where all the Bundles are stored.
-bundlesPath = 'bundles.fs'
-bundlesDbPath = 'bundles.db'
+bundlesPath = os.path.join(os.path.dirname(__file__), 'bundles.fs')
+bundlesDbPath = os.path.join(os.path.dirname(__file__), 'bundles.db')
 
 """
 A Bundle is an immutable directory with files and subdirectories.
@@ -43,7 +43,8 @@ class Bundle:
 
 ############################################################
 
-def truncate(s, n=40):
+def truncate(s, n=20):
+  if not s: return s
   if len(s) > n:
     return s[0:n-3] + '...'
   return s
@@ -148,13 +149,27 @@ class BundleServer:
     print >>sys.stderr, 'Created new bundle %s' % self.stringRepn(bundleId, title, description, command, deps)
     return (bundle, True)
 
-  def upload(self, directory):
-    # TODO: hash the bundle
-    metadata = readYaml(os.path.join(directory, 'metadata'))
-    bundleHash = os.popen('find %s -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum' % directory).read()
+  def upload(self, path):
+    sizeKb = int(os.popen('du -s %s | cut -f 1' % path).read())
+    bundleHash = os.popen('find %s -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | cut -f 1 -d " "' % path).read().strip()
+    print >>sys.stderr, '%s: %s KB, hash is %s' % (path, sizeKb, bundleHash)
+
+    metadataPath = os.path.join(path, 'metadata')
+    if os.path.exists(metadataPath):
+      metadata = readYaml(metadataPath)
+    else:
+      metadata = {}
+
+    # Give a default title if it doesn't exist
+    if 'title' not in metadata:
+      metadata['title'] = os.path.abspath(path)
+
     bundle, isNew = self.createBundle(metadata.get('title'), metadata.get('description'), metadata.get('command'), metadata.get('deps'), bundleHash)
     if isNew:
-      self.system('cp -a %s/* %s' % (directory, os.path.join(bundlesPath, str(bundle.bundleId))))
+      if os.path.isfile(path):
+        self.system('cp %s %s' % (path, bundle.path))
+      else:
+        self.system('cp -a %s/* %s' % (path, bundle.path))
     return bundle
 
   def make(self, command, deps):
@@ -162,26 +177,37 @@ class BundleServer:
     return bundle
 
   def download(self, bundle, outPath):
-    inPath = os.path.join(bundlesPath, str(bundle.bundleId))
+    inPath = bundle.path
     if os.path.exists(outPath):
       print >>sys.stderr, 'Directory %s already exists' % outPath
     else:
       self.system('cp -a %s %s' % (inPath, outPath))
       print >>sys.stderr, 'Downloaded bundle %s to %s' % (bundle, outPath)
 
-  def showBundles(self, args, verbose):
+  def delete(self, bundle):
+    # TODO: warn user about downstream dependencies
+    cur = self.bundlesDb.cursor()
+    cur.execute('DELETE FROM Bundles WHERE Id = ?', (bundle.bundleId,))
+    self.system('rm -r %s' % bundle.path)
+    print >>sys.stderr, 'Permanently deleted %s' % bundle.bundleId
+
+  def showBundles(self, arg, verbose):
     cur = self.bundlesDb.cursor()
     # TODO: make search more general
-    if len(args) == 0:
+    if arg == None:
       cur.execute('SELECT * FROM Bundles')
     else:
       bundleId = int(' '.join(args))
       cur.execute('SELECT * FROM Bundles WHERE Id = ?', (bundleId,))
 
+    rows = []
     for entry in cur.fetchall():
       bundleId, title, description, command, bundleHash, status = entry
       bundle = Bundle(bundleId)
-      if (not verbose) and description: description = truncate(description)
+      if not verbose:
+        title = truncate(title)
+        description = truncate(description)
+        command = truncate(command)
       cur2 = self.bundlesDb.cursor()
       cur2.execute('SELECT * FROM Deps WHERE Id = ?', (bundleId,))
       deps = ['%s:%s/%s' % (key, sourceId, sourceKey) for (_, key, sourceId, sourceKey) in cur2.fetchall()]
@@ -196,9 +222,15 @@ class BundleServer:
         stdoutPath = os.path.join(bundle.path, 'stdout')
         if os.path.exists(stdoutPath):
           stdout = open(stdoutPath).read()
-          if len(stdout) > 0: print "--- stdout ---\n" + stdout
+          if len(stdout) > 0: print "--- stdout ---\n" + stdout,
       else:
-        print "\t".join([str(x) for x in [bundleId, title, description, command, status, deps]])
+        rows.append([str(x) if x else '-' for x in [bundleId, title, description, command, status, ' '.join(deps)]])
+    if len(rows) > 0:
+      numCols = len(rows[0])
+      maxWidths = [max(len(row[j]) for row in rows) for j in range(numCols)]
+      fmt = ' '.join(['%%-%ds' % maxWidths[j] for j in range(numCols)])
+      for row in rows:
+        print fmt % tuple(row)
 
   def system(self, command):
     #print >>sys.stderr, command
@@ -279,7 +311,7 @@ class BundleServer:
 
 ############################################################
 
-main = sys.argv[0]
+main = os.path.basename(sys.argv[0])
 usage = """
 Usage: %s <command> [<args>]
 
@@ -295,10 +327,11 @@ Commands:
   download <bundle>
   list <bundle>
   info <bundle>
+  delete <bundle>
 
   worker: runs the worker loop
 
-Quick example:
+Quick example (in bash):
   weka=$(%s upload pliang/weka)
   data=$(%s upload pliang/uci_arff/vote)
   %s run $weka $data '$program/split $input $output 4'
@@ -314,20 +347,21 @@ server = BundleServer()
 # TODO: do error checking on usage
 # TODO: maintain consistency between the metadata file and the database
 # TODO: update title, description of a bundle
+# TODO: print out things that use a particular bundle
+# TODO: display size of dataset
 
 if command == 'upload':
-  directory = args[0]
-  bundle = server.upload(directory)
-  print bundle.bundleId
+  for arg in args:
+    bundle = server.upload(arg)
+    print bundle.bundleId
 elif command == 'make' or command == 'run':
   if command == 'run':  # run is a special case of make
     args = ['program:' + args[0], 'input:' + args[1], 'command:'+' '.join(args[2:])]
-  #print args
 
   command = None
   deps = {}
   for s in args:
-    # Format: <key>:<sourceBundle>/<sourceKey>
+    # Format: each s is <key>:<sourceBundle>/<sourceKey>
     if ':' not in s:
       raise Exception('Bad argument: %s' % s)
     key, value = s.split(':', 1)
@@ -341,7 +375,15 @@ elif command == 'make' or command == 'run':
   bundle = server.make(command, deps)
   print bundle.bundleId
 elif command == 'list' or command == 'info':
-  server.showBundles(args, command == 'info')
+  if len(args) == 0:
+    server.showBundles(None, command == 'info')
+  else:
+    for arg in args:
+      server.showBundles(arg, command == 'info')
+elif command == 'delete':
+  for arg in args:
+    bundle = server.parseBundle(arg) 
+    server.delete(bundle)
 elif command == 'download':
   bundle = server.parseBundle(args[0]) 
   server.download(bundle, str(bundle.bundleId))
