@@ -64,11 +64,8 @@
                             <div class="participateInfoBlock">
                                 <div class="infoStatusBar"></div>
                                 <div class="labelArea">
-                                    <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
-                                    <label></label>
-                                    <div class="button">
-                                        <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a>
-                                    </div>
+                                    <p class="regApprovLabel">You must be logged in to participate in competitions.</p>
+                                    <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true"><button class="button">Sign In</button></a>
                                 </div>
                             </div>
                             {% else %}
