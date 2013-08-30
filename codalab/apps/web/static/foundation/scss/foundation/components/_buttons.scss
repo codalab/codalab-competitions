@@ -215,6 +215,19 @@ $button-disabled-opacity: 0.6 !default;
       &.round  { @include button-style($bg:false, $radius:$button-round); }
     }
 
+    button.selected, .button.selected {
+      background-color:#739CB9;
+      border-color: darken(#739CB9, $button-function-factor);
+      @include single-transition(background-color);
+
+      &.large  { @include button-size($padding:false, $full-width:false); }
+      &.small  { @include button-size($padding:false, $full-width:false); }
+      &.tiny   { @include button-size($padding:false, $full-width:false); }
+
+      &.radius { @include button-style($bg:false, $radius:true); }
+      &.round  { @include button-style($bg:false, $radius:$button-round); }
+    }
+
   }
 
   // Additional styles for screens larger than 768px
