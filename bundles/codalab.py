@@ -443,10 +443,11 @@ if command == 'up' or command == 'upload':
     print bundle.bundleId
 elif command == 'make' or command == 'run':
   if command == 'run':  # run is a special case of make
+    if len(args) == 2: args.append('-run') # Default way to run
     if len(args) < 3:
-      print >>sys.stderr, 'Missing arguments, usage is: <program> <input> <command>'
+      print >>sys.stderr, 'Missing arguments, usage is: <program> <input> [<command>]'
       sys.exit(1)
-    if args[2].startswith('-'): # Default way to invoke a program
+    if args[2].startswith('-'): # Just provide the name of the program to invoke
       args[2] = '$program/' + args[2][1:] + ' $input $output'
     args = ['program:' + args[0], 'input:' + args[1], 'command:'+' '.join(args[2:])]
 
