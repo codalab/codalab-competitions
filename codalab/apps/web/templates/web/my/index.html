@@ -3,12 +3,12 @@
 {% block content %}
 <div class="row">
     <div class="large-10 push-2 columns">
-        <div class="section-container auto competitionsDetailTabArea " data-section data-section-resized>
+        <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true">
           <section>
             <p class="title active" id="participating" data-section-title>
                 <a href="#participate">Competitions I'm In</a>
             </p>
-            <div class="content" data-section-content>
+            <div class="content" data-section-content data-slug="participate">
                 <div class="row">
                     <div class="large-9 push-3 columns">
                         <div class="my_participating">
@@ -25,7 +25,7 @@
             <p class="title" id="managed" data-section-title>
                 <a href="#manage">Competitions I'm Running</a>
             </p>
-            <div class="content" data-section-content>
+            <div class="content" data-section-content data-slug="manage">
                 <div class="row">
                     <div class="large-9 push-3 columns ">
                         <div class="my_managing">
@@ -40,9 +40,9 @@
         </section>
         <section>
             <p class="title active" id="experimentation" data-section-title>
-                <a href="#participate">My Experiments</a>
+                <a href="#experiments">My Experiments</a>
             </p>
-            <div class="content" data-section-content>
+            <div class="content" data-section-content data-slug="experiments">
                 <div class="row">
                     <div class="large-9 push-3 columns ">
                         <div class="my_managing">
