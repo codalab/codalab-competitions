@@ -10,6 +10,12 @@ codalab/media/**/**
 venv/*/*
 *venv*
 
+# Project Files #
+#################
+*.pyproj
+*.sln
+*.suo
+
 # Compass/SASS generated files #
 ################################
 **/**/.sass-cache
