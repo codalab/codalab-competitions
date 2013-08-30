@@ -75,16 +75,16 @@
                                     <div class="participateInfoBlock">
                                         <div class="infoStatusBar"></div>
                                         <div class="labelArea">
-                                            <label class="regApprovLabel">You have not yet registered for this competition.</label>
-                                            <label></label>
+                                            <p class="regApprovLabel">You have not yet registered for this competition.</p>
+                                            <p></p>
                                             <p>
                                                 To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                             </p>
-                                            <label id="terms" for="checkbox">
+                                            <p id="terms" for="checkbox">
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required >
                                                 <span class="custom checkbox"></span> 
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
-                                            </label>
+                                            </p>
                                             <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
                                         </div>
                                     </div>
@@ -93,16 +93,16 @@
                                 <div class="participateInfoBlock pendingApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</label>
-                                        <label></label>
+                                        <p class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</p>
+                                        <p></p>
                                     </div>
                                 </div>
                                 {% elif my_status == "denied" %}
                                 <div class="participateInfoBlock rejectedApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">Your request to participate in this competition was denied.</label>
-                                        <label>Reason: {{my_participant.reason}}</label>
+                                        <p class="regApprovLabel">Your request to participate in this competition was denied.</p>
+                                        <p>Reason: {{my_participant.reason}}</p>
                                     </div>
                                 </div>
                                 {% endif %}
