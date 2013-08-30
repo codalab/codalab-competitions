@@ -197,7 +197,7 @@ class Competition(models.Model):
         
     @property
     def is_active(self):
-        return self.end_date < now().date()
+        return True if self.end_date is None else self.end_date < now().date()
 
 # Dataset model
 class Dataset(models.Model):
@@ -237,8 +237,24 @@ class CompetitionPhase(models.Model):
 
     @property
     def is_active(self):
+        """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+        if (next_phase and len(next_phase) > 0):
+            # there a phase following this phase: this phase ends when the next phase starts
+            return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+        else:
+            # there is no phase following this phase: this phase ends when the competition ends
+            return self.competition.is_active
+
+    @property
+    def is_future(self):
+        """ Returns true if this phase of the competition has yet to start. """
+        return now() < self.start_date
+
+    @property
+    def is_past(self):
+        """ Returns true if this phase of the competition has already ended. """
+        return (not is_active) and (not is_future)
 
     def scores(self,**kwargs):
         LABELS = {}
