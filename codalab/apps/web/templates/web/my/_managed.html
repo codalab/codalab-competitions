@@ -1,13 +1,13 @@
 ﻿{% if not competitions %}
   <p>You do not manage any competitions.</p>
-  {% else %}
-    {% for item in competitions %}
-    <a href="/competitions/{{item.competition.id}}">
-      <div class="competition-tile">
-        <article class="subContainer">
-          <input id="competitionID" type="hidden" value="{{ item.pk }}" />
-          <div class="competitionTileLftStrip"></div>
-          <div class="articleTextArea">
+{% else %}
+  {% for item in competitions %}
+    <div class="competition-tile">
+      <article class="subContainer">
+        <input id="competitionID" type="hidden" value="{{ item.pk }}" />
+        <div class="competitionTileLftStrip"></div>
+        <div class="articleTextArea">
+          <a href="/competitions/{{item.competition.id}}">
             <div class="articleTextAreaContainer">
               <div class="articleImageContainer">
                 <div class="subContainerPadding">
@@ -23,14 +23,14 @@
                 <p>{{ item.description }}</p>
               </div>
             </div>
-            <div class="small-10 small-centered columns">
-              <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
-              <a href="#"><button class="secondary button">Edit</button></a>
-              <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
-            </div>
-          </div>
-        </article>
-      </div> 
-    </a>               
+          </a>
+          <div class="small-10 small-centered columns">
+            <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
+            <a href="#"><button class="secondary button">Edit</button></a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
+         </div>
+       </div>
+     </article>
+    </div>                
   {% endfor %}    
 {% endif %}
