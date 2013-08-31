@@ -343,6 +343,11 @@ class CompetitionParticipant(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
 
+    @property
+    def is_approved(self):
+        """ Returns true if this participant is approved into the competition. """
+        return self.status.codename == 'approved'
+
 # Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):
     name = models.CharField(max_length=20)

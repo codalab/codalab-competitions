@@ -1,0 +1,66 @@
+
+{% if phase == None %}
+{% elif phase.is_future %}
+    <p>This phase of the competition has not started yet. Please check back later.</p>
+{% else %}
+    {% if phase.is_active %}
+    <div class="row">
+      <p>Click the Submit Results button to upload a new submission.</p>
+      <button id="fileUploadButton" class="button">Submit Results</button>
+      <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
+      <div id="details"></div>
+      <p>Here are your submissions to date:</p>
+    </div>
+    {% else %}
+      <p>This phase of the competition is closed. Here are the submissions you made:</p>
+    {% endif %}
+    <div class="row">
+      <div class="user_results">
+        <table class="prevResultSubmission dataTable" id="user_results">
+          <thead>
+            <tr>
+                <th>Submission</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th width="40px"></th>
+                <th width="40px"></th>
+                <th width="40px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in my_submissions %}
+              <tr id="{{submission.id}}">
+                {% if phase.is_active and submission.status.codename == "finished" %}
+                <input type="hidden" name="state" value='1' />
+                {% else %}
+                <input type="hidden" name="state" value='0' />
+                {% endif %}
+                <td>{{submission.submission_number}}</td>
+                <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+                <td>{{submission.status.name}}</td>
+                <td></td>
+                {% if submission.id == id_of_submission_in_leaderboard %}
+                <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+                {% else %}
+                <td class="status not_submitted"></td>
+                {% endif %}
+                <td><i class="enclosed-foundicon-plus"></i></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="submission_details_template" class="hide">
+        <div class="submission_details">
+            <div class="small-4 push-8 columns">
+                <button class="button rFloat hide"></button>
+            </div>
+            <div class="small-8 pull-4 columns">
+                <a href="/my/competition/submission/_/stdout.txt" target="_blank">Standard output log</a></br>
+                <a href="/my/competition/submission/_/stderr.txt" target="_blank">Standard error log</a></br>
+                <a href="/my/competition/submission/_/output.zip">Scoring Output</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
