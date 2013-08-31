@@ -46,9 +46,6 @@ class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
-class CompetitionTabDetails(TemplateView):
-    pass
-
 class CompetitionCreate(CreateView):
     model = models.Competition
     template_name = 'web/my/create.html'
@@ -131,18 +128,35 @@ class CompetitionUpdate(UpdateView):
     model = models.Competition
     form_class = forms.CompetitionForm
         
-class CompetitionPageDetails(TemplateView):
-    pass
-        
-class CompetitionSubmissionsPage(TemplateView):
-    pass
+       
+class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
+    # Serves the table of submissions in the Participate tab of a competition.
+    # Requires an authenticated user who is an approved participant of the competition.
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionSubmissionsPage,self).get_context_data(**kwargs)
+        context['phase'] = None
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        if self.request.user in [x.user for x in competition.participants.all()]:
+            participant = competition.participants.get(user=self.request.user)
+            if participant.status.codename == 'approved':
+                phase = competition.phases.get(pk=self.kwargs['phase'])
+                submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
+                context['my_submissions'] = submissions
+                context['phase'] = phase
+                ids = [ r.submission.id for r in models.PhaseLeaderBoardEntry.objects.filter(board=phase) if r.submission in submissions ]
+                context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
+
+                                                                              
+
+        return context
 
 class CompetitionResultsPage(TemplateView):
-
+    # Serves the leaderboards in the Results tab of a competition.
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage,self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        context['phase'] = competition.phases.get(pk=self.kwargs['phase'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        context['phase'] = phase
         return context
 
 
