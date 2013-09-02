@@ -112,7 +112,17 @@ var Competition;
                         //var x = $("#user_results").dataTable().fnAddData([subNumber, subSubmitted, subStatus, "", "", ""]);
                         //$('#fileUploadButton').text("Submit Results");
                         //$('#fileUploadButton').removeClass('disabled');
-                        window.location.reload();
+                        //window.location.reload();
+                        $("#user_results").append(Competition.displaySubmittedResult(response));
+                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.fireClickEventForExpandandcollapse(this) });
+                        prTable.fnDestroy();
+                        prTable = $("#user_results").dataTable({
+                            'bPaginate': false,
+                            'bInfo': false,
+                            'bFilter': false,
+                            'bAutoWidth': false,
+                            'bSort': false
+                        });
                     },
                     fail: function (jqXHR) {
                         $('#details').html("An error occurred (" + jqXHR.status + " - " + jqXHR.responseJSON.detail + ")");
@@ -121,7 +131,7 @@ var Competition;
                     }
                 });
 
-                var prTable = $("#user_results").dataTable({
+                prTable = $("#user_results").dataTable({
                     'bPaginate': false,
                     'bInfo': false,
                     'bFilter': false,
@@ -148,39 +158,7 @@ var Competition;
                 });
                 */
                 $('#user_results .enclosed-foundicon-plus').on('click', function () {
-                    var nTr = $(this).parents('tr')[0];
-                    if (prTable.fnIsOpen(nTr)) {
-                        $(this).removeClass("enclosed-foundicon-minus");
-                        $(this).addClass("enclosed-foundicon-plus");
-                        prTable.fnClose(nTr);
-                    }
-                    else {
-                        $(this).removeClass("enclosed-foundicon-plus");
-                        $(this).addClass("enclosed-foundicon-minus");
-                        var elem = $("#submission_details_template .submission_details").clone();
-                        elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
-                        var state = $(nTr).find("input[name='state']").val();
-                        if (state == 1) {
-                            var btn = elem.find("button");
-                            btn.removeClass("hide");
-                            var submitted = $(nTr).find(".status").hasClass("submitted");
-                            var competition = $("#competitionId").val();
-                            if (submitted) {
-                                btn.addClass("leaderBoardRemove");
-                                btn.text("Remove from Leaderboard");
-                                btn.on('click', function () {
-                                    removeFromLeaderboard(competition, nTr.id, cstoken);
-                                });
-                            } else {
-                                btn.addClass("leaderBoardSubmit");
-                                btn.text("Submit to Leaderboard");
-                                btn.on('click', function () {
-                                    addToLeaderboard(competition, nTr.id, cstoken);
-                                });
-                            }
-                        }
-                        prTable.fnOpen(nTr, elem, 'details');
-                    }
+                    Competition.fireClickEventForExpandandcollapse(this);
                 });
             },
             error: function (xhr, status, err) {
@@ -225,8 +203,76 @@ var Competition;
         return sOut;
     }
 
-})(Competition || (Competition = {}));
+    Competition.displaySubmittedResult = function (response) {
+        var sOut = "";
+        sOut = "<tr id= '" + response.id.toString() + "' class= '" + Competition.oddOrEven(response.submission_number) + "'>"
+        if (response.status === 9) {
+            sOut += "<input type='hidden' value='1' name='state'> "
+        } else { sOut += "<input type='hidden' value='0' name='state'> " }
+        sOut += "<td>" + response.submission_number.toString() + "</td>"
+        sOut += "<td class=' '>" + response.submitted_at + "</td>"
+        sOut += "<td class=' '>" + Competition.getSubmittedFileStatus(response.status) + "</td>"
+        sOut += "<td class=' '></td>"
+        sOut += "<td class='status not_submitted'></td>"
+        sOut += "<td class=' '>"
+        sOut += "<i class='enclosed-foundicon-plus'></i> </td>"
+        sOut += "</tr>"
+        return sOut;
+    }
 
+    Competition.oddOrEven = function (x) {
+        return (x & 1) ? "odd" : "even";
+    }
+    Competition.getSubmittedFileStatus = function (status) {
+        var subStatus = "Unknonw";
+        switch (status) {
+            case 1: subStatus = "Submitted"; break;
+            case 6: subStatus = "Running"; break;
+            case 7: subStatus = "Failed"; break;
+            case 8: subStatus = "Cancelled"; break;
+            case 9: subStatus = "Finished"; break;
+        }
+        return subStatus;
+    }
+
+    Competition.fireClickEventForExpandandcollapse = function (obj) {
+        var nTr = $(obj).parents('tr')[0];
+        if (prTable.fnIsOpen(nTr)) {
+            $(obj).removeClass("enclosed-foundicon-minus");
+            $(obj).addClass("enclosed-foundicon-plus");
+            prTable.fnClose(nTr);
+        }
+        else {
+            $(obj).removeClass("enclosed-foundicon-plus");
+            $(obj).addClass("enclosed-foundicon-minus");
+            var elem = $("#submission_details_template .submission_details").clone();
+            elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
+            var state = $(nTr).find("input[name='state']").val();
+            if (state == 1) {
+                var btn = elem.find("button");
+                btn.removeClass("hide");
+                var submitted = $(nTr).find(".status").hasClass("submitted");
+                var competition = $("#competitionId").val();
+                if (submitted) {
+                    btn.addClass("leaderBoardRemove");
+                    btn.text("Remove from Leaderboard");
+                    btn.on('click', function () {
+                        removeFromLeaderboard(competition, nTr.id, cstoken);
+                    });
+                } else {
+                    btn.addClass("leaderBoardSubmit");
+                    btn.text("Submit to Leaderboard");
+                    btn.on('click', function () {
+                        addToLeaderboard(competition, nTr.id, cstoken);
+                    });
+                }
+            }
+            prTable.fnOpen(nTr, elem, 'details');
+        }
+    }
+
+})(Competition || (Competition = {}));
+var prTable;
 $(document).ready(function () {
 
     $("#checkbox").click(function (e) { Competition.registationCanProceed(); });

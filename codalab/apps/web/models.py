@@ -437,8 +437,8 @@ class CompetitionSubmission(models.Model):
             raise Exception("Competition for phase and participant must be the same")
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        if self._do_submission:
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
+        #if self._do_submission:
+            #signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
     def file_url(self):
