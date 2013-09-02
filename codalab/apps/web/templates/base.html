@@ -61,7 +61,8 @@
             <section class="top-bar-section">
               <!-- Left Nav Section -->
               <ul class="left">
-                <li id="liExperiments"><a href="/experiments">Experiments</a></li>               
+                <!--   //////// COMMENTED OUT FOR NOW
+                <li id="liExperiments"><a href="/experiments">Experiments</a></li>   /////// -->             
                 <li id="liCompetitions"><a href="/competitions">Competitions</a></li>
                 {% if user.is_authenticated %}
                   <li id="liMyCodalab"><a href="/my">My CodaLab</a></li>
@@ -159,6 +160,9 @@
         {% block js %}
         {% endblock js %}
     </script>
+
+    {% block jsincludes %}
+    {% endblock jsincludes %}
 
   {% analytical_body_top %}
   {% analytical_body_bottom %}
