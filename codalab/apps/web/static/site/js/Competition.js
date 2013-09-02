@@ -81,7 +81,7 @@ var Competition;
                 });
                 $('#fileUpload').liteUploader(
                 {
-                    script: '/api/competition/' + competitionId + '/submission/',
+                    script: '/api/competition/' + competitionId + '/submission',
                     allowedFileTypes: 'application/zip,application/x-zip-compressed',
                     maxSizeInBytes: 104857600,
                     csrfmiddlewaretoken: cstoken,
