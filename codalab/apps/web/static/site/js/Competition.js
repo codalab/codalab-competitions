@@ -2,7 +2,7 @@
 var Competition;
 (function (Competition) {
 
-    Competition.invokePhaseButtonOnOpen = function(id) {
+    Competition.invokePhaseButtonOnOpen = function (id) {
         var btn = $("#" + id + " .button.selected")[0];
         if (btn === undefined) {
             btn = $("#" + id + " .button.active")[0];
@@ -13,7 +13,7 @@ var Competition;
         btn.click();
     }
 
-    Competition.loadTabContent = function() {
+    Competition.loadTabContent = function () {
         var name = $.trim(window.location.hash).toLowerCase();
         if (name == "#results") { $('#Results').click(); }
         if (name == "#participate-submit_results") { $('#Participate').click(); }
@@ -62,7 +62,7 @@ var Competition;
         });
     };
 
-    Competition.getPhaseSubmissions = function(competitionId, phaseId, cstoken) {
+    Competition.getPhaseSubmissions = function (competitionId, phaseId, cstoken) {
         $(".competition_submissions").html("").append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = "/competitions/" + competitionId + "/submissions/" + phaseId;
         $.ajax({
@@ -113,9 +113,9 @@ var Competition;
                         //$('#fileUploadButton').text("Submit Results");
                         //$('#fileUploadButton').removeClass('disabled');
                         //window.location.reload();
+                        prTable.fnDestroy();
                         $("#user_results").append(Competition.displaySubmittedResult(response));
                         $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.fireClickEventForExpandandcollapse(this) });
-                        prTable.fnDestroy();
                         prTable = $("#user_results").dataTable({
                             'bPaginate': false,
                             'bInfo': false,
@@ -123,6 +123,9 @@ var Competition;
                             'bAutoWidth': false,
                             'bSort': false
                         });
+                        $('#fileUploadButton').removeClass("disabled");
+                        $('#fileUploadButton').text("Submit Results");
+                       // $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
                     },
                     fail: function (jqXHR) {
                         $('#details').html("An error occurred (" + jqXHR.status + " - " + jqXHR.responseJSON.detail + ")");
@@ -167,7 +170,7 @@ var Competition;
         });
     }
 
-    Competition.getPhaseResults = function(competitionId, phaseId) {
+    Competition.getPhaseResults = function (competitionId, phaseId) {
         $(".competition_results").html("").append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = "/competitions/" + competitionId + "/results/" + phaseId;
         $.ajax({
@@ -183,7 +186,7 @@ var Competition;
         });
     }
 
-    Competition.registationCanProceed = function() {
+    Competition.registationCanProceed = function () {
         if ($("#checkbox").is(":checked") === true) {
             $("#participateButton").removeClass("disabledStatus");
         } else {
@@ -191,7 +194,7 @@ var Competition;
         };
     };
 
-    Competition.displayRegistrationStatus = function() {
+    Competition.displayRegistrationStatus = function () {
         var sOut = "";
         sOut = "<div class='participateInfoBlock pendingApproval'>"
         sOut += "<div class='infoStatusBar'></div>"
@@ -204,20 +207,19 @@ var Competition;
     }
 
     Competition.displaySubmittedResult = function (response) {
-        var sOut = "";
-        sOut = "<tr id= '" + response.id.toString() + "' class= '" + Competition.oddOrEven(response.submission_number) + "'>"
-        if (response.status === 9) {
-            sOut += "<input type='hidden' value='1' name='state'> "
-        } else { sOut += "<input type='hidden' value='0' name='state'> " }
-        sOut += "<td>" + response.submission_number.toString() + "</td>"
-        sOut += "<td class=' '>" + response.submitted_at + "</td>"
-        sOut += "<td class=' '>" + Competition.getSubmittedFileStatus(response.status) + "</td>"
-        sOut += "<td class=' '></td>"
-        sOut += "<td class='status not_submitted'></td>"
-        sOut += "<td class=' '>"
-        sOut += "<i class='enclosed-foundicon-plus'></i> </td>"
-        sOut += "</tr>"
-        return sOut;
+        var elemTr = $("#submission_details_template #SubmittionTableTemplate tr").clone();
+        $(elemTr).attr("id", response.id.toString());
+        $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
+        $(elemTr).children().each(function (index) {
+            switch (index) {
+                case 0: if (response.status === 9) { $(this).val("1"); } break;
+                case 1: $(this).html(response.submission_number.toString()); break;
+                case 2: $(this).html($.datepicker.formatDate('mm/dd/yy', new Date(response.submitted_at))); break;
+                case 3: $(this).html(Competition.getSubmittedFileStatus(response.status)); break;
+            }
+        }
+      );
+        return elemTr;
     }
 
     Competition.oddOrEven = function (x) {
@@ -267,8 +269,42 @@ var Competition;
                     });
                 }
             }
+            else {
+                var status = $(nTr).find(".statusName").html();
+                var btn = elem.find("button").addClass("hide");
+                if ($.trim(status) === "Submitted" || $.trim(status) === "Running") {
+                   
+                    btn.removeClass("hide");
+                    btn.text("Refresh status")
+                    btn.on('click', function () {
+                        Competition.refreshSubmittedFileStatus($("#competitionId").val(), nTr.id,this)
+                    });
+                }
+            }
             prTable.fnOpen(nTr, elem, 'details');
         }
+    }
+
+    Competition.refreshSubmittedFileStatus = function (competitionId, submissionId,obj) {
+        $(obj).parents(".submission_details").find(".preloader-handler").append("<div class='competitionPreloader'></div>").children().css({ 'top': '25px', 'display': 'block' });
+        var url = "/api/competition/" + competitionId + "/submission/" + submissionId;
+        $.ajax({
+            type: "GET",
+            url: url,
+            cache: false,
+            success: function (data) {
+                $('#user_results #' + submissionId).find(".statusName").html(Competition.getSubmittedFileStatus(data.status));
+                if (data.status === 9) {
+                    $('#user_results #' + submissionId + "input:hidden").val("1"); $(obj).addClass("leaderBoardSubmit");
+                    $(obj).text("Submit to Leaderboard");
+                }
+                else if (data.status > 6) { $(obj).addClass("hide"); }
+                $(".competitionPreloader").hide();
+            },
+            error: function (xhr, status, err) {
+               
+            }
+        });
     }
 
 })(Competition || (Competition = {}));
