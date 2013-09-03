@@ -2747,3 +2747,6 @@ ul.leftNavigation li.active a{
 #footer a {
     font-weight: normal;
 }
+.cursor-default {
+    cursor: default;
+}
