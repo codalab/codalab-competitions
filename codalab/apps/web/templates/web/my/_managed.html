@@ -24,7 +24,7 @@
               </div>
             </div>
           </a>
-          <div class="small-10 small-centered columns">
+          <div class="small-10 small-centered columns cursor-default">
             <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
             <a href="#"><button class="secondary button">Edit</button></a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
