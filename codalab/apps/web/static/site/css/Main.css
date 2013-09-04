@@ -1417,13 +1417,13 @@ div.articleImageContainer
     border:solid 1px #ccc;
     color:#666;
 }
-.CompetitionTypeDetailrow textarea,#Description
+
+.Description
 {
-    width:70%;
-    height:100px;
     font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
+
 .CompetitionTypeDetailrow select {
     padding:5px 10px;
     width:73%;
