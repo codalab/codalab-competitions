@@ -27,15 +27,6 @@
   }
 },
 {
-  "pk": 4, 
-  "model": "web.contentvisibility", 
-  "fields": {
-    "classname": "", 
-    "codename": "unknown", 
-    "name": "Unknown"
-  }
-},
-{
   "pk": 1, 
   "model": "web.contentcategory", 
   "fields": {
@@ -68,12 +59,28 @@
   }
 },
 {
+  "pk": 3, 
+  "model": "web.contentcategory", 
+  "fields": {
+    "rght": 2, 
+    "content_limit": 1, 
+    "name": "Results", 
+    "parent": null, 
+    "level": 0, 
+    "is_menu": true, 
+    "visibility": 1, 
+    "lft": 1, 
+    "tree_id": 3, 
+    "codename": "results"
+  }
+},
+{
   "pk": 1, 
   "model": "web.defaultcontentitem", 
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
-	"codename": "page1",
+	  "codename": "overview",
     "required": true, 
     "rank": 0, 
     "label": "Overview"
@@ -85,7 +92,7 @@
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
-	"codename": "page2",
+	  "codename": "evaluate",
     "required": true, 
     "rank": 1, 
     "label": "Evaluate"
@@ -97,7 +104,7 @@
   "fields": {
     "category": 1, 
     "initial_visibility": 1, 
-	"codename": "page3",
+	  "codename": "terms_and_conditions",
     "required": true, 
     "rank": 2, 
     "label": "Terms and Conditions"
@@ -109,18 +116,22 @@
   "fields": {
     "category": 2, 
     "initial_visibility": 1, 
-	"codename": "page4",
+	  "codename": "get_data",
     "required": true, 
     "rank": 0, 
     "label": "Get data"
   }
 },
 {
-  "pk": 1, 
-  "model": "web.externalfiletype", 
+  "pk": 5, 
+  "model": "web.defaultcontentitem", 
   "fields": {
-    "codename": "test", 
-    "name": "Test"
+    "category": 2, 
+    "initial_visibility": 1, 
+    "codename": "submit_results",
+    "required": true, 
+    "rank": 1, 
+    "label": "Submit Results"
   }
 },
 {
@@ -129,7 +140,7 @@
   "fields": {
     "codename": "denied", 
     "name": "Denied", 
-    "description": "Participation is denied. Check reason."
+    "description": "Participation was denied."
   }
 },
 {
@@ -138,7 +149,7 @@
   "fields": {
     "codename": "approved", 
     "name": "Approved", 
-    "description": "Participation is Approved."
+    "description": "Participation was approved."
   }
 },
 {
@@ -170,12 +181,20 @@
   "pk": 3, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
-    "codename": "processing_failed", 
-    "name": "Processing Failed"
+    "codename": "running", 
+    "name": "Running"
   }
 },
 {
   "pk": 4, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "failed", 
+    "name": "Failed"
+  }
+},
+{
+  "pk": 5, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
     "codename": "accepted", 
@@ -183,11 +202,19 @@
   }
 },
 {
-  "pk": 5, 
+  "pk": 6, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
     "codename": "rejected", 
     "name": "Rejected"
+  }
+},
+{
+  "pk": 7, 
+  "model": "web.competitionsubmissionstatus", 
+  "fields": {
+    "codename": "finished", 
+    "name": "Finished"
   }
 }
 ]
