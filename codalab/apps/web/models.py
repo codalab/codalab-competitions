@@ -150,6 +150,10 @@ class ExternalFile(models.Model):
 
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
+    UNKNOWN = 'unknown'
+    DENIED = 'denied'
+    APPROVED = 'approved'
+    PENDING = 'pending'
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30,unique=True)
     description = models.CharField(max_length=50)
@@ -346,7 +350,7 @@ class CompetitionParticipant(models.Model):
     @property
     def is_approved(self):
         """ Returns true if this participant is approved into the competition. """
-        return self.status.codename == 'approved'
+        return self.status.codename == ParticipantStatus.APPROVED
 
 # Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):

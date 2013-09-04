@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 class Competitions(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='test@user.com',username='testuser')
-        ParticipantStatus.objects.get_or_create(name='Pending',codename='pending')
+        ParticipantStatus.objects.get_or_create(name='Pending',codename=ParticipantStatus.PENDING)
         self.test_data_path = settings.TEST_DATA_PATH
         management.call_command('create_competition', title='Test Title', description='Test Description',creator=self.user.email)
         self.competitions = [x.id for x in Competition.objects.all()]
