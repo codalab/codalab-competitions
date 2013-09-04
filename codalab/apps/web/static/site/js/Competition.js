@@ -98,19 +98,11 @@ var Competition;
                         }
                     },
                     success: function (response) {
-                        $('#user_results .enclosed-foundicon-minus').click(); // workaround until table update is able to preserve "open/close"-state of a row
-                        prTable.fnDestroy();
                         $("#user_results").append(Competition.displayNewSubmission(response));
                         $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
-                        prTable = $("#user_results").dataTable({
-                            'bPaginate': false,
-                            'bInfo': false,
-                            'bFilter': false,
-                            'bAutoWidth': false,
-                            'bSort': false
-                        });
                         $('#fileUploadButton').removeClass("disabled");
                         $('#fileUploadButton').text("Submit Results");
+                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
                     },
                     fail: function (jqXHR) {
                         $('#details').html("An error occurred (" + jqXHR.status + " - " + jqXHR.responseJSON.detail + ")");
@@ -119,32 +111,6 @@ var Competition;
                     }
                 });
 
-                prTable = $("#user_results").dataTable({
-                    'bPaginate': false,
-                    'bInfo': false,
-                    'bFilter': false,
-                    'bAutoWidth': false,
-                    'bSort': false
-                });
-                /*
-                var crTable = $("#competition_results").dataTable({
-                    "fnDrawCallback": function (oSettings) {
-                        // Need to redo the counters if filtered or sorted
-                        if (oSettings.bSorted || oSettings.bFiltered) {
-                            for (var i = 0, iLen = oSettings.aiDisplay.length ; i < iLen ; i++) {
-                                $('td:eq(0)', oSettings.aoData[oSettings.aiDisplay[i]].nTr).html(i + 1);
-                            }
-                        }
-                    },
-                    "aoColumnDefs": [
-                        { "bSortable": false, "aTargets": [0] }
-                    ],
-                    "aaSorting": [[1, 'asc']],
-                    'bPaginate': false,
-                    'bInfo': false,
-                    'bFilter': false
-                });
-                */
                 $('#user_results .enclosed-foundicon-plus').on('click', function () {
                     Competition.showOrHideSubmissionDetails(this);
                 });
@@ -272,15 +238,15 @@ var Competition;
 
     Competition.showOrHideSubmissionDetails = function (obj) {
         var nTr = $(obj).parents('tr')[0];
-        if (prTable.fnIsOpen(nTr)) {
+        if ($(obj).hasClass("enclosed-foundicon-minus")) {
             $(obj).removeClass("enclosed-foundicon-minus");
             $(obj).addClass("enclosed-foundicon-plus");
-            prTable.fnClose(nTr);
+            $(nTr).next("tr.trDetails").remove();
         }
         else {
             $(obj).removeClass("enclosed-foundicon-plus");
             $(obj).addClass("enclosed-foundicon-minus");
-            var elem = $("#submission_details_template .submission_details").clone();
+            var elem = $("#submission_details_template .trDetails").clone();
             elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
             var state = $(nTr).find("input[name='state']").val();
             if (state == 1) {
@@ -306,7 +272,6 @@ var Competition;
                 var status = $(nTr).find(".statusName").html();
                 var btn = elem.find("button").addClass("hide");
                 if ($.trim(status) === "Submitted" || $.trim(status) === "Running") {
-
                     btn.removeClass("hide");
                     btn.text("Refresh status")
                     btn.on('click', function () {
@@ -314,7 +279,7 @@ var Competition;
                     });
                 }
             }
-            prTable.fnOpen(nTr, elem, 'details');
+            $(nTr).after(elem);
         }
     }
 
@@ -405,4 +370,3 @@ $(document).ready(function () {
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
 });
-
