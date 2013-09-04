@@ -1,4 +1,3 @@
-
 var Competition;
 (function (Competition) {
 
@@ -99,23 +98,10 @@ var Competition;
                         }
                     },
                     success: function (response) {
-                        //var subNumber = response.submission_number.toString();
-                        //var subSubmitted = response.submitted_at;
-                        //var subStatus = "Unknonw";
-                        //switch (response.status) {
-                        //    case 1: subStatus = "Submitted"; break;
-                        //    case 6: subStatus = "Running"; break;
-                        //    case 7: subStatus = "Failed"; break;
-                        //    case 8: subStatus = "Cancelled"; break;
-                        //    case 9: subStatus = "Finished"; break;
-                        //}
-                        //var x = $("#user_results").dataTable().fnAddData([subNumber, subSubmitted, subStatus, "", "", ""]);
-                        //$('#fileUploadButton').text("Submit Results");
-                        //$('#fileUploadButton').removeClass('disabled');
-                        //window.location.reload();
+                        $('#user_results .enclosed-foundicon-minus').click(); // workaround until table update is able to preserve "open/close"-state of a row
                         prTable.fnDestroy();
-                        $("#user_results").append(Competition.displaySubmittedResult(response));
-                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.fireClickEventForExpandandcollapse(this) });
+                        $("#user_results").append(Competition.displayNewSubmission(response));
+                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         prTable = $("#user_results").dataTable({
                             'bPaginate': false,
                             'bInfo': false,
@@ -125,7 +111,6 @@ var Competition;
                         });
                         $('#fileUploadButton').removeClass("disabled");
                         $('#fileUploadButton').text("Submit Results");
-                       // $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
                     },
                     fail: function (jqXHR) {
                         $('#details').html("An error occurred (" + jqXHR.status + " - " + jqXHR.responseJSON.detail + ")");
@@ -161,7 +146,7 @@ var Competition;
                 });
                 */
                 $('#user_results .enclosed-foundicon-plus').on('click', function () {
-                    Competition.fireClickEventForExpandandcollapse(this);
+                    Competition.showOrHideSubmissionDetails(this);
                 });
             },
             error: function (xhr, status, err) {
@@ -206,16 +191,63 @@ var Competition;
         return sOut;
     }
 
-    Competition.displaySubmittedResult = function (response) {
-        var elemTr = $("#submission_details_template #SubmittionTableTemplate tr").clone();
+    function fmt2(val) {
+        var s = val.toString();
+        if (s.length == 1) {
+            s = "0" + s;
+        }
+        return s;
+    }
+    function lastModifiedLabel(dtString) {
+        var d;
+        if ($.browser.msie && (parseInt($.browser.version) === 8)) {
+            d = new Date();
+            var dd = parseInt(dtString.substring(8, 10), 10);
+            var mm = parseInt(dtString.substring(5, 7), 10);
+            var yr = parseInt(dtString.substring(0, 4), 10);
+            var hh = parseInt(dtString.substring(11, 13), 10);
+            var mn = parseInt(dtString.substring(14, 16), 10);
+            var sc = parseInt(dtString.substring(17, 19), 10);
+            d.setUTCDate(dd);
+            d.setUTCMonth(mm);
+            d.setUTCFullYear(yr);
+            d.setUTCHours(hh);
+            d.setUTCMinutes(mn);
+            d.setUTCSeconds(sc);
+        } else {
+            d = new Date(dtString);
+        }
+        var dstr = $.datepicker.formatDate('M dd, yy', d).toString();
+        var hstr = d.getHours().toString();
+        var mstr = fmt2(d.getMinutes());
+        var sstr = fmt2(d.getSeconds());
+        return "Last modified: " + dstr + " at " + hstr + ":" + mstr + ":" + sstr;
+    }
+
+    Competition.displayNewSubmission = function (response) {
+        var elemTr = $("#submission_details_template #submission_row_template tr").clone();
         $(elemTr).attr("id", response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
         $(elemTr).children().each(function (index) {
             switch (index) {
                 case 0: if (response.status === 9) { $(this).val("1"); } break;
                 case 1: $(this).html(response.submission_number.toString()); break;
-                case 2: $(this).html($.datepicker.formatDate('mm/dd/yy', new Date(response.submitted_at))); break;
-                case 3: $(this).html(Competition.getSubmittedFileStatus(response.status)); break;
+                case 2:
+                    var fmt = function (val) {
+                        var s = val.toString();
+                        if (s.length == 1) {
+                            s = "0" + s;
+                        }
+                        return s;
+                    }
+                    var dt = new Date(response.submitted_at);
+                    var d = $.datepicker.formatDate('mm/dd/yy', dt).toString();
+                    var h = dt.getHours().toString();
+                    var m = fmt(dt.getMinutes());
+                    var s = fmt(dt.getSeconds());
+                    $(this).html(d + " " + h + ":" + m + ":" + s);
+                    break;
+                case 3: $(this).html(Competition.getSubmissionStatus(response.status)); break;
             }
         }
       );
@@ -225,8 +257,9 @@ var Competition;
     Competition.oddOrEven = function (x) {
         return (x & 1) ? "odd" : "even";
     }
-    Competition.getSubmittedFileStatus = function (status) {
-        var subStatus = "Unknonw";
+
+    Competition.getSubmissionStatus = function (status) {
+        var subStatus = "Unknown";
         switch (status) {
             case 1: subStatus = "Submitted"; break;
             case 6: subStatus = "Running"; break;
@@ -237,7 +270,7 @@ var Competition;
         return subStatus;
     }
 
-    Competition.fireClickEventForExpandandcollapse = function (obj) {
+    Competition.showOrHideSubmissionDetails = function (obj) {
         var nTr = $(obj).parents('tr')[0];
         if (prTable.fnIsOpen(nTr)) {
             $(obj).removeClass("enclosed-foundicon-minus");
@@ -273,11 +306,11 @@ var Competition;
                 var status = $(nTr).find(".statusName").html();
                 var btn = elem.find("button").addClass("hide");
                 if ($.trim(status) === "Submitted" || $.trim(status) === "Running") {
-                   
+
                     btn.removeClass("hide");
                     btn.text("Refresh status")
                     btn.on('click', function () {
-                        Competition.refreshSubmittedFileStatus($("#competitionId").val(), nTr.id,this)
+                        Competition.updateSubmissionStatus($("#competitionId").val(), nTr.id, this)
                     });
                 }
             }
@@ -285,7 +318,7 @@ var Competition;
         }
     }
 
-    Competition.refreshSubmittedFileStatus = function (competitionId, submissionId,obj) {
+    Competition.updateSubmissionStatus = function (competitionId, submissionId, obj) {
         $(obj).parents(".submission_details").find(".preloader-handler").append("<div class='competitionPreloader'></div>").children().css({ 'top': '25px', 'display': 'block' });
         var url = "/api/competition/" + competitionId + "/submission/" + submissionId;
         $.ajax({
@@ -293,7 +326,7 @@ var Competition;
             url: url,
             cache: false,
             success: function (data) {
-                $('#user_results #' + submissionId).find(".statusName").html(Competition.getSubmittedFileStatus(data.status));
+                $('#user_results #' + submissionId).find(".statusName").html(Competition.getSubmissionStatus(data.status));
                 if (data.status === 9) {
                     $('#user_results #' + submissionId + "input:hidden").val("1"); $(obj).addClass("leaderBoardSubmit");
                     $(obj).text("Submit to Leaderboard");
@@ -302,7 +335,7 @@ var Competition;
                 $(".competitionPreloader").hide();
             },
             error: function (xhr, status, err) {
-               
+
             }
         });
     }
@@ -328,7 +361,6 @@ $(document).ready(function () {
             data: values,
             success: function (response, textStatus, jqXHR) {
                 $('.content form').replaceWith(Competition.displayRegistrationStatus());
-                Competition.invokePhaseButtonOnOpen("submissions_phase_buttons");
             },
             error: function (jsXHR, textStatus, errorThrown) {
                 alert("There was a problem registering for this competition.");;
@@ -348,7 +380,7 @@ $(document).ready(function () {
         });
     });
 
-    $('#Participate').click(function (obj) {
+    $('a[href="#participate-submit_results"]').click(function (obj) {
         Competition.invokePhaseButtonOnOpen("submissions_phase_buttons");
     });
 
@@ -373,3 +405,4 @@ $(document).ready(function () {
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
 });
+

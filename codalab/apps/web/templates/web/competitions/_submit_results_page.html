@@ -1,4 +1,3 @@
-
 {% if phase == None %}
 {% elif phase.is_future %}
     <p>This phase of the competition has not started yet. Please check back later.</p>
@@ -36,7 +35,7 @@
                 <input type="hidden" name="state" value='0' />
                 {% endif %}
                 <td>{{submission.submission_number}}</td>
-                <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
+                <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
                 <td class="statusName">{{submission.status.name}}</td>
                 <td></td>
                 {% if submission.id == id_of_submission_in_leaderboard %}
@@ -63,8 +62,8 @@
                 <button class="button rFloat hide"></button>
             </div>
         </div>
-        <table id="SubmittionTableTemplate">
-              <tr id="SubmittionTableTemplateTr">
+        <table id="submission_row_template">
+              <tr>
                 <input type="hidden" name="state" value="0" />
                 <td></td>
                 <td></td>
