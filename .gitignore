@@ -18,6 +18,12 @@ bundles/bundles.fs
 venv/*/*
 *venv*
 
+# Project Files #
+#################
+*.pyproj
+*.sln
+*.suo
+
 # Compass/SASS generated files #
 ################################
 **/**/.sass-cache

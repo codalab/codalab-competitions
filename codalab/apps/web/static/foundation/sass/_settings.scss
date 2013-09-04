@@ -650,6 +650,7 @@ div.pending-approval-select.columns {
 		}
 	}
 }
+
 .leaderboard-result-table .table-title th {
 	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	color: #FFF;
@@ -660,3 +661,6 @@ div.pending-approval-select.columns {
 	text-align: left;
 }
 
+.preloader-handler {
+	position:relative;
+}

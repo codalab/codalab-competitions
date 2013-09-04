@@ -21,7 +21,7 @@ main = base.Base.SITE_ROOT
 
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
-    time.sleep(4) # Needed temporarily for using sqlite. Race.
+    time.sleep(0.1) # Needed temporarily for using sqlite. Race.
     program = 'competition/1/1/data/program.zip'
     dataset = 'competition/1/1/data/reference.zip'
 
@@ -47,7 +47,7 @@ input: %s
     submission.save()
     # Submit the request to the computation service
     headers = {'content-type': 'application/json'}
-    data = json.dumps(submission.runfile.name)
+    data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
     res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
     print "submitting: %s" % submission.runfile.name
     if res.status_code in (200,201):
