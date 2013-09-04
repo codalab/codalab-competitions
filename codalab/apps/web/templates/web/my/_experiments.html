@@ -22,7 +22,7 @@
               <p>{{ item.description }}</p>
             </div>
           </div>
-          <div class="small-10 small-centered columns">
+          <div class="small-10 small-centered columns cursor-default">
             <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
             <a href="#"><button class="globalYellowButtonSmall">Edit</button></a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="globalYellowButtonSmall">Participants</button></a>
