@@ -33,7 +33,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     def participate(self,request,pk=None):
         comp = self.get_object()
         terms = request.DATA['agreed_terms']
-        status = webmodels.ParticipantStatus.objects.get(codename='pending')
+        status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
                                                                    defaults={'status': status,
