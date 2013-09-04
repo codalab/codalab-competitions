@@ -48,10 +48,10 @@ class LoginRequiredMixin(object):
 
 class CompetitionCreate(CreateView):
     model = models.Competition
-    template_name = 'web/my/create.html'
+    template_name = 'web/competitions/edit.html'
     form_class = forms.CompetitionForm
 
-    def form_valid(self,form):
+    def form_valid(self, form):
          form.instance.creator = self.request.user
          form.instance.modified_by = self.request.user
          return super(CompetitionCreate, self).form_valid(form)
@@ -68,7 +68,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/competition/edit.html'
+    template_name = 'web/competitions/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -78,8 +78,6 @@ class CompetitionDelete(DeleteView):
     model = models.Competition
     # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
-
-
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
