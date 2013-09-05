@@ -15,11 +15,16 @@
     {% endif %}
     <div class="row">
       <div class="user_results">
+        {% if phase.is_active %}
+        <input type="hidden" id="phasestate" value='1' />
+        {% else %}
+        <input type="hidden" id="phasestate" value='0' />
+        {% endif %}
         <table class="prevResultSubmission dataTable" id="user_results">
           <thead>
             <tr>
                 <th>Submission</th>
-                <th>Submitted</th>
+                <th>Submission date</th>
                 <th>Status</th>
                 <th width="40px"></th>
                 <th width="40px"></th>
@@ -29,7 +34,7 @@
           <tbody>
             {% for submission in my_submissions %}
               <tr id="{{submission.id}}">
-                {% if phase.is_active and submission.status.codename == "finished" %}
+                {% if submission.status.codename == "finished" %}
                 <input type="hidden" name="state" value='1' />
                 {% else %}
                 <input type="hidden" name="state" value='0' />
@@ -51,21 +56,25 @@
       </div>
     </div>
     <div id="submission_details_template" class="hide">
-        <table><tr class="trDetails"><td class="details" colspan = "6">
-        <div class="submission_details">
-            <div class="small-2 large-4 columns">
-                <a href="/my/competition/submission/_/stdout.txt" target="_blank">Standard output log</a></br>
-                <a href="/my/competition/submission/_/stderr.txt" target="_blank">Standard error log</a></br>
-                <a href="/my/competition/submission/_/output.zip">Scoring Output</a>
-            </div>
-            <div class="small-2 large-4 columns preloader-handler"></div>
-            <div class="small-2 large-4 columns">
-                <button class="button rFloat hide"></button>
-            </div>
-        </div>
-            </td></tr></table>
+        <table>
+            <tr class="trDetails">
+                <td class="tdDetails" colspan="6">
+                    <div class="submission_details">
+                        <div class="small-2 large-4 columns">
+                            <a href="/my/competition/submission/_/stdout.txt" target="_blank">Standard output log</a></br>
+                            <a href="/my/competition/submission/_/stderr.txt" target="_blank">Standard error log</a></br>
+                            <a href="/my/competition/submission/_/output.zip">Scoring Output</a>
+                        </div>
+                        <div class="small-2 large-4 columns preloader-handler"></div>
+                        <div class="small-2 large-4 columns">
+                            <button class="button rFloat hide"></button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
         <table id="submission_row_template">
-              <tr>
+            <tr>
                 <input type="hidden" name="state" value="0" />
                 <td></td>
                 <td></td>
@@ -73,7 +82,7 @@
                 <td></td>
                 <td class="status not_submitted"></td>
                 <td><i class="enclosed-foundicon-plus"></i></td>
-              </tr>
+            </tr>
         </table>
     </div>
 {% endif %}

@@ -34,7 +34,7 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
-    denied=models.ParticipantStatus.objects.get(codename="denied")
+    denied=models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
         'competitions_im_in' : request.user.participation.all().exclude(status=denied)
@@ -48,10 +48,10 @@ class LoginRequiredMixin(object):
 
 class CompetitionCreate(CreateView):
     model = models.Competition
-    template_name = 'web/my/create.html'
+    template_name = 'web/competitions/edit.html'
     form_class = forms.CompetitionForm
 
-    def form_valid(self,form):
+    def form_valid(self, form):
          form.instance.creator = self.request.user
          form.instance.modified_by = self.request.user
          return super(CompetitionCreate, self).form_valid(form)
@@ -68,7 +68,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/competition/edit.html'
+    template_name = 'web/competitions/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -78,8 +78,6 @@ class CompetitionDelete(DeleteView):
     model = models.Competition
     # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
-
-
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -138,7 +136,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         if self.request.user in [x.user for x in competition.participants.all()]:
             participant = competition.participants.get(user=self.request.user)
-            if participant.status.codename == 'approved':
+            if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
                 submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
                 context['my_submissions'] = submissions

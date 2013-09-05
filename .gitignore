@@ -18,6 +18,12 @@ bundles/bundles.fs
 venv/*/*
 *venv*
 
+# Project Files #
+#################
+*.pyproj
+*.sln
+*.suo
+
 # Compass/SASS generated files #
 ################################
 **/**/.sass-cache
@@ -62,6 +68,11 @@ venv/*/*
 *.sql
 *.sqlite*
 *.db
+
+# Generated data files #
+########################
+codalab/.coverage
+codalab/coverage.xml
 
 # OS generated files #
 ######################

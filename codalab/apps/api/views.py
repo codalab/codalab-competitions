@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from apps.web import models as webmodels
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
 
 
@@ -33,7 +34,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     def participate(self,request,pk=None):
         comp = self.get_object()
         terms = request.DATA['agreed_terms']
-        status = webmodels.ParticipantStatus.objects.get(codename='pending')
+        status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
                                                                    defaults={'status': status,
@@ -227,6 +228,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail = 'Competition phase is closed.')
         obj.phase = phase        
+
+    def handle_exception(self, exc):
+        if type(exc) is DjangoPermissionDenied:
+            exc = PermissionDenied(detail = str(exc))
+        return super(CompetitionSubmissionViewSet, self).handle_exception(exc)
 
     @action(methods=["DELETE"])
     def removeFromLeaderboard(self, request, pk=None, competition_id=None):
