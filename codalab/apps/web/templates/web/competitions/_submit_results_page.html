@@ -15,11 +15,16 @@
     {% endif %}
     <div class="row">
       <div class="user_results">
+        {% if phase.is_active %}
+        <input type="hidden" id="phasestate" value='1' />
+        {% else %}
+        <input type="hidden" id="phasestate" value='0' />
+        {% endif %}
         <table class="prevResultSubmission dataTable" id="user_results">
           <thead>
             <tr>
                 <th>Submission</th>
-                <th>Submitted</th>
+                <th>Submission date</th>
                 <th>Status</th>
                 <th width="40px"></th>
                 <th width="40px"></th>
@@ -29,7 +34,7 @@
           <tbody>
             {% for submission in my_submissions %}
               <tr id="{{submission.id}}">
-                {% if phase.is_active and submission.status.codename == "finished" %}
+                {% if submission.status.codename == "finished" %}
                 <input type="hidden" name="state" value='1' />
                 {% else %}
                 <input type="hidden" name="state" value='0' />
