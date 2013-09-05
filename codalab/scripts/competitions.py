@@ -82,9 +82,9 @@ p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 10, 1
 p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 7, 15), datetime.time()), timezone.get_current_timezone())
 p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 30), datetime.time()), timezone.get_current_timezone())
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=1, label="Training Phase",
-                                                                                                        start_date=p1date, max_submissions=100)
+                                                                                                        start_date=p1date, max_submissions=20)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
-                                                                                                        start_date=p2date, max_submissions=1)
+                                                                                                        start_date=p2date, max_submissions=5)
 
 ## Score Definitions
 groups = {}
@@ -219,7 +219,7 @@ spine.save()
 
 # Phases for the competition
 day_delta = datetime.timedelta(days=30)
-for phase in [1, 2]:
+for phase in [1, 2, 3]:
         phase_start = start_date + (day_delta * phase)
         p, created = CompetitionPhase.objects.get_or_create(competition=spine, phasenumber=phase, label="Phase %d" % phase,
                                                             start_date=phase_start, max_submissions=4)

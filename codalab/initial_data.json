@@ -165,16 +165,16 @@
   "pk": 1, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
-    "codename": "submitted", 
-    "name": "Submitted"
+    "codename": "submitting", 
+    "name": "Submitting"
   }
 },
 {
   "pk": 2, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
-    "codename": "processing", 
-    "name": "Processing"
+    "codename": "submitted", 
+    "name": "Submitted"
   }
 },
 {
@@ -197,20 +197,12 @@
   "pk": 5, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
-    "codename": "accepted", 
-    "name": "Accepted"
+    "codename": "cancelled", 
+    "name": "Cancelled"
   }
 },
 {
   "pk": 6, 
-  "model": "web.competitionsubmissionstatus", 
-  "fields": {
-    "codename": "rejected", 
-    "name": "Rejected"
-  }
-},
-{
-  "pk": 7, 
   "model": "web.competitionsubmissionstatus", 
   "fields": {
     "codename": "finished", 
