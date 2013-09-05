@@ -32,25 +32,31 @@
             </tr>
           </thead>
           <tbody>
-            {% for submission in my_submissions %}
-              <tr id="{{submission.id}}">
-                {% if submission.status.codename == "finished" %}
-                <input type="hidden" name="state" value='1' />
-                {% else %}
-                <input type="hidden" name="state" value='0' />
+                {% if my_submissions|length_is:"0" %}
+                <tr class="noData">
+                    <td class="tdDetails" colspan="6">No data available in table</td>
+                </tr>  
+                {% else %}  
+                {% for submission in my_submissions %}
+                <tr id="{{submission.id}}">
+                    {% if submission.status.codename == "finished" %}
+                    <input type="hidden" name="state" value='1' />
+                    {% else %}
+                    <input type="hidden" name="state" value='0' />
+                    {% endif %}
+                    <td>{{submission.submission_number}}</td>
+                    <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                    <td class="statusName">{{submission.status.name}}</td>
+                    <td></td>
+                    {% if submission.id == id_of_submission_in_leaderboard %}
+                    <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+                    {% else %}
+                    <td class="status not_submitted"></td>
+                    {% endif %}
+                    <td><i class="enclosed-foundicon-plus"></i></td>
+                </tr>
+                {% endfor %}
                 {% endif %}
-                <td>{{submission.submission_number}}</td>
-                <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
-                <td class="statusName">{{submission.status.name}}</td>
-                <td></td>
-                {% if submission.id == id_of_submission_in_leaderboard %}
-                <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-                {% else %}
-                <td class="status not_submitted"></td>
-                {% endif %}
-                <td><i class="enclosed-foundicon-plus"></i></td>
-              </tr>
-            {% endfor %}
           </tbody>
         </table>
       </div>
