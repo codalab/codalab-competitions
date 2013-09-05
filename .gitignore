@@ -73,6 +73,7 @@ venv/*/*
 ########################
 codalab/.coverage
 codalab/coverage.xml
+codalab/cover/**/**
 
 # OS generated files #
 ######################
