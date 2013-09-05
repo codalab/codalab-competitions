@@ -10,7 +10,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-#from django.utils.module_loading import import_by_path
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
