@@ -11,6 +11,7 @@ from django.contrib.contenttypes import generic
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
 #from django.utils.module_loading import import_by_path
+from django.core.exceptions import PermissionDenied
 from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
@@ -354,6 +355,13 @@ class CompetitionParticipant(models.Model):
 
 # Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):
+    SUBMITTING = "submitting"
+    SUBMITTED = "submitted"
+    RUNNING = "running"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    FINISHED = "finished"
+
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
     
@@ -426,6 +434,8 @@ class CompetitionSubmission(models.Model):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
     def save(self,*args,**kwargs):
+        if self.participant.competition != self.phase.competition:
+            raise Exception("Competition for phase and participant must be the same")
         # only at save on object creation should it be submitted
         if not self.pk:
             subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
@@ -433,12 +443,12 @@ class CompetitionSubmission(models.Model):
                 self.submission_number = subnum + 1
             else:
                 self.submission_number = 1
+            if (self.submission_number > self.phase.max_submissions):
+                raise PermissionDenied("The maximum number of submissions has been reached.")
             self._do_submission = True
-            self.set_status('submitted',force_save=False)
+            self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
         else:
             self._do_submission = False
-        if self.participant.competition != self.phase.competition:
-            raise Exception("Competition for phase and participant must be the same")
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         if self._do_submission:
