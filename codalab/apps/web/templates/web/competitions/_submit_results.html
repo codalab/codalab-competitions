@@ -1,58 +1,16 @@
 {% load codalab %}
 
-<div class="row right">
+<div class="row right" id="submissions_phase_buttons">
   <div class="small-12 columns">
     {% for phase in competition.phases.all %}
       {% if phase == active_phase %}
-        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button active" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
   </div>
 </div>
-<div class="row"
-  <p>Submit a new result set or view your previous submissions.</p>
-</div>
-<div class="row">
-  <button class="globalBlueButton" onclick="$('#fileUpload').click()">Submit Results</button>
-  <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
-  <div id="details"></div>
-  <div id="response"></div>
-  <div id="previews"></div>
-</div>
 
-<div class="row">
-  <div class="user_results">
-    <table class="prevResultSubmission resultSubResultsContainer dataTable" id="user_results">
-      <thead>
-        <tr>
-          <th>Submission</th>
-          <th width="150px">Name</th>
-          <th width="200px">Date</th>
-          <th>Score</th>
-          <th width="75px">Status</th>
-          <th width="50px"></th>
-          <th width="50px"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for submission in active_phase_submissions %}
-        <tr>
-          <td>{{submission.id}}</td>
-          <td><span data-tooltip class="has-tip" title="{{submission.file}}">{{submission.file|filename}}</span></td>
-          <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-          <td>{{submission.result.aggregate}}</td>
-          <td>{{submission.status}}</td>
-          {% if submission in active_phase.board.submissions %}
-            <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-          {% else %}
-            <td class="status not_submitted"></td>
-          {% endif %}
-          <td><i class="enclosed-foundicon-plus"></i></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="competition_submissions">
 </div>

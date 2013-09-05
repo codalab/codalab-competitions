@@ -16,6 +16,14 @@ from apps.web import tasks
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
+try:
+    import azure
+    import azure.storage
+except ImportError:
+    raise ImproperlyConfigured(
+        "Could not load Azure bindings. "
+        "See https://github.com/WindowsAzure/azure-sdk-for-python")
+
 def competition_index(request):
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
@@ -26,9 +34,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
+    denied=models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
-        'competitions_im_in' : request.user.participation.all()
+        'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
 
@@ -37,15 +46,12 @@ class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
-class CompetitionTabDetails(TemplateView):
-    pass
-
 class CompetitionCreate(CreateView):
     model = models.Competition
-    template_name = 'web/my/create.html'
+    template_name = 'web/competitions/edit.html'
     form_class = forms.CompetitionForm
 
-    def form_valid(self,form):
+    def form_valid(self, form):
          form.instance.creator = self.request.user
          form.instance.modified_by = self.request.user
          return super(CompetitionCreate, self).form_valid(form)
@@ -62,7 +68,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/competition/edit.html'
+    template_name = 'web/competitions/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -79,7 +85,7 @@ class CompetitionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
-
+        competition = context['object']
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
@@ -92,18 +98,24 @@ class CompetitionDetailView(DetailView):
             side_tabs[category] = tc 
         context['tabs'] = side_tabs
         submissions=dict()
+        all_submissions=dict()
         try:
-            if self.request.user.is_authenticated() and self.request.user in [x.user for x in context['object'].participants.all()]:
-                context['my_status'] = [x.status for x in context['object'].participants.all() if x.user == self.request.user][0].codename
-                context['my_participant_id'] = context['object'].participants.get(user=self.request.user).id
-                for phase in context['object'].phases.all():
-                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant_id'], phase=phase)
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
+                context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
+                context['my_participant'] = competition.participants.get(user=self.request.user)
+                for phase in competition.phases.all():
+                    submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
-                        context['active_phase_submissions'] = submissions[phase]
+                        context['my_active_phase_submissions'] = submissions[phase]
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
+                for phase in competition.phases.all():
+                    if phase.is_active:
+                        context['active_phase'] = phase
+                    all_submissions[phase] = phase.submissions.all()
+                context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
             pass
@@ -114,17 +126,36 @@ class CompetitionUpdate(UpdateView):
     model = models.Competition
     form_class = forms.CompetitionForm
         
-class CompetitionPageDetails(TemplateView):
-    pass
-        
-class CompetitionSubmissionsPage(TemplateView):
-    pass
+       
+class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
+    # Serves the table of submissions in the Participate tab of a competition.
+    # Requires an authenticated user who is an approved participant of the competition.
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionSubmissionsPage,self).get_context_data(**kwargs)
+        context['phase'] = None
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        if self.request.user in [x.user for x in competition.participants.all()]:
+            participant = competition.participants.get(user=self.request.user)
+            if participant.status.codename == models.ParticipantStatus.APPROVED:
+                phase = competition.phases.get(pk=self.kwargs['phase'])
+                submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
+                context['my_submissions'] = submissions
+                context['phase'] = phase
+                ids = [ r.submission.id for r in models.PhaseLeaderBoardEntry.objects.filter(board=phase) if r.submission in submissions ]
+                context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
+
+                                                                              
+
+        return context
 
 class CompetitionResultsPage(TemplateView):
-    pass
-
-class CompetitionDownloadDataset(TemplateView):
-    pass
+    # Serves the leaderboards in the Results tab of a competition.
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionResultsPage,self).get_context_data(**kwargs)
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        context['phase'] = phase
+        return context
 
 ### Views for My Codalab
 
@@ -198,7 +229,6 @@ class CompetitionIndexPartial(TemplateView):
         return context
 
 class MyCompetitionsManagedPartial(ListView):
-    
     model = models.Competition
     template_name = 'web/my/_managed.html'
     queryset = models.Competition.objects.all()
@@ -207,7 +237,6 @@ class MyCompetitionsManagedPartial(ListView):
         return self.queryset.filter(creator=self.request.user)
 
 class MyCompetitionsEnteredPartial(ListView):
-    
     model = models.CompetitionParticipant
     template_name = 'web/my/_entered.html'
     queryset = models.CompetitionParticipant.objects.all()
@@ -218,7 +247,55 @@ class MyCompetitionsEnteredPartial(ListView):
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
+class MySubmissionResultsPartial(TemplateView):
+    template_name = 'web/my/_submission_results.html'
+    
+    def get_context_data(self,**kwargs):
+        ctx = super(MySubmissionResultsPartial,self).get_context_data(**kwargs)
 
+        participant_id = kwargs.get('participant_id')
+        participant = models.CompetitionParticipant.objects.get(pk=participant_id)
+
+        phase_id = kwargs.get('phase_id')
+        phase = models.CompetitionPhase.objects.get(pk=phase_id)
+
+        ctx['active_phase'] = phase
+        ctx['my_active_phase_submissions'] = phase.submissions.filter(participant=participant)
+        
+        return ctx
+
+class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+
+    def get(self,request,*args,**kwargs):
+        submission=models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        filetype = kwargs.get('filetype')
+        name, ext = filetype.split('.')
+        fileattr = name +'_file'
+        resp = None
+        if hasattr(submission, fileattr):
+            f = getattr(submission, fileattr)
+            if f:   
+                try:             
+                    resp = HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
+                except azure.WindowsAzureMissingResourceError:
+                    # for stderr.txt which does not exist when no errors have occurred
+                    # this may hide a true 404 in an unexpected circumstances
+                    resp = HttpResponse("", status=200, content_type='text/plain')
+                except:
+                    resp = HttpResponse("There was an error retrieving file '%s'. Please try again later or report the issue." % filetype, status=200, content_type='text/plain')
+        return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
+                                                           
+        
+class SubmissionsTest(TemplateView):
+    template_name = 'web/my/submissions_test.html'
+
+    def get_context_data(self):
+        ctx = super(SubmissionsTest,self).get_context_data()
+
+        ctx['phase_id'] = self.kwargs.get('phase_id')
+        ctx['participant_id'] = self.kwargs.get('participant_id')
+        
+        return ctx
 
 # Bundle Views
 
@@ -271,3 +348,4 @@ class RunDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
+

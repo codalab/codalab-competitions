@@ -3,7 +3,7 @@
 {% load account %}
 {% load url from future %}
 
-{% block subheader %}<div class="small-12 columns account_widget"><H4>{% trans "Sign In" %}</h4></div>{% endblock subheader %}
+{% block subheader %}<H4>{% trans "Sign In" %}</h4>{% endblock subheader %}
 
 {% block content %}
 	<div class="small-12 columns account_widget">
@@ -30,18 +30,13 @@
 			<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
 			{% endif %}
 			<div class="row">
-				<div class="globalBlueButtonAtag">
-					<button class="primaryAction globalBlueButton button-Style-Brown" type="submit">{% trans "Sign In" %}</button>
-                    <div class="login-button-separator">
-                                                <hr />
-                                                <label>OR</label>
-                                                <hr />
-                                            </div>
-                                            <a data-reveal-id="signup-modal" data-reveal-ajax="true" class="button secondaryAction button-Style-Brown" href="{{signup_url}}">sign up</a>
-                   <br />
+				<div class="small-12 columns">
+					<button class="button right" type="submit">{% trans "Sign In" %}</button>
 				</div>
 			</div>
-			
+			<div class="row">
+				<a data-reveal-id="signup-modal" data-reveal-ajax="true" href="{{signup_url}}">Register</a> &nbsp; if you don't have an account.
+			</div>
 		</form>
+    </div>
 {% endblock %}
-</div>

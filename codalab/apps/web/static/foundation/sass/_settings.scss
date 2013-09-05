@@ -1,8 +1,8 @@
 $background: #739CB9;
 $foreground: white;
-$banner: #EBF2FB;
+$banner: #F5F5F5;
 $highlight: #739CB9;
-$active: #ffac31;
+$active: #676278;
 $gray: #666;
 $light-gray: #ccc;
 $light-medium-gray: #a4a4a4;
@@ -13,13 +13,8 @@ $link-color: #676278;
 $background-gray:#f8f8f8;
 $white:#fff;
 $text-color-gray:#3b3b3b;
-$text-link-color:#8a8a8a;
-$grayish-blue:#79a2c0;
-$text-color-light-gray:#797979;
-$dropdown-gray:#d6d6d6;
-$purple-gray:#7a768b;
 
-$primary: $background;
+$primary-color: $background;
 
 $body-font-color: $gray;
 $header-font-color: $gray;
@@ -34,7 +29,7 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$anchor-font-color: $background;
+$anchor-font-color: $link-color;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
 
@@ -43,6 +38,7 @@ $inline-list-bottom-margin: 0;
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
 
+$primary-button-color: #676278;
 $button-font-color: $foreground;
 
 $section-title-color: $highlight;
@@ -62,8 +58,8 @@ $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
 
 @mixin linkStyle {
-	color:$purple-gray !important;
-	font-size:1.10 !important;
+	color:$link-color !important;
+	font-size:15px !important;
 }
 
 @mixin paragraph-Style {
@@ -71,48 +67,19 @@ $side-nav-font-size: 15px;
 	font-size:13px;
 	line-height:22px;
 }
-@mixin h4-Style {
-	color:$text-color-light-gray;
-	font-size:28px;
-	font-weight:normal;
-}
 
 @mixin textbox-style {
 	box-shadow:inset 0 0 8px #ccc;
 	border-radius:5px;
 }
 
-@mixin textbox-style-square {
-	box-shadow:inset 0 0 8px #ccc;
-	height:30px;
-}
-@mixin button-Style-Brown {
-    padding:15px;
-    font-size:13px;
-    font-weight:bold;
-    letter-spacing:2px;
-    color:$white !important;
-    background:#676278;
-    border:0;
-    text-transform:uppercase;
-    margin-left:10px;
-    width:112px;
-    cursor:pointer;
-	&:hover{opacity:0.7}
-	&:focus{color:$white !important; opacity:0.9}
-}
-@mixin Main-font-normal{
-    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
-	font-weight: normal;
-}
-@mixin Main-font-light{
-    font-family: Segoe UI Light,'Segoe UI Light', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
-	font-weight: normal;
-}
-
+@mixin table-header-white {
+	background:#648ca8 !important;  
+	color:#fff;  
+}  
 
 *{
-    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:   100%;
 	font-weight: normal;
 }
@@ -156,40 +123,6 @@ nav.top-bar section.top-bar-section ul.right {
 	color: $foreground;
 	background: $background;
 	vertical-align: text-bottom;
-}
-.top-bar {
-	box-shadow:0 3px 5px #666;
-	height:60px !important;
-	background:$white !important;
-}
-
-nav.top-bar .name h1 {
-	line-height:60px;
-}
-
-nav.top-bar .name h1 a {
- color:$grayish-blue;
-}
-
-section.top-bar-section  > ul  {
-	background:$white !important;
-	li > a {
-	color:$text-link-color;
-	line-height:60px;
-	}
-}
-
-section.top-bar-section li {
-	a:not(.button) {
-	line-height:60px;
-	background:$white;
-	}
-	.dropdown{
-		a:not(.button) {
-			background:$gray;
-			line-height:25px;
-		}
-	}
 }
 
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
@@ -244,13 +177,13 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 	padding: 0px;
 }
 
-td > i {
+td > i, td > a > i {
 	color: $background;
 }
 
 a > i {
 	height: 100%;
-	color: $grayish-blue;
+	color: $foreground;
 }
 
 .competitionsDetailTabArea > section > .title {
@@ -372,17 +305,17 @@ a > i {
 
 .slider {
 	color: $foreground;
+   	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 	font-size: 3.5em;
-	font-weight: lighter;
+	font-weight: 100;
 	position: relative;
 	text-align: center;
-	background: $grayish-blue;
-	padding-top: 120px;
+	background: #D0D0D0;
+	padding-top: 70px;
 	margin: 0 auto;
 	width: 100%;
-	min-height: 300px;
+	min-height: 200px;
 	vertical-align: middle;
-	@include Main-font-light;
 }
 
 .subheader {
@@ -415,9 +348,9 @@ a > i {
 }
 
 p.competition-paragraph {
-	font-size:11px;
+	font-size: 1em;
 	color:$gray;
-	line-height:15px;
+	line-height: 1.6em;
 	margin-bottom:0;
 }
 
@@ -452,6 +385,7 @@ p.competition-paragraph {
 
 .articleHeadingContainer label {
 	color:$light-medium-gray;
+	margin-top:4px;
 	margin-bottom:14px;
 	font-size:12px;
 }
@@ -467,22 +401,22 @@ p.competition-paragraph {
 	float:right
 }
 
+.signin-formfields p:nth-child(3) > input {
+	float:left;
+	position:relative;
+	top:-20px;
+}
+
+.signin-formfields p:nth-child(3) > label {
+	padding-left:20px;
+}
+
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
 	box-shadow:none;
 	white-space:nowrap;
-	height:44px;
-	padding:11px !important;
-	min-width:112px !important;
-	width:auto !important;
-	margin-top:0;
-	&:hover{@include button-Style-Brown; opacity:0.7}
-	&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
-	a {	
-		&:hover{@include button-Style-Brown; opacity:0.7}
-		&:focus{@include button-Style-Brown; color:$white !important; opacity:0.9}
-		margin-top:0;
+	a {
+		&:focus{color:$white !important}
 	}
-	@include button-Style-Brown;
 }
 
 .signin-centered-container > p > a {
@@ -491,45 +425,35 @@ p.competition-paragraph {
 
 ul.side-nav {
 	 padding-top:0;
+	 position:fixed;
 	 li {
 		margin-bottom:2px;
-		padding-bottom:0 !important;
 	 }
 	 li a {
-		font-weight:normal;
 		@include linkStyle;
-		&:hover{color:$purple-gray; font-weight:bold}
-		&:active{background:none; font-weight:bold}
+		&:hover{color:$active}
+		&:active{background:none}
 	  }
 	li.active a {
-		color:$gray !important
+		color:$gray !important;
+		border-left: #676278 4px solid;
+		text-indent: 10px;
 	}
-}
+} 
 
 .glossary-page-container, competitions-block-Styling {
-	.fixed {
-		left:auto;
-		top:auto;
-		margin-left:0;
-		a {
-			display:inline-block
-		}
-	}
 	h6 { 
-		font-size:16px; 
-		color:$purple-gray;
-		margin-bottom:0px;
+		font-size:18px; 
+		color:$gray;
 		}
 
 	p { 
-		font-size:15px; 
-		color:$purple-gray;
-		padding-bottom:14px;
-		
+		font-size:14px; 
+		color:$gray;
 		}
 
 	ol { 
-		font-size:13px; color:$gray;
+		font-size:14px; color:$gray;
 
 		li {
 			padding-bottom:10px;
@@ -538,16 +462,13 @@ ul.side-nav {
 	}
 
 	ul { 
-		font-size:15px; 
-		color:$purple-gray;
+		font-size:14px; 
+		color:$gray;
 		margin-left:20px;
 
 		li{
 			padding-bottom:10px;
-			list-style-type:none;
-			b { 
-				color:$purple-gray;
-			}
+			list-style-type:disc;
 		}
 	}
 
@@ -558,11 +479,11 @@ ul.side-nav {
 		}
 
 	p a {
-		color:$link-color
+		color:$link-color;
 		}
 
 	b {
-		color:$gray
+		color:$gray;
 	}
 }
 
@@ -601,8 +522,8 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 
 		p a {
 			@include linkStyle;
-			&:hover{color:$active !important}
-			&:active{background:none !important}
+			&:hover{color:$active !important;}
+			&:active{background:none !important;}
 		}
 	}
 
@@ -629,130 +550,117 @@ div.pending-approval-select.columns {
 		margin-bottom:2px;
 	 }
 }
-/*Homepage-------------------*/
 
-body{
-	
-	 p {
-		color:$text-color-light-gray
-	}
-	h4 {
-		@include h4-Style;
-		@include Main-font-light;
-	}
+.glossary-page-container {
+       .fixed {
+              left:auto;
+              top:auto;
+              margin-left:0;
+              a {
+                     display:inline-block
+              }
+       }
+       h6 { 
+              font-size:16px; 
+              color:$gray;
+              margin-bottom:0px;
+              }
+  
+       p { 
+              font-size:15px; 
+              color:$gray;
+              padding-bottom:14px;
+              
+              }
+  
+       ol { 
+              font-size:13px; color:$gray;
+  
+              li {
+                     padding-bottom:10px;
+                     list-style-type:disc;
+              }
+       }
+  
+       ul { 
+              font-size:15px; 
+              color:$gray;
+              margin-left:20px;
+  
+              li{
+                     padding-bottom:10px;
+                     list-style-type:none;
+                     b { 
+                           color:$gray;
+                     }
+              }
+       }
+  
+       pre {
+              padding:10px;
+              background:$banner;
+              margin-bottom:15px;
+              }
+  
+       p a {
+              color:$link-color
+              }
+  
+       b {
+              color:$gray
+       }
+  }
+  
+.hide
+{
+	display:none !important;
 }
 
-.horizontal-ruler {
-	margin-top:0px;
-	hr {
-		margin-top:0;
-	}
-}
-
-body ul.banner-navigation{
-	padding:20px 0 30px;
-	margin:0;
-	li {
-		height:auto;
-	}
-	a {
-		width:10px;
-		height:10px;
-		border-radius:10px;
-		background:#c2c2c2;
-		border:solid 1px #929292;
-		padding:2px !important;
-	}
-	li.current a{
-		background:#8d8d8d !important;
-	}
-}
-body section.top-bar-section ul.signin-dropdown {
-	background:$dropdown-gray !important;
-	padding:10px;
-	width:250px;
-	max-width:250px;
-	&:after {
-		display:none !important;
-	}
-	&:before {
-		display:none !important;
-	}
-	input[type="text"],input[type="password"] {
-		@include textbox-style-square;
-	}
-	li {
-	width:100%;
-		&:hover{background:none !important;}
-		& > a{
-			background:none !important;
-			&:hover{background:none !important}
-			
+.leaderboard-result-table {
+	margin: 0 15px;
+	overflow-x:auto;
+	clear:both;
+	min-height:400px;
+	table {
+		table-layout:auto;
+		tr {
+			th { 
+				vertical-align:top;
+				border:solid 1px #8eb0c7; 
+				text-align:center;
+				background:#dce9f2;
+				color:#648ca8;
+				font-size: 12px;
+			}
+			th[colspan="3"] {
+				@include table-header-white;
+			}
+			td {}
+		}
+		tr:nth-child(2) {
+			th:nth-child(1) {
+				@include table-header-white;
+			}
+			th:nth-child(2) {
+				@include table-header-white;
+			}
+			th:last-child {
+				@include table-header-white;
+			}
 		}
 	}
-	.button-Style-Brown {
-		width:100% !important;
-		@include button-Style-Brown;
-		margin:0;
-		min-height:44px;
-	}
-	label {
-		display:table-cell;
-	}
-}
-.login-button-separator {
-	width:90%;
-	margin:auto;
-	display:table;
-	hr {
-		background:red;
-		border-bottom:solid 1px $text-link-color
-	}
-	label {
-		display:table-cell;
-		vertical-align:middle;
-		width:30px;
-		text-align:center;
-		font-weight:bold;
-		color:$text-link-color;
-	}
 }
 
-body .login > p {
-padding-top:0px;
+.leaderboard-result-table .table-title th {
+	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	color: #FFF;
+	font-weight: lighter;
+	font-size: 1.4em;
+	background-color: #676278;
+	text-transform: none;
+	text-align: left;
 }
-body .login > p:nth-child(4) > input {
-	float:left;
+
+.preloader-handler {
 	position:relative;
-	top:-24px;
-	padding-left:0;
-}
-
-body .login > p:nth-child(4) > label {
-	padding-left:20px;
-	display:inline-block;
-}
-
-/*Homepage-------------------*/
-
-/*SubPage-------------------*/
-
-body .subheader-strip{
-	margin-top:16px;
-	background:$grayish-blue url("../../site/images/headerBg.jpg") repeat-x;
-	padding:5px 0;
-	min-height:95px;
-	margin-bottom:32px;
-	h4 {
-		font-size:40px;
-		color:#fff;
-		@include Main-font-light;
-		margin-bottom:0;
-	}
-}
-ul li.name.cl-logo {
-	margin-top:10px;
-	a {
-		color: $grayish-blue !important;
-	}
 }

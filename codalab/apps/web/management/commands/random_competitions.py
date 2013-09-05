@@ -33,9 +33,9 @@ class Command(BaseCommand):
                     default=2,
                     help="Number of participants."),
         make_option('--participant_status',
-                    choices=('unknown','pending','approved','denied'),
+                    choices=(ParticipantStatus.UNKNOWN,ParticipantStatus.PENDING,ParticipantStatus.APPROVED,ParticipantStatus.DENIED),
                     dest='participant_status',
-                    default='pending',
+                    default=ParticipantStatus.PENDING,
                     help="The initial status of the created participants"
                     )
                 )

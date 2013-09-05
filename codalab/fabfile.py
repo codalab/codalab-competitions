@@ -7,10 +7,10 @@ from fabvenv import make_virtualenv, virtualenv
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'project','codalab','codalab')
 DEPLOY_PATH='codalab'
 
-THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
+THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR,'codalab','settings')
 
 sys.path.append('.')
 
@@ -84,7 +84,7 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    put(pathjoin(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
+    put(pathjoin(PROJECT_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
     env.run('chmod a+x codalab_scripts/ubuntu/provision')
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
