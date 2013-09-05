@@ -298,12 +298,10 @@ class SubmissionsTest(TemplateView):
         return ctx
 
 # Bundle Views
-
 class BundleListView(ListView):
     model = models.Bundle
     queryset = models.Bundle.objects.all()
   
-
 class BundleCreateView(CreateView):
     model = models.Bundle
     action = "created"
@@ -314,7 +312,6 @@ class BundleCreateView(CreateView):
         f.save()
         tasks.create_directory.delay(f.id)
         return HttpResponseRedirect('/bundles')
-  
 
 class BundleDetailView(DetailView):
     model = models.Bundle
@@ -323,10 +320,7 @@ class BundleDetailView(DetailView):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         return context
 
-
-
 # Bundle Run Views
-
 class RunListView(ListView):
     model = models.Run
     queryset = models.Run.objects.all()
@@ -340,12 +334,10 @@ class RunCreateView(CreateView):
         f = form.save(commit=False)
         f.save()
         return HttpResponseRedirect('/runs')
-  
-  
+
 class RunDetailView(DetailView):
     model = models.Run
 
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
-
