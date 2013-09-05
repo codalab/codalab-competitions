@@ -32,6 +32,10 @@
             </tr>
           </thead>
           <tbody>
+            {% if my_submissions|length_is:"0" %}
+              <tr class="noData"><td class="tdDetails" colspan="6">
+              No data available in table</td></tr>
+            {% else %}
             {% for submission in my_submissions %}
               <tr id="{{submission.id}}">
                 {% if submission.status.codename == "finished" %}
@@ -51,6 +55,7 @@
                 <td><i class="enclosed-foundicon-plus"></i></td>
               </tr>
             {% endfor %}
+            {% endif %}
           </tbody>
         </table>
       </div>

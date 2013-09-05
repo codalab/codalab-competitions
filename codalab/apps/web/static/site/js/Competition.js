@@ -70,7 +70,6 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_submissions").html("").append(data);
-
                 $('#fileUploadButton').on('click', function () {
                     var disabled = $('#fileUploadButton').hasClass('disabled');
                     if (!disabled) {
@@ -98,6 +97,7 @@ var Competition;
                         }
                     },
                     success: function (response) {
+                        $("#user_results tr.noData").remove();
                         $("#user_results").append(Competition.displayNewSubmission(response));
                         $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         $('#fileUploadButton').removeClass("disabled");
