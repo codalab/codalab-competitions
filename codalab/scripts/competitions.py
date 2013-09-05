@@ -242,6 +242,36 @@ for participant in participants:
 #  End Spine Localization ----
 #
 
+#
+# Single-phase competition
+#
+def create_single_phase_sample():
+    title = "Single-phase competition example"
+    description = "This is an example of a single-phase competition."
+    competition,created = Competition.objects.get_or_create(title=title, creator=guest1, modified_by=guest1, description=description)
+    competition.save()
+
+    # Note: no logo specified on purpose
+
+    # The one phase of the competition
+    phase_start = timezone.now()
+    phase, created = CompetitionPhase.objects.get_or_create(competition=competition, phasenumber=1, label="Game On",
+                                                            start_date=phase_start, max_submissions=10)
+
+    # Participants for the competition
+    participants = [ User.objects.get(username="guest%d" % i) for i in range(1, 5)]
+    # Participant statuses, if they haven't been created before
+    statuses = ParticipantStatus.objects.all()
+    # Add participants to the competition with random statuses
+    for participant in participants:
+            status = ParticipantStatus.objects.get(codename=ParticipantStatus.PENDING)
+            resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=competition, 
+                                                                                          defaults={'status':status})
+#
+#  End single-phase competition ----
+#
+create_single_phase_sample()
+
 # #
 # #  Start ChaLearn Cause-Effect ----
 # #
