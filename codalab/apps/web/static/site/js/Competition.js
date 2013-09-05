@@ -105,7 +105,11 @@ var Competition;
                         $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
                     },
                     fail: function (jqXHR) {
-                        $('#details').html("An error occurred (" + jqXHR.status + " - " + jqXHR.responseJSON.detail + ")");
+                        var msg = "An unexpected error occured.";
+                        if (jqXHR.status == 403) {
+                            msg = jqXHR.responseJSON.detail;
+                        }
+                        $('#details').html(msg);
                         $('#fileUploadButton').text("Submit Results");
                         $('#fileUploadButton').removeClass('disabled');
                     }
@@ -196,7 +200,7 @@ var Competition;
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
         $(elemTr).children().each(function (index) {
             switch (index) {
-                case 0: if (response.status === 9) { $(this).val("1"); } break;
+                case 0: if (response.status === 6) { $(this).val("1"); } break;
                 case 1: $(this).html(response.submission_number.toString()); break;
                 case 2:
                     var fmt = function (val) {
@@ -227,11 +231,12 @@ var Competition;
     Competition.getSubmissionStatus = function (status) {
         var subStatus = "Unknown";
         switch (status) {
-            case 1: subStatus = "Submitted"; break;
-            case 6: subStatus = "Running"; break;
-            case 7: subStatus = "Failed"; break;
-            case 8: subStatus = "Cancelled"; break;
-            case 9: subStatus = "Finished"; break;
+            case 1: subStatus = "Submitting"; break;
+            case 2: subStatus = "Submitted"; break;
+            case 3: subStatus = "Running"; break;
+            case 4: subStatus = "Failed"; break;
+            case 5: subStatus = "Cancelled"; break;
+            case 6: subStatus = "Finished"; break;
         }
         return subStatus;
     }
@@ -248,8 +253,9 @@ var Competition;
             $(obj).addClass("enclosed-foundicon-minus");
             var elem = $("#submission_details_template .trDetails").clone();
             elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
+            var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
-            if (state == 1) {
+            if ((phasestate == 1) && (state == 1)) {
                 var btn = elem.find("button");
                 btn.removeClass("hide");
                 var submitted = $(nTr).find(".status").hasClass("submitted");
@@ -271,7 +277,7 @@ var Competition;
             else {
                 var status = $(nTr).find(".statusName").html();
                 var btn = elem.find("button").addClass("hide");
-                if ($.trim(status) === "Submitted" || $.trim(status) === "Running") {
+                if ($.trim(status) === "Submitting" || $.trim(status) === "Submitted" || $.trim(status) === "Running") {
                     btn.removeClass("hide");
                     btn.text("Refresh status")
                     btn.on('click', function () {
@@ -292,11 +298,19 @@ var Competition;
             cache: false,
             success: function (data) {
                 $('#user_results #' + submissionId).find(".statusName").html(Competition.getSubmissionStatus(data.status));
-                if (data.status === 9) {
-                    $('#user_results #' + submissionId + "input:hidden").val("1"); $(obj).addClass("leaderBoardSubmit");
-                    $(obj).text("Submit to Leaderboard");
+                if (data.status === 6) {
+                    $('#user_results #' + submissionId + "input:hidden").val("1");
+                    var phasestate = $('#phasestate').val();
+                    if (phasestate == 1) {
+                        $(obj).addClass("leaderBoardSubmit");
+                        $(obj).text("Submit to Leaderboard");
+                    } else {
+                        $(obj).addClass("hide");
+                    }
                 }
-                else if (data.status > 6) { $(obj).addClass("hide"); }
+                else if (data.status > 3) {
+                    $(obj).addClass("hide");
+                }
                 $(".competitionPreloader").hide();
             },
             error: function (xhr, status, err) {
