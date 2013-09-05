@@ -69,6 +69,11 @@ venv/*/*
 *.sqlite*
 *.db
 
+# Generated data files #
+########################
+codalab/.coverage
+codalab/coverage.xml
+
 # OS generated files #
 ######################
 .DS_Store
