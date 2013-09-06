@@ -346,8 +346,7 @@ class ScoresTestView(TemplateView):
     
     def get_context_data(self, **kwargs):
         ctx = super(ScoresTestView,self).get_context_data(**kwargs)
-        lb = models.PhaseLeaderBoard.objects.all()[0]
+        lb = models.PhaseLeaderBoard.objects.get(phase__pk=kwargs['phase_id'])
         ctx['scores'] = lb.scores()
-       
         return ctx
         
