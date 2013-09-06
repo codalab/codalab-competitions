@@ -16,9 +16,9 @@ class Command(BaseCommand):
                     default=None,
                     help="ID of the competition"),
         make_option('--status',
-                    choices=('unknown','pending','approved','denied'),
+                    choices=(ParticipantStatus.UNKNOWN,ParticipantStatus.PENDING,ParticipantStatus.APPROVED,ParticipantStatus.DENIED),
                     dest='status',
-                    default='pending',
+                    default=ParticipantStatus.PENDING,
                     help="The initial status of the created participant"
                     )
         )

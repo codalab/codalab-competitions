@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-#from django.utils.module_loading import import_by_path
+from django.core.exceptions import PermissionDenied
 from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
@@ -150,6 +150,10 @@ class ExternalFile(models.Model):
 
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
+    UNKNOWN = 'unknown'
+    DENIED = 'denied'
+    APPROVED = 'approved'
+    PENDING = 'pending'
     name = models.CharField(max_length=30)
     codename = models.CharField(max_length=30,unique=True)
     description = models.CharField(max_length=50)
@@ -217,6 +221,60 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
+
+def phase_data_prefix(phase):
+    return "competition/%d/%d/data/" % (phase.competition.pk, phase.pk,)
+
+# In the following helpers, the filename argument is required even though we
+# choose to not use it. See FileField.upload_to at https://docs.djangoproject.com/en/dev/ref/models/fields/.
+
+def phase_scoring_program_file(phase, filename=""):
+    return phase_data_prefix(phase) + 'program.zip'
+
+def phase_reference_data_file(phase, filename=""):
+    return phase_data_prefix(phase) + 'reference.zip'
+
+def phase_input_data_file(phase, filename=""):
+    return phase_data_prefix(phase) + 'input.zip'
+
+def submission_file_name(instance,filename):
+    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
+                                                                    instance.phase.pk,
+                                                                    instance.participant.user.pk,
+                                                                    instance.submission_number)
+def submission_inputfile_name(instance, filename):
+     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
+                                                               instance.phase.pk,
+                                                               instance.participant.user.pk,
+                                                               instance.submission_number)
+def submission_runfile_name(instance, filename):
+    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
+                                                            instance.phase.pk,
+                                                            instance.participant.user.pk,
+                                                            instance.submission_number)
+
+def submission_output_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stdout_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_stderr_filename(instance,filename=""):
+    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
+                                                                   instance.phase.pk,
+                                                                   instance.participant.user.pk,
+                                                                   instance.submission_number)
+def submission_file_blobkey(instance, filename="run/output.zip"):
+    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
+                                                       instance.phase.pk,
+                                                       instance.participant.user.pk,
+                                                       instance.submission_number,
+                                                       filename)
+
 # Competition Phase 
 class CompetitionPhase(models.Model):
     """ 
@@ -227,6 +285,10 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True)
     start_date = models.DateTimeField()
     max_submissions = models.PositiveIntegerField(default=100)
+    is_scoring_only = models.BooleanField(default=True)
+    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True)
+    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
+    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     
     class Meta:
@@ -314,25 +376,6 @@ class CompetitionPhase(models.Model):
 
         return LABELS
 
-def phase_data_prefix(instance,filename):
-    return "competition/%d/%d/data/" % (instance.competition.pk,
-                                        instance.pk,)
-
-def phase_data_program_file(instance,filename):
-    return phase_data_prefix(instance,filename) + 'program.zip'
-
-def phase_data_file(instance,filename):
-    return phase_data_prefix(instance,filename) + 'data.zip'
-
-class PhaseData(models.Model):
-    phase = models.ForeignKey(CompetitionPhase)
-    programfile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
-    datafile = models.FileField(upload_to=phase_data_program_file, storage=BundleStorage,null=True,blank=True)
-    
-    def __unicode__(self):
-        return self.phase.__unicode__()
-
-
 # Competition Participant
 class CompetitionParticipant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='participation')
@@ -346,53 +389,26 @@ class CompetitionParticipant(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
 
+    @property
+    def is_approved(self):
+        """ Returns true if this participant is approved into the competition. """
+        return self.status.codename == ParticipantStatus.APPROVED
+
 # Competition Submission Status 
 class CompetitionSubmissionStatus(models.Model):
+    SUBMITTING = "submitting"
+    SUBMITTED = "submitted"
+    RUNNING = "running"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    FINISHED = "finished"
+
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
     
     def __unicode__(self):
         return self.name
 
-
-
-def submission_file_name(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
-                                                                    instance.phase.pk,
-                                                                    instance.participant.user.pk,
-                                                                    instance.submission_number)
-def submission_inputfile_name(instance, filename):
-     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
-                                                               instance.phase.pk,
-                                                               instance.participant.user.pk,
-                                                               instance.submission_number)
-def submission_runfile_name(instance, filename):
-    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number)
-
-def submission_output_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stdout_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stderr_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_file_blobkey(instance, filename="run/output.zip"):
-    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
-                                                       instance.phase.pk,
-                                                       instance.participant.user.pk,
-                                                       instance.submission_number,
-                                                       filename)
 # Competition Submission
 class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
@@ -420,19 +436,21 @@ class CompetitionSubmission(models.Model):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
     def save(self,*args,**kwargs):
+        if self.participant.competition != self.phase.competition:
+            raise Exception("Competition for phase and participant must be the same")
         # only at save on object creation should it be submitted
         if not self.pk:
-            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase).aggregate(Max('submission_number'))['submission_number__max']
+            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
             if subnum is not None:
                 self.submission_number = subnum + 1
             else:
                 self.submission_number = 1
+            if (self.submission_number > self.phase.max_submissions):
+                raise PermissionDenied("The maximum number of submissions has been reached.")
             self._do_submission = True
-            self.set_status('submitted',force_save=False)
+            self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
         else:
             self._do_submission = False
-        if self.participant.competition != self.phase.competition:
-            raise Exception("Competition for phase and participant must be the same")
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         if self._do_submission:

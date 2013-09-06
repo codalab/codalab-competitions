@@ -41,7 +41,7 @@ var Competition;
                     $(obj).parent().siblings(".buttonPreloader").hide();
                 } else {
                     if(data.status == 'denied') {
-                        $(obj).parent().siblings("p").text("Participation rejected");
+                        $(obj).parent().siblings("p").text("Participation Denied");
                         $(obj).parent().parent().append("<p style='color:red'>Reason: " + data.reason + "<p>");
                         $(obj).parent().hide();
                         $(obj).parent().siblings(".buttonPreloader").hide();

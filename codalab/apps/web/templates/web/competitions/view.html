@@ -17,10 +17,8 @@
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
                     <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
-                    <input id="submissionId" name="submissionId"  type="hidden" />
-                    <input id="activePhase" name="activePhase"  type="hidden" />
-                    <input id="selectedPhaseButton" name="selectedPhaseButton"  type="hidden" />
-                    <input id="selectedRank" name="selectedRank"  type="hidden"  value="1"/>
+                    <input type="hidden" id="competitionId" value="{{competition.id}}" />
+                    <input type="hidden" id="cstoken" value="{{csrf_token}}" />
                     <div class="StatusStripContainer">
                         <div class="challStatusStripTxt">
                             <div class="dataStatusHolder">
@@ -54,7 +52,7 @@
             </section>
             <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true">
                 {% for tab, contents in tabs.items %}
-                <section>
+                <section id="{{tab.name}}-section">
                     <p class="title" id="{{tab.name}}" data-section-title>
                         <a href="#{{tab.codename}}">{{tab.name}}</a>
                     </p>
@@ -64,11 +62,8 @@
                             <div class="participateInfoBlock">
                                 <div class="infoStatusBar"></div>
                                 <div class="labelArea">
-                                    <label class="regApprovLabel">You must be logged in to participate in competitions.</label>
-                                    <label></label>
-                                    <div class="button">
-                                        <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a>
-                                    </div>
+                                    <p class="regApprovLabel">You must be logged in to participate in competitions.</p>
+                                    <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true"><button class="button">Sign In</button></a>
                                 </div>
                             </div>
                             {% else %}
@@ -78,16 +73,16 @@
                                     <div class="participateInfoBlock">
                                         <div class="infoStatusBar"></div>
                                         <div class="labelArea">
-                                            <label class="regApprovLabel">You have not yet registered for this competition.</label>
-                                            <label></label>
+                                            <p class="regApprovLabel">You have not yet registered for this competition.</p>
+                                            <p></p>
                                             <p>
                                                 To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                             </p>
-                                            <label id="terms" for="checkbox">
+                                            <p id="terms" for="checkbox">
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required >
                                                 <span class="custom checkbox"></span> 
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
-                                            </label>
+                                            </p>
                                             <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
                                         </div>
                                     </div>
@@ -96,16 +91,16 @@
                                 <div class="participateInfoBlock pendingApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</label>
-                                        <label></label>
+                                        <p class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</p>
+                                        <p></p>
                                     </div>
                                 </div>
                                 {% elif my_status == "denied" %}
                                 <div class="participateInfoBlock rejectedApproval">
                                     <div class="infoStatusBar"></div>
                                     <div class="labelArea">
-                                        <label class="regApprovLabel">Your request to participate in this competition was denied.</label>
-                                        <label>Reason: {{my_participant.reason}}</label>
+                                        <p class="regApprovLabel">Your request to participate in this competition was denied.</p>
+                                        <p>Reason: {{my_participant.reason}}</p>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -126,233 +121,10 @@
     </div>
 </div>
 {% endblock %}
+
 {% block js %}
-
-//var Competition;
-//(function (Competition) {
-
-    function getPhaseResults(phaseId) {
-        $(".competition_results").html("").append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
-        var url = "/competitions/{{ competition.id }}/results/" + phaseId;
-        $.ajax({
-            type: "GET",
-            url: url,
-            cache: false,
-            success: function (data) {
-                $(".competition_results").html("").append(data);
-            },
-            error: function (xhr, status, err) {
-                $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
-            }
-        });
-    }
-
-    function fnFormatDetails(prTable, nTr) {
-        var aData = prTable.fnGetData(nTr);
-        console.log(nTr.id);
-        console.log(aData);
-        var sOut = '<div class="submission_details">';
-
-        sOut += '<div class="small-4 push-8 columns">';
-        submission = nTr.id.split("-")[0];
-        result = nTr.id.split("-")[1];
-        if ($(nTr).find(".status").hasClass("submitted")) {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}}," + submission + "," + result + ", \'delete\')\"";
-            sOut += '<button class="button rFloat leaderBoardRemove" onclick=' + clickStr + '>Remove from Leaderboard</button>';
-        } else {
-            var clickStr = "\"leaderBoardSubmit({{competition.id}}," + submission + "," + result + ", \'post\')\"";
-            sOut += '<button class="button rFloat leaderBoardSubmit" onclick=' + clickStr + '>Submit to Leaderboard</button>';
-        }
-        sOut += '</div>';
-
-        sOut += '<div class="small-8 pull-4 columns">';
-        sOut += '<a href="/my/competition/submission/' + submission + '/output.zip">Scoring output</a></br>';
-        sOut += '<a href="/my/competition/submission/' + submission + '/stdout.txt" target="_blank">Standard output</a></br>';
-        sOut += '<a href="/my/competition/submission/' + submission + '/stderr.txt" target="_blank">Standard error</a>';
-        sOut += '</div>';
-
-        sOut += '</div>';
-        return sOut;
-    }
-
-    function leaderBoardSubmit(competition, submission, result, op) {
-        url = "/api/competition/" + competition + "/submission/" + submission + "/result/" + result + "/leaderboard";
-        if (op == "delete") {
-            url += "_remove/";
-            op = "delete";
-        } else {
-            url += "/";
-        }
-        request = $.ajax({
-            url: url,
-            type: op,
-            datatype: 'text',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-            },
-            success: function (response, textStatus, jqXHR) {
-                /* alert("Submitted!"); */
-            },
-            error: function (jsXHR, textStatus, errorThrown) {
-                /* alert("Submission Failed ("+errorThrown+": "+textStatus); */
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-            }
-        });
-    };
-
-    function registationCanProceed() {
-        if ($("#checkbox").is(":checked") === true) {
-            $("#participateButton").removeClass("disabledStatus");
-        } else {
-            $("#participateButton").addClass("disabledStatus");
-        };
-    };
-
-    function displayRegistrationStatus() {
-        var sOut = "";
-        sOut = "<div class='participateInfoBlock pendingApproval'>"
-        sOut += "<div class='infoStatusBar'></div>"
-        sOut += "<div class='labelArea'>"
-        sOut += "<label class='regApprovLabel'>Your request to participate in this challenge has been received and a decision is pending.</label>"
-        sOut +="<label></label>"
-        sOut += "</div>"
-        sOut += "</div>"
-        return sOut;
-    }
-
-//})(Competition || (Competition = {}));
-
-$(document).ready(function () {
-
-    $("#checkbox").click(function (e) { registationCanProceed(); });
-
-    $("#participate_form").submit(function (event) {
-        event.preventDefault();
-        if ($("#participateButton").hasClass("disabledStatus")) {
-            return false;
-        }
-        $("#result").html('');
-        var values = $(this).serialize();
-        request = $.ajax({
-            url: "/api/competition/{{competition.id}}/participate/",
-            type: "post",
-            dataType: "text",
-            data: values,
-            success: function (response, textStatus, jqXHR) {
-                $('.content form').replaceWith(displayRegistrationStatus());
-            },
-            error: function (jsXHR, textStatus, errorThrown) {
-                alert("There was a problem registering for this competition.");;
-            }
-        });
-        return false;
-    });
-
-    // In partials loaded, initialize the data tables
-    var prTable = $("#user_results").dataTable({
-        'bPaginate': false,
-        'bInfo': false,
-        'bFilter': false,
-        'bAutoWidth': false,
-        'bSort': false
-    });
-    var crTable = $("#competition_results").dataTable({
-        "fnDrawCallback": function (oSettings) {
-            /* Need to redo the counters if filtered or sorted */
-            if (oSettings.bSorted || oSettings.bFiltered) {
-                for (var i = 0, iLen = oSettings.aiDisplay.length ; i < iLen ; i++) {
-                    $('td:eq(0)', oSettings.aoData[oSettings.aiDisplay[i]].nTr).html(i + 1);
-                }
-            }
-        },
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": [0] }
-        ],
-        "aaSorting": [[1, 'asc']],
-        'bPaginate': false,
-        'bInfo': false,
-        'bFilter': false
-    });
-
-    $('#user_results .enclosed-foundicon-plus').on('click', function () {
-        console.log(this);
-        if (this.className == "enclosed-foundicon-plus" || this.className == "enclosed-foundicon-minus") {
-            var nTr = $(this).parents('tr')[0];
-            if (prTable.fnIsOpen(nTr)) {
-                /* This row is already open - close it */
-                this.className = "enclosed-foundicon-plus";
-                prTable.fnClose(nTr);
-            }
-            else {
-                /* Open this row */
-                this.className = "enclosed-foundicon-minus";
-                prTable.fnOpen(nTr, fnFormatDetails(prTable, nTr), 'details');
-            }
-        }
-    });
-
-    $('#fileUpload').liteUploader(
-    {
-        script: '/api/competition/{{competition.id}}/submission/',
-        allowedFileTypes: 'application/zip,application/x-zip-compressed',
-        maxSizeInBytes: 1000000000,
-        csrfmiddlewaretoken: '{{ csrf_token }}',
-        customParams: {
-            'phase': '1',
-            'participant': '{{my_participant.id}}',
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        before: function () {
-            $('#details, #previews').empty();
-            $('#response').html('Uploading...');
-            return true;
-        },
-        each: function (file, errors) {
-            var i, errorsDisp = '';
-            if (errors.length > 0) {
-                $('#response').html('One or more files did not pass validation');
-                $.each(errors, function (i, error) {
-                    errorsDisp += '<br /><span class="error">' + error.type + ' error - Rule: ' + error.rule + '</span>';
-                });
-            }
-            $('#details').append('<p>name: ' + file.name + ', type: ' + file.type + ', size:' + file.size + errorsDisp + '</p>');
-        },
-        success: function (response) {
-            var response = $.parseJSON(response);
-            $.each(response.urls, function (i, url) {
-                $('#previews').append($('<img>', { 'src': url, 'width': 200 }));
-            });
-            $('#response').html(response.message);
-        }
-    });
-
-    $("#results_phase_buttons .button").each(function (e, index) {
-        $(this).click(function () {
-            var phaseId = $.trim($(this).attr("id").replace("results_phase_", ""));
-            $("#results_phase_buttons .button").removeClass('selected');
-            $(this).addClass('selected');
-            getPhaseResults(phaseId);
-        });
-    });
-
-    $('#Results').click(function (obj) {
-        var btn = $("#results_phase_buttons .button.selected")[0];
-        if (btn === undefined) {
-            btn = $("#results_phase_buttons .button.active")[0];
-            if (btn === undefined) {
-                btn = $("#results_phase_buttons .button")[0];
-            }
-        }
-        btn.click();
-    });
-
-    // This helps make sections appear with Foundation
-    $(this).foundation('section', 'reflow');
-
-    $(".top-bar-section ul > li").removeClass("active");
-    $("#liCompetitions").addClass("active");
-});
-
 {% endblock js %}
+
+{% block jsincludes %}
+<script type="text/javascript" src="{% static "site/js/Competition.js" %}"></script>
+{% endblock jsincludes %}

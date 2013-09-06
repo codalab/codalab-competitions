@@ -1,10 +1,9 @@
 {% load static %}
 <form data-abide method="POST" id="comp_info_form">{% csrf_token %}
+    <input type="hidden"  name="competition" value="{{ competition.pk }}"/>
     <div class="CompetitionTypeDetailrowDate detailsUpload">
-        <div class="CompetitionTypeDetailTBL">
-            <div class="CompetitionTypeDetailrow">
-               <input type="hidden"  name="competition" value="{{ competition.pk }}"/>
-               <div class="thumbnailContainer">
+        <div class="row">
+            <div class="large-2 columns thumbnailContainer">
                 <figure class="competitionsProfileImage">
                     {% if competition.image %}
                         <img id="imgProfileImage" src="{{ competition.image.url }}" width="133" height="94">
@@ -19,17 +18,30 @@
                     <span id="imageProcess" class="preloaderInputImg"></span>
                 </div>
             </div>
-            <div>
-                <div class="dateSelectBlock">
-                    <input type="text" placeholder="End Date" class="inputTxt" id="competitionEndDate"  readonly="true"/><div id="competitionEndDateIcon" class="calIcon"></div>
+            <div class="large-10 columns">
+                <div class="input-wrapper">
+                    <input id="Title" class="text-box single-line" type="text" value="{{ competition.title }}" name="Title" required />
+                    <small class="error">A valid competition title is required.</small>
                 </div>
-                <input id="Title" class="text-box single-line" type="text" value="{{ competition.title }}" name="Title"/>
-                <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Title"></span>
-                <div>
-                    <textarea id="Description" rows="2" name="Description" cols="20">{{ competition.description|default:"" }}</textarea>
-                    <span class="field-validation-valid" data-valmsg-replace="true" data-valmsg-for="Description"></span>
+                <div class="input-wrapper">
+                    <input type="text" placeholder="End Date" class="inputTxt" id="competitionEndDate" required />
+                    <small class="error">A valid competition end date is required.</small>
+                </div>
+                <textarea class="Description" id="Description" name="Description" >{{ competition.description|default:"Competition Description." }}</textarea>
+                <textarea class="Description" id="Overview" name="Overview" >{{ competition.overview|default:"Competition Overview." }}</textarea>
+                <textarea class="Description" id="Evaluation" name="Evaluation" >{{ competition.evaluation|default:"Competition Evaluation Criteria." }}</textarea>
+                <textarea class="Description" id="Terms" name="Terms" >{{ competition.terms|default:"Competition Terms and Conditions." }}</textarea>
+            </div>
+        </div>
+        <div class="phases">
+            <div class="phase_1 row">
+                <div class="large-2 columns">
+                    <a href="#">Add Phase</a>
+                </div>
+                <div class="large-10 columns">
+                    {% include "web/competitions/_edit_phase_partial.html" %}
                 </div>
             </div>
-        </div><a class="helpLinkIcon" href="{% url 'help_create_competition' %}#overview"  title="Get help with creating a competition" target="_blank"></a> 
+        </div>
     </div>
 </form>

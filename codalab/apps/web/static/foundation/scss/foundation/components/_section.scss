@@ -221,7 +221,7 @@ $active-region-selector: ".active" !default;
     padding: $content-padding;
     background-color: $content-bg;
     border: $section-border-style $section-border-size $section-border-color;
-    min-height: 500px;
+    min-height: 640px;
     overflow: visible;
 
     &>*:last-child { margin-bottom: 0; }

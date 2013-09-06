@@ -7,22 +7,24 @@
         <input id="competitionID" type="hidden" value="{{ item.pk }}" />
         <div class="competitionTileLftStrip"></div>
         <div class="articleTextArea">
-          <div class="articleTextAreaContainer">
-            <div class="articleImageContainer">
+          <a href="/competitions/{{item.competition.id}}">
+            <div class="articleTextAreaContainer">
+              <div class="articleImageContainer">
+                <div class="subContainerPadding">
+                  <img src="{{ item.image_url }}" width="100px">
+                </div>
+              </div>
+              
               <div class="subContainerPadding">
-                <img src="{{ item.image_url }}" width="100px">
+                <div class="articleHeadingContainer">
+                  <h3>{{ item.title }}</h3>
+                  <label>{{ item.creator }}</label>
+                </div>
+                <p>{{ item.description }}</p>
               </div>
             </div>
-            
-            <div class="subContainerPadding">
-              <div class="articleHeadingContainer">
-                <h3>{{ item.title }}</h3>
-                <label>{{ item.creator }}</label>
-              </div>
-              <p>{{ item.description }}</p>
-            </div>
-          </div>
-          <div class="small-10 small-centered columns">
+          </a>
+          <div class="small-10 small-centered columns cursor-default">
             <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
             <a href="#"><button class="secondary button">Edit</button></a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
