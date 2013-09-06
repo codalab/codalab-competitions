@@ -24,11 +24,11 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         the models to make the cleanup simpler if we can.
         """
         # Get the competition
-        c = Competition.objects.get(id=pk)
+        c = webmodels.Competition.objects.get(id=pk)
+        c.delete()
 
         # for each phase, cleanup the leaderboard and submissions
-        print "You called destroy on %s!" % pk
-        return Response(json.dumps(dict()), content_type="application/json")
+        return Response(json.dumps({'id' : pk}), content_type="application/json")
 
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):

@@ -39,7 +39,7 @@ class Competitions(TestCase):
         TODO: Does not authenticate (YET) 
         """
         client = Client()
-        res = client.post(reverse('competition-list'), {'title': 'Test Title',
+        res = client.post(reverse('competitions:list'), {'title': 'Test Title',
                                                  'description': 'Description',
                                                  'creator': self.user.pk,
                                                  'modified_by': self.user.pk,

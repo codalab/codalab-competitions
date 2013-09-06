@@ -14,6 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.storage import get_storage_class
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
+from django.core.urlresolvers import reverse, reverse_lazy
 
 from os.path import abspath, basename, dirname, join, normpath
 
@@ -174,6 +175,9 @@ class Competition(models.Model):
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
 
+    def get_absolute_url(self):
+        return reverse('competitions:view', kwargs={'pk':self.pk})
+        
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
