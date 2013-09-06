@@ -34,7 +34,7 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
-    denied=models.ParticipantStatus.objects.get(codename="denied")
+    denied=models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
         'competitions_im_in' : request.user.participation.all().exclude(status=denied)
@@ -46,15 +46,12 @@ class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
-class CompetitionTabDetails(TemplateView):
-    pass
-
 class CompetitionCreate(CreateView):
     model = models.Competition
-    template_name = 'web/my/create.html'
+    template_name = 'web/competitions/edit.html'
     form_class = forms.CompetitionForm
 
-    def form_valid(self,form):
+    def form_valid(self, form):
          form.instance.creator = self.request.user
          form.instance.modified_by = self.request.user
          return super(CompetitionCreate, self).form_valid(form)
@@ -71,7 +68,7 @@ class PhasesInline(InlineFormSet):
 class CompetitionEdit(UpdateWithInlinesView):
     model = models.Competition
     inlines = [PhasesInline, ]
-    template_name = 'web/competition/edit.html'
+    template_name = 'web/competitions/edit.html'
     
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit,self).get_context_data(**kwargs)
@@ -81,8 +78,6 @@ class CompetitionDelete(DeleteView):
     model = models.Competition
     # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
-
-
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -131,23 +126,36 @@ class CompetitionUpdate(UpdateView):
     model = models.Competition
     form_class = forms.CompetitionForm
         
-class CompetitionPageDetails(TemplateView):
-    pass
-        
-class CompetitionSubmissionsPage(TemplateView):
-    pass
+       
+class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
+    # Serves the table of submissions in the Participate tab of a competition.
+    # Requires an authenticated user who is an approved participant of the competition.
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionSubmissionsPage,self).get_context_data(**kwargs)
+        context['phase'] = None
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        if self.request.user in [x.user for x in competition.participants.all()]:
+            participant = competition.participants.get(user=self.request.user)
+            if participant.status.codename == models.ParticipantStatus.APPROVED:
+                phase = competition.phases.get(pk=self.kwargs['phase'])
+                submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
+                context['my_submissions'] = submissions
+                context['phase'] = phase
+                ids = [ r.submission.id for r in models.PhaseLeaderBoardEntry.objects.filter(board=phase) if r.submission in submissions ]
+                context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
+
+                                                                              
+
+        return context
 
 class CompetitionResultsPage(TemplateView):
-
+    # Serves the leaderboards in the Results tab of a competition.
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage,self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        context['phase'] = competition.phases.get(pk=self.kwargs['phase'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        context['phase'] = phase
         return context
-
-
-class CompetitionDownloadDataset(TemplateView):
-    pass
 
 ### Views for My Codalab
 
@@ -289,6 +297,17 @@ class SubmissionsTest(TemplateView):
         
         return ctx
 
+class VersionView(TemplateView):
+    template_name='web/project_version.html'
+
+    def get_context_data(self):
+        import subprocess
+        p = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        ctx = super(VersionView,self).get_context_data()
+        ctx['commit_hash'] = out
+        return ctx
+
 # Bundle Views
 
 class BundleListView(ListView):
@@ -342,6 +361,7 @@ class RunDetailView(DetailView):
         return context
 
 
+
 class ScoresTestView(TemplateView):
     
     def get_context_data(self, **kwargs):
@@ -350,3 +370,4 @@ class ScoresTestView(TemplateView):
         ctx['scores'] = lb.scores()
         return ctx
         
+

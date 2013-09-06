@@ -149,7 +149,6 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
 	margin-left: 10px;
-	font-size: 13px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
@@ -650,6 +649,7 @@ div.pending-approval-select.columns {
 		}
 	}
 }
+
 .leaderboard-result-table .table-title th {
 	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	color: #FFF;
@@ -660,3 +660,34 @@ div.pending-approval-select.columns {
 	text-align: left;
 }
 
+.preloader-handler {
+	position:relative;
+}
+
+.submissions-details-label{
+	margin-bottom:0 !important;
+}
+
+#submissions_phase_buttons .button{
+	margin-left:10px !important;
+	margin-bottom:5px !important;
+}
+#fileUploadButton{
+	margin-bottom:5px;
+}
+.challStatusStripSection { 
+	section{
+		width:auto;
+	}
+}
+.competition-tile{
+	.subContainerPadding{
+		height:140px;
+	}
+	.articleImageContainer{
+		img{
+			height:100%;
+			width:100%;
+		}
+	}
+}
