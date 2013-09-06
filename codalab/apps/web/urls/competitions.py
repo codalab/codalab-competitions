@@ -27,7 +27,7 @@ urlpatterns = patterns('',
                            views.CompetitionDownloadDataset.as_view(template_name='web/competitions/download_dataset.html'), 
                            name='competition_download_dataset'),
 
-                       url(r'^scores$',views.ScoresTestView.as_view(template_name='web/competitions/scores.html'),
+                       url(r'^scores/(?P<phase_id>\d+)$',views.ScoresTestView.as_view(template_name='web/competitions/scores.html'),
                            name='scores_test'),
 
                        )
