@@ -270,7 +270,7 @@ class CompetitionPhase(models.Model):
                 label = x.label
                 group_key = sg.key
                 group_label = sg.label
-                print sg,x
+               
                 if x.scoredef.computed is True: 
                     COMP_KEYS = [cf.scoredef.key for cf in x.scoredef.computed_score.fields.all()]
                     if not COMP_KEYS:
