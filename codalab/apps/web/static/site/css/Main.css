@@ -2750,3 +2750,13 @@ ul.leftNavigation li.active a{
 .cursor-default {
     cursor: default;
 }
+.noData td {
+    padding: 30px !important;
+    text-align: center;
+}
+.section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
+    height: 65px;
+}
+div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
+    height: 65px !important;
+}
