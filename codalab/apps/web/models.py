@@ -112,7 +112,7 @@ class Page(models.Model):
 
     def save(self,*args,**kwargs):
         if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label) 
+            self.title = "%s - %s" % ( self.container.name,self.label ) 
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
@@ -478,25 +478,57 @@ class SubmissionResult(models.Model):
     aggregate = models.DecimalField(max_digits=22,decimal_places=10,default='0.0')
 
 
-class SubmissionResultGroup(models.Model):
+class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
-    
-class SubmissionScoreDef(models.Model):
+    ordering = models.PositiveIntegerField(default=1)
+    phases = models.ManyToManyField(CompetitionPhase,through='SubmissionResultGroupPhase')
+
+    class Meta:
+        ordering = ['ordering']
+
+class SubmissionResultGroupPhase(models.Model):
     group = models.ForeignKey(SubmissionResultGroup)
+    phase = models.ForeignKey(CompetitionPhase)
+
+    class Meta:
+        unique_together = (('group','phase'),)
+
+    def save(self,*args,**kwargs):
+        if self.group.competition != self.phase.competition:
+            raise IntegrityError("Group and Phase competition must be the same")
+
+
+class SubmissionScoreDef(models.Model):
+    competition = models.ForeignKey(Competition)
     key = models.SlugField(max_length=50)
     label = models.CharField(max_length=50)
     sorting = models.SlugField(max_length=20,default='asc',choices=(('asc','Ascending'),('desc','Descending')))
     numeric_format = models.CharField(max_length=20,blank=True,null=True)
     computed = models.BooleanField(default=False)
-    phases = models.ManyToManyField(CompetitionPhase,through='SubmissionScorePhase')
+    groups = models.ManyToManyField(CompetitionPhase,through='SubmissionScoreDefGroup')
 
     class Meta:
-        unique_together = (('key','group'),)
+        unique_together = (('key','competition'),)
 
     def __unicode__(self):
         return self.label
+
+class SubmissionScoreDefGroup(models.Model):
+    scoredef = models.ForeignKey(SubmissionScoreDef)
+    group = models.ForeignKey(CompetitionPhase)
+
+    class Meta:
+        unique_together = (('scoredef','group'),)
+    
+    def __unicode__(self):
+        return "%s %s" % (self.scoredef,self.phase)
+
+    def save(self,*args,**kwargs):
+        if self.scoredef.group.competition != self.group.competition:
+            raise IntegrityError("Score Def competition and phase compeition must be the same")
+        super(SubmissionScorePhase,self).save(*args,**kwargs)
 
 class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
@@ -512,32 +544,16 @@ class SubmissionComputedScoreField(models.Model):
             raise IntegrityError("Cannot use a computed field for a computed score")
         super(SubmissionComputedScoreField,self).save(*args,**kwargs)
         
-
 class SubmissionScoreGroup(MPTTModel):
     parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50,unique=True)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
-    
 
     def __unicode__(self):
         return "%s %s" % (self.parent.label if self.parent else None, self.label)
 
-class SubmissionScorePhase(models.Model):
-    scoredef = models.ForeignKey(SubmissionScoreDef)
-    phase = models.ForeignKey(CompetitionPhase)
-
-    class Meta:
-        unique_together = (('scoredef','phase'),)
-    
-    def __unicode__(self):
-        return "%s %s" % (self.scoredef,self.phase)
-
-    def save(self,*args,**kwargs):
-        if self.scoredef.group.competition != self.phase.competition:
-            raise IntegrityError("Score Def competition and phase compeition must be the same")
-        super(SubmissionScorePhase,self).save(*args,**kwargs)
         
 class SubmissionScore(models.Model):
     result = models.ForeignKey(SubmissionResult,related_name='scores')
@@ -574,8 +590,8 @@ class PhaseLeaderBoard(models.Model):
         return self.phase.scores(score_filters=dict(result__leaderboard_entry_result__board=self))
     
 class PhaseLeaderBoardEntry(models.Model):
-    board = models.ForeignKey(PhaseLeaderBoard,related_name='entries')
-    result = models.ForeignKey(SubmissionResult, related_name='leaderboard_entry_result')
+    board = models.ForeignKey(PhaseLeaderBoard, related_name='entries')
+    result = models.ForeignKey(SubmissionResult,  related_name='leaderboard_entry_result')
 
     class Meta:
         unique_together = (('board', 'result'),)

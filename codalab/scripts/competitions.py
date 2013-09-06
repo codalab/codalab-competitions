@@ -93,13 +93,19 @@ p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phase
 
 
 groups = {}
+
+gorder = 1
 for g in ({'key': 'patient', 'label': 'Patient Data'},
-          {'key': 'synthetic', 'label': 'Synthetic Data'},
-          ):
-        rg,cr = SubmissionResultGroup.objects.get_or_create(competition=brats2012,
-                                                            key=g['key'],
-                                                            defaults=dict(label=g['label']))
-        groups[rg.key] = rg
+	  {'key': 'synthetic', 'label': 'Synthetic Data'},
+	  ):
+	rg,cr = SubmissionResultGroup.objects.get_or_create(competition=brats2012,
+							    key=g['key'],
+							    defaults=dict(label=g['label'],ordering=gorder),
+							    )
+	gorder=gorder+1
+	for gp in brats2012.phases.all():
+		SubmissionResultGroupPhase.objects.create(phase=gp, group=rg)
+	groups[rg.key] = rg
 
 for sdg in ( 
         ('synthetic',({'Dice': {'subs': (('SyntheticDiceComplete','Complete'),('SyntheticDiceCore','Core'))  } },
