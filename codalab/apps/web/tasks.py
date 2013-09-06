@@ -22,10 +22,11 @@ main = base.Base.SITE_ROOT
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
     time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-    program = 'competition/1/1/data/program.zip'
-    dataset = 'competition/1/1/data/reference.zip'
 
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    program = submission.phase.scoring_program.name
+    dataset = submission.phase.reference_data.name
+
     # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
     inputfile = ContentFile(
 """ref: %s
@@ -116,8 +117,8 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                     result.save()
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
-                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))
-                except SubmissionScoreDef.DoesNotExist as e:
+                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))                    
+                except models.SubmissionScoreDef.DoesNotExist as e:
                     print "Score %s does not exist" % label
                     pass
         print "Done processing scores..."
