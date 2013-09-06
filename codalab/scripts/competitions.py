@@ -85,6 +85,23 @@ p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phase
                                                                                                         start_date=p1date, max_submissions=20)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
                                                                                                         start_date=p2date, max_submissions=5)
+for phase in CompetitionPhase.objects.filter(competition=brats2012):
+    # note that we're using the same program and truth files for both phases 
+    # but in reality they may be different.
+    prog_file_path = os.path.join(root_dir, "media", "brats", "program.zip")
+    if os.path.exists(prog_file_path):
+        print "Setting program for phase: %s" % phase.label
+        phase.scoring_program = File(open(prog_file_path, 'rb'))
+        phase.save()
+    else:
+        print "No program file set for phase: %s" % phase.label
+    reference_file_path = os.path.join(root_dir, "media", "brats", "testing-ref.zip")
+    if os.path.exists(reference_file_path):
+        print "Setting reference file for phase: %s" % phase.label
+        phase.reference_data = File(open(reference_file_path, 'rb'))
+        phase.save()
+    else:
+        print "No reference file set for phase: %s" % phase.label
 
 ## Score Definitions
 groups = {}
