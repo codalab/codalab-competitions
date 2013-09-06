@@ -463,8 +463,6 @@ class CompetitionSubmission(models.Model):
         if force_save:
             self.save()
 
-    
-        
 
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
@@ -491,7 +489,7 @@ class SubmissionResultGroup(models.Model):
 class SubmissionResultGroupPhase(models.Model):
     group = models.ForeignKey(SubmissionResultGroup)
     phase = models.ForeignKey(CompetitionPhase)
-
+    
     class Meta:
         unique_together = (('group','phase'),)
 
