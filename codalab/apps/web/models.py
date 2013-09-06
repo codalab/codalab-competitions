@@ -262,52 +262,55 @@ class CompetitionPhase(models.Model):
         SCORES={}
         score_filters = kwargs.pop('score_filters',{})
 
-        for x in SubmissionScoreGroup.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
-                                                                               scoredef__phases__in=[self],
-                                                                               **kwargs):
-            label = x.label
-            group_key = x.scoredef.group.key
-            group_label = x.scoredef.group.label
-            if x.scoredef.computed is True: 
-                COMP_KEYS = [cf.scoredef.key for cf in x.scoredef.computed_score.fields.all()]
-                if not COMP_KEYS:
-                    continue
+        for sg in SubmissionResultGroup.objects.filter(phases__in=[self]):
+            for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
+                                                                                 scoredef__groups__in=[sg],
+                                                                                 **kwargs):
+                
+                label = x.label
+                group_key = sg.key
+                group_label = sg.label
+                print sg,x
+                if x.scoredef.computed is True: 
+                    COMP_KEYS = [cf.scoredef.key for cf in x.scoredef.computed_score.fields.all()]
+                    if not COMP_KEYS:
+                        continue
 
-            if x.parent is not None:
-                label_key = x.parent.label
-                d = [label]
-            else:
-                label_key = label
-                d = []
-            if group_key not in LABELS:
-                LABELS[group_key] = { 'label':group_label, 'headers':[], 'scores': {} }
-            SCORES=LABELS[group_key]['scores']
-            if group_key not in CUR:
-                CUR[group_key] = { }
-            if label_key not in CUR[group_key]:
-                CUR[group_key][label_key] = {label_key:[]}
-                LABELS[group_key]['headers'].append(CUR[group_key][label_key])
-            CUR[group_key][label_key][label_key].extend(d)
+                if x.parent is not None:
+                    label_key = x.parent.label
+                    d = [label]
+                else:
+                    label_key = label
+                    d = []
+                if group_key not in LABELS:
+                    LABELS[group_key] = { 'label':group_label, 'headers':[], 'scores': {} }
+                SCORES=LABELS[group_key]['scores']
+                if group_key not in CUR:
+                    CUR[group_key] = { }
+                if label_key not in CUR[group_key]:
+                    CUR[group_key][label_key] = {label_key:[]}
+                    LABELS[group_key]['headers'].append(CUR[group_key][label_key])
+                CUR[group_key][label_key][label_key].extend(d)
 
-            if x.scoredef.computed is True:
-                AGG_OP = getattr(models,x.scoredef.computed_score.operation)
-                for s in SubmissionScore.objects.filter(scoredef__key__in=COMP_KEYS,scoredef__phases__in=[self],**score_filters).values('result__pk').annotate(value=AGG_OP('value')):
-                    pk = s['result__pk']
-                    #if group_key not in SCORES:
-                    #    SCORES[group_key] = {}
-                    if pk not in SCORES:
-                        SCORES[pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
-                                       'values': []}
-                    SCORES[pk]['values'].append(dict(value=s['value'],key=x.scoredef.key))
-                                
-            else:
-                for s in x.scoredef.submissionscore_set.order_by('result__pk').filter(**score_filters):
-                    #if group_key not in SCORES:
-                    #    SCORES[group_key] = {}
-                    if s.result.pk not in SCORES:
-                        SCORES[s.result.pk] = { 'username': s.result.submission.participant.user.username,
-                                                'values': []}
-                    SCORES[s.result.pk]['values'].append(dict(value=s.value,key=s.scoredef.key))
+                if x.scoredef.computed is True:
+                    AGG_OP = getattr(models,x.scoredef.computed_score.operation)
+                    for s in SubmissionScore.objects.filter(scoredef__key__in=COMP_KEYS,scoredef__competition__phases__in=[self],**score_filters).values('result__pk').annotate(value=AGG_OP('value')):
+                        pk = s['result__pk']
+                        #if group_key not in SCORES:
+                        #    SCORES[group_key] = {}
+                        if pk not in SCORES:
+                            SCORES[pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
+                                           'values': []}
+                        SCORES[pk]['values'].append(dict(value=s['value'],key=x.scoredef.key))
+
+                else:
+                    for s in x.scoredef.submissionscore_set.order_by('result__pk').filter(**score_filters):
+                        #if group_key not in SCORES:
+                        #    SCORES[group_key] = {}
+                        if s.result.pk not in SCORES:
+                            SCORES[s.result.pk] = { 'username': s.result.submission.participant.user.username,
+                                                    'values': []}
+                        SCORES[s.result.pk]['values'].append(dict(value=s.value,key=s.scoredef.key))
 
         return LABELS
 
@@ -496,7 +499,7 @@ class SubmissionResultGroupPhase(models.Model):
     def save(self,*args,**kwargs):
         if self.group.competition != self.phase.competition:
             raise IntegrityError("Group and Phase competition must be the same")
-
+        super(SubmissionResultGroupPhase,self).save(*args,**kwargs)
 
 class SubmissionScoreDef(models.Model):
     competition = models.ForeignKey(Competition)
@@ -505,7 +508,7 @@ class SubmissionScoreDef(models.Model):
     sorting = models.SlugField(max_length=20,default='asc',choices=(('asc','Ascending'),('desc','Descending')))
     numeric_format = models.CharField(max_length=20,blank=True,null=True)
     computed = models.BooleanField(default=False)
-    groups = models.ManyToManyField(CompetitionPhase,through='SubmissionScoreDefGroup')
+    groups = models.ManyToManyField(SubmissionResultGroup,through='SubmissionScoreDefGroup')
 
     class Meta:
         unique_together = (('key','competition'),)
@@ -515,18 +518,18 @@ class SubmissionScoreDef(models.Model):
 
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)
-    group = models.ForeignKey(CompetitionPhase)
+    group = models.ForeignKey(SubmissionResultGroup)
 
     class Meta:
         unique_together = (('scoredef','group'),)
     
     def __unicode__(self):
-        return "%s %s" % (self.scoredef,self.phase)
+        return "%s %s" % (self.scoredef,self.group)
 
     def save(self,*args,**kwargs):
-        if self.scoredef.group.competition != self.group.competition:
+        if self.scoredef.competition != self.group.competition:
             raise IntegrityError("Score Def competition and phase compeition must be the same")
-        super(SubmissionScorePhase,self).save(*args,**kwargs)
+        super(SubmissionScoreDefGroup,self).save(*args,**kwargs)
 
 class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
@@ -542,7 +545,7 @@ class SubmissionComputedScoreField(models.Model):
             raise IntegrityError("Cannot use a computed field for a computed score")
         super(SubmissionComputedScoreField,self).save(*args,**kwargs)
         
-class SubmissionScoreGroup(MPTTModel):
+class SubmissionScoreSet(MPTTModel):
     parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50,unique=True)
