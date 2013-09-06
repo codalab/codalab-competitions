@@ -1,6 +1,9 @@
 from django import forms
 from django.forms.formsets import formset_factory
-from . import models
+from django.contrib.auth import get_user_model
+import models
+
+User =  get_user_model()
 
 class CompetitionForm(forms.ModelForm):
     

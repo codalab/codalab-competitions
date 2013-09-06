@@ -2,6 +2,8 @@
 {% block title %}Competitions{% endblock %}
 {% block content %}
 
+{% load static %}
+
 <div class="row">
 
 	<!-- Main Content Section -->
@@ -24,7 +26,11 @@
 					<div class="competitionTileLftStrip"></div>
 					<div class="articleImageContainer">
 						<div class="subContainerPadding">
+                            {% if item.image_url = None %}
+							<img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
+                            {% else %}
 							<img src="{{ item.image_url }}">
+                            {% endif %}
 						</div>
 					</div>
 					<div class="articleTextArea">

@@ -21,11 +21,12 @@ main = base.Base.SITE_ROOT
 
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
-    time.sleep(4) # Needed temporarily for using sqlite. Race.
-    program = 'competition/1/1/data/program.zip'
-    dataset = 'competition/1/1/data/reference.zip'
+    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
 
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    program = submission.phase.scoring_program.name
+    dataset = submission.phase.reference_data.name
+
     # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
     inputfile = ContentFile(
 """ref: %s
@@ -47,31 +48,18 @@ input: %s
     submission.save()
     # Submit the request to the computation service
     headers = {'content-type': 'application/json'}
-    data = json.dumps(submission.runfile.name)
+    data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
     res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
     print "submitting: %s" % submission.runfile.name
     if res.status_code in (200,201):
         data = res.json()
         submission.execution_key = data['Id']
-        submission.set_status('processing')
+        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
     else:
-        submission.set_status('processing_failed')
+        submission.set_status(models.CompetitionSubmissionStatus.FAILED)
     submission.save()
     submission_get_results.delay(submission.pk,1)
     return submission.pk
-
-@celery.task(name='competition.validate_submission')
-def validate_submission(url,submission_id):
-    """
-    Will validate the format of a submission.
-    """
-    print "VALIDATION %s" % url
-    return submission_id
-
-@celery.task(name='competition.evaluation_submission')
-def evaluate_submission(url,submission_id):
-    # evaluate(inputdir, standard, outputdir)
-    return submission_id
 
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
@@ -81,15 +69,21 @@ def submission_get_results(submission_id,ct):
     if ct > 1000:
         # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
+    # Get status of computation from the computation engine
     status = submission.get_execution_status()
-    print "Status: %s" % str(status)
+    print "Computation status: %s" % str(status)
     if status:
-        submission.set_status(status['Status'].lower(), force_save=True)
-        if status['Status'] in ("Submitted","Running"):
+        if status['Status'] in ("Submitted"):
+            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
+            return (submission.pk, ct+1, 'rerun', None)
+        if status['Status'] in ("Running"):
+            submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
             return (submission.pk, ct+1, 'rerun', None)
         elif status['Status'] == "Finished":
+            submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
             return (submission.pk, ct, 'complete', status)
         elif status['Status'] == "Failed":
+            submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
             return (submission.pk, ct, 'failed', status)
     else:
         return (submission.pk,ct,'failure',None)
@@ -123,33 +117,30 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                     result.save()
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
-                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))
-                except SubmissionScoreDef.DoesNotExist as e:
+                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))                    
+                except models.SubmissionScoreDef.DoesNotExist as e:
                     print "Score %s does not exist" % label
                     pass
-                    
         print "Done processing scores..."
     elif state == 'limit_exceeded':
         print "Run limit, or time limit exceeded."
+        raise Exception("Computation exceeded its allotted time quota.")
     else:
-        print "A failure happened"
+        raise Exception("An unexpected error has occurred.")
 
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
     print "Successful submission"
-    #Fill in Dummy data
-    # import random
-    # s = models.CompetitionSubmission.objects.get(pk=result)
-    # s.set_status('accepted', force_save=True)
-    # subres = models.SubmissionResult.objects.create(submission=s,aggregate=0)
-    # scores = []
-    # for s in ['score1','score2','score3']:
-    #     rs = random.random()*10
-    #     sc = models.SubmissionScore.objects.create(result=subres,label=s,value=rs)
-    #     scores.append(rs)
-    # subres.aggregate = sum(scores)/len(scores)
-    # subres.save()
-    # print " ACCEPTED SUBMISSION %s" % str(sender)
+
+@task_failure.connect(sender=submission_run)
+def submission_run_error_handler(sender, exception=None, **kwargs):
+    submission_id = kwargs['kwargs']['submission_id']
+    print "Handling failure for submission %s" % submission_id
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+        submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
+    except:
+        print "Unable to set Failed state of submission %s" % submission_id
 
 # Bundle Tasks
 @celery.task

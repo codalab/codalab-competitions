@@ -1,0 +1,94 @@
+{% if phase == None %}
+{% elif phase.is_future %}
+    <p>This phase of the competition has not started yet. Please check back later.</p>
+{% else %}
+    {% if phase.is_active %}
+    <div class="row">
+      <p>Click the Submit Results button to upload a new submission.</p>
+      <button id="fileUploadButton" class="button">Submit Results</button>
+      <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
+      <p id="details" class="submissions-details-label"></p>
+      <p class="submissions-details-label">Here are your submissions to date:</p>
+    </div>
+    {% else %}
+      <p>This phase of the competition is closed. Here are the submissions you made:</p>
+    {% endif %}
+    <div class="row">
+      <div class="user_results">
+        {% if phase.is_active %}
+        <input type="hidden" id="phasestate" value='1' />
+        {% else %}
+        <input type="hidden" id="phasestate" value='0' />
+        {% endif %}
+        <table class="prevResultSubmission dataTable" id="user_results">
+          <thead>
+            <tr>
+                <th>Submission</th>
+                <th>Submission date</th>
+                <th>Status</th>
+                <th width="40px"></th>
+                <th width="40px"></th>
+                <th width="40px"></th>
+            </tr>
+          </thead>
+          <tbody>
+                {% if my_submissions|length_is:"0" %}
+                <tr class="noData">
+                    <td class="tdDetails" colspan="6">No data available in table</td>
+                </tr>  
+                {% else %}  
+                {% for submission in my_submissions %}
+                <tr id="{{submission.id}}">
+                    {% if submission.status.codename == "finished" %}
+                    <input type="hidden" name="state" value='1' />
+                    {% else %}
+                    <input type="hidden" name="state" value='0' />
+                    {% endif %}
+                    <td>{{submission.submission_number}}</td>
+                    <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                    <td class="statusName">{{submission.status.name}}</td>
+                    <td></td>
+                    {% if submission.id == id_of_submission_in_leaderboard %}
+                    <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+                    {% else %}
+                    <td class="status not_submitted"></td>
+                    {% endif %}
+                    <td><i class="enclosed-foundicon-plus"></i></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="submission_details_template" class="hide">
+        <table>
+            <tr class="trDetails">
+                <td class="tdDetails" colspan="6">
+                    <div class="submission_details">
+                        <div class="small-2 large-4 columns">
+                            <a href="/my/competition/submission/_/stdout.txt" target="_blank">Standard output log</a></br>
+                            <a href="/my/competition/submission/_/stderr.txt" target="_blank">Standard error log</a></br>
+                            <a href="/my/competition/submission/_/output.zip">Scoring Output</a>
+                        </div>
+                        <div class="small-2 large-4 columns preloader-handler"></div>
+                        <div class="small-2 large-4 columns">
+                            <button class="button rFloat hide"></button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table id="submission_row_template">
+            <tr>
+                <input type="hidden" name="state" value="0" />
+                <td></td>
+                <td></td>
+                <td class="statusName"></td>
+                <td></td>
+                <td class="status not_submitted"></td>
+                <td><i class="enclosed-foundicon-plus"></i></td>
+            </tr>
+        </table>
+    </div>
+{% endif %}
