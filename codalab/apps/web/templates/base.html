@@ -43,7 +43,8 @@
   {% analytical_head_top %}
   {% analytical_head_bottom %}
   <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
-  </head>
+  <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script> 
+</head>
 
   <body class="body">
 
@@ -54,7 +55,7 @@
           <nav class="top-bar">
             <ul class="title-area">
               <!-- Title Area -->
-              <li class="name cl-logo"><a href="/"><img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a></li>
+              <li class="name cl-logo"><a href="/" tabindex=1><img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a></li>
               <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
             </ul>
@@ -62,14 +63,14 @@
               <!-- Left Nav Section -->
               <ul class="left">
                 <!--   //////// COMMENTED OUT FOR NOW
-                <li id="liExperiments"><a href="/experiments">Experiments</a></li>   /////// -->             
-                <li id="liCompetitions"><a href="/competitions">Competitions</a></li>
+                <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li>   /////// -->             
+                <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
                 {% if user.is_authenticated %}
-                  <li id="liMyCodalab"><a href="/my">My CodaLab</a></li>
+                  <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
                 {% else %}
-                  <li><a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
+                  <li><a href="{% url 'account_login' %}"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
-                <li id="liAbout"><a href="/help/about.html">About</a></li>
+                <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
               </ul>
 
               <!-- Right Nav Section -->
@@ -135,7 +136,7 @@
         <div class="small-6 columns">
           <ul class="inline-list right">
             <!-- <li>CodaLab v.0 ()</li> -->
-            <li><a href="/help">Help</a></li>
+            <li><a href="/help/about.html">Help</a></li>
             <li><a href="mailto:info@codalab.org">Feedback</a></li>
             <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
             <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>

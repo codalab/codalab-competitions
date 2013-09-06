@@ -61,14 +61,11 @@ if [ -f $venv_python ]; then
 	echo "Running syncdb for Django"
 	python codalab/manage.py syncdb
 
-	echo "Initializing database"
-	python codalab/scripts/initialize.py
+    echo "Initializing users"
+    python codalab/scripts/users.py
 
-        echo "Initializing users"
-        python codalab/scripts/users.py
-
-        echo "Initializing competitions"
-        python codalab/scripts/competitions.py
+    echo "Initializing competitions"
+    python codalab/scripts/competitions.py
 else
 	echo "ERROR: Could not locate python in virtualenv: $venv_python"
 	exit 1
