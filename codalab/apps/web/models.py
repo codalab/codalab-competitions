@@ -172,7 +172,12 @@ class Competition(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
-    pagecontent = models.ForeignKey(PageContainer,null=True,blank=True)
+    pagecontainers = generic.GenericRelation(PageContainer)
+
+    @property
+    def pagecontent(self):
+        items = list(self.pagecontainers.all())
+        return items[0] if len(items) > 0 else None
 
     class Meta:
         permissions = (

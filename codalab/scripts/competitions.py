@@ -46,7 +46,6 @@ brats2012,_ = Competition.objects.get_or_create(title=brats12_name, creator=gues
 details_category = ContentCategory.objects.get(name="Learn the Details")
 participate_category = ContentCategory.objects.get(name="Participate")
 pc,_ = PageContainer.objects.get_or_create(object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
-brats2012.pagecontent = pc
 brats2012.save()
 
 Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
@@ -165,7 +164,7 @@ for sdg in (
 
                                                 sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,key=sub[0],
 												 defaults=dict(label=sub[1]))
-						sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
+                                                sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
                                                 fields[sd.key] = sd
 
                                                 print " CREATED DEF", sd.key, sd.label
@@ -185,7 +184,7 @@ for sdg in (
                                         sd,cr = SubmissionScoreDef.objects.get_or_create(competition=brats2012,
                                                                                          key=defs[0],
                                                                                          defaults = dict(label=defs[1]))
-					sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
+                                        sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
                                         fields[sd.key] = sd
 
                                         #for p in brats2012.phases.all():
@@ -197,7 +196,7 @@ for sdg in (
                                                                  key=defs['key'],
                                                                  defaults=dict(label=defs['label']),
                                                                  computed=True)
-		sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
+                sdg0,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=groups[rgroup])
 
                 #for p in brats2012.phases.all():
                 #        SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
@@ -239,7 +238,6 @@ spine,created = Competition.objects.get_or_create(title=spine_name, creator=gues
 details_category = ContentCategory.objects.get(name="Learn the Details")
 participate_category = ContentCategory.objects.get(name="Participate")
 pc,_ = PageContainer.objects.get_or_create(object_id=spine.id, content_type=ContentType.objects.get_for_model(Competition))
-spine.pagecontent = pc
 spine.save()
 
 # Logo
@@ -317,7 +315,6 @@ create_single_phase_sample()
 # details_category = ContentCategory.objects.get(name="Learn the Details")
 # participate_category = ContentCategory.objects.get(name="Participate")
 # pc,_ = PageContainer.objects.get_or_create(object_id=chalearn_gesture.id, content_type=ContentType.objects.get_for_model(Competition))
-# chalearn_gesture.pagecontent = pc
 # chalearn_gesture.save()
 
 # Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
