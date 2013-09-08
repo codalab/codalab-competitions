@@ -1,4 +1,6 @@
-﻿{% if not competitions %}
+﻿{% load static %}
+
+{% if not competitions %}
 <p>You have not participated in any competitions.</p>
 {% else %}
 {% for item in competitions %}
@@ -9,8 +11,10 @@
             <div class="competitionTileLftStrip"></div>
             <div class="articleImageContainer">
                 <div class="subContainerPadding">
-                    {% if item.competition.image_url %}
-                    <img src="{{ item.competition.image_url }}" width="115" height="90">
+                    {% if item.competition.image_url = None %}
+				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="115px" height="90px">
+                    {% else %}
+				    <img src="{{ item.competition.image_url }}" width="115px" height="90px">
                     {% endif %}
                 </div>
             </div>
