@@ -2,10 +2,11 @@
 {% load i18n %}
 {% load account %}
 {% load url from future %}
-
+<div class="login-form">
 {% block subheader %}<H4>{% trans "Sign In" %}</h4>{% endblock subheader %}
 
 {% block content %}
+   <!-- <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">-->
 	<div class="small-12 columns account_widget">
 		{% if socialaccount.providers  %}
 			<p>
@@ -38,5 +39,6 @@
 				<a data-reveal-id="signup-modal" data-reveal-ajax="true" href="{{signup_url}}">Register</a> &nbsp; if you don't have an account.
 			</div>
 		</form>
-    </div>
 {% endblock %}
+</div>
+</div>

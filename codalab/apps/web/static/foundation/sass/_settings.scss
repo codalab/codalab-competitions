@@ -691,3 +691,38 @@ div.pending-approval-select.columns {
 		}
 	}
 }
+#dialog
+{
+	display:none;
+}
+.dialog-box{
+	left:0;
+	top:-100%;
+	right:0;
+	margin:auto;
+	position:absolute;
+	z-index:999;
+	background:#fff;
+	width:60%;
+	height:450px;
+	padding:20px;
+	opacity:0;
+}
+.dialog-box-background{
+	background:#000;
+	opacity:0.5;
+	display: none;
+	z-index:900;
+	left:0;
+	top:0;
+	bottom:0;
+	right:0;
+	position:absolute;
+}
+.dialog-box #Idialog{
+	width:93%;
+	height:100%;
+}
+.login-form{
+	overflow:hidden;
+}
