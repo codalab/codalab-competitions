@@ -297,6 +297,17 @@ class SubmissionsTest(TemplateView):
         
         return ctx
 
+class VersionView(TemplateView):
+    template_name='web/project_version.html'
+
+    def get_context_data(self):
+        import subprocess
+        p = subprocess.Popen(["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        ctx = super(VersionView,self).get_context_data()
+        ctx['commit_hash'] = out
+        return ctx
+
 # Bundle Views
 
 class BundleListView(ListView):
@@ -348,4 +359,15 @@ class RunDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
+
+
+
+class ScoresTestView(TemplateView):
+    
+    def get_context_data(self, **kwargs):
+        ctx = super(ScoresTestView,self).get_context_data(**kwargs)
+        lb = models.PhaseLeaderBoard.objects.get(phase__pk=kwargs['phase_id'])
+        ctx['scores'] = lb.scores()
+        return ctx
+        
 

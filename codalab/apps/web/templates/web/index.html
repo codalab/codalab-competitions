@@ -45,7 +45,9 @@
           </p>
         </div>
         <div class="small-2 columns">
-            <a href="{% url 'account_signup' %}" data-reveal-id="signup-modal" data-reveal-ajax="true" class="button">Sign Up</a>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'account_signup' %}" data-reveal-id="signup-modal" data-reveal-ajax="true" class="button">Sign Up</a>
+            {% endif %}
         </div>
       </div>
     </div>      
