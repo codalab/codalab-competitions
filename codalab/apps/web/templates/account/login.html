@@ -6,8 +6,7 @@
 {% block subheader %}<H4>{% trans "Sign In" %}</h4>{% endblock subheader %}
 
 {% block content %}
-   <!-- <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">-->
-	<div class="small-12 columns account_widget">
+  <div class="small-12 columns account_widget">
 		{% if socialaccount.providers  %}
 			<p>
 				{% blocktrans with site.name as site_name %}Please sign in with one
