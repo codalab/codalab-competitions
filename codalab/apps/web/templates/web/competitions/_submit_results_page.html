@@ -4,14 +4,11 @@
 {% else %}
     {% if phase.is_active %}
     <div class="row">
-      <p>Click the Submit Results button to upload a new submission.</p>
-      <button id="fileUploadButton" class="button">Submit Results</button>
-      <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
       <p id="details" class="submissions-details-label"></p>
       <p class="submissions-details-label">Here are your submissions to date:</p>
     </div>
     {% else %}
-      <p>This phase of the competition is closed. Here are the submissions you made:</p>
+      <p class="submissions-details-label">This phase of the competition is closed. Here are the submissions you made:</p>
     {% endif %}
     <div class="row">
       <div class="user_results">
@@ -58,8 +55,16 @@
                 {% endfor %}
                 {% endif %}
           </tbody>
-        </table>
+        </table>  
       </div>
+    {% if phase.is_active %}
+        <div class="row pad15">
+          <p>Click the Submit Results button to upload a new submission.</p>
+          <button id="fileUploadButton" class="button">Submit Results...</button>
+          <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
+          <p id="details" class="submissions-details-label"></p>
+        </div>  
+    {% endif %} 
     </div>
     <div id="submission_details_template" class="hide">
         <table>
