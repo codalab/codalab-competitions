@@ -91,7 +91,7 @@ class PageContainer(models.Model):
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
-    codename = models.SlugField(max_length=100,unique=True)
+    codename = models.SlugField(max_length=100)
     container = models.ForeignKey(PageContainer, related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100)
@@ -107,7 +107,7 @@ class Page(models.Model):
         return self.title
     
     class Meta:
-        unique_together = (('label','category'),)
+        unique_together = (('label','category','container'),)
         ordering = ['rank']
 
     def save(self,*args,**kwargs):
