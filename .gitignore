@@ -39,6 +39,7 @@ venv/*/*
 *~
 \#*\#
 .\#*
+*.swp
 
 # Compiled source #
 ###################
@@ -93,4 +94,4 @@ codalab/config/generated
 src/
 requirements/src/
 *.dump
-
+*.cache

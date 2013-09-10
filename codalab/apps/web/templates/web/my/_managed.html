@@ -1,4 +1,6 @@
-﻿{% if not competitions %}
+﻿{% load static %}
+
+{% if not competitions %}
   <p>You do not manage any competitions.</p>
 {% else %}
   {% for item in competitions %}
@@ -11,7 +13,11 @@
             <div class="articleTextAreaContainer">
               <div class="articleImageContainer">
                 <div class="subContainerPadding">
-                  <img src="{{ item.image_url }}" width="100px">
+                    {% if item.image_url = None %}
+				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="100px">
+                    {% else %}
+				    <img src="{{ item.image_url }}" width="100px">
+                    {% endif %}
                 </div>
               </div>
               
