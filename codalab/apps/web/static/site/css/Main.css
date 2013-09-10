@@ -2760,3 +2760,6 @@ ul.leftNavigation li.active a{
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
     height: 65px !important;
 }
+.pad15 {
+    padding: 15px;
+}
