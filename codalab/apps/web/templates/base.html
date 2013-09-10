@@ -163,6 +163,12 @@
 
     <script>
         $(document).foundation();
+        $("body").on('click', function () {  
+            if  ($("#sections").length > 0) {  
+                $("#sections").foundation('section', 'reflow');
+            }  
+        }); 
+
         {% block js %}
         {% endblock js %}
     </script>
