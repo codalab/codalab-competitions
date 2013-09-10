@@ -360,3 +360,14 @@ class RunDetailView(DetailView):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
 
+
+
+class ScoresTestView(TemplateView):
+    
+    def get_context_data(self, **kwargs):
+        ctx = super(ScoresTestView,self).get_context_data(**kwargs)
+        lb = models.PhaseLeaderBoard.objects.get(phase__pk=kwargs['phase_id'])
+        ctx['scores'] = lb.scores()
+        return ctx
+        
+
