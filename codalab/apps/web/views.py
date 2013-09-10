@@ -272,9 +272,6 @@ class SubmissionsTest(TemplateView):
         
         return ctx
 
-<<<<<<< HEAD
-#
-=======
 class VersionView(TemplateView):
     template_name='web/project_version.html'
 
@@ -286,7 +283,6 @@ class VersionView(TemplateView):
         ctx['commit_hash'] = out
         return ctx
 
->>>>>>> master
 # Bundle Views
 #
 class BundleListView(ListView):
