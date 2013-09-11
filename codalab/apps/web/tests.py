@@ -39,7 +39,7 @@ class Competitions(TestCase):
         TODO: Does not authenticate (YET) 
         """
         client = Client()
-        res = client.post(reverse('competition-list'), {'title': 'Test Title',
+        res = client.post('/api/competition/', {'title': 'Test Title',
                                                  'description': 'Description',
                                                  'creator': self.user.pk,
                                                  'modified_by': self.user.pk,
@@ -50,4 +50,5 @@ class Competitions(TestCase):
         
         # Just checking to make sure the data was returned correctly
         self.assertTrue('id' in data and data['id'] >= 1)
+    
     
