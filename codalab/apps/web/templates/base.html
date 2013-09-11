@@ -183,5 +183,17 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+  <script>
+    $("#login-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+    $("#signup-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+  </script>
   </body>
 </html>
