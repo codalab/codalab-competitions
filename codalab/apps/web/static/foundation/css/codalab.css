@@ -3328,7 +3328,7 @@ p aside {
 /* line 182, ../scss/foundation/components/_type.scss */
 h1, h2, h3 {
   font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: lighter;
+  font-weight: 100;
   font-style: normal;
   color: #666666;
   text-rendering: optimizeLegibility;

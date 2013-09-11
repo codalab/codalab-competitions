@@ -87,14 +87,13 @@
                         <!-- <li><a href="#">My Profile</a></li> -->
                         <li class="divider"></li>
                         <li>
-                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign Out</a>
                         </li>
                       </ul>
                   </li>
                 {% else %}
                   <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a>
-                   <!-- <a  id="testSign">Sign in</a>  -->
+                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -164,23 +163,12 @@
 
     <script>
         $(document).foundation();
-        $(function(){
-            //$("#login-sign").click(function(){openDialog();});
-            //function openDialog(){
-            //    $.ajax({
-            //        url: "/accounts/login/",
-            //        success: function (data) {
-            //            $('#login-modal').html(data);
-            //            $('#login-modal').foundation('reveal', 'open');
-            //        },
-            //        error: function (jsXHR, textStatus, errorThrown) {}});
-            //    return;
-            //}
-        });
-        $("body").on('click', function () {
-            if  ($("#sections").length > 0 ){
-                $("#sections").foundation('section', 'reflow');}
-        });
+        $("body").on('click', function () {  
+            if  ($("#sections").length > 0) {  
+                $("#sections").foundation('section', 'reflow');
+            }  
+        }); 
+
         {% block js %}
         {% endblock js %}
     </script>
@@ -190,9 +178,22 @@
 
   {% analytical_body_top %}
   {% analytical_body_bottom %}
+
   <div id="login-modal" class="reveal-modal small"></div>
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+  <script>
+    $("#login-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+    $("#signup-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+  </script>
   </body>
 </html>
