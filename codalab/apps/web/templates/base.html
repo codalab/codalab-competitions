@@ -87,13 +87,13 @@
                         <!-- <li><a href="#">My Profile</a></li> -->
                         <li class="divider"></li>
                         <li>
-                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign Out</a>
                         </li>
                       </ul>
                   </li>
                 {% else %}
                   <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a></li>  
+                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign In</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -123,8 +123,13 @@
     <!-- Footer -->
     <footer id="footer">
         <div class="small-6 columns">
-          <ul class="inline-list left">
-            <li>
+          <ul class="inline-list left">            
+            <li>   
+                <span>
+                  <a href="http://www.windowsazure.com/" target="_blank"><img src="{{ STATIC_URL }}site/Images/Azure_Footer_Logo.png" border="0"/></a>
+                </span>
+            </li>
+            <li>   
                 <span>
                   <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
@@ -158,6 +163,12 @@
 
     <script>
         $(document).foundation();
+        $("body").on('click', function () {  
+            if  ($("#sections").length > 0) {  
+                $("#sections").foundation('section', 'reflow');
+            }  
+        }); 
+
         {% block js %}
         {% endblock js %}
     </script>
@@ -172,5 +183,17 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+  <script>
+    $("#login-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+    $("#signup-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+  </script>
   </body>
 </html>
