@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 """
 Tests for Codalab functionality.
 """
@@ -64,18 +65,68 @@ class Competitions(TestCase):
                                                  'creator': self.user.pk,
                                                  'modified_by': self.user.pk,
                                                  })
-        # Status 201: Created
-        self.assertEqual(int(res.status_code),int(201))
         data = json.loads(res.content)
         
-        # Just checking to make sure the data was returned correctly
-        self.assertTrue('id' in data and data['id'] >= 1)
-                
-        #get competition 1
+        #get competition id
         res = client.get('/api/competition/'+ str(data['id'])+'/')
         data = json.loads(res.content)
         self.assertEqual(data['title'], 'Test Title')
         self.assertEqual(data['description'], 'Description')
         self.assertEqual(data['creator'], self.user.pk)
         self.assertEqual(data['modified_by'], self.user.pk)
+
+
         
+    def test_delete_competition_api(self):
+       
+        client = Client()
+        
+        #create a competition                                         
+        res = client.post('/api/competition/', {'title': 'Test Title',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        create_data = json.loads(res.content)
+
+        #delete a competition
+        res = client.delete('/api/competition/'+ str(create_data['id'])+'/')
+        delete_data = json.loads(res.content)
+
+        #try to access the deleted comp
+        res = client.get('/api/competition/'+ delete_data + '/')
+        self.assertEqual(int(res.status_code), int(404))
+
+        
+
+    def test_delete_one_from_two_competitions_api(self):
+       
+        client = Client()
+        
+        #create a competition                                         
+        res = client.post('/api/competition/', {'title': 'Test Title 1',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })      
+        create_data1 = json.loads(res.content)
+
+        
+        #create another
+        res = client.post('/api/competition/', {'title': 'Test Title 2',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        
+        create_data2 = json.loads(res.content)
+        
+        
+        #delete  first competition
+        res = client.delete('/api/competition/'+ str(create_data1['id'])+'/')
+        delete_data = json.loads(res.content)
+        
+        
+        #try to access the deleted comp
+        res = client.get('/api/competition/'+ str(create_data1['id'])+'/')      
+        self.assertEqual(int(res.status_code), int(404))   
