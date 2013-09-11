@@ -826,6 +826,12 @@ div.pending-approval-select.columns {
   overflow: hidden;
 }
 
+/* line 731, ../sass/_settings.scss */
+.dataTable-header-active {
+  background: #99bece !important;
+  color: #fff !important;
+}
+
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";

@@ -163,12 +163,6 @@
 
     <script>
         $(document).foundation();
-        $("body").on('click', function () {  
-            if  ($("#sections").length > 0) {  
-                $("#sections").foundation('section', 'reflow');
-            }  
-        }); 
-
         {% block js %}
         {% endblock js %}
     </script>
@@ -184,12 +178,7 @@
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
   <script>
-    $("#login-modal").on('opened', function () {
-        if ($("#sections").length > 0) {
-            $("#sections").foundation('section', 'reflow');
-        }
-    });
-    $("#signup-modal").on('opened', function () {
+      $(".reveal-modal").on('opened', function () {
         if ($("#sections").length > 0) {
             $("#sections").foundation('section', 'reflow');
         }
