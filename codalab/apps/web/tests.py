@@ -50,5 +50,32 @@ class Competitions(TestCase):
         
         # Just checking to make sure the data was returned correctly
         self.assertTrue('id' in data and data['id'] >= 1)
-    
-    
+
+        
+        
+    def test_get_competition_api(self):
+        """
+        Create a competition programmatically.
+        TODO: Does not authenticate (YET) 
+        """
+        client = Client()
+        res = client.post('/api/competition/', {'title': 'Test Title',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        # Status 201: Created
+        self.assertEqual(int(res.status_code),int(201))
+        data = json.loads(res.content)
+        
+        # Just checking to make sure the data was returned correctly
+        self.assertTrue('id' in data and data['id'] >= 1)
+                
+        #get competition 1
+        res = client.get('/api/competition/'+ str(data['id'])+'/')
+        data = json.loads(res.content)
+        self.assertEqual(data['title'], 'Test Title')
+        self.assertEqual(data['description'], 'Description')
+        self.assertEqual(data['creator'], self.user.pk)
+        self.assertEqual(data['modified_by'], self.user.pk)
+        
