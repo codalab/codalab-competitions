@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +11,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render_to_response
 
 from apps.web import models
 from apps.web import forms
@@ -56,9 +59,24 @@ class PhasesInline(InlineFormSet):
     template_name = 'web/competitions/edit-phase.html'
     extra = 1
 
+class CompetitionUpload(LoginRequiredMixin, CreateView):
+    model = models.CompetitionDefBundle
+    form_class = forms.CompetitionDefBundleForm
+    template_name = 'web/competitions/upload_competition.html'
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        form.instance.created_at = datetime.datetime.now()
+        print "Set fields."
+        if form.is_valid():
+            cb = form.save(commit=False)
+            cb.save()
+            c = cb.unpack()
+            return(HttpResponseRedirect('/competitions/%d' % c.pk))    
+
 class CompetitionCreate(LoginRequiredMixin, CreateWithInlinesView):
     model = models.Competition
-    template_name = 'web/competitions/edit.html'
+    template_name = 'web/competitions/create.html'
     form_class = forms.CompetitionForm
     inlines = [PhasesInline]
 
@@ -149,8 +167,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 ids = [ r.submission.id for r in models.PhaseLeaderBoardEntry.objects.filter(board=phase) if r.submission in submissions ]
                 context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
 
-                                                                              
-
+                                                                        
         return context
 
 class CompetitionResultsPage(TemplateView):

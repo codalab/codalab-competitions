@@ -6,7 +6,7 @@ from .. import views
 urlpatterns = patterns('',
                        url(r'^$', views.competition_index, name='list'),
                        url(r'^(?P<pk>\d+)$', views.CompetitionDetailView.as_view(), name='view'),
-                       url(r'^create_competition$', views.CompetitionCreate.as_view(), name='create'),
+                       url(r'^create_competition$', views.CompetitionUpload.as_view(), name='create'),
                        url(r'^edit_competition/(?P<pk>\d+)$', views.CompetitionEdit.as_view(), name='edit'),
                        url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='delete'),
                        url(r'^(?P<id>\d+)/submissions/(?P<phase>\d+)$', views.CompetitionSubmissionsPage.as_view(), name='competition_submissions_page'),

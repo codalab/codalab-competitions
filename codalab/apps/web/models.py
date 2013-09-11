@@ -1,22 +1,28 @@
 import os
+from os.path import abspath, basename, dirname, join, normpath
+import zipfile
+import StringIO
+import yaml
+import tempfile
 import requests
+import datetime
+import django.dispatch
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.dispatch import receiver
-import django.dispatch
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.files.storage import get_storage_class
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-from django.core.exceptions import PermissionDenied
-from django.core.files.storage import get_storage_class
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
-from django.core.urlresolvers import reverse, reverse_lazy
-
-from os.path import abspath, basename, dirname, join, normpath
 
 import signals
 import tasks
@@ -174,7 +180,8 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
-
+    published = models.BooleanField(default=False)
+    
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -210,7 +217,11 @@ class Competition(models.Model):
         
     @property
     def is_active(self):
-        return True if self.end_date is None else self.end_date < now().date()
+        print type(self.end_date)
+        if type(self.end_date) is datetime.datetime.date:
+            return True if self.end_date is None else self.end_date < now().date()
+        if type(self.end_date) is datetime.datetime:
+            return True if self.end_date is None else self.end_date < now()
 
 # Dataset model
 class Dataset(models.Model):
@@ -230,6 +241,8 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
+def competition_bundle_name(instance, filename):
+    return "competition-config-%s.zip" % (instance.pk)
 
 def phase_data_prefix(phase):
     return "competition/%d/%d/data/" % (phase.competition.pk, phase.pk,)
@@ -543,6 +556,53 @@ class SubmissionScoreDef(models.Model):
     def __unicode__(self):
         return self.label
 
+class CompetitionDefBundle(models.Model):
+    config_bundle = models.FileField(upload_to=competition_bundle_name, storage=BundleStorage)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
+    created_at = models.DateTimeField()
+
+    def unpack(self):
+        zf = zipfile.ZipFile(self.config_bundle)
+        # Create the basic competition
+        comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
+        comp_spec = yaml.load(zf.open(comp_spec_file))
+        comp_base = comp_spec.copy()
+        del comp_base['html']
+        del comp_base['phases']
+        comp_base['creator'] = self.owner
+        comp_base['modified_by'] = self.owner
+        if type(comp_base['end_date']) is datetime.datetime.date:
+            comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+
+        comp = Competition(**comp_base)
+        tmpimage = tempfile.TemporaryFile()
+        tmpimage.write(zf.read(comp_base['image']))
+        comp.image = File(tmpimage)
+        comp.save()
+
+        # Populate pages
+        details_category = ContentCategory.objects.get(name="Learn the Details")
+        participate_category = ContentCategory.objects.get(name="Participate")
+        pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
+
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+                                   label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation",
+                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+
+        # Create phases
+        for p_num in comp_spec['phases']:
+            phase = comp_spec['phases'][p_num].copy()
+            print "|%s|" % phase
+            phase['competition'] = comp
+            if type(phase['start_date']) is datetime.datetime.date:
+                phase['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+            phase, created = CompetitionPhase.objects.get_or_create(**phase)
+
+        return comp
+
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)
     group = models.ForeignKey(SubmissionResultGroup)
@@ -648,9 +708,6 @@ class Bundle(models.Model):
     def get_absolute_url(self):
         return ('project_bundle_detail', (), {'slug': self.slug})
     #get_absolute_url = models.permalink(get_absolute_url)
-
-
-
 
 # Run Model
 class Run(models.Model):
