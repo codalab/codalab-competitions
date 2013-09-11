@@ -1,0 +1,33 @@
+# Build an example competition
+---
+title: Ivan's Test Competition
+description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle.
+image: logo.jpg
+has_registration: True
+end_date: 2013-12-31
+published: True
+html: 
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+phases:
+    1:
+        phasenumber: 1
+        label: "Phase 1"
+        start_date: 2013-06-30
+        max_submissions: 100
+    2:
+        phasenumber: 2
+        label: "Phase 2"
+        start_date: 2013-07-30
+        max_submissions: 100
+    3:
+        phasenumber: 3
+        label: "Phase 3"
+        start_date: 2013-08-30
+        max_submissions: 100
+    4:
+        phasenumber: 4
+        label: "Phase 4"
+        start_date: 2013-09-30
+        max_submissions: 100
