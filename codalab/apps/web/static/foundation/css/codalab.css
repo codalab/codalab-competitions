@@ -3285,7 +3285,7 @@ p aside {
 /* line 182, ../scss/foundation/components/_type.scss */
 h1, h2, h3 {
   font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: lighter;
+  font-weight: 100;
   font-style: normal;
   color: #666666;
   text-rendering: optimizeLegibility;
@@ -8508,16 +8508,17 @@ html, body {
   min-height: 100%;
   height: auto !important;
   height: 100%;
-  margin-bottom: -25px;
+  margin-bottom: -40px;
 }
-/* line 18, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 19, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 #layout #layout_footer {
-  height: 25px;
+  height: 40px;
 }
 
-/* line 20, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
+/* line 22, ../../../../../../../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/layout/_sticky-footer.scss */
 #footer {
   clear: both;
   position: relative;
-  height: 25px;
+  height: 40px;
+  padding: 10px 0;
 }
