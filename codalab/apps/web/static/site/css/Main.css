@@ -2787,3 +2787,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     float: none;
     overflow: hidden;
 }
+.homepage_featured p {
+    padding-right: 10px;
+    margin-bottom: 0;
+}
