@@ -1,7 +1,6 @@
-import os
+import os, io
 from os.path import abspath, basename, dirname, join, normpath
 import zipfile
-import StringIO
 import yaml
 import tempfile
 import requests
@@ -181,7 +180,7 @@ class Competition(models.Model):
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
     published = models.BooleanField(default=False)
-    
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -217,7 +216,6 @@ class Competition(models.Model):
         
     @property
     def is_active(self):
-        print type(self.end_date)
         if type(self.end_date) is datetime.datetime.date:
             return True if self.end_date is None else self.end_date < now().date()
         if type(self.end_date) is datetime.datetime:
@@ -241,23 +239,26 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
-def competition_bundle_name(instance, filename):
-    return "competition-config-%s.zip" % (instance.pk)
+def competition_prefix(competition):
+    return os.path.join("competition", str(competition.id))
+
+def phase_prefix(phase):
+    return os.path.join(competition_prefix(phase.competition), str(phase.phasenumber))
 
 def phase_data_prefix(phase):
-    return "competition/%d/%d/data/" % (phase.competition.pk, phase.pk,)
+    return os.path.join("competition", str(phase.competition.id), str(phase.phasenumber), "data")
 
 # In the following helpers, the filename argument is required even though we
 # choose to not use it. See FileField.upload_to at https://docs.djangoproject.com/en/dev/ref/models/fields/.
 
-def phase_scoring_program_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'program.zip'
+def phase_scoring_program_file(phase, filename="program.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_reference_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'reference.zip'
+def phase_reference_data_file(phase, filename="reference.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_input_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'input.zip'
+def phase_input_data_file(phase, filename="input.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_file_name(instance,filename):
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
@@ -557,7 +558,7 @@ class SubmissionScoreDef(models.Model):
         return self.label
 
 class CompetitionDefBundle(models.Model):
-    config_bundle = models.FileField(upload_to=competition_bundle_name, storage=BundleStorage)
+    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField()
 
@@ -575,9 +576,13 @@ class CompetitionDefBundle(models.Model):
             comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
 
         comp = Competition(**comp_base)
-        tmpimage = tempfile.TemporaryFile()
-        tmpimage.write(zf.read(comp_base['image']))
-        comp.image = File(tmpimage)
+        comp.save()
+
+        comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
+        if not os.path.exists(comp_root):
+            os.makedirs(comp_root)
+
+        comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
         comp.save()
 
         # Populate pages
@@ -594,13 +599,18 @@ class CompetitionDefBundle(models.Model):
 
         # Create phases
         for p_num in comp_spec['phases']:
-            phase = comp_spec['phases'][p_num].copy()
-            print "|%s|" % phase
-            phase['competition'] = comp
-            if type(phase['start_date']) is datetime.datetime.date:
-                phase['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
-            phase, created = CompetitionPhase.objects.get_or_create(**phase)
-
+            phase_spec = comp_spec['phases'][p_num].copy()
+            phase_spec['competition'] = comp
+            if type(phase_spec['start_date']) is datetime.datetime.date:
+                phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+            phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
+            phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
+            if not os.path.exists(phase_path):
+                os.makedirs(phase_path)
+            # Evaluation Program
+            phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+            phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.save()
         return comp
 
 class SubmissionScoreDefGroup(models.Model):

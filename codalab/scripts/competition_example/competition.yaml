@@ -1,6 +1,6 @@
 # Build an example competition
 ---
-title: Ivan's Test Competition
+title: Example Competition
 description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle.
 image: logo.jpg
 has_registration: True
@@ -14,27 +14,6 @@ phases:
         phasenumber: 1
         label: "Phase 1"
         start_date: 2013-06-30
-        max_submissions: 100
-        scoring_program: program.zip
-        reference_data: reference.zip
-    2:
-        phasenumber: 2
-        label: "Phase 2"
-        start_date: 2013-07-30
-        max_submissions: 100
-        scoring_program: program.zip
-        reference_data: reference.zip
-    3:
-        phasenumber: 3
-        label: "Phase 3"
-        start_date: 2013-08-30
-        max_submissions: 100
-        scoring_program: program.zip
-        reference_data: reference.zip
-    4:
-        phasenumber: 4
-        label: "Phase 4"
-        start_date: 2013-09-30
         max_submissions: 100
         scoring_program: program.zip
         reference_data: reference.zip

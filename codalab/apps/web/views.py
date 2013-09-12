@@ -102,8 +102,8 @@ class CompetitionEdit(LoginRequiredMixin, UpdateWithInlinesView):
 class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
-    success_url = reverse_lazy('competitions:list')
-
+    success_url = '/my/#manage'
+    
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
