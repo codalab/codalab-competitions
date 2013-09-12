@@ -408,6 +408,7 @@ $topbar-sticky-class: ".sticky" !default;
 
         li {
           float: $default-float;
+          border-bottom: 2px #CCC solid;
           .js-generated { display: none; }
         }
       }
@@ -416,10 +417,9 @@ $topbar-sticky-class: ".sticky" !default;
         a:not(.button) {
           padding: 0 $topbar-height / 3;
           line-height: $topbar-height - 5;
-          height: $topbar-height;
+          height: $topbar-height - 2;
           background: $topbar-bg;
           border-top: $topbar-border-top;
-          border-bottom: 2px #CCC solid;
           &.hover { background: adjust-color($topbar-dropdown-bg, $lightness: $topbar-link-hover-lightness); }
         }
       }

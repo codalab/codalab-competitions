@@ -2774,3 +2774,16 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .side-nav a {
     font-weight: normal;
 }
+.mini_avatar {
+    margin: -6px 6px 0 30px;
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    -webkit-border-radius: 18px;
+    -moz-border-radius: 18px;
+    border-radius: 18px;
+    border: 1px #CCC solid;
+    display: inline-block;
+    float: none;
+    overflow: hidden;
+}
