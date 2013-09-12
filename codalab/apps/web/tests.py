@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 """
 Tests for Codalab functionality.
 """
@@ -39,7 +40,7 @@ class Competitions(TestCase):
         TODO: Does not authenticate (YET) 
         """
         client = Client()
-        res = client.post(reverse('competition-list'), {'title': 'Test Title',
+        res = client.post('/api/competition/', {'title': 'Test Title',
                                                  'description': 'Description',
                                                  'creator': self.user.pk,
                                                  'modified_by': self.user.pk,
@@ -50,4 +51,82 @@ class Competitions(TestCase):
         
         # Just checking to make sure the data was returned correctly
         self.assertTrue('id' in data and data['id'] >= 1)
-    
+
+        
+        
+    def test_get_competition_api(self):
+        """
+        Create a competition programmatically.
+        TODO: Does not authenticate (YET) 
+        """
+        client = Client()
+        res = client.post('/api/competition/', {'title': 'Test Title',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        data = json.loads(res.content)
+        
+        #get competition id
+        res = client.get('/api/competition/'+ str(data['id'])+'/')
+        data = json.loads(res.content)
+        self.assertEqual(data['title'], 'Test Title')
+        self.assertEqual(data['description'], 'Description')
+        self.assertEqual(data['creator'], self.user.pk)
+        self.assertEqual(data['modified_by'], self.user.pk)
+
+
+        
+    def test_delete_competition_api(self):
+       
+        client = Client()
+        
+        #create a competition                                         
+        res = client.post('/api/competition/', {'title': 'Test Title',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        create_data = json.loads(res.content)
+
+        #delete a competition
+        res = client.delete('/api/competition/'+ str(create_data['id'])+'/')
+        delete_data = json.loads(res.content)
+
+        #try to access the deleted comp
+        res = client.get('/api/competition/'+ delete_data + '/')
+        self.assertEqual(int(res.status_code), int(404))
+
+        
+
+    def test_delete_one_from_two_competitions_api(self):
+       
+        client = Client()
+        
+        #create a competition                                         
+        res = client.post('/api/competition/', {'title': 'Test Title 1',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })      
+        create_data1 = json.loads(res.content)
+
+        
+        #create another
+        res = client.post('/api/competition/', {'title': 'Test Title 2',
+                                                 'description': 'Description',
+                                                 'creator': self.user.pk,
+                                                 'modified_by': self.user.pk,
+                                                 })
+        
+        create_data2 = json.loads(res.content)
+        
+        
+        #delete  first competition
+        res = client.delete('/api/competition/'+ str(create_data1['id'])+'/')
+        delete_data = json.loads(res.content)
+        
+        
+        #try to access the deleted comp
+        res = client.get('/api/competition/'+ str(create_data1['id'])+'/')      
+        self.assertEqual(int(res.status_code), int(404))   

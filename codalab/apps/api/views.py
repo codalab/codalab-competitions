@@ -24,7 +24,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         the models to make the cleanup simpler if we can.
         """
         # Get the competition
-        c = Competition.objects.get(id=pk)
+        c = webmodels.Competition.objects.get(id=pk)
 
         # for each phase, cleanup the leaderboard and submissions
         print "You called destroy on %s!" % pk
