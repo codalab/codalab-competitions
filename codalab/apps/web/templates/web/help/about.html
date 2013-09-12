@@ -1,11 +1,12 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}About{% endblock head_title %}
+{% block page_title %}About{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container">
      <div class="large-3 columns">
         <ul class="side-nav fixed">
             <li><a href="#codalab" class="active" tabindex=7>About CodaLab</a></li>
-            <li><a href="#collaborate" tabindex=8>Collaborate with Experiments</a></li>
+            <li><a href="#develop" tabindex=8>Develop with Experiments</a></li>
             <li><a href="#compete" tabindex=9>Compete in Challenges</a></li>
             <li><a href="#yourdata" tabindex=10>Your data in the cloud</a></li>
             <li><a href="#glossary" tabindex=11>Glossary</a></li>
@@ -14,13 +15,12 @@
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns">
-        <a id="codalab"></a>
         <h4 class="firstrow">About CodaLab</h4> 
         <p>
             CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
         </p>
 
-        <a id="collaborate"></a>
+        <a id="develop"></a>
         <h4>Develop with Experiments</h4>
         <p>
         The experimental platform allows you to upload datasets and algorithms, run
