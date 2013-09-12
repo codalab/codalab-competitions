@@ -32,7 +32,7 @@
         <a id="compete"></a>
         <h4>Compete in Challenges</h4>
         <p>
-            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <!-- <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>. ////////// COMMENTED OUT UNTIL LINK CAN BE FIXED  -->
+            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <!-- <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>. ////////// COMMENTED OUT UNTIL LINK CAN BE FIXED  --><a href="{% url 'help_create_competition' %}">Get help with creating a competition</a>.
         </p>
 
         <a id="yourdata"></a>
@@ -42,7 +42,7 @@
         </p>
 
         <a id="glossary"></a>
-        <h4>Glossary</h4>
+        <h4>Glossary</h4> 
         <ul>
             <li>
                 <b>Competition</b> - An organized way for users to upload either a program or a bundle with predictions. An evaluation program will automatically score these predictions against the dataset provided by the competition organizer.
