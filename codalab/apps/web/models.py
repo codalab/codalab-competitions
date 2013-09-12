@@ -1,4 +1,6 @@
+import exceptions
 import os
+import operator
 import requests
 from django.db import models
 from django.db import IntegrityError
@@ -323,63 +325,167 @@ class CompetitionPhase(models.Model):
         """ Returns true if this phase of the competition has already ended. """
         return (not is_active) and (not is_future)
 
+    @staticmethod
+    def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
+        """ Given a set of identifiers (ids) and a set of (id, value)-pairs
+            computes a ranking based on the value. The ranking is provided 
+            as a set of (id, rank) pairs for all id in ids.
+        """
+        ranks = {}
+        # Only keep pairs for which the key is in the list of ids
+        valid_pairs = {k: v for k, v in id_value_pairs.iteritems() if k in ids}
+        if len(valid_pairs) == 0:
+            return {id: 1 for id in ids}
+        # Sort and compute ranks
+        sorted_pairs = sorted(valid_pairs.iteritems(), key = operator.itemgetter(1), reverse=not sort_ascending)
+        r = 1
+        k, v = sorted_pairs[0]
+        ranks[k] = r
+        for i in range(1, len(sorted_pairs)):
+            k, vnow = sorted_pairs[i]
+            # Increment the rank only when values are different
+            if abs(vnow - v) > eps:
+                r = r + 1
+                v = vnow
+            ranks[k] = r
+        # Fill in ranks for ids which were not seen in the input
+        r = r + 1
+        for id in ids:
+            if id not in ranks:
+                ranks[id] = r
+        return ranks
+
+    @staticmethod 
+    def format_value(v, precision="2"):
+        p = 1
+        try:
+            if precision is not None:
+                p = min(10, max(1, int(precision)))
+        except exceptions.ValueError:
+            pass
+        return ("{:." + str(p) + "f}").format(v)
+
+
     def scores(self,**kwargs):
-        LABELS = {}
-        CUR={}
-        SCORES={}
+
         score_filters = kwargs.pop('score_filters',{})
 
-        for sg in SubmissionResultGroup.objects.filter(phases__in=[self]):
+        # Get the list of submissions in this leaderboard
+        submissions = []
+        lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
+        if not created:
+            for e in PhaseLeaderBoardEntry.objects.filter(board=lb):
+                submissions.append((e.result.pk, e.result.participant.user.username))
+
+        results = []
+        for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
+            label = g.label
+            headers = []
+            scores = {}
+            for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
+
+            scoreDefs = []
+            currentColumnLabels = {}
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
-                                                                                 scoredef__groups__in=[sg],
-                                                                                 **kwargs):
-                
-                label = x.label
-                group_key = sg.key
-                group_label = sg.label
-               
-                if x.scoredef.computed is True: 
-                    COMP_KEYS = [cf.scoredef.key for cf in x.scoredef.computed_score.fields.all()]
-                    if not COMP_KEYS:
-                        continue
-
+                                                                        scoredef__groups__in=[g],
+                                                                        **kwargs):
                 if x.parent is not None:
-                    label_key = x.parent.label
-                    d = [label]
+                    columnLabel = x.parent.label
+                    columnSubLabels = [x.label]
                 else:
-                    label_key = label
-                    d = []
-                if group_key not in LABELS:
-                    LABELS[group_key] = { 'label':group_label, 'headers':[], 'scores': {} }
-                SCORES=LABELS[group_key]['scores']
-                if group_key not in CUR:
-                    CUR[group_key] = { }
-                if label_key not in CUR[group_key]:
-                    CUR[group_key][label_key] = {label_key:[]}
-                    LABELS[group_key]['headers'].append(CUR[group_key][label_key])
-                CUR[group_key][label_key][label_key].extend(d)
-
-                if x.scoredef.computed is True:
-                    AGG_OP = getattr(models,x.scoredef.computed_score.operation)
-                    for s in SubmissionScore.objects.filter(scoredef__key__in=COMP_KEYS,scoredef__competition__phases__in=[self],**score_filters).values('result__pk').annotate(value=AGG_OP('value')):
-                        pk = s['result__pk']
-                        #if group_key not in SCORES:
-                        #    SCORES[group_key] = {}
-                        if pk not in SCORES:
-                            SCORES[pk] = { 'username': SubmissionResult.objects.get(pk=pk).participant.user.username,
-                                           'values': []}
-                        SCORES[pk]['values'].append(dict(value=s['value'],key=x.scoredef.key))
-
+                    columnLabel = x.label
+                    columnSubLabels = []
+                if columnLabel not in currentColumnLabels:
+                    currentColumnLabels[columnLabel] = len(headers)
+                    headers.append({columnLabel : columnSubLabels})
                 else:
-                    for s in x.scoredef.submissionscore_set.order_by('result__pk').filter(**score_filters):
-                        #if group_key not in SCORES:
-                        #    SCORES[group_key] = {}
-                        if s.result.pk not in SCORES:
-                            SCORES[s.result.pk] = { 'username': s.result.submission.participant.user.username,
-                                                    'values': []}
-                        SCORES[s.result.pk]['values'].append(dict(value=s.value,key=s.scoredef.key))
+                    headers[currentColumnLabels[columnLabel]][columnLabel].extend(columnSubLabels)
 
-        return LABELS
+                scoreDefs.append(x.scoredef)
+                            
+            column_span = 2
+            for gHeader in headers:
+                for k in gHeader:
+                    n = len(gHeader[k])
+                    column_span += n if n > 0 else 1
+
+            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'scores': scores, 'scoredefs': scoreDefs })
+
+
+        if len(submissions) > 0:
+            # Figure out which submission scores we need to read from the database.
+            submission_ids = [id for (id,name) in submissions]
+            not_computed_scoredefs = {}
+            computed_scoredef_ids = []
+            computed_deps = {}
+            for result in results:
+                for sdef in result['scoredefs']:
+                    if sdef.computed is True:
+                        computed_scoredef_ids.append(sdef.id)
+                    else:
+                        not_computed_scoredefs[sdef.key] = sdef
+                if len(computed_scoredef_ids) > 0:
+                    computed_ids = SubmissionComputedScore.objects.filter(scoredef_id__in=computed_scoredef_ids).values_list('id')
+                    fields = SubmissionComputedScoreField.objects.filter(computed_id__in=computed_ids)
+                    for field in fields:
+                        if not field.scoredef.computed:
+                            not_computed_scoredefs[field.scoredef.key] = field.scoredef
+                        if field.computed.scoredef.key not in computed_deps:
+                            computed_deps[field.computed.scoredef.key] = []
+                        computed_deps[field.computed.scoredef.key].append(field.scoredef)
+            # Now read the submission scores
+            values = {}
+            scoredef_ids = [sdef.id for (sdef_key, sdef) in not_computed_scoredefs.iteritems()]
+            for s in SubmissionScore.objects.filter(scoredef_id__in=scoredef_ids, result_id__in=submission_ids):
+                if s.scoredef.key not in values:
+                    values[s.scoredef.key] = {}
+                values[s.scoredef.key][s.result.pk] = s.value
+
+            # rank values per scoredef.key (not computed)
+            ranks = {}
+            for (sdef_key, v) in values.iteritems():
+                sdef = not_computed_scoredefs[sdef_key]
+                ranks[sdef_key] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
+
+            # compute values for computed scoredefs
+            for result in results:
+                for sdef in result['scoredefs']:
+                    if sdef.computed:
+                        operation = getattr(models, sdef.computed_score.operation)
+                        if (operation.name == 'Avg'):
+                            cnt = len(computed_deps[sdef.key])
+                            if (cnt > 0):
+                                computed_values = {}
+                                for id in submission_ids:
+                                    computed_values[id] = sum([ranks[d.key][id] for d in computed_deps[sdef.key]]) / float(cnt)                                    
+                                values[sdef.key] = computed_values
+
+            #format values
+            for result in results:
+                scores = result['scores']
+                for sdef in result['scoredefs']:
+                    knownValues = {}
+                    if sdef.key in values:
+                        knownValues = values[sdef.key]
+                    knownRanks = {}
+                    if sdef.key in ranks:
+                        knownRanks = ranks[sdef.key]
+                    for id in submission_ids:
+                        v = "-"
+                        if id in knownValues:
+                            v = CompetitionPhase.format_value(knownValues[id], sdef.numeric_format)
+                        r = "-"
+                        if id in knownRanks:
+                            r = knownRanks[id]
+                        if sdef.show_rank:
+                            scores[id]['values'].append({'val': v, 'rnk': r})
+                        else:
+                            scores[id]['values'].append({'val': v, 'hidden_rnk': r})
+
+        for result in results:
+            del result['scoredefs']        
+
+        return results
 
 # Competition Participant
 class CompetitionParticipant(models.Model):
@@ -494,14 +600,6 @@ class CompetitionSubmission(models.Model):
 def do_submission_task(sender,instance=None,**kwargs):
     tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
 
-# Competition Submission Results
-class SubmissionResult(models.Model):
-    submission = models.ForeignKey(CompetitionSubmission,related_name='results')
-    name = models.CharField(max_length=256)
-    notes = models.TextField(blank=True)
-    aggregate = models.DecimalField(max_digits=22,decimal_places=10,default='0.0')
-
-
 class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
@@ -530,6 +628,8 @@ class SubmissionScoreDef(models.Model):
     label = models.CharField(max_length=50)
     sorting = models.SlugField(max_length=20,default='asc',choices=(('asc','Ascending'),('desc','Descending')))
     numeric_format = models.CharField(max_length=20,blank=True,null=True)
+    show_rank = models.BooleanField(default=False)
+    selection_default = models.IntegerField(default=0)
     computed = models.BooleanField(default=False)
     groups = models.ManyToManyField(SubmissionResultGroup,through='SubmissionScoreDefGroup')
 
@@ -580,12 +680,11 @@ class SubmissionScoreSet(MPTTModel):
 
         
 class SubmissionScore(models.Model):
-    result = models.ForeignKey(SubmissionResult,related_name='scores')
+    result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)
-    value = models.DecimalField(max_digits=20,decimal_places=10)
+    value = models.DecimalField(max_digits=20, decimal_places=10)
 
     class Meta:
-        #ordering = ['label']
         unique_together = (('result','scoredef'),)
     
     def save(self,*args,**kwargs):
@@ -598,7 +697,7 @@ class PhaseLeaderBoard(models.Model):
     is_open = models.BooleanField(default=True)
     
     def submissions(self):
-        return SubmissionResult.objects.filter(leaderboard_entry_result__board=self)
+        return CompetitionSubmission.objects.filter(leaderboard_entry_result__board=self)
     
     def __unicode__(self):
         return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
@@ -615,7 +714,7 @@ class PhaseLeaderBoard(models.Model):
     
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard, related_name='entries')
-    result = models.ForeignKey(SubmissionResult,  related_name='leaderboard_entry_result')
+    result = models.ForeignKey(CompetitionSubmission,  related_name='leaderboard_entry_result')
 
     class Meta:
         unique_together = (('board', 'result'),)
@@ -644,8 +743,6 @@ class Bundle(models.Model):
     def get_absolute_url(self):
         return ('project_bundle_detail', (), {'slug': self.slug})
     #get_absolute_url = models.permalink(get_absolute_url)
-
-
 
 
 # Run Model
