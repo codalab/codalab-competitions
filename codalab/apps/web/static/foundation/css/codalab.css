@@ -117,7 +117,7 @@ div.competition-tile article.subContainer div.articleTextArea div.small-10 butto
 /* line 122, ../sass/_settings.scss */
 nav.top-bar section.top-bar-section ul.right {
   color: white;
-  background: #739cb9;
+  background: white;
   vertical-align: text-bottom;
 }
 
@@ -6197,19 +6197,19 @@ label.error {
   /* line 409, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section ul li {
     float: left;
+    border-bottom: 2px #CCC solid;
   }
-  /* line 411, ../scss/foundation/components/_top-bar.scss */
+  /* line 412, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section ul li .js-generated {
     display: none;
   }
-  /* line 416, ../scss/foundation/components/_top-bar.scss */
+  /* line 417, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section li a:not(.button) {
     padding: 0 16.33333px;
     line-height: 44px;
-    height: 49px;
+    height: 47px;
     background: white;
     border-top: 4px white solid;
-    border-bottom: 2px #CCC solid;
   }
   /* line 423, ../scss/foundation/components/_top-bar.scss */
   .top-bar-section li a:not(.button).hover {
