@@ -18,42 +18,54 @@ var Competition;
         if (name == "#participate-submit_results") { $('#Participate').click(); }
     }
 
-    function addToLeaderboard(competition, submission, cstoken) {
-        var result = 0;
-        url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
+    function decorateLeaderboardButton(btn, submitted) {
+        if (submitted) {
+            btn.removeClass("leaderBoardSubmit");
+            btn.addClass("leaderBoardRemove");
+            btn.text("Remove from Leaderboard");
+        } else {
+            btn.removeClass("leaderBoardRemove");
+            btn.addClass("leaderBoardSubmit");
+            btn.text("Submit to Leaderboard");
+        }
+    }
+
+    function updateLeaderboard(competition, submission, cstoken, btn) {
+        var url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
+        var op = 'delete';
+        if (btn.hasClass("leaderBoardSubmit")) {
+            op = 'post';
+        }
         request = $.ajax({
             url: url,
-            type: 'post',
+            type: op,
             datatype: 'text',
             data: {
                 'csrfmiddlewaretoken': cstoken,
             },
             success: function (response, textStatus, jqXHR) {
-                btn.addClass("leaderBoardRemove");
-                btn.text("Remove from Leaderboard");
-
+                var added = op == 'post';
+                if (added) {
+                    var rows = $('#user_results td.status');
+                    rows.removeClass('submitted');
+                    rows.addClass('not_submitted');
+                    rows.html("");
+                    var row = $('#' + submission + ' td.status');
+                    row.addClass('submitted');
+                    row.html('<i class="enclosed-foundicon-checkmark"></i>');
+                    $('#user_results button.leaderBoardRemove').each(function (index) {
+                        decorateLeaderboardButton($(this), false);
+                    });
+                } else {
+                    var row = $('#' + submission + ' td.status');
+                    row.removeClass('submitted');
+                    row.addClass('not_submitted');
+                    row.html("");
+                }
+                decorateLeaderboardButton(btn, added);
             },
             error: function (jsXHR, textStatus, errorThrown) {
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", cstoken);
-            }
-        });
-    };
-
-    function removeFromLeaderboard(competition, submission, cstoken) {
-        var result = 0;
-        url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
-        request = $.ajax({
-            url: url,
-            type: 'delete',
-            datatype: 'text',
-            data: {
-                'csrfmiddlewaretoken': cstoken,
-            },
-            success: function (response, textStatus, jqXHR) {
-            },
-            error: function (jsXHR, textStatus, errorThrown) {
+                alert("An error occurred. Please try again or report the issue");
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", cstoken);
@@ -261,19 +273,10 @@ var Competition;
                 btn.removeClass("hide");
                 var submitted = $(nTr).find(".status").hasClass("submitted");
                 var competition = $("#competitionId").val();
-                if (submitted) {
-                    btn.addClass("leaderBoardRemove");
-                    btn.text("Remove from Leaderboard");
-                    btn.on('click', function () {
-                        removeFromLeaderboard(competition, nTr.id, cstoken);
-                    });
-                } else {
-                    btn.addClass("leaderBoardSubmit");
-                    btn.text("Submit to Leaderboard");
-                    btn.on('click', function () {
-                        addToLeaderboard(competition, nTr.id, cstoken);
-                    });
-                }
+                decorateLeaderboardButton(btn, submitted);
+                btn.on('click', function () {
+                    updateLeaderboard(competition, nTr.id, $("#cstoken").val(), btn);
+                });
             }
             else {
                 var status = $(nTr).find(".statusName").html();
@@ -305,6 +308,9 @@ var Competition;
                     if (phasestate == 1) {
                         $(obj).addClass("leaderBoardSubmit");
                         $(obj).text("Submit to Leaderboard");
+                        $(obj).on('click', function () {
+                            updateLeaderboard(competitionId, submissionId, $("#cstoken").val(), $(obj));
+                        });
                     } else {
                         $(obj).addClass("hide");
                     }

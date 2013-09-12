@@ -46,14 +46,7 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.CompetitionParticipant
 
-class SubmissionResultSerial(serializers.ModelSerializer):
-
-    class Meta:
-        model = webmodels.SubmissionResult
-        read_only_field = ('scores',)
-
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
-    #competition = serializers.IntegerField(source="phase.competition")
     class Meta:
         model = webmodels.CompetitionSubmission
         fields = ('id','status','status_details','submitted_at','submission_number', 'file')
@@ -128,13 +121,13 @@ class ScoreSerial(serializers.ModelSerializer):
         
 
 class CompetitionScoresSerial(serializers.ModelSerializer):
-    competition_id = serializers.IntegerField(source='submission.phase.competition.pk')
-    phase_id = serializers.IntegerField(source='submission.phase.pk')
-    phasenumber = serializers.IntegerField(source='submission.phase.pk')
-    partitipant_id = serializers.IntegerField(source='submission.participant.pk')
-    status = serializers.CharField(source='submission.status.codename')
-    status_details = serializers.CharField(source='submission.status_details')
+    competition_id = serializers.IntegerField(source='phase.competition.pk')
+    phase_id = serializers.IntegerField(source='phase.pk')
+    phasenumber = serializers.IntegerField(source='phase.pk')
+    partitipant_id = serializers.IntegerField(source='participant.pk')
+    status = serializers.CharField(source='status.codename')
+    status_details = serializers.CharField(source='status_details')
     scores = ScoreSerial(read_only=True)
 
     class Meta:
-        model = webmodels.SubmissionResult
+        model = webmodels.CompetitionSubmission
