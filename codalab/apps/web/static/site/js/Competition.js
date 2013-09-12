@@ -134,6 +134,44 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_results").html("").append(data);
+                var table = $('.prevResultSubmission');
+                $(".asc").click(function (e) {
+                    $(".prevResultSubmission .dataTable-column-active").removeClass();
+                    $(this).addClass("dataTable-column-active");
+                  var th= $(this),
+                      thIndex = th.index();
+                    table.find('td')
+                      .filter(function () {
+                          return $(this).index() === thIndex;
+                      }).addClass("dataTable-column-active")
+                      .sortTable(
+                        function (a, b) {
+                            return $.text([a]) > $.text([b]);
+                        }, function () {
+                            return this.parentNode;
+                        }
+                      );
+                });
+
+
+                $(".dec").click(function (e) {
+                    $(".prevResultSubmission .dataTable-column-active").removeClass();
+                    $(this).addClass("dataTable-column-active");
+                    e.preventDefault();
+                      var th= $(this),
+                      thIndex = th.index();
+                      table.find('td')
+                        .filter(function () {
+                            return $(this).index() === thIndex;
+                        }).addClass("dataTable-column-active")
+                      .sortTable(
+                        function (a, b) {
+                            return $.text([a]) < $.text([b]);
+                        }, function () {
+                            return this.parentNode;
+                        }
+                      );
+                });
             },
             error: function (xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
@@ -383,4 +421,45 @@ $(document).ready(function () {
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
+
+
+    /*----------------------------------------*/
+   
+
+
 });
+
+jQuery.fn.sortTable = (function () {
+    var sort = [].sort;
+    return function (comparator, getSortable) {
+        getSortable = getSortable || function () { return this; };
+        var placements = this.map(function () {
+            var sortElement = getSortable.call(this),
+                parentNode = sortElement.parentNode,
+                nextSibling = parentNode.insertBefore(
+                    document.createTextNode(''),
+                    sortElement.nextSibling
+                );
+
+            return function () {
+
+                if (parentNode === this) {
+                    throw new Error(
+                        "You can't sort elements if any one is a descendant of another."
+                    );
+                }
+
+                parentNode.insertBefore(this, nextSibling);
+                
+                parentNode.removeChild(nextSibling);
+
+            };
+
+        });
+
+        return sort.call(this, comparator).each(function (i) {
+            placements[i].call(getSortable.call(this));
+        });
+    };
+
+})();

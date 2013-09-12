@@ -714,28 +714,45 @@ div.pending-approval-select.columns {
   color: #648ca8;
   font-size: 12px;
 }
-/* line 636, ../sass/_settings.scss */
+/* line 634, ../sass/_settings.scss */
+.leaderboard-result-table table tr th.test {
+  color: red !important;
+}
+/* line 637, ../sass/_settings.scss */
+.leaderboard-result-table table tr td.dataTable-column-active {
+  background: #d0d0d0 !important;
+}
+/* line 642, ../sass/_settings.scss */
 .leaderboard-result-table table tr.dataTable-header th {
-  background: #648ca8 !important;
-  color: #fff;
-}
-/* line 641, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(2) th:nth-child(1) {
-  background: #648ca8 !important;
-  color: #fff;
-}
-/* line 644, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(2) th:nth-child(2) {
-  background: #648ca8 !important;
+  background: #648ca8;
   color: #fff;
 }
 /* line 647, ../sass/_settings.scss */
-.leaderboard-result-table table tr:nth-child(2) th:last-child {
-  background: #648ca8 !important;
+.leaderboard-result-table table tr:nth-child(2) th:nth-child(1) {
+  background: #648ca8;
   color: #fff;
 }
+/* line 650, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(2) th:nth-child(2) {
+  background: #648ca8;
+  color: #fff;
+}
+/* line 653, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(2) th:last-child {
+  background: #648ca8;
+  color: #fff;
+}
+/* line 658, ../sass/_settings.scss */
+.leaderboard-result-table table tr th.dataTable-column-active {
+  background: #99bece !important;
+  color: #fff !important;
+}
+/* line 664, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(odd) .dataTable-column-active {
+  background: #e8e8e8 !important;
+}
 
-/* line 654, ../sass/_settings.scss */
+/* line 671, ../sass/_settings.scss */
 .leaderboard-result-table .table-title th {
   font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #FFF;
@@ -746,48 +763,48 @@ div.pending-approval-select.columns {
   text-align: left;
 }
 
-/* line 664, ../sass/_settings.scss */
+/* line 681, ../sass/_settings.scss */
 .preloader-handler {
   position: relative;
 }
 
-/* line 668, ../sass/_settings.scss */
+/* line 685, ../sass/_settings.scss */
 .submissions-details-label {
   margin-bottom: 0 !important;
 }
 
-/* line 672, ../sass/_settings.scss */
+/* line 689, ../sass/_settings.scss */
 #submissions_phase_buttons .button {
   margin-left: 10px !important;
   margin-bottom: 5px !important;
 }
 
-/* line 676, ../sass/_settings.scss */
+/* line 693, ../sass/_settings.scss */
 #fileUploadButton {
   margin-bottom: 5px;
 }
 
-/* line 680, ../sass/_settings.scss */
+/* line 697, ../sass/_settings.scss */
 .challStatusStripSection section {
   width: auto;
 }
 
-/* line 685, ../sass/_settings.scss */
+/* line 702, ../sass/_settings.scss */
 .competition-tile .subContainerPadding {
   height: 140px;
 }
-/* line 689, ../sass/_settings.scss */
+/* line 706, ../sass/_settings.scss */
 .competition-tile .articleImageContainer img {
   height: 100%;
   width: 100%;
 }
 
-/* line 696, ../sass/_settings.scss */
+/* line 713, ../sass/_settings.scss */
 #dialog {
   display: none;
 }
 
-/* line 699, ../sass/_settings.scss */
+/* line 716, ../sass/_settings.scss */
 .dialog-box {
   left: 0;
   top: -100%;
@@ -802,7 +819,7 @@ div.pending-approval-select.columns {
   opacity: 0;
 }
 
-/* line 712, ../sass/_settings.scss */
+/* line 729, ../sass/_settings.scss */
 .dialog-box-background {
   background: #000;
   opacity: 0.5;
@@ -815,21 +832,15 @@ div.pending-approval-select.columns {
   position: absolute;
 }
 
-/* line 723, ../sass/_settings.scss */
+/* line 740, ../sass/_settings.scss */
 .dialog-box #Idialog {
   width: 93%;
   height: 100%;
 }
 
-/* line 727, ../sass/_settings.scss */
+/* line 744, ../sass/_settings.scss */
 .login-form {
   overflow: hidden;
-}
-
-/* line 731, ../sass/_settings.scss */
-.dataTable-header-active {
-  background: #99bece !important;
-  color: #fff !important;
 }
 
 /* font-face */

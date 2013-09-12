@@ -74,7 +74,7 @@ $side-nav-font-size: 15px;
 }
 
 @mixin table-header-white {
-	background:#648ca8 !important;  
+	background:#648ca8; 
 	color:#fff;  
 }  
 
@@ -631,6 +631,12 @@ div.pending-approval-select.columns {
 				color:#648ca8;
 				font-size: 12px;
 			}
+			th.test {
+					color:red !important;
+			}
+			td.dataTable-column-active{
+				background:#d0d0d0 !important;
+			}
 		}
 		tr.dataTable-header{
 			th{
@@ -646,6 +652,17 @@ div.pending-approval-select.columns {
 			}
 			th:last-child {
 				@include table-header-white;
+			}
+		}
+		tr{
+			th.dataTable-column-active{
+					background:#99bece !important;
+					color:#fff !important;
+				}
+		}
+		tr:nth-child(odd){
+			.dataTable-column-active {
+				background:#e8e8e8 !important;
 			}
 		}
 	}
@@ -726,9 +743,4 @@ div.pending-approval-select.columns {
 }
 .login-form{
 	overflow:hidden;
-}
-
-.dataTable-header-active {
-	background:#99bece !important;
-	color:#fff !important;
 }
