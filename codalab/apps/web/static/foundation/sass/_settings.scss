@@ -636,10 +636,11 @@ div.pending-approval-select.columns {
 				color:#648ca8;
 				font-size: 12px;
 			}
-			th[colspan="3"] {
+		}
+		tr.dataTable-header {
+			th {
 				@include table-header-white;
 			}
-			td {}
 		}
 		tr:nth-child(2) {
 			th:nth-child(1) {
