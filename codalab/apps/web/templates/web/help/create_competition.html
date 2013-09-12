@@ -1,10 +1,18 @@
 {% extends 'base.html' %}
 {% block title %}Help - Create Competition{% endblock %}
 {% block content %}
-<div class="row">
+<div class="row glossary-page-container">
+     <div class="large-3 columns">
+        <ul class="side-nav fixed">
+            <li><a href="#prerequisites">Prerequisites</a></li>
+            <li><a href="#competition-overview">Competition Overview</a></li>
+            <li><a href="#upload-competition-data">Upload Competition Data</a></li>
+            <li><a href="#create-a-codalab-competition">Create a CodaLab Competition</a></li>
+        </ul>
+    </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns glossary-page-container">
+    <div class="large-9 columns">
         <h1>Create a Competition</h1>
         <p>
             CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
@@ -280,19 +288,6 @@ reference-*.zip /destkey:&lt;access-key&gt;
         <p>
             <img src="/static/site/Images/Docs/ccw_managetab.png" alt="Competitions I Manage" />
         </p>
-    </div>
-
-    <div>
-        <!-- Nav Sidebar -->
-        <!-- This is source ordered to be pulled to the left on larger screens -->
-        <div class="large-3 pull-9 columns">
-            <ul class="five side-nav">
-                <li class="active" onclick="scrollAnimation('prerequisites',this)"><a>Prerequisites</a></li>
-                <li onclick="scrollAnimation('competition-overview',this)"><a>Competition Overview</a></li>
-                <li onclick="scrollAnimation('upload-competition-data',this)"><a>Upload Competition Data</a></li>
-                <li onclick="scrollAnimation('create-a-codalab-competition',this)"><a>Create a CodaLab Competition</a></li>
-            </ul>
-        </div>
     </div>
 </div>
 
