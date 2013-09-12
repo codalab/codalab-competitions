@@ -13,11 +13,6 @@ urlpatterns = patterns('',
                            name='competition_submissions_page'),
                        url(r'^(?P<id>\d+)/results/(?P<phase>\d+)$',
                            views.CompetitionResultsPage.as_view(template_name='web/competitions/_results_page.html'), name='competition_results_page'),
-
-                       url(r'^scores/(?P<phase_id>\d+)$',views.ScoresTestView.as_view(template_name='web/competitions/scores.html'),
-                           name='scores_test'),
-
-
                        )
 
                         
