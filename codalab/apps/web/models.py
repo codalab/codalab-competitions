@@ -586,9 +586,9 @@ class CompetitionDefBundle(models.Model):
         comp.save()
 
         # Populate pages
-        details_category = ContentCategory.objects.get(name="Learn the Details")
-        participate_category = ContentCategory.objects.get(name="Participate")
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
+
+        details_category = ContentCategory.objects.get(name="Learn the Details")
 
         Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
@@ -597,10 +597,17 @@ class CompetitionDefBundle(models.Model):
         Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
                                    label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
 
+        participate_category = ContentCategory.objects.get(name="Participate")
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+                                   label="Get Data", rank=0, html="")
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+
         # Create phases
         for p_num in comp_spec['phases']:
             phase_spec = comp_spec['phases'][p_num].copy()
             phase_spec['competition'] = comp
+            datasets = phase_spec['datasets']
+            del phase_spec['datasets']
             if type(phase_spec['start_date']) is datetime.datetime.date:
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
@@ -611,6 +618,10 @@ class CompetitionDefBundle(models.Model):
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.save()
+
+        # Add owner as participant so they can view the competition
+        approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
         return comp
 
 class SubmissionScoreDefGroup(models.Model):
