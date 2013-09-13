@@ -459,6 +459,7 @@ class CompetitionPhase(models.Model):
                                 for id in submission_ids:
                                     computed_values[id] = sum([ranks[d.key][id] for d in computed_deps[sdef.key]]) / float(cnt)                                    
                                 values[sdef.key] = computed_values
+                                ranks[sdef.key] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
             #format values
             for result in results:
