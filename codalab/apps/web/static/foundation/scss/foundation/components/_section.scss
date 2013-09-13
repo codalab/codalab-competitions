@@ -232,7 +232,10 @@ $active-region-selector: ".active" !default;
   &#{$active-region-selector} {
 	& > #{$title-selector} { 
 	  background: $title-bg-active;
-      a { color: $title-color-active; }
+      a { 
+        color: $active;
+        font-weight: bold !important;
+      }
     }
   }
 
@@ -260,7 +263,9 @@ $active-region-selector: ".active" !default;
 	  padding-#{$default-float}: $section-vertical-tabs-title-width - emCalc(1px);
 
       & > #{$title-selector} {
-        background-color: $title-bg-active;  
+        background-color: $title-bg-active;
+        border-left: 4px $active solid !important;
+        text-indent: 4px;
       }
     }
   }

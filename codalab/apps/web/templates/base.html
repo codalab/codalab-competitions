@@ -62,7 +62,14 @@
             </ul>
             <section class="top-bar-section">
               <!-- Left Nav Section -->
-              <ul class="left">
+
+              <!-- Right Nav Section -->
+              <ul class="right">
+<!--                 <li class="has-form">
+                  <form action="/search" method="get">
+                    <input name="query" type="search" placeholder="Search">
+                  </form>
+                </li> -->
                 <!--   //////// COMMENTED OUT FOR NOW
                 <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li>   /////// -->             
                 <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
@@ -72,29 +79,20 @@
                   <li><a href="{% url 'account_login' %}"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
                 <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
-              </ul>
-
-              <!-- Right Nav Section -->
-              <ul class="right">
-<!--                 <li class="has-form">
-                  <form action="/search" method="get">
-                    <input name="query" type="search" placeholder="Search">
-                  </form>
-                </li> -->
                 {% if user.is_authenticated %}
                   <li class="has-dropdown">
-                      <a href="#profile">{{user.username}}</a>
+                      <a href="#profile"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
                       <ul class="dropdown">
                         <!-- <li><a href="#">My Profile</a></li> -->
                         <li class="divider"></li>
                         <li>
-                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign Out</a>
                         </li>
                       </ul>
                   </li>
                 {% else %}
                   <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a></li>  
+                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -102,12 +100,19 @@
         </div>
         <!-- End Nav -->
 
+
         {% block nosubheader %}
-        <div class="row">
-            <div class="subheader small-centered">
-                {% block subheader %} {% endblock subheader %}
-            </div>
-        </div>
+              {% block subheader %} 
+                <div class="header-title-bg">
+                  <div class="large-12 columns">
+                    <div class="row">
+                      <div class="large-12 columns">
+                        <h1> {% block page_title %}{% endblock page_title %} </h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endblock subheader %}
         {% endblock nosubheader %}
 
         {% block hero_subheader %}
@@ -124,8 +129,13 @@
     <!-- Footer -->
     <footer id="footer">
         <div class="small-6 columns">
-          <ul class="inline-list left">
-            <li>
+          <ul class="inline-list left">            
+            <li>   
+                <span>
+                  <a href="http://www.windowsazure.com/" target="_blank"><img src="{{ STATIC_URL }}site/Images/Azure_Footer_Logo.png" border="0"/></a>
+                </span>
+            </li>
+            <li>   
                 <span>
                   <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
@@ -173,5 +183,22 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+  <script>
+    $("#login-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+    $("#logout-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+    $("#signup-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+    });
+  </script>
   </body>
 </html>

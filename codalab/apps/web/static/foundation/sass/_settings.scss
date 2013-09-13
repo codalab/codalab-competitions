@@ -19,7 +19,7 @@ $primary-color: $background;
 $body-font-color: $gray;
 $header-font-color: $gray;
 
-$topbar-bg: $background;
+$topbar-bg: $white;
 $topbar-fg: $foreground;
 $topbar-margin-bottom: 0px;
 $topbar-title-weight: normal;
@@ -121,7 +121,7 @@ div.competition-tile article.subContainer div.articleTextArea div.small-10 butto
 
 nav.top-bar section.top-bar-section ul.right {
 	color: $foreground;
-	background: $background;
+	background: $white;
 	vertical-align: text-bottom;
 }
 
@@ -131,6 +131,7 @@ div.CompetitionsDetailContainer div.section-container section:not(.active) p a:h
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
 	background: transparent;
+	margin-left: 20px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
@@ -139,8 +140,9 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
 	padding: 2px;
-	text-align: right;
+	text-align: left;
 	border: 0px;
+	font-weight: normal;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
@@ -369,7 +371,10 @@ p.competition-paragraph {
 }
 
 .competition-tile {
-	margin-bottom:10px;
+	margin-bottom: 20px;
+	border: 1px #CCC solid;
+	border-radius: 3px;
+	background: #FFF;
 }
 
 .competition-tile h3 {
@@ -488,7 +493,7 @@ ul.side-nav {
 
 div.auto.section-container > section > .title, .auto.section-container > .section > .title{
 		a{
-		background:$white;
+		background:$background-gray;
 		padding-left:40px !important;
 		padding-right:40px !important;
 		font-size:19px;
@@ -497,13 +502,13 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 }
 
 .auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
-	background:$background-gray !important;
+	background:$white !important;
 }
 
 .auto.section-container > section.active > .title {
-	border-bottom:solid 1px $background-gray !important;
+	border-bottom: none;
 	a {
-		background:$background-gray !important;
+		background:$white;
 	}
 }
 
@@ -527,7 +532,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 	}
 
 	.active p a {
-			color:$gray !important;
+			color:$active !important;
 			font-weight:bold;
 	}
 }
@@ -559,6 +564,12 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
+       h4 {
+       		margin-top: -155px;
+       		padding-top: 155px;
+
+
+       }
        h6 { 
               font-size:16px; 
               color:$gray;
@@ -568,8 +579,7 @@ div.pending-approval-select.columns {
        p { 
               font-size:15px; 
               color:$gray;
-              padding-bottom:14px;
-              
+              padding-bottom: 30px;            
               }
   
        ol { 
@@ -631,10 +641,11 @@ div.pending-approval-select.columns {
 				color:#648ca8;
 				font-size: 12px;
 			}
-			th[colspan="3"] {
+		}
+		tr.dataTable-header {
+			th {
 				@include table-header-white;
 			}
-			td {}
 		}
 		tr:nth-child(2) {
 			th:nth-child(1) {
@@ -686,8 +697,8 @@ div.pending-approval-select.columns {
 	}
 	.articleImageContainer{
 		img{
-			height:100%;
-			width:100%;
+			max-height: 120px;
+			width: auto;
 		}
 	}
 }
