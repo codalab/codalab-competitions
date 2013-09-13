@@ -57,7 +57,7 @@ class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
     template_name = 'web/competitions/edit-phase.html'
-    extra = 1
+    extra = 0
 
 class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
