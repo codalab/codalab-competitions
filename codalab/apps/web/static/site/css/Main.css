@@ -2759,11 +2759,11 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .header-title-bg {
     background: url('../Images/tiled-header-bg.gif') repeat-x top left;
-    height: 105px;
+    height: 80px;
     width: 100%
     position: absolute;
     top:0;
-    padding: 15px 0 0 0;
+    padding:0;
     margin: 0 0 30px 0;
     display: block;
 }
@@ -2790,4 +2790,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .homepage_featured p {
     padding-right: 10px;
     margin-bottom: 0;
+}
+.spacer500 {
+    height: 500px;
 }
