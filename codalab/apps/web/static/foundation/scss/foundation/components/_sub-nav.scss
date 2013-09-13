@@ -12,13 +12,13 @@ $sub-nav-font-size: emCalc(14) !default;
 $sub-nav-font-color: #999 !default;
 $sub-nav-font-weight: normal !default;
 $sub-nav-text-decoration: none !default;
-$sub-nav-border-radius: 1000px !default;
+$sub-nav-border-radius: 4px !default;
 
 // We use these to control the active item styles
 $sub-nav-active-font-weight: bold !default;
 $sub-nav-active-bg: $primary-color !default;
 $sub-nav-active-color: #fff !default;
-$sub-nav-active-padding: emCalc(3, 9) !default;
+$sub-nav-active-padding: emCalc(8, 12) !default;
 $sub-nav-active-cursor: default !default;
 
 //

@@ -247,10 +247,9 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(detail = 'Competition phase is closed.')
         if submission.participant.user != self.request.user:
             raise ParseError(detail = 'Invalid submission')
-        result = webmodels.SubmissionResult.objects.get(submission=submission)
         response = dict()
         lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
-        lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, submission=submission, result=result)
+        lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
         lbe.delete()
         response['status'] = lbe.id
         return Response(response, status=response['status'], content_type="application/json")
@@ -268,10 +267,14 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(detail = 'Competition phase is closed.')
         if submission.participant.user != self.request.user:
             raise ParseError(detail = 'Invalid submission')
-        result = webmodels.SubmissionResult.objects.get(submission=submission)
         response = dict()
         lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
-        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, submission=submission, result=result)
+        # Currently we only allow one submission into the leaderboard although the leaderboard
+        # is setup to accept multiple submissions from the same participant.
+        entries = webmodels.PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=participant)
+        for entry in entries:
+            entry.delete()
+        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
@@ -301,7 +304,7 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DefaultContentSerial
     
 class SubmissionScoreViewSet(viewsets.ModelViewSet):
-    queryset = webmodels.SubmissionResult.objects.all()
+    queryset = webmodels.CompetitionSubmission.objects.all()
     serializer_class = serializers.CompetitionScoresSerial
 
     def get_queryset(self):
