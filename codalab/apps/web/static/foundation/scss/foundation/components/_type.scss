@@ -8,7 +8,7 @@ $header-font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans
 $header-font-weight: lighter !default;
 $header-font-style: normal !default;
 $header-font-color: #222 !default;
-$header-line-height: 1.4 !default;
+$header-line-height: 1.4em !default;
 $header-top-margin: .2em !default;
 $header-bottom-margin: .5em !default;
 $header-text-rendering: optimizeLegibility !default;
@@ -36,7 +36,7 @@ $small-font-color: lighten($header-font-color, 20%) !default;
 $paragraph-font-family: inherit !default;
 $paragraph-font-weight: normal !default;
 $paragraph-font-size: 1em !default;
-$paragraph-line-height: 1.6 !default;
+$paragraph-line-height: 1.6em !default;
 $paragraph-margin-bottom: emCalc(20) !default;
 $paragraph-aside-font-size: emCalc(14) !default;
 $paragraph-aside-line-height: 1.35 !default;
@@ -51,7 +51,7 @@ $code-font-weight: bold !default;
 // We use these to style anchors
 $anchor-text-decoration: none !default;
 $anchor-font-color: $primary-color !default;
-$anchor-font-color-hover: darken($primary-color, 30%) !default;
+$anchor-font-color-hover: darken($primary-color, 5%) !default;
 
 // We use these to style the <hr> element
 $hr-border-width: 1px !default;

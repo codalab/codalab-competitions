@@ -564,6 +564,12 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
+       h4 {
+       		margin-top: -155px;
+       		padding-top: 155px;
+
+
+       }
        h6 { 
               font-size:16px; 
               color:$gray;
@@ -573,8 +579,7 @@ div.pending-approval-select.columns {
        p { 
               font-size:15px; 
               color:$gray;
-              padding-bottom:30px;
-              
+              padding-bottom: 30px;            
               }
   
        ol { 
