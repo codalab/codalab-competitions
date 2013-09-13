@@ -1,11 +1,12 @@
 ﻿{% extends 'base.html' %}
 {% block head_title %}About{% endblock head_title %}
+{% block page_title %}About{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container">
      <div class="large-3 columns">
         <ul class="side-nav fixed">
             <li><a href="#codalab" class="active" tabindex=7>About CodaLab</a></li>
-            <li><a href="#collaborate" tabindex=8>Collaborate with Experiments</a></li>
+            <li><a href="#develop" tabindex=8>Develop with Experiments</a></li>
             <li><a href="#compete" tabindex=9>Compete in Challenges</a></li>
             <li><a href="#yourdata" tabindex=10>Your data in the cloud</a></li>
             <li><a href="#glossary" tabindex=11>Glossary</a></li>
@@ -20,7 +21,7 @@
             CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
         </p>
 
-        <a id="collaborate"></a>
+        <a id="develop"></a>
         <h4>Develop with Experiments</h4>
         <p>
         The experimental platform allows you to upload datasets and algorithms, run
@@ -32,7 +33,7 @@
         <a id="compete"></a>
         <h4>Compete in Challenges</h4>
         <p>
-            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <!-- <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>. ////////// COMMENTED OUT UNTIL LINK CAN BE FIXED  -->
+            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <!-- <a href='@Url.Action("CreateCompetition", "Help")'>Get help with creating a competition</a>. ////////// COMMENTED OUT UNTIL LINK CAN BE FIXED  --><a href="{% url 'help_create_competition' %}">Get help with creating a competition</a>.
         </p>
 
         <a id="yourdata"></a>
@@ -42,7 +43,7 @@
         </p>
 
         <a id="glossary"></a>
-        <h4>Glossary</h4>
+        <h4>Glossary</h4> 
         <ul>
             <li>
                 <b>Competition</b> - An organized way for users to upload either a program or a bundle with predictions. An evaluation program will automatically score these predictions against the dataset provided by the competition organizer.
@@ -57,6 +58,7 @@
                 <b>User</b> - Someone who creates programs, datasets, experiments, and participates in competitions.
             </li>
         </ul>
+        <div class="spacer500">&nbsp;</div>
     </div>    
     <!-- Nav Sidebar -->
     <!-- This is source ordered to be pulled to the left on larger screens -->

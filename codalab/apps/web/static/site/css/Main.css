@@ -1090,11 +1090,8 @@ figure.userImage {
     display:table-cell;
     vertical-align:top;
     padding:0 20px 0 0;
-    border:solid 1px #ccc;
-    border-width:1px 0;
 }
 .subContainer > div:last-child{
-    border-right:solid 1px #ccc;;
 }
 .subContainer .articleImage {
     width:220px;
@@ -1510,7 +1507,7 @@ div.articleImageContainer
 .CompetitionsDetailContainer p {
     font:normal 16px/19px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     /*color:#777;*/
-    font-weight: 400
+    font-weight: 400;
 }
 
 .CompetitionsDetailLft {
@@ -2725,7 +2722,7 @@ ul.leftNavigation li.active a{
 
 /*  /////  TEMP STYLES  /////  */
 .cl-logo  {
-    padding: 7px 100px 0 14px;
+    padding: 9px 100px 0 14px;
 }
 .experiment__date {
     font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
@@ -2734,12 +2731,6 @@ ul.leftNavigation li.active a{
 }
 .button a, .button a:hover {
     color: #FFF;
-}
-.glossary-page-container h4 {
-    padding-top: 60px;
-}
-.glossary-page-container h4.firstrow {
-    margin-top: -60px;
 }
 .stats_placeholder {
     padding-top: 39px;
@@ -2759,4 +2750,47 @@ ul.leftNavigation li.active a{
 }
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
     height: 65px !important;
+}
+.pad15 {
+    padding: 15px;
+}
+.slider {     /* Temporary homepage slider background */
+    background: url('../Images/slider_exp_comp.gif') repeat-x top left !important;
+}
+.header-title-bg {
+    background: url('../Images/tiled-header-bg.gif') repeat-x top left;
+    height: 80px;
+    width: 100%
+    position: absolute;
+    top:0;
+    padding:0;
+    margin: 0 0 30px 0;
+    display: block;
+}
+.header-title-bg h1 {
+    color: #FFF;
+    font-size: 44px;
+}
+.side-nav a {
+    font-weight: normal;
+}
+.mini_avatar {
+    margin: -6px 6px 0 30px;
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    -webkit-border-radius: 18px;
+    -moz-border-radius: 18px;
+    border-radius: 18px;
+    border: 1px #CCC solid;
+    display: inline-block;
+    float: none;
+    overflow: hidden;
+}
+.homepage_featured p {
+    padding-right: 10px;
+    margin-bottom: 0;
+}
+.spacer500 {
+    height: 500px;
 }

@@ -1,65 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}My CodaLab{% endblock %}
+{% block page_title %}My CodaLab{% endblock page_title %}
+
 {% block content %}
 <div class="row">
-    <div class="large-10 push-2 columns">
+    <div class="large-12 columns">
         <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true">
-          <section>
-            <p class="title active" id="participating" data-section-title>
-                <a href="#participate">Competitions I'm In</a>
-            </p>
-            <div class="content" data-section-content data-slug="participate">
-                <div class="row">
-                    <div class="large-9 push-3 columns">
-                        <div class="my_participating">
-                            {% include "web/my/_entered.html" with competitions=competitions_im_in %}
+            <section>
+                <p class="title active" id="participating" data-section-title>
+                    <a href="#participate">Competitions I'm In</a>
+                </p>
+                <div class="content" data-section-content data-slug="participate">
+                    <div class="row">
+                        <div class="large-9 push-3 columns">
+                            <div class="my_participating">
+                                {% include "web/my/_entered.html" with competitions=competitions_im_in %}
+                            </div>
+                        </div>
+                        <div class="large-3 pull-9 columns">
+                            <a href="/competitions"><button class="small button">View Competitions</button></a>
                         </div>
                     </div>
-                    <div class="large-3 pull-9 columns">
-                        <a href="/competitions"><button class="small button">View Competitions</button></a>
-                    </div>
                 </div>
-            </div>
-        </section>
-        <section>
-            <p class="title" id="managed" data-section-title>
-                <a href="#manage">Competitions I'm Running</a>
-            </p>
-            <div class="content" data-section-content data-slug="manage">
-                <div class="row">
-                    <div class="large-9 push-3 columns ">
-                        <div class="my_managing">
-                            {% include "web/my/_managed.html" with competitions=my_competitions %}
+            </section>
+            <section>
+                <p class="title" id="managed" data-section-title>
+                    <a href="#manage">Competitions I'm Running</a>
+                </p>
+                <div class="content" data-section-content data-slug="manage">
+                    <div class="row">
+                        <div class="large-9 push-3 columns ">
+                            <div class="my_managing">
+                                {% include "web/my/_managed.html" with competitions=my_competitions %}
+                            </div>
+                        </div>
+                        <div class="large-3 pull-9 columns">
+                            <a href="#"><button class="small button">Create Competition</button></a>
                         </div>
                     </div>
                     <div class="large-3 pull-9 columns">
                         <a href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
                     </div>
                 </div>
-            </div>
-        </section>
-        <section>
-            <p class="title active" id="experimentation" data-section-title>
-                <a href="#experiments">My Experiments</a>
-            </p>
-            <div class="content" data-section-content data-slug="experiments">
-                <div class="row">
-                    <div class="large-9 push-3 columns ">
-                        <div class="my_managing">
-                            {% include "web/my/_experiments.html" %}
+            </section>
+            <section>
+                <p class="title active" id="experimentation" data-section-title>
+                    <a href="#experiments">My Experiments</a>
+                </p>
+                <div class="content" data-section-content data-slug="experiments">
+                    <div class="row">
+                        <div class="large-9 push-3 columns ">
+                            <div class="my_managing">
+                                {% include "web/my/_experiments.html" %}
+                            </div>
+                        </div>
+                        <div class="large-3 pull-9 columns">
+                            <a href="#"><button class="small button">Create Experiment</button></a>
                         </div>
                     </div>
-                    <div class="large-3 pull-9 columns">
-                        <a href="#"><button class="small button">Create Experiment</button></a>
-                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </div>
-</div>
-<div class="large-2 pull-10 columns">
-    <p><img src="http://placehold.it/150x120&text=[Profile Picture]" /></p>
-</div>
 </div>
 {% endblock content %}
 
