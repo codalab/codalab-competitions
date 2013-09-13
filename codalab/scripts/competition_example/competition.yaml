@@ -17,3 +17,12 @@ phases:
         max_submissions: 100
         scoring_program: program.zip
         reference_data: reference.zip
+        datasets: dataset1.zip dataset2.zip dataset3.zip
+    2:
+        phasenumber: 2
+        label: "Phase 2"
+        start_date: 2013-08-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: dataset4.zip
