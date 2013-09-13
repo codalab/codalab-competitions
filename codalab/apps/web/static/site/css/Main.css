@@ -960,14 +960,13 @@ input[type="submit"][value="Delete"]
 .subContainerPadding
 {
     overflow:hidden;
-    padding:10px;
+    padding:15px;
 }
 .competitionTileLftStrip{
-    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 4px;
+    background:#739CB9;
     display:table-cell;
-    width:30px;
+    width:10px;
     padding:0 !important;
-    border:solid 1px #739CB9 !important;
 }
 .subContainerMain {
     background:#f5f5f5;
@@ -1045,6 +1044,9 @@ input[type="submit"][value="Delete"]
     display:table;
     table-layout:fixed;
     width:100%;
+    -webkit-box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
 
 .subContainer .articleTextArea p
@@ -1249,7 +1251,7 @@ figure.userImage {
 div.articleImageContainer
 {
     padding-right:0;
-    width:135px;
+    width:140px;
     display:table-cell;
     vertical-align:top;
 }
