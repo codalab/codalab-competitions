@@ -1,8 +1,7 @@
 {% load codalab %}
 
 <div class="row" id="submissions_phase_buttons">
-  <div class="small-12 columns">
-  	<div class="right">
+  <div class="right">
     {% for phase in competition.phases.all %}
       {% if phase == active_phase %}
         <button class="button active" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
@@ -10,8 +9,6 @@
         <button class="button" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
-    <p></p>
-	</div>
   </div>
 </div>
 

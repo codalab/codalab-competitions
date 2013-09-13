@@ -1490,9 +1490,8 @@ div.articleImageContainer
     overflow:hidden;
 }
 .CompetitionsDetailContainer h2 {
-    margin-top: 10px;
     padding:0;
-    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 1.5em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .CompetitionsDetailContainer label {
     font:normal 13px arial;
@@ -1543,9 +1542,8 @@ div.articleImageContainer
 }
 .challStatusStrip {
     position:relative;
-    height:38px;
-    background:#ebf2fb;
-    overflow:hidden;
+    background: #E5E5E5;
+    padding: 5px 5px 10px 5px;
 }
 .challStatusStrip section > label {
     z-index:2;
@@ -1556,7 +1554,6 @@ div.articleImageContainer
 .challStatusStrip  section:first-child > label span,.challStatusStrip  section:first-child > label{float:left;}
 .challStatusStrip  section:last-child > label span,.challStatusStrip  section:last-child > label{float:right;}
 .challStatusStripLevel {
-    background:#ebf2fb;
     position:absolute;
     top:0;
     left:0;
@@ -1641,7 +1638,7 @@ ul.myCodalabTabContent li.tab1 {
 .competitionsHeaderTitle {
     display:table-cell;
     vertical-align:top;
-    padding-left:5px;
+    padding: 0 0 0 15px;
 }
 .competitionsHeaderTitle label {
     display:block;
@@ -1649,7 +1646,6 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
-    margin-top:5px;
 }
 .competitionsDetailTab {
     display:table;
