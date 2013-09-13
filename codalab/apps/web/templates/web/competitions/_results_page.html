@@ -9,11 +9,11 @@
               <th colspan="{{group.total_span}}">{{group.label}}</th>
             </tr>
              <tr class="dataTable-header">
-                <th rowspan="2">Rank</th>
+                <th rowspan="2"></th>
                 <th rowspan="2">User</th>
                  {% for head in group.headers %}
                  {% for label,subs in head.items %}
-                   <th {% if subs %} colspan="{{subs|length}}" {% else %} rowspan="2" {% endif %}>{{label}}</th>
+                   <th {% if subs %} colspan="{{subs|length}}" {% else %} rowspan="2" class="column-selectable" {% endif %}>{{label}}</th>
                  {% endfor %}
                  {% endfor %}  
              </tr>
@@ -22,7 +22,7 @@
                 {% for label,subs in head.items %} 
                     {% if subs %}
                     {% for s in subs %}
-                    <th>{{s}}</th>
+                    <th class="column-selectable">{{s}}</th>
                     {% endfor %}
                     {% endif %}
                 {% endfor %}
