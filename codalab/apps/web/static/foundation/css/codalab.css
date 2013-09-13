@@ -5021,7 +5021,7 @@ label.error {
 .section-container.accordion > section > .title a,
 .section-container.accordion > .section > .title a {
   padding: 0.9375em;
-  color: #739cb9;
+  color: #676278;
   font-size: 0.875em;
   background: none;
 }
@@ -5050,7 +5050,7 @@ label.error {
   padding: 0.9375em;
   background-color: white;
   border: solid 1px #cccccc;
-  min-height: 640px;
+  min-height: 400px;
   overflow: visible;
 }
 /* line 227, ../scss/foundation/components/_section.scss */
@@ -5193,7 +5193,7 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section > .title a, .section-container.tabs > .section > .title a {
   padding: 0.9375em;
-  color: #739cb9;
+  color: #676278;
   font-size: 0.875em;
   background: none;
 }
@@ -5206,7 +5206,7 @@ label.error {
   padding: 0.9375em;
   background-color: white;
   border: solid 1px #cccccc;
-  min-height: 640px;
+  min-height: 400px;
   overflow: visible;
 }
 /* line 227, ../scss/foundation/components/_section.scss */
@@ -5294,7 +5294,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.auto > section > .title a, .section-container.auto > .section > .title a {
     padding: 0.9375em;
-    color: #739cb9;
+    color: #676278;
     font-size: 0.875em;
     background: none;
   }
@@ -5307,7 +5307,7 @@ label.error {
     padding: 0.9375em;
     background-color: white;
     border: solid 1px #cccccc;
-    min-height: 640px;
+    min-height: 400px;
     overflow: visible;
   }
   /* line 227, ../scss/foundation/components/_section.scss */
@@ -5415,7 +5415,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section > .title a, .section-container.vertical-tabs > .section > .title a {
     padding: 0.9375em;
-    color: #739cb9;
+    color: #676278;
     font-size: 0.875em;
     background: none;
   }
@@ -5428,7 +5428,7 @@ label.error {
     padding: 0.9375em;
     background-color: white;
     border: solid 1px #cccccc;
-    min-height: 640px;
+    min-height: 400px;
     overflow: visible;
   }
   /* line 227, ../scss/foundation/components/_section.scss */
@@ -5549,7 +5549,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section > .title a, .section-container.vertical-nav > .section > .title a {
     padding: 0.9375em;
-    color: #739cb9;
+    color: #676278;
     font-size: 0.875em;
     background: none;
   }
@@ -5562,7 +5562,7 @@ label.error {
     padding: 0.9375em;
     background-color: white;
     border: solid 1px #cccccc;
-    min-height: 640px;
+    min-height: 400px;
     overflow: visible;
   }
   /* line 227, ../scss/foundation/components/_section.scss */
@@ -5675,7 +5675,7 @@ label.error {
   /* line 211, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section > .title a, .section-container.horizontal-nav > .section > .title a {
     padding: 0.9375em;
-    color: #739cb9;
+    color: #676278;
     font-size: 0.875em;
     background: none;
   }
@@ -5688,7 +5688,7 @@ label.error {
     padding: 0.9375em;
     background-color: white;
     border: solid 1px #cccccc;
-    min-height: 640px;
+    min-height: 400px;
     overflow: visible;
   }
   /* line 227, ../scss/foundation/components/_section.scss */
@@ -5780,7 +5780,7 @@ label.error {
 /* line 211, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title a, .no-js .section-container > .section > .title a {
   padding: 0.9375em;
-  color: #739cb9;
+  color: #676278;
   font-size: 0.875em;
   background: none;
 }
@@ -5793,7 +5793,7 @@ label.error {
   padding: 0.9375em;
   background-color: white;
   border: solid 1px #cccccc;
-  min-height: 640px;
+  min-height: 400px;
   overflow: visible;
 }
 /* line 227, ../scss/foundation/components/_section.scss */
@@ -7726,7 +7726,7 @@ ul.pagination li {
   margin-bottom: 0px;
   padding: 1.25em;
   background: #ebebeb;
-  margin-top: 39px;
+  margin-top: 15px;
 }
 /* line 44, ../scss/foundation/components/_panels.scss */
 .panel > :first-child {
