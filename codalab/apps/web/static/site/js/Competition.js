@@ -146,39 +146,19 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_results").html("").append(data);
-                var table = $('.prevResultSubmission');
-                $(".asc").click(function (e) {
-                    $(".prevResultSubmission .dataTable-column-active").removeClass();
+                PlaceIndexForTable();
+                $(".column-selectable").click(function (e) {
+                    var table = $(this).closest("table");
+                    $(table).find(".dataTable-column-active").removeClass();
                     $(this).addClass("dataTable-column-active");
-                  var th= $(this),
-                      thIndex = th.index();
+                    thIndex = parseInt($(this).attr("tabindex"));
                     table.find('td')
                       .filter(function () {
                           return $(this).index() === thIndex;
                       }).addClass("dataTable-column-active")
                       .sortTable(
                         function (a, b) {
-                            return $.text([a]) > $.text([b]);
-                        }, function () {
-                            return this.parentNode;
-                        }
-                      );
-                });
-
-
-                $(".dec").click(function (e) {
-                    $(".prevResultSubmission .dataTable-column-active").removeClass();
-                    $(this).addClass("dataTable-column-active");
-                    e.preventDefault();
-                      var th= $(this),
-                      thIndex = th.index();
-                      table.find('td')
-                        .filter(function () {
-                            return $(this).index() === thIndex;
-                        }).addClass("dataTable-column-active")
-                      .sortTable(
-                        function (a, b) {
-                            return $.text([a]) < $.text([b]);
+                            return $.text([$(a).find("span")]) > $.text([$(b).find("span")]);
                         }, function () {
                             return this.parentNode;
                         }
@@ -189,6 +169,26 @@ var Competition;
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
+    }
+
+    function PlaceIndexForTable() {
+        var i = 0;
+        $(".prevResultSubmission tr.dataTable-header").each(function (index) {
+            i = 0;
+            $(this).find("th").each(function(index){
+            
+            if ($(this).attr("colspan")) {
+                var name = $(this).text();
+                $(this).parents("tr").next("tr").children("th").each(function (index) {
+                    if ($(this).attr("name") == name) {
+                        $(this).attr("tabIndex", i); i = i + 1;
+                    }
+                });
+            }
+            else { $(this).attr("tabIndex", i); i = i + 1; }
+
+            });
+        })
     }
 
     Competition.registationCanProceed = function () {

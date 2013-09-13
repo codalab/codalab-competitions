@@ -9,8 +9,8 @@
               <th colspan="{{group.total_span}}">{{group.label}}</th>
             </tr>
              <tr class="dataTable-header">
-                <th rowspan="2"></th>
-                <th rowspan="2">User</th>
+                <th rowspan="2" class="column-selectable">test</th>
+                <th rowspan="2" class="column-selectable">User</th>
                  {% for head in group.headers %}
                  {% for label,subs in head.items %}
                    <th {% if subs %} colspan="{{subs|length}}" {% else %} rowspan="2" class="column-selectable" {% endif %}>{{label}}</th>
@@ -22,7 +22,7 @@
                 {% for label,subs in head.items %} 
                     {% if subs %}
                     {% for s in subs %}
-                    <th class="column-selectable">{{s}}</th>
+                    <th class="column-selectable" name="{{ label }}">{{s}}</th>
                     {% endfor %}
                     {% endif %}
                 {% endfor %}
@@ -39,7 +39,7 @@
                 <td>{{scoredata.username}}</td>
                 {% for v in scoredata.values %}
                     {% if 'rnk' in v %}
-                        <td>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                        <td tabindex="{{scoredata}}">{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
                     {% else %}
                         <td>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
                     {% endif %}
