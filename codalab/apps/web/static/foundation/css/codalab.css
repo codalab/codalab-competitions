@@ -789,8 +789,8 @@ div.pending-approval-select.columns {
 }
 /* line 699, ../sass/_settings.scss */
 .competition-tile .articleImageContainer img {
-  height: 100%;
-  width: 100%;
+  max-height: 120px;
+  width: auto;
 }
 
 /* font-face */
@@ -7964,11 +7964,11 @@ ul.pagination li {
 /* line 50, ../scss/foundation/components/_sub-nav.scss */
 .sub-nav dt.active a,
 .sub-nav dd.active a {
-  -webkit-border-radius: 1000px;
-  border-radius: 1000px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   font-weight: bold;
   background: #739cb9;
-  padding: 0.1875em 0.5625em;
+  padding: 0.5em 0.75em;
   cursor: default;
   color: white;
 }
