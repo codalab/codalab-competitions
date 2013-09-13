@@ -127,7 +127,6 @@ class Page(models.Model):
         return super(Page,self).save(*args,**kwargs)
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)    
-
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -217,9 +216,9 @@ class Competition(models.Model):
     @property
     def is_active(self):
         if type(self.end_date) is datetime.datetime.date:
-            return True if self.end_date is None else self.end_date < now().date()
+            return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
-            return True if self.end_date is None else self.end_date < now()
+            return True if self.end_date is None else self.end_date > now()
 
 # Dataset model
 class Dataset(models.Model):
@@ -324,12 +323,17 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+        print "%d - %s %d" % (self.phasenumber, next_phase, len(next_phase))
         if (next_phase and len(next_phase) > 0):
             # there a phase following this phase: this phase ends when the next phase starts
             return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
         else:
+            # If it's in the future it can't be active.
+            if self.is_future:
+                return False
+            else:
             # there is no phase following this phase: this phase ends when the competition ends
-            return self.competition.is_active
+                return self.competition.is_active
 
     @property
     def is_future(self):
@@ -339,7 +343,7 @@ class CompetitionPhase(models.Model):
     @property
     def is_past(self):
         """ Returns true if this phase of the competition has already ended. """
-        return (not is_active) and (not is_future)
+        return (not self.is_active) and (not self.is_future)
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
@@ -698,15 +702,18 @@ class CompetitionDefBundle(models.Model):
 
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
-                                   label="Get Data", rank=0, html="")
+                                   label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
 
         # Create phases
         for p_num in comp_spec['phases']:
             phase_spec = comp_spec['phases'][p_num].copy()
             phase_spec['competition'] = comp
-            datasets = phase_spec['datasets']
-            del phase_spec['datasets']
+            if 'datasets' in phase_spec:
+                datasets = phase_spec['datasets']
+                del phase_spec['datasets']
+            else:
+                datasets = {}
             if type(phase_spec['start_date']) is datetime.datetime.date:
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
@@ -717,6 +724,16 @@ class CompetitionDefBundle(models.Model):
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.save()
+            eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
+            count = 1
+            for ds in datasets.keys():
+                f = ExternalFile.objects.create(type=eft, source_url=datasets[ds]['url'], name=datasets[ds]['name'], creator=self.owner)
+                f.save()
+                d = Dataset.objects.create(creator=self.owner, datafile=f, number=count)
+                d.save()
+                phase.datasets.add(d)
+                phase.save()
+                count += 1
 
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
