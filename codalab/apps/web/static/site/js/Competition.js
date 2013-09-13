@@ -82,7 +82,6 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_submissions").html("").append(data);
-
                 $('#fileUploadButton').on('click', function () {
                     var disabled = $('#fileUploadButton').hasClass('disabled');
                     if (!disabled) {
@@ -147,11 +146,49 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_results").html("").append(data);
+                PlaceIndexForTable();
+                $(".column-selectable").click(function (e) {
+                    var table = $(this).closest("table");
+                    $(table).find(".dataTable-column-active").removeClass();
+                    $(this).addClass("dataTable-column-active");
+                    thIndex = parseInt($(this).attr("tabindex"));
+                    table.find('td')
+                      .filter(function () {
+                          return $(this).index() === thIndex;
+                      }).addClass("dataTable-column-active")
+                      .sortTable(
+                        function (a, b) {
+                            return $.text([$(a).find("span")]) > $.text([$(b).find("span")]);
+                        }, function () {
+                            return this.parentNode;
+                        }
+                      );
+                });
             },
             error: function (xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
+    }
+
+    function PlaceIndexForTable() {
+        var i = 0;
+        $(".prevResultSubmission tr.dataTable-header").each(function (index) {
+            i = 0;
+            $(this).find("th").each(function(index){
+            
+            if ($(this).attr("colspan")) {
+                var name = $(this).text();
+                $(this).parents("tr").next("tr").children("th").each(function (index) {
+                    if ($(this).attr("name") == name) {
+                        $(this).attr("tabIndex", i); i = i + 1;
+                    }
+                });
+            }
+            else { $(this).attr("tabIndex", i); i = i + 1; }
+
+            });
+        })
     }
 
     Competition.registationCanProceed = function () {
@@ -390,4 +427,45 @@ $(document).ready(function () {
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
+
+
+    /*----------------------------------------*/
+   
+
+
 });
+
+jQuery.fn.sortTable = (function () {
+    var sort = [].sort;
+    return function (comparator, getSortable) {
+        getSortable = getSortable || function () { return this; };
+        var placements = this.map(function () {
+            var sortElement = getSortable.call(this),
+                parentNode = sortElement.parentNode,
+                nextSibling = parentNode.insertBefore(
+                    document.createTextNode(''),
+                    sortElement.nextSibling
+                );
+
+            return function () {
+
+                if (parentNode === this) {
+                    throw new Error(
+                        "You can't sort elements if any one is a descendant of another."
+                    );
+                }
+
+                parentNode.insertBefore(this, nextSibling);
+                
+                parentNode.removeChild(nextSibling);
+
+            };
+
+        });
+
+        return sort.call(this, comparator).each(function (i) {
+            placements[i].call(getSortable.call(this));
+        });
+    };
+
+})();

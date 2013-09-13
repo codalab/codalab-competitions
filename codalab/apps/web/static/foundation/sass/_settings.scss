@@ -74,7 +74,7 @@ $side-nav-font-size: 15px;
 }
 
 @mixin table-header-white {
-	background:#648ca8 !important;  
+	background:#648ca8;  
 	color:#fff;  
 }  
 
@@ -647,6 +647,18 @@ div.pending-approval-select.columns {
 				@include table-header-white;
 			}
 		}
+			tr{
+				th.dataTable-column-active{
+								background:#99bece !important;
+								color:#fff !important;
+							}
+		}
+		tr:nth-child(odd){
+			.dataTable-column-active {
+				background:#e8e8e8 !important;
+			}
+		}
+
 		tr:nth-child(2) {
 			th:nth-child(1) {
 				@include table-header-white;
