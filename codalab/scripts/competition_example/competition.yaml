@@ -46,3 +46,13 @@ phases:
                 name: Challenge Data
                 url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
                 description: Example challenge data
+leaderboard:
+    groups:
+        &RESULTS:
+            label: Results
+            rank: 1
+    columns:
+        DIFFERENCE:
+            group: *RESULTS
+            label: Difference
+            rank: 1

@@ -323,7 +323,6 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        print "%d - %s %d" % (self.phasenumber, next_phase, len(next_phase))
         if (next_phase and len(next_phase) > 0):
             # there a phase following this phase: this phase ends when the next phase starts
             return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
@@ -671,8 +670,9 @@ class CompetitionDefBundle(models.Model):
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
         comp_spec = yaml.load(zf.open(comp_spec_file))
         comp_base = comp_spec.copy()
-        del comp_base['html']
-        del comp_base['phases']
+        for block in ['html', 'phases', 'leaderboard']:
+            if block in comp_base:
+                del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
         if type(comp_base['end_date']) is datetime.datetime.date:
@@ -734,6 +734,17 @@ class CompetitionDefBundle(models.Model):
                 phase.datasets.add(d)
                 phase.save()
                 count += 1
+
+
+        if 'leaderboard' in comp_spec and 'groups' in comp_spec['leaderboard']:
+            # Create leaderboard
+            cgroups = {}
+            for key, value in comp_spec['leaderboard']['groups']:
+                print "|%s|" % key
+                rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=key, label=value['label'], ordering=value['rank'])
+                cgroups[rg.key] = rg
+                for gp in comp.phases.all():
+                    rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
 
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
