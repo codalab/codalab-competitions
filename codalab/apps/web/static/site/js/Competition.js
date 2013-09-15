@@ -12,12 +12,6 @@ var Competition;
         btn.click();
     }
 
-    Competition.loadTabContent = function () {
-        var name = $.trim(window.location.hash).toLowerCase();
-        if (name == "#results") { $('#Results').click(); }
-        if (name == "#participate-submit_results") { $('#Participate').click(); }
-    }
-
     function decorateLeaderboardButton(btn, submitted) {
         if (submitted) {
             btn.removeClass("leaderBoardSubmit");
@@ -82,7 +76,6 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_submissions").html("").append(data);
-
                 $('#fileUploadButton').on('click', function () {
                     var disabled = $('#fileUploadButton').hasClass('disabled');
                     if (!disabled) {
@@ -386,8 +379,16 @@ $(document).ready(function () {
 
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-    Competition.loadTabContent();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
+
+    var loc = window.location.href;
+    if (loc !== undefined) {
+        if (loc.match(/#participate-submit_results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("submissions_phase_buttons");
+        } else if (loc.match(/#results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("results_phase_buttons");
+        }
+    }
 });
