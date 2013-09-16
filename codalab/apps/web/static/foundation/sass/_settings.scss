@@ -74,7 +74,7 @@ $side-nav-font-size: 15px;
 }
 
 @mixin table-header-white {
-	background:#648ca8 !important;  
+	background:#648ca8;  
 	color:#fff;  
 }  
 
@@ -642,10 +642,21 @@ div.pending-approval-select.columns {
 				font-size: 12px;
 			}
 		}
-		tr.dataTable-header {
+		tr.leaderboard-result-table-header {
 			th {
 				@include table-header-white;
 			}
+		}
+		tr {
+			th.column-selected {
+				background:#99bece !important;
+				color:#fff !important;
+			}
+		}
+		tr:nth-child(odd) {
+			.column-selected {  
+				background:#e8e8e8 !important;  
+			}  
 		}
 		tr:nth-child(2) {
 			th:nth-child(1) {
