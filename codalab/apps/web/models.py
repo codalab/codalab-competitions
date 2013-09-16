@@ -425,9 +425,8 @@ class CompetitionPhase(models.Model):
             # compute total column span
             column_span = 2
             for gHeader in headers:
-                for k in gHeader:
-                    n = len(gHeader[k])
-                    column_span += n if n > 0 else 1
+                n = len(gHeader['subs'])
+                column_span += n if n > 0 else 1
             # determine which column to select by default
             selection_key, selection_order = None, 0
             for i in range(len(scoreDefs)):
