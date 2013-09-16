@@ -915,7 +915,10 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-
+.competition-tile { 
+    height: 140px;
+    overflow: hidden;
+}
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -1044,9 +1047,7 @@ input[type="submit"][value="Delete"]
     display:table;
     table-layout:fixed;
     width:100%;
-    -webkit-box-shadow: 0 0 4px rgba(0,0,0,0.3);
-    -moz-box-shadow: 0 0 4px rgba(0,0,0,0.3);
-    box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    height: 140px;
 }
 
 .subContainer .articleTextArea p
@@ -1056,6 +1057,7 @@ input[type="submit"][value="Delete"]
 .subContainer figure.articleImage {
     background:url('../Images/DummyImage.jpg') no-repeat center top;
     margin-bottom:0;
+
     /*background:#50E0FB;
     color:#fff;
     text-align:center;
@@ -1551,8 +1553,6 @@ div.articleImageContainer
     color:#535353;
     padding:0;
 }
-.challStatusStrip  section:first-child > label span,.challStatusStrip  section:first-child > label{float:left;}
-.challStatusStrip  section:last-child > label span,.challStatusStrip  section:last-child > label{float:right;}
 .challStatusStripLevel {
     position:absolute;
     top:0;
@@ -1560,6 +1560,31 @@ div.articleImageContainer
     right:0;
     bottom:0;
     z-index:1;
+}
+.challStatusStripSection
+{
+    display:table;
+    width:100%;
+    position:relative;
+    z-index:1;
+    table-layout:fixed;
+}
+.challStatusStripSection > section{
+    display:table-cell;
+    padding:7px 10px 0 10px !important;
+    vertical-align:middle;
+    text-align:left;
+    width:33%
+}
+.challStatusStripSection > section label{ 
+    white-space:nowrap; 
+    overflow:hidden;
+    text-overflow:ellipsis;
+    width:100%;
+    text-align:center;
+}
+.challStatusStripSection > section label {
+    text-align:left
 }
 .testingStarts {
     float:right;
@@ -2334,32 +2359,6 @@ body .ui-datepicker-prev span{
 {
     display:none;
 }
-.challStatusStripSection
-{
-    display:table;
-    width:100%;
-    position:relative;
-    z-index:1;
-    table-layout:fixed;
-}
-.challStatusStripSection > section{
-    display:table-cell;
-    padding:7px 10px 0 10px !important;
-    vertical-align:middle;
-    text-align:center;
-    width:33%
-}
-.challStatusStripSection > section label{ 
-    white-space:nowrap; 
-    overflow:hidden;
-    text-overflow:ellipsis;
-    width:100%;
-    text-align:center;
-}
-.challStatusStripSection > section:first-child label{text-align:left}
-
-.challStatusStripSection > section:last-child label{text-align:right}
-
 .expCollDatasetExp,.expCollDatasetColl
 {
     background:url('../Images/expand_colapse.png');
