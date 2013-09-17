@@ -1,13 +1,16 @@
 import json
 from . import serializers
 from rest_framework import (viewsets,views,permissions)
-from rest_framework.decorators import action,link
-from rest_framework.response import Response
 from rest_framework import renderers
+from rest_framework.decorators import action,link,permission_classes
+from rest_framework.exceptions import PermissionDenied, ParseError
+from rest_framework.response import Response
 from apps.web import models as webmodels
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
+
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
@@ -21,7 +24,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         the models to make the cleanup simpler if we can.
         """
         # Get the competition
-        c = Competition.objects.get(id=pk)
+        c = webmodels.Competition.objects.get(id=pk)
 
         # for each phase, cleanup the leaderboard and submissions
         print "You called destroy on %s!" % pk
@@ -31,7 +34,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     def participate(self,request,pk=None):
         comp = self.get_object()
         terms = request.DATA['agreed_terms']
-        status = webmodels.ParticipantStatus.objects.get(codename='pending')
+        status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
         p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
                                                                    competition=comp,
                                                                    defaults={'status': status,
@@ -202,53 +205,83 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
 competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create'})
 competition_page = CompetitionPageViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'})
 
-class CompetitionSubmissionResultViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.SubmissionResultSerial
-    queryset = webmodels.SubmissionResult.objects.all()
-    _file = None
 
-    @action(permission_classes=[permissions.IsAuthenticated], methods=["DELETE"])
-    def leaderboard_remove(self, request, pk=None, competition_id=None, submission_id=None):
-        submission = webmodels.CompetitionSubmission.objects.get(id=submission_id)
-        result = self.get_object()
-        response = dict()
-        if submission.phase.is_active:
-            lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
-            lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, submission=submission, result=result)
-            lbe.delete()
-            response['status'] = lbe.id
-        else:
-            response['status'] = 400
-        
-        return Response(response, status=response['status'], content_type="application/json")
-
-    @action(permission_classes=[permissions.IsAuthenticated])
-    def leaderboard(self, request, pk=None, competition_id=None, submission_id=None):
-        submission = webmodels.CompetitionSubmission.objects.get(id=submission_id)
-        result = self.get_object()
-        response = dict()
-        if submission.phase.is_active:
-            lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
-            lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, submission=submission, result=result)
-            response['status'] = (201 if cr else 200)
-        else:
-            response['status'] = 400
-        return Response(response, status=response['status'], content_type="application/json")
-
+@permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.CompetitionSubmissionSerial
     queryset = webmodels.CompetitionSubmission.objects.all()
+    serializer_class = serializers.CompetitionSubmissionSerial
     _file = None
 
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
     def pre_save(self,obj):
-        if obj.status_id is None:
-            obj.status = webmodels.CompetitionSubmissionStatus.objects.get(codename='submitted')
-        if obj.participant_id is None:
-            obj.participant = self.request.user
-        
+        try:
+            obj.participant = webmodels.CompetitionParticipant.objects.filter(competition=self.kwargs['competition_id'], user=self.request.user).get()
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+        if not obj.participant.is_approved:
+            raise PermissionDenied()
+        for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id']):
+            if phase.is_active is True:
+                break
+        if phase is None or phase.is_active is False:
+            raise PermissionDenied(detail = 'Competition phase is closed.')
+        obj.phase = phase        
+
+    def handle_exception(self, exc):
+        if type(exc) is DjangoPermissionDenied:
+            exc = PermissionDenied(detail = str(exc))
+        return super(CompetitionSubmissionViewSet, self).handle_exception(exc)
+
+    @action(methods=["DELETE"])
+    def removeFromLeaderboard(self, request, pk=None, competition_id=None):
+        try:
+            participant = webmodels.CompetitionParticipant.objects.filter(competition=self.kwargs['competition_id'], user=self.request.user).get()
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+        if not participant.is_approved:
+            raise PermissionDenied()
+        submission = webmodels.CompetitionSubmission.objects.get(id=pk)
+        if submission.phase.is_active is False:
+            raise PermissionDenied(detail = 'Competition phase is closed.')
+        if submission.participant.user != self.request.user:
+            raise ParseError(detail = 'Invalid submission')
+        response = dict()
+        lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
+        lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
+        lbe.delete()
+        response['status'] = lbe.id
+        return Response(response, status=response['status'], content_type="application/json")
+
+    @action(methods=["POST"])
+    def addToLeaderboard(self, request, pk=None, competition_id=None):
+        try:
+            participant = webmodels.CompetitionParticipant.objects.filter(competition=self.kwargs['competition_id'], user=self.request.user).get()
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
+        if not participant.is_approved:
+            raise PermissionDenied()
+        submission = webmodels.CompetitionSubmission.objects.get(id=pk)
+        if submission.phase.is_active is False:
+            raise PermissionDenied(detail = 'Competition phase is closed.')
+        if submission.participant.user != self.request.user:
+            raise ParseError(detail = 'Invalid submission')
+        response = dict()
+        lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+        # Currently we only allow one submission into the leaderboard although the leaderboard
+        # is setup to accept multiple submissions from the same participant.
+        entries = webmodels.PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=participant)
+        for entry in entries:
+            entry.delete()
+        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+        response['status'] = (201 if cr else 200)
+        return Response(response, status=response['status'], content_type="application/json")
+
+competition_submission_retrieve = CompetitionSubmissionViewSet.as_view({'get':'retrieve'})
+competition_submission_create = CompetitionSubmissionViewSet.as_view({'post':'create'})
+competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view({'post':'addToLeaderboard', 'delete':'removeFromLeaderboard'})
+
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial
     queryset = webmodels.PhaseLeaderBoard.objects.all()
@@ -270,3 +303,21 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
     
+class SubmissionScoreViewSet(viewsets.ModelViewSet):
+    queryset = webmodels.CompetitionSubmission.objects.all()
+    serializer_class = serializers.CompetitionScoresSerial
+
+    def get_queryset(self):
+        kw = {}
+        competition_id = self.kwargs.get('competition_id',None)
+        phase_id = self.kwargs.get('phase_id',None)
+        participant_id = self.kwargs.get('participant_id',None)
+        if competition_id:
+            kw['submission__phase__competition__pk'] = competition_id
+        if phase_id:
+            kw['submission__phase__pk'] = phase_id
+        if participant_id:
+            kw['submission__participant__pk'] = participant_id
+        return self.queryset.filter(**kw)
+        
+competition_scores_list = SubmissionScoreViewSet.as_view( {'get':'list'} )

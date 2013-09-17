@@ -1,4 +1,6 @@
-﻿{% if not competitions %}
+﻿{% load static %}
+
+{% if not competitions %}
   <p>You do not manage any competitions.</p>
 {% else %}
   {% for item in competitions %}
@@ -7,25 +9,31 @@
         <input id="competitionID" type="hidden" value="{{ item.pk }}" />
         <div class="competitionTileLftStrip"></div>
         <div class="articleTextArea">
-          <div class="articleTextAreaContainer">
-            <div class="articleImageContainer">
+          <a href="/competitions/{{item.competition.id}}">
+            <div class="articleTextAreaContainer">
+              <div class="articleImageContainer">
+                <div class="subContainerPadding">
+                    {% if item.image_url = None %}
+				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
+                    {% else %}
+				    <img src="{{ item.image_url }}">
+                    {% endif %}
+                </div>
+              </div>
+              
               <div class="subContainerPadding">
-                <img src="{{ item.image_url }}" width="100px">
+                <div class="articleHeadingContainer">
+                  <h3>{{ item.title }}</h3>
+                  <label>Organized by {{ item.creator }}</label>
+                </div>
+                <p>{{ item.description }}</p>
               </div>
             </div>
-            
-            <div class="subContainerPadding">
-              <div class="articleHeadingContainer">
-                <h3>{{ item.title }}</h3>
-                <label>{{ item.creator }}</label>
-              </div>
-              <p>{{ item.description }}</p>
-            </div>
-          </div>
-          <div class="small-10 small-centered columns">
-            <button class="globalYellowButtonSmall" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
-            <a href="#"><button class="globalYellowButtonSmall">Edit</button></a>
-            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="globalYellowButtonSmall">Participants</button></a>
+          </a>
+          <div class="small-10 small-centered columns cursor-default">
+            <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
+            <a href="#"><button class="secondary button">Edit</button></a>
+            <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
          </div>
        </div>
      </article>

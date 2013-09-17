@@ -23,6 +23,7 @@ class Base(Settings):
    ROOT_DIR = os.path.dirname(PROJECT_DIR)
 
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
+   TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
@@ -189,12 +190,12 @@ class Base(Settings):
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-
     'djcelery',
 
     # Django / Jenkins CI support
     #'django_jenkins',
-    
+ 
+
     # Analytics app that works with many services - IRJ 2013.7.29
     'analytical',
     'rest_framework',
@@ -220,6 +221,9 @@ class Base(Settings):
     # Migration app
     #'south',
 
+   # Django / Nose (This needs to come after South)
+    'django_nose',
+
     # CodaLab apps
     'apps.authenz',
     'apps.api',
@@ -235,6 +239,13 @@ class Base(Settings):
    OPTIONAL_APPS = [ 'django_wsgiserver',]
    INTERNAL_IPS = []
 
+   # Email Configuration
+   EMAIL_HOST = 'smtp.sendgrid.net'
+   EMAIL_HOST_USER = 'sendgrid_username'
+   EMAIL_HOST_PASSWORD = 'sendgrid_password'
+   EMAIL_PORT = 587
+   EMAIL_USE_TLS = True
+   
    # Authentication configuration
    LOGIN_REDIRECT_URL = '/my'
    ANONYMOUS_USER_ID = -1

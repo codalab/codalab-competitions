@@ -3,11 +3,26 @@
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**
-/bundles/*
+
+# Bundles prototype #
+#####################
+bundles/pliang
+bundles/generated
+bundles/html_out
+bundles/README.html
+bundles/bundles.db
+bundles/bundles.fs
 
 # Virtuelenv files #
 ####################
 venv/*/*
+*venv*
+
+# Project Files #
+#################
+*.pyproj
+*.sln
+*.suo
 
 # Compass/SASS generated files #
 ################################
@@ -24,6 +39,7 @@ venv/*/*
 *~
 \#*\#
 .\#*
+*.swp
 
 # Compiled source #
 ###################
@@ -54,6 +70,12 @@ venv/*/*
 *.sqlite*
 *.db
 
+# Generated data files #
+########################
+codalab/.coverage
+codalab/coverage.xml
+codalab/cover/**/**
+
 # OS generated files #
 ######################
 .DS_Store
@@ -67,9 +89,9 @@ Thumbs.db
 /other/*
 *_db.sqlite
 codalab/static/*/*
-/bundles/*
 codalab/config/generated
 # pip on windows does not do the right thing.
 src/
 requirements/src/
-
+*.dump
+*.cache

@@ -27,13 +27,10 @@ if exist dev_db.sqlite move dev_db.sqlite dev_db.sqlite.bak
 REM Initialize the app
 python codalab\manage.py syncdb
 
-REM Initialize models in the database
-python codalab\scripts\initialize.py
-
 REM Make test users
 python codalab\scripts\users.py
 
 REM Make example challenges
-python codalab\scripts\challenges.py
+python codalab\scripts\competitions.py
 
 ECHO "You are now ready to run: python codalab\manage.py runserver"
