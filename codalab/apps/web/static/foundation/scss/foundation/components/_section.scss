@@ -210,7 +210,7 @@ $active-region-selector: ".active" !default;
 	border: $section-border-style $section-border-size $section-border-color;
 	a {
       padding: $title-padding;
-      color: $title-color;
+      color: $active;
       font-size: $title-font-size;
 	  background: none;
     }
@@ -221,7 +221,7 @@ $active-region-selector: ".active" !default;
     padding: $content-padding;
     background-color: $content-bg;
     border: $section-border-style $section-border-size $section-border-color;
-    min-height: 640px;
+    min-height: 400px;
     overflow: visible;
 
     &>*:last-child { margin-bottom: 0; }

@@ -14,9 +14,10 @@
               <div class="articleImageContainer">
                 <div class="subContainerPadding">
                     {% if item.image_url = None %}
-				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="100px">
+                    
+				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
                     {% else %}
-				    <img src="{{ item.image_url }}" width="100px">
+				    <img src="{{ item.image_url }}">
                     {% endif %}
                 </div>
               </div>
@@ -24,7 +25,7 @@
               <div class="subContainerPadding">
                 <div class="articleHeadingContainer">
                   <h3>{{ item.title }}</h3>
-                  <label>{{ item.creator }}</label>
+                  <label>Organized by {{ item.creator }}</label>
                 </div>
                 <p>{{ item.description }}</p>
               </div>

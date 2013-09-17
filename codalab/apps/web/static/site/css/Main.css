@@ -915,7 +915,10 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-
+.competition-tile { 
+    height: 140px;
+    overflow: hidden;
+}
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -960,14 +963,13 @@ input[type="submit"][value="Delete"]
 .subContainerPadding
 {
     overflow:hidden;
-    padding:10px;
+    padding:15px;
 }
 .competitionTileLftStrip{
-    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 4px;
+    background:#739CB9;
     display:table-cell;
-    width:30px;
+    width:10px;
     padding:0 !important;
-    border:solid 1px #739CB9 !important;
 }
 .subContainerMain {
     background:#f5f5f5;
@@ -1045,6 +1047,7 @@ input[type="submit"][value="Delete"]
     display:table;
     table-layout:fixed;
     width:100%;
+    height: 140px;
 }
 
 .subContainer .articleTextArea p
@@ -1054,6 +1057,7 @@ input[type="submit"][value="Delete"]
 .subContainer figure.articleImage {
     background:url('../Images/DummyImage.jpg') no-repeat center top;
     margin-bottom:0;
+
     /*background:#50E0FB;
     color:#fff;
     text-align:center;
@@ -1249,7 +1253,7 @@ figure.userImage {
 div.articleImageContainer
 {
     padding-right:0;
-    width:135px;
+    width:140px;
     display:table-cell;
     vertical-align:top;
 }
@@ -1488,9 +1492,8 @@ div.articleImageContainer
     overflow:hidden;
 }
 .CompetitionsDetailContainer h2 {
-    margin-top: 10px;
     padding:0;
-    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 1.5em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .CompetitionsDetailContainer label {
     font:normal 13px arial;
@@ -1541,9 +1544,8 @@ div.articleImageContainer
 }
 .challStatusStrip {
     position:relative;
-    height:38px;
-    background:#ebf2fb;
-    overflow:hidden;
+    background: #E5E5E5;
+    padding: 5px 5px 10px 5px;
 }
 .challStatusStrip section > label {
     z-index:2;
@@ -1551,16 +1553,38 @@ div.articleImageContainer
     color:#535353;
     padding:0;
 }
-.challStatusStrip  section:first-child > label span,.challStatusStrip  section:first-child > label{float:left;}
-.challStatusStrip  section:last-child > label span,.challStatusStrip  section:last-child > label{float:right;}
 .challStatusStripLevel {
-    background:#ebf2fb;
     position:absolute;
     top:0;
     left:0;
     right:0;
     bottom:0;
     z-index:1;
+}
+.challStatusStripSection
+{
+    display:table;
+    width:100%;
+    position:relative;
+    z-index:1;
+    table-layout:fixed;
+}
+.challStatusStripSection > section{
+    display:table-cell;
+    padding:7px 10px 0 10px !important;
+    vertical-align:middle;
+    text-align:left;
+    width:33%
+}
+.challStatusStripSection > section label{ 
+    white-space:nowrap; 
+    overflow:hidden;
+    text-overflow:ellipsis;
+    width:100%;
+    text-align:center;
+}
+.challStatusStripSection > section label {
+    text-align:left
 }
 .testingStarts {
     float:right;
@@ -1639,7 +1663,7 @@ ul.myCodalabTabContent li.tab1 {
 .competitionsHeaderTitle {
     display:table-cell;
     vertical-align:top;
-    padding-left:5px;
+    padding: 0 0 0 15px;
 }
 .competitionsHeaderTitle label {
     display:block;
@@ -1647,7 +1671,6 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
-    margin-top:5px;
 }
 .competitionsDetailTab {
     display:table;
@@ -2336,32 +2359,6 @@ body .ui-datepicker-prev span{
 {
     display:none;
 }
-.challStatusStripSection
-{
-    display:table;
-    width:100%;
-    position:relative;
-    z-index:1;
-    table-layout:fixed;
-}
-.challStatusStripSection > section{
-    display:table-cell;
-    padding:7px 10px 0 10px !important;
-    vertical-align:middle;
-    text-align:center;
-    width:33%
-}
-.challStatusStripSection > section label{ 
-    white-space:nowrap; 
-    overflow:hidden;
-    text-overflow:ellipsis;
-    width:100%;
-    text-align:center;
-}
-.challStatusStripSection > section:first-child label{text-align:left}
-
-.challStatusStripSection > section:last-child label{text-align:right}
-
 .expCollDatasetExp,.expCollDatasetColl
 {
     background:url('../Images/expand_colapse.png');

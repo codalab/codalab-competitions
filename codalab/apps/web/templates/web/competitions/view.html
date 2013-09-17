@@ -10,14 +10,14 @@
             <section class="competitionsDetailHeader">
                 <figure class="competitionsProfileImage">
                     {% if competition.image_url %}
-                    <img id="imgProfileImage" src="{{ competition.image_url }}" width="133px">
+                    <img id="imgProfileImage" src="{{ competition.image_url }}">
                     {% else %}
-                    <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="133px" height="94">
+                    <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}">
                     {% endif %}
                 </figure>
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
-                    <label id="lblLastModifiedDate"> by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
+                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
                     <div class="StatusStripContainer">

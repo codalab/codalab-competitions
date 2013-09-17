@@ -5,12 +5,13 @@
     {% if phase.is_active %}
     <div class="row">
         <div class="panel">
-          <p>Click the Submit Results button to upload a new submission.</p>
-          <button id="fileUploadButton" class="button">Submit Results...</button>
-          <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
+            <p>Click the Submit Results button to upload a new submission.</p>
+            <button id="fileUploadButton" class="button">Submit Results...</button>
+            <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
         </div>
-      <div id="details"><p><br></p></div>
-      <p>Here are your submissions to date:</p>
+        <div id="details">
+            <p><br>Here are your submissions to date:</p>
+        </div>
     </div>
     {% else %}
       <p>This phase of the competition is closed. Here are the submissions you made:</p>
