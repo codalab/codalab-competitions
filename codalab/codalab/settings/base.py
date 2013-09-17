@@ -25,6 +25,11 @@ class Base(Settings):
       SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
    if 'CONFIG_PORT' in os.environ:
       PORT = os.environ.get('CONFIG_HTTP_PORT')
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+                  
+                  }
+
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
@@ -56,11 +61,7 @@ class Base(Settings):
    # CELERY_CACHE_BACKEND = "memory://"
    ##
 
-   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
-                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                #  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join([os.path.dirname(os.environ['DJANGO_SETTINGS_MODULE']),'celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
-                  }
-
+   
    HAYSTACK_CONNECTIONS = {
       'default': {
          'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
@@ -309,6 +310,9 @@ class Base(Settings):
                print e               
             else:
                cls.INSTALLED_APPS += (a,)
+      cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
+                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME
+                              })
 
    @classmethod
    def post_setup(cls):
