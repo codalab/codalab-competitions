@@ -704,6 +704,9 @@ div.pending-approval-select.columns {
 	section{
 		width:auto;
 	}
+	label > span{
+		cursor:default;
+	}
 }
 .competition-tile{
 	.subContainerPadding{
