@@ -1656,9 +1656,14 @@ ul.myCodalabTabContent li.tab1 {
 }
 
 .competitionsProfileImage {
-    width:175px;
+    width: 175px;
+    height: 175px;
     display:table-cell;
     vertical-align:top;
+}
+#imgProfileImage {
+    max-height: 175px;
+    max-width: 175px;
 }
 .competitionsHeaderTitle {
     display:table-cell;
