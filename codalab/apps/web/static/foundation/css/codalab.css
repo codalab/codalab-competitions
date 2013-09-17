@@ -647,7 +647,7 @@ div.pending-approval-select.columns {
   display: inline-block;
 }
 /* line 570, ../sass/_settings.scss */
-.glossary-page-container h4 {
+.glossary-page-container h2 {
   margin-top: -155px;
   padding-top: 155px;
 }
