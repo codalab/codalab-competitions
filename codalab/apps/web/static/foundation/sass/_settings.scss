@@ -630,7 +630,8 @@ div.pending-approval-select.columns {
 
 .leaderboard-result-table {
 	margin: 0 15px;
-	overflow-x:auto;
+	overflow-x: auto;
+	overflow-y: auto;
 	clear:both;
 	min-height:400px;
 	table {
