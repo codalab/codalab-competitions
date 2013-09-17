@@ -21,7 +21,10 @@ class Base(Settings):
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR = os.path.dirname(PROJECT_DIR)
-
+   if 'CONFIG_SERVER_NAME' in os.environ:
+      SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
+   if 'CONFIG_PORT' in os.environ:
+      PORT = os.environ.get('CONFIG_HTTP_PORT')
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
@@ -307,6 +310,12 @@ class Base(Settings):
             else:
                cls.INSTALLED_APPS += (a,)
 
+   @classmethod
+   def post_setup(cls):
+      if not hasattr(cls,'PORT'):
+         raise AttributeError("PORT environmenment variable required")
+      if not hasattr(cls,'SERVER_NAME'):
+         raise AttributeError("SERVER_NAME environment variable required")
 
 
 class DevBase(Base):
