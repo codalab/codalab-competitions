@@ -96,20 +96,12 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         print "Querying for results again"
         submission_get_results.apply_async((submission_id,ct),countdown=5)
     elif state == 'complete':
-<<<<<<< HEAD
-        print "Run is complete"
-        blobservice = BlobService(account_name=settings.AZURE_ACCOUNT_NAME, account_key=settings.AZURE_ACCOUNT_KEY)
-        output_keyname = models.submission_file_blobkey(submission, "run/output.zip")
-        print "Retrieving output.zip and 'scores.txt' file"
-        ozip = zipfile.ZipFile(io.BytesIO(blobservice.get_blob(settings.BUNDLE_AZURE_CONTAINER, output_keyname)))
-=======
         print "Run is complete (submission.id: %s)" % submission.id
         submission.output_file.name = models.submission_file_blobkey(submission)
         submission.stderr_file.name = models.submission_stderr_filename(submission)
         submission.save()
         print "Retrieving output.zip and 'scores.txt' file"
         ozip = zipfile.ZipFile(io.BytesIO(submission.output_file.read()))
->>>>>>> master
         scores = open(ozip.extract('scores.txt'), 'r').read()
         print "Processing scores..."
         first = True
@@ -119,18 +111,6 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         for line in scores.split("\n"):
             if len(line) > 0:
                 label, value = line.split(":")
-<<<<<<< HEAD
-                if first:
-                    first = False
-                    result.aggregate = float(value)
-                    result.save()
-                models.SubmissionScore.objects.create(result=result, label=label.strip(), value=float(value))
-        print "Done processing scores..."
-    elif state == 'limit_exceeded':
-        print "Run limit, or time limit exceeded."
-    else:
-        print "A failure happened"
-=======
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
                     models.SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))                    
@@ -143,7 +123,6 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         raise Exception("Computation exceeded its allotted time quota.")
     else:
         raise Exception("An unexpected error has occurred.")
->>>>>>> master
 
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
