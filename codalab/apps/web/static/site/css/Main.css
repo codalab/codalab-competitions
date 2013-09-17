@@ -1561,30 +1561,30 @@ div.articleImageContainer
     bottom:0;
     z-index:1;
 }
-.challStatusStripSection
-{
+.challStatusStripSection {
     display:table;
     width:100%;
     position:relative;
     z-index:1;
     table-layout:fixed;
 }
-.challStatusStripSection > section{
+.challStatusStripSection > section {
     display:table-cell;
-    padding:7px 10px 0 10px !important;
+    padding:3px 10px !important;
     vertical-align:middle;
     text-align:left;
-    width:33%
-}
-.challStatusStripSection > section label{ 
-    white-space:nowrap; 
+    width:33%;
     overflow:hidden;
     text-overflow:ellipsis;
-    width:100%;
-    text-align:center;
 }
-.challStatusStripSection > section label {
-    text-align:left
+.challStatusStripSection > section span {
+    font-size: .7em; 
+    white-space:nowrap; 
+    width:100%;
+    text-align:left;
+}
+.phaseLabel {
+    font-weight: bold;
 }
 .testingStarts {
     float:right;

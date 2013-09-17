@@ -32,19 +32,15 @@
                             <section class="challStatusStripSection">
                                 {% for phase in competition.phases.all %}
                                 <section>
-                                    <label>
-                                        <span>{{phase.label}}</span> 
+                                        <span class="phaseLabel">{{phase.label}}</span> 
                                         <br>
                                         <span>{{phase.start_date}}</span>
-                                    </label>
                                 </section>
                                 {% endfor %}
                                 <section>
-                                    <label>
-                                        <span>Competition Ends</span> 
+                                        <span class="phaseLabel">Competition Ends</span> 
                                         <br>
                                         <span>{{competition.end_date|default:"Never"}}</span>
-                                    </label>
                                 </section>
                             </section>
                         </div>
