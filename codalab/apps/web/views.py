@@ -141,10 +141,8 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
                 context['my_submissions'] = submissions
                 context['phase'] = phase
-                ids = [ r.submission.id for r in models.PhaseLeaderBoardEntry.objects.filter(board=phase) if r.submission in submissions ]
+                ids = [ e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase) if e.result in submissions ]
                 context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
-
-                                                                              
 
         return context
 
@@ -155,6 +153,7 @@ class CompetitionResultsPage(TemplateView):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         phase = competition.phases.get(pk=self.kwargs['phase'])
         context['phase'] = phase
+        context['groups'] = phase.scores()
         return context
 
 ### Views for My Codalab
@@ -359,15 +358,5 @@ class RunDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
-
-
-
-class ScoresTestView(TemplateView):
-    
-    def get_context_data(self, **kwargs):
-        ctx = super(ScoresTestView,self).get_context_data(**kwargs)
-        lb = models.PhaseLeaderBoard.objects.get(phase__pk=kwargs['phase_id'])
-        ctx['scores'] = lb.scores()
-        return ctx
         
 

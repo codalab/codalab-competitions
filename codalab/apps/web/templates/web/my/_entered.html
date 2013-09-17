@@ -12,9 +12,9 @@
             <div class="articleImageContainer">
                 <div class="subContainerPadding">
                     {% if item.competition.image_url = None %}
-				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}" width="115px" height="90px">
+				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
                     {% else %}
-				    <img src="{{ item.competition.image_url }}" width="115px" height="90px">
+				    <img src="{{ item.competition.image_url }}">
                     {% endif %}
                 </div>
             </div>
@@ -22,7 +22,7 @@
                 <div class="subContainerPadding">
                     <div class="articleHeadingContainer">
                         <h3>{{ item.competition.title }}</h3>
-                        <label>{{ item.competition.creator }}</label>
+                        <label>Organized by {{ item.competition.creator }}</label>
                     </div>
                     <p>{{ item.competition.description }}</p>
                </div>
