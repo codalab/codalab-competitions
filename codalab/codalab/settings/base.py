@@ -26,8 +26,7 @@ class Base(Settings):
    if 'CONFIG_PORT' in os.environ:
       PORT = os.environ.get('CONFIG_HTTP_PORT')
    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
-                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                  
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],                  
                   }
 
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
@@ -313,6 +312,7 @@ class Base(Settings):
       cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
                                   'CONFIG_SERVER_NAME': cls.SERVER_NAME
                               })
+      print cls.STARTUP_ENV
 
    @classmethod
    def post_setup(cls):
