@@ -64,7 +64,7 @@ $panel-header-adjust: true !default;
 
   /* Panels */
   .panel { @include panel;
-    margin-top: 39px;
+    margin-top: 15px;
     
     &.callout {
       @include panel($primary-color);

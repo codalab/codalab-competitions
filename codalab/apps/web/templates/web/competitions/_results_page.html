@@ -8,24 +8,24 @@
             <tr class="table-title">
               <th colspan="{{group.total_span}}">{{group.label}}</th>
             </tr>
-             <tr class="dataTable-header">
+             <tr class="leaderboard-result-table-header">
                 <th rowspan="2"></th>
                 <th rowspan="2">User</th>
                  {% for head in group.headers %}
-                 {% for label,subs in head.items %}
-                   <th {% if subs %} colspan="{{subs|length}}" {% else %} rowspan="2" class="column-selectable" {% endif %}>{{label}}</th>
-                 {% endfor %}
+                 {% if head.subs %}
+                 <th colspan="{{head.subs|length}}">{{head.label}}</th>
+                 {% else %}                 
+                 <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
+                 {% endif %}
                  {% endfor %}  
              </tr>
              <tr>
                 {% for head in group.headers %}
-                {% for label,subs in head.items %} 
-                    {% if subs %}
-                    {% for s in subs %}
-                    <th class="column-selectable">{{s}}</th>
+                    {% if head.subs %}
+                    {% for sub in head.subs %}
+                    <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
                     {% endfor %}
                     {% endif %}
-                {% endfor %}
                 {% endfor %}
             </tr>
             {% if group.scores.items|length_is:"0" %}
@@ -33,15 +33,15 @@
                 <td colspan="{{group.total_span}}">No data available in table</td>
             </tr>  
             {% else %}  
-            {% for pk,scoredata in group.scores.items %}
+            {% for pk,scoredata in group.scores %}
             <tr>
-                <td>1</td>
+                <td class="row-position">{{pk}}</td>
                 <td>{{scoredata.username}}</td>
                 {% for v in scoredata.values %}
                     {% if 'rnk' in v %}
-                        <td>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
                     {% else %}
-                        <td>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
                     {% endif %}
                 {% endfor %}
             </tr>

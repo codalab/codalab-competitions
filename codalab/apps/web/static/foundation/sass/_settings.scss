@@ -74,7 +74,7 @@ $side-nav-font-size: 15px;
 }
 
 @mixin table-header-white {
-	background:#648ca8 !important;  
+	background:#648ca8;  
 	color:#fff;  
 }  
 
@@ -375,6 +375,9 @@ p.competition-paragraph {
 	border: 1px #CCC solid;
 	border-radius: 3px;
 	background: #FFF;
+	box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
 }
 
 .competition-tile h3 {
@@ -564,7 +567,7 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
-       h4 {
+       h2 {
        		margin-top: -155px;
        		padding-top: 155px;
 
@@ -642,10 +645,21 @@ div.pending-approval-select.columns {
 				font-size: 12px;
 			}
 		}
-		tr.dataTable-header {
+		tr.leaderboard-result-table-header {
 			th {
 				@include table-header-white;
 			}
+		}
+		tr {
+			th.column-selected {
+				background:#99bece !important;
+				color:#fff !important;
+			}
+		}
+		tr:nth-child(odd) {
+			.column-selected {  
+				background:#e8e8e8 !important;  
+			}  
 		}
 		tr:nth-child(2) {
 			th:nth-child(1) {
@@ -693,12 +707,13 @@ div.pending-approval-select.columns {
 }
 .competition-tile{
 	.subContainerPadding{
-		height:140px;
+		height:140px; 
 	}
 	.articleImageContainer{
 		img{
-			max-height: 120px;
+			height: 110px;
 			width: auto;
+			overflow: hidden;
 		}
 	}
 }

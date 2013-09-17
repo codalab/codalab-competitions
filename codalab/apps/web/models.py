@@ -1,3 +1,6 @@
+import exceptions
+import random
+import operator
 import os, io
 from os.path import abspath, basename, dirname, join, normpath
 import zipfile
@@ -6,6 +9,7 @@ import tempfile
 import requests
 import datetime
 import django.dispatch
+import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
@@ -323,16 +327,14 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        if (next_phase and len(next_phase) > 0):
-            # there a phase following this phase: this phase ends when the next phase starts
-            return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+        if (next_phase is not None) and (len(next_phase) > 0):
+            # there is a phase following this phase, thus this phase is active if the current date 
+            # is between the start of this phase and the start of the next phase
+            return self.start_date <= now() and (now() < next_phase[0].start_date)
         else:
-            # If it's in the future it can't be active.
-            if self.is_future:
-                return False
-            else:
-            # there is no phase following this phase: this phase ends when the competition ends
-                return self.competition.is_active
+            # there is no phase following this phase, thus this phase is active if the current data
+            # is after the start date of this phase and the competition is "active"
+            return self.start_date <= now() and self.competition.is_active
 
     @property
     def is_future(self):
@@ -375,6 +377,21 @@ class CompetitionPhase(models.Model):
         return ranks
 
     @staticmethod 
+    def rank_submissions(ranks_by_id):
+        def compare_ranks(a, b):
+            limit = 1000000
+            try:
+               ia = int(ranks_by_id[a])
+            except exceptions.ValueError:
+               ia = limit
+            try:
+               ib = int(ranks_by_id[b])
+            except exceptions.ValueError:
+               ib = limit
+            return ia - ib
+        return compare_ranks
+
+    @staticmethod 
     def format_value(v, precision="2"):
         p = 1
         try:
@@ -393,78 +410,91 @@ class CompetitionPhase(models.Model):
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
+<<<<<<< HEAD
             for e in PhaseLeaderBoardEntry.objects.filter(board=lb):
                 submissions.append((e.result.pk, e.result.participant.user.username))
 
+=======
+            for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list('result_id', 'result__participant__user__username'):
+                submissions.append((rid,  name))
+
+>>>>>>> master
         results = []
         for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
             label = g.label
             headers = []
             scores = {}
             for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
-
+    
             scoreDefs = []
-            currentColumnLabels = {}
+            columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
                                                                         scoredef__groups__in=[g],
-                                                                        **kwargs):
+                                                                        **kwargs).select_related('scoredef', 'parent'):
                 if x.parent is not None:
+                    columnKey = x.parent.key
                     columnLabel = x.parent.label
-                    columnSubLabels = [x.label]
+                    columnSubLabels = [{'key': x.key, 'label': x.label}]
                 else:
+                    columnKey = x.key
                     columnLabel = x.label
                     columnSubLabels = []
-                if columnLabel not in currentColumnLabels:
-                    currentColumnLabels[columnLabel] = len(headers)
-                    headers.append({columnLabel : columnSubLabels})
+                if columnKey not in columnKeys:
+                    columnKeys[columnKey] = len(headers)
+                    headers.append({'key' : columnKey, 'label': columnLabel, 'subs' : columnSubLabels})
                 else:
-                    headers[currentColumnLabels[columnLabel]][columnLabel].extend(columnSubLabels)
+                    headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
                             
+            # compute total column span
             column_span = 2
             for gHeader in headers:
-                for k in gHeader:
-                    n = len(gHeader[k])
-                    column_span += n if n > 0 else 1
+                n = len(gHeader['subs'])
+                column_span += n if n > 0 else 1
+            # determine which column to select by default
+            selection_key, selection_order = None, 0
+            for i in range(len(scoreDefs)):
+                if (selection_key is None) or (scoreDefs[i].selection_default > selection_order):
+                    selection_key, selection_order = scoreDefs[i].key, scoreDefs[i].selection_default
 
-            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'scores': scores, 'scoredefs': scoreDefs })
-
+            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'selection_key': selection_key,
+                             'scores': scores, 'scoredefs': scoreDefs })
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
             submission_ids = [id for (id,name) in submissions]
-            not_computed_scoredefs = {}
-            computed_scoredef_ids = []
-            computed_deps = {}
+            not_computed_scoredefs = {} # map (scoredef.id, scoredef) to keep track of non-computed scoredefs 
+            computed_scoredef_ids = []            
+            computed_deps = {} # maps id of a computed scoredef to a list of ids for scoredefs which are input to the computation
             for result in results:
                 for sdef in result['scoredefs']:
                     if sdef.computed is True:
                         computed_scoredef_ids.append(sdef.id)
                     else:
-                        not_computed_scoredefs[sdef.key] = sdef
+                        not_computed_scoredefs[sdef.id] = sdef
                 if len(computed_scoredef_ids) > 0:
                     computed_ids = SubmissionComputedScore.objects.filter(scoredef_id__in=computed_scoredef_ids).values_list('id')
-                    fields = SubmissionComputedScoreField.objects.filter(computed_id__in=computed_ids)
+                    fields = SubmissionComputedScoreField.objects.filter(computed_id__in=computed_ids).select_related('scoredef', 'computed')
                     for field in fields:
                         if not field.scoredef.computed:
-                            not_computed_scoredefs[field.scoredef.key] = field.scoredef
-                        if field.computed.scoredef.key not in computed_deps:
-                            computed_deps[field.computed.scoredef.key] = []
-                        computed_deps[field.computed.scoredef.key].append(field.scoredef)
+                            not_computed_scoredefs[field.scoredef.id] = field.scoredef
+                        if field.computed.scoredef_id not in computed_deps:
+                            computed_deps[field.computed.scoredef_id] = []
+                        computed_deps[field.computed.scoredef_id].append(field.scoredef)
             # Now read the submission scores
             values = {}
-            scoredef_ids = [sdef.id for (sdef_key, sdef) in not_computed_scoredefs.iteritems()]
+            scoredef_ids = [sdef_id for (sdef_id, sdef) in not_computed_scoredefs.iteritems()]
             for s in SubmissionScore.objects.filter(scoredef_id__in=scoredef_ids, result_id__in=submission_ids):
-                if s.scoredef.key not in values:
-                    values[s.scoredef.key] = {}
-                values[s.scoredef.key][s.result.pk] = s.value
+                if s.scoredef_id not in values:
+                    values[s.scoredef_id] = {}
+                values[s.scoredef_id][s.result_id] = s.value
 
             # rank values per scoredef.key (not computed)
             ranks = {}
-            for (sdef_key, v) in values.iteritems():
-                sdef = not_computed_scoredefs[sdef_key]
-                ranks[sdef_key] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
+            for (sdef_id, v) in values.iteritems():
+                sdef = not_computed_scoredefs[sdef_id]
+                ranks[sdef_id] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
 
             # compute values for computed scoredefs
             for result in results:
@@ -472,24 +502,24 @@ class CompetitionPhase(models.Model):
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
                         if (operation.name == 'Avg'):
-                            cnt = len(computed_deps[sdef.key])
+                            cnt = len(computed_deps[sdef.id])
                             if (cnt > 0):
                                 computed_values = {}
                                 for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.key][id] for d in computed_deps[sdef.key]]) / float(cnt)                                    
-                                values[sdef.key] = computed_values
-                                ranks[sdef.key] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)                                    
+                                values[sdef.id] = computed_values
+                                ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
             #format values
             for result in results:
                 scores = result['scores']
                 for sdef in result['scoredefs']:
                     knownValues = {}
-                    if sdef.key in values:
-                        knownValues = values[sdef.key]
+                    if sdef.id in values:
+                        knownValues = values[sdef.id]
                     knownRanks = {}
-                    if sdef.key in ranks:
-                        knownRanks = ranks[sdef.key]
+                    if sdef.id in ranks:
+                        knownRanks = ranks[sdef.id]
                     for id in submission_ids:
                         v = "-"
                         if id in knownValues:
@@ -498,12 +528,44 @@ class CompetitionPhase(models.Model):
                         if id in knownRanks:
                             r = knownRanks[id]
                         if sdef.show_rank:
-                            scores[id]['values'].append({'val': v, 'rnk': r})
+                            scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
                         else:
-                            scores[id]['values'].append({'val': v, 'hidden_rnk': r})
+                            scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+                    if (sdef.key == result['selection_key']):
+                        overall_ranks = ranks[sdef.id]
+                ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
+                final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
+                result['scores'] = final_scores
+                del result['scoredefs']        
 
-        for result in results:
-            del result['scoredefs']        
+        #else:
+        #    submission_ids = [id for id in range(1,11)]
+        #    for result in results:
+        #        scores = result['scores']
+        #        for id in submission_ids: 
+        #            scores[id] = {'username': 'guest' + str(id), 'values': []}
+        #        values = {}
+        #        for sdef in result['scoredefs']:
+        #            values[sdef.id] = {}
+        #            for id in submission_ids: 
+        #                values[sdef.id][id] = random.random()
+        #        ranks = {}
+        #        for sdef in result['scoredefs']:
+        #            ranks[sdef.id] = self.rank_values(submission_ids, values[sdef.id], sort_ascending=sdef.sorting=='asc')
+        #        for sdef in result['scoredefs']:
+        #            for id in submission_ids:
+        #                v = CompetitionPhase.format_value(values[sdef.id][id], sdef.numeric_format)
+        #                r = ranks[sdef.id][id]
+        #                if sdef.show_rank:
+        #                    scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
+        #                else:
+        #                    scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+        #            if (sdef.key == result['selection_key']):
+        #                overall_ranks = ranks[sdef.id]
+        #        ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
+        #        final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
+        #        result['scores'] = final_scores
+        #        del result['scoredefs']        
 
         return results
 
