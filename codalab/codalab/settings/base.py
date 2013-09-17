@@ -21,6 +21,10 @@ class Base(Settings):
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR = os.path.dirname(PROJECT_DIR)
+   PORT = '8000'
+   DOMAIN_NAME='localhost'
+   SERVER_NAME='localhost'
+
    if 'CONFIG_SERVER_NAME' in os.environ:
       SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
    if 'CONFIG_PORT' in os.environ:
@@ -39,8 +43,6 @@ class Base(Settings):
 
    SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
-   DOMAIN_NAME='localhost'
-   SERVER_NAME='localhost'
 
    DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
@@ -71,7 +73,7 @@ class Base(Settings):
    ALLOWED_HOSTS = []
    DEBUG = True
    TEMPLATE_DEBUG = DEBUG
-   PORT = '8000'
+  
 
    ADMINS = (
       # ('Your Name', 'your_email@example.com'),
