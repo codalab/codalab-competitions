@@ -1,0 +1,54 @@
+{% if phase == None %}
+{% elif phase.is_future %}
+    <p>This phase of the competition has not started yet. Please check back later.</p>
+{% else %}
+    <div class="leaderboard-result-table">
+        {% for group in groups %}
+        <table class="prevResultSubmission dataTable">
+            <tr class="table-title">
+              <th colspan="{{group.total_span}}">{{group.label}}</th>
+            </tr>
+             <tr class="leaderboard-result-table-header">
+                <th rowspan="2"></th>
+                <th rowspan="2">User</th>
+                 {% for head in group.headers %}
+                 {% if head.subs %}
+                 <th colspan="{{head.subs|length}}">{{head.label}}</th>
+                 {% else %}                 
+                 <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
+                 {% endif %}
+                 {% endfor %}  
+             </tr>
+             <tr>
+                {% for head in group.headers %}
+                    {% if head.subs %}
+                    {% for sub in head.subs %}
+                    <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
+                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% if group.scores.items|length_is:"0" %}
+            <tr class="noData">
+                <td colspan="{{group.total_span}}">No data available in table</td>
+            </tr>  
+            {% else %}  
+            {% for pk,scoredata in group.scores %}
+            <tr>
+                <td class="row-position">{{pk}}</td>
+                <td>{{scoredata.username}}</td>
+                {% for v in scoredata.values %}
+                    {% if 'rnk' in v %}
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                    {% else %}
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+        </br>
+        {% endfor %}        
+    </div>
+{% endif %}

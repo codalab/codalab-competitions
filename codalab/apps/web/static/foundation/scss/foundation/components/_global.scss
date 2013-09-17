@@ -193,7 +193,7 @@ $em-base: 16 !default;
 // }
 
 // We use these to control various global styles
-$body-bg: #fff !default;
+$body-bg: #F7F7F7 !default;
 $body-font-color: #222 !default;
 $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !default;
 $body-font-weight: normal !default;
@@ -217,10 +217,10 @@ $opposite-direction: right !default;
 }
 
 // We use these as default colors throughout
-$primary-color: #2ba6cb !default;
-$secondary-color: #e9e9e9 !default;
-$alert-color: #c60f13 !default;
-$success-color: #5da423 !default;
+$primary-color: #739CB9 !default;
+$secondary-color: #D1BF90 !default;
+$alert-color: #477473 !default;
+$success-color: #739CB9 !default;
 
 // We use these to make sure border radius matches unless we want it different.
 $global-radius: 3px !default;
@@ -266,7 +266,7 @@ $cursor-text-value: text !default;
   }
 
   html,
-  body { font-size: $base-font-size; }
+  body { font-size: $base-font-size; overflow: auto; }
 
   // Default body styles
   body {

@@ -4,10 +4,10 @@
 $include-html-top-bar-classes: $include-html-classes !default;
 
 // Background color for the top bar
-$topbar-bg: #111 !default;
+$topbar-bg: #FFF !default;
 
 // Height and margin
-$topbar-height: 45px !default;
+$topbar-height: 49px !default;
 $topbar-margin-bottom: emCalc(30) !default;
 
 // Control Input height for top bar
@@ -19,21 +19,24 @@ $topbar-title-font-size: emCalc(17) !default;
 
 // Style the top bar dropdown elements
 $topbar-dropdown-bg: #222 !default;
-$topbar-dropdown-link-color: #fff !default;
+$topbar-dropdown-link-color: #739CB9 !default;
 $topbar-dropdown-link-bg: lighten($topbar-bg, 5%) !default;
 $topbar-dropdown-toggle-size: 5px !default;
 $topbar-dropdown-toggle-color: #fff !default;
 $topbar-dropdown-toggle-alpha: 0.5 !default;
 
 // Set the link colors and styles for top-level nav
-$topbar-link-color: #fff !default;
-$topbar-link-color-hover: #fff !default;
-$topbar-link-color-active: #fff !default;
+$topbar-link-color: #739CB9 !default;
+$topbar-link-color-hover: #676278 !default;
+$topbar-link-color-active: #739CB9 !default;
 $topbar-link-weight: bold !default;
 $topbar-link-font-size: emCalc(13) !default;
-$topbar-link-hover-lightness: -30% !default; // Darken by 30%
-$topbar-link-bg-hover: darken($topbar-bg, 3%) !default;
-$topbar-link-bg-active: darken($topbar-bg, 3%) !default;
+$topbar-link-hover-lightness: -3% !default; // Darken by 3%
+$topbar-link-bg-hover: lighten($topbar-bg, 3%) !default;
+$topbar-link-bg-active: lighten($topbar-bg, 3%) !default;
+$topbar-border-top: 4px $white solid;
+$topbar-border-top-hover: 4px darken($topbar-bg, 3%) solid;
+$topbar-border-top-active: 4px #739CB9 solid;
 
 $topbar-dropdown-label-color: #555 !default;
 $topbar-dropdown-label-text-transform: uppercase !default;
@@ -73,7 +76,7 @@ $topbar-sticky-class: ".sticky" !default;
 
   // Wrapped around .top-bar to make it stick to the top
   .fixed {
-    width: 100%;
+    // width: 100%; /////// commented out b/c it was breaking side-nav on about page
     #{$default-float}: 0;
     position: fixed;
     top: 0;
@@ -87,6 +90,10 @@ $topbar-sticky-class: ".sticky" !default;
     position: relative;
     background: $topbar-bg;
     margin-bottom: $topbar-margin-bottom;
+    -webkit-box-shadow: 0 2px 8px;
+    -moz-box-shadow: 0 2px 8px;
+    box-shadow: 0 2px 8px;
+    border-bottom: 2px #CCC solid;
 
     // Topbar Global list Styles
     ul {
@@ -275,12 +282,14 @@ $topbar-sticky-class: ".sticky" !default;
       &.hover > a {
         background: $topbar-link-bg-hover;
         color: $topbar-link-color-hover;
+        border-top: $topbar-border-top-hover;
       }
 
       // Apply the active link color when it has that class
       &.active > a {
-        background: $topbar-link-bg-active;
+        //background: $topbar-link-bg-active;
         color: $topbar-link-color-active;
+        border-top: $topbar-border-top-active;
       }
     }
 
@@ -399,6 +408,7 @@ $topbar-sticky-class: ".sticky" !default;
 
         li {
           float: $default-float;
+          border-bottom: 2px #CCC solid;
           .js-generated { display: none; }
         }
       }
@@ -406,8 +416,10 @@ $topbar-sticky-class: ".sticky" !default;
       li {
         a:not(.button) {
           padding: 0 $topbar-height / 3;
-          line-height: $topbar-height;
+          line-height: $topbar-height - 5;
+          height: $topbar-height - 2;
           background: $topbar-bg;
+          border-top: $topbar-border-top;
           &.hover { background: adjust-color($topbar-dropdown-bg, $lightness: $topbar-link-hover-lightness); }
         }
       }

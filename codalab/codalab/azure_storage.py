@@ -77,7 +77,7 @@ class AzureStorage(Storage):
 
     def get_available_name(self,name):
         dir_path, file_name = os.path.split(name)
-	name = clean_name(name)
+        name = clean_name(name)
         try:
             file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$',file_name).groups()
         except AttributeError:
@@ -140,7 +140,7 @@ class AzureBlockBlobFile(RawIOBase):
         return content
     
     def write(self,data):
-        blockid = str(uuid.uuid4().hex) + str(uuid.uuid4().hex)
+        blockid = "%6d" % len(self._block_list)
         try:
             self.connection.put_block(self.container, self.name, data, blockid)
             self._block_list.append((blockid,len(data)))

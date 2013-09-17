@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load compress %}
+
+{% block title %}Edit{% endblock %}
+
+{% block extra_head %}
+  {% compress js %}
+    <!-- <script src="{{ STATIC_URL }}site/js/FileUpload.js"></script>
+    <script src="{{ STATIC_URL }}site/js/CreateCompetition.js"></script -->>
+  {% endcompress %}
+{% endblock extra_head %}
+
+{% block content %}
+<div class="row">
+  <div class="large-12 columns">
+      <a class="helpLinkIcon right" href='{% url 'help_create_competition' %}#phases' title="Get help with creating a competition" target="_blank"></a>
+  </div>
+</div>
+
+<div class="row">
+      <div class="content" data-slug="#overview" data-section-content>
+        {% include "web/competitions/_edit_overview.html" with competition=competition %}
+      </div>
+</div>
+<form method="POST" id="comp_save_form">
+  <div class="saveContainer">
+    <div class="saveBtnHolder">
+      <div class="saveBtnHolderColm">
+        <input id="btnSave" type="submit" value="Save" class="commonBlueButton" />
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock content %}
+
+{% block js %}
+
+    $('document').ready(function() {
+        // This helps make sections appear with Foundation
+        $(this).foundation('section', 'reflow');
+        });
+
+{% endblock js %}
