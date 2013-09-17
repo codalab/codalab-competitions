@@ -1,31 +1,35 @@
 {% extends 'base.html' %}
-{% block title %}Help - Create Competition{% endblock %}
+{% block head_title %}Help: Create a Competition{% endblock head_title %}
+{% block page_title %}Help: Create a Competition{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container"> 
      <div class="large-3 columns">
         <ul class="side-nav fixed">
-            <li><a href="#prerequisites">Prerequisites</a></li>
-            <li><a href="#competition-overview">Competition Overview</a></li>
-            <li><a href="#upload-competition-data">Upload Competition Data</a></li>
-            <li><a href="#create-a-codalab-competition">Create a CodaLab Competition</a></li>
+            <li><a href="#create" tabindex="7">Create a Competition</a></li>
+            <li><a href="#prerequisites" tabindex="8">Prerequisites</a></li>
+            <li><a href="#competition-overview" tabindex="98">Competition Overview</a></li>
+            <li><a href="#upload-competition-data" tabindex="10">Upload Competition Data</a></li>
+            <li><a href="#create-a-codalab-competition" tabindex="11">Create a CodaLab Competition</a></li>
         </ul>
     </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns">
-        <h1>Create a Competition</h1>
+        <a id="create"></a>
+        <h4 class="firstrow">Create a Competition</h4>
         <p>
             CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
             create solutions for problems across a wide range of domains, and advance the state of the art 
             for their respective areas of interest. This guide covers everything you need to know to create 
             and manage a CodaLab competition, from uploading data to evaluating competition results.
         </p>
-        <a id="prerequisites"></a>
         <hr />
-        <h1>Prerequisites</h1>
+        <a id="prerequisites"></a>
+        
+        <h4>Prerequisites</h4>
         Required:<br />
         <ul>
-            <li><a href="https://manage.windowsazure.com/" target="_blank">Windows Azure&#8482;</a> storage account (requires Azure subscription). If you do not already have an Azure account, you will need to create one. See <a href="create_configure_azure.html">Create and Configure Azure</a> for detailed instructions.</li>
+            <li><a href="https://manage.windowsazure.com/" target="_blank">Windows Azure&#8482;</a> storage account (requires Azure subscription). If you do not already have an Azure account, you will need to create one. See <a href="{% url 'help_configure_azure' %}">Configure Azure</a> for detailed instructions.</li>
             <li><a href="https://github.com/downloads/WindowsAzure/azure-sdk-downloads/AzCopy.zip">AzCopy</a></li>
         </ul>
         Optional:<br />
@@ -33,9 +37,10 @@
             <li><a href="http://technet.microsoft.com/en-us/library/bb978526.aspx" target="_blank">PowerShell</a> (installed by default on Windows 7 and newer)</li>
             <li><a href="https://www.windowsazure.com/en-us/downloads/?fb=en-us" target="_blank">Windows Azure PowerShell</a>. Read the <a href="http://msdn.microsoft.com/en-us/library/windowsazure/jj156055.aspx" target="_blank">Azure PowerShell documentation</a>.</li>
         </ul>
-        <a id="competition-overview"></a>
         <hr />
-        <h1>Competition Overview</h1>
+        <a id="competition-overview"></a>
+        
+        <h4>Competition Overview</h4>
         <p>
             Competitions are conducted in two phases: training and competition. The appropriate data 
             is made available to participants at each phase of the competition. During the training 
@@ -50,7 +55,7 @@
             <li>Evaluation Program</li>
             <li>Manifest Files</li>
         </ul>
-        <h2>Participant Instructions</h2>
+        <h5>Participant Instructions</h5>
         <p>
             The competition organizer is responsible for providing participants with documentation that 
             describes the goals of the competition, input and output file formats, and details about 
@@ -63,7 +68,7 @@
             <li><strong>Get Data</strong> - Provide competition data to participants.</li>
         </ul>
         <p>The instructions should be formatted in HTML and then added when running the <strong>Create Competition Wizard</strong>.</p>
-        <h2>Reference Data</h2>
+        <h5>Reference Data</h5>
         <p>
             Data forms the basis for competitions. In the training phase, participants use a set of training 
             data to create their algorithms. In the competition phase a different set of data (testing) is 
@@ -71,13 +76,13 @@
             competition the reference data consists of a set of CT scan images to evaluate (.mhd), and a 
             corresponding set of coordinates for each image (.lml).
         </p>
-        <h2>Evaluation Program</h2>
+        <h5>Evaluation Program</h5>
         <p>The evaluation program compares the submitted results with the answers and passes the scores to the CodaLab leaderboards.</p>
-        <h2>Manifest Files</h2>
+        <h5>Manifest Files</h5>
         <p>Manifest files are used to identify the reference data and evaluation program to CodaLab. In our example there are two manifest files, one for the training data and one for the testing data. </p>
         <a id="set-up-competition-files"></a>
         <hr />
-        <h1>Set Up Competition Files</h1>
+        <h4>Set Up Competition Files</h4>
         <p>
             In this step, you will assemble the testing and training data, program file, and manifests.
         </p>
@@ -88,7 +93,7 @@
         </ul>
 
         <a id="example-project-file-structure"></a>
-        <h2>Example Project File Structure</h2>
+        <h5>Example Project File Structure</h5>
         <p>Throughout this document we will reference our example project, which is structured as follows:</p>
         <br />
         <pre><code>C:\MyCompetition
@@ -154,7 +159,7 @@
 </code></pre>
 
         <a id="create-manifest-files"></a>
-        <h2>Create Manifest Files</h2>
+        <h5>Create Manifest Files</h5>
         <p>Manifest files are used to associate reference data with the evaluation program. Create one manifest file each for training data and testing data. Save the files with a .txt filename extension.</p>
         <p>Manifest files are defined using JSON. The following example shows a manifest file that links the training data in <b>reference-training.zip</b> with the evaluation program in <b>program.zip</b>:</p>
         <br />
@@ -183,7 +188,7 @@
 
         <!-- What is DataflowID and how do I get it? -->
         <a id="add-folder-contents-to-zip-archives"></a>
-        <h2>Add Folder Contents to ZIP Archives</h2>
+        <h5>Add Folder Contents to ZIP Archives</h5>
         <p>Add the contents of the program, testing, and training data folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, we would zip the contents of the following folders:</p>
         <pre><code>C:\MyCompetition\Program -&gt; Program.zip
 C:\MyCompetition\reference-testing -&gt; reference-testing.zip
@@ -193,7 +198,7 @@ C:\MyCompetition\reference-training -&gt; reference-training.zip
 
         <a id="upload-competition-data"></a>
         <hr />
-        <h1>Upload Competition Data</h1>
+        <h4>Upload Competition Data</h4>
         <p>Use the <a href="https://github.com/downloads/WindowsAzure/azure-sdk-downloads/AzCopy.zip">AzCopy</a> utility to upload data to the storage blob. </p>
         <p><strong>To Upload Data to the Storage Blob</strong></p>
         <ul>
@@ -225,7 +230,7 @@ reference-*.zip /destkey:&lt;access-key&gt;
             <li>Click <strong>Start</strong> to start the <strong>Create Competition Wizard</strong>.</li>
             <li>Follow the steps of the Wizard. Note that you can save the competition at any time.</li>
         </ol>
-        <h2>Create Competition Wizard Steps</h2>
+        <h5>Create Competition Wizard Steps</h5>
         <p>This section covers the details of each step in the <strong>Create Competition Wizard</strong>.</p>
         <a id="overview"></a>
         <h3>overview</h3>
@@ -291,4 +296,14 @@ reference-*.zip /destkey:&lt;access-key&gt;
     </div>
 </div>
 
-{% endblock %}
+{% endblock content %}
+{% block js %}
+    $(function () {
+        $(".side-nav > li > a").click(function () {
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liAbout").addClass("active");
+    });
+    {% endblock js %}
