@@ -9,7 +9,8 @@
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+
 <head>
   <meta charset="utf-8" /> 
 
@@ -24,9 +25,9 @@
   {% block css %}
     {% compress css %}
         <!-- Included CSS Files (Compressed) -->
-        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
-        <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
-        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}site/css/Main.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
     {% endcompress %}
 
     {% compress js %}

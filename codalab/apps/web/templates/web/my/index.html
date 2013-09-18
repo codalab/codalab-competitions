@@ -33,7 +33,7 @@
                             </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="#"><button class="small button">Create Competition</button></a>
+                            <a href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
                         </div>
                     </div>
                 </div>
@@ -61,32 +61,10 @@
 {% endblock content %}
 
 {% block js %}
-
-function deleteCompetition(competition) {
-console.log("Delete Competition! "+competition);
-/*
-url = "/api/competition/"+competition;
-request = $.ajax({
-url: url,
-type: "delete",
-datatype: 'text',
-success: function(response, textStatus, jqXHR) {
-alert("Submitted!");
-},
-error: function(jsXHR, textStatus, errorThrown) {
-alert("Submission Failed ("+errorThrown+": "+textStatus);
-},
-beforeSend: function(xhr) {
-xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-}
-});
-*/
-};
-
-$('document').ready(function() {
-// This helps make sections appear with Foundation
-$(this).foundation('section', 'reflow');
-$(".top-bar-section ul > li").removeClass("active");
-$("#liMyCodalab").addClass("active");
-});
+    $('document').ready(function() {
+        // This helps make sections appear with Foundation
+        $(this).foundation('section', 'reflow');
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liMyCodalab").addClass("active");
+    });
 {% endblock js %}
