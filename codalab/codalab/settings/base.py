@@ -24,6 +24,8 @@ class Base(Settings):
    PORT = '8000'
    DOMAIN_NAME='localhost'
    SERVER_NAME='localhost'
+   DEBUG = True
+   TEMPLATE_DEBUG = DEBUG
 
    if 'CONFIG_SERVER_NAME' in os.environ:
       SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -72,8 +74,7 @@ class Base(Settings):
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
-   DEBUG = True
-   TEMPLATE_DEBUG = DEBUG
+
   
 
    ADMINS = (
