@@ -31,9 +31,8 @@
               </div>
             </div>
           </a>
-          <div class="small-10 small-centered columns cursor-default">
-            <!-- Comment out delete so people don't accidentally delete competitions. -->
-              <a href="{% url 'competitions:delete' pk=item.pk %}"><button class="secondary button">Delete</button></a>
+          <div class="small-10 columns cursor-default myCompetitionButtons">
+            <a href="{% url 'competitions:delete' pk=item.pk %}"><button class="secondary button">Delete</button></a>
             <a href="{% url 'competitions:edit' pk=item.pk %}"><button class="secondary button">Edit</button></a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
          </div>
