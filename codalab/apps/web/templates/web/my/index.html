@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}My CodaLab{% endblock %}
+{% block head_title %}My CodaLab{% endblock head_title %}
 {% block page_title %}My CodaLab{% endblock page_title %}
 
 {% block content %}
@@ -13,9 +13,7 @@
                 <div class="content" data-section-content data-slug="participate">
                     <div class="row">
                         <div class="large-9 push-3 columns">
-                            <div class="my_participating">
-                                {% include "web/my/_entered.html" with competitions=competitions_im_in %}
-                            </div>
+                            <div class="my_participating"> {% include "web/my/_entered.html" with competitions=competitions_im_in %} </div>
                         </div>
                         <div class="large-3 pull-9 columns">
                             <a href="/competitions"><button class="small button">View Competitions</button></a>

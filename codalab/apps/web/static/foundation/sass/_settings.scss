@@ -375,6 +375,9 @@ p.competition-paragraph {
 	border: 1px #CCC solid;
 	border-radius: 3px;
 	background: #FFF;
+	box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
 }
 
 .competition-tile h3 {
@@ -564,7 +567,7 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
-       h4 {
+       h2 {
        		margin-top: -155px;
        		padding-top: 155px;
 
@@ -704,12 +707,13 @@ div.pending-approval-select.columns {
 }
 .competition-tile{
 	.subContainerPadding{
-		min-height:140px;
+		height:140px; 
 	}
 	.articleImageContainer{
 		img{
-			max-height: 120px;
+			height: 110px;
 			width: auto;
+			overflow: hidden;
 		}
 	}
 }
