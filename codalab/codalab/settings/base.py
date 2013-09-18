@@ -21,6 +21,20 @@ class Base(Settings):
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR = os.path.dirname(PROJECT_DIR)
+   PORT = '8000'
+   DOMAIN_NAME='localhost'
+   SERVER_NAME='localhost'
+   DEBUG = True
+   TEMPLATE_DEBUG = DEBUG
+
+   if 'CONFIG_SERVER_NAME' in os.environ:
+      SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
+   if 'CONFIG_HTTP_PORT' in os.environ:
+      PORT = os.environ.get('CONFIG_HTTP_PORT')
+
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],                  
+                  }
 
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -32,8 +46,6 @@ class Base(Settings):
 
    SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
-   DOMAIN_NAME='localhost'
-   SERVER_NAME='localhost'
 
    DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
@@ -53,11 +65,7 @@ class Base(Settings):
    # CELERY_CACHE_BACKEND = "memory://"
    ##
 
-   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
-                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                #  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join([os.path.dirname(os.environ['DJANGO_SETTINGS_MODULE']),'celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
-                  }
-
+   
    HAYSTACK_CONNECTIONS = {
       'default': {
          'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
@@ -66,9 +74,8 @@ class Base(Settings):
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
-   DEBUG = True
-   TEMPLATE_DEBUG = DEBUG
-   PORT = '8000'
+
+  
 
    ADMINS = (
       # ('Your Name', 'your_email@example.com'),
@@ -305,7 +312,17 @@ class Base(Settings):
                print e               
             else:
                cls.INSTALLED_APPS += (a,)
+      cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
+                              'CONFIG_SERVER_NAME': cls.SERVER_NAME
+                              })
+      
 
+   @classmethod
+   def post_setup(cls):
+      if not hasattr(cls,'PORT'):
+         raise AttributeError("PORT environmenment variable required")
+      if not hasattr(cls,'SERVER_NAME'):
+         raise AttributeError("SERVER_NAME environment variable required")
 
 
 class DevBase(Base):
