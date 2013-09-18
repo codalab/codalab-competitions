@@ -2793,6 +2793,9 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 10px;
     margin-bottom: 0;
 }
+.homepage_featured h2 {
+    display: inline-block;
+}
 .spacer500 {
     height: 500px;
 }
