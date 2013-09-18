@@ -7,6 +7,27 @@
                 {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
             {% else %}
                 {{content.html|safe}}
+
+                {% if content.codename == "get_data" %}
+                <p>
+                    <!-- Include data for each phase if appropriate -->
+                    <ul>
+                    {% for phase in competition.phases.all %}
+                        {% if phase.is_active or phase.is_past %}
+                            <p>
+                                <li>{{ phase.label }}:
+                                    <ul>
+                                        {% for dataset in phase.datasets.all %}
+                                            <li><a href="{{ dataset.datafile.source_url }}">{{dataset.datafile.name}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </p>
+                {% endif %}
             {% endif %}
         </div>
     </section>

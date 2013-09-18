@@ -1,0 +1,58 @@
+# Build an example competition
+---
+title: Example Competition
+description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle.
+image: logo.jpg
+has_registration: True
+end_date: 2013-12-31
+html: 
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+    data: data.html
+phases:
+    1:
+        phasenumber: 1
+        label: "Test"
+        start_date: 2013-06-30
+        max_submissions: 100
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Data 1
+                url: http://spreadsheets.google.com/pub?key=pyj6tScZqmEfbZyl0qjbiRQ&output=xls
+                description: Example Dataset
+            2:
+                name: Data 2
+                url: http://spreadsheets.google.com/pub?key=0AgogXXPMARyldGJqTDRfNHBWODJMRWlZaVhNclhNZXc&output=xls 
+                description: Example Dataset
+    2:
+        phasenumber: 2
+        label: "Training"
+        start_date: 2013-08-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+    3:
+        phasenumber: 3
+        label: "Challenge"
+        start_date: 2013-09-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Challenge Data
+                url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
+                description: Example challenge data
+leaderboard:
+    groups:
+        RESULTS: &RESULTS
+            label: Results
+            rank: 1
+    columns:
+        DIFFERENCE:
+            group: *RESULTS
+            label: Difference
+            rank: 1
