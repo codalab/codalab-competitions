@@ -2817,6 +2817,10 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .myCompetitionButtons button {
     margin-left: 3px;
 }
+#edit_competition {
+    padding-left: 0.9375em;
+    padding-right: 0.9375em;
+}
 #edit_competition label {
     font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
