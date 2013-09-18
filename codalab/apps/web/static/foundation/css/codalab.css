@@ -233,8 +233,8 @@ a > i {
 
 /* line 219, ../sass/_settings.scss */
 .content > h3 {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 1.4em;
+  font-weight: lighter;
 }
 
 /* line 224, ../sass/_settings.scss */
@@ -564,7 +564,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
   padding-right: 40px !important;
   font-size: 19px;
   height: 57px;
-  font-weight: 100;
+  font-weight: lighter;
 }
 
 /* line 509, ../sass/_settings.scss */
@@ -1705,7 +1705,7 @@ body {
   color: #666666;
   padding: 0;
   margin: 0;
-  font-family: "Segoe UI", Segoe, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-style: normal;
   line-height: 1;
@@ -4765,7 +4765,7 @@ label.error {
 }
 
 /* Sections */
-/* line 292, ../scss/foundation/components/_section.scss */
+/* line 291, ../scss/foundation/components/_section.scss */
 [data-section=''], [data-section='auto'], .section-container.auto,
 [data-section='vertical-tabs'], .section-container.vertical-tabs,
 [data-section='vertical-nav'], .section-container.vertical-nav,
@@ -4829,7 +4829,7 @@ label.error {
 [data-section='accordion'][data-section-small-style] > .section > .title, .section-container.accordion[data-section-small-style] > [data-section-region] > [data-section-title], .section-container.accordion[data-section-small-style] > [data-section-region] > .title, .section-container.accordion[data-section-small-style] > section > [data-section-title], .section-container.accordion[data-section-small-style] > section > .title, .section-container.accordion[data-section-small-style] > .section > [data-section-title], .section-container.accordion[data-section-small-style] > .section > .title {
   width: 100% !important;
 }
-/* line 294, ../scss/foundation/components/_section.scss */
+/* line 293, ../scss/foundation/components/_section.scss */
 [data-section=''] > section, [data-section=''] > .section, [data-section=''] > [data-section-region], [data-section='auto'] > section, [data-section='auto'] > .section, [data-section='auto'] > [data-section-region], .section-container.auto > section, .section-container.auto > .section, .section-container.auto > [data-section-region],
 [data-section='vertical-tabs'] > section,
 [data-section='vertical-tabs'] > .section,
@@ -5004,7 +5004,7 @@ label.error {
   width: 100%;
 }
 
-/* line 303, ../scss/foundation/components/_section.scss */
+/* line 302, ../scss/foundation/components/_section.scss */
 .section-container.auto,
 .section-container.vertical-tabs,
 .section-container.vertical-nav,
@@ -5128,9 +5128,8 @@ label.error {
 .section-container.accordion > section.active > .title a,
 .section-container.accordion > .section.active > .title a {
   color: #676278;
-  font-weight: lighter !important;
 }
-/* line 242, ../scss/foundation/components/_section.scss */
+/* line 241, ../scss/foundation/components/_section.scss */
 .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active),
 .section-container.vertical-tabs > section:not(.active),
 .section-container.vertical-tabs > .section:not(.active),
@@ -5142,7 +5141,7 @@ label.error {
 .section-container.accordion > .section:not(.active) {
   padding: 0 !important;
 }
-/* line 248, ../scss/foundation/components/_section.scss */
+/* line 247, ../scss/foundation/components/_section.scss */
 .section-container.auto > section > .title, .section-container.auto > .section > .title,
 .section-container.vertical-tabs > section > .title,
 .section-container.vertical-tabs > .section > .title,
@@ -5155,7 +5154,7 @@ label.error {
   border-top: none;
 }
 
-/* line 310, ../scss/foundation/components/_section.scss */
+/* line 309, ../scss/foundation/components/_section.scss */
 [data-section='tabs'], .section-container.tabs {
   width: 100%;
   position: relative;
@@ -5196,7 +5195,7 @@ label.error {
   left: 0;
 }
 
-/* line 317, ../scss/foundation/components/_section.scss */
+/* line 316, ../scss/foundation/components/_section.scss */
 .section-container.tabs {
   border: none;
 }
@@ -5244,19 +5243,18 @@ label.error {
 /* line 235, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section.active > .title a, .section-container.tabs > .section.active > .title a {
   color: #676278;
-  font-weight: lighter !important;
 }
-/* line 242, ../scss/foundation/components/_section.scss */
+/* line 241, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section:not(.active), .section-container.tabs > .section:not(.active) {
   padding: 0 !important;
 }
-/* line 254, ../scss/foundation/components/_section.scss */
+/* line 253, ../scss/foundation/components/_section.scss */
 .section-container.tabs > section.active > .title, .section-container.tabs > .section.active > .title {
   border-bottom: 0;
 }
 
 @media only screen and (min-width: 768px) {
-  /* line 326, ../scss/foundation/components/_section.scss */
+  /* line 325, ../scss/foundation/components/_section.scss */
   [data-section=''], [data-section='auto'], .section-container.auto {
     width: 100%;
     position: relative;
@@ -5297,7 +5295,7 @@ label.error {
     left: 0;
   }
 
-  /* line 333, ../scss/foundation/components/_section.scss */
+  /* line 332, ../scss/foundation/components/_section.scss */
   .section-container.auto {
     border: none;
   }
@@ -5345,18 +5343,17 @@ label.error {
   /* line 235, ../scss/foundation/components/_section.scss */
   .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
     color: #676278;
-    font-weight: lighter !important;
   }
-  /* line 242, ../scss/foundation/components/_section.scss */
+  /* line 241, ../scss/foundation/components/_section.scss */
   .section-container.auto > section:not(.active), .section-container.auto > .section:not(.active) {
     padding: 0 !important;
   }
-  /* line 254, ../scss/foundation/components/_section.scss */
+  /* line 253, ../scss/foundation/components/_section.scss */
   .section-container.auto > section.active > .title, .section-container.auto > .section.active > .title {
     border-bottom: 0;
   }
 
-  /* line 340, ../scss/foundation/components/_section.scss */
+  /* line 339, ../scss/foundation/components/_section.scss */
   [data-section='vertical-tabs'], .section-container.vertical-tabs {
     width: 100%;
     position: relative;
@@ -5418,7 +5415,7 @@ label.error {
     width: 12.5em;
   }
 
-  /* line 347, ../scss/foundation/components/_section.scss */
+  /* line 346, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs {
     border: none;
   }
@@ -5466,24 +5463,23 @@ label.error {
   /* line 235, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section.active > .title a, .section-container.vertical-tabs > .section.active > .title a {
     color: #676278;
-    font-weight: lighter !important;
   }
-  /* line 242, ../scss/foundation/components/_section.scss */
+  /* line 241, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section:not(.active), .section-container.vertical-tabs > .section:not(.active) {
     padding: 0 !important;
   }
-  /* line 262, ../scss/foundation/components/_section.scss */
+  /* line 261, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section.active, .section-container.vertical-tabs > .section.active {
     padding-left: 12.4375em;
   }
-  /* line 265, ../scss/foundation/components/_section.scss */
+  /* line 264, ../scss/foundation/components/_section.scss */
   .section-container.vertical-tabs > section.active > .title, .section-container.vertical-tabs > .section.active > .title {
     background-color: #d5d5d5;
     border-left: 4px #676278 solid !important;
     text-indent: 4px;
   }
 
-  /* line 354, ../scss/foundation/components/_section.scss */
+  /* line 353, ../scss/foundation/components/_section.scss */
   [data-section='vertical-nav'], .section-container.vertical-nav {
     width: 100%;
     position: relative;
@@ -5507,7 +5503,7 @@ label.error {
   [data-section='vertical-nav'][data-section-small-style] > [data-section-region] > [data-section-title], [data-section='vertical-nav'][data-section-small-style] > [data-section-region] > .title, [data-section='vertical-nav'][data-section-small-style] > section > [data-section-title], [data-section='vertical-nav'][data-section-small-style] > section > .title, [data-section='vertical-nav'][data-section-small-style] > .section > [data-section-title], [data-section='vertical-nav'][data-section-small-style] > .section > .title, .section-container.vertical-nav[data-section-small-style] > [data-section-region] > [data-section-title], .section-container.vertical-nav[data-section-small-style] > [data-section-region] > .title, .section-container.vertical-nav[data-section-small-style] > section > [data-section-title], .section-container.vertical-nav[data-section-small-style] > section > .title, .section-container.vertical-nav[data-section-small-style] > .section > [data-section-title], .section-container.vertical-nav[data-section-small-style] > .section > .title {
     width: 100% !important;
   }
-  /* line 356, ../scss/foundation/components/_section.scss */
+  /* line 355, ../scss/foundation/components/_section.scss */
   [data-section='vertical-nav'] > section, [data-section='vertical-nav'] > .section, [data-section='vertical-nav'] > [data-section-region], .section-container.vertical-nav > section, .section-container.vertical-nav > .section, .section-container.vertical-nav > [data-section-region] {
     position: relative;
     display: inline-block;
@@ -5552,7 +5548,7 @@ label.error {
     min-width: 12.5em;
   }
 
-  /* line 361, ../scss/foundation/components/_section.scss */
+  /* line 360, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav {
     border: none;
   }
@@ -5600,14 +5596,13 @@ label.error {
   /* line 235, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section.active > .title a, .section-container.vertical-nav > .section.active > .title a {
     color: #676278;
-    font-weight: lighter !important;
   }
-  /* line 242, ../scss/foundation/components/_section.scss */
+  /* line 241, ../scss/foundation/components/_section.scss */
   .section-container.vertical-nav > section:not(.active), .section-container.vertical-nav > .section:not(.active) {
     padding: 0 !important;
   }
 
-  /* line 368, ../scss/foundation/components/_section.scss */
+  /* line 367, ../scss/foundation/components/_section.scss */
   [data-section='horizontal-nav'], .section-container.horizontal-nav {
     width: 100%;
     position: relative;
@@ -5631,7 +5626,7 @@ label.error {
   [data-section='horizontal-nav'][data-section-small-style] > [data-section-region] > [data-section-title], [data-section='horizontal-nav'][data-section-small-style] > [data-section-region] > .title, [data-section='horizontal-nav'][data-section-small-style] > section > [data-section-title], [data-section='horizontal-nav'][data-section-small-style] > section > .title, [data-section='horizontal-nav'][data-section-small-style] > .section > [data-section-title], [data-section='horizontal-nav'][data-section-small-style] > .section > .title, .section-container.horizontal-nav[data-section-small-style] > [data-section-region] > [data-section-title], .section-container.horizontal-nav[data-section-small-style] > [data-section-region] > .title, .section-container.horizontal-nav[data-section-small-style] > section > [data-section-title], .section-container.horizontal-nav[data-section-small-style] > section > .title, .section-container.horizontal-nav[data-section-small-style] > .section > [data-section-title], .section-container.horizontal-nav[data-section-small-style] > .section > .title {
     width: 100% !important;
   }
-  /* line 370, ../scss/foundation/components/_section.scss */
+  /* line 369, ../scss/foundation/components/_section.scss */
   [data-section='horizontal-nav'] > section, [data-section='horizontal-nav'] > .section, [data-section='horizontal-nav'] > [data-section-region], .section-container.horizontal-nav > section, .section-container.horizontal-nav > .section, .section-container.horizontal-nav > [data-section-region] {
     position: relative;
     float: left;
@@ -5677,7 +5672,7 @@ label.error {
     min-width: 12.5em;
   }
 
-  /* line 375, ../scss/foundation/components/_section.scss */
+  /* line 374, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav {
     background: #efefef;
     border: 1px solid #cccccc;
@@ -5726,14 +5721,13 @@ label.error {
   /* line 235, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section.active > .title a, .section-container.horizontal-nav > .section.active > .title a {
     color: #676278;
-    font-weight: lighter !important;
   }
-  /* line 242, ../scss/foundation/components/_section.scss */
+  /* line 241, ../scss/foundation/components/_section.scss */
   .section-container.horizontal-nav > section:not(.active), .section-container.horizontal-nav > .section:not(.active) {
     padding: 0 !important;
   }
 }
-/* line 385, ../scss/foundation/components/_section.scss */
+/* line 384, ../scss/foundation/components/_section.scss */
 .no-js [data-section], .no-js .section-container {
   width: 100%;
   position: relative;
@@ -5753,7 +5747,7 @@ label.error {
 .no-js [data-section][data-section-small-style] > [data-section-region] > [data-section-title], .no-js [data-section][data-section-small-style] > [data-section-region] > .title, .no-js [data-section][data-section-small-style] > section > [data-section-title], .no-js [data-section][data-section-small-style] > section > .title, .no-js [data-section][data-section-small-style] > .section > [data-section-title], .no-js [data-section][data-section-small-style] > .section > .title, .no-js .section-container[data-section-small-style] > [data-section-region] > [data-section-title], .no-js .section-container[data-section-small-style] > [data-section-region] > .title, .no-js .section-container[data-section-small-style] > section > [data-section-title], .no-js .section-container[data-section-small-style] > section > .title, .no-js .section-container[data-section-small-style] > .section > [data-section-title], .no-js .section-container[data-section-small-style] > .section > .title {
   width: 100% !important;
 }
-/* line 387, ../scss/foundation/components/_section.scss */
+/* line 386, ../scss/foundation/components/_section.scss */
 .no-js [data-section] > section, .no-js [data-section] > .section, .no-js [data-section] > [data-section-region], .no-js .section-container > section, .no-js .section-container > .section, .no-js .section-container > [data-section-region] {
   margin: 0;
 }
@@ -5783,7 +5777,7 @@ label.error {
 .no-js [data-section] > section > [data-section-title], .no-js [data-section] > section > .title, .no-js [data-section] > .section > [data-section-title], .no-js [data-section] > .section > .title, .no-js [data-section] > [data-section-region] > [data-section-title], .no-js [data-section] > [data-section-region] > .title, .no-js .section-container > section > [data-section-title], .no-js .section-container > section > .title, .no-js .section-container > .section > [data-section-title], .no-js .section-container > .section > .title, .no-js .section-container > [data-section-region] > [data-section-title], .no-js .section-container > [data-section-region] > .title {
   width: 100%;
 }
-/* line 391, ../scss/foundation/components/_section.scss */
+/* line 390, ../scss/foundation/components/_section.scss */
 .no-js .section-container {
   border-top: 1px solid #cccccc;
 }
@@ -5831,13 +5825,12 @@ label.error {
 /* line 235, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section.active > .title a, .no-js .section-container > .section.active > .title a {
   color: #676278;
-  font-weight: lighter !important;
 }
-/* line 242, ../scss/foundation/components/_section.scss */
+/* line 241, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section:not(.active), .no-js .section-container > .section:not(.active) {
   padding: 0 !important;
 }
-/* line 248, ../scss/foundation/components/_section.scss */
+/* line 247, ../scss/foundation/components/_section.scss */
 .no-js .section-container > section > .title, .no-js .section-container > .section > .title {
   border-top: none;
 }
