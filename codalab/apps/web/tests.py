@@ -40,6 +40,7 @@ class Competitions(TestCase):
         TODO: Does not authenticate (YET) 
         """
         client = Client()
+
         res = client.post('/api/competition/', {'title': 'Test Title',
                                                  'description': 'Description',
                                                  'creator': self.user.pk,
