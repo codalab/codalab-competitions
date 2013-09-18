@@ -915,10 +915,6 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-.competition-tile { 
-    height: 140px;
-    overflow: hidden;
-}
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -1262,7 +1258,6 @@ div.articleImageContainer
     width:100%;
 }
 .articleTextAreaContainer .subContainerPadding{ 
-    display:table-cell;
     vertical-align:top;
 }
 .articleTextArea .globalYellowButtonSmallAtag{
@@ -1574,7 +1569,8 @@ div.articleImageContainer
     vertical-align:middle;
     text-align:left;
     width:33%;
-    overflow:hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
     text-overflow:ellipsis;
 }
 .challStatusStripSection > section span {
@@ -1585,6 +1581,11 @@ div.articleImageContainer
 }
 .phaseLabel {
     font-weight: bold;
+}
+.currentPhase {
+    color: #739cb9 !important;
+    text-indent: 12px;
+    background: url('../Images/triangle_phase.png') no-repeat 10px 8px;
 }
 .testingStarts {
     float:right;
@@ -2798,4 +2799,11 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .spacer500 {
     height: 500px;
+}
+.myCompetitionButtons  {
+    height: 50px;
+    margin: 10px 0 0 0;
+}
+.myCompetitionButtons button {
+    margin-left: 3px;
 }
