@@ -2823,6 +2823,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-size: 1.3em;
     padding: 1em 0 .3em 0;
     cursor: default;
+    display: inline-block;
 }
 #edit_competition input, #edit_competition textarea, #edit_competition p {
     color: #666;
@@ -2832,7 +2833,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 #edit_competition textarea, #edit_competition select {
     min-height: 8em;
     resize: none;
-    padding: 0;
+    padding: 10px;
+    margin: 0;
     overflow-y: scroll;
 }
 #edit_competition a, #edit_competition a:hover {
@@ -2843,7 +2845,11 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 #edit_competition a:hover {
     color: #739CB9;
 }
-
-
+#edit_competition .helptext {
+    font-size: .8em;
+}
+#edit_competition input[type=file], #edit_competition input[type=checkbox]  {
+    cursor: pointer;
+}
 
 
