@@ -2817,3 +2817,33 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .myCompetitionButtons button {
     margin-left: 3px;
 }
+#edit_competition label {
+    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 1.3em;
+    padding: 1em 0 .3em 0;
+    cursor: default;
+}
+#edit_competition input, #edit_competition textarea, #edit_competition p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.4em;
+}
+#edit_competition textarea, #edit_competition select {
+    min-height: 8em;
+    resize: none;
+    padding: 0;
+    overflow-y: scroll;
+}
+#edit_competition a, #edit_competition a:hover {
+    font-size: 1em;
+    font-weight: bold;
+    color: #676278;
+}
+#edit_competition a:hover {
+    color: #739CB9;
+}
+
+
+
+
