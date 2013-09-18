@@ -197,7 +197,6 @@ class Base(Settings):
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-
     'djcelery',
 
     # Django / Jenkins CI support

@@ -310,12 +310,14 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        if (next_phase and len(next_phase) > 0):
-            # there a phase following this phase: this phase ends when the next phase starts
-            return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+        if (next_phase is not None) and (len(next_phase) > 0):
+            # there is a phase following this phase, thus this phase is active if the current date 
+            # is between the start of this phase and the start of the next phase
+            return self.start_date <= now() and (now() < next_phase[0].start_date)
         else:
-            # there is no phase following this phase: this phase ends when the competition ends
-            return self.competition.is_active
+            # there is no phase following this phase, thus this phase is active if the current data
+            # is after the start date of this phase and the competition is "active"
+            return self.start_date <= now() and self.competition.is_active
 
     @property
     def is_future(self):

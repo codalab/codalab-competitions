@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Help - Create and Configure Azure{% endblock %}
+{% block title %}Help: Create and Configure Azure{% endblock title %}
+{% block page_title %}Help{% endblock page_title %}
 {% block content %}
 <div class="row">
     <!-- Main Content Section -->
@@ -48,4 +49,14 @@
     </div>
 </div>
 
-{% endblock %}
+{% endblock content %}
+{% block js %}
+    $(function () {
+        $(".side-nav > li > a").click(function () {
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liAbout").addClass("active");
+    });
+{% endblock js %}
