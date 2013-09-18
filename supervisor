@@ -1,4 +1,0 @@
-#!/bin/bash
-THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-supervisord -c $THIS_DIR/codalab/config/generated/supervisor.conf $@
