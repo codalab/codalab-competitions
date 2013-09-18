@@ -48,7 +48,7 @@ phases:
                 description: Example challenge data
 leaderboard:
     groups:
-        1: &RESULTS
+        RESULTS: &RESULTS
             label: Results
             rank: 1
     columns:
