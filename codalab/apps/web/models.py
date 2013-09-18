@@ -410,15 +410,9 @@ class CompetitionPhase(models.Model):
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-<<<<<<< HEAD
-            for e in PhaseLeaderBoardEntry.objects.filter(board=lb):
-                submissions.append((e.result.pk, e.result.participant.user.username))
-
-=======
             for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
 
->>>>>>> master
         results = []
         for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
             label = g.label
@@ -801,7 +795,7 @@ class CompetitionDefBundle(models.Model):
         if 'leaderboard' in comp_spec and 'groups' in comp_spec['leaderboard']:
             # Create leaderboard
             cgroups = {}
-            for key, value in comp_spec['leaderboard']['groups']:
+            for key, value in comp_spec['leaderboard']['groups'].items():
                 print "|%s|" % key
                 rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=key, label=value['label'], ordering=value['rank'])
                 cgroups[rg.key] = rg
