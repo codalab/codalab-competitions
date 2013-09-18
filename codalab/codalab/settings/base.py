@@ -313,9 +313,9 @@ class Base(Settings):
             else:
                cls.INSTALLED_APPS += (a,)
       cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
-                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME
+                              'CONFIG_SERVER_NAME': cls.SERVER_NAME
                               })
-      print cls.STARTUP_ENV
+      
 
    @classmethod
    def post_setup(cls):
