@@ -712,14 +712,15 @@ div.pending-approval-select.columns {
 .leaderboard-result-table {
   margin: 0 15px;
   overflow-x: auto;
+  overflow-y: auto;
   clear: both;
   min-height: 400px;
 }
-/* line 636, ../sass/_settings.scss */
+/* line 637, ../sass/_settings.scss */
 .leaderboard-result-table table {
   table-layout: auto;
 }
-/* line 639, ../sass/_settings.scss */
+/* line 640, ../sass/_settings.scss */
 .leaderboard-result-table table tr th {
   vertical-align: top;
   border: solid 1px #8eb0c7;
@@ -728,37 +729,37 @@ div.pending-approval-select.columns {
   color: #648ca8;
   font-size: 12px;
 }
-/* line 649, ../sass/_settings.scss */
+/* line 650, ../sass/_settings.scss */
 .leaderboard-result-table table tr.leaderboard-result-table-header th {
   background: #648ca8;
   color: #fff;
 }
-/* line 654, ../sass/_settings.scss */
+/* line 655, ../sass/_settings.scss */
 .leaderboard-result-table table tr th.column-selected {
   background: #99bece !important;
   color: #fff !important;
 }
-/* line 660, ../sass/_settings.scss */
+/* line 661, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(odd) .column-selected {
   background: #e8e8e8 !important;
 }
-/* line 665, ../sass/_settings.scss */
+/* line 666, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:nth-child(1) {
   background: #648ca8;
   color: #fff;
 }
-/* line 668, ../sass/_settings.scss */
+/* line 669, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:nth-child(2) {
   background: #648ca8;
   color: #fff;
 }
-/* line 671, ../sass/_settings.scss */
+/* line 672, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:last-child {
   background: #648ca8;
   color: #fff;
 }
 
-/* line 678, ../sass/_settings.scss */
+/* line 679, ../sass/_settings.scss */
 .leaderboard-result-table .table-title th {
   font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #FFF;
@@ -769,37 +770,37 @@ div.pending-approval-select.columns {
   text-align: left;
 }
 
-/* line 688, ../sass/_settings.scss */
+/* line 689, ../sass/_settings.scss */
 .preloader-handler {
   position: relative;
 }
 
-/* line 692, ../sass/_settings.scss */
+/* line 693, ../sass/_settings.scss */
 .submissions-details-label {
   margin-bottom: 0 !important;
 }
 
-/* line 696, ../sass/_settings.scss */
+/* line 697, ../sass/_settings.scss */
 #submissions_phase_buttons .button {
   margin-left: 10px !important;
   margin-bottom: 5px !important;
 }
 
-/* line 700, ../sass/_settings.scss */
+/* line 701, ../sass/_settings.scss */
 #fileUploadButton {
   margin-bottom: 5px;
 }
 
-/* line 704, ../sass/_settings.scss */
+/* line 705, ../sass/_settings.scss */
 .challStatusStripSection section {
   width: auto;
 }
 
-/* line 709, ../sass/_settings.scss */
+/* line 710, ../sass/_settings.scss */
 .competition-tile .subContainerPadding {
   height: 140px;
 }
-/* line 713, ../sass/_settings.scss */
+/* line 714, ../sass/_settings.scss */
 .competition-tile .articleImageContainer img {
   height: 110px;
   width: auto;
