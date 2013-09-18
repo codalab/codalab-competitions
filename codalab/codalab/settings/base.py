@@ -27,8 +27,9 @@ class Base(Settings):
 
    if 'CONFIG_SERVER_NAME' in os.environ:
       SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
-   if 'CONFIG_PORT' in os.environ:
+   if 'CONFIG_HTTP_PORT' in os.environ:
       PORT = os.environ.get('CONFIG_HTTP_PORT')
+
    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
                   'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],                  
                   }
