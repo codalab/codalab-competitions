@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eu # Fail on command returning non-zero or unbound variables
+
 THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PROJECT_DIR=$(readlink -f ../codalab)
@@ -21,8 +23,6 @@ echo "__build_date__=\"$(date)\"" >> $VERSION_FILE
 echo "__commit_hash__=\"$GIT_HASH\"" >> $VERSION_FILE
 echo "__version_string__=\"$GIT_FULL\"" >> $VERSION_FILE
 popd > /dev/null
-
-
 
 REQS=$1
 CONFIG=$2

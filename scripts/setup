@@ -1,0 +1,28 @@
+#!/bin/bash
+set -eu
+
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+PROJECT_DIR=$(readlink -f ../codalab)
+ROOT_DIR=$(readlink -f ..)
+REQ_DIR=$PROJECT_DIR/requirements/
+
+VENV_DIR=$ROOT_DIR/venv
+WHEEL_DIR=$ROOT_DIR/wheel_packages
+
+HAS_VARS="1"
+for CVAR in DJANGO_CONFIGURATION DJANGO_SETTINGS_MODULE CONFIG_HTTP_PORT CONFIG_SERVER_NAME
+do
+  if [ -z $(eval echo \$$CVAR) ] ; then
+    echo "Need to specify $CVAR"
+    HAS_VARS="0" 
+  fi
+done
+if [ "$HAS_VARS" -eq "0" ]; then echo "** Environment variables missing. **" && exit 1; fi
+
+virtualenv $VENV_DIR && source $VENV_DIR/bin/activate
+source $THIS_DIR/base_pip_requirements
+
+pushd `pwd` > /dev/null
+cd $PROJECT_DIR
+
