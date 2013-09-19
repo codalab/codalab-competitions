@@ -2,7 +2,8 @@
 {% load staticfiles %}
 {% load compress %}
 
-{% block title %}Edit{% endblock %}
+{% block head_title %}Edit Competition{% endblock head_title %}
+{% block page_title %}Edit Competition{% endblock page_title %}
 
 {% block extra_head %}
   {% compress js %}
@@ -18,17 +19,19 @@
 </div>
 
 <div class="row">
-  <div class="content" data-slug="#overview" data-section-content>
+  <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
       {{ form.as_p }}
       {% for formset in inlines %}
         {{ formset.as_p }}
       {% endfor %}
-    </div>          
+
+        
     <div class="row">
       <div class="large-12 columns">
         <button type="submit" class="medium button blue">Submit</button>
       </div>
+      <div class="spacer500">&nbsp;</div>
     </div>
   </form>
 </div>
