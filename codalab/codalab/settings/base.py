@@ -315,8 +315,9 @@ class Base(Settings):
       cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
                               'CONFIG_SERVER_NAME': cls.SERVER_NAME
                               })
+      if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
+         cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
       
-
    @classmethod
    def post_setup(cls):
       if not hasattr(cls,'PORT'):
