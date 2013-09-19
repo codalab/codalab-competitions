@@ -25,5 +25,5 @@ if os.path.isdir(submit_dir) and os.path.isdir(truth_dir):
     		pi = float(open(gold_file, 'rb').read())
     		guess = float(open(corresponding_submission_file, 'rb').read())
     		diff = abs(pi - guess)
-    		output_file.write("%f" % diff)
+    		output_file.write("Difference: %f" % diff)
     output_file.close()
