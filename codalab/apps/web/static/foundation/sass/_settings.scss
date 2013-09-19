@@ -189,7 +189,7 @@ a > i {
 
 .competitionsDetailTabArea > section > .title {
     font-size: 19px;
-    font-weight: 400;
+    font-weight: lighter;
 }
 
 .competitionsDetailTabArea > section > .title a:hover {
@@ -217,8 +217,8 @@ a > i {
 }
 
 .content > h3 {
-	font-size: 14px;
-	font-weight: 700;
+	font-size: 1.4em;
+	font-weight: lighter;
 }
 
 .content > p {
@@ -378,6 +378,7 @@ p.competition-paragraph {
 	box-shadow: 0 0 5px rgba(0,0,0,0.15);
 	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
 	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    overflow: hidden;
 }
 
 .competition-tile h3 {
@@ -501,6 +502,7 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 		padding-right:40px !important;
 		font-size:19px;
 		height:57px;
+		font-weight: lighter;
 		}
 }
 
@@ -708,7 +710,7 @@ div.pending-approval-select.columns {
 }
 .competition-tile{
 	.subContainerPadding{
-		height:140px; 
+		max-height:130px; 
 	}
 	.articleImageContainer{
 		img{

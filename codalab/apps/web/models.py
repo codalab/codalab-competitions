@@ -797,6 +797,7 @@ class CompetitionDefBundle(models.Model):
             cgroups = {}
             for key, value in comp_spec['leaderboard']['groups'].items():
                 print "|%s|" % key
+                key="%s-%s" % (key, comp.id)
                 rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
                 cgroups[rg.label] = rg
                 for gp in comp.phases.all():
@@ -805,6 +806,7 @@ class CompetitionDefBundle(models.Model):
         if 'leaderboard' in comp_spec and 'columns' in comp_spec['leaderboard']:
             columns = {}
             for key, vals in comp_spec['leaderboard']['columns'].items():
+                key="%s-%s" % (key, comp.id)
                 if 'group' not in vals:
                     # Define a new grouping of scores
                     s,cr = SubmissionScoreSet.objects.get_or_create(
