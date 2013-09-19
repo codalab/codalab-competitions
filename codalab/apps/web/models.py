@@ -1,23 +1,31 @@
 import exceptions
-import os
+import random
 import operator
+import os, io
+from os.path import abspath, basename, dirname, join, normpath
+import zipfile
+import yaml
+import tempfile
 import requests
+import datetime
+import django.dispatch
+import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.dispatch import receiver
-import django.dispatch
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.files.storage import get_storage_class
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-from django.core.exceptions import PermissionDenied
-from django.core.files.storage import get_storage_class
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
-
-from os.path import abspath, basename, dirname, join, normpath
 
 import signals
 import tasks
@@ -123,7 +131,6 @@ class Page(models.Model):
         return super(Page,self).save(*args,**kwargs)
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)    
-
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -175,12 +182,16 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
+    published = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
         return items[0] if len(items) > 0 else None
 
+    def get_absolute_url(self):
+        return reverse('competitions:view', kwargs={'pk':self.pk})
+        
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
@@ -208,7 +219,10 @@ class Competition(models.Model):
         
     @property
     def is_active(self):
-        return True if self.end_date is None else self.end_date < now().date()
+        if type(self.end_date) is datetime.datetime.date:
+            return True if self.end_date is None else self.end_date > now().date()
+        if type(self.end_date) is datetime.datetime:
+            return True if self.end_date is None else self.end_date > now()
 
 # Dataset model
 class Dataset(models.Model):
@@ -228,21 +242,26 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
+def competition_prefix(competition):
+    return os.path.join("competition", str(competition.id))
+
+def phase_prefix(phase):
+    return os.path.join(competition_prefix(phase.competition), str(phase.phasenumber))
 
 def phase_data_prefix(phase):
-    return "competition/%d/%d/data/" % (phase.competition.pk, phase.pk,)
+    return os.path.join("competition", str(phase.competition.id), str(phase.phasenumber), "data")
 
 # In the following helpers, the filename argument is required even though we
 # choose to not use it. See FileField.upload_to at https://docs.djangoproject.com/en/dev/ref/models/fields/.
 
-def phase_scoring_program_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'program.zip'
+def phase_scoring_program_file(phase, filename="program.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_reference_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'reference.zip'
+def phase_reference_data_file(phase, filename="reference.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_input_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'input.zip'
+def phase_input_data_file(phase, filename="input.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_file_name(instance,filename):
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
@@ -308,12 +327,14 @@ class CompetitionPhase(models.Model):
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        if (next_phase and len(next_phase) > 0):
-            # there a phase following this phase: this phase ends when the next phase starts
-            return self.start_date <= now() and (next_phase and next_phase[0].start_date > now())
+        if (next_phase is not None) and (len(next_phase) > 0):
+            # there is a phase following this phase, thus this phase is active if the current date 
+            # is between the start of this phase and the start of the next phase
+            return self.start_date <= now() and (now() < next_phase[0].start_date)
         else:
-            # there is no phase following this phase: this phase ends when the competition ends
-            return self.competition.is_active
+            # there is no phase following this phase, thus this phase is active if the current data
+            # is after the start date of this phase and the competition is "active"
+            return self.start_date <= now() and self.competition.is_active
 
     @property
     def is_future(self):
@@ -323,7 +344,7 @@ class CompetitionPhase(models.Model):
     @property
     def is_past(self):
         """ Returns true if this phase of the competition has already ended. """
-        return (not is_active) and (not is_future)
+        return (not self.is_active) and (not self.is_future)
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
@@ -356,6 +377,21 @@ class CompetitionPhase(models.Model):
         return ranks
 
     @staticmethod 
+    def rank_submissions(ranks_by_id):
+        def compare_ranks(a, b):
+            limit = 1000000
+            try:
+               ia = int(ranks_by_id[a])
+            except exceptions.ValueError:
+               ia = limit
+            try:
+               ib = int(ranks_by_id[b])
+            except exceptions.ValueError:
+               ib = limit
+            return ia - ib
+        return compare_ranks
+
+    @staticmethod 
     def format_value(v, precision="2"):
         p = 1
         try:
@@ -374,8 +410,8 @@ class CompetitionPhase(models.Model):
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-            for e in PhaseLeaderBoardEntry.objects.filter(board=lb):
-                submissions.append((e.result.pk, e.result.participant.user.username))
+            for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list('result_id', 'result__participant__user__username'):
+                submissions.append((rid,  name))
 
         results = []
         for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
@@ -383,69 +419,76 @@ class CompetitionPhase(models.Model):
             headers = []
             scores = {}
             for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
-
+    
             scoreDefs = []
-            currentColumnLabels = {}
+            columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
                                                                         scoredef__groups__in=[g],
-                                                                        **kwargs):
+                                                                        **kwargs).select_related('scoredef', 'parent'):
                 if x.parent is not None:
+                    columnKey = x.parent.key
                     columnLabel = x.parent.label
-                    columnSubLabels = [x.label]
+                    columnSubLabels = [{'key': x.key, 'label': x.label}]
                 else:
+                    columnKey = x.key
                     columnLabel = x.label
                     columnSubLabels = []
-                if columnLabel not in currentColumnLabels:
-                    currentColumnLabels[columnLabel] = len(headers)
-                    headers.append({columnLabel : columnSubLabels})
+                if columnKey not in columnKeys:
+                    columnKeys[columnKey] = len(headers)
+                    headers.append({'key' : columnKey, 'label': columnLabel, 'subs' : columnSubLabels})
                 else:
-                    headers[currentColumnLabels[columnLabel]][columnLabel].extend(columnSubLabels)
+                    headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
                             
+            # compute total column span
             column_span = 2
             for gHeader in headers:
-                for k in gHeader:
-                    n = len(gHeader[k])
-                    column_span += n if n > 0 else 1
+                n = len(gHeader['subs'])
+                column_span += n if n > 0 else 1
+            # determine which column to select by default
+            selection_key, selection_order = None, 0
+            for i in range(len(scoreDefs)):
+                if (selection_key is None) or (scoreDefs[i].selection_default > selection_order):
+                    selection_key, selection_order = scoreDefs[i].key, scoreDefs[i].selection_default
 
-            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'scores': scores, 'scoredefs': scoreDefs })
-
+            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'selection_key': selection_key,
+                             'scores': scores, 'scoredefs': scoreDefs })
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
             submission_ids = [id for (id,name) in submissions]
-            not_computed_scoredefs = {}
-            computed_scoredef_ids = []
-            computed_deps = {}
+            not_computed_scoredefs = {} # map (scoredef.id, scoredef) to keep track of non-computed scoredefs 
+            computed_scoredef_ids = []            
+            computed_deps = {} # maps id of a computed scoredef to a list of ids for scoredefs which are input to the computation
             for result in results:
                 for sdef in result['scoredefs']:
                     if sdef.computed is True:
                         computed_scoredef_ids.append(sdef.id)
                     else:
-                        not_computed_scoredefs[sdef.key] = sdef
+                        not_computed_scoredefs[sdef.id] = sdef
                 if len(computed_scoredef_ids) > 0:
                     computed_ids = SubmissionComputedScore.objects.filter(scoredef_id__in=computed_scoredef_ids).values_list('id')
-                    fields = SubmissionComputedScoreField.objects.filter(computed_id__in=computed_ids)
+                    fields = SubmissionComputedScoreField.objects.filter(computed_id__in=computed_ids).select_related('scoredef', 'computed')
                     for field in fields:
                         if not field.scoredef.computed:
-                            not_computed_scoredefs[field.scoredef.key] = field.scoredef
-                        if field.computed.scoredef.key not in computed_deps:
-                            computed_deps[field.computed.scoredef.key] = []
-                        computed_deps[field.computed.scoredef.key].append(field.scoredef)
+                            not_computed_scoredefs[field.scoredef.id] = field.scoredef
+                        if field.computed.scoredef_id not in computed_deps:
+                            computed_deps[field.computed.scoredef_id] = []
+                        computed_deps[field.computed.scoredef_id].append(field.scoredef)
             # Now read the submission scores
             values = {}
-            scoredef_ids = [sdef.id for (sdef_key, sdef) in not_computed_scoredefs.iteritems()]
+            scoredef_ids = [sdef_id for (sdef_id, sdef) in not_computed_scoredefs.iteritems()]
             for s in SubmissionScore.objects.filter(scoredef_id__in=scoredef_ids, result_id__in=submission_ids):
-                if s.scoredef.key not in values:
-                    values[s.scoredef.key] = {}
-                values[s.scoredef.key][s.result.pk] = s.value
+                if s.scoredef_id not in values:
+                    values[s.scoredef_id] = {}
+                values[s.scoredef_id][s.result_id] = s.value
 
             # rank values per scoredef.key (not computed)
             ranks = {}
-            for (sdef_key, v) in values.iteritems():
-                sdef = not_computed_scoredefs[sdef_key]
-                ranks[sdef_key] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
+            for (sdef_id, v) in values.iteritems():
+                sdef = not_computed_scoredefs[sdef_id]
+                ranks[sdef_id] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
 
             # compute values for computed scoredefs
             for result in results:
@@ -453,24 +496,24 @@ class CompetitionPhase(models.Model):
                     if sdef.computed:
                         operation = getattr(models, sdef.computed_score.operation)
                         if (operation.name == 'Avg'):
-                            cnt = len(computed_deps[sdef.key])
+                            cnt = len(computed_deps[sdef.id])
                             if (cnt > 0):
                                 computed_values = {}
                                 for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.key][id] for d in computed_deps[sdef.key]]) / float(cnt)                                    
-                                values[sdef.key] = computed_values
-                                ranks[sdef.key] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
+                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)                                    
+                                values[sdef.id] = computed_values
+                                ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
             #format values
             for result in results:
                 scores = result['scores']
                 for sdef in result['scoredefs']:
                     knownValues = {}
-                    if sdef.key in values:
-                        knownValues = values[sdef.key]
+                    if sdef.id in values:
+                        knownValues = values[sdef.id]
                     knownRanks = {}
-                    if sdef.key in ranks:
-                        knownRanks = ranks[sdef.key]
+                    if sdef.id in ranks:
+                        knownRanks = ranks[sdef.id]
                     for id in submission_ids:
                         v = "-"
                         if id in knownValues:
@@ -479,12 +522,44 @@ class CompetitionPhase(models.Model):
                         if id in knownRanks:
                             r = knownRanks[id]
                         if sdef.show_rank:
-                            scores[id]['values'].append({'val': v, 'rnk': r})
+                            scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
                         else:
-                            scores[id]['values'].append({'val': v, 'hidden_rnk': r})
+                            scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+                    if (sdef.key == result['selection_key']):
+                        overall_ranks = ranks[sdef.id]
+                ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
+                final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
+                result['scores'] = final_scores
+                del result['scoredefs']        
 
-        for result in results:
-            del result['scoredefs']        
+        #else:
+        #    submission_ids = [id for id in range(1,11)]
+        #    for result in results:
+        #        scores = result['scores']
+        #        for id in submission_ids: 
+        #            scores[id] = {'username': 'guest' + str(id), 'values': []}
+        #        values = {}
+        #        for sdef in result['scoredefs']:
+        #            values[sdef.id] = {}
+        #            for id in submission_ids: 
+        #                values[sdef.id][id] = random.random()
+        #        ranks = {}
+        #        for sdef in result['scoredefs']:
+        #            ranks[sdef.id] = self.rank_values(submission_ids, values[sdef.id], sort_ascending=sdef.sorting=='asc')
+        #        for sdef in result['scoredefs']:
+        #            for id in submission_ids:
+        #                v = CompetitionPhase.format_value(values[sdef.id][id], sdef.numeric_format)
+        #                r = ranks[sdef.id][id]
+        #                if sdef.show_rank:
+        #                    scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
+        #                else:
+        #                    scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+        #            if (sdef.key == result['selection_key']):
+        #                overall_ranks = ranks[sdef.id]
+        #        ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
+        #        final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
+        #        result['scores'] = final_scores
+        #        del result['scoredefs']        
 
         return results
 
@@ -639,6 +714,147 @@ class SubmissionScoreDef(models.Model):
 
     def __unicode__(self):
         return self.label
+
+class CompetitionDefBundle(models.Model):
+    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
+    created_at = models.DateTimeField()
+
+    def unpack(self):
+        zf = zipfile.ZipFile(self.config_bundle)
+        # Create the basic competition
+        comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
+        comp_spec = yaml.load(zf.open(comp_spec_file))
+        comp_base = comp_spec.copy()
+        for block in ['html', 'phases', 'leaderboard']:
+            if block in comp_base:
+                del comp_base[block]
+        comp_base['creator'] = self.owner
+        comp_base['modified_by'] = self.owner
+        if type(comp_base['end_date']) is datetime.datetime.date:
+            comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+
+        comp = Competition(**comp_base)
+        comp.save()
+
+        comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
+        if not os.path.exists(comp_root):
+            os.makedirs(comp_root)
+
+        comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+        comp.save()
+
+        # Populate pages
+        pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
+
+        details_category = ContentCategory.objects.get(name="Learn the Details")
+
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+                                   label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation",
+                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+
+        participate_category = ContentCategory.objects.get(name="Participate")
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+                                   label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+
+        # Create phases
+        for p_num in comp_spec['phases']:
+            phase_spec = comp_spec['phases'][p_num].copy()
+            phase_spec['competition'] = comp
+            if 'datasets' in phase_spec:
+                datasets = phase_spec['datasets']
+                del phase_spec['datasets']
+            else:
+                datasets = {}
+            if type(phase_spec['start_date']) is datetime.datetime.date:
+                phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+            phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
+            phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
+            if not os.path.exists(phase_path):
+                os.makedirs(phase_path)
+            # Evaluation Program
+            phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+            phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.save()
+            eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
+            count = 1
+            for ds in datasets.keys():
+                f = ExternalFile.objects.create(type=eft, source_url=datasets[ds]['url'], name=datasets[ds]['name'], creator=self.owner)
+                f.save()
+                d = Dataset.objects.create(creator=self.owner, datafile=f, number=count)
+                d.save()
+                phase.datasets.add(d)
+                phase.save()
+                count += 1
+
+
+        if 'leaderboard' in comp_spec and 'groups' in comp_spec['leaderboard']:
+            # Create leaderboard
+            cgroups = {}
+            for key, value in comp_spec['leaderboard']['groups'].items():
+                print "|%s|" % key
+                key="%s-%s" % (key, comp.id)
+                rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
+                cgroups[rg.label] = rg
+                for gp in comp.phases.all():
+                    rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
+
+        if 'leaderboard' in comp_spec and 'columns' in comp_spec['leaderboard']:
+            columns = {}
+            for key, vals in comp_spec['leaderboard']['columns'].items():
+                key="%s-%s" % (key, comp.id)
+                if 'group' not in vals:
+                    # Define a new grouping of scores
+                    s,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp, 
+                                key=key,
+                                defaults=dict(label=vals['label']))
+                    cgroups[key] = s
+                else:
+                    # Create the score definition
+                    is_computed = 'computed' in vals
+                    sort_order = 'desc' if 'sort' not in vals else vals['sort']
+                    sdefaults = dict(label=vals['label'],numeric_format="2",show_rank=not is_computed,sorting=sort_order)
+                    if 'selection_default' in vals:
+                        sdefaults['selection_default'] = vals['selection_default']
+
+                    sd,cr = SubmissionScoreDef.objects.get_or_create(
+                                competition=comp,
+                                key=key,
+                                computed=is_computed,
+                                defaults=sdefaults)
+                    if is_computed:
+                        sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                        for f in vals['computed']['fields']:
+                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
+                            # brats_leaderboard_defs after the fields they reference.
+                            SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
+                    columns[sd.key] = sd
+
+                    # Associate the score definition with its column group
+                    if 'column_group' in vals:
+                        gparent = cgroups[vals['column_group']]
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                parent=gparent,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+                    else:
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+
+                    # Associate the score definition with its result group
+                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=cgroups[vals['group']['label']])
+        # Add owner as participant so they can view the competition
+        approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
+        return comp
 
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)

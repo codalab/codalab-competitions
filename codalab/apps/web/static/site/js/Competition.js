@@ -12,12 +12,6 @@ var Competition;
         btn.click();
     }
 
-    Competition.loadTabContent = function () {
-        var name = $.trim(window.location.hash).toLowerCase();
-        if (name == "#results") { $('#Results').click(); }
-        if (name == "#participate-submit_results") { $('#Participate').click(); }
-    }
-
     function decorateLeaderboardButton(btn, submitted) {
         if (submitted) {
             btn.removeClass("leaderBoardSubmit");
@@ -146,49 +140,34 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_results").html("").append(data);
-                PlaceIndexForTable();
                 $(".column-selectable").click(function (e) {
                     var table = $(this).closest("table");
-                    $(table).find(".dataTable-column-active").removeClass();
-                    $(this).addClass("dataTable-column-active");
-                    thIndex = parseInt($(this).attr("tabindex"));
-                    table.find('td')
-                      .filter(function () {
-                          return $(this).index() === thIndex;
-                      }).addClass("dataTable-column-active")
-                      .sortTable(
-                        function (a, b) {
-                            return $.text([$(a).find("span")]) > $.text([$(b).find("span")]);
-                        }, function () {
-                            return this.parentNode;
-                        }
-                      );
+                    $(table).find(".column-selected").removeClass();
+                    $(this).addClass("column-selected");
+                    columnId = $(this).attr("name");
+                    var rows = table.find('td').filter(function () {
+                        return $(this).attr("name") === columnId;
+                    }).addClass("column-selected");
+                    var sortedRows = rows.slice().sort(function (a, b) {
+                        var ar = parseInt($.text([$(a).find("span")]));
+                        if (isNaN(ar)) { ar = 100000; }
+                        var br = parseInt($.text([$(b).find("span")]));
+                        if (isNaN(br)) { br = 100000; }
+                        return ar - br;
+                    });
+                    var parent = rows[0].parentNode.parentNode;
+                    var clonedRows = sortedRows.map(function () { return this.parentNode.cloneNode(true); });
+                    for (var i = 0; i < clonedRows.length; i++) {
+                        $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
+                        parent.insertBefore(clonedRows[i], rows[i].parentNode);
+                        parent.removeChild(rows[i].parentNode);
+                    }
                 });
             },
             error: function (xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
-    }
-
-    function PlaceIndexForTable() {
-        var i = 0;
-        $(".prevResultSubmission tr.dataTable-header").each(function (index) {
-            i = 0;
-            $(this).find("th").each(function(index){
-            
-            if ($(this).attr("colspan")) {
-                var name = $(this).text();
-                $(this).parents("tr").next("tr").children("th").each(function (index) {
-                    if ($(this).attr("name") == name) {
-                        $(this).attr("tabIndex", i); i = i + 1;
-                    }
-                });
-            }
-            else { $(this).attr("tabIndex", i); i = i + 1; }
-
-            });
-        })
     }
 
     Competition.registationCanProceed = function () {
@@ -423,49 +402,16 @@ $(document).ready(function () {
 
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-    Competition.loadTabContent();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
 
-
-    /*----------------------------------------*/
-   
-
-
+    var loc = window.location.href;
+    if (loc !== undefined) {
+        if (loc.match(/#participate-submit_results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("submissions_phase_buttons");
+        } else if (loc.match(/#results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("results_phase_buttons");
+        }
+    }
 });
-
-jQuery.fn.sortTable = (function () {
-    var sort = [].sort;
-    return function (comparator, getSortable) {
-        getSortable = getSortable || function () { return this; };
-        var placements = this.map(function () {
-            var sortElement = getSortable.call(this),
-                parentNode = sortElement.parentNode,
-                nextSibling = parentNode.insertBefore(
-                    document.createTextNode(''),
-                    sortElement.nextSibling
-                );
-
-            return function () {
-
-                if (parentNode === this) {
-                    throw new Error(
-                        "You can't sort elements if any one is a descendant of another."
-                    );
-                }
-
-                parentNode.insertBefore(this, nextSibling);
-                
-                parentNode.removeChild(nextSibling);
-
-            };
-
-        });
-
-        return sort.call(this, comparator).each(function (i) {
-            placements[i].call(getSortable.call(this));
-        });
-    };
-
-})();
