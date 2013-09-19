@@ -796,8 +796,6 @@ class CompetitionDefBundle(models.Model):
             # Create leaderboard
             cgroups = {}
             for key, value in comp_spec['leaderboard']['groups'].items():
-                print "|%s|" % key
-                key="%s-%s" % (key, comp.id)
                 rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
                 cgroups[rg.label] = rg
                 for gp in comp.phases.all():
@@ -806,7 +804,6 @@ class CompetitionDefBundle(models.Model):
         if 'leaderboard' in comp_spec and 'columns' in comp_spec['leaderboard']:
             columns = {}
             for key, vals in comp_spec['leaderboard']['columns'].items():
-                key="%s-%s" % (key, comp.id)
                 if 'group' not in vals:
                     # Define a new grouping of scores
                     s,cr = SubmissionScoreSet.objects.get_or_create(
@@ -891,6 +888,9 @@ class SubmissionScoreSet(MPTTModel):
     key = models.CharField(max_length=50,unique=True)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+
+    class Meta:
+        unique_together = (('key','competition'),)
 
     def __unicode__(self):
         return "%s %s" % (self.parent.label if self.parent else None, self.label)
