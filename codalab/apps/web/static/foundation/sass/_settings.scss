@@ -84,6 +84,10 @@ $side-nav-font-size: 15px;
 	font-weight: normal;
 }
 
+body.body
+{
+	position:static;
+}
 select {
 	color: $dark-gray;
 }
@@ -569,12 +573,6 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
-       h2 {
-       		margin-top: -155px;
-       		padding-top: 155px;
-
-
-       }
        h6 { 
               font-size:16px; 
               color:$gray;
@@ -719,4 +717,9 @@ div.pending-approval-select.columns {
 			overflow: hidden;
 		}
 	}
+}
+.anchor{
+    position: relative;
+    margin-top:-138px;
+	float:left;
 }
