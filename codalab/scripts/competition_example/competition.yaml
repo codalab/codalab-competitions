@@ -52,7 +52,7 @@ leaderboard:
             label: Results
             rank: 1
     columns:
-        DIFFERENCE:
+        Difference:
             group: *RESULTS
             label: Difference
             rank: 1
