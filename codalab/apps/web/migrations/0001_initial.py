@@ -125,6 +125,7 @@ class Migration(SchemaMigration):
             ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='competitioninfo_creator', to=orm['authenz.User'])),
             ('modified_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='competitioninfo_modified_by', to=orm['authenz.User'])),
             ('last_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('published', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal(u'web', ['Competition'])
 
@@ -244,6 +245,15 @@ class Migration(SchemaMigration):
 
         # Adding unique constraint on 'SubmissionScoreDef', fields ['key', 'competition']
         db.create_unique(u'web_submissionscoredef', ['key', 'competition_id'])
+
+        # Adding model 'CompetitionDefBundle'
+        db.create_table(u'web_competitiondefbundle', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('config_bundle', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owner', to=orm['authenz.User'])),
+            ('created_at', self.gf('django.db.models.fields.DateTimeField')()),
+        ))
+        db.send_create_signal(u'web', ['CompetitionDefBundle'])
 
         # Adding model 'SubmissionScoreDefGroup'
         db.create_table(u'web_submissionscoredefgroup', (
@@ -433,6 +443,9 @@ class Migration(SchemaMigration):
         # Deleting model 'SubmissionScoreDef'
         db.delete_table(u'web_submissionscoredef')
 
+        # Deleting model 'CompetitionDefBundle'
+        db.delete_table(u'web_competitiondefbundle')
+
         # Deleting model 'SubmissionScoreDefGroup'
         db.delete_table(u'web_submissionscoredefgroup')
 
@@ -523,7 +536,15 @@ class Migration(SchemaMigration):
             'image_url_base': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'modified_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_modified_by'", 'to': u"orm['authenz.User']"}),
+            'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'web.competitiondefbundle': {
+            'Meta': {'object_name': 'CompetitionDefBundle'},
+            'config_bundle': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owner'", 'to': u"orm['authenz.User']"})
         },
         u'web.competitionparticipant': {
             'Meta': {'unique_together': "(('user', 'competition'),)", 'object_name': 'CompetitionParticipant'},
