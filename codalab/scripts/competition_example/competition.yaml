@@ -47,7 +47,7 @@ phases:
                 url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
                 description: Example challenge data
 leaderboard:
-    groups:
+    leaderboards:
         RESULTS: &RESULTS
             label: Results
             rank: 1
