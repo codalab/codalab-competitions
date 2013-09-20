@@ -216,9 +216,11 @@ class Competition(models.Model):
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
-        
+    
     @property
     def is_active(self):
+        if self.end_date is None: 
+            return True 
         if type(self.end_date) is datetime.datetime.date:
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
