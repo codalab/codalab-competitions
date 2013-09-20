@@ -792,12 +792,12 @@ class CompetitionDefBundle(models.Model):
                 count += 1
 
 
-        if 'leaderboard' in comp_spec and 'groups' in comp_spec['leaderboard']:
+        if 'leaderboard' in comp_spec and 'leaderboards' in comp_spec['leaderboard']:
             # Create leaderboard
-            cgroups = {}
-            for key, value in comp_spec['leaderboard']['groups'].items():
+            lboards = {}
+            for key, value in comp_spec['leaderboard']['leaderboards'].items():
                 rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
-                cgroups[rg.label] = rg
+                lboards[rg.label] = rg
                 for gp in comp.phases.all():
                     rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
 
@@ -810,7 +810,7 @@ class CompetitionDefBundle(models.Model):
                                 competition=comp, 
                                 key=key,
                                 defaults=dict(label=vals['label']))
-                    cgroups[key] = s
+                    lboards[key] = s
                 else:
                     # Create the score definition
                     is_computed = 'computed' in vals
@@ -834,7 +834,7 @@ class CompetitionDefBundle(models.Model):
 
                     # Associate the score definition with its column group
                     if 'column_group' in vals:
-                        gparent = cgroups[vals['column_group']]
+                        gparent = lboards[vals['column_group']]
                         g,cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 parent=gparent,
@@ -847,7 +847,7 @@ class CompetitionDefBundle(models.Model):
                                 defaults=dict(scoredef=sd, label=sd.label))
 
                     # Associate the score definition with its result group
-                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=cgroups[vals['group']['label']])
+                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=lboards[vals['group']['label']])
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
@@ -872,7 +872,6 @@ class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
     operation = models.CharField(max_length=10,choices=(('Max','Max'),
                                                         ('Avg', 'Average')))
-    
 class SubmissionComputedScoreField(models.Model):
     computed = models.ForeignKey(SubmissionComputedScore,related_name='fields')
     scoredef = models.ForeignKey(SubmissionScoreDef)
@@ -885,7 +884,7 @@ class SubmissionComputedScoreField(models.Model):
 class SubmissionScoreSet(MPTTModel):
     parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
-    key = models.CharField(max_length=50,unique=True)
+    key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
 
@@ -895,7 +894,6 @@ class SubmissionScoreSet(MPTTModel):
     def __unicode__(self):
         return "%s %s" % (self.parent.label if self.parent else None, self.label)
 
-        
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)
