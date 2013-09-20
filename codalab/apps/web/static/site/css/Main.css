@@ -2732,7 +2732,7 @@ ul.leftNavigation li.active a{
 
 /*  /////  TEMP STYLES  /////  */
 .content p, .content p a {
-    $body-font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 }
 .cl-logo  {
     padding: 9px 100px 0 14px;
