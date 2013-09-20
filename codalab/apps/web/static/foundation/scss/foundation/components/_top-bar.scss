@@ -424,6 +424,7 @@ $topbar-sticky-class: ".sticky" !default;
         }
         a:focus {
           color: $topbar-link-color-hover;
+          text-decoration: underline;
         }
       }
 
