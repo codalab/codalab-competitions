@@ -401,7 +401,11 @@ class CompetitionPhase(models.Model):
                 p = min(10, max(1, int(precision)))
         except exceptions.ValueError:
             pass
-        return ("{:." + str(p) + "f}").format(v)
+        # This will properly truncate the value instead of rounding it which python's format function does.
+        (pre, post) = str(v).split(".")
+        tval = ".".join([pre, post[0:precision]])
+        return tval
+        # return ("{:." + str(p) + "f}").format(v)
 
 
     def scores(self,**kwargs):
