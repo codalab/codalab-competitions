@@ -11,12 +11,24 @@
 		</p>
 
 		<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
-		  {% csrf_token %}
-		  {{ form.as_p }}
-		  {% if redirect_field_value %}
-		  	<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-		  {% endif %}
-		  <button class="button" type="submit">{% trans "Sign Up" %} </button>
+		    {% csrf_token %}
+            <p>
+                <label for="id_email">E-mail:</label> 
+                <input id="id_email" name="email" placeholder="E-mail address" type="text" />
+            </p>
+            <p>
+                <label for="id_password1">Password:</label>
+                <input id="id_password1" name="password1" placeholder="Password" type="password" />
+            </p>
+            <p>
+                <label for="id_password2">Password (again):</label>
+                <input id="id_password2" name="password2" placeholder="Password" type="password" />
+                <input id="id_confirmation_key" name="confirmation_key" type="hidden" />
+            </p>
+		    {% if redirect_field_value %}
+		    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+		    {% endif %}
+		    <button class="button" type="submit">{% trans "Sign Up" %} </button>
 		</form>
 	</div>
 {% endblock %}
