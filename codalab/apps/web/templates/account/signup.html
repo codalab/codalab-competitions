@@ -7,7 +7,11 @@
 {% block content %}
 	<div class="small-12 columns account_widget">
 		<p>
+            {% if "modal" in view.request.GET %}
+			{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}?modal=on" data-reveal-id="login-modal" data-reveal-ajax="true">sign in.</a>{% endblocktrans %}
+            {% else %}
 			{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}" data-reveal-id="login-modal" data-reveal-ajax="true">sign in.</a>{% endblocktrans %}
+            {% endif %}
 		</p>
 
 		<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
