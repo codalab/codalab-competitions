@@ -16,7 +16,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
 
-    @action(permission_classes=[permissions.IsAuthenticated])
     def destroy(self, request, pk):
         """
         Cleanup the destruction of a competition.
@@ -29,7 +28,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         # Create a blank response
         response = {}
-        if self.request.user == c.creator:
+        if self.request.user is not None and self.request.user == c.creator:
             c.delete()
             response['id'] = pk
         else:
