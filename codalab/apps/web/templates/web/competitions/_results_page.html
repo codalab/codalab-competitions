@@ -2,6 +2,11 @@
 {% elif phase.is_future %}
     <p>This phase of the competition has not started yet. Please check back later.</p>
 {% else %}
+    {% if groups|length > 0 %}
+    <div class="small-12 columns icon_excel">
+        <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
+    </div>
+    {% endif %}
     <div class="leaderboard-result-table">
         {% for group in groups %}
         <table class="prevResultSubmission dataTable">
