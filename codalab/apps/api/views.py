@@ -10,14 +10,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
-
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
+    permission_classes = (permissions.IsAuthenticated)
 
-    @action(permission_classes=[permissions.IsAuthenticated])
-    def destroy(self, request, pk):
+    #@action(permission_classes=[permissions.IsAuthenticated])
+    @method_decorator(login_required)
+    def destroy(self, request, pk, *args,**kwargs):
         """
         Cleanup the destruction of a competition.
 

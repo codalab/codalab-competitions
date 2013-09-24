@@ -20,9 +20,16 @@ do
 done
 if [ "$HAS_VARS" -eq "0" ]; then echo "** Environment variables missing. **" && exit 1; fi
 
-virtualenv $VENV_DIR && source $VENV_DIR/bin/activate
+virtualenv $VENV_DIR 
+set +o nounset
+source $VENV_DIR/bin/activate
+set -o nounset
 source $THIS_DIR/base_pip_requirements
+
 
 pushd `pwd` > /dev/null
 cd $PROJECT_DIR
+
+pip install --use-wheel --no-deps $WHEEL_DIR/*
+python manage.py config_gen
 
