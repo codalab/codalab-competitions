@@ -2855,5 +2855,12 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 #edit_competition input[type=file], #edit_competition input[type=checkbox]  {
     cursor: pointer;
 }
-
+.icon_excel {
+    background: url('../Images/icon_excel.png') no-repeat 15px;
+    min-height: 32px;
+    padding-top: 8px;
+}
+.icon_excel a {
+    margin-left: 38px;
+}
 
