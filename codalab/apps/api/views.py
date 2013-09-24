@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
-    permission_classes = (permissions.IsAuthenticated)
+    #permission_classes = (permissions.IsAuthenticated)
 
     #@action(permission_classes=[permissions.IsAuthenticated])
     @method_decorator(login_required)
