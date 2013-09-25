@@ -76,7 +76,7 @@
                 {% if user.is_authenticated %}
                   <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
                 {% else %}
-                  <li><a href="{% url 'account_login' %}"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
+                  <li><a href="{% url 'account_login' %}?modal=on"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
                 <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
                 {% if user.is_authenticated %}
@@ -92,7 +92,7 @@
                   </li>
                 {% else %}
                   <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
+                    <a href="{% url 'account_login' %}?modal=on" data-reveal-id="login-modal" data-reveal-ajax="true"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -188,16 +188,19 @@
         if ($("#sections").length > 0) {
             $("#sections").foundation('section', 'reflow');
         }
+        $("#id_login").focus();
     });
     $("#logout-modal").on('opened', function () {
         if ($("#sections").length > 0) {
             $("#sections").foundation('section', 'reflow');
         }
+        $("#id_signout").focus();
     });
     $("#signup-modal").on('opened', function () {
         if ($("#sections").length > 0) {
             $("#sections").foundation('section', 'reflow');
         }
+        $("#id_email").focus();
     });
   </script>
   </body>

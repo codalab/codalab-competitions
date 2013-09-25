@@ -25,7 +25,18 @@
 
 		<form class="login" method="POST" action="{% url 'account_login' %}">
 			{% csrf_token %}
-			{{ form.as_p }}
+            <p>
+                <label for="id_login">Login:</label>
+                <input id="id_login" name="login" placeholder="Username or e-mail" type="text"  autofocus="autofocus"></input>
+            </p>
+            <p>
+                <label for="id_password">Password:</label>
+                <input id="id_password" name="password" placeholder="Password" type="password" />
+            </p>
+            <p>
+                <label for="id_remember">Remember Me:</label>
+                <input id="id_remember" name="remember" type="checkbox" />
+            </p>
 			{% if redirect_field_value %}
 			<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
 			{% endif %}
@@ -35,7 +46,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<a data-reveal-id="signup-modal" data-reveal-ajax="true" href="{{signup_url}}">Sign up</a> if you don't have an account.
+    			<a data-reveal-id="signup-modal" data-reveal-ajax="true" href="{{signup_url}}{% if "modal" in view.request.GET %}?modal=on{% endif %}">Sign up</a> if you don't have an account.
 			</div>
 		</form>
     </div>

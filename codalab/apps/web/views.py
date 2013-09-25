@@ -1,4 +1,6 @@
 import datetime
+import StringIO
+import csv
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -179,6 +181,52 @@ class CompetitionResultsPage(TemplateView):
         context['groups'] = phase.scores()
         return context
 
+class CompetitionResultsDownload(View):
+
+    def get(self,request,*args,**kwargs):
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        groups = phase.scores()
+
+        csvfile = StringIO.StringIO()
+        csvwriter = csv.writer(csvfile)
+
+        for group in groups:
+            csvwriter.writerow([group['label']])
+            csvwriter.writerow([])
+            
+            headers = ["User"]
+            sub_headers = [""]
+            for header in group['headers']:
+                subs = header['subs']
+                if subs:
+                    for sub in subs:
+                        headers.append(header['label'])
+                        sub_headers.append(sub['label'])
+                else:
+                    headers.append(header['label'])
+            csvwriter.writerow(headers)
+            csvwriter.writerow(sub_headers)
+
+            if len(group['scores']) <= 0:
+                csvwriter.writerow(["No data available"])
+            else:
+                for pk,scores in group['scores']:
+                    row = [ scores['username'] ]
+                    for v in scores['values']:
+                        if 'rnk' in v:
+                            row.append("%s (%s)" % (v['val'], v['rnk']))
+                        else:
+                            row.append("%s (%s)" % (v['val'], v['hidden_rnk']))
+                    csvwriter.writerow(row)
+
+            csvwriter.writerow([])
+            csvwriter.writerow([])
+                    
+        response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=test.csv"
+        return response
+
 ### Views for My Codalab
 
 class MyIndex(LoginRequiredMixin):
@@ -277,17 +325,6 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
                                                            
         
-class SubmissionsTest(TemplateView):
-    template_name = 'web/my/submissions_test.html'
-
-    def get_context_data(self):
-        ctx = super(SubmissionsTest,self).get_context_data()
-
-        ctx['phase_id'] = self.kwargs.get('phase_id')
-        ctx['participant_id'] = self.kwargs.get('participant_id')
-        
-        return ctx
-
 class VersionView(TemplateView):
     template_name='web/project_version.html'
 

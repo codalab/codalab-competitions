@@ -10,13 +10,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
-
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
+    #permission_classes = (permissions.IsAuthenticated)
 
-    def destroy(self, request, pk):
+    #@action(permission_classes=[permissions.IsAuthenticated])
+    @method_decorator(login_required)
+    def destroy(self, request, pk, *args,**kwargs):
         """
         Cleanup the destruction of a competition.
 
@@ -25,10 +29,16 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         """
         # Get the competition
         c = webmodels.Competition.objects.get(id=pk)
-        c.delete()
 
-        # for each phase, cleanup the leaderboard and submissions
-        return Response(json.dumps({'id' : pk}), content_type="application/json")
+        # Create a blank response
+        response = {}
+        if self.request.user == c.creator:
+            c.delete()
+            response['id'] = pk
+        else:
+            response['status'] = 403
+
+        return Response(json.dumps(response), content_type="application/json")
 
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
@@ -64,7 +74,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST','PUT'], permission_classes=[permissions.IsAuthenticated])
     def participation_status(self,request,pk=None):
-        print "made it into handler"
         comp = self.get_object()
         resp = {}
         status = request.DATA['status']

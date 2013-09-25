@@ -1,5 +1,5 @@
 $background: #739CB9;
-$foreground: white;
+$foreground: #fff;
 $banner: #F5F5F5;
 $highlight: #739CB9;
 $active: #676278;
@@ -84,6 +84,11 @@ $side-nav-font-size: 15px;
 	font-weight: normal;
 }
 
+body.body
+{
+	position:static;
+}
+
 select {
 	color: $dark-gray;
 }
@@ -94,7 +99,7 @@ form textarea {
 }
 
 .menu-icon {
-	background: $background;
+	background: $foreground;
 }
 
 .menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
@@ -719,4 +724,9 @@ div.pending-approval-select.columns {
 			overflow: hidden;
 		}
 	}
+}
+.anchor {
+    position: relative;
+    margin-top:-155px;
+	float:left;
 }
