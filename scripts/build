@@ -9,7 +9,7 @@ REQ_DIR=$PROJECT_DIR/requirements/
 
 VENV_DIR=$ROOT_DIR/venv
 WHEEL_DIR=$ROOT_DIR/wheel_packages
-PIP_CMD="pip wheel --wheel-dir=$ROOT_DIR/wheel_packages"
+PIP_CMD="pip wheel --wheel-dir=$WHEEL_DIR"
 
 
 VERSION_FILE=$PROJECT_DIR/codalab/settings/version.py
@@ -30,18 +30,23 @@ OUTFILE=$3
 
 if [ -z "$REQS" ] || [ -z "$CONFIG" ] || [ -z "$OUTFILE" ]; then echo "Need to specify REQS and CONFIG an OUTFILE" && exit 1 ; fi
 
-virtualenv $VENV_DIR && source $VENV_DIR/bin/activate
+virtualenv $VENV_DIR
+set +o nounset 
+source $VENV_DIR/bin/activate
+set -o nounset
 source $THIS_DIR/base_pip_requirements
 
-# remove possible stale entries
+# remove possible stale packages
 if [ -d "$WHEEL_DIR" ] ; then
  rm -rf "$WHEEL_DIR"/* 
 fi
 
 $PIP_CMD -r $REQ_DIR/$REQS
-$PIP_CMD -U --force-reinstall $CONFIG
+$PIP_CMD  $CONFIG
 
+set +o nounset
 deactivate
+set -o nounset
 # Remove VEVN dir before makeing tarball
 if [ -d "$VENV_DIR" ] ; then
  rm -rf "$VENV_DIR"/* 
