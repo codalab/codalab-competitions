@@ -817,7 +817,8 @@ class CompetitionDefBundle(models.Model):
                     # Create the score definition
                     is_computed = 'computed' in vals
                     sort_order = 'desc' if 'sort' not in vals else vals['sort']
-                    sdefaults = dict(label=vals['label'],numeric_format="2",show_rank=not is_computed,sorting=sort_order)
+                    numeric_format = vals['numeric_format'] or "2"
+                    sdefaults = dict(label=vals['label'],numeric_format=numeric_format,show_rank=not is_computed,sorting=sort_order)
                     if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 

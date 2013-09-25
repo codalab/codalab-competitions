@@ -56,3 +56,4 @@ leaderboard:
             group: *RESULTS
             label: Difference
             rank: 1
+            numeric_format: 6
