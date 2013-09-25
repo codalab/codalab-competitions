@@ -4,6 +4,8 @@ test for competition creation via api
 """
 import sys, os.path, os, random, datetime
 from django.utils import timezone
+from django.core import management
+
 # This is a really, really long way around saying that if the script is in
 #  codalab\scripts\users.py, we need to add, ../../../codalab to the sys.path to find the settings
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
@@ -21,6 +23,7 @@ from django.core.files import File
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
+from django.core import management
 
 from apps.web.models import *
 
@@ -36,12 +39,12 @@ guest1 = User.objects.get(username="guest1")
 
 
 class CompetitionsPhase(TestCase):
-    #def setUp(self):
-    #    self.user = User.objects.create(email='test@user.com',username='testuser')
-    #    ParticipantStatus.objects.get_or_create(name='Pending',codename=ParticipantStatus.PENDING)
-    #    self.test_data_path = settings.TEST_DATA_PATH
-    #    management.call_command('create_competition', title='Test Title', description='Test Description',creator=self.user.email)
-    #    self.competitions = [x.id for x in Competition.objects.all()]
+    def setUp(self):
+        self.user = User.objects.create(email='test@user.com',username='testuser')
+        ParticipantStatus.objects.get_or_create(name='Pending',codename=ParticipantStatus.PENDING)
+        self.test_data_path = settings.TEST_DATA_PATH
+        management.call_command('create_competition', title='Test Title', description='Test Description',creator=self.user.email)
+        self.competitions = [x.id for x in Competition.objects.all()]
 
 
     def create_base_competition(self):
