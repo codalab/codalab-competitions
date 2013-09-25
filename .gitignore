@@ -70,6 +70,7 @@ venv/*/*
 *.sql
 *.sqlite*
 *.db
+*.pid
 
 # Generated data files #
 ########################
