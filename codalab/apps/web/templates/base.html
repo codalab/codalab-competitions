@@ -40,9 +40,12 @@
     {% endcompress %}
   {% endblock css %}
 
-  {% block extra_headers %}{% endblock extra_headers %}
+  {% block extra_headers %}
+  {% endblock extra_headers %}
+
   {% analytical_head_top %}
   {% analytical_head_bottom %}
+
   <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
   <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script> 
 </head>
@@ -69,9 +72,9 @@
                   <form action="/search" method="get">
                     <input name="query" type="search" placeholder="Search">
                   </form>
-                </li> -->
-                <!--   //////// COMMENTED OUT FOR NOW
-                <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li>   /////// -->             
+                </li> 
+-->
+                <!-- <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> -->             
                 <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
                 {% if user.is_authenticated %}
                   <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
@@ -100,20 +103,21 @@
         </div>
         <!-- End Nav -->
 
-
-        {% block nosubheader %}
-              {% block subheader %} 
-                <div class="header-title-bg">
-                  <div class="large-12 columns">
-                    <div class="row">
+    {% if "modal" not in view.request.GET %}
+            {% block nosubheader %}
+                  {% block subheader %} 
+                    <div class="header-title-bg">
                       <div class="large-12 columns">
-                        <h1> {% block page_title %}{% endblock page_title %} </h1>
+                        <div class="row">
+                          <div class="large-12 columns">
+                            <h1> {% block page_title %}{% endblock page_title %} </h1>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              {% endblock subheader %}
-        {% endblock nosubheader %}
+                  {% endblock subheader %}
+            {% endblock nosubheader %}
+    {% endif %} 
 
         {% block hero_subheader %}
         {% endblock hero_subheader %}
@@ -126,6 +130,7 @@
   </div>
     <!-- End Main Content and Sidebar -->
 
+{% if "modal" not in view.request.GET %}
     <!-- Footer -->
     <footer id="footer">
         <div class="small-6 columns">
@@ -154,6 +159,7 @@
           </ul>
         </div>
     </footer>
+ {% endif %} 
 
 
     <!-- Check for Zepto support, load jQuery if necessary -->
