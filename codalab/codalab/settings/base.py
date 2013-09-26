@@ -51,7 +51,7 @@ class Base(Settings):
                    'celery': ['localhost'],
                    }
    
-   AUTH_USER_MODEL = 'authenz.User'
+   AUTH_USER_MODEL = 'authenz.ClUser'
 
    CODALAB_VERSION = __version__
 
@@ -235,7 +235,7 @@ class Base(Settings):
     'apps.authenz',
     'apps.api',
     'apps.web',
-    'apps.common',
+    # 'apps.common',
 
     # Authentication app, enables social authentication
     'allauth',

@@ -7,5 +7,5 @@ from django.contrib.auth import models as auth_models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-class User(auth_models.AbstractUser):
+class ClUser(auth_models.AbstractUser):
     pass
