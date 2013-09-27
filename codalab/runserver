@@ -5,6 +5,7 @@ pushd `pwd` > /dev/null
 cd $THIS_DIR
 
 source ./config/generated/startup_env.sh
+source ../venv/bin/activate
 echo " .... "
 echo "$DJANGO_CONFIGURATION Configuration"
 echo " .... "
