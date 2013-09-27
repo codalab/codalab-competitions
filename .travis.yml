@@ -8,5 +8,5 @@ install:
   - pip install -r codalab/requirements/dev_azure_nix.txt --use-mirrors
 script:
   - cd codalab
-  - python manage.py test apps/authenz
+  - python manage.py test
 
