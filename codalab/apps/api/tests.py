@@ -34,10 +34,6 @@ User = get_user_model()
 current_time = timezone.now()
 start_date = current_time - datetime.timedelta(days=1)
 
-# Get a user to be the creator
-guest1 = User.objects.get(username="guest1")
-
-
 class CompetitionsPhase(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='test@user.com',username='testuser')
@@ -45,12 +41,13 @@ class CompetitionsPhase(TestCase):
         self.test_data_path = settings.TEST_DATA_PATH
         management.call_command('create_competition', title='Test Title', description='Test Description',creator=self.user.email)
         self.competitions = [x.id for x in Competition.objects.all()]
-
+        # Get a user to be the creator
+        self.guest1 = User.objects.create(username="guest1")
 
     def create_base_competition(self):
         title = "Single-phase competition example"
         description = "This is an example of a single-phase competition."
-        competition,created = Competition.objects.get_or_create(title=title, creator=guest1, modified_by=guest1, description=description)
+        competition,created = Competition.objects.get_or_create(title=title, creator=self.guest1, modified_by=self.guest1, description=description)
         competition.save()
         return competition;
         
@@ -67,8 +64,6 @@ class CompetitionsPhase(TestCase):
             phases.append(p);
             
         self.assertEqual(len(phases), 3)
-
-
                          
     # create three phases, the middle phase should be active
     def test_three_phase_middle_active(self):
