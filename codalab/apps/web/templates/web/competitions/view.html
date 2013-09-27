@@ -12,7 +12,7 @@
                     {% if competition.image_url %}
                     <img id="imgProfileImage" src="{{ competition.image_url }}">
                     {% else %}
-                    <img id="imgProfileImage" src="{% static "site/Images/ProfileImageDummy.jpg" %}">
+                    <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
                     {% endif %}
                 </figure>
                 <div class="competitionsHeaderTitle">
@@ -30,7 +30,7 @@
                             <div class="challStatusStripLevel">
                             </div>
                             <section class="challStatusStripSection">
-                                {% for phase in competition.phases.all %}
+                            {% for phase in competition.phases.all %}
                                 {% if phase.is_active %}
                                 <section class="currentPhase">
                                 {% else %}
@@ -40,7 +40,7 @@
                                         <br>
                                         <span>{{phase.start_date}}</span>
                                 </section>
-                                {% endfor %}
+                            {% endfor %}
                                 <section>
                                         <span class="phaseLabel">Competition Ends</span> 
                                         <br>
@@ -124,5 +124,5 @@
 {% endblock content %}
 
 {% block jsincludes %}
-<script type="text/javascript" src="{% static "site/js/Competition.js" %}"></script>
+<script type="text/javascript" src="{% static "js/Competition.js" %}"></script>
 {% endblock jsincludes %}

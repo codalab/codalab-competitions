@@ -1,12 +1,7 @@
-﻿/*css reset--------------------------------------*/
+/*css reset--------------------------------------*/
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article { 
 	margin:0;
 	padding:0;
-}
-
-#lblLastModifiedDate {
-    padding: 0px;
-    margin: 0px;
 }
 *{
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -98,24 +93,16 @@ body
     position:relative; 
     overflow-y:scroll;
 }
-.preloader,.buttonPreloader,.competitionPreloader
-{
-    background:url('../Images/PreloaderTransp.gif') no-repeat center center; 
+.preloader, .buttonPreloader, .competitionPreloader {
+    background:url('../img/PreloaderTransp.gif') no-repeat center center; 
     width:30px;
     height:30px;
     margin:30% auto;
     z-index:10;
     display:none
 }
-.coloumPreloader {
-    background:url('../Images/PreloaderTransp.gif') no-repeat center center; 
-    width:30px;
-    height:30px;
-    margin-left:50%;
-}
-.preloaderInput,.buttonPreloaderInput,.buttonPreloaderTxtArea,.preloaderInputImg
-{
-    background:url('../Images/Preloader_Small.gif') no-repeat center center; 
+.preloaderInput, .buttonPreloaderInput, .buttonPreloaderTxtArea, .preloaderInputImg {
+    background:url('../img/Preloader_Small.gif') no-repeat center center; 
     text-align:left;
     width:22px;
     height:22px;
@@ -124,24 +111,22 @@ body
     vertical-align:top;
     display:none
 }
-.preloaderInputImg{
+.preloaderInputImg {
     position:relative;
     top:4px;
 }
-.buttonPreloaderInput
-{
+.buttonPreloaderInput {
     position:absolute;
     left:-5px;
     top:2px;
 }
-.buttonPreloaderTxtArea
-{
+.buttonPreloaderTxtArea {
     position:absolute;
     left:45%;
     top:55%;
 }
 .preloader {
-    background:url('../Images/Preloader_Medium.gif') no-repeat center center;
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
     left:50%;
     top:80px;
     width:50px;
@@ -157,7 +142,7 @@ body
     top:7px;
 }
 .competitionPreloader {
-    background:url('../Images/Preloader_Medium.gif') no-repeat center center;
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
     width:50px;
     height:50px;
     position:absolute;
@@ -178,338 +163,9 @@ h4
     color:#777;
     padding:10px 0;
 }
-.disabledStatus
-{
-    opacity:.4;
-    filter: alpha(opacity=40);
-    cursor:default !important;
-}
-.statusAproved
-{
-    background:#78b011 !important;
-}
-.statusPending
-{
-    background:#07b4db !important;
-}
-.statusRejected
-{
-    background:#f1702f !important;
-}
+
 /*common-----------------------------------------*/
 
-/*popup-----------------------------------------*/
-.grayOverlaper
-{
-    position:absolute;
-    left:0;
-    top:0;
-    bottom:0;
-    right:0;
-    background:#000;
-    opacity:.6;
-    filter: alpha(opacity=60);
-    display:none;
-    z-index:1000;
-}
-.popupContainer
-{
-    height:300px;
-    width:600px;
-    position:absolute;
-    left:30%;
-    top:25%;
-    z-index:1010;
-    display:none;
-}
-.popupContainerBorder
-{
-    background:#fff;
-    height:214px;
-    width:548px;
-    margin:auto;
-    position:relative;
-    z-index:1040;
-    top:40px;
-    padding:20px;
-    border:solid 1px #2a2a2c
-}
-.popupBlock
-{
-    height:164px;
-}
-.popupContainer span
-{
-    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size:100%;
-    font-weight:normal;
-    color:#777;
-}
-/*Uploadpopup-----------------------------------*/
-.uploadpopup {
-    position:absolute;
-    left:50%;
-    top:25%;
-    margin-left:-350px;
-    display:none;
-}
-.uploadpopupBlock{
-    position:relative;
-    padding:10px;
-    
-}
-.uploadpopupBlock:after{
-    content:'';
-    background:#535353;
-    position:absolute;
-    top:0px;
-    left:0px;
-    bottom:0px;
-    right:0px;
-    opacity:0.8;
-    -webkit-border-radius:8px;
-    -moz-border-radius:8px;
-    border-radius:8px
-    
-}
-.uploadpopupcontainer{
-    background:#fff;
-    position:relative;
-    z-index:1;
-    margin:4px;
-    padding:20px;
-    width:700px;
-    -webkit-border-radius:5px;
-    -moz-border-radius:5px;
-    border-radius:5px
-}
-.uploadpopup h3 {
-    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#07b4db;
-}
-/*Uploadpopup-----------------------------------*/
-/*popup-----------------------------------------*/
-/*fonts-----------------------------------------*/
-/*@font-face {
-    font-family: Bebas;
-    src: url('../Fonts/BEBAS___.ttf'), url('../fonts/segoeui.eot');
-}*/
-/*fonts-----------------------------------------*/
-
-/*SpriteImage-----------------------------------*/
-/*SpriteImage-----------------------------------*/
-
-/*responsive Layout-----------------------------*/
-
-/* normal screens ----------- */
-@media only screen and (min-width : 1025px) {
-    body {
-        min-width:950px !important;
-    }
-    .headerContent,.mainContainer {
-        width:950px !important; 
-    }
-    .CompetitionProcessTab .competitionProcessHeader > ul {
-        width:950px !important;
-    }
-    .competitionProcessHeader
-    {
-        padding:6px 0 !important;
-    }
-}
-/* normal screens ----------- */
-@media only screen and (min-width : 1224px) {}
-
-/* Large screens ----------- */
-@media only screen and (min-width : 1499px) {}
-/*responsive Layout-----------------------------*/
-.bodyWraper {
-    overflow:hidden;
-}
-/*Header----------------------------------------*/
-header {
-    height:58px;
-    padding:8px 0 20px 0;
-    margin:auto;
-    background:#739CB9;
-    overflow:hidden;
-}
-.headerContent {
-    width:1000px;
-    margin:auto;
-}
-.navContainer {clear:both;}
-.logo {
-    background:url('../Images/logo.png') no-repeat center top;
-    float:left;
-    width:139px;
-    height:33px;
-}
-header nav {
-    float:left;
-}
-ul.headerNavigation{
-    float:left;
-    margin-top:12px;
-}
-ul.headerNavigation li{
-    float:left;
-    padding:2px 18px 5px;
-    cursor:pointer;
-}
-ul.headerNavigation li:first-child{ 
-    padding-left:0;
-}
-ul.headerNavigation li a{
-    display:block;
-    color:#fff;
-    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    text-decoration:none;
-    border-bottom:solid 7px #739CB9;
-    padding-bottom:1px;
-    text-transform:lowercase;
-}
-ul.headerNavigation li:hover a,ul.headerNavigation li a:active{
-    border-bottom:solid 7px #78ade6;
-    background:none;
-}
-ul.headerNavigation li.active a {
-    border-bottom:solid 7px #ffac31;
-}
-.searchArea {
-    float:right;
-    overflow:hidden;
-    margin-top:4px;
-}
-.searchBar {
-    width:318px;
-    height:30px;
-    background: #f5f5f5;
-    border:solid 1px #739CB9;
-
-}
-.searchBar input[type="text"] {
-    padding:5px;
-    width:80%;
-    border:0;
-    background:none;
-    color:#666;
-}
-.searchBar input[type="button"] {
-    height:26px;
-    width:26px;
-    background:url('../Images/search.png') no-repeat center top;
-    border:0;
-    float:right;
-    margin:3px 5px 0 0;
-    cursor:pointer;
-}
-.loginArea {
-    float:right;
-    width:350px;
-}
-.socialNetworkBlock {
-    overflow:hidden;
-    float:left;
-    margin:8px 0 0 20px;
-}
-.socialNetworkBlock .twitIcon,.socialNetworkBlock .fBIcon {
-    background:url('../Images/FBIcon.jpg') no-repeat center top;
-    width:20px;
-    height:20px; 
-    float:left;
-    margin-left:4px;
-    cursor:pointer;
-    margin-top:4px;
-}
-.socialNetworkBlock .fBIcon {
-    background:url('../Images/twitIcon.jpg') no-repeat center top;
-}
-/*Header----------------------------------------*/
-/*loggin Container------------------------------*/
-.loginContainer
-{
-     display:table-cell;
-     vertical-align:top;
-     width:420px;
-}
-.loginImageArea{
-    display:table-cell;
-    vertical-align:top;
-    padding-right:50px;
-}
-.loginAreaBlock{
-    display:table;
-    width:100%;
-}
-.loginImageArea img {
-    padding: 30px 0 0 70px;
-}
-.loginContainer h1,.formRegister h1
-{
-    font:bold 18px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#666;
-    padding-bottom:15px;
-}
-.loginContainer h2,.formRegister h2
-{
-    font:lighter 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#666;
-    padding-bottom:10px;
-}
-.loginContainer p,.formRegister p
-{
-    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#666;
-    padding-bottom:10px;
-}
-.loginContainer p a,.formRegister p a
-{
-    color:#ffac31;
-}
-.loginContainer legend,.formRegister legend
-{
-    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#666;
-}
-.loginContainer li,.formRegister li,.validation-summaryCont li
-{
-    padding:5px 0;
-}
-.loginContainer li label,.formRegister li label,.validation-summaryCont li label
-{
-    font:normal 12px/24px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#666;
-    display:block;
-}
-.validation-summaryCont li label
-{
-    width:150px;
-}
-.loginContainer input[type="text"],.formRegister input[type="text"],.loginContainer input[type="password"],.formRegister input[type="password"], .validation-summaryCont input[type="password"]
-{
-    padding:5px 10px;
-    width:96%;
-    border:solid 1px #e4e9ee;
-
-}
-.loginContainer input[type="text"]:focus,.formRegister input[type="text"]:focus,.loginContainer input[type="password"]:focus,.formRegister input[type="password"]:focus, .validation-summaryCont input[type="password"]:focus{
-    border-color:#ffac31;
-}
-.validation-summary-errors li
-{
-    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#f1702f
-}
-.username
-{
-    color:#50e0fb !important;
-}
-.field-validation-error span{
-    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color:#fe500e;
-}
-/*loggin Container------------------------------*/
 /*Button----------------------------------------*/
 input[type="submit"],input[type="submit"][value="Delete"]
 {
@@ -736,7 +392,7 @@ input[type="submit"][value="Delete"]
 
 /*Banner----------------------------------------*/
 .banner {
-    background:#787878 url('../Images/BnrImg_1.jpg') no-repeat center top;
+    background:#787878 url('../img/BnrImg_1.jpg') no-repeat center top;
     height:340px;
 }
 /*Banner----------------------------------------*/
@@ -1051,7 +707,7 @@ input[type="submit"][value="Delete"]
     min-height:43px;
 }
 .subContainer figure.articleImage {
-    background:url('../Images/DummyImage.jpg') no-repeat center top;
+    background:url('../img/DummyImage.jpg') no-repeat center top;
     margin-bottom:0;
 
     /*background:#50E0FB;
@@ -1068,7 +724,7 @@ figure.userImage {
     display:inline;
 }
 .userSocialNetworkBlock .twitIcon,.userSocialNetworkBlock .fBIcon,.userSocialNetworkBlock .linkedIcon {
-    background:url('../Images/FBIcon.jpg') no-repeat center top;
+    background:url('../img/FBIcon.jpg') no-repeat center top;
     width:20px;
     height:20px; 
     float:left;
@@ -1077,14 +733,14 @@ figure.userImage {
     margin-top:4px;
 }
 .userSocialNetworkBlock .fBIcon {
-    background:url('../Images/twitIcon.jpg') no-repeat center top;
+    background:url('../img/twitIcon.jpg') no-repeat center top;
 }
 .userSocialNetworkBlock .linkedIcon {
-    background:url('../Images/twitIcon.jpg') no-repeat center top;
+    background:url('../img/twitIcon.jpg') no-repeat center top;
 }
 .userSocialNetworkBlock > div:last-child{ margin-right:0;}
 .subContainer:nth-child(2) figure.articleImage {
-    background:url('../Images/xray2.jpg');
+    background:url('../img/xray2.jpg');
 }
 .subContainer > div {
     display:table-cell;
@@ -1294,20 +950,20 @@ div.articleImageContainer
     float:left;
     margin:0;
     cursor:pointer;
-    background:url('../Images/TabSprite.png') no-repeat left top;
+    background:url('../img/TabSprite.png') no-repeat left top;
     position:relative;
     min-width:55px;
     padding-left:10px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li a{
-    background:url('../Images/TabSprite.png') repeat-x left -34px;
+    background:url('../img/TabSprite.png') repeat-x left -34px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li div
 {
     height:16px;
     width:16px;
     position:absolute;
-    background:url('../Images/notification.png') no-repeat left center;
+    background:url('../img/notification.png') no-repeat left center;
     left:25px;
     top:-8px;
 }
@@ -1331,16 +987,16 @@ div.articleImageContainer
     display:none;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover{
-    background:url('../Images/TabSprite.png') no-repeat left -220px;
+    background:url('../img/TabSprite.png') no-repeat left -220px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover a{
-    background:url('../Images/TabSprite.png') repeat-x left -254px;
+    background:url('../img/TabSprite.png') repeat-x left -254px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-state-active {
-    background:url('../Images/TabSprite.png') repeat-x left -108px;
+    background:url('../img/TabSprite.png') repeat-x left -108px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li span,.ui-state-default span{
-    background:url('../Images/TabSprite.png') no-repeat left -69px;
+    background:url('../img/TabSprite.png') no-repeat left -69px;
     position:absolute;
     right:-20px;
     width:20px;
@@ -1350,13 +1006,13 @@ div.articleImageContainer
     display:block;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:hover  span {
-    background:url('../Images/TabSprite.png') no-repeat left -289px;
+    background:url('../img/TabSprite.png') no-repeat left -289px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate a, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected a{
-    background:url('../Images/TabSprite.png') repeat-x left -145px;
+    background:url('../img/TabSprite.png') repeat-x left -145px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li.compleate span, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected span{
-    background:url('../Images/TabSprite.png') no-repeat left -181px;
+    background:url('../img/TabSprite.png') no-repeat left -181px;
 }
 .CompetitionProcessTab .competitionProcessHeader > ul > li:first-child {
     margin-left:0;
@@ -1425,7 +1081,7 @@ div.articleImageContainer
     width:73%;
 }
 .CompetitionTypeDetailrow .thumbView {
-    background:url('../Images/thumbIcon.png') no-repeat right center;
+    background:url('../img/thumbIcon.png') no-repeat right center;
     width:53px;
     height:42px;
     float:left;
@@ -1520,13 +1176,13 @@ div.articleImageContainer
 }
 .CompetitionsDetailRit figure {
     height:115px;
-    background:url('../Images/contentImg.jpg') left -170px;
+    background:url('../img/contentImg.jpg') left -170px;
     margin-bottom:20px;
 }
 .CompetitionsDetailImg {
     height:238px;
     width:238px;
-    background:url('../Images/demoImageDetail.jpg');
+    background:url('../img/demoImageDetail.jpg');
     margin-right:10px;
     float:right;
     clear:both;
@@ -1584,7 +1240,7 @@ div.articleImageContainer
 .currentPhase {
     color: #739cb9 !important;
     text-indent: 12px;
-    background: url('../Images/triangle_phase.png') no-repeat 10px 8px;
+    background: url('../img/triangle_phase.png') no-repeat 10px 8px;
 }
 .testingStarts {
     float:right;
@@ -1902,7 +1558,7 @@ font-weight:normal !important;
 }
 .textEditorLftTab > li a
 {
-    background:url('../Images/IconSpriteImage.png') no-repeat 2px 5px;
+    background:url('../img/IconSpriteImage.png') no-repeat 2px 5px;
 }
 .textEditorLftTab > li label,.textEditorLftTab > li.active label
 {
@@ -2097,14 +1753,14 @@ code {
     height:24px;
     width:24px;
     vertical-align:top;
-    background:url('../Images/collapse.png') no-repeat -5px -5px;
+    background:url('../img/collapse.png') no-repeat -5px -5px;
     cursor:pointer;
 }
 .toggleIconColp{
-    background:url('../Images/expand.png') no-repeat -5px -5px;
+    background:url('../img/expand.png') no-repeat -5px -5px;
 }
 .leaderboardOk {
-    background:url('../Images/statusIconOk.png') no-repeat center center;
+    background:url('../img/statusIconOk.png') no-repeat center center;
     cursor:default;
 }
 .leaderboardHidden{
@@ -2157,7 +1813,7 @@ code {
     height:16px;
     width:16px;
     float:left;
-    background:url('../Images/calendar.png') no-repeat center center;
+    background:url('../img/calendar.png') no-repeat center center;
     position:relative;
     left:-30px;
     top:6px;
@@ -2215,7 +1871,7 @@ code {
     left:35px;
 }
 .phaseLegendContainer .legend{
-    background:url('../Images/selectedRowBlue.png') no-repeat left center;
+    background:url('../img/selectedRowBlue.png') no-repeat left center;
     font-size:13px;
     padding-left:25px;
     height:22px;
@@ -2240,7 +1896,7 @@ code {
     height:16px;
     width:16px;
     float:left;
-    background:url('../Images/aciveimg.png') no-repeat center center;
+    background:url('../img/aciveimg.png') no-repeat center center;
     margin-left:5px;
     margin-top:6px;
 }
@@ -2302,14 +1958,14 @@ body .ui-datepicker td span, body .ui-datepicker td a {
     width: 17em;
 }
 body .ui-datepicker-next span{
-    background:url('../Images/next.png') no-repeat center center;
+    background:url('../img/next.png') no-repeat center center;
     text-indent:-99999px;
     height: 16px;
     width: 16px;
     cursor:pointer;
 }
 body .ui-datepicker-prev span{
-    background:url('../Images/prev.png') no-repeat center center;
+    background:url('../img/prev.png') no-repeat center center;
     text-indent:-99999px;
     height: 16px;
     width: 16px;
@@ -2346,14 +2002,14 @@ body .ui-datepicker-prev span{
     top:110px;
 }*/
 .stepNotification,.stepNotificationDone{
-    background:url('../Images/StepTodo.png') no-repeat center center;
+    background:url('../img/StepTodo.png') no-repeat center center;
     height:45px;
     width:45px;
     margin-left:-36px;
     margin-top:-36px;
 }
 .stepNotificationDone {
-    background:url('../Images/StepDone.png') no-repeat center center;
+    background:url('../img/StepDone.png') no-repeat center center;
 }
 .CompetitionTypeDetailrowDate > section{
     display:table;
@@ -2374,7 +2030,7 @@ body .ui-datepicker-prev span{
 }
 .expCollDatasetExp,.expCollDatasetColl
 {
-    background:url('../Images/expand_colapse.png');
+    background:url('../img/expand_colapse.png');
     height:26px;
     width:26px;
     display:inline-block;
@@ -2384,7 +2040,7 @@ body .ui-datepicker-prev span{
 }
 .expCollDatasetColl
 {
-    background:url('../Images/expand_colapse_Coll.png');
+    background:url('../img/expand_colapse_Coll.png');
 }
 .downloadedDataset th,.downloadedDataset td{
     padding:8px 10px;
@@ -2548,7 +2204,7 @@ ul.leftNavigation li.active a{
     height:20px;
     width:20px;
     float:right;
-    background:url('../Images/selectedRow.png') no-repeat center center;
+    background:url('../img/selectedRow.png') no-repeat center center;
     margin-right:5px;
 }
 .mainPageContainer .rightContentArea ul,.mainPageContainer .rightContentArea ol{
@@ -2683,14 +2339,14 @@ ul.leftNavigation li.active a{
    margin-right:0;
 }
 .helpLinkIcon,.helpLinkEdit{
-    background:url('../Images/helpicon2.png') no-repeat center center;
+    background:url('../img/helpicon2.png') no-repeat center center;
     height:18px;
     width:18px;
     display:inline-block;
     margin-top:5px;
 }
 .helpLinkIcon:hover {
-    background: url('../Images/helpicon.png') no-repeat center center;
+    background: url('../img/helpicon.png') no-repeat center center;
 }
 .helpLinkEdit{
     position:relative;
@@ -2768,10 +2424,10 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding: 15px;
 }
 .slider {     /* Temporary homepage slider background */
-    background: url('../Images/slider_exp_comp.gif') repeat-x top left !important;
+    background: url('../img/slider_exp_comp.gif') repeat-x top left !important;
 }
 .header-title-bg {
-    background: url('../Images/tiled-header-bg.gif') repeat-x top left;
+    background: url('../img/tiled-header-bg.gif') repeat-x top left;
     height: 80px;
     width: 100%
     position: absolute;
@@ -2856,7 +2512,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     cursor: pointer;
 }
 .icon_excel {
-    background: url('../Images/icon_excel.png') no-repeat 15px;
+    background: url('../img/icon_excel.png') no-repeat 15px;
     min-height: 32px;
     padding-top: 8px;
 }
