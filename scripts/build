@@ -6,7 +6,8 @@ source $THIS_DIR/_vars.sh
 source $THIS_DIR/create_version
 popd > /dev/null
 
-for CVAR in DJANGO_CONFIGURATION DJANGO_SETTINGS_MODULE CONFIG_REQ CONFIG_MODULE_PATH
+CONFIG_MODULE_PATH=${CONFIG_MODULE_PATH:-""}
+for CVAR in DJANGO_CONFIGURATION DJANGO_SETTINGS_MODULE CONFIG_REQ
 do
   if [ -z $(eval echo \$$CVAR) ] ; then
     echo "Need to specify $CVAR"
@@ -14,11 +15,12 @@ do
 done
 
 echo "Settings: ($DJANGO_CONFIGURATION) ($DJANGO_SETTINGS_MODULE) ($CONFIG_REQ) ($CONFIG_MODULE_PATH)"
-CONFIG_MODULE_PATH=$(readlink -f $CONFIG_MODULE_PATH)
-if [ ! -x "$CONFIG_MODULE_PATH" ] ; then
-  echo "Configuration module path is not valid"
+if [ ! -z "$CONFIG_MODULE_PATH" ] ; then
+  CONFIG_MODULE_PATH=$(readlink -f $CONFIG_MODULE_PATH)
+  if [ ! -x "$CONFIG_MODULE_PATH" ] ; then
+    echo "Configuration module path is not valid"
+  fi
 fi
-
 virtualenv $VENV_DIR
 set +o nounset 
 source $VENV_DIR/bin/activate
