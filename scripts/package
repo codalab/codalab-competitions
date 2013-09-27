@@ -1,0 +1,13 @@
+#/bin/bash
+set -eu
+
+set +o nounset
+deactivate
+set -o nounset
+# Remove VEVN dir before makeing tarball
+if [ -d "$VENV_DIR" ] ; then
+ rm -rf "$VENV_DIR"/*
+fi
+
+tar --exclude=.git\* --exclude=\#\* --exclude=\*~  -C $(dirname "$ROOT_DIR") -cvf - $(basename "$ROOT_DIR") | gzip -9 -c > $OUTFILE
+
