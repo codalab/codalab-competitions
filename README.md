@@ -1,4 +1,4 @@
-# CodaLab
+# CodaLab [![Build Status](https://travis-ci.org/codalab/codalab.png?branch=master)](https://travis-ci.org/codalab/codalab)
 
 This is CodaLab. It goes to eleven. Just not yet.
 
