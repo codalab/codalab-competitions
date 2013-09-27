@@ -1,34 +1,23 @@
 #!/bin/bash
 set -eu # Fail on command returning non-zero or unbound variables
-
-THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-PROJECT_DIR=$(readlink -f ../codalab)
-ROOT_DIR=$(readlink -f ..)
-REQ_DIR=$PROJECT_DIR/requirements/
-
-VENV_DIR=$ROOT_DIR/venv
-WHEEL_DIR=$ROOT_DIR/wheel_packages
-PIP_CMD="pip wheel --wheel-dir=$WHEEL_DIR"
-
-
-VERSION_FILE=$PROJECT_DIR/codalab/settings/version.py
 pushd `pwd` > /dev/null
-cd $ROOT_DIR
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-GIT_HASH=$(git rev-parse HEAD)
-GIT_FULL=$(git log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1)
-echo "__version__=\"$GIT_BRANCH\"" > $VERSION_FILE
-echo "__build_date__=\"$(date)\"" >> $VERSION_FILE
-echo "__commit_hash__=\"$GIT_HASH\"" >> $VERSION_FILE
-echo "__version_string__=\"$GIT_FULL\"" >> $VERSION_FILE
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_vars.sh
+source $THIS_DIR/create_version
 popd > /dev/null
 
-REQS=$1
-CONFIG=$2
-OUTFILE=$3
+for CVAR in DJANGO_CONFIGURATION DJANGO_SETTINGS_MODULE CONFIG_REQ CONFIG_MODULE_PATH
+do
+  if [ -z $(eval echo \$$CVAR) ] ; then
+    echo "Need to specify $CVAR"
+  fi
+done
 
-if [ -z "$REQS" ] || [ -z "$CONFIG" ] || [ -z "$OUTFILE" ]; then echo "Need to specify REQS and CONFIG an OUTFILE" && exit 1 ; fi
+echo "Settings: ($DJANGO_CONFIGURATION) ($DJANGO_SETTINGS_MODULE) ($CONFIG_REQ) ($CONFIG_MODULE_PATH)"
+CONFIG_MODULE_PATH=$(readlink -f $CONFIG_MODULE_PATH)
+if [ ! -x "$CONFIG_MODULE_PATH" ] ; then
+  echo "Configuration module path is not valid"
+fi
 
 virtualenv $VENV_DIR
 set +o nounset 
@@ -41,20 +30,18 @@ if [ -d "$WHEEL_DIR" ] ; then
  rm -rf "$WHEEL_DIR"/* 
 fi
 
-$PIP_CMD -r $REQ_DIR/$REQS
-$PIP_CMD  $CONFIG
+$PIP_BUILD_CMD -r $REQ_DIR/$CONFIG_REQ
 
-set +o nounset
-deactivate
-set -o nounset
-# Remove VEVN dir before makeing tarball
-if [ -d "$VENV_DIR" ] ; then
- rm -rf "$VENV_DIR"/* 
-fi
+$PIP_BUILD_CMD $CONFIG_MODULE_PATH
 
-tar --exclude=.git\* --exclude=\#\* --exclude=\*~  -C $(dirname "$ROOT_DIR") -cvf - $(basename "$ROOT_DIR") | gzip -9 -c > $OUTFILE
-
-
-
-
-
+$PIP_INSTALL_CMD $WHEEL_DIR/* 
+cd $PROJECT_DIR
+python ./manage.py config_gen
+echo "Project built and configured"
+echo "Activate the virtualenv:"
+echo " > source $VENV_DIR/bin/activate "
+echo "Use the ./mange script provided to set the environment correctly when running servers"
+echo " > cd $PROJECT_DIR"
+echo " > ./manage runserver"
+echo "In another terminal:"
+echo " > ./mange celery worker"
