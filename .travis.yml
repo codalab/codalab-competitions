@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+branches:
+  only:
+    - master
+install:
+  - pip install -r codalab/requirements/dev_azure_nix.txt --use-mirrors
+script:
+  - python manage.py test apps/authenz
+
