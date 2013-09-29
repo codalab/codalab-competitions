@@ -334,6 +334,7 @@ class VersionView(TemplateView):
         out, err = p.communicate()
         ctx = super(VersionView,self).get_context_data()
         ctx['commit_hash'] = out
+        tasks.echo.delay("version is " + out)
         return ctx
 
 # Bundle Views
