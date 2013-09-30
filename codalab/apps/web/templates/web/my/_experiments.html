@@ -1,3 +1,5 @@
+{% load static %}
+
 {% if not experiments %}
   <p>You have not created any experiments.</p>
 {% else %}
@@ -10,14 +12,18 @@
           <div class="articleTextAreaContainer">
             <div class="articleImageContainer">
               <div class="subContainerPadding">
-                <img src="{{ item.image_url }}" width="100px">
+                {% if item.image_url = None %}
+			    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
+                {% else %}
+			    <img src="{{ item.image_url }}">
+                {% endif %}
               </div>
             </div>
             
             <div class="subContainerPadding">
               <div class="articleHeadingContainer">
                 <h3>{{ item.title }}</h3>
-                <label>{{ item.creator }}</label>
+                <label>Organized by {{ item.creator }}</label>
               </div>
               <p>{{ item.description }}</p>
             </div>

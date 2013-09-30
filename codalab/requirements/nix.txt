@@ -1,4 +1,5 @@
-supervisor==3.0b2
-uWSGI==1.9.14
+supervisor==3.0
+uWSGI==1.9.16
 pycrypto==2.6
-psycopg2>=2.5.1
+MySQL-python
+

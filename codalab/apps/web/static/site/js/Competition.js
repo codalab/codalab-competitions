@@ -12,48 +12,54 @@ var Competition;
         btn.click();
     }
 
-    Competition.loadTabContent = function () {
-        var name = $.trim(window.location.hash).toLowerCase();
-        if (name == "#results") { $('#Results').click(); }
-        if (name == "#participate-submit_results") { $('#Participate').click(); }
+    function decorateLeaderboardButton(btn, submitted) {
+        if (submitted) {
+            btn.removeClass("leaderBoardSubmit");
+            btn.addClass("leaderBoardRemove");
+            btn.text("Remove from Leaderboard");
+        } else {
+            btn.removeClass("leaderBoardRemove");
+            btn.addClass("leaderBoardSubmit");
+            btn.text("Submit to Leaderboard");
+        }
     }
 
-    function addToLeaderboard(competition, submission, cstoken) {
-        var result = 0;
-        url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
+    function updateLeaderboard(competition, submission, cstoken, btn) {
+        var url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
+        var op = 'delete';
+        if (btn.hasClass("leaderBoardSubmit")) {
+            op = 'post';
+        }
         request = $.ajax({
             url: url,
-            type: 'post',
+            type: op,
             datatype: 'text',
             data: {
                 'csrfmiddlewaretoken': cstoken,
             },
             success: function (response, textStatus, jqXHR) {
-                btn.addClass("leaderBoardRemove");
-                btn.text("Remove from Leaderboard");
-
+                var added = op == 'post';
+                if (added) {
+                    var rows = $('#user_results td.status');
+                    rows.removeClass('submitted');
+                    rows.addClass('not_submitted');
+                    rows.html("");
+                    var row = $('#' + submission + ' td.status');
+                    row.addClass('submitted');
+                    row.html('<i class="enclosed-foundicon-checkmark"></i>');
+                    $('#user_results button.leaderBoardRemove').each(function (index) {
+                        decorateLeaderboardButton($(this), false);
+                    });
+                } else {
+                    var row = $('#' + submission + ' td.status');
+                    row.removeClass('submitted');
+                    row.addClass('not_submitted');
+                    row.html("");
+                }
+                decorateLeaderboardButton(btn, added);
             },
             error: function (jsXHR, textStatus, errorThrown) {
-            },
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", cstoken);
-            }
-        });
-    };
-
-    function removeFromLeaderboard(competition, submission, cstoken) {
-        var result = 0;
-        url = "/api/competition/" + competition + "/submission/" + submission + "/leaderboard";
-        request = $.ajax({
-            url: url,
-            type: 'delete',
-            datatype: 'text',
-            data: {
-                'csrfmiddlewaretoken': cstoken,
-            },
-            success: function (response, textStatus, jqXHR) {
-            },
-            error: function (jsXHR, textStatus, errorThrown) {
+                alert("An error occurred. Please try again or report the issue");
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", cstoken);
@@ -70,7 +76,6 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_submissions").html("").append(data);
-
                 $('#fileUploadButton').on('click', function () {
                     var disabled = $('#fileUploadButton').hasClass('disabled');
                     if (!disabled) {
@@ -98,6 +103,7 @@ var Competition;
                         }
                     },
                     success: function (response) {
+                        $("#user_results tr.noData").remove();
                         $("#user_results").append(Competition.displayNewSubmission(response));
                         $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         $('#fileUploadButton').removeClass("disabled");
@@ -134,6 +140,29 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_results").html("").append(data);
+                $(".column-selectable").click(function (e) {
+                    var table = $(this).closest("table");
+                    $(table).find(".column-selected").removeClass();
+                    $(this).addClass("column-selected");
+                    columnId = $(this).attr("name");
+                    var rows = table.find('td').filter(function () {
+                        return $(this).attr("name") === columnId;
+                    }).addClass("column-selected");
+                    var sortedRows = rows.slice().sort(function (a, b) {
+                        var ar = parseInt($.text([$(a).find("span")]));
+                        if (isNaN(ar)) { ar = 100000; }
+                        var br = parseInt($.text([$(b).find("span")]));
+                        if (isNaN(br)) { br = 100000; }
+                        return ar - br;
+                    });
+                    var parent = rows[0].parentNode.parentNode;
+                    var clonedRows = sortedRows.map(function () { return this.parentNode.cloneNode(true); });
+                    for (var i = 0; i < clonedRows.length; i++) {
+                        $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
+                        parent.insertBefore(clonedRows[i], rows[i].parentNode);
+                        parent.removeChild(rows[i].parentNode);
+                    }
+                });
             },
             error: function (xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
@@ -260,19 +289,10 @@ var Competition;
                 btn.removeClass("hide");
                 var submitted = $(nTr).find(".status").hasClass("submitted");
                 var competition = $("#competitionId").val();
-                if (submitted) {
-                    btn.addClass("leaderBoardRemove");
-                    btn.text("Remove from Leaderboard");
-                    btn.on('click', function () {
-                        removeFromLeaderboard(competition, nTr.id, cstoken);
-                    });
-                } else {
-                    btn.addClass("leaderBoardSubmit");
-                    btn.text("Submit to Leaderboard");
-                    btn.on('click', function () {
-                        addToLeaderboard(competition, nTr.id, cstoken);
-                    });
-                }
+                decorateLeaderboardButton(btn, submitted);
+                btn.on('click', function () {
+                    updateLeaderboard(competition, nTr.id, $("#cstoken").val(), btn);
+                });
             }
             else {
                 var status = $(nTr).find(".statusName").html();
@@ -304,6 +324,9 @@ var Competition;
                     if (phasestate == 1) {
                         $(obj).addClass("leaderBoardSubmit");
                         $(obj).text("Submit to Leaderboard");
+                        $(obj).on('click', function () {
+                            updateLeaderboard(competitionId, submissionId, $("#cstoken").val(), $(obj));
+                        });
                     } else {
                         $(obj).addClass("hide");
                     }
@@ -379,8 +402,16 @@ $(document).ready(function () {
 
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-    Competition.loadTabContent();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liCompetitions").addClass("active");
+
+    var loc = window.location.href;
+    if (loc !== undefined) {
+        if (loc.match(/#participate-submit_results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("submissions_phase_buttons");
+        } else if (loc.match(/#results$/i) !== null) {
+            Competition.invokePhaseButtonOnOpen("results_phase_buttons");
+        }
+    }
 });

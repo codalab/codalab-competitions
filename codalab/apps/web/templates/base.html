@@ -9,7 +9,8 @@
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+
 <head>
   <meta charset="utf-8" /> 
 
@@ -24,9 +25,9 @@
   {% block css %}
     {% compress css %}
         <!-- Included CSS Files (Compressed) -->
-        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/jquery.dataTables.css">
-        <link rel="stylesheet" href="{{STATIC_URL}}site/css/Main.css">
-        <link rel="stylesheet" href="{{STATIC_URL}}foundation/css/codalab.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}site/css/Main.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
     {% endcompress %}
 
     {% compress js %}
@@ -39,9 +40,12 @@
     {% endcompress %}
   {% endblock css %}
 
-  {% block extra_headers %}{% endblock extra_headers %}
+  {% block extra_headers %}
+  {% endblock extra_headers %}
+
   {% analytical_head_top %}
   {% analytical_head_bottom %}
+
   <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
   <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script> 
 </head>
@@ -61,17 +65,6 @@
             </ul>
             <section class="top-bar-section">
               <!-- Left Nav Section -->
-              <ul class="left">
-                <!--   //////// COMMENTED OUT FOR NOW
-                <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li>   /////// -->             
-                <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
-                {% if user.is_authenticated %}
-                  <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
-                {% else %}
-                  <li><a href="{% url 'account_login' %}"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
-                {% endif %}
-                <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
-              </ul>
 
               <!-- Right Nav Section -->
               <ul class="right">
@@ -79,21 +72,30 @@
                   <form action="/search" method="get">
                     <input name="query" type="search" placeholder="Search">
                   </form>
-                </li> -->
+                </li> 
+-->
+                <!-- <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> -->             
+                <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
+                {% if user.is_authenticated %}
+                  <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
+                {% else %}
+                  <li><a href="{% url 'account_login' %}?modal=on"  tabindex=4 data-reveal-id="login-modal" data-reveal-ajax="true" name="next" value="/my">My CodaLab</a></li>  
+                {% endif %}
+                <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
                 {% if user.is_authenticated %}
                   <li class="has-dropdown">
-                      <a href="#profile">{{user.username}}</a>
+                      <a href="#profile"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
                       <ul class="dropdown">
                         <!-- <li><a href="#">My Profile</a></li> -->
                         <li class="divider"></li>
                         <li>
-                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign out</a>
+                          <a href="{% url 'account_logout' %}" data-reveal-id="logout-modal" data-reveal-ajax="true">Sign Out</a>
                         </li>
                       </ul>
                   </li>
                 {% else %}
                   <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" data-reveal-id="login-modal" data-reveal-ajax="true">Sign in</a></li>  
+                    <a href="{% url 'account_login' %}?modal=on" data-reveal-id="login-modal" data-reveal-ajax="true"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
                 {% endif %}      
               </ul>
             </section>
@@ -101,13 +103,21 @@
         </div>
         <!-- End Nav -->
 
-        {% block nosubheader %}
-        <div class="row">
-            <div class="subheader small-centered">
-                {% block subheader %} {% endblock subheader %}
-            </div>
-        </div>
-        {% endblock nosubheader %}
+    {% if "modal" not in view.request.GET %}
+            {% block nosubheader %}
+                  {% block subheader %} 
+                    <div class="header-title-bg">
+                      <div class="large-12 columns">
+                        <div class="row">
+                          <div class="large-12 columns">
+                            <h1> {% block page_title %}{% endblock page_title %} </h1>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endblock subheader %}
+            {% endblock nosubheader %}
+    {% endif %} 
 
         {% block hero_subheader %}
         {% endblock hero_subheader %}
@@ -120,11 +130,17 @@
   </div>
     <!-- End Main Content and Sidebar -->
 
+{% if "modal" not in view.request.GET %}
     <!-- Footer -->
     <footer id="footer">
         <div class="small-6 columns">
-          <ul class="inline-list left">
-            <li>
+          <ul class="inline-list left">            
+            <li>   
+                <span>
+                  <a href="http://www.windowsazure.com/" target="_blank"><img src="{{ STATIC_URL }}site/Images/Azure_Footer_Logo.png" border="0"/></a>
+                </span>
+            </li>
+            <li>   
                 <span>
                   <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
@@ -137,12 +153,14 @@
           <ul class="inline-list right">
             <!-- <li>CodaLab v.0 ()</li> -->
             <li><a href="/help/about.html">Help</a></li>
-            <li><a href="mailto:info@codalab.org">Feedback</a></li>
+            <li><a href="mailto:info@codalab.org">Contact Us</a></li>
+            <li><a href="http://go.microsoft.com/?linkid=9837806">Feedback</a></li>
             <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
             <li><a href="http://codalab.github.io/codalab/terms.html">Terms of Use</a></li>
           </ul>
         </div>
     </footer>
+ {% endif %} 
 
 
     <!-- Check for Zepto support, load jQuery if necessary -->
@@ -172,5 +190,25 @@
   <div id="logout-modal" class="reveal-modal small"></div>
   <div id="signup-modal" class="reveal-modal small"></div>
   <div id="forgotpasswd-modal" class="reveal-modal small"></div>
+  <script>
+    $("#login-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+        $("#id_login").focus();
+    });
+    $("#logout-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+        $("#id_signout").focus();
+    });
+    $("#signup-modal").on('opened', function () {
+        if ($("#sections").length > 0) {
+            $("#sections").foundation('section', 'reflow');
+        }
+        $("#id_email").focus();
+    });
+  </script>
   </body>
 </html>

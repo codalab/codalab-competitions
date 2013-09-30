@@ -1,5 +1,6 @@
 <div class="row" id="results_phase_buttons">
   <div class="small-12 columns">
+    <div class="right">
     {% for phase in competition.phases.all %}
       {% if phase.is_active %}
         <button class="button active" id="results_phase_{{phase.id}}">{{phase.label}}</button>
@@ -7,6 +8,7 @@
         <button class="button" id="results_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
+    </div>
   </div>
 </div>
 

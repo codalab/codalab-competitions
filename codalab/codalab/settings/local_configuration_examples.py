@@ -31,7 +31,6 @@ class LocalAzureBlobstore(object):
     AZURE_ACCOUNT_KEY = 'xaedadsf34fCjHpYAKOpRE1uSw3y37MaRSUtUYkj+o2..aoHg5YwasdfGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7GT4=='
     AZURE_CONTAINER = 'containerx'
 
-
 class LocalSQLAzureLinux(object):
     # See the docs at https://github.com/michiya/django-pyodbc-azure
     """

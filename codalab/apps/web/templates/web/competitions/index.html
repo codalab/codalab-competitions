@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}Competitions{% endblock %}
+{% block head_title %}Competitions{% endblock head_title %}
+{% block page_title %}Competitions{% endblock page_title %}
 {% block content %}
+
+{% load static %}
 
 <div class="row">
 
 	<!-- Main Content Section -->
 	<!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-	<div class="large-9 push-3 columns competitions">
+	<div class="large-9 columns competitions">
 		<dl class="sub-nav">
+			<!-- ////////////////  Commented out until we have sorting  /////////////////
 			<dt>Sort by:</dt>
 			<dd class="active"><a href="#">Most Recent</a></dd>
-			<dd><!-- ////////////////  Commented out until we have activity metrics  /////////////////
+			<dd>
 			<a href="#">Most Active</a></dd> -->
 		</dl>
 		{% if not competitions %}
@@ -24,14 +28,18 @@
 					<div class="competitionTileLftStrip"></div>
 					<div class="articleImageContainer">
 						<div class="subContainerPadding">
+                            {% if item.image_url = None %}
+							<img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
+                            {% else %}
 							<img src="{{ item.image_url }}">
+                            {% endif %}
 						</div>
 					</div>
 					<div class="articleTextArea">
 						<div class="subContainerPadding">
 							<div class="articleHeadingContainer">
 								<h3>{{ item.title }}</h3>
-								<label>{{ item.creator }}</label>
+								<label>Organized by {{ item.creator }}</label>
 							</div>
 							<p class="competition-paragraph">{{ item.description }}</p>
 						</div>
@@ -43,8 +51,7 @@
 			{% endfor %}
 			{% endif %}
 	</div>
-	<div class="large-3  pull-9 columns ">
-		<img src="http://placehold.it/300x240&text=[stats]" class="stats_placeholder"/>
+	<div class="large-3 columns ">
 		<!-- ////////////////  Commented out until we have stats  /////////////////
 		<div class="panel">
 			<input type="text" placeholder="Filter by Keyword"></input>
@@ -65,11 +72,11 @@
 
 	</div>		
 
-		{% endblock %}
+{% endblock content%}
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
         $("#liCompetitions").addClass("active");
     });
 
-  {% endblock js %}
+{% endblock js %}

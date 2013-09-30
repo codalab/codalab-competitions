@@ -46,7 +46,6 @@ brats2012,_ = Competition.objects.get_or_create(title=brats12_name, creator=gues
 details_category = ContentCategory.objects.get(name="Learn the Details")
 participate_category = ContentCategory.objects.get(name="Participate")
 pc,_ = PageContainer.objects.get_or_create(object_id=brats2012.id, content_type=ContentType.objects.get_for_model(Competition))
-brats2012.pagecontent = pc
 brats2012.save()
 
 Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
@@ -85,98 +84,141 @@ p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phase
                                                                                                         start_date=p1date, max_submissions=20)
 p, created = CompetitionPhase.objects.get_or_create(competition=brats2012, phasenumber=2, label="Competition Phase",
                                                                                                         start_date=p2date, max_submissions=5)
+for phase in CompetitionPhase.objects.filter(competition=brats2012):
+    # note that we're using the same program and truth files for both phases 
+    # but in reality they may be different.
+    prog_file_path = os.path.join(root_dir, "media", "brats", "program.zip")
+    if os.path.exists(prog_file_path):
+        print "Setting program for phase: %s" % phase.label
+        phase.scoring_program = File(open(prog_file_path, 'rb'))
+        phase.save()
+    else:
+        print "No program file set for phase: %s" % phase.label
+    reference_file_path = os.path.join(root_dir, "media", "brats", "testing-ref.zip")
+    if os.path.exists(reference_file_path):
+        print "Setting reference file for phase: %s" % phase.label
+        phase.reference_data = File(open(reference_file_path, 'rb'))
+        phase.save()
+    else:
+        print "No reference file set for phase: %s" % phase.label
 
 ## Score Definitions
-groups = {}
-for g in ({'key': 'patient', 'label': 'Patient Data'},
-          {'key': 'synthetic', 'label': 'Synthetic Data'},
-          ):
-        rg,cr = SubmissionResultGroup.objects.get_or_create(competition=brats2012,
-                                                            key=g['key'],
-                                                            defaults=dict(label=g['label']))
-        groups[rg.key] = rg
+brats_leaderboard_group_defs = {
+    'patient'  : { 'label': 'Patient Data', 'order': 1},
+	'synthetic': { 'label': 'Synthetic Data', 'order': 2} }
 
-for sdg in ( 
-        ('synthetic',({'Dice': {'subs': (('SyntheticDiceComplete','Complete'),('SyntheticDiceCore','Core'))  } },
-                      {'Sensitivity': {'subs': (('SyntheticSensitivityComplete','Complete'),('SyntheticSensitivityCore','Core'))  }},
-                      {'Specificity': {'subs': (('SyntheticSpecificityComplete','Complete'),('SyntheticSpecificityCore','Core')) }},
-                      {'Hausdorff': {'subs': (('SyntheticHausdorffComplete','Complete'),('SyntheticHausdorffCore','Core'))}},
-                      {'Kappa': {'def':  ('SyntheticKappa','Kappa')}},
-                      {'Rank': { 'computed': {'operation': 'Avg', 'key': 'synthetic_dice_rank', 'label': 'Rank', 'fields': ('SyntheticDiceComplete','SyntheticDiceCore')}}}) 
-         ) ,
+brats_leaderboard_defs = [
+    #Patient data
+    ('PatientDice', { 'label': 'Dice'}),
+    ('PatientDiceComplete',  { 'group': 'patient', 'column_group':'PatientDice', 'label': 'Complete' }),
+    ('PatientDiceCore',      { 'group': 'patient', 'column_group':'PatientDice', 'label': 'Core' }),
+    ('PatientDiceEnhancing', { 'group': 'patient', 'column_group':'PatientDice', 'label': 'Enhancing' }),
+    ('PatientSensitivity', { 'label': 'Sensitivity'}),
+    ('PatientSensitivityComplete',  { 'group': 'patient', 'column_group':'PatientSensitivity', 'label': 'Complete' }),
+    ('PatientSensitivityCore',      { 'group': 'patient', 'column_group':'PatientSensitivity', 'label': 'Core' }),
+    ('PatientSensitivityEnhancing', { 'group': 'patient', 'column_group':'PatientSensitivity', 'label': 'Enhancing' }),
+    ('PatientSpecificity', { 'label': 'Specificity'}),
+    ('PatientSpecificityComplete',  { 'group': 'patient', 'column_group':'PatientSpecificity', 'label': 'Complete' }),
+    ('PatientSpecificityCore',      { 'group': 'patient', 'column_group':'PatientSpecificity', 'label': 'Core' }),
+    ('PatientSpecificityEnhancing', { 'group': 'patient', 'column_group':'PatientSpecificity', 'label': 'Enhancing' }),
+    ('PatientHausdorff', { 'label': 'Hausdorff'}),
+    ('PatientHausdorffComplete',  { 'group': 'patient', 'column_group':'PatientHausdorff', 'label': 'Complete', 'sort': 'asc' }),
+    ('PatientHausdorffCore',      { 'group': 'patient', 'column_group':'PatientHausdorff', 'label': 'Core', 'sort': 'asc' }),
+    ('PatientHausdorffEnhancing', { 'group': 'patient', 'column_group':'PatientHausdorff', 'label': 'Enhancing', 'sort': 'asc' }),
+    ('PatientKappa', { 'group': 'patient', 'label': 'Kappa' }),
+    ('PatientRank', { 'label': 'Rank'}),
+    ('PatientRankComplete',  { 'group': 'patient', 'column_group':'PatientRank', 'label': 'Complete',
+        'computed': {'operation': 'Avg', 'fields': ('PatientDiceComplete','PatientSensitivityComplete','PatientSpecificityComplete')} }),
+    ('PatientRankCore',      { 'group': 'patient', 'column_group':'PatientRank', 'label': 'Core',
+        'computed': {'operation': 'Avg', 'fields': ('PatientDiceCore','PatientSensitivityCore','PatientSpecificityCore')} }),
+    ('PatientRankEnhancing', { 'group': 'patient', 'column_group':'PatientRank', 'label': 'Enhancing',
+        'computed': {'operation': 'Avg', 'fields': ('PatientDiceEnhancing','PatientSensitivityEnhancing','PatientSpecificityEnhancing')} }),
+    ('PatientRankOverall', { 'group': 'patient', 'label': 'Overall Rank', 'selection_default': 1,
+        'computed': {'operation': 'Avg', 'fields': ('PatientDiceComplete','PatientSensitivityComplete','PatientSpecificityComplete',
+                                                    'PatientDiceEnhancing','PatientSensitivityEnhancing','PatientSpecificityEnhancing',
+                                                    'PatientDiceEnhancing','PatientSensitivityEnhancing','PatientSpecificityEnhancing')} }),
+    #Synthetic data
+    ('SyntheticDice', { 'label': 'Dice'}),
+    ('SyntheticDiceComplete', { 'group': 'synthetic', 'column_group':'SyntheticDice', 'label': 'Complete' }),
+    ('SyntheticDiceCore',     { 'group': 'synthetic', 'column_group':'SyntheticDice', 'label': 'Core' }),
+    ('SyntheticSensitivity', { 'label': 'Sensitivity'}),
+    ('SyntheticSensitivityComplete', { 'group': 'synthetic', 'column_group':'SyntheticSensitivity', 'label': 'Complete' }),
+    ('SyntheticSensitivityCore',     { 'group': 'synthetic', 'column_group':'SyntheticSensitivity', 'label': 'Core' }),
+    ('SyntheticSpecificity', { 'label': 'Specificity'}),
+    ('SyntheticSpecificityComplete', { 'group': 'synthetic', 'column_group':'SyntheticSpecificity', 'label': 'Complete' }),
+    ('SyntheticSpecificityCore',     { 'group': 'synthetic', 'column_group':'SyntheticSpecificity', 'label': 'Core' }),
+    ('SyntheticHausdorff', { 'label': 'Hausdorff'}),
+    ('SyntheticHausdorffComplete', { 'group': 'synthetic', 'column_group':'SyntheticHausdorff', 'label': 'Complete', 'sort': 'asc' }),
+    ('SyntheticHausdorffCore',     { 'group': 'synthetic', 'column_group':'SyntheticHausdorff', 'label': 'Core', 'sort': 'asc' }),
+    ('SyntheticKappa', { 'group': 'synthetic', 'label': 'Kappa' }),
+    ('SyntheticRank', { 'label': 'Rank'}),
+    ('SyntheticRankComplete', { 'group': 'synthetic', 'column_group':'SyntheticRank', 'label': 'Complete',
+        'computed': {'operation': 'Avg', 'fields': ('SyntheticDiceComplete','SyntheticSensitivityComplete','SyntheticSpecificityComplete')} }),
+    ('SyntheticRankCore',     { 'group': 'synthetic', 'column_group':'SyntheticRank', 'label': 'Core',
+        'computed': {'operation': 'Avg', 'fields': ('SyntheticDiceCore','SyntheticSensitivityCore','SyntheticSpecificityCore')} }),
+    ('SyntheticRankOverall',  { 'group': 'synthetic', 'label': 'Overall Rank', 'selection_default': 1,
+        'computed': {'operation': 'Avg', 'fields': ('SyntheticDiceComplete','SyntheticSensitivityComplete','SyntheticSpecificityComplete',
+                                                    'SyntheticDiceCore','SyntheticSensitivityCore','SyntheticSpecificityCore')} }) ]
 
-        ('patient',({'Dice': {'subs': (('PatientDiceComplete','Complete'),('PatientDiceCore','Core'),('PatientDiceEnhancing','Enhancing'))  } },
-                    {'Sensitivity': {'subs': (('PatientSensitivityComplete','Complete'),('PatientSensitivityCore','Core'),('PatientSensitivityEnhancing','Enhancing'))  }},
-                    {'Specificity': {'subs': (('PatientSpecificiyComplete','Complete'),('PatientSpecificiyCore','Core'),('PatientSpecificiyEnhancing','Enhancing')) }},
-                    {'Hausdorff': {'subs': (('PatientHausdorffComplete','Complete'),('PatientHausdorffCore','Core'),('PatientHausdorffEnhancing','Enhancing'))}},
-                    {'Kappa': {'def':  ('PatientKappa','Kappa')}},
-                    {'Rank': { 'computed': {'operation': 'Avg', 'key': 'patient_dice_rank', 'label': 'Rank', 'fields': ('PatientDiceComplete','PatientDiceCore','PatientDiceEnhancing')}}})  ),
-           ):
-        
+brats_groups = {}
+for (key,vals) in brats_leaderboard_group_defs.iteritems():
+    rg,cr = SubmissionResultGroup.objects.get_or_create(
+                competition=brats2012,
+	            key=key, 
+                defaults=dict(label=vals['label'], 
+                ordering=vals['order']),)
+    brats_groups[rg.key] = rg
+    # All phases have the same leaderboard so add the group to each of them
+    for gp in brats2012.phases.all():
+        rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
 
-        rgroup,sg = sdg
-        print "RGROUP", rgroup
-        comp = []
-        fields = {}
-        for s in sg: 
-                for label,e in s.items():
-                        print "E",e
-                        
-                        for t,defs in e.items():
-                                print "DEFS",defs
-                                
-                                if t == 'computed':
-                                        g,cr = SubmissionScoreGroup.objects.get_or_create(key=defs['key'],competition=brats2012, defaults=dict(label=label))
-                                        comp.append((label,defs,g))
-                                        print "COMPUTED"
-                                elif t == 'subs':
-                                        g,cr = SubmissionScoreGroup.objects.get_or_create(key="%s%s" % (rgroup,label),
-                                                                                          competition=brats2012, defaults=dict(label=label))
-                                        for sub in defs:
-                                                print "SUB",sub
-                                                
+brats_column_groups = {}
+brats_score_defs = {}
+for key,vals in brats_leaderboard_defs:
+    if 'group' not in vals:
+        # Define a new grouping of scores
+        s,cr = SubmissionScoreSet.objects.get_or_create(
+                    competition=brats2012, 
+                    key=key,
+                    defaults=dict(label=vals['label']))
+        brats_column_groups[key] = s
+    else:
+        # Create the score definition
+        is_computed = 'computed' in vals
+        sort_order = 'desc' if 'sort' not in vals else vals['sort']
+        sdefaults = dict(label=vals['label'],numeric_format="2",show_rank=not is_computed,sorting=sort_order)
+        if 'selection_default' in vals:
+            sdefaults['selection_default'] = vals['selection_default']
 
-                                                sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],key=sub[0],
-                                                                                                        defaults=dict(label=sub[1]))
-                                                fields[sd.key] = sd
+        sd,cr = SubmissionScoreDef.objects.get_or_create(
+                    competition=brats2012,
+                    key=key,
+                    computed=is_computed,
+        		    defaults=sdefaults)
+        if is_computed:
+            sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+            for f in vals['computed']['fields']:
+                # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
+                # brats_leaderboard_defs after the fields they reference.
+                SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=brats_score_defs[f])
+        brats_score_defs[sd.key] = sd
 
-                                                print " CREATED DEF", sd.key, sd.label
-                                                for p in brats2012.phases.all():
-                                                        sp,cr = SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-                                                        print "   ADDED TO PHASE"
+        # Associate the score definition with its column group
+        if 'column_group' in vals:
+            gparent = brats_column_groups[vals['column_group']]
+            g,cr = SubmissionScoreSet.objects.get_or_create(
+		            competition=brats2012,
+                    parent=gparent,
+		            key=sd.key,
+		            defaults=dict(scoredef=sd, label=sd.label))
+        else:
+            g,cr = SubmissionScoreSet.objects.get_or_create(
+		            competition=brats2012,
+		            key=sd.key,
+		            defaults=dict(scoredef=sd, label=sd.label))
 
-                                                g2,cr = SubmissionScoreGroup.objects.get_or_create(parent=g,
-                                                                                                   key=sub[0],
-                                                                                                   competition=brats2012,
-                                                                                                   defaults=dict(scoredef=sd,label=sub[1]))
-                                                print " SUB GROUP", g2.label,g2.scoredef.key,g2.scoredef.label
-
-                                elif t == 'def':
-                                        g,cr = SubmissionScoreGroup.objects.get_or_create(key="%s%s" % (rgroup,label),
-                                                                                          competition=brats2012, defaults=dict(label=defs[1]))
-                                        sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],
-                                                                                         key=defs[0],
-                                                                                         defaults = dict(label=defs[1]))
-                                        fields[sd.key] = sd
-
-                                        for p in brats2012.phases.all():
-                                                sp,cr = SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-                                        g.scoredef = sd
-                                        g.save()
-        for label,defs,g in comp:
-                sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],
-                                                                 key=defs['key'],
-                                                                 defaults=dict(label=defs['label']),
-                                                                 computed=True)
-                for p in brats2012.phases.all():
-                        SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-                sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef = sd,
-                                                                      operation = defs['operation'])
-                for f in defs['fields']:
-                        SubmissionComputedScoreField.objects.get_or_create(computed=sc,
-                                                                           scoredef=fields[f])
-                g.scoredef = sd
-                g.save()
+        # Associate the score definition with its result group
+        sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=brats_groups[vals['group']])
 
 # Participant statuses, if they haven't been created before
 statuses = ParticipantStatus.objects.all()
@@ -208,7 +250,6 @@ spine,created = Competition.objects.get_or_create(title=spine_name, creator=gues
 details_category = ContentCategory.objects.get(name="Learn the Details")
 participate_category = ContentCategory.objects.get(name="Participate")
 pc,_ = PageContainer.objects.get_or_create(object_id=spine.id, content_type=ContentType.objects.get_for_model(Competition))
-spine.pagecontent = pc
 spine.save()
 
 # Logo
@@ -242,158 +283,32 @@ for participant in participants:
 #  End Spine Localization ----
 #
 
-# #
-# #  Start ChaLearn Cause-Effect ----
-# #
+#
+# Single-phase competition
+#
+def create_single_phase_sample():
+    title = "Single-phase competition example"
+    description = "This is an example of a single-phase competition."
+    competition,created = Competition.objects.get_or_create(title=title, creator=guest1, modified_by=guest1, description=description)
+    competition.save()
 
-# # ChaLearn Gesture Recognition
-# chalearn_gesture_name = "ChaLearn: One-Shot-Learning Gesture Challenge"
-# chalearn_gesture_description = """
-#         Humans are capable of recognizing patterns like hand gestures after seeing just one example. Can machines do that too?
-#         """
-# chalearn_gesture,_ = Competition.objects.get_or_create(title=chalearn_gesture_name, creator=guest1, modified_by=guest1,
-#                                                       defaults=dict(description=chalearn_gesture_description))
-# details_category = ContentCategory.objects.get(name="Learn the Details")
-# participate_category = ContentCategory.objects.get(name="Participate")
-# pc,_ = PageContainer.objects.get_or_create(object_id=chalearn_gesture.id, content_type=ContentType.objects.get_for_model(Competition))
-# chalearn_gesture.pagecontent = pc
-# chalearn_gesture.save()
+    # Note: no logo specified on purpose
 
-# Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
-#                            defaults=dict(label="Overview", rank=0,
-#                                          html=open(os.path.join(os.path.dirname(__file__), "chalearn_gesture_overview.html")).read()))
-# Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation", 
-#                            defaults=dict(label="Evaluation", rank=1,
-#                                          html=open(os.path.join(os.path.dirname(__file__), "chalearn_gesture_evaluation.html")).read()))
-# Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
-#                     defaults=dict(rank=2, label="Terms and Conditions", html=open(os.path.join(os.path.dirname(__file__), "chalearn_gesture_terms_and_conditions.html")).read()))
+    # The one phase of the competition
+    phase_start = timezone.now()
+    phase, created = CompetitionPhase.objects.get_or_create(competition=competition, phasenumber=1, label="Game On",
+                                                            start_date=phase_start, max_submissions=10)
 
-# Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
-#                     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "chalearn_gesture_data.html")).read()))
-# Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
-
-# # Logo
-# chalearn_gesture.image = File( open(os.path.join(root_dir, "fixtures", "images", "chalearn_gesture.jpg"), 'rb'))
-
-# # Save the updates
-# chalearn_gesture.save()
-
-# # Phases for the competition
-# day_delta = datetime.timedelta(days=30)
-# p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 7, 6), datetime.time()), timezone.get_current_timezone())
-# p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2012, 10, 1), datetime.time()), timezone.get_current_timezone())
-# p1date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 7, 15), datetime.time()), timezone.get_current_timezone())
-# p2date = timezone.make_aware(datetime.datetime.combine(datetime.date(2013, 8, 30), datetime.time()), timezone.get_current_timezone())
-# p, created = CompetitionPhase.objects.get_or_create(competition=chalearn_gesture, phasenumber=1, label="Training Phase",
-#                                                                                                         start_date=p1date, max_submissions=100)
-# p, created = CompetitionPhase.objects.get_or_create(competition=chalearn_gesture, phasenumber=2, label="Competition Phase",
-#                                                                                                         start_date=p2date, max_submissions=1)
-
-# ## Score Definitions
-# groups = {}
-# for g in ({'key': 'patient', 'label': 'Patient Data'},
-#           {'key': 'synthetic', 'label': 'Synthetic Data'},
-#           ):
-#         rg,cr = SubmissionResultGroup.objects.get_or_create(competition=chalearn_gesture,
-#                                                             key=g['key'],
-#                                                             defaults=dict(label=g['label']))
-#         groups[rg.key] = rg
-
-# for sdg in ( 
-#         ('synthetic',({'Dice': {'subs': (('SyntheticDiceComplete','Complete'),('SyntheticDiceCore','Core'))  } },
-#                       {'Sensitivity': {'subs': (('SyntheticSensitivityComplete','Complete'),('SyntheticSensitivityCore','Core'))  }},
-#                       {'Specificity': {'subs': (('SyntheticSpecificityComplete','Complete'),('SyntheticSpecificityCore','Core')) }},
-#                       {'Hausdorff': {'subs': (('SyntheticHausdorffComplete','Complete'),('SyntheticHausdorffCore','Core'))}},
-#                       {'Kappa': {'def':  ('SyntheticKappa','Kappa')}},
-#                       {'Rank': { 'computed': {'operation': 'Avg', 'key': 'synthetic_dice_rank', 'label': 'Rank', 'fields': ('SyntheticDiceComplete','SyntheticDiceCore')}}}) 
-#          ) ,
-
-#         ('patient',({'Dice': {'subs': (('PatientDiceComplete','Complete'),('PatientDiceCore','Core'),('PatientDiceEnhancing','Enhancing'))  } },
-#                     {'Sensitivity': {'subs': (('PatientSensitivityComplete','Complete'),('PatientSensitivityCore','Core'),('PatientSensitivityEnhancing','Enhancing'))  }},
-#                     {'Specificity': {'subs': (('PatientSpecificiyComplete','Complete'),('PatientSpecificiyCore','Core'),('PatientSpecificiyEnhancing','Enhancing')) }},
-#                     {'Hausdorff': {'subs': (('PatientHausdorffComplete','Complete'),('PatientHausdorffCore','Core'),('PatientHausdorffEnhancing','Enhancing'))}},
-#                     {'Kappa': {'def':  ('PatientKappa','Kappa')}},
-#                     {'Rank': { 'computed': {'operation': 'Avg', 'key': 'patient_dice_rank', 'label': 'Rank', 'fields': ('PatientDiceComplete','PatientDiceCore','PatientDiceEnhancing')}}})  ),
-#            ):
-        
-
-#         rgroup,sg = sdg
-#         print "RGROUP", rgroup
-#         comp = []
-#         fields = {}
-#         for s in sg: 
-#                 for label,e in s.items():
-#                         print "E",e
-                        
-#                         for t,defs in e.items():
-#                                 print "DEFS",defs
-                                
-#                                 if t == 'computed':
-#                                         g,cr = SubmissionScoreGroup.objects.get_or_create(key=defs['key'],competition=chalearn_gesture, defaults=dict(label=label))
-#                                         comp.append((label,defs,g))
-#                                         print "COMPUTED"
-#                                 elif t == 'subs':
-#                                         g,cr = SubmissionScoreGroup.objects.get_or_create(key="%s%s" % (rgroup,label),
-#                                                                                           competition=chalearn_gesture, defaults=dict(label=label))
-#                                         for sub in defs:
-#                                                 print "SUB",sub
-                                                
-
-#                                                 sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],key=sub[0],
-#                                                                                                         defaults=dict(label=sub[1]))
-#                                                 fields[sd.key] = sd
-
-#                                                 print " CREATED DEF", sd.key, sd.label
-#                                                 for p in chalearn_gesture.phases.all():
-#                                                         sp,cr = SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-#                                                         print "   ADDED TO PHASE"
-
-#                                                 g2,cr = SubmissionScoreGroup.objects.get_or_create(parent=g,
-#                                                                                                    key=sub[0],
-#                                                                                                    competition=chalearn_gesture,
-#                                                                                                    defaults=dict(scoredef=sd,label=sub[1]))
-#                                                 print " SUB GROUP", g2.label,g2.scoredef.key,g2.scoredef.label
-
-#                                 elif t == 'def':
-#                                         g,cr = SubmissionScoreGroup.objects.get_or_create(key="%s%s" % (rgroup,label),
-#                                                                                           competition=chalearn_gesture, defaults=dict(label=defs[1]))
-#                                         sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],
-#                                                                                          key=defs[0],
-#                                                                                          defaults = dict(label=defs[1]))
-#                                         fields[sd.key] = sd
-
-#                                         for p in chalearn_gesture.phases.all():
-#                                                 sp,cr = SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-#                                         g.scoredef = sd
-#                                         g.save()
-#         for label,defs,g in comp:
-#                 sd,cr = SubmissionScoreDef.objects.get_or_create(group=groups[rgroup],
-#                                                                  key=defs['key'],
-#                                                                  defaults=dict(label=defs['label']),
-#                                                                  computed=True)
-#                 for p in chalearn_gesture.phases.all():
-#                         SubmissionScorePhase.objects.get_or_create(scoredef=sd,phase=p)
-#                 sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef = sd,
-#                                                                       operation = defs['operation'])
-#                 for f in defs['fields']:
-#                         SubmissionComputedScoreField.objects.get_or_create(computed=sc,
-#                                                                            scoredef=fields[f])
-#                 g.scoredef = sd
-#                 g.save()
-
-# # Participant statuses, if they haven't been created before
-# statuses = ParticipantStatus.objects.all()
-
-# # Participants for the competition
-# participants = [ (statuses[i-2], User.objects.get(username="guest%d" % i)) for i in range(2,len(statuses)+2)]
-
-# # Participant statuses, if they haven't been created before
-# statuses = ParticipantStatus.objects.all()
-
-# # Add participants to the competition with random statuses
-# for status, participant in participants:
-#         print "Adding %s to competition %s with status %s" % (participant, chalearn_gesture, status)
-#         resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=chalearn_gesture, defaults={'status':status})
-# #
-# #  End ChaLearn ----
-# #
+    # Participants for the competition
+    participants = [ User.objects.get(username="guest%d" % i) for i in range(1, 5)]
+    # Participant statuses, if they haven't been created before
+    statuses = ParticipantStatus.objects.all()
+    # Add participants to the competition with random statuses
+    for participant in participants:
+            status = ParticipantStatus.objects.get(codename=ParticipantStatus.PENDING)
+            resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=participant, competition=competition, 
+                                                                                          defaults={'status':status})
+#
+#  End single-phase competition ----
+#
+create_single_phase_sample()
