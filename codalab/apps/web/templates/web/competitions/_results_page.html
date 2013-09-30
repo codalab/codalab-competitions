@@ -2,136 +2,58 @@
 {% elif phase.is_future %}
     <p>This phase of the competition has not started yet. Please check back later.</p>
 {% else %}
+    {% if groups|length > 0 %}
+    <div class="small-12 columns icon_excel">
+        <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
+    </div>
+    {% endif %}
     <div class="leaderboard-result-table">
-    <table class="prevResultSubmission dataTable">
-        <tr class="table-title">
-          <th colspan="15">Table Title</th>
-        </tr>
-        <tr>
-            <th rowspan="2">Rank</th>
-            <th rowspan="2">User</th>
-            <th colspan="3">Dice</th>
-            <th colspan="3">Sensitivity</th>
-            <th colspan="3">Specificity</th>
-            <th colspan="3">Hausdorff</th>
-            <th rowspan="2">Kappa</th>
-        </tr>
-        <tr>
-            <th>complete</th>
-            <th>core</th>
-            <th>enhancing</th>
-            <th>complete</th>
-            <th>core</th>
-            <th>enhancing</th>
-            <th>complete</th>
-            <th>core</th>
-            <th>enhancing</th>
-            <th>complete</th>
-            <th>core</th>
-            <th>enhancing</th>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Syed Reza</td>
-            <td>0.92 (1)</td>
-            <td>0.91 (2)</td>
-            <td>0.68 (1)</td>
-            <td>0.97 (1)</td>
-            <td>0.95 (1)</td>
-            <td>0.70 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>1.00 (1)</td>
-        
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Syed Reza</td>
-            <td>0.92 (1)</td>
-            <td>0.91 (2)</td>
-            <td>0.68 (1)</td>
-            <td>0.97 (1)</td>
-            <td>0.95 (1)</td>
-            <td>0.70 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>1.00 (1)</td>
-        
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Syed Reza</td>
-            <td>0.92 (1)</td>
-            <td>0.91 (2)</td>
-            <td>0.68 (1)</td>
-            <td>0.97 (1)</td>
-            <td>0.95 (1)</td>
-            <td>0.70 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>0.89 (5)</td>
-            <td>0.88 (2)</td>
-            <td>0.66 (1)</td>
-            <td>1.00 (1)</td>
-        
-        </tr>
-    
-    </table>
+        {% for group in groups %}
+        <table class="prevResultSubmission dataTable">
+            <tr class="table-title">
+              <th colspan="{{group.total_span}}">{{group.label}}</th>
+            </tr>
+             <tr class="leaderboard-result-table-header">
+                <th rowspan="2"></th>
+                <th rowspan="2">User</th>
+                 {% for head in group.headers %}
+                 {% if head.subs %}
+                 <th colspan="{{head.subs|length}}">{{head.label}}</th>
+                 {% else %}                 
+                 <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
+                 {% endif %}
+                 {% endfor %}  
+             </tr>
+             <tr>
+                {% for head in group.headers %}
+                    {% if head.subs %}
+                    {% for sub in head.subs %}
+                    <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
+                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% if group.scores.items|length_is:"0" %}
+            <tr class="noData">
+                <td colspan="{{group.total_span}}">No data available in table</td>
+            </tr>  
+            {% else %}  
+            {% for pk,scoredata in group.scores %}
+            <tr>
+                <td class="row-position">{{pk}}</td>
+                <td>{{scoredata.username}}</td>
+                {% for v in scoredata.values %}
+                    {% if 'rnk' in v %}
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                    {% else %}
+                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+        </br>
+        {% endfor %}        
     </div>
 {% endif %}
-<!--
-<table class="prevResultSubmission dataTable" id="competition_results">
-    <thead>
-    <tr>
-        <th width="70px">Rank</th>
-        <th width="100px">User</th>
-        <th width="225px">Submission</th>
-        <th width="140px">Date</th>
-        <th width="5px"></th>
-        <th width="100px">Dice</th>
-        <th width="100px">Hausdorff</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for submission in phase.board.submissions %}
-    <tr>
-        <td></td>
-        <td>{{submission.submission.participant.user.username}}</td>
-        <td>
-            <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{submission.name}}</a>
-            <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
-            {% for score in submission.scores.all %}
-                <li>{{score.label}} : {{score.value}} </li>
-            {% endfor %}
-            </ul>
-        </td>
-        <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-        <td></td>
-        <td>
-            {% for score in submission.scores.all %}
-            {% if score.label == "Dice" %}
-                {{ score.value }}
-            {% endif %}
-            {% endfor %}
-        </td>
-        <td>
-            {% for score in submission.scores.all %}
-            {% if score.label == "Hausdorff" %}
-                {{ score.value }}
-            {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-    {% endfor %}        
-    </tbody>
-</table>
--->

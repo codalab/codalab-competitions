@@ -4,14 +4,17 @@
 {% else %}
     {% if phase.is_active %}
     <div class="row">
-      <p>Click the Submit Results button to upload a new submission.</p>
-      <button id="fileUploadButton" class="button">Submit Results</button>
-      <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
-      <div id="details"></div>
-      <p>Here are your submissions to date:</p>
+        <div class="panel">
+            <p>Click the Submit Results button to upload a new submission.</p>
+            <button id="fileUploadButton" class="button">Submit Results...</button>
+            <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
+        </div>
+        <div id="details">
+            <p><br>Here are your submissions to date:</p>
+        </div>
     </div>
     {% else %}
-      <p>This phase of the competition is closed. Here are the submissions you made:</p>
+      <p><br>This phase of the competition is closed. Here are the submissions you made:</p>
     {% endif %}
     <div class="row">
       <div class="user_results">
@@ -32,25 +35,31 @@
             </tr>
           </thead>
           <tbody>
-            {% for submission in my_submissions %}
-              <tr id="{{submission.id}}">
-                {% if submission.status.codename == "finished" %}
-                <input type="hidden" name="state" value='1' />
-                {% else %}
-                <input type="hidden" name="state" value='0' />
+                {% if my_submissions|length_is:"0" %}
+                <tr class="noData">
+                    <td class="tdDetails" colspan="6">No data available in table</td>
+                </tr>  
+                {% else %}  
+                {% for submission in my_submissions %}
+                <tr id="{{submission.id}}">
+                    {% if submission.status.codename == "finished" %}
+                    <input type="hidden" name="state" value='1' />
+                    {% else %}
+                    <input type="hidden" name="state" value='0' />
+                    {% endif %}
+                    <td>{{submission.submission_number}}</td>
+                    <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                    <td class="statusName">{{submission.status.name}}</td>
+                    <td></td>
+                    {% if submission.id == id_of_submission_in_leaderboard %}
+                    <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
+                    {% else %}
+                    <td class="status not_submitted"></td>
+                    {% endif %}
+                    <td><i class="enclosed-foundicon-plus"></i></td>
+                </tr>
+                {% endfor %}
                 {% endif %}
-                <td>{{submission.submission_number}}</td>
-                <td>{{submission.submitted_at|date:"m/d/Y H:i:s"}}</td>
-                <td class="statusName">{{submission.status.name}}</td>
-                <td></td>
-                {% if submission.id == id_of_submission_in_leaderboard %}
-                <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-                {% else %}
-                <td class="status not_submitted"></td>
-                {% endif %}
-                <td><i class="enclosed-foundicon-plus"></i></td>
-              </tr>
-            {% endfor %}
           </tbody>
         </table>
       </div>

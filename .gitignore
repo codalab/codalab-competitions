@@ -6,7 +6,6 @@ codalab/media/**/**
 
 # Bundles prototype #
 #####################
-bundles/pliang
 bundles/generated
 bundles/html_out
 bundles/README.html
@@ -33,12 +32,15 @@ venv/*/*
 #########################
 *.pot
 *.pyc
+**/build/**
+**/dist/**
 
 # Editor backup files #
 #######################
 *~
 \#*\#
 .\#*
+*.swp
 
 # Compiled source #
 ###################
@@ -68,11 +70,13 @@ venv/*/*
 *.sql
 *.sqlite*
 *.db
+*.pid
 
 # Generated data files #
 ########################
 codalab/.coverage
 codalab/coverage.xml
+codalab/cover/**/**
 
 # OS generated files #
 ######################
@@ -92,4 +96,5 @@ codalab/config/generated
 src/
 requirements/src/
 *.dump
-
+*.cache
+wheel_packages/

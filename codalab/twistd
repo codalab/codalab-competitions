@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source config/generated/startup_env.sh
+source ../venv/bin/activate
+twistd $@

@@ -19,6 +19,7 @@ import models
 
 main = base.Base.SITE_ROOT
 
+<<<<<<< HEAD
 def local_run(url, submission_id):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
@@ -125,21 +126,13 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         ozip = zipfile.ZipFile(io.BytesIO(submission.output_file.read()))
         scores = open(ozip.extract('scores.txt'), 'r').read()
         print "Processing scores..."
-        first = True
-        result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
-        result.name = submission.submission_number
-        result.save()
         for line in scores.split("\n"):
             if len(line) > 0:
                 label, value = line.split(":")
-                if first:
-                    first = False
-                    result.aggregate = float(value)
-                    result.save()
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
-                    models.SubmissionScore.objects.create(result=result, scoredef=scoredef, value=float(value))
-                except SubmissionScoreDef.DoesNotExist as e:
+                    models.SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))                    
+                except models.SubmissionScoreDef.DoesNotExist as e:
                     print "Score %s does not exist" % label
                     pass
         print "Done processing scores..."
