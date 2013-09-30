@@ -1,3 +1,7 @@
+import datetime
+import StringIO
+import csv
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +13,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render_to_response
 
 from apps.web import models
 from apps.web import forms
@@ -46,42 +51,65 @@ class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
-class CompetitionCreate(CreateView):
-    model = models.Competition
-    template_name = 'web/competitions/edit.html'
-    form_class = forms.CompetitionForm
-
-    def form_valid(self, form):
-         form.instance.creator = self.request.user
-         form.instance.modified_by = self.request.user
-         return super(CompetitionCreate, self).form_valid(form)
-
-    def form_invalid(self,form):
-        raise Exception(form.errors)
-
-    def get_success_url(self):
-        return reverse('my_edit_competition', kwargs={'pk': self.object.pk})
+#
+# Competition Views
+#
 
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
+    form_class = forms.CompetitionPhaseForm
+    template_name = 'web/competitions/edit-phase.html'
+    extra = 0
 
-class CompetitionEdit(UpdateWithInlinesView):
+class CompetitionUpload(LoginRequiredMixin, CreateView):
+    model = models.CompetitionDefBundle
+    form_class = forms.CompetitionDefBundleForm
+    template_name = 'web/competitions/upload_competition.html'
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        form.instance.created_at = datetime.datetime.now()
+        print "Set fields."
+        if form.is_valid():
+            cb = form.save(commit=False)
+            cb.save()
+            c = cb.unpack()
+            return(HttpResponseRedirect('/competitions/%d' % c.pk))    
+
+class CompetitionCreate(LoginRequiredMixin, CreateWithInlinesView):
     model = models.Competition
-    inlines = [PhasesInline, ]
+    template_name = 'web/competitions/create.html'
+    form_class = forms.CompetitionForm
+    inlines = [PhasesInline]
+
+    def form_valid(self, form):
+        form.instance.creator = self.request.user
+        form.instance.modified_by = self.request.user
+        return super(CompetitionCreate, self).form_valid(form)
+
+class CompetitionEdit(LoginRequiredMixin, UpdateWithInlinesView):
+    model = models.Competition
+    form_class = forms.CompetitionForm
+    inlines = [PhasesInline]
     template_name = 'web/competitions/edit.html'
-    
+
+    def form_valid(self, form):
+        form.instance.modified_by = self.request.user
+        return super(CompetitionEdit, self).form_valid(form)
+
     def get_context_data(self, **kwargs):
-        context = super(CompetitionEdit,self).get_context_data(**kwargs)
+        context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
 
-class CompetitionDelete(DeleteView):
+class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
-    # success_url = reverse_lazy('competition-list')
     template_name = 'web/competitions/confirm-delete.html'
-
+    success_url = '/my/#manage'
+    
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
+    template_name = 'web/competitions/view.html'
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView,self).get_context_data(**kwargs)
@@ -120,16 +148,13 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
-        return context
-
-class CompetitionUpdate(UpdateView):
-    model = models.Competition
-    form_class = forms.CompetitionForm
-        
+        return context       
        
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the Participate tab of a competition.
     # Requires an authenticated user who is an approved participant of the competition.
+    template_name = 'web/competitions/_submit_results_page.html'
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionSubmissionsPage,self).get_context_data(**kwargs)
         context['phase'] = None
@@ -143,11 +168,11 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['phase'] = phase
                 ids = [ e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase) if e.result in submissions ]
                 context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
-
         return context
 
 class CompetitionResultsPage(TemplateView):
     # Serves the leaderboards in the Results tab of a competition.
+    template_name = 'web/competitions/_results_page.html'
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage,self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
@@ -156,42 +181,57 @@ class CompetitionResultsPage(TemplateView):
         context['groups'] = phase.scores()
         return context
 
+class CompetitionResultsDownload(View):
+
+    def get(self,request,*args,**kwargs):
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        groups = phase.scores()
+
+        csvfile = StringIO.StringIO()
+        csvwriter = csv.writer(csvfile)
+
+        for group in groups:
+            csvwriter.writerow([group['label']])
+            csvwriter.writerow([])
+            
+            headers = ["User"]
+            sub_headers = [""]
+            for header in group['headers']:
+                subs = header['subs']
+                if subs:
+                    for sub in subs:
+                        headers.append(header['label'])
+                        sub_headers.append(sub['label'])
+                else:
+                    headers.append(header['label'])
+            csvwriter.writerow(headers)
+            csvwriter.writerow(sub_headers)
+
+            if len(group['scores']) <= 0:
+                csvwriter.writerow(["No data available"])
+            else:
+                for pk,scores in group['scores']:
+                    row = [ scores['username'] ]
+                    for v in scores['values']:
+                        if 'rnk' in v:
+                            row.append("%s (%s)" % (v['val'], v['rnk']))
+                        else:
+                            row.append("%s (%s)" % (v['val'], v['hidden_rnk']))
+                    csvwriter.writerow(row)
+
+            csvwriter.writerow([])
+            csvwriter.writerow([])
+                    
+        response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=test.csv"
+        return response
+
 ### Views for My Codalab
 
 class MyIndex(LoginRequiredMixin):
     pass
 
-class MyCreateCompetition(LoginRequiredMixin,TemplateView):
-    
-    template_name = 'web/my/create.html'
-    
-    def post(self,request,*args,**kwargs):
-        c = models.Competition.objects.create(creator=request.user,
-                                              title='Untitled',
-                                              modified_by=request.user)
-        cw = models.CompetitionWizard.objects.create(competition=c,
-                                                     step=1,
-                                                     creator=request.user)
-        return HttpResponseRedirect(reverse('my_edit_competition',kwargs={'pk': c.pk}))
-    
-class MyEditCompetition(LoginRequiredMixin,TemplateView):
-    template_name = 'web/my/edit.html'
-
-    def post(self,request,competition_id=None):
-        form = MyEditWizardForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('my_edit_competition', kwargs={'pk': form.cleaned_data['competition_id'] }))
-        return HttpResponseBadRequest()
-    
-    def get_context_data(self, **kwargs):
-        context = super(MyEditCompetition,self).get_context_data(**kwargs)
-        comp = models.Competition.objects.get(pk=self.kwargs['pk'])
-        context['competition'] = comp
-        context['pages'] = comp.pagecontent.pages if comp.pagecontent else []
-        #context['content'] = models.ContentContainer.objects.all()
-        return context
- 
 class MyCompetitionParticipantView(LoginRequiredMixin,ListView):
     queryset = models.CompetitionParticipant.objects.all()
     template_name = 'web/my/participants.html'
@@ -285,17 +325,6 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
                                                            
         
-class SubmissionsTest(TemplateView):
-    template_name = 'web/my/submissions_test.html'
-
-    def get_context_data(self):
-        ctx = super(SubmissionsTest,self).get_context_data()
-
-        ctx['phase_id'] = self.kwargs.get('phase_id')
-        ctx['participant_id'] = self.kwargs.get('participant_id')
-        
-        return ctx
-
 class VersionView(TemplateView):
     template_name='web/project_version.html'
 
@@ -305,10 +334,11 @@ class VersionView(TemplateView):
         out, err = p.communicate()
         ctx = super(VersionView,self).get_context_data()
         ctx['commit_hash'] = out
+        tasks.echo.delay("version is " + out)
         return ctx
 
 # Bundle Views
-
+#
 class BundleListView(ListView):
     model = models.Bundle
     queryset = models.Bundle.objects.all()
@@ -325,7 +355,6 @@ class BundleCreateView(CreateView):
         tasks.create_directory.delay(f.id)
         return HttpResponseRedirect('/bundles')
   
-
 class BundleDetailView(DetailView):
     model = models.Bundle
 
@@ -333,10 +362,9 @@ class BundleDetailView(DetailView):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         return context
 
-
-
-# Bundle Run Views
-
+#
+# Run Views
+#
 class RunListView(ListView):
     model = models.Run
     queryset = models.Run.objects.all()
@@ -351,7 +379,6 @@ class RunCreateView(CreateView):
         f.save()
         return HttpResponseRedirect('/runs')
   
-  
 class RunDetailView(DetailView):
     model = models.Run
 
@@ -359,4 +386,3 @@ class RunDetailView(DetailView):
         context = super(RunDetailView, self).get_context_data(**kwargs)
         return context
         
-

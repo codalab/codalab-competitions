@@ -14,6 +14,7 @@
               <div class="articleImageContainer">
                 <div class="subContainerPadding">
                     {% if item.image_url = None %}
+                    
 				    <img src="{% static "site/Images/ProfileImageDummy.jpg" %}">
                     {% else %}
 				    <img src="{{ item.image_url }}">
@@ -30,9 +31,12 @@
               </div>
             </div>
           </a>
-          <div class="small-10 small-centered columns cursor-default">
-            <button class="secondary button" onclick='deleteCompetition({{item.pk}})'>Delete</button> 
-            <a href="#"><button class="secondary button">Edit</button></a>
+          <div class="small-10 columns cursor-default myCompetitionButtons">
+            <!-- comment out delete to make things safe -->
+            <!--
+            <a href="{% url 'competitions:delete' pk=item.pk %}"><button class="secondary button">Delete</button></a>
+            -->
+            <a href="{% url 'competitions:edit' pk=item.pk %}"><button class="secondary button">Edit</button></a>
             <a href="{% url 'my_competition_participants' competition_id=item.pk %}"><button class="secondary button">Participants</button></a>
          </div>
        </div>

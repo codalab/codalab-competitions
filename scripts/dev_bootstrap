@@ -1,0 +1,10 @@
+#!/bin/bash
+
+sudo apt-get update
+sudo apt-get install -y build-essential python-crypto python2.7-dev python-setuptools libmysqlclient-dev librabbitmq-dev libpcre3-dev libpng12-dev libjpeg-dev
+sudo easy_install pip
+sudo pip install -U --force-reinstall pip
+sudo pip install -U --force-reinstall setuptools
+sudo pip install -U --force-reinstall virtualenvwrapper
+sudo pip install -U --force-reinstall wheel
+

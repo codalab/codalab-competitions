@@ -1,0 +1,15 @@
+#/bin/bash
+set -eu
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_vars.sh
+
+set +o nounset
+deactivate
+set -o nounset
+# Remove VEVN dir before makeing tarball
+if [ -d "$VENV_DIR" ] ; then
+ rm -rf "$VENV_DIR"/*
+fi
+
+tar --exclude=.git\* --exclude=\#\* --exclude=\*~  -C $(dirname "$ROOT_DIR") -cvf - $(basename "$ROOT_DIR") | gzip -9 -c > $OUTFILE
+

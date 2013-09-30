@@ -21,6 +21,20 @@ class Base(Settings):
    PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
    PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
    ROOT_DIR = os.path.dirname(PROJECT_DIR)
+   PORT = '8000'
+   DOMAIN_NAME='localhost'
+   SERVER_NAME='localhost'
+   DEBUG = True
+   TEMPLATE_DEBUG = DEBUG
+
+   if 'CONFIG_SERVER_NAME' in os.environ:
+      SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
+   if 'CONFIG_HTTP_PORT' in os.environ:
+      PORT = os.environ.get('CONFIG_HTTP_PORT')
+
+   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],                  
+                  }
 
    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -32,14 +46,12 @@ class Base(Settings):
 
    SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
-   DOMAIN_NAME='localhost'
-   SERVER_NAME='localhost'
 
    DEPLOY_ROLES = { 'web': ['localhost'],
                    'celery': ['localhost'],
                    }
    
-   AUTH_USER_MODEL = 'authenz.User'
+   AUTH_USER_MODEL = 'authenz.ClUser'
 
    CODALAB_VERSION = __version__
 
@@ -53,11 +65,7 @@ class Base(Settings):
    # CELERY_CACHE_BACKEND = "memory://"
    ##
 
-   STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
-                  'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                #  'CELERY_CONFIG': os.environ.get('CELERY_CONFIG','.'.join([os.path.dirname(os.environ['DJANGO_SETTINGS_MODULE']),'celeryconfig',os.environ['DJANGO_CONFIGURATION']])),
-                  }
-
+   
    HAYSTACK_CONNECTIONS = {
       'default': {
          'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
@@ -66,9 +74,8 @@ class Base(Settings):
    # Hosts/domain names that are valid for this site; required if DEBUG is False
    # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
    ALLOWED_HOSTS = []
-   DEBUG = True
-   TEMPLATE_DEBUG = DEBUG
-   PORT = '8000'
+
+  
 
    ADMINS = (
       # ('Your Name', 'your_email@example.com'),
@@ -101,7 +108,7 @@ class Base(Settings):
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-   MEDIA_ROOT = os.path.join(PROJECT_DIR,'media/')
+   MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -112,7 +119,7 @@ class Base(Settings):
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-   STATIC_ROOT = os.path.join(PROJECT_DIR,'static/')
+   STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -159,7 +166,7 @@ class Base(Settings):
 
    ROOT_URLCONF = 'codalab.urls'
 
-# Python dotted path to the WSGI application used by Django's runserver.
+   # Python dotted path to the WSGI application used by Django's runserver.
    WSGI_APPLICATION = 'codalab.wsgi.application'
 
    TEMPLATE_DIRS = (
@@ -228,7 +235,7 @@ class Base(Settings):
     'apps.authenz',
     'apps.api',
     'apps.web',
-    'apps.common',
+    # 'apps.common',
 
     # Authentication app, enables social authentication
     'allauth',
@@ -265,6 +272,12 @@ class Base(Settings):
     ('text/less', 'lessc {infile} {outfile}'),
     ('text/typescript', 'tsc {infile} --out {outfile}'),
     )
+
+   REST_FRAMEWORK = {
+      'DEFAULT_RENDERER_CLASSES': (
+         'rest_framework.renderers.JSONRenderer',
+         )
+      }
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -305,7 +318,18 @@ class Base(Settings):
                print e               
             else:
                cls.INSTALLED_APPS += (a,)
-
+      cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
+                              'CONFIG_SERVER_NAME': cls.SERVER_NAME
+                              })
+      if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
+         cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
+      
+   @classmethod
+   def post_setup(cls):
+      if not hasattr(cls,'PORT'):
+         raise AttributeError("PORT environmenment variable required")
+      if not hasattr(cls,'SERVER_NAME'):
+         raise AttributeError("SERVER_NAME environment variable required")
 
 
 class DevBase(Base):

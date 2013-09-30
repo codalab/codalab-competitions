@@ -915,10 +915,6 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-.competition-tile { 
-    height: 140px;
-    overflow: hidden;
-}
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -1262,7 +1258,6 @@ div.articleImageContainer
     width:100%;
 }
 .articleTextAreaContainer .subContainerPadding{ 
-    display:table-cell;
     vertical-align:top;
 }
 .articleTextArea .globalYellowButtonSmallAtag{
@@ -1508,8 +1503,7 @@ div.articleImageContainer
 }
 
 .CompetitionsDetailContainer p {
-    font:normal 16px/19px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    /*color:#777;*/
+    font:normal 16px/19px 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
     font-weight: 400;
 }
 
@@ -1561,30 +1555,36 @@ div.articleImageContainer
     bottom:0;
     z-index:1;
 }
-.challStatusStripSection
-{
+.challStatusStripSection {
     display:table;
     width:100%;
     position:relative;
     z-index:1;
     table-layout:fixed;
 }
-.challStatusStripSection > section{
+.challStatusStripSection > section {
     display:table-cell;
-    padding:7px 10px 0 10px !important;
+    padding:3px 10px !important;
     vertical-align:middle;
     text-align:left;
-    width:33%
-}
-.challStatusStripSection > section label{ 
-    white-space:nowrap; 
-    overflow:hidden;
+    width:33%;
+    overflow-x: hidden;
+    overflow-y: visible;
     text-overflow:ellipsis;
-    width:100%;
-    text-align:center;
 }
-.challStatusStripSection > section label {
-    text-align:left
+.challStatusStripSection > section span {
+    font-size: .7em; 
+    white-space:nowrap; 
+    width:100%;
+    text-align:left;
+}
+.phaseLabel {
+    font-weight: bold;
+}
+.currentPhase {
+    color: #739cb9 !important;
+    text-indent: 12px;
+    background: url('../Images/triangle_phase.png') no-repeat 10px 8px;
 }
 .testingStarts {
     float:right;
@@ -1654,11 +1654,24 @@ ul.myCodalabTabContent li.tab1 {
     overflow:hidden;
     margin-top:17px;
 }
-
+.CompetitionsDetailLftUl {
+    padding: 3px 0;
+}
+.section-container.vertical-tabs > section.active > .title a {
+    font-weight: bold !important;
+}
+.section-container.auto > section.active > .title a {
+    font-weight: normal !important;
+}
 .competitionsProfileImage {
-    width:175px;
+    width: 175px;
+    height: 175px;
     display:table-cell;
     vertical-align:top;
+}
+#imgProfileImage {
+    max-height: 175px;
+    max-width: 175px;
 }
 .competitionsHeaderTitle {
     display:table-cell;
@@ -2718,6 +2731,9 @@ ul.leftNavigation li.active a{
 
 
 /*  /////  TEMP STYLES  /////  */
+.content p, .content p a {
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+}
 .cl-logo  {
     padding: 9px 100px 0 14px;
 }
@@ -2788,6 +2804,63 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 10px;
     margin-bottom: 0;
 }
+.homepage_featured h2 {
+    display: inline-block;
+}
 .spacer500 {
     height: 500px;
 }
+.myCompetitionButtons  {
+    height: 50px;
+    margin: 10px 0 0 0;
+}
+.myCompetitionButtons button {
+    margin-left: 3px;
+}
+#edit_competition {
+    padding-left: 0.9375em;
+    padding-right: 0.9375em;
+}
+#edit_competition label {
+    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 1.3em;
+    padding: 1em 0 .3em 0;
+    cursor: default;
+    display: inline-block;
+}
+#edit_competition input, #edit_competition textarea, #edit_competition p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.4em;
+}
+#edit_competition textarea, #edit_competition select {
+    min-height: 8em;
+    resize: none;
+    padding: 10px;
+    margin: 0;
+    overflow-y: scroll;
+}
+#edit_competition a, #edit_competition a:hover {
+    font-size: 1em;
+    font-weight: bold;
+    color: #676278;
+}
+#edit_competition a:hover {
+    color: #739CB9;
+}
+#edit_competition .helptext {
+    font-size: .8em;
+}
+#edit_competition input[type=file], #edit_competition input[type=checkbox]  {
+    cursor: pointer;
+}
+.icon_excel {
+    background: url('../Images/icon_excel.png') no-repeat 15px;
+    min-height: 32px;
+    padding-top: 8px;
+}
+.icon_excel a {
+    margin-left: 38px;
+}
+

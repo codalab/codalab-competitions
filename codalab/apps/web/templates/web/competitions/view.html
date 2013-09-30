@@ -31,20 +31,20 @@
                             </div>
                             <section class="challStatusStripSection">
                                 {% for phase in competition.phases.all %}
+                                {% if phase.is_active %}
+                                <section class="currentPhase">
+                                {% else %}
                                 <section>
-                                    <label>
-                                        <span>{{phase.label}}</span> 
+                                {% endif %}
+                                        <span class="phaseLabel">{{phase.label}}</span> 
                                         <br>
                                         <span>{{phase.start_date}}</span>
-                                    </label>
                                 </section>
                                 {% endfor %}
                                 <section>
-                                    <label>
-                                        <span>Competition Ends</span> 
+                                        <span class="phaseLabel">Competition Ends</span> 
                                         <br>
                                         <span>{{competition.end_date|default:"Never"}}</span>
-                                    </label>
                                 </section>
                             </section>
                         </div>
@@ -64,7 +64,7 @@
                                 <div class="infoStatusBar"></div>
                                 <div class="labelArea">
                                     <p class="regApprovLabel">You must be logged in to participate in competitions.</p>
-                                    <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" data-reveal-id="login-modal" data-reveal-ajax="true"><button class="button">Sign In</button></a>
+                                    <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data&modal=on" data-reveal-id="login-modal" data-reveal-ajax="true"><button class="button">Sign In</button></a>
                                 </div>
                             </div>
                             {% else %}
@@ -121,10 +121,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block js %}
-{% endblock js %}
+{% endblock content %}
 
 {% block jsincludes %}
 <script type="text/javascript" src="{% static "site/js/Competition.js" %}"></script>
