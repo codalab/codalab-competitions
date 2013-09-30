@@ -19,7 +19,6 @@ import models
 
 main = base.Base.SITE_ROOT
 
-<<<<<<< HEAD
 def local_run(url, submission_id):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
