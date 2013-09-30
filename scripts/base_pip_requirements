@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Make sure we have all thr correct requirements for building and installing
+
+pip install -U --force-reinstall pip
+pip install -U --force-reinstall setuptools
+pip install -U --force-reinstall wheel

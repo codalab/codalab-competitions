@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit{% endblock %}
+
+{% block content %}
+<div class="row">
+  <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+    <div class="large-12 columns">
+      {{ form.as_p }}
+      {% for formset in inlines %}
+        {{ formset.as_p }}
+      {% endfor %}
+    </div>          
+    <div class="row">
+      <div class="large-12 columns">
+        <button type="submit" class="medium button blue">Submit</button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+  $('document').ready(function() {
+    // This helps make sections appear with Foundation
+    $(this).foundation('section', 'reflow');
+  });
+{% endblock js %}

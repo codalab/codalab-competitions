@@ -1,25 +1,31 @@
 import exceptions
-import os
-import operator
 import random
+import operator
+import os, io
+from os.path import abspath, basename, dirname, join, normpath
+import zipfile
+import yaml
+import tempfile
 import requests
+import datetime
+import django.dispatch
 import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.dispatch import receiver
-import django.dispatch
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.core.exceptions import PermissionDenied
+from django.core.files import File
+from django.core.files.storage import get_storage_class
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.timezone import utc,now
-from django.core.exceptions import PermissionDenied
-from django.core.files.storage import get_storage_class
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
-
-from os.path import abspath, basename, dirname, join, normpath
 
 import signals
 import tasks
@@ -125,7 +131,6 @@ class Page(models.Model):
         return super(Page,self).save(*args,**kwargs)
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)    
-
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -177,12 +182,16 @@ class Competition(models.Model):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
+    published = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
         return items[0] if len(items) > 0 else None
 
+    def get_absolute_url(self):
+        return reverse('competitions:view', kwargs={'pk':self.pk})
+        
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
@@ -207,10 +216,15 @@ class Competition(models.Model):
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
-        
+    
     @property
     def is_active(self):
-        return True if self.end_date is None else self.end_date < now().date()
+        if self.end_date is None: 
+            return True 
+        if type(self.end_date) is datetime.datetime.date:
+            return True if self.end_date is None else self.end_date > now().date()
+        if type(self.end_date) is datetime.datetime:
+            return True if self.end_date is None else self.end_date > now()
 
 # Dataset model
 class Dataset(models.Model):
@@ -230,21 +244,26 @@ class Dataset(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.name,self.datafile.name)
 
+def competition_prefix(competition):
+    return os.path.join("competition", str(competition.id))
+
+def phase_prefix(phase):
+    return os.path.join(competition_prefix(phase.competition), str(phase.phasenumber))
 
 def phase_data_prefix(phase):
-    return "competition/%d/%d/data/" % (phase.competition.pk, phase.pk,)
+    return os.path.join("competition", str(phase.competition.id), str(phase.phasenumber), "data")
 
 # In the following helpers, the filename argument is required even though we
 # choose to not use it. See FileField.upload_to at https://docs.djangoproject.com/en/dev/ref/models/fields/.
 
-def phase_scoring_program_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'program.zip'
+def phase_scoring_program_file(phase, filename="program.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_reference_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'reference.zip'
+def phase_reference_data_file(phase, filename="reference.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
-def phase_input_data_file(phase, filename=""):
-    return phase_data_prefix(phase) + 'input.zip'
+def phase_input_data_file(phase, filename="input.zip"):
+    return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_file_name(instance,filename):
     return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
@@ -327,7 +346,7 @@ class CompetitionPhase(models.Model):
     @property
     def is_past(self):
         """ Returns true if this phase of the competition has already ended. """
-        return (not is_active) and (not is_future)
+        return (not self.is_active) and (not self.is_future)
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
@@ -698,6 +717,145 @@ class SubmissionScoreDef(models.Model):
     def __unicode__(self):
         return self.label
 
+class CompetitionDefBundle(models.Model):
+    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
+    created_at = models.DateTimeField()
+
+    def unpack(self):
+        zf = zipfile.ZipFile(self.config_bundle)
+        # Create the basic competition
+        comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
+        comp_spec = yaml.load(zf.open(comp_spec_file))
+        comp_base = comp_spec.copy()
+        for block in ['html', 'phases', 'leaderboard']:
+            if block in comp_base:
+                del comp_base[block]
+        comp_base['creator'] = self.owner
+        comp_base['modified_by'] = self.owner
+        if type(comp_base['end_date']) is datetime.datetime.date:
+            comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+
+        comp = Competition(**comp_base)
+        comp.save()
+
+        comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
+        if not os.path.exists(comp_root):
+            os.makedirs(comp_root)
+
+        comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+        comp.save()
+
+        # Populate pages
+        pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
+
+        details_category = ContentCategory.objects.get(name="Learn the Details")
+
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+                                   label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation",
+                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
+        Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+
+        participate_category = ContentCategory.objects.get(name="Participate")
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+                                   label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
+        Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+
+        # Create phases
+        for p_num in comp_spec['phases']:
+            phase_spec = comp_spec['phases'][p_num].copy()
+            phase_spec['competition'] = comp
+            if 'datasets' in phase_spec:
+                datasets = phase_spec['datasets']
+                del phase_spec['datasets']
+            else:
+                datasets = {}
+            if type(phase_spec['start_date']) is datetime.datetime.date:
+                phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+            phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
+            phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
+            if not os.path.exists(phase_path):
+                os.makedirs(phase_path)
+            # Evaluation Program
+            phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+            phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.save()
+            eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
+            count = 1
+            for ds in datasets.keys():
+                f = ExternalFile.objects.create(type=eft, source_url=datasets[ds]['url'], name=datasets[ds]['name'], creator=self.owner)
+                f.save()
+                d = Dataset.objects.create(creator=self.owner, datafile=f, number=count)
+                d.save()
+                phase.datasets.add(d)
+                phase.save()
+                count += 1
+
+
+        if 'leaderboard' in comp_spec and 'leaderboards' in comp_spec['leaderboard']:
+            # Create leaderboard
+            lboards = {}
+            for key, value in comp_spec['leaderboard']['leaderboards'].items():
+                rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
+                lboards[rg.label] = rg
+                for gp in comp.phases.all():
+                    rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
+
+        if 'leaderboard' in comp_spec and 'columns' in comp_spec['leaderboard']:
+            columns = {}
+            for key, vals in comp_spec['leaderboard']['columns'].items():
+                if 'group' not in vals:
+                    # Define a new grouping of scores
+                    s,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp, 
+                                key=key,
+                                defaults=dict(label=vals['label']))
+                    lboards[key] = s
+                else:
+                    # Create the score definition
+                    is_computed = 'computed' in vals
+                    sort_order = 'desc' if 'sort' not in vals else vals['sort']
+                    numeric_format = vals['numeric_format'] or "2"
+                    sdefaults = dict(label=vals['label'],numeric_format=numeric_format,show_rank=not is_computed,sorting=sort_order)
+                    if 'selection_default' in vals:
+                        sdefaults['selection_default'] = vals['selection_default']
+
+                    sd,cr = SubmissionScoreDef.objects.get_or_create(
+                                competition=comp,
+                                key=key,
+                                computed=is_computed,
+                                defaults=sdefaults)
+                    if is_computed:
+                        sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                        for f in vals['computed']['fields']:
+                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
+                            # brats_leaderboard_defs after the fields they reference.
+                            SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
+                    columns[sd.key] = sd
+
+                    # Associate the score definition with its column group
+                    if 'column_group' in vals:
+                        gparent = lboards[vals['column_group']]
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                parent=gparent,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+                    else:
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+
+                    # Associate the score definition with its result group
+                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=lboards[vals['group']['label']])
+        # Add owner as participant so they can view the competition
+        approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
+        return comp
+
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)
     group = models.ForeignKey(SubmissionResultGroup)
@@ -717,7 +875,6 @@ class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
     operation = models.CharField(max_length=10,choices=(('Max','Max'),
                                                         ('Avg', 'Average')))
-    
 class SubmissionComputedScoreField(models.Model):
     computed = models.ForeignKey(SubmissionComputedScore,related_name='fields')
     scoredef = models.ForeignKey(SubmissionScoreDef)
@@ -730,14 +887,16 @@ class SubmissionComputedScoreField(models.Model):
 class SubmissionScoreSet(MPTTModel):
     parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
-    key = models.CharField(max_length=50,unique=True)
+    key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+
+    class Meta:
+        unique_together = (('key','competition'),)
 
     def __unicode__(self):
         return "%s %s" % (self.parent.label if self.parent else None, self.label)
 
-        
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)

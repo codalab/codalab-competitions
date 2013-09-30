@@ -21,13 +21,13 @@
 <!-- Three-up Content Blocks -->
 <div class="row homepage_featured">
   <div class="large-6 columns">
-    <a href="#"><img src="{{STATIC_URL}}site/Images/icon_experiments.png" alt="Experiments Coming Soon..."> 
-    <h2>Experiments</h2> </a>
+    <a href="#"><img src="{{STATIC_URL}}site/Images/icon_experiments.png" alt="Experiments Coming Soon..."><br>
+    <h2>Experiments</h2></a><br>
     <p>CodaLab Experiments enable collaborative research and computational research to be done in an efficient and reproducible manner. By providing modularity, live execution, and inline annotation of code with rich explanations, CodaLab enables you to quickly sketch ideas and collaborate with fellow community members.</p><br>
   </div>
   <div class="large-6 columns">
-    <a href="/competitions"><img src="{{STATIC_URL}}site/Images/icon_competitions.png" alt="CodaLab Competitions">
-    <h2>Competitions</h2></a>
+    <a href="/competitions"><img src="{{STATIC_URL}}site/Images/icon_competitions.png" alt="CodaLab Competitions"><br>
+    <h2>Competitions</h2></a><br>
     <p>CodaLab competitions provide an opportunity for researchers, developers and algorithmists to create solutions for problems across a wide range of domains, and advance the state of the art for their respective areas of interest.</p>
   </div>
 </div>
@@ -46,7 +46,7 @@
         </div>
         <div class="small-2 columns">
             {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}" data-reveal-id="signup-modal" data-reveal-ajax="true" class="button">Sign Up</a>
+                <a href="{% url 'account_signup' %}?modal=on" data-reveal-id="signup-modal" data-reveal-ajax="true" class="button">Sign Up</a>
             {% endif %}
         </div>
       </div>
@@ -54,4 +54,4 @@
   </div>
 </div>
 
-{% endblock %}
+{% endblock content %}

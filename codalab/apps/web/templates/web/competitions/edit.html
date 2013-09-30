@@ -2,43 +2,45 @@
 {% load staticfiles %}
 {% load compress %}
 
-{% block title %}Edit{% endblock %}
+{% block head_title %}Edit Competition{% endblock head_title %}
+{% block page_title %}Edit Competition{% endblock page_title %}
 
 {% block extra_head %}
   {% compress js %}
-    <!-- <script src="{{ STATIC_URL }}site/js/FileUpload.js"></script>
-    <script src="{{ STATIC_URL }}site/js/CreateCompetition.js"></script -->>
+      <script src="{{ STATIC_URL }}site/js/FileUpload.js"></script>
   {% endcompress %}
 {% endblock extra_head %}
 
 {% block content %}
 <div class="row">
   <div class="large-12 columns">
-      <a class="helpLinkIcon right" href='{% url 'help_create_competition' %}#phases' title="Get help with creating a competition" target="_blank"></a>
+    <a class="helpLinkIcon right" href="{% url 'help_create_competition' %}#phases" title="Get help with creating a competition" target="_blank"></a>
   </div>
 </div>
 
 <div class="row">
-      <div class="content" data-slug="#overview" data-section-content>
-        {% include "web/competitions/_edit_overview.html" with competition=competition %}
+  <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
+    <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+      {{ form.as_p }}
+      {% for formset in inlines %}
+        {{ formset.as_p }}
+      {% endfor %}
+
+        
+    <div class="row">
+      <div class="large-12 columns">
+        <button type="submit" class="medium button blue">Submit</button>
       </div>
-</div>
-<form method="POST" id="comp_save_form">
-  <div class="saveContainer">
-    <div class="saveBtnHolder">
-      <div class="saveBtnHolderColm">
-        <input id="btnSave" type="submit" value="Save" class="commonBlueButton" />
-      </div>
+      <div class="spacer500">&nbsp;</div>
     </div>
-  </div>
-</form>
+  </form>
+</div>
+</div>
 {% endblock content %}
 
 {% block js %}
-
-    $('document').ready(function() {
-        // This helps make sections appear with Foundation
-        $(this).foundation('section', 'reflow');
-        });
-
+  $('document').ready(function() {
+    // This helps make sections appear with Foundation
+    $(this).foundation('section', 'reflow');
+  });
 {% endblock js %}

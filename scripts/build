@@ -1,0 +1,49 @@
+#!/bin/bash
+set -eu # Fail on command returning non-zero or unbound variables
+pushd `pwd` > /dev/null
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_vars.sh
+source $THIS_DIR/create_version
+popd > /dev/null
+
+CONFIG_MODULE_PATH=${CONFIG_MODULE_PATH:-""}
+for CVAR in DJANGO_CONFIGURATION DJANGO_SETTINGS_MODULE CONFIG_REQ
+do
+  if [ -z $(eval echo \$$CVAR) ] ; then
+    echo "Need to specify $CVAR"
+  fi
+done
+
+echo "Settings: ($DJANGO_CONFIGURATION) ($DJANGO_SETTINGS_MODULE) ($CONFIG_REQ) ($CONFIG_MODULE_PATH)"
+if [ ! -z "$CONFIG_MODULE_PATH" ] ; then
+  CONFIG_MODULE_PATH=$(readlink -f $CONFIG_MODULE_PATH)
+  if [ ! -x "$CONFIG_MODULE_PATH" ] ; then
+    echo "Configuration module path is not valid"
+  fi
+fi
+virtualenv $VENV_DIR
+set +o nounset 
+source $VENV_DIR/bin/activate
+set -o nounset
+source $THIS_DIR/base_pip_requirements
+
+# remove possible stale packages
+if [ -d "$WHEEL_DIR" ] ; then
+ rm -rf "$WHEEL_DIR"/* 
+fi
+
+$PIP_BUILD_CMD -r $REQ_DIR/$CONFIG_REQ
+
+$PIP_BUILD_CMD $CONFIG_MODULE_PATH
+
+$PIP_INSTALL_CMD $WHEEL_DIR/* 
+cd $PROJECT_DIR
+python ./manage.py config_gen
+echo "Project built and configured"
+echo "Activate the virtualenv:"
+echo " > source $VENV_DIR/bin/activate "
+echo "Use the ./mange script provided to set the environment correctly when running servers"
+echo " > cd $PROJECT_DIR"
+echo " > ./manage runserver"
+echo "In another terminal:"
+echo " > ./mange celery worker"
