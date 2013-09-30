@@ -19,46 +19,68 @@ import models
 
 main = base.Base.SITE_ROOT
 
+def local_run(url, submission_id):
+    """
+        This routine will take the job (initially a competition submission, later a run) and execute it locally.
+    """
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    program = submission.phase.scoring_program.name
+    dataset = submission.phase.reference_data.name
+    print "Running locally"
+    # Make a directory for the run
+    
+    # Grab the input bundle, unpack in the run/input directory
+
+    # Grab the program bundle, unpack it in the run/program directory
+
+    # Make the run/output directory
+
+
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
-    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-    program = 'competition/1/1/data/program.zip'
-    dataset = 'competition/1/1/data/reference.zip'
 
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
-    inputfile = ContentFile(
-"""ref: %s
-res: %s
-""" % (dataset, submission.file.name))   
-    submission.inputfile.save('input.txt', inputfile)
-    # Generate run bundle, which binds the input bundle to the scoring program
-    runfile = ContentFile(
-"""program: %s
-input: %s
-""" % (program, submission.inputfile.name))
-    submission.runfile.save('run.txt', runfile)
-    # Log start of evaluation to stdout.txt
-    stdoutfile = ContentFile(
-"""Standard output file for submission #%s:
-
-""" % (submission.submission_number))
-    submission.stdout_file.save('run/stdout.txt', stdoutfile)
-    submission.save()
-    # Submit the request to the computation service
-    headers = {'content-type': 'application/json'}
-    data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
-    res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
-    print "submitting: %s" % submission.runfile.name
-    if res.status_code in (200,201):
-        data = res.json()
-        submission.execution_key = data['Id']
-        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+    if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        local_run(url, submission_id)
     else:
-        submission.set_status(models.CompetitionSubmissionStatus.FAILED)
-    submission.save()
-    submission_get_results.delay(submission.pk,1)
-    return submission.pk
+        time.sleep(0.01) # Needed temporarily for using sqlite. Race.
+
+        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+        program = submission.phase.scoring_program.name
+        dataset = submission.phase.reference_data.name
+
+        # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
+        inputfile = ContentFile(
+    """ref: %s
+    res: %s
+    """ % (dataset, submission.file.name))   
+        submission.inputfile.save('input.txt', inputfile)
+        # Generate run bundle, which binds the input bundle to the scoring program
+        runfile = ContentFile(
+    """program: %s
+    input: %s
+    """ % (program, submission.inputfile.name))
+        submission.runfile.save('run.txt', runfile)
+        # Log start of evaluation to stdout.txt
+        stdoutfile = ContentFile(
+    """Standard output file for submission #%s:
+
+    """ % (submission.submission_number))
+        submission.stdout_file.save('run/stdout.txt', stdoutfile)
+        submission.save()
+        # Submit the request to the computation service
+        headers = {'content-type': 'application/json'}
+        data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
+        res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
+        print "submitting: %s" % submission.runfile.name
+        if res.status_code in (200,201):
+            data = res.json()
+            submission.execution_key = data['Id']
+            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+        else:
+            submission.set_status(models.CompetitionSubmissionStatus.FAILED)
+        submission.save()
+        submission_get_results.delay(submission.pk,1)
+        return submission.pk
 
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
