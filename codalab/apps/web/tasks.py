@@ -4,7 +4,7 @@ import json
 import re
 import zipfile
 import io
-import tempfile, os.path, subprocess
+import tempfile, os.path, subprocess, StringIO
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.files import File
@@ -20,11 +20,10 @@ import models
 
 main = base.Base.SITE_ROOT
 
-def local_run(url, submission_id):
+def local_run(url, submission):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
     """
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     program = submission.phase.scoring_program.name
     dataset = submission.phase.reference_data.name
     print "Running locally"
@@ -70,22 +69,43 @@ def local_run(url, submission_id):
     szip = zipfile.ZipFile(io.BytesIO(submission.file.read()))
     szip.extractall(os.path.join(job_dir, "input", "res"))
 
+    submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
+    submission.save()
+
     # Execute the job
-    stdout_file = open(os.path.join(output_dir, "stdout.txt"), 'wb')
-    stderr_file = open(os.path.join(output_dir, "stderr.txt"), 'wb')
+    stdout_fn = os.path.join(output_dir, "stdout.txt")
+    stderr_fn = os.path.join(output_dir, "stderr.txt")
+    score_fn  = os.path.join(output_dir, "scores.txt")
+    stdout_file = open(stdout_fn, 'wb')
+    stderr_file = open(stderr_fn, 'wb')
     subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
+    stdout_file.close()
+    stderr_file.close()
 
     # Pack up the output and store it in Azure.
+    bytes = StringIO.StringIO()
+    ozip = zipfile.ZipFile(bytes, 'w')
+    ozip.write(score_fn, "scores.txt")
+    ozip.close()
+    bytes.seek(0)
+
+    submission.output_file.save(models.submission_output_filename(submission), File(bytes))
+    submission.stdout_file.save(models.submission_stdout_filename(submission), File(open(stdout_fn, 'r')))
+    submission.stderr_file.save(models.submission_stderr_filename(submission), File(open(stderr_fn, 'r')))
+
+    submission.set_status(models.CompetitionSubmissionStatus.FINISHED)
+    submission.save()
 
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
+    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
 
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
-        local_run(url, submission_id)
+        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+        submission.save()
+        local_run(url, submission)
     else:
-        time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-
-        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
 
@@ -121,7 +141,7 @@ def submission_run(url,submission_id):
             submission.set_status(models.CompetitionSubmissionStatus.FAILED)
         submission.save()
         submission_get_results.delay(submission.pk,1)
-        return submission.pk
+    return submission.pk
 
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
