@@ -333,13 +333,9 @@ class Base(Settings):
 
 
 class DevBase(Base):
-   OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+   OPTIONAL_APPS = ('django_extensions',)
    INTERNAL_IPS = ('127.0.0.1',)
-   DEBUG=True
-   DEBUG_TOOLBAR_CONFIG = {
-      'SHOW_TEMPLATE_CONTEXT': True,
-      'ENABLE_STACKTRACES' : True,
-      }
+   DEBUG=False
 
    HAYSTACK_CONNECTIONS = {
       'default': {

@@ -104,6 +104,10 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         ozip = zipfile.ZipFile(io.BytesIO(submission.output_file.read()))
         scores = open(ozip.extract('scores.txt'), 'r').read()
         print "Processing scores..."
+        first = True
+        result = models.SubmissionResult.objects.create(submission=submission, aggregate=0.0)
+        result.name = submission.submission_number
+        result.save()
         for line in scores.split("\n"):
             if len(line) > 0:
                 label, value = line.split(":")
@@ -161,3 +165,7 @@ def sub_directories(bundleid):
     subprocess.check_output(args, shell=True)
     bundle.save()
     print "The bundle yaml has been created"
+
+@celery.task()
+def echo(msg):
+    print "Echoing %s" % (msg)
