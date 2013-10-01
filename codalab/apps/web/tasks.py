@@ -4,6 +4,7 @@ import json
 import re
 import zipfile
 import io
+import tempfile, os.path, subprocess
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.files import File
@@ -27,14 +28,54 @@ def local_run(url, submission_id):
     program = submission.phase.scoring_program.name
     dataset = submission.phase.reference_data.name
     print "Running locally"
-    # Make a directory for the run
+    base_dir = models.submission_root(submission)
     
-    # Grab the input bundle, unpack in the run/input directory
+    # Make a directory for the run
+    job_dir = os.path.join(tempfile.gettempdir(), base_dir)
+    print "Job Dir: %s" % job_dir
+    if not os.path.exists(job_dir):
+        os.makedirs(job_dir)
+    else:
+        print "Job dir already exists, clearing it out."
+        os.rmdir(job_dir)
+        os.makedirs(job_dir)
 
-    # Grab the program bundle, unpack it in the run/program directory
+    input_dir = os.path.join(job_dir, "input")
+    output_dir = os.path.join(job_dir, "output")
+    program_dir = os.path.join(job_dir, "program")
 
     # Make the run/output directory
+    for d in [os.path.join(input_dir, "ref"), os.path.join(input_dir, "res"), program_dir, output_dir]:
+        os.makedirs(d)
 
+    # Grab the program bundle, unpack it in the run/program directory
+    pzip = zipfile.ZipFile(io.BytesIO(submission.phase.scoring_program.read()))
+    pzip.extractall(os.path.join(job_dir, "program"))
+    metadata = open(os.path.join(program_dir, "metadata")).readlines()
+    for line in metadata:
+        print line
+        key, value = line.split(":")
+        if "command" in key.lower():
+            for cmdterm in value.split(" "):
+                if "$program" in cmdterm:
+                    prefix, cmd = cmdterm.split("/")
+                    print cmd
+    command = os.path.join(program_dir, cmd)
+
+    # Grab the reference bundle, unpack in the run/input directory
+    rzip = zipfile.ZipFile(io.BytesIO(submission.phase.reference_data.read()))
+    rzip.extractall(os.path.join(job_dir, "input", "ref"))
+
+    # Grab the submission bundle, unpack it in the directory
+    szip = zipfile.ZipFile(io.BytesIO(submission.file.read()))
+    szip.extractall(os.path.join(job_dir, "input", "res"))
+
+    # Execute the job
+    stdout_file = open(os.path.join(output_dir, "stdout.txt"), 'wb')
+    stderr_file = open(os.path.join(output_dir, "stderr.txt"), 'wb')
+    subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
+
+    # Pack up the output and store it in Azure.
 
 @celery.task(name='competition.submission_run')
 def submission_run(url,submission_id):
