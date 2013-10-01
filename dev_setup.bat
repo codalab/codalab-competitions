@@ -26,6 +26,7 @@ if exist dev_db.sqlite move dev_db.sqlite dev_db.sqlite.bak
 
 REM Initialize the app
 python codalab\manage.py syncdb
+python codalab\scripts\initialize.py
 
 REM Make test users
 python codalab\scripts\users.py
