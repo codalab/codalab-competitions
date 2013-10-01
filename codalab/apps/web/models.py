@@ -265,39 +265,51 @@ def phase_reference_data_file(phase, filename="reference.zip"):
 def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
-def submission_file_name(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
+def submission_root(instance):
+    return "competition/%d/%d/submissions/%d/%d" % (instance.phase.competition.pk,
+                                                    instance.phase.pk,
+                                                    instance.participant.user.pk,
+                                                    instance.submission_number)
+
+def submission_file_name(instance, filename="predictions.zip"):
+    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
-                                                                    instance.submission_number)
-def submission_inputfile_name(instance, filename):
-     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
+                                                                    instance.submission_number,
+                                                                    filename)
+def submission_inputfile_name(instance, filename="input.txt"):
+     return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                                instance.phase.pk,
                                                                instance.participant.user.pk,
-                                                               instance.submission_number)
-def submission_runfile_name(instance, filename):
-    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
+                                                               instance.submission_number,
+                                                               filename)
+def submission_runfile_name(instance, filename="run.txt"):
+    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                             instance.phase.pk,
                                                             instance.participant.user.pk,
-                                                            instance.submission_number)
+                                                            instance.submission_number,
+                                                            filename)
 
-def submission_output_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
+def submission_output_filename(instance,filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stdout_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_stdout_filename(instance,filename="stdout.txt"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stderr_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_stderr_filename(instance,filename="stderr.txt"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_file_blobkey(instance, filename="run/output.zip"):
-    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_file_blobkey(instance, filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                        instance.phase.pk,
                                                        instance.participant.user.pk,
                                                        instance.submission_number,
