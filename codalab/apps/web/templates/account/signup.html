@@ -1,0 +1,32 @@
+{% extends 'base_account.html' %}
+
+{% load i18n %}
+{% load url from future %}
+
+{% block head_title %}Sign Up{% endblock head_title %}
+{% block page_title %}Sign Up{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="large-6 columns">
+	    <p>
+	        {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in.</a>{% endblocktrans %}
+	    </p>
+
+	    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+		    {% csrf_token %}
+            {{ form.as_p }} 
+		    {% if redirect_field_value %}
+		    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+		    {% endif %}
+		    <button class="button" type="submit">{% trans "Sign Up" %} </button>
+	    </form>
+    </div>
+    <div class="large-6 columns">
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+$("#id_email").focus();
+{% endblock js %}
