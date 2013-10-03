@@ -16,8 +16,19 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 from configurations import importer
 importer.install()
 
+from django.contrib.sites.models import Site
 from django.core.files import File
 from apps.web.models import *
+from django.conf import settings
+
+#
+# Site info
+#
+
+site,_ = Site.objects.get_or_create(pk=settings.SITE_ID)
+site.domain = settings.CODALAB_SITE_DOMAIN
+site.name = settings.CODALAB_SITE_NAME
+site.save()
 
 #
 # Initialize web content
