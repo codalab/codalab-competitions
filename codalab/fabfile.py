@@ -6,50 +6,29 @@ from fabvenv import make_virtualenv, virtualenv
 
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-VENV_PATH = os.path.join(THIS_DIR,'venv')
-THIS_SETTINGS_DIR = pathjoin(THIS_DIR,'codalab','settings')
+
+PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'project','codalab','codalab')
+DEPLOY_PATH='codalab'
+
+THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR,'codalab','settings')
+
+sys.path.append('.')
 
 @task
 def set_env(**kwargs):
     env.repo_tag = 'master'
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
-    env.DEPLOY_PATH = 'codalab'
-    env.CONFIG_GEN_PATH = pathjoin(env.DEPLOY_PATH,'codalab','config','generated')
+    env.DEPLOY_PATH=DEPLOY_PATH
+    env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH,'codalab','config','generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = pathjoin('/home',env.DEPLOY_USER,'venv')
+    env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venvd')
+    VENV_PATH = env.venvpath
 
-# Environment variables will take precidence
-try:
-    env.DJANGO_CONFIG
-except AttributeError:
-    env.DJANGO_CONFIG = 'Dev'
-try:
-    env.SETTINGS_MODULE
-except AttributeError:
-    env.SETTINGS_MODULE = 'codalab.settings'
-set_env()
+    #env.django_configuration = os.environ['DJANGO_CONFIGURATION']
+    #env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
 
-
-
-sys.path.append('.')
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", env.SETTINGS_MODULE)
-os.environ.setdefault('DJANGO_CONFIGURATION', env.DJANGO_CONFIG)
-
-env.django_configuration = os.environ['DJANGO_CONFIGURATION']
-env.django_settings_module = os.environ['DJANGO_SETTINGS_MODULE']
-
-#from fabric.contrib import django
-
-#from configurations import importer
-#importer.install()
-
-#django.settings_module(env.django_settings_module)
-#from django.conf import settings as django_settings
-
-env.EXTERNAL_SITE_CONFIG = False
+    env.EXTERNAL_SITE_CONFIG = False
 
     
 @task
@@ -57,7 +36,7 @@ def repotag(name='master'):
     env.repo_tag = name
         
 @task
-def site_config(path=None,url=None,module=None):
+def site_config(path=None,archive_name='latest_codalab_config.tar',url=None,module=None):
     spath = 'src'
     if path and os.path.exists(path):
         path = os.path.abspath(path)
@@ -72,15 +51,16 @@ def site_config(path=None,url=None,module=None):
         if res.return_code != 0:
             raise Exception("*** Module has local changes. You must commit them.")
         tmp = tempfile.mkdtemp()
-        fname = 'latest_msr_config.tar.gz'
+        fname = archive_name
         tmpf =  os.path.join(tmp,fname)
         path = path.rstrip('/')
         lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
     env.run('mkdir -p %s' % spath)
     put(tmpf)
-    env.run('tar -C %s -xvzf %s' % (spath,fname))
-    with virtualenv(env.venvpath), cd(spath):       
-        env.run('pip install -U --force-reinstall ./%s' % os.path.basename(path))
+    env.run('tar -C %s -xvf %s' % (spath,fname))
+    
+    with virtualenv(env.venvpath):
+        env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath,os.path.basename(path)))
     env.EXTERNAL_SITE_CONFIG = True
 
 @task
@@ -94,7 +74,7 @@ def remote(**kwargs):
     env.run = run
    
 @task
-def clone_repo(url=env.REPO_URL,target=env.DEPLOY_PATH):
+def clone_repo(url='https://github.com/codalab/codalab.git',target='codalab'):
     env.run("git clone %s %s" % (url, target))
    
 @task
@@ -104,7 +84,7 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    put(pathjoin(THIS_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
+    put(pathjoin(PROJECT_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
     env.run('chmod a+x codalab_scripts/ubuntu/provision')
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
@@ -114,18 +94,28 @@ def config_gen(config=None,settings_module=None):
         env.run('python manage.py config_gen')
 
 @task
-def bootstrap():    
+def makevenv(path=None):
     make_virtualenv(path=env.venvpath, system_site_packages=False)
+
+
+@task
+def bootstrap(tag=None):    
+    with settings(warn_only=True):
+       env.run('killall supervisord')
+    if exists(env.DEPLOY_PATH):
+       env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%f%S'))))
+    clone_repo(target=env.DEPLOY_PATH)
+    with cd(env.DEPLOY_PATH):
+       if tag:	     
+          update_to_tag(tag=tag)
+    makevenv(path=env.venvpath)
     #run('virtualenv --distribute %s' % env.venvpath)
     #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
-    env.run('killall supervisord')
+    with settings(warn_only=True):
+       env.run('killall supervisord')
     with virtualenv(env.venvpath):
         env.run('pip install --upgrade pip')
         env.run('pip install --upgrade Distribute')
-        if exists(env.DEPLOY_PATH):
-            env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%s%f'))))
-            #sudo('rm -rf %s' % env.DEPLOY_PATH)
-        clone_repo(target=env.DEPLOY_PATH)
 
 
 @task
@@ -146,14 +136,20 @@ def restart_supervisor():
             env.run('./supervisorctl restart all')
 
 @task
-def update():
+def rm_sqlite():
+    with cd(pathjoin(env.DEPLOY_PATH,'codalab')):
+        env.run('rm dev_db.sqlite')
+
+@task
+def update(tag=None):
     with virtualenv(env.venvpath):
         with cd(env.DEPLOY_PATH):
             env.run('git pull')
-            update_to_tag(tag=env.repo_tag)
+            if tag:
+               update_to_tag(tag=tag)
             requirements()          
             with cd('codalab'):
-                config_gen(config=env.django_configuration,settings_module=env.django_settings_module)
+                config_gen(config=env.DJANGO_CONFIG,settings_module=env.SETTINGS_MODULE)
                 env.run('./manage syncdb --noinput')
                 # When South is enabled
                 #env.run('./manage migrate')

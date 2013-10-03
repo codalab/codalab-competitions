@@ -232,7 +232,7 @@
     }
 
     ul.competitionsDetailTabTop li, .myCodalabTabArea li {
-        font: normal 12px/37px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+        font: normal 12px/37px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
         padding: 0 7px;
     }
 

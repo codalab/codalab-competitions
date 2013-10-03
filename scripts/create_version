@@ -1,0 +1,18 @@
+#!/bin/bash
+
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_vars.sh
+
+pushd `pwd` > /dev/null
+VERSION_FILE=$PROJECT_DIR/codalab/settings/version.py
+cd $ROOT_DIR
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GIT_HASH=$(git rev-parse HEAD)
+GIT_FULL=$(git log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1)
+echo "__version__=\"$GIT_BRANCH\"" > $VERSION_FILE
+echo "__build_date__=\"$(date)\"" >> $VERSION_FILE
+echo "__commit_hash__=\"$GIT_HASH\"" >> $VERSION_FILE
+echo "__version_string__=\"$GIT_FULL\"" >> $VERSION_FILE
+popd > /dev/null
+
+

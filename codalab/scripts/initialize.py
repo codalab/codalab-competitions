@@ -4,8 +4,7 @@
 
 import sys, os.path, os, random, datetime
 from django.utils import timezone
-# This is a really, really long way around saying that if the script is in
-#  codalab\scripts\users.py, we need to add, ../../../codalab to the sys.path to find the settings
+
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
 sys.path.append(root_dir)
 
@@ -27,15 +26,15 @@ from apps.web.models import *
 cvs = [
   ("Visible", "visible", "viewStateOn"),
   ("Visible Always", "visible_always", "viewStateAlwaysOn"),
-  ("Hidden", "hidden", "viewStateOff"),
-  ("Unknown", "unknown", "")
+  ("Hidden", "hidden", "viewStateOff")
 ]
 
 content_visibility_items = dict()
 for name, codename, classname in cvs:
-  ncv, created = ContentVisibility.objects.get_or_create(codename=codename, defaults = {'classname': classname, 'name': name})
+  ncv, created = ContentVisibility.objects.get_or_create(name=name, codename=codename, classname=classname)
   ncv.save()
   content_visibility_items[codename] = ncv
+
 
 ccs = [
   { 
@@ -64,13 +63,15 @@ ccs = [
   }
 ]
 
+
 content_categories = dict()
 for category in ccs:
-  nc, created = ContentCategory.objects.get_or_create(codename=category['codename'], defaults=dict(parent=category['parent'], name=category['name'], 
-                       visibility=category['visibility'], 
-                       is_menu=category['is_menu'], content_limit=category['content_limit']))
+  nc, created = ContentCategory.objects.get_or_create(parent=category['parent'], name=category['name'], 
+                       codename=category['codename'], visibility=category['visibility'], 
+                       is_menu=category['is_menu'], content_limit=category['content_limit'])
   nc.save()
   content_categories[category['codename']] = nc
+
 
 cis = [
   {
@@ -86,8 +87,8 @@ cis = [
     'initial_visibility' : content_visibility_items['visible'],
     'required' : True,
     'rank' : 1,
-    'codename' : "evaluation",
-    'label' : "Evaluation"
+    'codename' : "evaluate",
+    'label' : "Evaluate"
   },
   {
     'category' : content_categories['learn_the_details'],
@@ -116,29 +117,30 @@ cis = [
 ]
 
 for dci in cis:
-  dcii, created = DefaultContentItem.objects.get_or_create(codename=dci['codename'] , defaults=dict(category=dci['category'], label=dci['label'],
-                            rank=dci['rank'], required=dci['required'],
-                            initial_visibility=dci['initial_visibility']))
+  dcii, created = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
+                            rank=dci['rank'], required=dci['required'],codename=dci['codename'],
+                            initial_visibility=dci['initial_visibility'])
   dcii.save()
 
+
 pss = [
-  ("Denied", "denied", "Participation was denied."),
-  ("Approved", "approved", "Participation was approved."),
-  ("Pending", "pending", "Participation is pending approval.")
+  ("Denied", "denied", "Paricipation was denied."),
+  ("Approved", "approved", "Paricipation was approved."),
+  ("Pending", "pending", "Paricipation is pending approval.")
 ]
 
 for name, codename, description in pss:
-  pstatus, created = ParticipantStatus.objects.get_or_create(codename=codename, defaults=dict(name=name,description=description))
+  pstatus, created = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
 
-css = [
+
+submission_status_set = [
+  ("Submitting", "submitting"),
   ("Submitted", "submitted"),
-  ("Processing", "processing"),
   ("Running", "running"),
   ("Failed", "failed"),
-  ("Accepted", "accepted"),
-  ("Rejected", "rejected"),
+  ("Cancelled", "cancelled"),
   ("Finished", "finished")
 ]
 
-for name, codename in css:
-  csstatus, created = CompetitionSubmissionStatus.objects.get_or_create(codename=codename,defaults=dict(name=name))
+for name, codename in submission_status_set:
+  pstatus, created = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)

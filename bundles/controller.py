@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os, sys, yaml, time, re
 
 # This file provides the interface for working with Bundles and Worksheets.
@@ -29,25 +31,31 @@ bundleCache = {}  # Map from specification to Bundle
 #
 # Programs, Datasets, and Runs are Bundles with different mandatory keys:
 #  - Program: command
-#  - Dataset: format
+#  - Dataset: (none)
 #  - Run: program/macro, input, produced keys (output, status, stdout, stderr)
 #
 # In a Program's command, the following variables will be substituted:
 #  - $program: path to the program.
 #  - $input: path to the input (read everything from this directory).
 #  - $ouput: path to the output (write everything to this directory).
-#  - $tmp: path to output temporary files.
 class Bundle:
-  def __init__(self, name):
+  def __init__(self, name, metadata=None):
     self.name = name
     self.path = os.path.join(bundlesPath, name.replace('/', os.path.sep))
-    self.metadataPath = os.path.join(self.path, 'metadata')
     if not os.path.exists(self.path):
       raise Exception('Bundle path doesn\'t exist: ' + self.path)
-    if os.path.exists(self.metadataPath):
-      self.metadata = readYaml(self.metadataPath)
+
+    # Either read or write metadata
+    self.metadataPath = os.path.join(self.path, 'metadata')
+    if metadata:
+      self.metadata = metadata
+      writeYaml(metadata, self.metadataPath)
     else:
-      self.metadata = {}
+      if os.path.exists(self.metadataPath):
+        self.metadata = readYaml(self.metadataPath)
+      else:
+        self.metadata = {}
+
   def __str__(self): return self.name
 
 ############################################################
@@ -79,7 +87,7 @@ def reserveNewBundleName():
 # specification string which essentially serializes this metadata.
 # The specification is used to check for duplicates.
 def getSpec(metadata):
-  # Filter out keys which could change over time.
+  # Don't include keys that could change over time (producedRunKeys - stdout)
   filteredMetadata = {}
   for key, value in metadata.items():
     if key not in producedRunKeys:
@@ -89,7 +97,7 @@ def getSpec(metadata):
 
 # Load all the existing Bundles into cache so that we can check for duplicates.
 def loadBundlesIntoCache():
-  print 'Loading all bundles into cache'
+  print 'Loading all bundles into cache...'
   generatedPath = os.path.join(bundlesPath, 'generated')
   if os.path.exists(generatedPath):
     for i in os.listdir(generatedPath):
@@ -103,18 +111,26 @@ def loadBundlesIntoCache():
 def createBundle(metadata):
   spec = getSpec(metadata)
   if spec in bundleCache: return bundleCache[spec]
-  bundle = Bundle(reserveNewBundleName())
+  bundle = Bundle(reserveNewBundleName(), metadata)
   bundleCache[spec] = bundle
-
-  # Write metadata
-  if len(bundle.metadata) != 0: raise Exception("Not empty")
-  bundle.metadata = metadata
-  writeYaml(bundle.metadata, bundle.metadataPath)
 
   # Set up dependencies
   installDependencies(bundle)
 
   return bundle
+
+def getHtmlOutFile(stack, name): return '-'.join(stack + [name.replace('/', '-')]) + '.html'
+def getHtmlOutPath(stack, name): return os.path.join(htmlOutPath, getHtmlOutFile(stack, name))
+
+def rowStr(key, value):
+  return '<tr valign="top"><td><b>' + key + '</b></td><td>' + value + '</td>'
+
+# Return whether |value| is a reference (by name) to a Bundle.
+def isReference(key, value):
+  if key == 'macro': return False
+  if key == 'command': return False
+  if not isinstance(value, basestring): return False
+  return True
 
 # If a Bundle depends on another one, its metadata will contain:
 #   <key>: <reference to Bundle>/<subdirectory>
@@ -122,6 +138,7 @@ def createBundle(metadata):
 # installation will not be in the same directory but on the worker machine).
 def installDependencies(bundle):
   for key, value in bundle.metadata.items():
+    if not isReference(key, value): continue;
     installDir(os.path.join(bundlesPath, value),
                os.path.join(bundle.path, key))
 
@@ -140,25 +157,28 @@ def wasRunStarted(bundle):  # Either started, or finishing
 def runProgram(bundle):
   # If already run, don't do it again.
   if wasRunStarted(bundle):
-    return wasRunSuccessful(bundle)
+    ok = wasRunSuccessful(bundle)
+    if not ok:
+      print "PROGRAM FAILED:", bundle, bundle.metadata
+    return ok
 
   # Define paths
   runPath = bundle.path 
   programPath = os.path.join(runPath, 'program')
   inputPath = os.path.join(runPath, 'input')
   outputPath = os.path.join(runPath, 'output')
-  tmpPath = runPath
   os.mkdir(outputPath)
 
+  program = getBundle(bundle.metadata['program'])
+  input = getBundle(bundle.metadata['input'])
+
   # Read the command from the Program's metadata.
-  metadataPath = os.path.join(bundle.path, 'program', 'metadata')
-  command = readYaml(metadataPath).get('command')
+  command = program.metadata.get('command')
   if not command:
-    raise Exception("Metadata %s does not have a command" % metadataPath)
+    raise Exception("Program does not have a command: %s" % program)
   command = command.replace("$program", programPath)
   command = command.replace("$input", inputPath)
   command = command.replace("$output", outputPath)
-  command = command.replace("$tmp", tmpPath)
 
   print
   print "BEGIN ====== runProgram(%s) ======" % command
@@ -178,11 +198,13 @@ def runProgram(bundle):
   writeYaml(status, os.path.join(runPath, 'status'))
   print open(stdoutPath).read()
   print open(stderrPath).read()
-  print "END ====== runProgram(%s) ====== [%.4f seconds]" % (command, elapsedTime)
+
+  print "END ====== runProgram(%s) ====== [exitCode %s, %.4f seconds]" % (command, exitCode, elapsedTime)
   return exitCode == 0
 
 # A Macro is just a worksheet where some variables are unspecified.
-def runMacro(bundle):
+def runMacro(stack, bundle):
+  print
   print 'BEGIN ===== runMacro(%s) ===== ' % bundle.metadata
 
   # Instantiate the worksheet
@@ -194,7 +216,7 @@ def runMacro(bundle):
 
   # Execute the worksheet
   ok = True
-  if not worksheet.execute(overrideVarToName):
+  if not worksheet.execute(stack, overrideVarToName):
     ok = False
   else:
     # Copy output of the last block of the worksheet to this bundle.
@@ -251,7 +273,8 @@ class Worksheet:
       self.blocks.append(block)
 
   # If |value| contains ^var, then replace it with the real name.
-  def resolveReferences(self, overrideVarToName, value):
+  def resolveReferences(self, key, overrideVarToName, value):
+    if not isReference(key, value): return value
     m = re.match('\\^([\w_]+)(.*)', value)
     if m:
       refVar = m.group(1)
@@ -267,7 +290,11 @@ class Worksheet:
 
   # If |overrideVarToName| is specified, use that to override the variables.
   # Return whether execution was successful.
-  def execute(self, overrideVarToName={}):
+  # |stack|: call stack of worksheets that lead up to this one
+  def execute(self, stack=[], overrideVarToName={}):
+    print
+    print "BEGIN WORKSHEET =====", stack, self.name
+    ok = True
     for block in self.blocks:
       if not isinstance(block, BundleBlock): continue
 
@@ -277,27 +304,44 @@ class Worksheet:
         # Substitute variables (begin with ^) with blocks
         info = {}
         for key, value in block.contents.items():
-          value = self.resolveReferences(overrideVarToName, value)
+          value = self.resolveReferences(key, overrideVarToName, value)
           info[key] = value
 
         block.bundle = createBundle(info)
 
         # Execute stuff
-        if block.program:
-          if not runProgram(block.bundle): return False
-        if block.macro:
-          if not runMacro(block.bundle): return False
-      print 'execute', block.bundle, block.contents
+        if block.program: ok = runProgram(block.bundle)
+        if block.macro: ok = runMacro(stack + [block.var], block.bundle)
+        if not ok: break
+      print 'execute', len(stack), block.bundle, block.contents
       self.returnBundle = block.bundle
-
-    return True
+    print "END WORKSHEET =====", stack, self.name, '['+str(ok)+']'
+    self.generateHtml(stack, overrideVarToName)
+    return ok
 
   # This is a dirt simple visualization of the Worksheet.
   # |path| is directory to put all the HTML files.
-  def generateHtml(self):
-    def rowStr(key, value):
-      return '<tr valign="top"><td><b>' + key + '</b></td><td>' + value + '</td>'
+  def generateHtml(self, stack, overrideVarToName):
+    if not os.path.exists(htmlOutPath): os.mkdir(htmlOutPath)
+    htmlPath = getHtmlOutPath(stack, self.name)
+    out = open(htmlPath, 'w')
+    print >>out, '<h1>' + '-'.join(stack + [self.name]) + '</h1>'
+    print >>out, '<p><i>' + self.description + '</i></p>'
+    print >>out, '<hr/>'
+    for block in self.blocks:
+      if isinstance(block, TextBlock):
+        print >>out, '<p><i><font color="brown">' + block.contents + '</font></i></p>'
+      elif isinstance(block, BundleBlock):
+        if block.var in overrideVarToName: # Substituted bundle
+          self.printBundleHtml(stack, overrideVarToName, block.var, {}, getBundle(overrideVarToName[block.var]), out)
+        else:
+          self.printBundleHtml(stack, overrideVarToName, block.var, block.contents, block.bundle, out)
+      else:
+        raise Exception('Internal error')
+    out.close()
 
+
+  def printBundleHtml(self, stack, overrideVarToName, var, contents, bundle, out):
     # Return a value to represent the path (directory or file)
     def pathToValue(path):
       if os.path.isdir(path):
@@ -315,55 +359,49 @@ class Worksheet:
         f.close()
       return value
 
-    if not os.path.exists(htmlOutPath): os.mkdir(htmlOutPath)
-    htmlPath = os.path.join(htmlOutPath, self.name.replace('/', '-') + '.html')
-    out = open(htmlPath, 'w')
-    print >>out, '<h1>' + self.name + '</h1>'
-    print >>out, '<p><i>' + self.description + '</i></p>'
-    print >>out, '<hr/>'
-    for block in self.blocks:
-      if isinstance(block, TextBlock):
-        print >>out, '<p><i><font color="brown">' + block.contents + '</font></i></p>'
-      elif isinstance(block, BundleBlock):
-        print >>out, '<p>[<b><font color="green">' + block.var + '</font></b>]<br/>'
-        print >>out, '<table>'
-        hitKeys = set()
+    if var in overrideVarToName:
+      print >>out, '<p>[<b><font color="blue">' + var + '</font></b>]<br/>'
+    else:
+      print >>out, '<p>[<b><font color="green">' + var + '</font></b>]<br/>'
+    print >>out, '<table>'
+    hitKeys = set()
 
-        # Print name
-        print >>out, rowStr('name', block.bundle.name)
-        hitKeys.add('name')
+    # Print name
+    print >>out, rowStr('name', bundle.name)
+    hitKeys.add('name')
 
-        # Print keys in metadata
-        for key, value in block.bundle.metadata.items():
-          if key in producedRunKeys: continue
-          generalValue = block.contents.get(key)
-          if os.path.isfile(os.path.join(bundlesPath, value)):
-            value = pathToValue(os.path.join(bundlesPath, value))
-          if generalValue and generalValue != value:
-            renderedValue = value + ' [<font color="green">' + generalValue[1:] + '</font>]'
-          else:
-            renderedValue = value
-          print >>out, rowStr(key, renderedValue)
-
-        # Print keys in files
-        for key in os.listdir(block.bundle.path):
-          if key not in producedRunKeys: continue
-          path = os.path.join(block.bundle.path, key)
-          value = pathToValue(path)
-          print >>out, rowStr(key, value)
-
-        print >>out, '</table></p>'
+    # Print keys in metadata
+    for key, value in bundle.metadata.items():
+      if key in producedRunKeys: continue
+      value = str(value)
+      generalValue = contents.get(key)
+      if generalValue: generalValue = str(generalValue)
+      if os.path.isfile(os.path.join(bundlesPath, value)):
+        value = pathToValue(os.path.join(bundlesPath, value))
+      if generalValue and generalValue != value:
+        renderedValue = value + ' [<font color="green">' + generalValue[1:] + '</font>]'
       else:
-        raise Exception('Internal error')
-    out.close()
+        renderedValue = value
+      if key == 'macro':
+        renderedValue = '<a href="'+getHtmlOutFile(stack + [var], value)+'">' + renderedValue + '</a>'
+      print >>out, rowStr(key, renderedValue)
+
+    # Print keys in files
+    for key in os.listdir(bundle.path):
+      if key not in producedRunKeys: continue
+      path = os.path.join(bundle.path, key)
+      value = pathToValue(path)
+      print >>out, rowStr(key, value)
+
+    print >>out, '</table></p>'
 
 ############################################################
 # Helper functions
 
 def installDir(sourcePath, destPath):
   if not os.path.exists(sourcePath):
+    raise Exception("Does not exist: " + sourcePath)
     return
-    #raise Exception("Does not exist: " + sourcePath)
   # Future: need to copy if transferred to another machine.
   if os.path.exists(destPath):
     return
@@ -390,16 +428,17 @@ class BadFormatException(Exception):
 ############################################################
 # Main entry point
 
+# In the future, should have better way of doing this.
 loadBundlesIntoCache()
 
-w = Worksheet('pliang/csv_to_arff')
-w.execute()
-w.generateHtml()
+def generateStandard():
+  w = Worksheet('pliang/csv_to_arff')
+  w.execute()
 
-w = Worksheet('pliang/basic_ml')
-w.execute()
-w.generateHtml()
+  w = Worksheet('pliang/basic_ml')
+  w.execute()
 
-w = Worksheet('pliang/standard_ml_programs')
-w.execute()
-w.generateHtml()
+  w = Worksheet('pliang/standard_ml_programs')
+  w.execute()
+
+generateStandard()

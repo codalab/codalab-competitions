@@ -4,7 +4,7 @@ description:
 blocks:
 - We first insert Weka, a set of standard machine learning utilities.
 - var: weka
-  name: base/weka
+  name: pliang/weka
 
 - Next, we insert a dataset in CSV format.  This one happens to have
   information about US census information.

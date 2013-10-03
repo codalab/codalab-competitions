@@ -77,7 +77,7 @@ class AzureStorage(Storage):
 
     def get_available_name(self,name):
         dir_path, file_name = os.path.split(name)
-	name = clean_name(name)
+        name = clean_name(name)
         try:
             file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$',file_name).groups()
         except AttributeError:
@@ -107,7 +107,7 @@ class AzureBlockBlobFile(RawIOBase):
             except azure.WindowsAzureMissingResourceError as e:
                 res = self.connection.put_blob(self.container,self.name,'',"BlockBlob")
         self._cur = 0
-        self._end = (int(self.properties['content-length']) - 1) if int(self.properties['content-length']) > 0 else 0
+        self._end = ( int(self.properties['content-length']) - 1) if int(self.properties['content-length']) > 0 else 0
         self._block_list = []
         
 
@@ -118,19 +118,34 @@ class AzureBlockBlobFile(RawIOBase):
                   self.container,self.name)
         return self._properties
 
-    def seek(self,pos):
+    @property
+    def size(self):
+        return int(self.properties.get('content-length'))
+
+    def seek(self,offset,from_what=0):
+        if from_what == 2:
+            pos = int(offset) + (self.size - 1)
+        elif from_what == 1:
+            pos = self._cur + int(offset)
+        else:
+            pos = int(offset)
         self.flush()
         if pos > self._end:
             raise Exception("Cannot seek past end of file")
         self._cur = pos
 
-    def read(self,num_bytes=65536):
+    def tell(self):
+        return self._cur
+
+    def read(self,num_bytes=None):
         start = self._cur
-        end = self._cur+num_bytes-1
-       
+        if not num_bytes:
+            end = self.size -1
+        else:
+            end = self._cur+num_bytes-1       
         if self._cur > self._end:
             raise Exception("Something odd happened.")
-        if self._cur == self._end:
+        if self._cur == self._end and not num_bytes:
             return None
         if self._end < end:
             end = self._end
@@ -140,7 +155,7 @@ class AzureBlockBlobFile(RawIOBase):
         return content
     
     def write(self,data):
-        blockid = str(uuid.uuid4().hex) + str(uuid.uuid4().hex)
+        blockid = "%6d" % len(self._block_list)
         try:
             self.connection.put_block(self.container, self.name, data, blockid)
             self._block_list.append((blockid,len(data)))

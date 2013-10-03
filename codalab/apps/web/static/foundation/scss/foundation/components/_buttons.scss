@@ -1,6 +1,7 @@
 //
 // Button Variables
 //
+
 $include-html-button-classes: $include-html-classes !default;
 
 // We use these to build padding for buttons.
@@ -16,7 +17,7 @@ $button-margin-bottom: emCalc(20) !default;
 // We use these to control button text styles.
 $button-font-family: inherit !default;
 $button-font-color: #fff !default;
-$button-font-color-alt: #333 !default;
+$button-font-color-alt: #777 !default;
 $button-font-med: emCalc(16) !default;
 $button-font-tny: emCalc(11) !default;
 $button-font-sml: emCalc(13) !default;
@@ -108,7 +109,7 @@ $button-disabled-opacity: 0.6 !default;
 }
 
 // We use this mixin to add button color styles
-@mixin button-style($bg:$primary-color, $radius:false, $disabled:false) {
+@mixin button-style($bg:$primary-button-color, $radius:false, $disabled:false) {
 
   // We control which background styles are used,
   // these can be removed by setting $bg:false
@@ -119,7 +120,7 @@ $button-disabled-opacity: 0.6 !default;
     background-color: $bg;
     border-color: darken($bg, $button-function-factor);
     &:hover,
-    &:focus { background-color: darken($bg, $button-function-factor); }
+    &:focus { background-color: lighten($bg, $button-function-factor); }
 
     // We control the text color for you based on the background color.
     @if $bg-lightness > 70% {
@@ -204,7 +205,19 @@ $button-disabled-opacity: 0.6 !default;
   @media only screen {
 
     button, .button {
-      @include inset-shadow();
+      @include single-transition(background-color);
+
+      &.large  { @include button-size($padding:false, $full-width:false); }
+      &.small  { @include button-size($padding:false, $full-width:false); }
+      &.tiny   { @include button-size($padding:false, $full-width:false); }
+
+      &.radius { @include button-style($bg:false, $radius:true); }
+      &.round  { @include button-style($bg:false, $radius:$button-round); }
+    }
+
+    button.selected, .button.selected {
+      background-color:#739CB9;
+      border-color: darken(#739CB9, $button-function-factor);
       @include single-transition(background-color);
 
       &.large  { @include button-size($padding:false, $full-width:false); }

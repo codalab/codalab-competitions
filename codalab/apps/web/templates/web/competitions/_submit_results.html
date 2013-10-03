@@ -1,79 +1,16 @@
 {% load codalab %}
 
-<div class="row right">
-  <div class="small-12 columns">
+<div class="row" id="submissions_phase_buttons">
+  <div class="right">
     {% for phase in competition.phases.all %}
       {% if phase == active_phase %}
-        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button active" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
   </div>
 </div>
-<div class="row"
-  <p>Submit a new result set or view your previous submissions.</p>
-</div>
-<div class="row">
-  <button class="globalBlueButton" onclick="$('#fileUpload').click()">Submit Results</button>
-  <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
-  <div id="details"></div>
-  <div id="response"></div>
-  <div id="previews"></div>
-</div>
 
-<div class="row">
-  <div class="user_results">
-    <table class="prevResultSubmission dataTable" id="user_results">
-      <thead>
-        <tr>
-          <th width="250px">Submission</th>
-          <th width="140px">Date</th>
-          <th>Labels</th>
-          <th>Dice</th>
-          <th>Hausdorff</th>
-          <th width="50px"></th>
-          <th width="50px"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for submission in my_active_phase_submissions %}
-          {% for result in submission.result.all %}
-          <tr id="{{submission.id}}-{{result.id}}">
-            <td>
-              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{result.name}}</a>
-              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
-                {% for score in result.scores.all %}
-                  <li>{{score.label}} : {{score.value}} </li>
-                {% endfor %}
-              </ul>
-            </td>
-            <td>{{submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-            <td>{{result.notes}}</td>
-            <td>
-              {% for score in result.scores.all %}
-                {% if score.label == "Dice" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-            <td>
-              {% for score in result.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-            {% if result in active_phase.board.submissions %}
-              <td class="status submitted"><i class="enclosed-foundicon-checkmark"></i></td>
-            {% else %}
-              <td class="status not_submitted"></td>
-            {% endif %}
-            <td><i class="enclosed-foundicon-plus"></i></td>
-          </tr>
-          {% endfor %}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="competition_submissions">
 </div>

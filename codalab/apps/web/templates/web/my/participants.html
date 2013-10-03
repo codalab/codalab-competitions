@@ -33,7 +33,7 @@
                         </select>
                     </div>
                 </div>
-                    <input type="submit" class="globalBlueButton" value="Process" />
+                    <input type="submit" class="button" value="Process" />
                 </form>
                 {% endif %} 
             </div>
@@ -45,7 +45,7 @@
                 {% elif item.status.codename == 'approved' %}
                 Participation approved
                 {% elif item.status.codename == 'denied' %}
-                Participation rejected
+                Participation denied
                 <p style="color:red;">Reason: {{ item.reason }}</p>
                 {% else %}
                 Unknown Status
@@ -62,9 +62,9 @@
 {% block js %}
 /* $("#process_request").validate(); */
 
-var ParticipateStatusText = { 'approved': 'Participation approved',
-                              'denied': 'Participation rejected',
-                              'pending': 'Participation pending',
+var ParticipateStatusText = { 'approved': 'Participation Approved',
+                              'denied': 'Participation Denied',
+                              'pending': 'Participation Pending',
                               'unknown': 'Unknown' };
 var ParticipationReasonStyle = {'denied': 'color:red',
                                 'unknown': '',
