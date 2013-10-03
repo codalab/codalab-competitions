@@ -229,7 +229,7 @@ var Competition;
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
         $(elemTr).children().each(function (index) {
             switch (index) {
-                case 0: if (response.status === 6) { $(this).val("1"); } break;
+                case 0: if (response.status === "finished") { $(this).val("1"); } break;
                 case 1: $(this).html(response.submission_number.toString()); break;
                 case 2:
                     var fmt = function (val) {
@@ -259,13 +259,18 @@ var Competition;
 
     Competition.getSubmissionStatus = function (status) {
         var subStatus = "Unknown";
-        switch (status) {
-            case 1: subStatus = "Submitting"; break;
-            case 2: subStatus = "Submitted"; break;
-            case 3: subStatus = "Running"; break;
-            case 4: subStatus = "Failed"; break;
-            case 5: subStatus = "Cancelled"; break;
-            case 6: subStatus = "Finished"; break;
+        if (status === "submitting") {
+            subStatus = "Submitting";
+        } else if (status === "submitted") {
+            subStatus = "Submitted";
+        } else if (status === "running") {
+            subStatus = "Running";
+        } else if (status === "failed") {
+            subStatus = "Failed";
+        } else if (status === "cancelled") {
+            subStatus = "Cancelled";
+        } else if (status === "finished") {
+            subStatus = "Finished";
         }
         return subStatus;
     }
@@ -318,7 +323,7 @@ var Competition;
             cache: false,
             success: function (data) {
                 $('#user_results #' + submissionId).find(".statusName").html(Competition.getSubmissionStatus(data.status));
-                if (data.status === 6) {
+                if (data.status === "finished") {
                     $('#user_results #' + submissionId + "input:hidden").val("1");
                     var phasestate = $('#phasestate').val();
                     if (phasestate == 1) {
@@ -331,7 +336,7 @@ var Competition;
                         $(obj).addClass("hide");
                     }
                 }
-                else if (data.status > 3) {
+                else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass("hide");
                 }
                 $(".competitionPreloader").hide();
