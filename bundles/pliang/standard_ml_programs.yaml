@@ -5,7 +5,7 @@ description:
 blocks:
 - Insert some standard learning algorithms.
 - var: weka
-  name: base/weka
+  name: pliang/weka
 - var: wekaPredictor
   base: ^weka
   command: $program/base/predict $input $output

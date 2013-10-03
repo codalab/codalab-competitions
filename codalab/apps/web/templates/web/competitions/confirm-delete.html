@@ -2,9 +2,8 @@
 {% block subheader %}Delete Competition{% endblock subheader %}
 {% block content %}
 	<p>Really delete {{ competition }}?</p>
-
-	<form class="wide" action="." method="post">
+	<form class="wide" method="POST" action="{% url 'competitions:delete' pk=competition.id %}" >
 		{% csrf_token %}
-		<input type="submit" class="submit globalYellowButtonSmall" value="Yes, delete the competition.">
+		<input type="submit" class="submit small secondary button" value="Yes, delete the competition.">
 	</form>
 {% endblock %}

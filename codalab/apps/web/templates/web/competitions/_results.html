@@ -1,61 +1,18 @@
-<div class="row right">
+<div class="row" id="results_phase_buttons">
   <div class="small-12 columns">
+    <div class="right">
     {% for phase in competition.phases.all %}
-      {% if not phase.is_active %}
-        <button class="globalBlueButton disabled" id="phase_{{phase.id}}">{{phase.label}}</button>
+      {% if phase.is_active %}
+        <button class="button active" id="results_phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="globalBlueButton" id="phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button" id="results_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
+    </div>
   </div>
 </div>
 
 <div class="row">
   <div class="competition_results">
-    <table class="prevResultSubmission dataTable" id="competition_results">
-      <thead>
-        <tr>
-          <th width="50px">Rank</th>
-          <th width="50px">User</th>
-          <th width="250px">Submission</th>
-          <th width="140px">Date</th>
-          <th width="100px">Labels</th>
-          <th width="50px">Dice</th>
-          <th width="100px">Hausdorff</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for submission in active_phase.board.submissions %}
-        <tr>
-          <td></td>
-          <td>{{submission.submission.participant.user.username}}</td>
-          <td>
-              <a href="#" data-dropdown="details_{{submission.id}}_{{result.id}}" data-options="is_hover:true">{{submission.name}}</a>
-              <ul id="details_{{submission.id}}_{{result.id}}" class="f-dropdown content tiny" data-dropdown-content>
-                {% for score in submission.scores.all %}
-                  <li>{{score.label}} : {{score.value}} </li>
-                {% endfor %}
-              </ul>
-          </td>
-          <td>{{submission.submission.submitted_at|date:"SHORT_DATETIME_FORMAT"}}</td>
-          <td>{{submission.notes}}</td>
-            <td>
-              {% for score in submission.scores.all %}
-                {% if score.label == "Dice" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-            <td>
-              {% for score in submission.scores.all %}
-                {% if score.label == "Hausdorff Distance" %}
-                  {{ score.value }}
-                {% endif %}
-              {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}        
-      </tbody>
-    </table>
   </div>
 </div>

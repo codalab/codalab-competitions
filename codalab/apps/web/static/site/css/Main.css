@@ -9,7 +9,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
     margin: 0px;
 }
 *{
-    font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:normal;
 }
@@ -31,10 +31,16 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
-	font-weight:normal;
-    color:#666;
+	font-weight:lighter;
+    color:#777;
+}
+h4,h5,h6 {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:100%;
+    font-weight:bold;
+    color:#777;
 }
 q:before,q:after {
 	content:'';
@@ -58,7 +64,7 @@ table, tr, td {
 .container {overflow:hidden;clear:both}
 .containerSpace {overflow:hidden;clear:both; padding-top:10px;}
 .clearFix { width:100%;clear:left; clear:right; height:0px;}
-label{font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;color:#666;}
+label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;color:#666;}
 .verticalTop
 {
     vertical-align:top !important;
@@ -164,12 +170,12 @@ body
 h1
 {
     font-size:20px;
-    color:#666;
+    color:#777;
 }
 h4
 {
     font-size:11px;
-    color:#666;
+    color:#777;
     padding:10px 0;
 }
 .disabledStatus
@@ -234,8 +240,10 @@ h4
 }
 .popupContainer span
 {
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#666;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:100%;
+    font-weight:normal;
+    color:#777;
 }
 /*Uploadpopup-----------------------------------*/
 .uploadpopup {
@@ -276,7 +284,7 @@ h4
     border-radius:5px
 }
 .uploadpopup h3 {
-    font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#07b4db;
 }
 /*Uploadpopup-----------------------------------*/
@@ -355,7 +363,7 @@ ul.headerNavigation li:first-child{
 ul.headerNavigation li a{
     display:block;
     color:#fff;
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     text-decoration:none;
     border-bottom:solid 7px #739CB9;
     padding-bottom:1px;
@@ -439,19 +447,19 @@ ul.headerNavigation li.active a {
 }
 .loginContainer h1,.formRegister h1
 {
-    font:bold 18px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:bold 18px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
 }
 .loginContainer h2,.formRegister h2
 {
-    font:lighter 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:lighter 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:10px;
 }
 .loginContainer p,.formRegister p
 {
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:10px;
 }
@@ -461,7 +469,7 @@ ul.headerNavigation li.active a {
 }
 .loginContainer legend,.formRegister legend
 {
-    font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
 .loginContainer li,.formRegister li,.validation-summaryCont li
@@ -470,7 +478,7 @@ ul.headerNavigation li.active a {
 }
 .loginContainer li label,.formRegister li label,.validation-summaryCont li label
 {
-    font:normal 12px/24px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px/24px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     display:block;
 }
@@ -490,7 +498,7 @@ ul.headerNavigation li.active a {
 }
 .validation-summary-errors li
 {
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#f1702f
 }
 .username
@@ -498,7 +506,7 @@ ul.headerNavigation li.active a {
     color:#50e0fb !important;
 }
 .field-validation-error span{
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fe500e;
 }
 /*loggin Container------------------------------*/
@@ -520,7 +528,6 @@ input[type="submit"][value="Delete"]
     color:#fff !important;
     text-align:center;
     border:solid 1px #524E5F;
-    border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
     margin-right:14px;
@@ -575,7 +582,6 @@ input[type="submit"][value="Delete"]
     color:#fff !important;
     text-align:center;
     border:solid 1px #B8A87F;
-    border-width:4px 2px 0 2px;
     line-height:27px;
     cursor:pointer;
     margin-right:14px;
@@ -633,7 +639,7 @@ input[type="submit"][value="Delete"]
     top:2px !important;
 }
 .button1 {
-    font:bold 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:bold 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#2f3903;
     padding:8px 20px;
     float:left;
@@ -641,7 +647,7 @@ input[type="submit"][value="Delete"]
     cursor:pointer;
 }
 .button2,.button3,.button2Small,.button3Small,.saveBtnHolder a,.saveContainer a,.saveContainer input[type="submit"] {
-    font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     padding:17px;
     float:left;
@@ -677,7 +683,7 @@ input[type="submit"][value="Delete"]
     line-height:42px;
 }
 .loginButton, #login a{
-    font:bold 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:bold 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     padding:12px 0px 0 20px;
     float:right;
@@ -696,7 +702,7 @@ input[type="submit"][value="Delete"]
     padding:5px 11px;
     background:#74d825;
     float:left;
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     display:inline-block;
     color:#fff !important;
     cursor:pointer;
@@ -715,7 +721,7 @@ input[type="submit"][value="Delete"]
     margin-left:10px;
 }
 .tabButton a{
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     text-decoration:none;
 }
@@ -723,7 +729,7 @@ input[type="submit"][value="Delete"]
 {
     margin:0;
     padding:0;
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background:none;
 }
 /*Button----------------------------------------*/
@@ -741,7 +747,7 @@ input[type="submit"][value="Delete"]
     color:#535353;
 }
 .CompetitionsDetailContainer .CompetitionsDetailLft p {
-    font:normal 11px/16px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px/16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     /*color:#7c7c7c;*/
     text-align:left;
     padding:10px 10px 0 0;
@@ -749,11 +755,11 @@ input[type="submit"][value="Delete"]
     float:left;
 }
 .containerTextS {
-    font:normal 12px/14px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 12px/14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     padding:10px 10px 0 0;
 }
 .readMore {
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     padding:10px 10px 0 0;
     color:#07b4db;
 }
@@ -770,7 +776,7 @@ input[type="submit"][value="Delete"]
     width:186px;
 }
 .CompetitionsDetailLft nav ul li a{
-    font:normal 16px/20px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 16px/20px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#739CB9;
     display:block;
     text-align:right;
@@ -882,7 +888,7 @@ input[type="submit"][value="Delete"]
 }
 .grayGradientBtn a,.buttonRegisterCompetition a 
 {
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#07b4db;
     text-decoration:none;
 }
@@ -894,7 +900,7 @@ input[type="submit"][value="Delete"]
     position:relative;
 }
 .blueRegButton a ,.blueSubmitButton a{
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     text-decoration:none;
 }
@@ -909,7 +915,6 @@ input[type="submit"][value="Delete"]
     min-height:110px;
     background:#fafafa;
 }
-
 .compBlockRightContainer .competition-tile {
     border:0;
 }
@@ -920,8 +925,9 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 17px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
+    font-weight: lighter;
 }
 .competitionUserBlock .subContainerPadding p {
     padding-bottom:0;
@@ -939,27 +945,27 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font:normal 20px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font: 20px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
+    font-weight: lighter;
 }
 .mainContainer p
 {
-    font:normal 13px/18px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px/18px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:10px;
 }
 .subContainerPadding
 {
     overflow:hidden;
-    padding:10px;
+    padding:15px;
 }
 .competitionTileLftStrip{
-    background:#739CB9 url('../Images/icon_competition_sm.png') no-repeat center 2px;
+    background:#739CB9;
     display:table-cell;
-    width:35px;
+    width:10px;
     padding:0 !important;
-    border:solid 1px #739CB9 !important;
 }
 .subContainerMain {
     background:#f5f5f5;
@@ -993,7 +999,7 @@ input[type="submit"][value="Delete"]
     position:absolute;
     display:block;
     bottom:10px;
-    font:normal 11px/22px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     right:10px;
     left:10px;
@@ -1007,12 +1013,12 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 25px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
 .subContainerMain p {
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#787878;
     padding-bottom:4px;
 }
@@ -1024,19 +1030,20 @@ input[type="submit"][value="Delete"]
     width:50%;
     height:30px;
     text-align:left;
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     display:table-cell;
     color:#666;
 }
 .CompetitionDetailTbl > label:nth-child(2) {
     text-align:right;
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 /*Container----------------------------------------*/
 .subContainer {
     display:table;
     table-layout:fixed;
     width:100%;
+    height: 140px;
 }
 
 .subContainer .articleTextArea p
@@ -1046,10 +1053,11 @@ input[type="submit"][value="Delete"]
 .subContainer figure.articleImage {
     background:url('../Images/DummyImage.jpg') no-repeat center top;
     margin-bottom:0;
+
     /*background:#50E0FB;
     color:#fff;
     text-align:center;
-    font:lighter 25px/85px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;*/
+    font:lighter 25px/85px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
 }
 figure.userImage {
     background:#50E0FB;
@@ -1082,11 +1090,8 @@ figure.userImage {
     display:table-cell;
     vertical-align:top;
     padding:0 20px 0 0;
-    border:solid 1px #ccc;
-    border-width:1px 0;
 }
 .subContainer > div:last-child{
-    border-right:solid 1px #ccc;;
 }
 .subContainer .articleImage {
     width:220px;
@@ -1110,7 +1115,7 @@ figure.userImage {
     position:absolute;
     display:block;
     bottom:10px;
-    font:normal 11px/22px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     right:10px;
     left:10px;
@@ -1123,14 +1128,15 @@ figure.userImage {
     margin-right:206px;
 }
 .subContainer h3 {
-    font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
 .subContainer p {
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    color:#787878;
+    font:normal 1em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #666;
     padding-bottom:4px;
+    line-height: 1.6em;
 }
 .articleHeadingContainer h3
 {
@@ -1144,7 +1150,7 @@ figure.userImage {
     padding:0 0 40px;
 }
 .compBlockRightContainer h2 {
-    font:normal 20px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 20px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding:0 0 10px 0;
 }
@@ -1156,16 +1162,16 @@ figure.userImage {
     margin-left:145px;
 }
 .compBlockRightContainer .subContainer h3 {
-    font:normal 16px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding-bottom:5px;
 }
 .compBlockRightContainer .subContainer .articleHeadingContainer label {
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin-left:13px;
     color:#333;
 }
 .compBlockRightContainer .subContainer p {
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#333;
     padding-bottom:5px;
 }
@@ -1175,7 +1181,7 @@ figure.userImage {
 }
 .competitionActions a
 {
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#f1702f;
     text-decoration:none;
 }
@@ -1214,12 +1220,12 @@ figure.userImage {
 }
 .compBlockFilter label
 {
-    font:normal 12px/25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
 .compBlockFilter h3
 {
-    font:normal 16px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:5px;
 }
@@ -1243,7 +1249,7 @@ figure.userImage {
 div.articleImageContainer
 {
     padding-right:0;
-    width:135px;
+    width:140px;
     display:table-cell;
     vertical-align:top;
 }
@@ -1252,7 +1258,6 @@ div.articleImageContainer
     width:100%;
 }
 .articleTextAreaContainer .subContainerPadding{ 
-    display:table-cell;
     vertical-align:top;
 }
 .articleTextArea .globalYellowButtonSmallAtag{
@@ -1312,7 +1317,7 @@ div.articleImageContainer
 }
 .ui-state-default a
 {
-    font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     text-decoration:none;
     display:block;
@@ -1386,7 +1391,7 @@ div.articleImageContainer
     width:100px;
     padding-right:10px;
     /*text-align:right;*/
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
 .CompetitionTypeDetailrow > div:first-child label {
@@ -1399,7 +1404,7 @@ div.articleImageContainer
 .CompetitionTypeDetailrow > div:last-child {
     padding-right:10px;
     text-align:left;
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
 .CompetitionTypeDetailrow input[type="text"], .CompetitionTypeDetailrow textarea {
@@ -1408,13 +1413,13 @@ div.articleImageContainer
     border:solid 1px #ccc;
     color:#666;
 }
-.CompetitionTypeDetailrow textarea,#Description
+
+.Description
 {
-    width:70%;
-    height:100px;
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
 }
+
 .CompetitionTypeDetailrow select {
     padding:5px 10px;
     width:73%;
@@ -1426,7 +1431,7 @@ div.articleImageContainer
     float:left;
 }
 .CompetitionTypeDetailrow .thumbViewUpload {
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     margin:10px 0 0 10px;
     float:left;
@@ -1439,13 +1444,13 @@ div.articleImageContainer
 }
 .CompetitionTypeDetailrow .typeOption .content {
     display:table-cell;
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .CompetitionTypeDetailrow .typeOption .content:first-child {
     width:20px;
 }
 .CompetitionTypeDetailrow .typeOption .content em{
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 /*CompetitionProcess-----------------------------*/
 /*SaveContainer------------------------------------*/
@@ -1482,9 +1487,8 @@ div.articleImageContainer
     overflow:hidden;
 }
 .CompetitionsDetailContainer h2 {
-    margin-top: 10px;
     padding:0;
-    font:normal 25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 1.5em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .CompetitionsDetailContainer label {
     font:normal 13px arial;
@@ -1495,13 +1499,12 @@ div.articleImageContainer
 .container.tabArea > label {
     padding:10px 0 10px;
     display:block;
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 .CompetitionsDetailContainer p {
-    font:normal 16px/19px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
-    /*color:#777;*/
-    font-weight: 400
+    font:normal 16px/19px 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    font-weight: 400;
 }
 
 .CompetitionsDetailLft {
@@ -1535,9 +1538,8 @@ div.articleImageContainer
 }
 .challStatusStrip {
     position:relative;
-    height:38px;
-    background:#ebf2fb;
-    overflow:hidden;
+    background: #E5E5E5;
+    padding: 5px 5px 10px 5px;
 }
 .challStatusStrip section > label {
     z-index:2;
@@ -1545,16 +1547,44 @@ div.articleImageContainer
     color:#535353;
     padding:0;
 }
-.challStatusStrip  section:first-child > label span,.challStatusStrip  section:first-child > label{float:left;}
-.challStatusStrip  section:last-child > label span,.challStatusStrip  section:last-child > label{float:right;}
 .challStatusStripLevel {
-    background:#ebf2fb;
     position:absolute;
     top:0;
     left:0;
     right:0;
     bottom:0;
     z-index:1;
+}
+.challStatusStripSection {
+    display:table;
+    width:100%;
+    position:relative;
+    z-index:1;
+    table-layout:fixed;
+}
+.challStatusStripSection > section {
+    display:table-cell;
+    padding:3px 10px !important;
+    vertical-align:middle;
+    text-align:left;
+    width:33%;
+    overflow-x: hidden;
+    overflow-y: visible;
+    text-overflow:ellipsis;
+}
+.challStatusStripSection > section span {
+    font-size: .7em; 
+    white-space:nowrap; 
+    width:100%;
+    text-align:left;
+}
+.phaseLabel {
+    font-weight: bold;
+}
+.currentPhase {
+    color: #739cb9 !important;
+    text-indent: 12px;
+    background: url('../Images/triangle_phase.png') no-repeat 10px 8px;
 }
 .testingStarts {
     float:right;
@@ -1576,7 +1606,7 @@ div.articleImageContainer
 }
 .dataStatusHolder label {
     display:block;
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#7c7c7c;
     padding:0px;
 }
@@ -1597,7 +1627,7 @@ div.articleImageContainer
     background:#50E0FB !important;
     color:#fff;
     text-align:center;
-    font:lighter 25px/115px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:lighter 25px/115px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 /*.myCodalabBlock h2{ using for .myCodalabTabArea li a
     font:normal 18px arial;
@@ -1624,16 +1654,29 @@ ul.myCodalabTabContent li.tab1 {
     overflow:hidden;
     margin-top:17px;
 }
-
+.CompetitionsDetailLftUl {
+    padding: 3px 0;
+}
+.section-container.vertical-tabs > section.active > .title a {
+    font-weight: bold !important;
+}
+.section-container.auto > section.active > .title a {
+    font-weight: normal !important;
+}
 .competitionsProfileImage {
-    width:175px;
+    width: 175px;
+    height: 175px;
     display:table-cell;
     vertical-align:top;
+}
+#imgProfileImage {
+    max-height: 175px;
+    max-width: 175px;
 }
 .competitionsHeaderTitle {
     display:table-cell;
     vertical-align:top;
-    padding-left:5px;
+    padding: 0 0 0 15px;
 }
 .competitionsHeaderTitle label {
     display:block;
@@ -1641,7 +1684,6 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
-    margin-top:5px;
 }
 .competitionsDetailTab {
     display:table;
@@ -1653,7 +1695,7 @@ ul.competitionsDetailTabTop, .myCodalabTabArea {
 }
 ul.competitionsDetailTabTop li, .myCodalabTabArea li{
     display:inline-block;
-    font:normal 19px/50px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 19px/50px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding:0 40px;
     color:#739CB9;
     cursor:pointer;
@@ -1695,16 +1737,16 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
 }
 .participateInfoBlock .infoStatusBar {
     height:18px;
-    background:#78ade6;
+    background:#739CB9;
 }
 .unResisted .infoStatusBar {
-    background:#d0eff6;
+    background:#8BC7BF;
 }
 .pendingApproval .infoStatusBar { 
-    background:#ffac31; 
+    background:#D1BF90; 
 }
 .rejectedApproval .infoStatusBar {
-    background:#ea5a23;
+    background:#477473;
 }
 .approvedApproval .infoStatusBar {
     background:#739CB9;
@@ -1715,7 +1757,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     padding:10px 25px;
 } 
 .CompetitionsDetailContainer .regApprovLabel {
-    font:bold 14px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:bold 14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:0;
     display:block;
@@ -1733,7 +1775,7 @@ font-weight:normal !important;
 }
 .prevResultSubmission th {
     text-transform:uppercase;
-    background:#4e82bd;
+    background:#739CB9;
     padding:13px 10px;
     text-align:left;
     font-size:13px;
@@ -1746,7 +1788,9 @@ font-weight:normal !important;
     padding:8px 10px;
     color:#5c5c5c;
     text-align:left;
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    border: #DDD 1px solid;
 }
 /*result table--------------*/
 .chkRegisterContainer {
@@ -1754,14 +1798,14 @@ font-weight:normal !important;
     padding:20px 0;
 }
 .chkRegisterContainer span{
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     color:#666;
     float:left;
     margin:0 8px;
 }
 .chkRegisterContainer span a
 {
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     color:#739CB9;
 }
 .chkRegisterContainer input {
@@ -1769,7 +1813,7 @@ font-weight:normal !important;
 }
 .chkRegisterContainer a, participateInfoBlock a {
     color:#07b4db;
-    font:normal 11px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     cursor:pointer;
 }
 
@@ -1789,7 +1833,7 @@ font-weight:normal !important;
 }
 .thumbnailContainer > div:last-child label {
     color:#666;
-    font:normal 12px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     display:inline-block;
     vertical-align:bottom;
 }
@@ -1800,7 +1844,7 @@ font-weight:normal !important;
 }
 .thumbnailContainer > div:last-child label span {
     color:#9c9c9c;
-    font:normal 10px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 10px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .textEditor
 {
@@ -1863,7 +1907,7 @@ font-weight:normal !important;
 .textEditorLftTab > li label,.textEditorLftTab > li.active label
 {
     color:#303030;
-    font:normal 12px/25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     cursor:pointer;
     float:left;
     padding:0 4px 0 8px !important;
@@ -1880,7 +1924,7 @@ font-weight:normal !important;
     padding:0 8px !important;
     width:76px;
     color:#303030;
-    font:normal 12px/25px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
     text-align:left;
     height:25px;
 }
@@ -1941,7 +1985,7 @@ font-weight:normal !important;
 .pContentArea
 {
     color:#666 !important;
-    font:normal 16px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif !important;
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
 .saveBtnContainer
 {
@@ -1949,16 +1993,16 @@ font-weight:normal !important;
     margin-top:-12px;
 }
 .CompetitionsDetailRit p{
-    font:normal 13px/22px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding-bottom:10px;
     color:#3b3b3b;
 }
 .CompetitionsDetailRit ol{
-    font:normal 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#777777;
 }
 .CompetitionsDetailRit ol li{
-    font:normal 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#3b3b3b;
     padding-bottom:5px;
     list-style:decimal;
@@ -1985,13 +2029,13 @@ font-weight:normal !important;
     padding-left:20px;
 }
 .CompetitionsDetailRit ul li{
-    font:normal 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#3b3b3b;
     padding-bottom:5px;
     list-style:disc;
 }
 .CompetitionsDetailRit dt {
-    font:normal 16px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 16px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:5px;
 }
@@ -1999,7 +2043,7 @@ font-weight:normal !important;
     text-decoration:underline;
 }
 .CompetitionsDetailRit dd {
-    font:italic 13px/17px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:italic 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#777777;
     padding-bottom:15px; 
     margin-left:40px;
@@ -2020,7 +2064,7 @@ code {
 .competitionTileNoRecord p
 {
     color:#e95408 !important;
-    font:normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding-bottom:10px;
 }
 
@@ -2187,7 +2231,7 @@ code {
     cursor:default;
 }
 .phaseToggleBtn a{
-    font:normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#fff;
     text-decoration:none;
     float:left;
@@ -2223,7 +2267,7 @@ code {
     background:#3abdda;
     border:0;
     color: #fff;
-    font: normal 13px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font: normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 #ui-datepicker-div .ui-state-highlight, #ui-datepicker-div .ui-widget-content .ui-state-highlight, #ui-datepicker-div .ui-widget-header .ui-state-highlight{
     background:#50E0FB;
@@ -2238,7 +2282,7 @@ code {
 .ui-datepicker th
 {
     color:#3b3b3b;
-    font: bold 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font: bold 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 body .ui-datepicker table {
     border-collapse: collapse;
@@ -2274,7 +2318,7 @@ body .ui-datepicker-prev span{
 .ui-datepicker-title span
 {
     color: #fff;
-    font: normal 15px Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font: normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 #resultStatus
 {
@@ -2328,32 +2372,6 @@ body .ui-datepicker-prev span{
 {
     display:none;
 }
-.challStatusStripSection
-{
-    display:table;
-    width:100%;
-    position:relative;
-    z-index:1;
-    table-layout:fixed;
-}
-.challStatusStripSection > section{
-    display:table-cell;
-    padding:7px 10px 0 10px !important;
-    vertical-align:middle;
-    text-align:center;
-    width:33%
-}
-.challStatusStripSection > section label{ 
-    white-space:nowrap; 
-    overflow:hidden;
-    text-overflow:ellipsis;
-    width:100%;
-    text-align:center;
-}
-.challStatusStripSection > section:first-child label{text-align:left}
-
-.challStatusStripSection > section:last-child label{text-align:right}
-
 .expCollDatasetExp,.expCollDatasetColl
 {
     background:url('../Images/expand_colapse.png');
@@ -2398,7 +2416,7 @@ body .ui-datepicker-prev span{
         width:190px;
     }
 .phaseDatasetDetails > div > div > div select{ width:310px;}
-.phaseDatasetDetails >  div > div  a{color:#07b4db; font-size:13px; cursor:pointer; font-family:Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;}
+.phaseDatasetDetails >  div > div  a{color:#07b4db; font-size:13px; cursor:pointer; font-family:'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;}
 .phaseDatasetDetailsContainer{ border-top:dotted 1px #666; padding:20px 0 15px; display:table; width:100%; margin-top:10px;}
 .CompetitionTypeDetailrowDate.detailsUpload > div{width:100%}
 .CompetitionTypeDetailrowDate.detailsUpload .CompetitionTypeDetailrow textarea{width:98% !important; margin-top:10px; height:64px !important;}
@@ -2713,7 +2731,136 @@ ul.leftNavigation li.active a{
 
 
 /*  /////  TEMP STYLES  /////  */
+.content p, .content p a {
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+}
 .cl-logo  {
-    padding: 7px 7px 0 14px;
+    padding: 9px 100px 0 14px;
+}
+.experiment__date {
+    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
+    font-style: italic;
+    color: #777;
+}
+.button a, .button a:hover {
+    color: #FFF;
+}
+.stats_placeholder {
+    padding-top: 39px;
+}
+#footer a {
+    font-weight: normal;
+}
+.cursor-default {
+    cursor: default;
+}
+.noData td {
+    padding: 30px !important;
+    text-align: center;
+}
+.section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
+    height: 65px;
+}
+div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
+    height: 65px !important;
+}
+.pad15 {
+    padding: 15px;
+}
+.slider {     /* Temporary homepage slider background */
+    background: url('../Images/slider_exp_comp.gif') repeat-x top left !important;
+}
+.header-title-bg {
+    background: url('../Images/tiled-header-bg.gif') repeat-x top left;
+    height: 80px;
+    width: 100%
+    position: absolute;
+    top:0;
+    padding:0;
+    margin: 0 0 30px 0;
+    display: block;
+}
+.header-title-bg h1 {
+    color: #FFF;
+    font-size: 44px;
+}
+.side-nav a {
+    font-weight: normal;
+}
+.mini_avatar {
+    margin: -6px 6px 0 30px;
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    -webkit-border-radius: 18px;
+    -moz-border-radius: 18px;
+    border-radius: 18px;
+    border: 1px #CCC solid;
+    display: inline-block;
+    float: none;
+    overflow: hidden;
+}
+.homepage_featured p {
+    padding-right: 10px;
+    margin-bottom: 0;
+}
+.homepage_featured h2 {
+    display: inline-block;
+}
+.spacer500 {
+    height: 500px;
+}
+.myCompetitionButtons  {
+    height: 50px;
+    margin: 10px 0 0 0;
+}
+.myCompetitionButtons button {
+    margin-left: 3px;
+}
+#edit_competition {
+    padding-left: 0.9375em;
+    padding-right: 0.9375em;
+}
+#edit_competition label {
+    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 1.3em;
+    padding: 1em 0 .3em 0;
+    cursor: default;
+    display: inline-block;
+}
+#edit_competition input, #edit_competition textarea, #edit_competition p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.4em;
+}
+#edit_competition textarea, #edit_competition select {
+    min-height: 8em;
+    resize: none;
+    padding: 10px;
+    margin: 0;
+    overflow-y: scroll;
+}
+#edit_competition a, #edit_competition a:hover {
+    font-size: 1em;
+    font-weight: bold;
+    color: #676278;
+}
+#edit_competition a:hover {
+    color: #739CB9;
+}
+#edit_competition .helptext {
+    font-size: .8em;
+}
+#edit_competition input[type=file], #edit_competition input[type=checkbox]  {
+    cursor: pointer;
+}
+.icon_excel {
+    background: url('../Images/icon_excel.png') no-repeat 15px;
+    min-height: 32px;
+    padding-top: 8px;
+}
+.icon_excel a {
+    margin-left: 38px;
 }
 

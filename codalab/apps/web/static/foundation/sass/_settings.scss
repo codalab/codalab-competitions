@@ -1,8 +1,8 @@
 $background: #739CB9;
-$foreground: white;
-$banner: #EBF2FB;
+$foreground: #fff;
+$banner: #F5F5F5;
 $highlight: #739CB9;
-$active: #ffac31;
+$active: #676278;
 $gray: #666;
 $light-gray: #ccc;
 $light-medium-gray: #a4a4a4;
@@ -19,7 +19,7 @@ $primary-color: $background;
 $body-font-color: $gray;
 $header-font-color: $gray;
 
-$topbar-bg: $background;
+$topbar-bg: $white;
 $topbar-fg: $foreground;
 $topbar-margin-bottom: 0px;
 $topbar-title-weight: normal;
@@ -29,7 +29,7 @@ $topbar-link-font-size: 100%;
 $topbar-link-hover-lightness: -30%;
 $topbar-link-bg-active: $active;
 
-$anchor-font-color: $background;
+$anchor-font-color: $link-color;
 $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
 
@@ -38,6 +38,7 @@ $inline-list-bottom-margin: 0;
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
 
+$primary-button-color: #676278;
 $button-font-color: $foreground;
 
 $section-title-color: $highlight;
@@ -72,10 +73,20 @@ $side-nav-font-size: 15px;
 	border-radius:5px;
 }
 
+@mixin table-header-white {
+	background:#648ca8;  
+	color:#fff;  
+}  
+
 *{
-    font-family: Segoe UI,'Segoe UI', Helvetica, Arial,'Trebuchet MS',sans-serif;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:   100%;
 	font-weight: normal;
+}
+
+body.body
+{
+	position:static;
 }
 
 select {
@@ -88,7 +99,7 @@ form textarea {
 }
 
 .menu-icon {
-	background: $background;
+	background: $foreground;
 }
 
 .menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
@@ -115,7 +126,7 @@ div.competition-tile article.subContainer div.articleTextArea div.small-10 butto
 
 nav.top-bar section.top-bar-section ul.right {
 	color: $foreground;
-	background: $background;
+	background: $white;
 	vertical-align: text-bottom;
 }
 
@@ -125,6 +136,7 @@ div.CompetitionsDetailContainer div.section-container section:not(.active) p a:h
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
 	background: transparent;
+	margin-left: 20px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
@@ -133,8 +145,9 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
 	padding: 2px;
-	text-align: right;
+	text-align: left;
 	border: 0px;
+	font-weight: normal;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
@@ -143,7 +156,6 @@ div.CompetitionsDetailContainer div.section-container section.active div.content
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
 	margin-left: 10px;
-	font-size: 13px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
@@ -182,7 +194,7 @@ a > i {
 
 .competitionsDetailTabArea > section > .title {
     font-size: 19px;
-    font-weight: 400;
+    font-weight: lighter;
 }
 
 .competitionsDetailTabArea > section > .title a:hover {
@@ -210,8 +222,8 @@ a > i {
 }
 
 .content > h3 {
-	font-size: 14px;
-	font-weight: 700;
+	font-size: 1.4em;
+	font-weight: lighter;
 }
 
 .content > p {
@@ -342,9 +354,9 @@ a > i {
 }
 
 p.competition-paragraph {
-	font-size:11px;
+	font-size: 1em;
 	color:$gray;
-	line-height:15px;
+	line-height: 1.6em;
 	margin-bottom:0;
 }
 
@@ -364,7 +376,14 @@ p.competition-paragraph {
 }
 
 .competition-tile {
-	margin-bottom:10px;
+	margin-bottom: 20px;
+	border: 1px #CCC solid;
+	border-radius: 3px;
+	background: #FFF;
+	box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    overflow: hidden;
 }
 
 .competition-tile h3 {
@@ -429,23 +448,25 @@ ul.side-nav {
 		&:active{background:none}
 	  }
 	li.active a {
-		color:$gray !important
+		color:$gray !important;
+		border-left: #676278 4px solid;
+		text-indent: 10px;
 	}
-}
+} 
 
 .glossary-page-container, competitions-block-Styling {
 	h6 { 
-		font-size:14px; 
-		color:$gray
+		font-size:18px; 
+		color:$gray;
 		}
 
 	p { 
-		font-size:12px; 
-		color:$gray
+		font-size:14px; 
+		color:$gray;
 		}
 
 	ol { 
-		font-size:13px; color:$gray;
+		font-size:14px; color:$gray;
 
 		li {
 			padding-bottom:10px;
@@ -454,7 +475,7 @@ ul.side-nav {
 	}
 
 	ul { 
-		font-size:13px; 
+		font-size:14px; 
 		color:$gray;
 		margin-left:20px;
 
@@ -471,32 +492,33 @@ ul.side-nav {
 		}
 
 	p a {
-		color:$link-color
+		color:$link-color;
 		}
 
 	b {
-		color:$gray
+		color:$gray;
 	}
 }
 
 div.auto.section-container > section > .title, .auto.section-container > .section > .title{
 		a{
-		background:$white;
+		background:$background-gray;
 		padding-left:40px !important;
 		padding-right:40px !important;
 		font-size:19px;
 		height:57px;
+		font-weight: lighter;
 		}
 }
 
 .auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
-	background:$background-gray !important;
+	background:$white !important;
 }
 
 .auto.section-container > section.active > .title {
-	border-bottom:solid 1px $background-gray !important;
+	border-bottom: none;
 	a {
-		background:$background-gray !important;
+		background:$white;
 	}
 }
 
@@ -514,13 +536,13 @@ div.auto.section-container > section > .title, .auto.section-container > .sectio
 
 		p a {
 			@include linkStyle;
-			&:hover{color:$active !important}
-			&:active{background:none !important}
+			&:hover{color:$active !important;}
+			&:active{background:none !important;}
 		}
 	}
 
 	.active p a {
-			color:$gray !important;
+			color:$active !important;
 			font-weight:bold;
 	}
 }
@@ -541,4 +563,170 @@ div.pending-approval-select.columns {
 		color:$highlight;
 		margin-bottom:2px;
 	 }
+}
+
+.glossary-page-container {
+       .fixed {
+              left:auto;
+              top:auto;
+              margin-left:0;
+              a {
+                     display:inline-block
+              }
+       }
+       h2 {
+       		margin-top: -155px;
+       		padding-top: 155px;
+
+
+       }
+       h6 { 
+              font-size:16px; 
+              color:$gray;
+              margin-bottom:0px;
+              }
+  
+       p { 
+              font-size:15px; 
+              color:$gray;
+              padding-bottom: 30px;            
+              }
+  
+       ol { 
+              font-size:13px; color:$gray;
+  
+              li {
+                     padding-bottom:10px;
+                     list-style-type:disc;
+              }
+       }
+  
+       ul { 
+              font-size:15px; 
+              color:$gray;
+              margin-left:20px;
+  
+              li{
+                     padding-bottom:10px;
+                     list-style-type:none;
+                     b { 
+                           color:$gray;
+                     }
+              }
+       }
+  
+       pre {
+              padding:10px;
+              background:$banner;
+              margin-bottom:15px;
+              }
+  
+       p a {
+              color:$link-color
+              }
+  
+       b {
+              color:$gray
+       }
+  }
+  
+.hide
+{
+	display:none !important;
+}
+
+.leaderboard-result-table {
+	margin: 0 15px;
+	overflow-x: auto;
+	overflow-y: auto;
+	clear:both;
+	min-height:400px;
+	table {
+		table-layout:auto;
+		tr {
+			th { 
+				vertical-align:top;
+				border:solid 1px #8eb0c7; 
+				text-align:center;
+				background:#dce9f2;
+				color:#648ca8;
+				font-size: 12px;
+			}
+		}
+		tr.leaderboard-result-table-header {
+			th {
+				@include table-header-white;
+			}
+		}
+		tr {
+			th.column-selected {
+				background:#99bece !important;
+				color:#fff !important;
+			}
+		}
+		tr:nth-child(odd) {
+			.column-selected {  
+				background:#e8e8e8 !important;  
+			}  
+		}
+		tr:nth-child(2) {
+			th:nth-child(1) {
+				@include table-header-white;
+			}
+			th:nth-child(2) {
+				@include table-header-white;
+			}
+			th:last-child {
+				@include table-header-white;
+			}
+		}
+	}
+}
+
+.leaderboard-result-table .table-title th {
+	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	color: #FFF;
+	font-weight: lighter;
+	font-size: 1.4em;
+	background-color: #676278;
+	text-transform: none;
+	text-align: left;
+}
+
+.preloader-handler {
+	position:relative;
+}
+
+.submissions-details-label{
+	margin-bottom:0 !important;
+}
+
+#submissions_phase_buttons .button{
+	margin-left:10px !important;
+	margin-bottom:5px !important;
+}
+#fileUploadButton{
+	margin-bottom:5px;
+}
+.challStatusStripSection { 
+	section{
+		width:auto;
+	}
+}
+.competition-tile{
+	.subContainerPadding{
+		max-height:130px; 
+	}
+	.articleImageContainer{
+		img{
+			height: 110px;
+			width: auto;
+			overflow: hidden;
+		}
+	}
+}
+.anchor {
+    position: relative;
+    margin-top:-155px;
+	float:left;
 }

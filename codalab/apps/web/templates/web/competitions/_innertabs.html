@@ -1,0 +1,35 @@
+<div class="section-container vertical-tabs" data-section="vertical-tabs" data-section-resized data-options="deep_linking:true">
+    {% for content in contents %}
+    <section>
+        <p class="title CompetitionsDetailLftUl" data-section-title><a href="#{{tab.codename}}-{{content.codename}}">{{content.label}}</a></p>
+        <div class="content" data-slug="{{tab.codename}}-{{content.codename}}" data-section-content>
+            {% if content.codename == "submit_results" %}
+                {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
+            {% else %}
+                {{content.html|safe}}
+
+                {% if content.codename == "get_data" %}
+                <p>
+                    <!-- Include data for each phase if appropriate -->
+                    <ul>
+                    {% for phase in competition.phases.all %}
+                        {% if phase.is_active or phase.is_past %}
+                            <p>
+                                <li>{{ phase.label }}:
+                                    <ul>
+                                        {% for dataset in phase.datasets.all %}
+                                            <li><a href="{{ dataset.datafile.source_url }}">{{dataset.datafile.name}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+</div>

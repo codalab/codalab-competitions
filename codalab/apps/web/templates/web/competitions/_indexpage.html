@@ -1,27 +1,28 @@
 {% if not competitions %}
-<p>There are no competitions.</p>
+    <p>There are no competitions.</p>
 {% else %}
-{% for item in competitions %}
-<a href="/competitions/{{item.id}}">
- <div class="competition-tile">
-    <article class="subContainer">
-        <input id="competitionID" type="hidden" value="{{ item.id }}" />
-        <div class="competitionTileLftStrip"></div>
-        <div class="articleImageContainer">
-            <div class="subContainerPadding">
-                <img src="{{ item.image_url }}">
-            </div>
-        </div>
-        <div class="articleTextArea">
-            <div class="subContainerPadding">
-                <div class="articleHeadingContainer">
-                    <h3>{{ item.title }}</h3>
-                    <label>{{ item.creator }}</label></div>
-                    <p class="competition-paragraph">{{ item.description }}</p>
+    {% for item in competitions %}
+    <a href="/competitions/{{item.id}}">
+        <div class="competition-tile">
+            <article class="subContainer">
+                <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                <div class="competitionTileLftStrip"></div>
+                <div class="articleImageContainer">
+                    <div class="subContainerPadding">
+                        <img src="{{ item.image_url }}">
+                    </div>
                 </div>
-            </div>
-        </article>
-    </a>
-</div>                
-{% endfor %}
+                <div class="articleTextArea">
+                    <div class="subContainerPadding">
+                        <div class="articleHeadingContainer">
+                            <h3>{{ item.title }}</h3>
+                            <label>{{ item.creator }}</label>
+                        </div>
+                        <p class="competition-paragraph">{{ item.description }}</p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </a>      
+    {% endfor %}
 {% endif %}

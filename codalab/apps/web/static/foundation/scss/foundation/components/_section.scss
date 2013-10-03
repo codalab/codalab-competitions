@@ -210,7 +210,7 @@ $active-region-selector: ".active" !default;
 	border: $section-border-style $section-border-size $section-border-color;
 	a {
       padding: $title-padding;
-      color: $title-color;
+      color: $active;
       font-size: $title-font-size;
 	  background: none;
     }
@@ -220,7 +220,9 @@ $active-region-selector: ".active" !default;
   & > #{$content-selector} {
     padding: $content-padding;
     background-color: $content-bg;
-	border: $section-border-style $section-border-size $section-border-color;
+    border: $section-border-style $section-border-size $section-border-color;
+    min-height: 400px;
+    overflow: visible;
 
     &>*:last-child { margin-bottom: 0; }
     &>*:first-child { padding-top: 0; }
@@ -230,7 +232,9 @@ $active-region-selector: ".active" !default;
   &#{$active-region-selector} {
 	& > #{$title-selector} { 
 	  background: $title-bg-active;
-      a { color: $title-color-active; }
+      a { 
+        color: $active;
+      }
     }
   }
 
@@ -258,7 +262,9 @@ $active-region-selector: ".active" !default;
 	  padding-#{$default-float}: $section-vertical-tabs-title-width - emCalc(1px);
 
       & > #{$title-selector} {
-        background-color: $title-bg-active;  
+        background-color: $title-bg-active;
+        border-left: 4px $active solid !important;
+        text-indent: 4px;
       }
     }
   }
