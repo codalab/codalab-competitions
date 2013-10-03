@@ -83,3 +83,12 @@ We should get coverage on the following tasks:
 - [CV papers](http://www.cvpapers.com/datasets.html): an impressive list of
   computer vision datasets for detection, classification, recognition,
   segmentation, etc.
+
+### Tutorials
+
+- [Predicting Closed Question](http://fastml.com/predicting-closed-questions-on-stack-overflow/)
+- [Merk Challenge](http://fastml.com/merck-challenge/)
+- [Predicting Advertised Salaries](http://fastml.com/predicting-advertised-salaries/)
+- [Large Scale L1 Feature Selection](http://fastml.com/large-scale-l1-feature-selection-with-vowpal-wabbit/)
+- [Automate Access Control](http://fastml.com/amazon-aspires-to-automate-access-control/)
+- [Non-linear w/ Vowpal](http://fastml.com/go-non-linear-with-vowpal-wabbit/)
