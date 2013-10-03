@@ -436,6 +436,7 @@ server = BundleServer()
 # TODO: display size of bundles
 # TODO: implement tagging system
 # TODO: implement versioning system (backpointers)
+# TODO: ascii tree w/ immediate children & parents for each bundle
 
 if command == 'up' or command == 'upload':
   for arg in args:
