@@ -27,8 +27,6 @@ class Dev(DevBase):
     CELERY_TASK_RESULT_EXPIRES=3600
     ##
 
-    INSTALLED_APPS = DevBase.INSTALLED_APPS + ('south',)
-
     DATABASES = {'default': {
             'ENGINE':  'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
             'NAME': 'MySQL_DevDB',                      # Or path to database file if using sqlite3.
