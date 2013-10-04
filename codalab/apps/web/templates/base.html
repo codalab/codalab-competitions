@@ -13,9 +13,9 @@
 <head>
     <meta charset="utf-8" /> 
 
-    <!-- Set the viewport width to device width for mobile -->
-    <meta name="viewport" content="width=device-width" />
-    <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}site/Images/favicon.ico">
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+  <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
 
     {% block meta %}
     {% endblock %}
@@ -24,11 +24,11 @@
 
     {% block css %}
         <!-- Included CSS Files (Compressed) -->
-        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/jquery.dataTables.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}site/css/Main.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}foundation/css/codalab.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
 
-        <script src="{{ STATIC_URL }}foundation/js/vendor/custom.modernizr.js"></script>
+        <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
 
         <!-- IE Fix for HTML5 Tags -->
         <!--[if lt IE 9]>
@@ -52,48 +52,51 @@
     <div class="container" id="layout">
         <!-- Nav Bar -->
         <div class="header">
-            <nav class="top-bar">
-                <ul class="title-area">
-                    <!-- Title Area -->
-                    <li class="name cl-logo"><a href="/" tabindex=1><img src="{{STATIC_URL}}site/Images/CL_Header_Logo.png" alt="Home"></a></li>
-                    <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-                    <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-                </ul>
-                <section class="top-bar-section">
-                    {% block top_bar_right_menus %}
-                    <ul class="right">
-                        <!--                 
-                        <li class="has-form">
-                            <form action="/search" method="get">
-                            <input name="query" type="search" placeholder="Search">
-                            </form>
-                        </li> 
-                        -->
-                        <!-- 
-                        <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> 
-                        -->
-                        <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
-                        {% if user.is_authenticated %}
-                            <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
-                        {% else %}
-                            <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my">My CodaLab</a></li>  
-                        {% endif %}
-                        <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
-                        {% if user.is_authenticated %}
-                            <li class="has-dropdown">
-                                <a href="#profile"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
-                                <ul class="dropdown">
-                                    <!-- <li><a href="#">My Profile</a></li> -->
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
-                                </ul>
-                            </li>
-                        {% else %}
-                            <li class="menu-icon">
-                            <a href="{% url 'account_login' %}"><img src="{{ STATIC_URL }}site/Images/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
-                        {% endif %}      
+          <nav class="top-bar">
+            <ul class="title-area">
+              <!-- Title Area -->
+              <li class="name cl-logo"><a href="/" tabindex=1><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
+              <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+              <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+            </ul>
+            <section class="top-bar-section">
+              {% block top_bar_right_menus %}
+              <!-- Left Nav Section -->
+
+              <!-- Right Nav Section -->
+              <ul class="right">
+                <!--                 
+                <li class="has-form">
+                    <form action="/search" method="get">
+                    <input name="query" type="search" placeholder="Search">
+                    </form>
+                </li> 
+                -->
+                <!-- 
+                <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> 
+                -->
+                <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
+                {% if user.is_authenticated %}
+                    <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>
+                {% else %}
+                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my">My CodaLab</a></li>  
+                {% endif %}
+                <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
+                {% if user.is_authenticated %}
+                    <li class="has-dropdown">
+                      <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
+                      <ul class="dropdown">
+                          <!-- <li><a href="#">My Profile</a></li> -->
+                          <li class="divider"></li>
+                          <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+                      </ul>
+                    </li>
+                    {% else %}
+                        <li class="menu-icon">
+                    <a href="{% url 'account_login' %}"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
+                {% endif %}      
                     </ul>
-                    {% endblock top_bar_right_menus %}
+                {% endblock top_bar_right_menus %}
                 </section>
             </nav>
         </div>
@@ -131,13 +134,13 @@
             <ul class="inline-list left">            
             <li>   
                 <span>
-                    <a href="http://www.windowsazure.com/" target="_blank"><img src="{{ STATIC_URL }}site/Images/Azure_Footer_Logo.png" border="0"/></a>
+                  <a href="http://www.windowsazure.com/" target="_blank"><img src="{{ STATIC_URL }}img/Azure_Footer_Logo.png" border="0"/></a>
                 </span>
             </li>
             <li>   
                 <span>
-                    <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}foundation/img/github.png" border="0"/></a>
-                    <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
+                  <a href="http://codalab.github.io/codalab/" target="_blank"><img src="{{STATIC_URL}}img/github.png" border="0"/></a>
+                  <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
                 </span>
             </li>
             </ul>
@@ -157,13 +160,13 @@
     <!-- Check for Zepto support, load jQuery if necessary -->
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-    <script src="{{ STATIC_URL }}foundation/js/vendor/jquery.liteuploader-1.4.1.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.liteuploader-1.4.1.min.js"></script>
 
     <!-- Included JS Files (Compressed) -->
-    <script src="{{ STATIC_URL }}foundation/js/foundation.min.js"></script>
+    <script src="{{ STATIC_URL }}js/foundation.min.js"></script>
 
     <!-- Initialize JS Plugins -->
-    <script src="{{ STATIC_URL }}foundation/js/app.js"></script>
+    <script src="{{ STATIC_URL }}js/app.js"></script>
 
     <script>
     $(document).foundation();
