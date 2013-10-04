@@ -353,6 +353,8 @@ class DevBase(Base):
     }
 
     INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
+
+    INSTALLED_APPS = Base.INSTALLED_APPS + ('south',)
    
     DATABASES = {
         'default': {
