@@ -1,30 +1,30 @@
 ﻿{% load static %}
 
-{% if not competitions %}
-<p>You have not participated in any competitions.</p>
+{% if not participations %}
+<p>You are not participating in any competitions.</p>
 {% else %}
-{% for item in competitions %}
+{% for participation in participations %}
 <div class="competition-tile">
-    <a href="/competitions/{{item.competition.id}}">
+    <a href="/competitions/{{participation.competition.pk}}">
         <article class="subContainer">
-            <input id="competitionID" type="hidden" value="{{ item.competition.pk }}" />
+            <input id="competitionID" type="hidden" value="{{ participation.competition.pk }}" />
             <div class="competitionTileLftStrip"></div>
             <div class="articleImageContainer">
                 <div class="subContainerPadding">
-                    {% if item.competition.image_url = None %}
+                    {% if participation.competition.image_url = None %}
 				    <img src="{% static "img/ProfileImageDummy.jpg" %}">
                     {% else %}
-				    <img src="{{ item.competition.image_url }}">
+				    <img src="{{ participation.competition.image_url }}">
                     {% endif %}
                 </div>
             </div>
             <div class="articleTextArea">
                 <div class="subContainerPadding">
                     <div class="articleHeadingContainer">
-                        <h3>{{ item.competition.title }}</h3>
-                        <label>Organized by {{ item.competition.creator }}</label>
+                        <h3>{{ participation.competition.title }}</h3>
+                        <label>Organized by {{ participation.competition.creator }}</label>
                     </div>
-                    <p>{{ item.competition.description }}</p>
+                    <p>{{ participation.competition.description }}</p>
                </div>
            </div>
        </article>
