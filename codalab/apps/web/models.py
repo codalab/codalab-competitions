@@ -789,10 +789,10 @@ class CompetitionDefBundle(models.Model):
         if 'leaderboard' in comp_spec:
             # If there's more than one create each of them
             if 'leaderboards' in comp_spec['leaderboard']:
-                lboards = {}
+                leaderboards = {}
                 for key, value in comp_spec['leaderboard']['leaderboards'].items():
                     rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
-                    lboards[rg.label] = rg
+                    leaderboards[rg.label] = rg
                     for gp in comp.phases.all():
                         rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
             print "Created leaderboard(s)."
@@ -814,11 +814,11 @@ class CompetitionDefBundle(models.Model):
                     # Create the score definition
                     is_computed = 'computed' in vals
                     sdefaults = {
-                                 'label' : "" if 'label' not in vals else vals['label'],
-                                 'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
-                                 'show_rank' : not is_computed,
-                                 'sorting' : 'desc' if 'sort' not in vals else vals['sort']
-                                 }
+                                    'label' : "" if 'label' not in vals else vals['label'],
+                                    'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
+                                    'show_rank' : not is_computed,
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    }
                     if 'selection_default' in vals: 
                         sdefaults['selection_default'] = vals['selection_default']
 
@@ -836,19 +836,21 @@ class CompetitionDefBundle(models.Model):
                     columns[sd.key] = sd
 
                     # Associate the score definition with its column group
-                    group = None
                     if 'column_group' in vals:
-                        group = SubmissionScoreSet.objects.get(competition=comp, label=vals['column_group']['label'])
-
-                    if 'column_group' in vals:
+                        gparent = groups[vals['column_group']['label']]
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-                                competition=comp,
-                                parent=group,
-                                key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+		                        competition=comp,
+                                parent=gparent,
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
+                    else:
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+		                        competition=comp,
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
 
-                    # Associate the score definition with its result group
-                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=lboards[vals['group']['label']])
+                    # Associate the score definition with its leaderboard
+                    sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
                 print "Created scores."
 
         # Add owner as participant so they can view the competition
