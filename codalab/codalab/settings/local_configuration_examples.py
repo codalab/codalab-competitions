@@ -111,11 +111,5 @@ class Dev(DevBase,LocalSQLAzureLinux):
 
     ### https://docs.djangoproject.com/en/1.5/topics/email/#email-backends
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    #EMAIL_HOST = 'localhost'
-    #EMAIL_PORT = '123'
-    #EMAIL_HOST_USER = 'user'
-    #EMAIL_HOST_PASSWORD = 'password'
-    #EMAIL_USE_TLS = True
 
     
