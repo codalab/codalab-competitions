@@ -265,39 +265,51 @@ def phase_reference_data_file(phase, filename="reference.zip"):
 def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
-def submission_file_name(instance,filename):
-    return "competition/%d/%d/submissions/%d/%s/predictions.zip" % (instance.phase.competition.pk,
+def submission_root(instance):
+    return "competition/%d/%d/submissions/%d/%d" % (instance.phase.competition.pk,
+                                                    instance.phase.pk,
+                                                    instance.participant.user.pk,
+                                                    instance.submission_number)
+
+def submission_file_name(instance, filename="predictions.zip"):
+    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                                     instance.phase.pk,
                                                                     instance.participant.user.pk,
-                                                                    instance.submission_number)
-def submission_inputfile_name(instance, filename):
-     return "competition/%d/%d/submissions/%d/%s/input.txt" % (instance.phase.competition.pk,
+                                                                    instance.submission_number,
+                                                                    filename)
+def submission_inputfile_name(instance, filename="input.txt"):
+     return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                                instance.phase.pk,
                                                                instance.participant.user.pk,
-                                                               instance.submission_number)
-def submission_runfile_name(instance, filename):
-    return "competition/%d/%d/submissions/%d/%s/run.txt" % (instance.phase.competition.pk,
+                                                               instance.submission_number,
+                                                               filename)
+def submission_runfile_name(instance, filename="run.txt"):
+    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
                                                             instance.phase.pk,
                                                             instance.participant.user.pk,
-                                                            instance.submission_number)
+                                                            instance.submission_number,
+                                                            filename)
 
-def submission_output_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/output.zip" % (instance.phase.competition.pk,
+def submission_output_filename(instance,filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stdout_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stdout.txt" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_stdout_filename(instance,filename="stdout.txt"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_stderr_filename(instance,filename=""):
-    return "competition/%d/%d/submissions/%d/%s/run/stderr.txt" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_stderr_filename(instance,filename="stderr.txt"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                                    instance.phase.pk,
                                                                    instance.participant.user.pk,
-                                                                   instance.submission_number)
-def submission_file_blobkey(instance, filename="run/output.zip"):
-    return "competition/%d/%d/submissions/%d/%s/%s" % (instance.phase.competition.pk,
+                                                                   instance.submission_number,
+                                                                   filename)
+def submission_file_blobkey(instance, filename="output.zip"):
+    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
                                                        instance.phase.pk,
                                                        instance.participant.user.pk,
                                                        instance.submission_number,
@@ -533,36 +545,6 @@ class CompetitionPhase(models.Model):
                 final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
                 result['scores'] = final_scores
                 del result['scoredefs']        
-
-        #else:
-        #    submission_ids = [id for id in range(1,11)]
-        #    for result in results:
-        #        scores = result['scores']
-        #        for id in submission_ids: 
-        #            scores[id] = {'username': 'guest' + str(id), 'values': []}
-        #        values = {}
-        #        for sdef in result['scoredefs']:
-        #            values[sdef.id] = {}
-        #            for id in submission_ids: 
-        #                values[sdef.id][id] = random.random()
-        #        ranks = {}
-        #        for sdef in result['scoredefs']:
-        #            ranks[sdef.id] = self.rank_values(submission_ids, values[sdef.id], sort_ascending=sdef.sorting=='asc')
-        #        for sdef in result['scoredefs']:
-        #            for id in submission_ids:
-        #                v = CompetitionPhase.format_value(values[sdef.id][id], sdef.numeric_format)
-        #                r = ranks[sdef.id][id]
-        #                if sdef.show_rank:
-        #                    scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
-        #                else:
-        #                    scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
-        #            if (sdef.key == result['selection_key']):
-        #                overall_ranks = ranks[sdef.id]
-        #        ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
-        #        final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
-        #        result['scores'] = final_scores
-        #        del result['scoredefs']        
-
         return results
 
 # Competition Participant
@@ -723,7 +705,13 @@ class CompetitionDefBundle(models.Model):
     created_at = models.DateTimeField()
 
     def unpack(self):
+        """
+        This method unpacks a competition bundle and creates a competition from the assets found inside (the competition bundle).
+        The competition bundle is described on the CodaLab Wiki: https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle
+        """
+        # Get the bundle data, which is stored as a zipfile
         zf = zipfile.ZipFile(self.config_bundle)
+
         # Create the basic competition
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
         comp_spec = yaml.load(zf.open(comp_spec_file))
@@ -735,33 +723,32 @@ class CompetitionDefBundle(models.Model):
         comp_base['modified_by'] = self.owner
         if type(comp_base['end_date']) is datetime.datetime.date:
             comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
-
         comp = Competition(**comp_base)
         comp.save()
+        print "Created base competition."
 
+        # Unpack and save the logo
         comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
         if not os.path.exists(comp_root):
             os.makedirs(comp_root)
-
         comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
         comp.save()
+        print "Saved competition logo."
 
-        # Populate pages
+        # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
-
         details_category = ContentCategory.objects.get(name="Learn the Details")
-
-        Page.objects.get_or_create(category=details_category, container=pc,  codename="overview",
+        Page.objects.create(category=details_category, container=pc,  codename="overview",
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
-        Page.objects.get_or_create(category=details_category, container=pc,  codename="evaluation",
+        Page.objects.create(category=details_category, container=pc,  codename="evaluation",
                                    label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
-        Page.objects.get_or_create(category=details_category, container=pc,  codename="terms_and_conditions",
+        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
                                    label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
-
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.get_or_create(category=participate_category, container=pc,  codename="get_data",
+        Page.objects.create(category=participate_category, container=pc,  codename="get_data",
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.get_or_create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        print "Created competition pages."
 
         # Create phases
         for p_num in comp_spec['phases']:
@@ -775,6 +762,7 @@ class CompetitionDefBundle(models.Model):
             if type(phase_spec['start_date']) is datetime.datetime.date:
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
+            print "Created base phase object."
             phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
             if not os.path.exists(phase_path):
                 os.makedirs(phase_path)
@@ -782,6 +770,7 @@ class CompetitionDefBundle(models.Model):
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.save()
+            print "Saved scoring program and reference data for phase."
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
             count = 1
             for ds in datasets.keys():
@@ -792,34 +781,45 @@ class CompetitionDefBundle(models.Model):
                 phase.datasets.add(d)
                 phase.save()
                 count += 1
+            print "Saved datasets for phase."
 
+        print "Created competition phases."
 
-        if 'leaderboard' in comp_spec and 'leaderboards' in comp_spec['leaderboard']:
-            # Create leaderboard
-            lboards = {}
-            for key, value in comp_spec['leaderboard']['leaderboards'].items():
-                rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
-                lboards[rg.label] = rg
-                for gp in comp.phases.all():
-                    rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
+        # Create leaderboard
+        if 'leaderboard' in comp_spec:
+            # If there's more than one create each of them
+            if 'leaderboards' in comp_spec['leaderboard']:
+                leaderboards = {}
+                for key, value in comp_spec['leaderboard']['leaderboards'].items():
+                    rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
+                    leaderboards[rg.label] = rg
+                    for gp in comp.phases.all():
+                        rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
+            print "Created leaderboard(s)."
 
-        if 'leaderboard' in comp_spec and 'columns' in comp_spec['leaderboard']:
-            columns = {}
-            for key, vals in comp_spec['leaderboard']['columns'].items():
-                if 'group' not in vals:
-                    # Define a new grouping of scores
-                    s,cr = SubmissionScoreSet.objects.get_or_create(
-                                competition=comp, 
-                                key=key,
-                                defaults=dict(label=vals['label']))
-                    lboards[key] = s
-                else:
+            # Create score groups
+            if 'column_groups' in comp_spec['leaderboard']:
+                groups = {}
+                for key, vals in comp_spec['leaderboard']['column_groups'].items():
+                    if vals is None:
+                        vals = dict()
+                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key, defaults=vals)
+                    groups[s.label] = s
+            print "Created score groups."
+
+            # Create scores.
+            if 'columns' in comp_spec['leaderboard']:
+                columns = {}
+                for key, vals in comp_spec['leaderboard']['columns'].items():
                     # Create the score definition
                     is_computed = 'computed' in vals
-                    sort_order = 'desc' if 'sort' not in vals else vals['sort']
-                    numeric_format = vals['numeric_format'] or "2"
-                    sdefaults = dict(label=vals['label'],numeric_format=numeric_format,show_rank=not is_computed,sorting=sort_order)
-                    if 'selection_default' in vals:
+                    sdefaults = {
+                                    'label' : "" if 'label' not in vals else vals['label'],
+                                    'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
+                                    'show_rank' : not is_computed,
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    }
+                    if 'selection_default' in vals: 
                         sdefaults['selection_default'] = vals['selection_default']
 
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
@@ -837,23 +837,27 @@ class CompetitionDefBundle(models.Model):
 
                     # Associate the score definition with its column group
                     if 'column_group' in vals:
-                        gparent = lboards[vals['column_group']]
+                        gparent = groups[vals['column_group']['label']]
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-                                competition=comp,
+		                        competition=comp,
                                 parent=gparent,
-                                key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-                                competition=comp,
-                                key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+		                        competition=comp,
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
 
-                    # Associate the score definition with its result group
-                    sdg,cr = SubmissionScoreDefGroup.objects.get_or_create(scoredef=sd,group=lboards[vals['group']['label']])
+                    # Associate the score definition with its leaderboard
+                    sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
+                print "Created scores."
+
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
+        print "Added owner as participant."
+
         return comp
 
 class SubmissionScoreDefGroup(models.Model):
