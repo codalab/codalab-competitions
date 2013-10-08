@@ -2,7 +2,6 @@ import time
 import requests
 import json
 import re
-import zipfile
 import io
 import tempfile, os.path, subprocess, StringIO
 from django.conf import settings
@@ -12,6 +11,7 @@ from django.core.files.base import ContentFile
 
 import celery
 from celery.signals import task_success, task_failure, task_revoked, task_sent
+
 from codalab.settings import base
 
 from azure.storage import *
@@ -247,3 +247,17 @@ def sub_directories(bundleid):
 @celery.task()
 def echo(msg):
     print "Echoing %s" % (msg)
+
+@celery.task()
+def create_competition_from_bundle(comp_def_id):
+    """
+    create_competition_from_bundle(competition_definition_bundle_id):
+
+    This method takes the id of an uploaded competition definition bundle (defined: https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle)
+    The result is a competition created in CodaLab that's ready to use.
+    """
+    print "Creating competition for new competition bundle."
+    # Pull the competition from the database using the id passed in
+    competition_def = models.CompetitionDefBundle.objects.get(pk=comp_def_id)
+    return competition_def.unpack()
+

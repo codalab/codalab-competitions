@@ -69,12 +69,15 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         form.instance.created_at = datetime.datetime.now()
-        print "Set fields."
         if form.is_valid():
             cb = form.save(commit=False)
             cb.save()
-            c = cb.unpack()
-            return(HttpResponseRedirect('/competitions/%d' % c.pk))    
+            # Disptch celery task to unpack competition bundle and create it
+            tasks.create_competition_from_bundle.delay(cb.id)
+            # Go back to the list of competitions
+            # TODO: poll to see if create is finished and redirect to new competition
+            #return(HttpResponseRedirect('/competitions/%d' % c.pk))    
+            return(HttpResponseRedirect('/my/#manage'))    
 
 class CompetitionCreate(LoginRequiredMixin, CreateWithInlinesView):
     model = models.Competition
@@ -385,4 +388,5 @@ class RunDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
+
         return context
