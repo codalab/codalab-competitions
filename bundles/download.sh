@@ -6,5 +6,6 @@
 # (cd pliang/uci_arff && ./download.sh)
 # (cd pliang/census_population && ./download.sh)
 # (cd pliang/vw && ./download.sh)
-(cd pliang && git clone https://github.com/Quebecisnice/VW-Data.git)
+(cd pliang/rcv1 && ./download.sh)
+(cd pliang/maliciousurl && ./download.sh)
 

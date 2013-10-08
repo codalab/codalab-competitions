@@ -1,0 +1,300 @@
+% 1. Title of Database: E. coli promoter gene sequences (DNA)
+%                       with associated imperfect domain theory
+% 
+% 2. Sources:
+%    (a) Creators: 
+%        - promoter instances: C. Harley (CHARLEY@McMaster.CA) and R. Reynolds 
+%        - non-promoter instances and domain theory: M. Noordewier
+%          -- (non-promoters derived from work of lab of Prof. Tom Record, 
+%              University of Wisconsin Biochemistry Department)
+%    (b) Donor: M. Noordewier and J. Shavlik, {noordewi,shavlik}@cs.wisc.edu
+%    (c) Date received: 6/30/90
+% 
+% 3. Past Usage:
+%    (a) biological: 
+%        -- Harley, C. and Reynolds, R. 1987.  
+%           "Analysis of E. Coli Promoter Sequences."
+%           Nucleic Acids Research, 15:2343-2361.
+%        machine learning:
+%        -- Towell, G., Shavlik, J. and Noordewier, M. 1990.
+%           "Refinement of Approximate Domain Theories by Knowledge-Based
+%           Artificial Neural Networks." In Proceedings of the Eighth National
+%           Conference on Artificial Intelligence (AAAI-90).
+%    (b) attributes predicted: member/non-member of class of sequences with
+%        biological promoter activity (promoters initiate the process of gene
+%        expression).
+%    (c) Results of study indicated that machine learning techniques (neural
+%        networks, nearest neighbor, contributors' KBANN system) performed as
+%        well/better than classification based on canonical pattern matching
+%        (method used in biological literature).
+% 
+% 4. Relevant Information Paragraph:
+%    This dataset has been developed to help evaluate a "hybrid" learning
+%    algorithm ("KBANN") that uses examples to inductively refine preexisting
+%    knowledge.  Using a "leave-one-out" methodology, the following errors
+%    were produced by various ML algorithms.  (See Towell, Shavlik, &
+%    Noordewier, 1990, for details.)
+% 
+% 	    System	 Errors		Comments
+% 	    ------	 ------		--------
+% 	     KBANN	  4/106		a hybrid ML system
+% 	     BP		  8/106		std backprop with one hidden layer
+% 	     O'Neill	 12/106		ad hoc technique from the bio. lit.
+% 	     Near-Neigh  13/106		a nearest-neighbor algo (k=3)
+% 	     ID3	 19/106		Quinlan's decision-tree builder
+% 	     	
+%    Type of domain: non-numeric, nominal (one of A, G, T, C)
+%    -- Note: DNA nucleotides can be grouped into a hierarchy, as shown below:
+% 
+% 		      X (any)
+% 		    /   \
+% 	  (purine) R     Y (pyrimidine)
+% 		  / \   / \
+% 		 A   G T   C
+% 
+%  
+% 5. Number of Instances: 106
+% 
+% 6. Number of Attributes: 59
+%    -- class (positive or negative)
+%    -- instance name
+%    -- 57 sequential nucleotide ("base-pair") positions
+% 
+% 7. Attribute information:
+%    -- Statistics for numeric domains: No numeric features used.
+%    -- Statistics for non-numeric domains
+%       -- Frequencies:  Promoters Non-Promoters
+%                        --------- -------------
+%                A        27.7%     24.4%
+%                G        20.0%     25.4%
+%                T        30.2%     26.5%
+%                C        22.1%     23.7%
+% 
+%    Attribute #:  Description:
+%    ============  ============
+%              1   One of {+/-}, indicating the class ("+" = promoter).
+%              2   The instance name (non-promoters named by position in the
+%                  1500-long nucleotide sequence provided by T. Record).
+%           3-59   The remaining 57 fields are the sequence, starting at 
+%                  position -50 (p-50) and ending at position +7 (p7). Each of
+%                  these fields is filled by one of {a, g, t, c}.
+% 
+% 8. Missing Attribute Values: none
+% 
+% 9. Class Distribution: 50% (53 positive instances, 53 negative instances)
+%
+% The Domain Theory (for recognizing promoters):
+% 
+%    % Promoters have a region where a protein (RNA polymerase) must make contact
+%    % and the helical DNA sequence must have a valid conformation so that
+%    % the two pieces of the contact region spatially align.
+%    % Prolog notation is used.
+%     promoter :- contact, conformation.
+% 
+%    % There are two regions "upstream" from the beginning of the gene
+%    % at which the RNA polymerase makes contact.
+%     contact  :- minus_35, minus_10.
+% 
+%    % The following rules describe the compositions of possible contact regions.
+%    minus_35 :- p-37=c, p-36=t, p-35=t, p-34=g, p-33=a, p-32=c.
+%    minus_35 :-         p-36=t, p-35=t, p-34=g,         p-32=c, p-31=a.
+%    minus_35 :-         p-36=t, p-35=t, p-34=g, p-33=a, p-32=c, p-31=a.
+%    minus_35 :-         p-36=t, p-35=t, p-34=g, p-33=a, p-32=c.
+% 
+%    minus_10 :- p-14 t, p-13 a, p-12=t, p-11=a, p-10=a, p-9=t. 
+%    minus_10 :-         p-13 t, p-12=a,         p-10=a,        p-8=t.
+%    minus_10 :-         p-13 t, p-12=a, p-11=t, p-10=a, p-9=a, p-8=t.
+%    minus_10 :-                 p-12=t, p-11=a,                       p-7=t.
+% 
+%    % The following rules describe sequence characteristics that produce
+%    % acceptable conformations.
+%    conformation :- p-47=c, p-46=a, p-45=a, p-43=t, p-42=t, p-40=a, p-39=c,
+%                    p-22=g, p-18=t, p-16=c, p-8=g,  p-7=c,  p-6=g,  p-5=c,
+%                    p-4=c,  p-2=c,  p-1=c. 
+%    conformation :- p-45=a, p-44=a, p-41=a.
+%    conformation :- p-49=a, p-44=t, p-27=t, p-22=a, p-18=t, p-16=t, p-15=g, 
+%                    p-1=a. 
+%    conformation :- p-45=a, p-41=a, p-28=t, p-27=t, p-23=t, p-21=a, p-20=a,
+% 	           p-17=t, p-15=t, p-4=t.
+% 
+%    % If exact matches are required, this domain theory matches NONE
+%    % of the examples below.  Also note that some of the MINUS_35 rules
+%    % are subsumed by another MINUS_35 rule.  This occurs because the
+%    % biological evidence is inconclusive wrt the correct specificity.
+% 
+% 
+%
+% Information about the dataset
+% CLASSTYPE: nominal
+% CLASSINDEX: first
+%
+
+@relation molecular-biology-promoters
+
+@attribute class {+,-}
+@attribute instance {1019,1024,1108,1149,1163,1169,1171,1203,1216,1218,1226,1320,1321,1355,1384,1442,1481,19,217,230,244,260,296,313,35,39,413,464,507,521,557,630,648,660,663,668,751,753,780,794,799,802,835,850,867,91,915,918,93,957,987,988,991,ALAS,AMPC,ARABAD,ARAC,AROH,BIOA,BIOB,DEOP1,DEOP2,FOL,GALP2,GLNS,HIS,HISJ,ILVGEDA,LACI,LACP1,LEU1_TRNA,LEXA,LPP,M1RNA,MALEFG,MALK,MALT,PORI-L,PORI-R,RECA,RPLJ,RPOA,RPOB,RRNAB_P1,RRNAB_P2,RRNDEX_P2,RRND_P1,RRNE_P1,RRNG_P1,RRNG_P2,RRNX_P1,S10,SPC,SPOT42,STR,SUBB-E,THR,TNAA,TRP,TRPP2,TRPR,TUFB,TYRT,UVRBP1,UVRBP3,UVRB_P2}
+@attribute p-50 {a,c,g,t}
+@attribute p-49 {a,c,g,t}
+@attribute p-48 {a,c,g,t}
+@attribute p-47 {a,c,g,t}
+@attribute p-46 {a,c,g,t}
+@attribute p-45 {a,c,g,t}
+@attribute p-44 {a,c,g,t}
+@attribute p-43 {a,c,g,t}
+@attribute p-42 {a,c,g,t}
+@attribute p-41 {a,c,g,t}
+@attribute p-40 {a,c,g,t}
+@attribute p-39 {a,c,g,t}
+@attribute p-38 {a,c,g,t}
+@attribute p-37 {a,c,g,t}
+@attribute p-36 {a,c,g,t}
+@attribute p-35 {a,c,g,t}
+@attribute p-34 {a,c,g,t}
+@attribute p-33 {a,c,g,t}
+@attribute p-32 {a,c,g,t}
+@attribute p-31 {a,c,g,t}
+@attribute p-30 {a,c,g,t}
+@attribute p-29 {a,c,g,t}
+@attribute p-28 {a,c,g,t}
+@attribute p-27 {a,c,g,t}
+@attribute p-26 {a,c,g,t}
+@attribute p-25 {a,c,g,t}
+@attribute p-24 {a,c,g,t}
+@attribute p-23 {a,c,g,t}
+@attribute p-22 {a,c,g,t}
+@attribute p-21 {a,c,g,t}
+@attribute p-20 {a,c,g,t}
+@attribute p-19 {a,c,g,t}
+@attribute p-18 {a,c,g,t}
+@attribute p-17 {a,c,g,t}
+@attribute p-16 {a,c,g,t}
+@attribute p-15 {a,c,g,t}
+@attribute p-14 {a,c,g,t}
+@attribute p-13 {a,c,g,t}
+@attribute p-12 {a,c,g,t}
+@attribute p-11 {a,c,g,t}
+@attribute p-10 {a,c,g,t}
+@attribute p-9 {a,c,g,t}
+@attribute p-8 {a,c,g,t}
+@attribute p-7 {a,c,g,t}
+@attribute p-6 {a,c,g,t}
+@attribute p-5 {a,c,g,t}
+@attribute p-4 {a,c,g,t}
+@attribute p-3 {a,c,g,t}
+@attribute p-2 {a,c,g,t}
+@attribute p-1 {a,c,g,t}
+@attribute p1 {a,c,g,t}
+@attribute p2 {a,c,g,t}
+@attribute p3 {a,c,g,t}
+@attribute p4 {a,c,g,t}
+@attribute p5 {a,c,g,t}
+@attribute p6 {a,c,g,t}
+@attribute p7 {a,c,g,t}
+
+@data
++,S10,t,a,c,t,a,g,c,a,a,t,a,c,g,c,t,t,g,c,g,t,t,c,g,g,t,g,g,t,t,a,a,g,t,a,t,g,t,a,t,a,a,t,g,c,g,c,g,g,g,c,t,t,g,t,c,g,t
++,AMPC,t,g,c,t,a,t,c,c,t,g,a,c,a,g,t,t,g,t,c,a,c,g,c,t,g,a,t,t,g,g,t,g,t,c,g,t,t,a,c,a,a,t,c,t,a,a,c,g,c,a,t,c,g,c,c,a,a
++,AROH,g,t,a,c,t,a,g,a,g,a,a,c,t,a,g,t,g,c,a,t,t,a,g,c,t,t,a,t,t,t,t,t,t,t,g,t,t,a,t,c,a,t,g,c,t,a,a,c,c,a,c,c,c,g,g,c,g
++,DEOP2,a,a,t,t,g,t,g,a,t,g,t,g,t,a,t,c,g,a,a,g,t,g,t,g,t,t,g,c,g,g,a,g,t,a,g,a,t,g,t,t,a,g,a,a,t,a,c,t,a,a,c,a,a,a,c,t,c
++,LEU1_TRNA,t,c,g,a,t,a,a,t,t,a,a,c,t,a,t,t,g,a,c,g,a,a,a,a,g,c,t,g,a,a,a,a,c,c,a,c,t,a,g,a,a,t,g,c,g,c,c,t,c,c,g,t,g,g,t,a,g
++,MALEFG,a,g,g,g,g,c,a,a,g,g,a,g,g,a,t,g,g,a,a,a,g,a,g,g,t,t,g,c,c,g,t,a,t,a,a,a,g,a,a,a,c,t,a,g,a,g,t,c,c,g,t,t,t,a,g,g,t
++,MALK,c,a,g,g,g,g,g,t,g,g,a,g,g,a,t,t,t,a,a,g,c,c,a,t,c,t,c,c,t,g,a,t,g,a,c,g,c,a,t,a,g,t,c,a,g,c,c,c,a,t,c,a,t,g,a,a,t
++,RECA,t,t,t,c,t,a,c,a,a,a,a,c,a,c,t,t,g,a,t,a,c,t,g,t,a,t,g,a,g,c,a,t,a,c,a,g,t,a,t,a,a,t,t,g,c,t,t,c,a,a,c,a,g,a,a,c,a
++,RPOB,c,g,a,c,t,t,a,a,t,a,t,a,c,t,g,c,g,a,c,a,g,g,a,c,g,t,c,c,g,t,t,c,t,g,t,g,t,a,a,a,t,c,g,c,a,a,t,g,a,a,a,t,g,g,t,t,t
++,RRNAB_P1,t,t,t,t,a,a,a,t,t,t,c,c,t,c,t,t,g,t,c,a,g,g,c,c,g,g,a,a,t,a,a,c,t,c,c,c,t,a,t,a,a,t,g,c,g,c,c,a,c,c,a,c,t,g,a,c,a
++,RRNAB_P2,g,c,a,a,a,a,a,t,a,a,a,t,g,c,t,t,g,a,c,t,c,t,g,t,a,g,c,g,g,g,a,a,g,g,c,g,t,a,t,t,a,t,g,c,a,c,a,c,c,c,c,g,c,g,c,c,g
++,RRNDEX_P2,c,c,t,g,a,a,a,t,t,c,a,g,g,g,t,t,g,a,c,t,c,t,g,a,a,a,g,a,g,g,a,a,a,g,c,g,t,a,a,t,a,t,a,c,g,c,c,a,c,c,t,c,g,c,g,a,c
++,RRND_P1,g,a,t,c,a,a,a,a,a,a,a,t,a,c,t,t,g,t,g,c,a,a,a,a,a,a,t,t,g,g,g,a,t,c,c,c,t,a,t,a,a,t,g,c,g,c,c,t,c,c,g,t,t,g,a,g,a
++,RRNE_P1,c,t,g,c,a,a,t,t,t,t,t,c,t,a,t,t,g,c,g,g,c,c,t,g,c,g,g,a,g,a,a,c,t,c,c,c,t,a,t,a,a,t,g,c,g,c,c,t,c,c,a,t,c,g,a,c,a
++,RRNG_P1,t,t,t,a,t,a,t,t,t,t,t,c,g,c,t,t,g,t,c,a,g,g,c,c,g,g,a,a,t,a,a,c,t,c,c,c,t,a,t,a,a,t,g,c,g,c,c,a,c,c,a,c,t,g,a,c,a
++,RRNG_P2,a,a,g,c,a,a,a,g,a,a,a,t,g,c,t,t,g,a,c,t,c,t,g,t,a,g,c,g,g,g,a,a,g,g,c,g,t,a,t,t,a,t,g,c,a,c,a,c,c,g,c,c,g,c,g,c,c
++,RRNX_P1,a,t,g,c,a,t,t,t,t,t,c,c,g,c,t,t,g,t,c,t,t,c,c,t,g,a,g,c,c,g,a,c,t,c,c,c,t,a,t,a,a,t,g,c,g,c,c,t,c,c,a,t,c,g,a,c,a
++,TNAA,a,a,a,c,a,a,t,t,t,c,a,g,a,a,t,a,g,a,c,a,a,a,a,a,c,t,c,t,g,a,g,t,g,t,a,a,t,a,a,t,g,t,a,g,c,c,t,c,g,t,g,t,c,t,t,g,c
++,TYRT,t,c,t,c,a,a,c,g,t,a,a,c,a,c,t,t,t,a,c,a,g,c,g,g,c,g,c,g,t,c,a,t,t,t,g,a,t,a,t,g,a,t,g,c,g,c,c,c,c,g,c,t,t,c,c,c,g
++,ARAC,g,c,a,a,a,t,a,a,t,c,a,a,t,g,t,g,g,a,c,t,t,t,t,c,t,g,c,c,g,t,g,a,t,t,a,t,a,g,a,c,a,c,t,t,t,t,g,t,t,a,c,g,c,g,t,t,t
++,LACI,g,a,c,a,c,c,a,t,c,g,a,a,t,g,g,c,g,c,a,a,a,a,c,c,t,t,t,c,g,c,g,g,t,a,t,g,g,c,a,t,g,a,t,a,g,c,g,c,c,c,g,g,a,a,g,a,g
++,MALT,a,a,a,a,a,c,g,t,c,a,t,c,g,c,t,t,g,c,a,t,t,a,g,a,a,a,g,g,t,t,t,c,t,g,g,c,c,g,a,c,c,t,t,a,t,a,a,c,c,a,t,t,a,a,t,t,a
++,TRP,t,c,t,g,a,a,a,t,g,a,g,c,t,g,t,t,g,a,c,a,a,t,t,a,a,t,c,a,t,c,g,a,a,c,t,a,g,t,t,a,a,c,t,a,g,t,a,c,g,c,a,a,g,t,t,c,a
++,TRPP2,a,c,c,g,g,a,a,g,a,a,a,a,c,c,g,t,g,a,c,a,t,t,t,t,a,a,c,a,c,g,t,t,t,g,t,t,a,c,a,a,g,g,t,a,a,a,g,g,c,g,a,c,g,c,c,g,c
++,THR,a,a,a,t,t,a,a,a,a,t,t,t,t,a,t,t,g,a,c,t,t,a,g,g,t,c,a,c,t,a,a,a,t,a,c,t,t,t,a,a,c,c,a,a,t,a,t,a,g,g,c,a,t,a,g,c,g
++,BIOB,t,t,g,t,c,a,t,a,a,t,c,g,a,c,t,t,g,t,a,a,a,c,c,a,a,a,t,t,g,a,a,a,a,g,a,t,t,t,a,g,g,t,t,t,a,c,a,a,g,t,c,t,a,c,a,c,c
++,FOL,c,a,t,c,c,t,c,g,c,a,c,c,a,g,t,c,g,a,c,g,a,c,g,g,t,t,t,a,c,g,c,t,t,t,a,c,g,t,a,t,a,g,t,g,g,c,g,a,c,a,a,t,t,t,t,t,t
++,UVRBP1,t,c,c,a,g,t,a,t,a,a,t,t,t,g,t,t,g,g,c,a,t,a,a,t,t,a,a,g,t,a,c,g,a,c,g,a,g,t,a,a,a,a,t,t,a,c,a,t,a,c,c,t,g,c,c,c,g
++,UVRBP3,a,c,a,g,t,t,a,t,c,c,a,c,t,a,t,t,c,c,t,g,t,g,g,a,t,a,a,c,c,a,t,g,t,g,t,a,t,t,a,g,a,g,t,t,a,g,a,a,a,a,c,a,c,g,a,g,g
++,LEXA,t,g,t,g,c,a,g,t,t,t,a,t,g,g,t,t,c,c,a,a,a,a,t,c,g,c,c,t,t,t,t,g,c,t,g,t,a,t,a,t,a,c,t,c,a,c,a,g,c,a,t,a,a,c,t,g,t
++,PORI-L,c,t,g,t,t,g,t,t,c,a,g,t,t,t,t,t,g,a,g,t,t,g,t,g,t,a,t,a,a,c,c,c,c,t,c,a,t,t,c,t,g,a,t,c,c,c,a,g,c,t,t,a,t,a,c,g,g
++,SPOT42,a,t,t,a,c,a,a,a,a,a,g,t,g,c,t,t,t,c,t,g,a,a,c,t,g,a,a,c,a,a,a,a,a,a,g,a,g,t,a,a,a,g,t,t,a,g,t,c,g,c,g,t,a,g,g,g,t
++,M1RNA,a,t,g,c,g,c,a,a,c,g,c,g,g,g,g,t,g,a,c,a,a,g,g,g,c,g,c,g,c,a,a,a,c,c,c,t,c,t,a,t,a,c,t,g,c,g,c,g,c,c,g,a,a,g,c,t,g
++,GLNS,t,a,a,a,a,a,a,c,t,a,a,c,a,g,t,t,g,t,c,a,g,c,c,t,g,t,c,c,c,g,c,t,t,a,t,a,a,g,a,t,c,a,t,a,c,g,c,c,g,t,t,a,t,a,c,g,t
++,TUFB,a,t,g,c,a,a,t,t,t,t,t,t,a,g,t,t,g,c,a,t,g,a,a,c,t,c,g,c,a,t,g,t,c,t,c,c,a,t,a,g,a,a,t,g,c,g,c,g,c,t,a,c,t,t,g,a,t
++,SUBB-E,c,c,t,t,g,a,a,a,a,a,g,a,g,g,t,t,g,a,c,g,c,t,g,c,a,a,g,g,c,t,c,t,a,t,a,c,g,c,a,t,a,a,t,g,c,g,c,c,c,c,g,c,a,a,c,g,c
++,STR,t,c,g,t,t,g,t,a,t,a,t,t,t,c,t,t,g,a,c,a,c,c,t,t,t,t,c,g,g,c,a,t,c,g,c,c,c,t,a,a,a,a,t,t,c,g,g,c,g,t,c,c,t,c,a,t,a
++,SPC,c,c,g,t,t,t,a,t,t,t,t,t,t,c,t,a,c,c,c,a,t,a,t,c,c,t,t,g,a,a,g,c,g,g,t,g,t,t,a,t,a,a,t,g,c,c,g,c,g,c,c,c,t,c,g,a,t
++,RPOA,t,t,c,g,c,a,t,a,t,t,t,t,t,c,t,t,g,c,a,a,a,g,t,t,g,g,g,t,t,g,a,g,c,t,g,g,c,t,a,g,a,t,t,a,g,c,c,a,g,c,c,a,a,t,c,t,t
++,RPLJ,t,g,t,a,a,a,c,t,a,a,t,g,c,c,t,t,t,a,c,g,t,g,g,g,c,g,g,t,g,a,t,t,t,t,g,t,c,t,a,c,a,a,t,c,t,t,a,c,c,c,c,c,a,c,g,t,a
++,PORI-R,g,a,t,c,g,c,a,c,g,a,t,c,t,g,t,a,t,a,c,t,t,a,t,t,t,g,a,g,t,a,a,a,t,t,a,a,c,c,c,a,c,g,a,t,c,c,c,a,g,c,c,a,t,t,c,t,t
++,ALAS,a,a,c,g,c,a,t,a,c,g,g,t,a,t,t,t,t,a,c,c,t,t,c,c,c,a,g,t,c,a,a,g,a,a,a,a,c,t,t,a,t,c,t,t,a,t,t,c,c,c,a,c,t,t,t,t,c
++,ARABAD,t,t,a,g,c,g,g,a,t,c,c,t,a,c,c,t,g,a,c,g,c,t,t,t,t,t,a,t,c,g,c,a,a,c,t,c,t,c,t,a,c,t,g,t,t,t,c,t,c,c,a,t,a,c,c,c,g
++,BIOA,g,c,c,t,t,c,t,c,c,a,a,a,a,c,g,t,g,t,t,t,t,t,t,g,t,t,g,t,t,a,a,t,t,c,g,g,t,g,t,a,g,a,c,t,t,g,t,a,a,a,c,c,t,a,a,a,t
++,DEOP1,c,a,g,a,a,a,c,g,t,t,t,t,a,t,t,c,g,a,a,c,a,t,c,g,a,t,c,t,c,g,t,c,t,t,g,t,g,t,t,a,g,a,a,t,t,c,t,a,a,c,a,t,a,c,g,g,t
++,GALP2,c,a,c,t,a,a,t,t,t,a,t,t,c,c,a,t,g,t,c,a,c,a,c,t,t,t,t,c,g,c,a,t,c,t,t,t,g,t,t,a,t,g,c,t,a,t,g,g,t,t,a,t,t,t,c,a,t
++,HIS,a,t,a,t,a,a,a,a,a,a,g,t,t,c,t,t,g,c,t,t,t,c,t,a,a,c,g,t,g,a,a,a,g,t,g,g,t,t,t,a,g,g,t,t,a,a,a,a,g,a,c,a,t,c,a,g,t
++,HISJ,c,a,a,g,g,t,a,g,a,a,t,g,c,t,t,t,g,c,c,t,t,g,t,c,g,g,c,c,t,g,a,t,t,a,a,t,g,g,c,a,c,g,a,t,a,g,t,c,g,c,a,t,c,g,g,a,t
++,ILVGEDA,g,g,c,c,a,a,a,a,a,a,t,a,t,c,t,t,g,t,a,c,t,a,t,t,t,a,c,a,a,a,a,c,c,t,a,t,g,g,t,a,a,c,t,c,t,t,t,a,g,g,c,a,t,t,c,c,t
++,LACP1,t,a,g,g,c,a,c,c,c,c,a,g,g,c,t,t,t,a,c,a,c,t,t,t,a,t,g,c,t,t,c,c,g,g,c,t,c,g,t,a,t,g,t,t,g,t,g,t,g,g,a,a,t,t,g,t,g
++,LPP,c,c,a,t,c,a,a,a,a,a,a,a,t,a,t,t,c,t,c,a,a,c,a,t,a,a,a,a,a,a,c,t,t,t,g,t,g,t,a,a,t,a,c,t,t,g,t,a,a,c,g,c,t,a,c,a,t
++,TRPR,t,g,g,g,g,a,c,g,t,c,g,t,t,a,c,t,g,a,t,c,c,g,c,a,c,g,t,t,t,a,t,g,a,t,a,t,g,c,t,a,t,c,g,t,a,c,t,c,t,t,t,a,g,c,g,a,g
++,UVRB_P2,t,c,a,g,a,a,a,t,a,t,t,a,t,g,g,t,g,a,t,g,a,a,c,t,g,t,t,t,t,t,t,t,a,t,c,c,a,g,t,a,t,a,a,t,t,t,g,t,t,g,g,c,a,t,a,a,t
+-,867,a,t,a,t,g,a,a,c,g,t,t,g,a,g,a,c,t,g,c,c,g,c,t,g,a,g,t,t,a,t,c,a,g,c,t,g,t,g,a,a,c,g,a,c,a,t,t,c,t,g,g,c,g,t,c,t,a
+-,1169,c,g,a,a,c,g,a,g,t,c,a,a,t,c,a,g,a,c,c,g,c,t,t,t,g,a,c,t,c,t,g,g,t,a,t,t,a,c,t,g,t,g,a,a,c,a,t,t,a,t,t,c,g,t,c,t,c
+-,802,c,a,a,t,g,g,c,c,t,c,t,a,a,a,c,g,g,g,t,c,t,t,g,a,g,g,g,g,t,t,t,t,t,t,g,c,t,g,a,a,a,g,g,a,g,g,a,a,c,t,a,t,a,t,g,c,g
+-,521,t,t,g,a,c,c,t,a,c,t,a,c,g,c,c,a,g,c,a,t,t,t,t,g,g,c,g,g,t,g,t,a,a,g,c,t,a,a,c,c,a,t,t,c,c,g,g,t,t,g,a,c,t,c,a,a,t
+-,918,c,g,t,c,t,a,t,c,g,g,t,g,a,a,c,c,t,c,c,g,g,t,a,t,c,a,a,c,g,c,t,g,g,a,a,g,g,t,g,a,c,g,c,t,a,a,c,g,c,a,g,a,t,g,c,a,g
+-,1481,g,c,c,a,a,t,c,a,a,t,c,a,a,g,a,a,c,t,t,g,a,a,g,g,g,t,g,g,t,a,t,c,a,g,c,c,a,a,c,a,g,c,c,t,g,a,c,a,t,c,c,t,t,c,g,t,t
+-,1024,t,g,g,a,t,g,g,a,c,g,t,t,c,a,a,c,a,t,t,g,a,g,g,a,a,g,g,c,a,t,a,a,c,g,c,t,a,c,t,a,c,c,t,g,a,t,g,t,t,t,a,c,t,c,c,a,a
+-,1149,g,a,g,g,t,g,g,c,t,a,t,g,t,g,t,a,t,g,a,c,c,g,a,a,c,g,a,g,t,c,a,a,t,c,a,g,a,c,c,g,c,t,t,t,g,a,c,t,c,t,g,g,t,a,t,t,a
+-,313,c,g,t,a,g,c,g,c,a,t,c,a,g,t,g,c,t,t,t,c,t,t,a,c,t,g,t,g,a,g,t,a,c,g,c,a,c,c,a,g,c,g,c,c,a,g,a,g,g,a,c,g,a,c,g,a,c
+-,780,c,g,a,c,c,g,a,a,g,c,g,a,g,c,c,t,c,g,t,c,c,t,c,a,a,t,g,g,c,c,t,c,t,a,a,a,c,g,g,g,t,c,t,t,g,a,g,g,g,g,t,t,t,t,t,t,g
+-,1384,c,t,a,c,g,g,t,g,g,g,t,a,c,a,a,t,a,t,g,c,t,g,g,a,t,g,g,a,g,a,t,g,c,g,t,t,c,a,c,t,t,c,t,g,g,t,c,t,a,c,t,g,a,c,t,c,g
+-,507,a,t,a,g,t,c,t,c,a,g,a,g,t,c,t,t,g,a,c,c,t,a,c,t,a,c,g,c,c,a,g,c,a,t,t,t,t,g,g,c,g,g,t,g,t,a,a,g,c,t,a,a,c,c,a,t,t
+-,39,a,a,c,t,c,a,a,g,g,c,t,g,a,t,a,c,g,g,c,g,a,g,a,c,t,t,g,c,g,a,g,c,c,t,t,g,t,c,c,t,t,g,c,g,g,t,a,c,a,c,a,g,c,a,g,c,g
+-,1203,t,t,a,c,t,g,t,g,a,a,c,a,t,t,a,t,t,c,g,t,c,t,c,c,g,c,g,a,c,t,a,c,g,a,t,g,a,g,a,t,g,c,c,t,g,a,g,t,g,c,t,t,c,c,g,t,t
+-,988,t,a,t,t,c,t,c,a,a,c,a,a,g,a,t,t,a,a,c,c,g,a,c,a,g,a,t,t,c,a,a,t,c,t,c,g,t,g,g,a,t,g,g,a,c,g,t,t,c,a,a,c,a,t,t,g,a
+-,1171,a,a,c,g,a,g,t,c,a,a,t,c,a,g,a,c,c,g,c,t,t,t,g,a,c,t,c,t,g,g,t,a,t,t,a,c,t,g,t,g,a,a,c,a,t,t,a,t,t,c,g,t,c,t,c,c,g
+-,753,a,a,g,t,g,c,t,t,a,g,c,t,t,c,a,a,g,g,t,c,a,c,g,g,a,t,a,c,g,a,c,c,g,a,a,g,c,g,a,g,c,c,t,c,g,t,c,c,t,c,a,a,t,g,g,c,c
+-,630,g,a,a,g,a,c,c,a,c,g,c,c,t,c,g,c,c,a,c,c,g,a,g,t,a,g,a,c,c,c,t,t,a,g,a,g,a,g,c,a,t,g,t,c,a,g,c,c,t,c,g,a,c,a,a,c,t
+-,660,t,t,a,g,a,g,a,g,c,a,t,g,t,c,a,g,c,c,t,c,g,a,c,a,a,c,t,t,g,c,a,t,a,a,a,t,g,c,t,t,t,c,t,t,g,t,a,g,a,c,g,t,g,c,c,c,t
+-,1216,t,a,t,t,c,g,t,c,t,c,c,g,c,g,a,c,t,a,c,g,a,t,g,a,g,a,t,g,c,c,t,g,a,g,t,g,c,t,t,c,c,g,t,t,a,c,t,g,g,a,t,t,g,t,c,a,c
+-,835,t,g,c,t,g,a,a,a,g,g,a,g,g,a,a,c,t,a,t,a,t,g,c,g,c,t,c,a,t,a,c,g,a,t,a,t,g,a,a,c,g,t,t,g,a,g,a,c,t,g,c,c,g,c,t,g,a
+-,35,c,a,t,g,a,a,c,t,c,a,a,g,g,c,t,g,a,t,a,c,g,g,c,g,a,g,a,c,t,t,g,c,g,a,g,c,c,t,t,g,t,c,c,t,t,g,c,g,g,t,a,c,a,c,a,g,c
+-,1218,t,t,c,g,t,c,t,c,c,g,c,g,a,c,t,a,c,g,a,t,g,a,g,a,t,g,c,c,t,g,a,g,t,g,c,t,t,c,c,g,t,t,a,c,t,g,g,a,t,t,g,t,c,a,c,c,a
+-,668,c,a,t,g,t,c,a,g,c,c,t,c,g,a,c,a,a,c,t,t,g,c,a,t,a,a,a,t,g,c,t,t,t,c,t,t,g,t,a,g,a,c,g,t,g,c,c,c,t,a,c,g,c,g,c,t,t
+-,413,a,g,g,a,g,g,a,a,c,t,a,c,g,c,a,a,g,g,t,t,g,g,a,a,c,a,t,c,g,g,a,g,a,g,a,t,g,c,c,a,g,c,c,a,g,c,g,c,a,c,c,t,g,c,a,c,g
+-,991,t,c,t,c,a,a,c,a,a,g,a,t,t,a,a,c,c,g,a,c,a,g,a,t,t,c,a,a,t,c,t,c,g,t,g,g,a,t,g,g,a,c,g,t,t,c,a,a,c,a,t,t,g,a,g,g,a
+-,751,t,g,a,a,g,t,g,c,t,t,a,g,c,t,t,c,a,a,g,g,t,c,a,c,g,g,a,t,a,c,g,a,c,c,g,a,a,g,c,g,a,g,c,c,t,c,g,t,c,c,t,c,a,a,t,g,g
+-,850,c,t,a,t,a,t,g,c,g,c,t,c,a,t,a,c,g,a,t,a,t,g,a,a,c,g,t,t,g,a,g,a,c,t,g,c,c,g,c,t,g,a,g,t,t,a,t,c,a,g,c,t,g,t,g,a,a
+-,93,g,c,g,g,c,a,g,c,a,c,g,t,t,t,c,c,a,c,g,c,g,g,t,g,a,g,a,g,c,c,t,c,a,g,g,a,t,t,c,a,t,g,t,c,g,a,t,g,t,c,t,t,c,c,g,g,t
+-,1108,a,t,c,c,c,t,a,a,t,g,t,c,t,a,c,t,t,c,c,g,g,t,c,a,a,t,c,c,a,t,c,t,a,c,g,t,t,a,a,c,c,g,a,g,g,t,g,g,c,t,a,t,g,t,g,t,a
+-,915,t,g,g,c,g,t,c,t,a,t,c,g,g,t,g,a,a,c,c,t,c,c,g,g,t,a,t,c,a,a,c,g,c,t,g,g,a,a,g,g,t,g,a,c,g,c,t,a,a,c,g,c,a,g,a,t,g
+-,1019,t,c,t,c,g,t,g,g,a,t,g,g,a,c,g,t,t,c,a,a,c,a,t,t,g,a,g,g,a,a,g,g,c,a,t,a,a,c,g,c,t,a,c,t,a,c,c,t,g,a,t,g,t,t,t,a,c
+-,19,t,a,t,t,g,g,c,t,t,g,c,t,c,a,a,g,c,a,t,g,a,a,c,t,c,a,a,g,g,c,t,g,a,t,a,c,g,g,c,g,a,g,a,c,t,t,g,c,g,a,g,c,c,t,t,g,t
+-,1320,t,a,g,a,g,g,g,t,g,t,a,c,t,c,c,a,a,g,a,a,g,a,g,g,a,a,g,a,t,g,a,g,g,c,t,a,g,a,c,g,t,c,t,c,t,g,c,a,t,g,g,a,g,t,a,t,g
+-,91,c,a,g,c,g,g,c,a,g,c,a,c,g,t,t,t,c,c,a,c,g,c,g,g,t,g,a,g,a,g,c,c,t,c,a,g,g,a,t,t,c,a,t,g,t,c,g,a,t,g,t,c,t,t,c,c,g
+-,217,t,t,a,c,g,t,t,g,g,c,g,a,c,c,g,c,t,a,g,g,a,c,t,t,t,c,t,t,g,t,t,g,a,t,t,t,t,c,c,a,t,g,c,g,g,t,g,t,t,t,t,g,c,g,c,a,a
+-,957,a,c,g,c,t,a,a,c,g,c,a,g,a,t,g,c,a,g,c,g,a,a,c,g,c,t,c,g,g,c,g,t,a,t,t,c,t,c,a,a,c,a,a,g,a,t,t,a,a,c,c,g,a,c,a,g,a
+-,260,g,g,t,g,t,t,t,t,g,c,g,c,a,a,t,g,t,t,a,a,t,c,g,c,t,t,t,g,t,a,c,a,c,c,t,c,a,g,g,c,a,t,g,t,a,a,a,c,g,t,c,t,t,c,g,t,a
+-,557,a,a,c,c,a,t,t,c,c,g,g,t,t,g,a,c,t,c,a,a,t,g,a,g,c,a,t,c,t,c,g,a,t,g,c,a,g,c,g,t,a,c,t,c,c,t,a,c,a,t,g,a,a,t,a,g,a
+-,1355,a,g,a,c,g,t,c,t,c,t,g,c,a,t,g,g,a,g,t,a,t,g,a,g,a,t,g,g,a,c,t,a,c,g,g,t,g,g,g,t,a,c,a,a,t,a,t,g,c,t,g,g,a,t,g,g,a
+-,244,t,g,t,t,g,a,t,t,t,t,c,c,a,t,g,c,g,g,t,g,t,t,t,t,g,c,g,c,a,a,t,g,t,t,a,a,t,c,g,c,t,t,t,g,t,a,c,a,c,c,t,c,a,g,g,c,a
+-,464,t,g,c,a,c,g,g,g,t,t,g,c,g,a,t,a,g,c,c,t,c,a,g,c,g,t,a,t,t,c,a,g,g,t,g,c,g,a,g,t,t,c,g,a,t,a,g,t,c,t,c,a,g,a,g,t,c
+-,296,a,g,g,c,a,t,g,t,a,a,a,c,g,t,c,t,t,c,g,t,a,g,c,g,c,a,t,c,a,g,t,g,c,t,t,t,c,t,t,a,c,t,g,t,g,a,g,t,a,c,g,c,a,c,c,a,g
+-,648,c,c,g,a,g,t,a,g,a,c,c,c,t,t,a,g,a,g,a,g,c,a,t,g,t,c,a,g,c,c,t,c,g,a,c,a,a,c,t,t,g,c,a,t,a,a,a,t,g,c,t,t,t,c,t,t,g
+-,230,c,g,c,t,a,g,g,a,c,t,t,t,c,t,t,g,t,t,g,a,t,t,t,t,c,c,a,t,g,c,g,g,t,g,t,t,t,t,g,c,g,c,a,a,t,g,t,t,a,a,t,c,g,c,t,t,t
+-,1163,t,a,t,g,a,c,c,g,a,a,c,g,a,g,t,c,a,a,t,c,a,g,a,c,c,g,c,t,t,t,g,a,c,t,c,t,g,g,t,a,t,t,a,c,t,g,t,g,a,a,c,a,t,t,a,t,t
+-,1321,a,g,a,g,g,g,t,g,t,a,c,t,c,c,a,a,g,a,a,g,a,g,g,a,a,g,a,t,g,a,g,g,c,t,a,g,a,c,g,t,c,t,c,t,g,c,a,t,g,g,a,g,t,a,t,g,a
+-,663,g,a,g,a,g,c,a,t,g,t,c,a,g,c,c,t,c,g,a,c,a,a,c,t,t,g,c,a,t,a,a,a,t,g,c,t,t,t,c,t,t,g,t,a,g,a,c,g,t,g,c,c,c,t,a,c,g
+-,799,c,c,t,c,a,a,t,g,g,c,c,t,c,t,a,a,a,c,g,g,g,t,c,t,t,g,a,g,g,g,g,t,t,t,t,t,t,g,c,t,g,a,a,a,g,g,a,g,g,a,a,c,t,a,t,a,t
+-,987,g,t,a,t,t,c,t,c,a,a,c,a,a,g,a,t,t,a,a,c,c,g,a,c,a,g,a,t,t,c,a,a,t,c,t,c,g,t,g,g,a,t,g,g,a,c,g,t,t,c,a,a,c,a,t,t,g
+-,1226,c,g,c,g,a,c,t,a,c,g,a,t,g,a,g,a,t,g,c,c,t,g,a,g,t,g,c,t,t,c,c,g,t,t,a,c,t,g,g,a,t,t,g,t,c,a,c,c,a,a,g,g,c,t,t,c,c
+-,794,c,t,c,g,t,c,c,t,c,a,a,t,g,g,c,c,t,c,t,a,a,a,c,g,g,g,t,c,t,t,g,a,g,g,g,g,t,t,t,t,t,t,g,c,t,g,a,a,a,g,g,a,g,g,a,a,c
+-,1442,t,a,a,c,a,t,t,a,a,t,a,a,a,t,a,a,g,g,a,g,g,c,t,c,t,a,a,t,g,g,c,a,c,t,c,a,t,t,a,g,c,c,a,a,t,c,a,a,t,c,a,a,g,a,a,c,t

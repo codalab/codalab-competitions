@@ -1,0 +1,161 @@
+% 
+% 1. Title: Lung Cancer Data
+% 
+% 2. Source Information:
+% 	- Data was published in : 
+% 	  Hong, Z.Q. and Yang, J.Y. "Optimal Discriminant Plane for a Small
+% 	  Number of Samples and Design Method of Classifier on the Plane",
+% 	  Pattern Recognition, Vol. 24, No. 4, pp. 317-324, 1991.
+% 	- Donor: Stefan Aeberhard, stefan@coral.cs.jcu.edu.au
+% 	- Date : May, 1992
+% 
+% 3. Past Usage:
+% 	- Hong, Z.Q. and Yang, J.Y. "Optimal Discriminant Plane for a Small
+%           Number of Samples and Design Method of Classifier on the Plane",
+%           Pattern Recognition, Vol. 24, No. 4, pp. 317-324, 1991.
+% 	- Aeberhard, S., Coomans, D, De Vel, O. "Comparisons of 
+% 	  Classification Methods in High Dimensional Settings", 
+% 	  submitted to Technometrics.
+% 	- Aeberhard, S., Coomans, D, De Vel, O. "The Dangers of 
+% 	  Bias in High Dimensional Settings", submitted to
+% 	  pattern Recognition.
+% 
+% 4. Relevant Information:
+% 	- This data was used by Hong and Young to illustrate the 
+% 	  power of the optimal discriminant plane even in ill-posed
+% 	  settings. Applying the KNN method in the resulting plane	
+% 	  gave 77% accuracy. However, these results are strongly
+% 	  biased (See Aeberhard's second ref. above, or email to
+% 	  stefan@coral.cs.jcu.edu.au). Results obtained by
+% 	  Aeberhard et al. are : 
+% 	  RDA : 62.5%, KNN 53.1%, Opt. Disc. Plane 59.4%
+% 
+% 	  The data described 3 types of pathological lung cancers.
+% 	  The Authors give no information on the individual
+% 	  variables nor on where the data was originally used.
+% 
+%        -  In the original data 4 values for the fifth attribute were -1.
+%           These values have been changed to ? (unknown). (*)
+%        -  In the original data 1 value for the 39 attribute was 4.  This
+%           value has been changed to ? (unknown). (*)
+%     
+% 	  
+% 5. Number of Instances: 32
+% 
+% 6. Number of Attributes: 57 (1 class attribute, 56 predictive)
+% 
+% 7. Attribute Information:
+% 
+% 	attribute 1 is the class label.
+% 	
+% 	- All predictive attributes are nominal, taking on integer 
+% 	  values 0-3
+% 
+% 8. Missing Attribute Values: Attributes 5 and 39 (*)
+% 
+% 9. Class Distribution:
+% 	- 3 classes, 
+% 		1.)	9 observations
+% 		2.)	13     "
+% 		3.)	10     "
+% 
+%
+% Information about the dataset
+% CLASSTYPE: nominal
+% CLASSINDEX: first
+%
+
+@relation lung-cancer
+
+@attribute class {1,2,3}
+@attribute attribute2 {0,1}
+@attribute attribute3 {1,2,3}
+@attribute attribute4 {0,1,2,3}
+@attribute attribute5 {0,1,2}
+@attribute attribute6 {0,1}
+@attribute attribute7 {1,2,3}
+@attribute attribute8 {1,2,3}
+@attribute attribute9 {1,2,3}
+@attribute attribute10 {1,2,3}
+@attribute attribute11 {1,2,3}
+@attribute attribute12 {1,2,3}
+@attribute attribute13 {0,1,2,3}
+@attribute attribute14 {1,2,3}
+@attribute attribute15 {1,2,3}
+@attribute attribute16 {1,2,3}
+@attribute attribute17 {1,2,3}
+@attribute attribute18 {1,2}
+@attribute attribute19 {1,2}
+@attribute attribute20 {0,1,2}
+@attribute attribute21 {0,1,2}
+@attribute attribute22 {1,2}
+@attribute attribute23 {1,2}
+@attribute attribute24 {1,2}
+@attribute attribute25 {1,2,3}
+@attribute attribute26 {1,2,3}
+@attribute attribute27 {1,2,3}
+@attribute attribute28 {2,3}
+@attribute attribute29 {1,2,3}
+@attribute attribute30 {1,2,3}
+@attribute attribute31 {1,2,3}
+@attribute attribute32 {1,2,3}
+@attribute attribute33 {1,2,3}
+@attribute attribute34 {1,2,3}
+@attribute attribute35 {1,2,3}
+@attribute attribute36 {1,2,3}
+@attribute attribute37 {1,2,3}
+@attribute attribute38 {1,2,3}
+@attribute attribute39 {1,2,3}
+@attribute attribute40 {1,2,3}
+@attribute attribute41 {1,2,3}
+@attribute attribute42 {1,2,3}
+@attribute attribute43 {1,2,3}
+@attribute attribute44 {1,2,3}
+@attribute attribute45 {1,2,3}
+@attribute attribute46 {1,2,3}
+@attribute attribute47 {1,2,3}
+@attribute attribute48 {2,3}
+@attribute attribute49 {2,3}
+@attribute attribute50 {1,2,3}
+@attribute attribute51 {1,2,3}
+@attribute attribute52 {1,2,3}
+@attribute attribute53 {1,2,3}
+@attribute attribute54 {1,2,3}
+@attribute attribute55 {1,2}
+@attribute attribute56 {1,2}
+@attribute attribute57 {1,2}
+
+@data
+1,0,3,0,?,0,2,2,2,1,1,1,1,3,2,2,1,2,2,0,2,2,2,2,1,2,2,2,3,2,1,1,1,3,3,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,1,1,1,2,2
+1,0,3,3,1,0,3,1,3,1,1,1,1,1,3,3,1,2,2,0,0,2,2,2,1,2,1,3,2,3,1,1,1,3,3,2,2,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2
+1,0,3,3,2,0,3,3,3,1,1,1,0,3,3,3,1,2,1,0,0,2,2,2,1,2,2,3,2,3,1,3,3,3,1,2,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2
+1,0,2,3,2,1,3,3,3,1,2,1,0,3,3,1,1,2,2,0,0,2,2,2,2,1,3,2,3,3,1,3,3,3,1,1,1,1,2,2,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2
+1,0,3,2,1,1,3,3,3,2,2,2,1,1,2,2,2,2,2,0,0,2,2,2,1,1,2,3,2,2,1,1,1,3,2,1,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,2
+1,0,3,3,2,0,3,3,3,1,2,2,0,3,3,3,2,2,1,0,0,1,2,2,2,1,3,3,1,2,2,3,3,3,2,1,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2
+1,0,3,2,1,0,3,3,3,1,2,1,2,3,3,3,3,2,2,0,0,2,2,2,2,1,3,2,2,2,2,3,3,3,2,1,1,2,2,1,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,1,2
+1,0,2,2,1,0,3,1,3,3,3,3,2,1,3,3,1,2,2,0,0,1,1,2,1,2,1,3,2,1,1,3,3,3,2,2,1,2,1,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,1,2,2
+1,0,3,1,1,0,3,1,3,1,1,1,3,2,3,3,1,2,2,0,0,2,2,2,1,2,1,2,1,1,1,3,3,3,3,2,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,1,2,2
+2,0,2,3,2,0,2,2,2,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1,3,2,3,3,3,3,3,3,3,3,2,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,3,2,1,1,2,2
+2,0,2,2,0,0,3,2,3,1,1,3,1,3,1,1,2,2,2,0,2,1,1,2,1,1,2,2,2,2,1,3,3,3,1,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+2,0,2,3,2,0,1,2,1,1,2,1,0,1,2,2,1,2,1,0,2,2,2,2,1,2,1,2,2,3,1,3,3,3,1,2,2,1,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,1
+2,0,2,1,1,0,1,2,2,1,2,1,1,2,2,2,1,2,2,0,2,2,2,2,1,2,1,3,2,2,1,1,1,1,1,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2
+2,0,2,2,1,1,2,3,3,1,1,1,1,2,2,2,1,2,2,0,1,2,2,2,1,2,1,2,2,2,1,1,1,3,2,1,1,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,1,1,1,2,2
+2,1,3,0,?,1,1,2,2,1,1,1,1,2,1,1,1,2,2,0,2,2,2,2,1,2,2,2,2,2,3,3,3,3,1,1,2,1,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,1,2,1
+2,0,3,2,2,1,2,2,2,1,1,2,1,2,3,3,2,2,2,0,1,2,2,2,1,2,3,2,2,1,2,2,2,3,1,3,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2
+2,0,3,2,2,0,1,1,3,1,1,1,0,1,3,3,1,2,2,0,2,2,2,2,1,1,2,2,2,2,1,3,3,3,3,3,1,2,2,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2
+2,0,2,1,1,0,2,1,3,1,1,1,0,3,1,3,1,2,2,0,0,1,2,2,3,3,3,2,2,2,1,3,3,3,1,1,1,2,1,2,2,2,1,2,1,2,2,2,2,2,2,2,1,1,1,2,2
+2,0,2,0,?,0,2,3,3,3,2,1,0,2,2,1,1,1,2,0,0,2,1,2,1,2,3,2,2,3,1,3,3,3,2,1,1,2,1,2,2,2,3,2,2,2,2,2,2,2,2,2,2,2,2,1,2
+2,0,1,2,1,0,3,3,3,1,2,2,1,1,3,3,1,2,2,0,0,2,2,2,1,2,1,3,2,3,1,1,1,3,1,1,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,2,2,1
+2,0,2,0,?,1,3,3,3,1,2,1,1,3,3,3,1,2,2,0,0,2,2,2,2,1,1,2,3,2,1,1,1,3,1,3,1,1,2,2,2,1,2,2,1,2,2,2,2,2,2,1,2,2,1,2,2
+2,0,3,3,2,0,2,1,3,1,1,3,3,3,3,3,1,2,2,0,0,2,2,1,1,2,2,3,3,3,3,3,3,3,2,2,2,1,2,1,2,1,2,2,2,2,2,2,2,1,2,2,2,2,2,1,2
+3,0,2,3,1,1,2,2,1,1,1,1,1,1,2,2,1,2,2,2,2,1,2,1,1,1,1,2,2,3,1,3,3,3,1,1,1,3,1,3,3,3,3,3,3,3,3,3,3,3,3,1,3,3,2,2,1
+3,0,2,3,1,1,1,2,1,1,1,2,1,1,1,2,2,1,1,1,2,1,2,1,1,2,2,2,2,2,1,3,3,3,2,2,2,3,3,1,1,2,2,3,2,2,2,2,2,2,2,2,2,2,2,2,1
+3,0,3,3,1,0,3,3,1,1,1,2,1,1,2,2,2,2,2,2,2,1,1,1,1,1,2,2,2,2,3,3,3,3,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,2,2,2,2,1
+3,0,2,3,2,0,1,2,2,1,2,1,2,1,1,1,2,1,2,2,1,2,1,2,2,1,3,2,1,1,2,2,2,2,1,1,2,2,?,2,1,1,1,2,2,2,1,2,2,2,1,3,1,2,2,1,2
+3,0,2,2,2,0,2,1,2,1,1,1,0,2,2,3,1,2,2,2,2,2,2,2,3,3,3,2,2,1,2,2,2,2,3,1,2,2,2,2,1,2,1,1,2,2,1,2,2,2,2,2,2,2,1,2,1
+3,0,2,2,1,0,2,2,2,1,1,2,0,2,2,2,1,2,2,2,2,2,2,2,1,2,1,3,3,3,1,3,3,2,2,3,1,2,1,3,2,2,3,2,2,2,3,3,3,2,2,3,2,2,2,2,1
+3,0,3,2,2,0,2,2,2,1,1,2,0,2,2,2,1,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1,1,1,2,1,1,3,1,3,3,3,2,3,2,2,2,2,2,2,3,1,2,2,2,2,2
+3,0,2,1,1,0,2,2,1,1,1,1,0,1,1,1,2,1,2,0,2,1,1,1,1,1,2,2,1,2,1,3,3,3,1,1,3,3,3,2,3,1,2,2,3,3,2,2,2,3,2,2,2,2,2,2,1
+3,0,2,3,2,1,2,2,3,1,1,2,1,2,2,2,1,2,2,0,2,2,2,1,1,2,2,2,2,2,1,2,2,3,2,2,2,1,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2
+3,0,2,3,1,0,2,3,3,1,1,1,1,2,2,2,1,2,2,0,2,2,2,2,1,2,1,2,2,2,1,1,1,1,1,2,2,1,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2
+
