@@ -225,6 +225,7 @@ class CompetitionResultsDownload(View):
                     
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
+
         return response
 
 ### Views for My Codalab
@@ -334,13 +335,16 @@ class VersionView(TemplateView):
         out, err = p.communicate()
         ctx = super(VersionView,self).get_context_data()
         ctx['commit_hash'] = out
+        tasks.echo.delay("version is " + out)
         return ctx
 
 # Bundle Views
+#
 class BundleListView(ListView):
     model = models.Bundle
     queryset = models.Bundle.objects.all()
   
+
 class BundleCreateView(CreateView):
     model = models.Bundle
     action = "created"
@@ -351,7 +355,7 @@ class BundleCreateView(CreateView):
         f.save()
         tasks.create_directory.delay(f.id)
         return HttpResponseRedirect('/bundles')
-
+  
 class BundleDetailView(DetailView):
     model = models.Bundle
 
@@ -359,7 +363,9 @@ class BundleDetailView(DetailView):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         return context
 
+#
 # Run Views
+#
 class RunListView(ListView):
     model = models.Run
     queryset = models.Run.objects.all()
@@ -373,7 +379,7 @@ class RunCreateView(CreateView):
         f = form.save(commit=False)
         f.save()
         return HttpResponseRedirect('/runs')
-
+  
 class RunDetailView(DetailView):
     model = models.Run
 

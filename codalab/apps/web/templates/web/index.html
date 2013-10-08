@@ -9,24 +9,23 @@
 {% endblock hero_subheader %}
 
 {% block content %}
-
 <!-- Hero block -->
 <div class="row">  
-  <div class="row">
-    <div class="large-12 columns">
-      <p><br></p>
+    <div class="row">
+        <div class="large-12 columns">
+            <p><br></p>
+        </div>
     </div>
-  </div>
 </div>
 <!-- Three-up Content Blocks -->
 <div class="row homepage_featured">
   <div class="large-6 columns">
-    <a href="#"><img src="{{STATIC_URL}}site/Images/icon_experiments.png" alt="Experiments Coming Soon..."><br>
+    <a href="#"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="Experiments Coming Soon..."><br>
     <h2>Experiments</h2></a><br>
     <p>CodaLab Experiments enable collaborative research and computational research to be done in an efficient and reproducible manner. By providing modularity, live execution, and inline annotation of code with rich explanations, CodaLab enables you to quickly sketch ideas and collaborate with fellow community members.</p><br>
   </div>
   <div class="large-6 columns">
-    <a href="/competitions"><img src="{{STATIC_URL}}site/Images/icon_competitions.png" alt="CodaLab Competitions"><br>
+    <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"><br>
     <h2>Competitions</h2></a><br>
     <p>CodaLab competitions provide an opportunity for researchers, developers and algorithmists to create solutions for problems across a wide range of domains, and advance the state of the art for their respective areas of interest.</p>
   </div>
@@ -34,24 +33,24 @@
 
 <!-- Call to Action Panel -->
 <div class="row">
-  <div class="small-12 columns">
-    <div class="panel">
-      <h4>CodaLab</h4>
-      <div class="row"></div>
-      <div class="row">
-        <div class="small-10 columns">
-          <p>
-            CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.
-          </p>
-        </div>
-        <div class="small-2 columns">
-            {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}?modal=on" data-reveal-id="signup-modal" data-reveal-ajax="true" class="button">Sign Up</a>
-            {% endif %}
-        </div>
-      </div>
-    </div>      
-  </div>
+    <div class="small-12 columns">
+        <div class="panel">
+            <h4>CodaLab</h4>
+            <div class="row"></div>
+            <div class="row">
+                <div class="small-10 columns">
+                    <p>
+                    CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.
+                    </p>
+                </div>
+                <div class="small-2 columns">
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'account_signup' %}" class="button">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>      
+    </div>
 </div>
 
 {% endblock content %}

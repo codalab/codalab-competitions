@@ -1,5 +1,7 @@
 #/bin/bash
 set -eu
+THIS_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_vars.sh
 
 set +o nounset
 deactivate

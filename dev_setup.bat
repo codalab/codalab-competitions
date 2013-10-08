@@ -21,16 +21,17 @@ pip install --upgrade distribute
 REM Install development requirements
 pip install -r codalab\requirements\dev_azure.txt
 
+cd codalab
 REM If an old database exists, move it out of the way
 if exist dev_db.sqlite move dev_db.sqlite dev_db.sqlite.bak
 
 REM Initialize the app
-python codalab\manage.py syncdb
+python manage.py syncdb --migrate
+python scripts\initialize.py
 
 REM Make test users
-python codalab\scripts\users.py
-
+python scripts\users.py
 REM Make example challenges
-python codalab\scripts\competitions.py
+python scripts\competitions.py
 
 ECHO "You are now ready to run: python codalab\manage.py runserver"
