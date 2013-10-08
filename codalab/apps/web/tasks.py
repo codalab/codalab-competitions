@@ -243,3 +243,7 @@ def sub_directories(bundleid):
     subprocess.check_output(args, shell=True)
     bundle.save()
     print "The bundle yaml has been created"
+
+@celery.task()
+def echo(msg):
+    print "Echoing %s" % (msg)

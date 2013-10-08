@@ -1,14 +1,11 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% load compress %}
 
 {% block head_title %}Edit Competition{% endblock head_title %}
 {% block page_title %}Edit Competition{% endblock page_title %}
 
 {% block extra_head %}
-  {% compress js %}
       <script src="{{ STATIC_URL }}site/js/FileUpload.js"></script>
-  {% endcompress %}
 {% endblock extra_head %}
 
 {% block content %}
