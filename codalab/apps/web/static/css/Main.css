@@ -2515,6 +2515,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     background: url('../img/icon_excel.png') no-repeat 15px;
     min-height: 32px;
     padding-top: 8px;
+    margin-bottom: 15px;
 }
 .icon_excel a {
     margin-left: 38px;
