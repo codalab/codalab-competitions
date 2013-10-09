@@ -30,6 +30,3 @@ django-celery==3.0.23
 kombu==2.5.14
 librabbitmq==1.0.1
 pyyaml
-# Not included now, but for rich editing these are on the radar
-#django-wysiwyg
-#html5lib
