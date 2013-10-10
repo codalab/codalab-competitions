@@ -438,7 +438,6 @@ p.competition-paragraph {
 
 ul.side-nav {
 	 padding-top:0;
-	 position:fixed;
 	 li {
 		margin-bottom:2px;
 	 }
@@ -574,12 +573,7 @@ div.pending-approval-select.columns {
                      display:inline-block
               }
        }
-       h2 {
-       		margin-top: -155px;
-       		padding-top: 155px;
 
-
-       }
        h6 { 
               font-size:16px; 
               color:$gray;
@@ -724,9 +718,4 @@ div.pending-approval-select.columns {
 			overflow: hidden;
 		}
 	}
-}
-.anchor {
-    position: relative;
-    margin-top:-155px;
-	float:left;
 }

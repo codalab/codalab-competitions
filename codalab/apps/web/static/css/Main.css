@@ -2520,4 +2520,19 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .icon_excel a {
     margin-left: 38px;
 }
-
+.scrolling {
+    position: fixed;
+    top: 81px;
+}
+#dockable, #dockable__inner {
+    height: 200px;
+}
+.side-nav--fullwidth {
+    overflow: visible;
+    white-space: nowrap;
+}
+.anchor {
+    position: relative;
+    margin-top:-81px;
+    float:left;
+}
