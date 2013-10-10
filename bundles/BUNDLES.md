@@ -23,19 +23,30 @@ Here are some guidelines:
 - Create one Bundle which just represents the raw data or code from the source
   without modifications.  It basically should be just a unpacking of the zip
   file that is downloaded.
-- If code needs to be compiled, create a Bundle to do that, where the command
-  is the compilation command (e.g., `make`).
+- If code needs to be compiled, create a new Bundle to do that, where the
+  command is the compilation command (e.g., `make`).
+  If compilation depends on other libraries (e.g., libboost), make them new
+  Bundles if they do not already exist.
 - If the data is in a non-standard format (for that task), then create another
   Bundle where the command does the conversion.  For example, sequence tagging
-  should use the CoNLL shared task format.
+  should use the CoNLL shared task format.  If no standard format exists,
+  then use your judgement to create it or talk to someone about it.  Document
+  the format.
 - Programs will often have many ways of invoking them.  Pick a few
   representative settings, and a small sample dataset, and create a run and
   document this.
+- Eventually, all of this will be done directly in CodaLab, but for now, we
+  will put all the code in GitHub and data on the test server, and import it
+  into CodaLab later.  In particular, create a directory for yourself (e.g.,
+  pliang).  For each Bundle that you download, create a `download.sh` file
+  which downloads the files from the test server.  Do not check data files into
+  git.  Then, create a bash script (e.g., `basic_ml.sh`), in which you should
+  interleave comments with creation of Bundles in your sample scenario.
 
 ### Utilities
 
-- Converter between csv, tsv formats.
-- Programs that plot curves.
+- Converter between csv, tsv, json, arff formats.
+- Programs that plot curves (turn tsv into a jpg).
 
 ### Learning algorithms
 
