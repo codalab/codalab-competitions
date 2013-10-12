@@ -6,20 +6,16 @@
      <div id="dockable" class="large-3 columns">
         <div id="dockable_inner">
             <ul class="side-nav side-nav--fullwidth"> 
-                <li><a href="#create-competition" class="active" tabindex="7">Create a Competition</a></li>
-                <li><a href="#prerequisites" tabindex="8">Prerequisites</a></li>
-                <li><a href="#competition-overview" tabindex="9">Competition Overview</a></li>
-                <li><a href="#instructions" tabindex="10">Participant Instructions</a></li>
-                <li><a href="#set-up-competition-files" tabindex="11">Set Up Competition Files</a></li>
-                <li><a href="#upload-competition-data" tabindex="12">Upload Competition Data</a></li>
-            <!-- ///// COMMENTED OUT OLD WIZARD INSTRUCTIONS /////
-                <li><a href="#create-a-codalab-competition">Create a CodaLab Competition</a></li> 
-            -->
+                <li><a href="#create-competition" class="scrollTo active" tabindex="7">Create a Competition</a></li>
+                <li><a href="#prerequisites" class="scrollTo" tabindex="8">Prerequisites</a></li>
+                <li><a href="#competition-overview" class="scrollTo" tabindex="9">Competition Overview</a></li>
+                <li><a href="#instructions" class="scrollTo" tabindex="10">Participant Instructions</a></li>
+                <li><a href="#set-up-competition-files" class="scrollTo" tabindex="11">Set Up Competition Files</a></li>
+                <li><a href="#upload-competition-data" class="scrollTo" tabindex="12">Upload Competition Data</a></li>
             </ul>
         </div>        
     </div>
     <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns">
         <a id="create-competition" class="anchor"></a>
         <h2>Create a Competition</h2>
@@ -223,7 +219,7 @@ reference-*.zip /destkey:&lt;access-key&gt;
                 <p>Note that the lines for the manifests and reference data files use a wildcard.</p>
             </li>
         </ul>
-        <p>For more information, see <a href="http://blogs.msdn.com/b/windowsazurestorage/archive/2012/12/03/azcopy-uploading-downloading-files-for-windows-azure-blobs.aspx">AzCopy – Uploading/Downloading files for Windows Azure Blobs</a></p>
+        <p>For more information, see <a href="http://blogs.msdn.com/b/windowsazurestorage/archive/2012/12/03/azcopy-uploading-downloading-files-for-windows-azure-blobs.aspx" target="_blank">AzCopy – Uploading/Downloading files for Windows Azure Blobs</a></p>
         <hr>
 
         <!--  /////  COMMENTED OUT OLD WIZARD INSTRUCTIONS  /////
@@ -313,8 +309,9 @@ reference-*.zip /destkey:&lt;access-key&gt;
 </div>
 {% endblock content %}
 {% block js %}
-    $(function () {
-        $(".side-nav > li > a").click(function () {
+    <!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
             $(".side-nav > li > a").removeClass("active");
             $(this).addClass("active");
         });
@@ -322,7 +319,8 @@ reference-*.zip /destkey:&lt;access-key&gt;
         $("#liAbout").addClass("active");
     });
 
-    $('html, body').scroll(function () {
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+    $('html, body').scroll(function() {
         $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
     });
 {% endblock js %}
