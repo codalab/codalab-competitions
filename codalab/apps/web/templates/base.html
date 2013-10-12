@@ -43,7 +43,8 @@
     {% analytical_head_bottom %}
 
     <script src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
-    <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script> 
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.scrollTo.min.js"></script>
 </head>
 
 <body class="body">
@@ -167,6 +168,12 @@
 
     <!-- Initialize JS Plugins -->
     <script src="{{ STATIC_URL }}js/app.js"></script>
+
+    <script>
+        $('.scrollTo').on('click', function(e) {
+            Foundation.lib_methods.scrollTo($('window'), $($(e.currentTarget).attr('href')).offset().top, 200);
+        });
+    </script>
 
     <script>
     $(document).foundation();
