@@ -2,61 +2,68 @@
 {% block title %}Help: Create and Configure Azure{% endblock title %}
 {% block page_title %}Help{% endblock page_title %}
 {% block content %}
-<div class="row">
+<div class="row glossary-page-container">
+<!-- Nav Sidebar -->
+    <!-- This is source ordered to be pulled to the left on larger screens -->
+    <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <ul class="side-nav">
+                <li><a href="#create-an-azure-account" class="scrollTo active">Create an Azure Account</a></li>
+                <li><a href="#configure-azure-storage" class="scrollTo">Configure Azure Storage</a></li>
+            </ul>
+        </div>
+    </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 push-3 columns glossary-page-container">
-        <a id="create-an-azure-account"></a>
+    <div class="large-9 columns">
+        <a id="create-an-azure-account" class="anchor"></a>
         <hr />
         <h1>Create an Azure Account</h1>
         <p>Data for all CodaLab competitions <!-- and experiments? --> is stored on Microsoft Azure. Follow these steps to create a Windows Azure account. If you already have a Windows Azure account you can skip ahead to <a href="#configure-azure-storage">Configure Azure Storage</a>.</p>
         <ol>
-            <li>Go to <a href="https://manage.windowsazure.com/">Windows Azure</a>.</li>
+            <li>Go to <a href="https://manage.windowsazure.com/" target="_blank">Windows Azure</a>.</li>
             <li>Sign in with your Windows Live credentials.</li>
             <li>Click <strong>Sign Up for Windows Azure</strong>.</li>
             <li>Follow the steps to create an account. Note that Azure offers a 90-day free trial.</li>
         </ol>
-        <a id="configure-azure-storage"></a>
+        <a id="configure-azure-storage" class="anchor"></a>
         <hr />
         <h1>Configure Azure Storage</h1>
-        <p>In CodaLab competitions, data is hosted in <a href="https://manage.windowsazure.com/">Windows Azure</a> Blob Service.</p>
+        <p>In CodaLab competitions, data is hosted in <a href="https://manage.windowsazure.com/" target="_blank">Windows Azure</a> Blob Service.</p>
         <p><strong>To Set up Storage for a Competition</strong></p>
         <ol>
-            <li><a href="http://www.windowsazure.com/en-us/manage/services/storage/how-to-create-a-storage-account/">Create a Storage Account</a>.</li>
-            <li><a href="http://technet.microsoft.com/en-us/library/hh495450.aspx">Add a Windows Azure Storage Container</a></li>
+            <li><a href="http://www.windowsazure.com/en-us/manage/services/storage/how-to-create-a-storage-account/" target="_blank">Create a Storage Account</a>.</li>
+            <li><a href="http://technet.microsoft.com/en-us/library/hh495450.aspx" target="_blank">Add a Windows Azure Storage Container</a></li>
             <li>
                 <p>Copy the endpoint URL and key for your storage container. You will need this for uploading competition data, and for creating your manifest files. To do this, navigate to the dashboard for your storage account and click the <strong>MANAGE ACCESS KEYS</strong> button at the bottom of the page.</p>
                 <p>
-                    <img src="/img/docs/ccw_managekeys.png" />
+                    <img src="{{ STATIC_URL }}img/docs/ccw_managekeys.png" />
                 </p>
                 <p>This will display the <strong>Manage Access Keys</strong> dialog.</p>
                 <p>
-                    <img src="/img/docs/ccw_managekeys-2.png" />
+                    <img src="{{ STATIC_URL }}img/docs/ccw_managekeys-2.png" />
                 </p>
-                <p>For more information about getting your storage account name and account key, see <a href="http://www.windowsazure.com/en-us/manage/services/storage/how-to-manage-a-storage-account/#regeneratestoragekeys">How to: View, copy, and regenerate storage access keys</a>.</p>
+                <p>For more information about getting your storage account name and account key, see <a href="http://www.windowsazure.com/en-us/manage/services/storage/how-to-manage-a-storage-account/#regeneratestoragekeys" target="_blank">How to: View, copy, and regenerate storage access keys</a>.</p>
             </li>
         </ol>
-        <div>
-            <!-- Nav Sidebar -->
-            <!-- This is source ordered to be pulled to the left on larger screens -->
-            <div class="large-3 pull-9 columns">
-                <ul class="five side-nav">
-                    <li class="active" onclick="scrollAnimation('create-an-azure-account',this)"><a>Create an Azure Account</a></li>
-                    <li onclick="scrollAnimation('configure-azure-storage',this)"><a>Configure Azure Storage</a></li>
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
+<div class="spacer500">&nbsp;</div>
 
 {% endblock content %}
 {% block js %}
-    $(function () {
-        $(".side-nav > li > a").click(function () {
+    <!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
             $(".side-nav > li > a").removeClass("active");
             $(this).addClass("active");
         });
         $(".top-bar-section ul > li > a").removeClass("active");
         $("#liAbout").addClass("active");
+    });
+
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+    $('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
     });
 {% endblock js %}

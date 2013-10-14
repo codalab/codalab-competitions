@@ -1,0 +1,1 @@
+time for d in {0..120}; do cat $1/url_svmlight/Day$d.svm; done|sed -e 's/^-1/0 |f/' |sed -e 's/^+1/1 |f/' |sed -e 's/$/ const:.01/' | vw --adaptive --cache_file $2/cache
