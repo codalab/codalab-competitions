@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 
 # Demonstrates using command-line tools to run a basic ML pipeline.
 

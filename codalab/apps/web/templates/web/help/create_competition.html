@@ -3,23 +3,21 @@
 {% block page_title %}Help{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container"> 
-     <div class="large-3 columns">
-        <ul class="side-nav fixed">
-            <li><a href="#create-competition" class="active" tabindex="7">Create a Competition</a></li>
-            <li><a href="#prerequisites" tabindex="8">Prerequisites</a></li>
-            <li><a href="#competition-overview" tabindex="9">Competition Overview</a></li>
-            <li><a href="#instructions" tabindex="10">Participant Instructions</a></li>
-            <li><a href="#set-up-competition-files" tabindex="11">Set Up Competition Files</a></li>
-            <li><a href="#upload-competition-data" tabindex="12">Upload Competition Data</a></li>
-        <!-- ///// COMMENTED OUT OLD WIZARD INSTRUCTIONS /////
-            <li><a href="#create-a-codalab-competition">Create a CodaLab Competition</a></li> 
-        -->
-        </ul>
+     <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <ul class="side-nav side-nav--fullwidth"> 
+                <li><a href="#create-competition" class="scrollTo active" tabindex="7">Create a Competition</a></li>
+                <li><a href="#prerequisites" class="scrollTo" tabindex="8">Prerequisites</a></li>
+                <li><a href="#competition-overview" class="scrollTo" tabindex="9">Competition Overview</a></li>
+                <li><a href="#instructions" class="scrollTo" tabindex="10">Participant Instructions</a></li>
+                <li><a href="#set-up-competition-files" class="scrollTo" tabindex="11">Set Up Competition Files</a></li>
+                <li><a href="#upload-competition-data" class="scrollTo" tabindex="12">Upload Competition Data</a></li>
+            </ul>
+        </div>        
     </div>
     <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns">
-        <a id="create-competition"></a>
+        <a id="create-competition" class="anchor"></a>
         <h2>Create a Competition</h2>
         <p>
             CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
@@ -28,7 +26,7 @@
             and manage a CodaLab competition, from uploading data to evaluating competition results.
         </p>
         <hr>
-        <a id="prerequisites"></a>
+        <a id="prerequisites" class="anchor"></a>
         <h2>Prerequisites</h2>
         <p>Required:</p>
         <ul>
@@ -41,7 +39,7 @@
             <li><a href="https://www.windowsazure.com/en-us/downloads/?fb=en-us" target="_blank">Windows Azure PowerShell</a>. Read the <a href="http://msdn.microsoft.com/en-us/library/windowsazure/jj156055.aspx" target="_blank">Azure PowerShell documentation</a>.</li>
         </ul>
         <hr>
-        <a id="competition-overview"></a>
+        <a id="competition-overview" class="anchor"></a>
         <h2>Competition Overview</h2>
         <p>
             Competitions are conducted in two phases: training and competition. The appropriate data 
@@ -58,7 +56,7 @@
             <li>Manifest Files</li>
         </ul>
         <hr>
-        <a id="instructions"></a>
+        <a id="instructions" class="anchor"></a>
         <h2>Participant Instructions</h2>
         <p>
             The competition organizer is responsible for providing participants with documentation that 
@@ -85,7 +83,7 @@
         <h3>Manifest Files</h3>
         <p>Manifest files are used to identify the reference data and evaluation program to CodaLab. In our example there are two manifest files, one for the training data and one for the testing data. </p>
         <hr>
-        <a id="set-up-competition-files"></a>
+        <a id="set-up-competition-files" class="anchor"></a>
         <h2>Set Up Competition Files</h2>
         <p>
             In this step, you will assemble the testing and training data, program file, and manifests.
@@ -96,7 +94,7 @@
             <li><a href="#add-folder-contents-to-zip-archives">Add Folder Contents to ZIP Archives</a></li>
         </ul>
 
-        <a id="example-project-file-structure"></a>
+        <a id="example-project-file-structure" class="anchor"></a>
         <h3>Example Project File Structure</h3>
         <p>Throughout this document we will reference our example project, which is structured as follows:</p>
         <br />
@@ -162,7 +160,7 @@
             2539494.lml
 </code></pre>
 
-        <a id="create-manifest-files"></a>
+        <a id="create-manifest-files" class="anchor"></a>
         <h3>Create Manifest Files</h3>
         <p>Manifest files are used to associate reference data with the evaluation program. Create one manifest file each for training data and testing data. Save the files with a .txt filename extension.</p>
         <p>Manifest files are defined using JSON. The following example shows a manifest file that links the training data in <b>reference-training.zip</b> with the evaluation program in <b>program.zip</b>:</p>
@@ -191,7 +189,7 @@
 </code></pre>
 
         <!-- What is DataflowID and how do I get it? -->
-        <a id="add-folder-contents-to-zip-archives"></a>
+        <a id="add-folder-contents-to-zip-archives" class="anchor"></a>
         <h3>Add Folder Contents to ZIP Archives</h3>
         <p>Add the contents of the program, testing, and training data folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, we would zip the contents of the following folders:</p>
         <pre><code>C:\MyCompetition\Program -&gt; Program.zip
@@ -201,7 +199,7 @@ C:\MyCompetition\reference-training -&gt; reference-training.zip
 
 
         <hr>
-        <a id="upload-competition-data"></a>
+        <a id="upload-competition-data" class="anchor"></a>
         <h2>Upload Competition Data</h2>
         <p>Use the <a href="https://github.com/downloads/WindowsAzure/azure-sdk-downloads/AzCopy.zip">AzCopy</a> utility to upload data to the storage blob. </p>
         <p><strong>To Upload Data to the Storage Blob</strong></p>
@@ -221,7 +219,7 @@ reference-*.zip /destkey:&lt;access-key&gt;
                 <p>Note that the lines for the manifests and reference data files use a wildcard.</p>
             </li>
         </ul>
-        <p>For more information, see <a href="http://blogs.msdn.com/b/windowsazurestorage/archive/2012/12/03/azcopy-uploading-downloading-files-for-windows-azure-blobs.aspx">AzCopy – Uploading/Downloading files for Windows Azure Blobs</a></p>
+        <p>For more information, see <a href="http://blogs.msdn.com/b/windowsazurestorage/archive/2012/12/03/azcopy-uploading-downloading-files-for-windows-azure-blobs.aspx" target="_blank">AzCopy – Uploading/Downloading files for Windows Azure Blobs</a></p>
         <hr>
 
         <!--  /////  COMMENTED OUT OLD WIZARD INSTRUCTIONS  /////
@@ -311,12 +309,18 @@ reference-*.zip /destkey:&lt;access-key&gt;
 </div>
 {% endblock content %}
 {% block js %}
-    $(function () {
-        $(".side-nav > li > a").click(function () {
+    <!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
             $(".side-nav > li > a").removeClass("active");
             $(this).addClass("active");
         });
         $(".top-bar-section ul > li > a").removeClass("active");
         $("#liAbout").addClass("active");
+    });
+
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+    $('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
     });
 {% endblock js %}

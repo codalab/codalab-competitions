@@ -3,14 +3,16 @@
 {% block page_title %}About{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container">
-     <div class="large-3 columns">
-        <ul class="side-nav fixed">
-            <li><a href="#codalab" class="active" tabindex=7>About CodaLab</a></li>
-            <li><a href="#develop" tabindex=8>Develop with Experiments</a></li>
-            <li><a href="#compete" tabindex=9>Compete in Challenges</a></li>
-            <li><a href="#yourdata" tabindex=10>Your Data in the Cloud</a></li>
-            <li><a href="#glossary" tabindex=11>Glossary</a></li>
-        </ul>
+     <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <ul class="side-nav side-nav--fullwidth"> 
+                <li><a href="#codalab" class="scrollTo active" tabindex=7>About CodaLab</a></li>
+                <li><a href="#develop" class="scrollTo" tabindex=8>Develop with Experiments</a></li>
+                <li><a href="#compete" class="scrollTo" tabindex=9>Compete in Challenges</a></li>
+                <li><a href="#yourdata" class="scrollTo" tabindex=10>Your Data in the Cloud</a></li>
+                <li><a href="#glossary" class="scrollTo" tabindex=11>Glossary</a></li>
+            </ul>
+        </div>
     </div>
     <!-- Main Content Section -->
     <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
@@ -70,12 +72,18 @@
 </div>
 {% endblock content %}
 {% block js %}
-    $(function () {
-        $(".side-nav > li > a").click(function () {
+<!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
             $(".side-nav > li > a").removeClass("active");
             $(this).addClass("active");
         });
         $(".top-bar-section ul > li > a").removeClass("active");
         $("#liAbout").addClass("active");
+    });
+
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+    $('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
     });
 {% endblock js %}
