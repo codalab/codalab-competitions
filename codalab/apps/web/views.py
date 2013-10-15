@@ -228,6 +228,7 @@ class CompetitionResultsDownload(View):
                     
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
+
         return response
 
 ### Views for My Codalab
@@ -387,5 +388,5 @@ class RunDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
+
         return context
-        
