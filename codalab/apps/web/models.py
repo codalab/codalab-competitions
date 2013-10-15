@@ -6,7 +6,6 @@ from os.path import abspath, basename, dirname, join, normpath
 import zipfile
 import yaml
 import tempfile
-import requests
 import datetime
 import django.dispatch
 import time
@@ -617,13 +616,6 @@ class CompetitionSubmission(models.Model):
     def inputfile_url(self):
         if self.inputfile:
             return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
-        return None
-
-    def get_execution_status(self):
-        if self.execution_key:
-            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
-            if res.status_code in (200,):
-                return res.json()
         return None
 
     def set_status(self,status,force_save=False):
