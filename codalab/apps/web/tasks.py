@@ -2,7 +2,7 @@ import time
 import requests
 import json
 import re
-import io
+import io, zipfile
 import tempfile, os.path, subprocess, StringIO
 from django.conf import settings
 from django.dispatch import receiver
@@ -26,9 +26,9 @@ def local_run(url, submission):
     """
     program = submission.phase.scoring_program.name
     dataset = submission.phase.reference_data.name
-    print "Running locally"
     base_dir = models.submission_root(submission)
-    
+    print "Running locally in directory: %s" % base_dir
+
     # Make a directory for the run
     job_dir = os.path.join(tempfile.gettempdir(), base_dir)
     print "Job Dir: %s" % job_dir
@@ -89,15 +89,24 @@ def local_run(url, submission):
     ozip.close()
     bytes.seek(0)
 
-    submission.output_file.save(models.submission_output_filename(submission), File(bytes))
-    submission.stdout_file.save(models.submission_stdout_filename(submission), File(open(stdout_fn, 'r')))
-    submission.stderr_file.save(models.submission_stderr_filename(submission), File(open(stderr_fn, 'r')))
+    submission.output_file.save("output.zip", File(bytes))
+    submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
+    submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
-    submission.set_status(models.CompetitionSubmissionStatus.FINISHED)
-    submission.save()
+
+def submission_get_status(submission_id):
+    if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        return json.loads("{ \"Status\": \"Finished\" }")
+
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    if submission.execution_key:
+        res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
+        if res.status_code in (200,):
+            return res.json()
+    return None
 
 @celery.task(name='competition.submission_run')
-def submission_run(url,submission_id):
+def submission_run(url, submission_id):
     time.sleep(0.01) # Needed temporarily for using sqlite. Race.
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
 
@@ -105,6 +114,8 @@ def submission_run(url,submission_id):
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
         local_run(url, submission)
+        submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
+        submission.save()
     else:
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
@@ -140,7 +151,7 @@ def submission_run(url,submission_id):
         else:
             submission.set_status(models.CompetitionSubmissionStatus.FAILED)
         submission.save()
-        submission_get_results.delay(submission.pk,1)
+    submission_get_results.delay(submission.pk,1)
     return submission.pk
 
 @celery.task(name='competition.submission_get_results')
@@ -152,7 +163,7 @@ def submission_get_results(submission_id,ct):
         # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
     # Get status of computation from the computation engine
-    status = submission.get_execution_status()
+    status = submission_get_status(submission_id)
     print "Computation status: %s" % str(status)
     if status:
         if status['Status'] in ("Submitted"):
@@ -189,11 +200,12 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         for line in scores.split("\n"):
             if len(line) > 0:
                 label, value = line.split(":")
+                print "Processing |%s| => %s" % (label, value)
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
                     models.SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))                    
                 except models.SubmissionScoreDef.DoesNotExist as e:
-                    print "Score %s does not exist" % label
+                    print "Score '%s' does not exist" % label
                     pass
         print "Done processing scores..."
     elif state == 'limit_exceeded':
