@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block head_title %}Help: Competition Element Reference{% endblock head_title %}
+{% block page_title %}Help: Competition Element Reference{% endblock page_title %}
+{% block content %}
+<div class="row glossary-page-container">
+    <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <p><b>Competition Elements</b></p>
+            <ul class="side-nav side-nav--fullwidth">
+                <li><a href="#example_yaml" class="scrollTo active">Example YAML</a></li>
+                <li><a href="#elements" class="scrollTo">Competition Elements</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Main Content Section -->
+    <div class="large-9 columns">
+        <h1 class="firstrow" id="top">Competition Element Reference</h1>
+        <p>This document describes the elements of a competition. Click an element in the example YAML file to see the definition for the element.</p>
+        <h2 id="example_yaml">Example YAML</h2>
+        <pre><code style="font-weight:normal"><a href="#title">title</a>: Example Competition
+<a href="#description">description</a>: This is an example competition.
+<a href="#image">image</a>: logo.jpg
+<a href="#has_registration">has_registration</a>: True
+<a href="#html">html</a>: 
+    <a href="#overview">overview</a>: overview.html
+    <a href="#evaluation">evaluation</a>: evaluation.html
+    <a href="#terms">terms</a>: terms_and_conditions.html
+    <a href="#data">data</a>: data.html
+<a href="#phases">phases</a>:
+    1:
+        <a href="#phasenumber">phasenumber</a>: 1
+        <a href="#label">label</a>: &quot;Test&quot;
+        <a href="#start_date">start_date</a>: 2013-06-30
+        <a href="#max_submissions">max_submissions</a>: 100
+        <a href="#scoring_program">scoring_program</a>: program.zip
+        <a href="#reference_data">reference_data</a>: reference.zip
+        <a href="#datasets">datasets</a>: 
+            1:
+                <a href="#name">name</a>: Data 1
+                <a href="#url">url</a>: http://www.example.com/data.xls
+                <a href="#description">description</a>: Example Dataset
+<a href="#leaderboard">leaderboard</a>:
+    leaderboards:
+        <a href="#results">RESULTS</a>: &amp;RESULTS
+            <a href="#label">label</a>: Results
+            <a href="#rank">rank</a>: 1
+    <a href="#columns">columns</a>:
+        <a href="#difference">Difference</a>:
+            <a href="#group">group</a>: *RESULTS
+            <a href="#label">label</a>: Difference
+            <a href="#rank">rank</a>: 1
+            <a href="#numeric_format">numeric_format</a>: 6
+</code></pre>
+
+        <h2 id="elements">Competition Elements</h2>
+        <p>This section describes the elements that comprise a competition.</p>
+
+        <a href="#columns">columns</a> | 
+        <a href="#data">data</a> | 
+        <a href="#datasets">datasets</a> | 
+        <a href="#description">description</a> | 
+        <a href="#difference">difference</a> |
+        <a href="#end_date">end_date</a> | 
+        <a href="#evaluation">evaluation</a> | 
+        <a href="#group">group</a> | 
+        <a href="#has_registration">has_registration</a> | 
+        <a href="#html">html</a> | 
+        <a href="#image">image</a> | 
+        <a href="#label">label</a> | 
+        <a href="#leaderboard">leaderboard</a> | 
+        <a href="#max_submissions">max_submissions</a> | 
+        <a href="#name">name</a> | 
+        <a href="#numeric_format">numeric_format</a> | 
+        <a href="#overview">overview</a> | 
+        <a href="#phasenumber">phasenumber</a> | 
+        <a href="#phases">phases</a> | 
+        <a href="#rank">rank</a> | 
+        <a href="#reference_data">reference_data</a> | 
+        <a href="#results">results</a> | 
+        <a href="#scoring_program">scoring_program</a> | 
+        <a href="#start_date">start_date</a> | 
+        <a href="#terms">terms</a> | 
+        <a href="#title">title</a> | 
+        <a href="#url">url</a>
+
+        <hr />
+        <h3 class="reftopic" id="columns">columns</h3>
+        <p>The actual scores in the leaderboard.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="data">data</h3>
+        <p>The HTML page that contains information about the competition data.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="datasets">datasets</h3>
+        <p>Name, url and description for each dataset.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="description">description</h3>
+        <p>Descriptive text for a competition or dataset.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="difference">difference</h3>
+        <p>A column that represents the internal key for this score.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="end_date">end_date</h3>
+        <p>The end date for the competition. It is valid to not include an end_date, which means the competition remains open perpetually.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="evaluation">evaluation</h3>
+        <p>The HTML page that describes how the scores for this competition are evaluated.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="group">group</h3>
+        <p>The group to which this score belongs.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="has_registration">has_registration</h3>
+        <p>Indicates whether the competition requires participant approval by the organizer.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="html">html</h3>
+        <p>Defines the competition's HTML pages. Each competition has a set of pages that describe the competition and contain instructions for participants. </p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="image">image</h3>
+        <p>The filename of the logo or image for the competition.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="label">label</h3>
+        <p>The label (name) of the phase, group, or score.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="leaderboard">leaderboard</h3>
+        <p>Presents collections of scores, and enables scores to be grouped.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="max_submissions">max_submissions</h3>
+        <p>The maximum number of submissions per participant.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="name">name</h3>
+        <p>The name of the dataset.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="numeric_format">numeric_format</h3>
+        <p>The numeric format to use for the column.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="overview">overview</h3>
+        <p>The HTML page that contains an overview of the competition.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="phasenumber">phasenumber</h3>
+        <p>The phase number for ordering.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="phases">phases</h3>
+        <p>Competitions are broken up into phases. Each competition has at least one phase, and can have multiple phases. For example a competaition may have an evaluation phase as well as a competition phase.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="rank-group">rank</h3>
+        <p>Rank order of a group or score within a list of groups or scores.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="reference_data">reference_data</h3>
+        <p>A ZIP archive containing reference data to compare submitted data with for scoring.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="results">results</h3>
+        <p>The internal key name for the overall results group.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="scoring_program">scoring_program</h3>
+        <p>A ZIP archive containing the program that is used to evaluate results.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="start_date">start_date</h3>
+        <p>The start date for the phase.</p>
+        <p><a href="#top">back to top</a></p>        
+
+        <hr />
+        <h3 class="reftopic" id="terms">terms</h3>
+        <p>The HTML page that contains terms for participating in the competition.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="title">title</h3>
+        <p>The title of the competition.</p>
+        <p><a href="#top">back to top</a></p>
+
+        <hr />
+        <h3 class="reftopic" id="url">url</h3>
+        <p>A URL pointing to the actual data.</p>
+        <p><a href="#top">back to top</a></p>
+
+    </div>
+    {% endblock content %}
+{% block js %}
+    <!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liAbout").addClass("active");
+    });
+
+    <!--  /////  Dock side-nav to top when scrolling down  /////  -->
+$('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+    });
+{% endblock js %}

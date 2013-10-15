@@ -2544,3 +2544,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     margin-top:-81px;
     float:left;
 }
+
+.reftopic {
+    padding-top: 120px;
+    margin-top: -120px;
+}
