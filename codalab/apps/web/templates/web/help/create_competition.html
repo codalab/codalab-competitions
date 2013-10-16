@@ -3,17 +3,15 @@
 {% block page_title %}Help{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container"> 
-     <div id="dockable" class="large-3 columns">
+    <div id="dockable" class="large-3 columns">
         <div id="dockable_inner">
-            <ul class="side-nav side-nav--fullwidth"> 
-                <li><a href="#create-competition" class="scrollTo active" tabindex="7">Create a Competition</a></li>
-                <li><a href="#prerequisites" class="scrollTo" tabindex="8">Prerequisites</a></li>
-                <li><a href="#competition-overview" class="scrollTo" tabindex="9">Competition Overview</a></li>
-                <li><a href="#instructions" class="scrollTo" tabindex="10">Participant Instructions</a></li>
-                <li><a href="#set-up-competition-files" class="scrollTo" tabindex="11">Set Up Competition Files</a></li>
-                <li><a href="#upload-competition-data" class="scrollTo" tabindex="12">Upload Competition Data</a></li>
+            <ul class="side-nav side-nav--fullwidth">
+                <li><a href="#create-competition" class="active" tabindex="7">Create a Competition</a></li>
+                <li><a href="#competition-overview" tabindex="9">Competition Overview</a></li>
+                <li><a href="#create-a-competition-bundle" tabindex="11">Create a Competition Bundle</a></li>
+                <li><a href="#upload-a-competition-bundle" tabindex="12">Upload a Competition Bundle</a></li> 
             </ul>
-        </div>        
+        </div>
     </div>
     <!-- Main Content Section -->
     <div class="large-9 columns">
@@ -23,21 +21,9 @@
             CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
             create solutions for problems across a wide range of domains, and advance the state of the art 
             for their respective areas of interest. This guide covers everything you need to know to create 
-            and manage a CodaLab competition, from uploading data to evaluating competition results.
+            and manage a CodaLab competition.
         </p>
-        <hr>
-        <a id="prerequisites" class="anchor"></a>
-        <h2>Prerequisites</h2>
-        <p>Required:</p>
-        <ul>
-            <li><a href="https://manage.windowsazure.com/" target="_blank">Windows Azure&#8482;</a> storage account (requires Azure subscription). If you do not already have an Azure account, you will need to create one. See <a href="{% url 'help_configure_azure' %}">Configure Azure</a> for detailed instructions.</li>
-            <li><a href="https://github.com/downloads/WindowsAzure/azure-sdk-downloads/AzCopy.zip">AzCopy</a></li>
-        </ul>
-        <p>Optional:</p>
-        <ul>
-            <li><a href="http://technet.microsoft.com/en-us/library/bb978526.aspx" target="_blank">PowerShell</a> (installed by default on Windows 7 and newer)</li>
-            <li><a href="https://www.windowsazure.com/en-us/downloads/?fb=en-us" target="_blank">Windows Azure PowerShell</a>. Read the <a href="http://msdn.microsoft.com/en-us/library/windowsazure/jj156055.aspx" target="_blank">Azure PowerShell documentation</a>.</li>
-        </ul>
+        
         <hr>
         <a id="competition-overview" class="anchor"></a>
         <h2>Competition Overview</h2>
@@ -48,260 +34,183 @@
             competition phase, participants are provided with competition data to generate results which 
             they can then submit to the competition.
         </p>
-        <p>The files that make up a competition are as follows:</p>
-        <ul>
-            <li>Participant Instructions</li>
-            <li>Reference Data</li>
-            <li>Evaluation Program</li>
-            <li>Manifest Files</li>
-        </ul>
+        <p>To create a competition, you need to create and upload a Competition Bundle. A Competition Bundle is a .zip archive which contains a YAML file that describes the competition and its assets. The files that make up a competition bundle are as follows:</p>
+                
+        <table>
+            <tr>
+                <td><b>Item</b></td>
+                <td><b>Description</b></td>
+            </tr>
+            <tr>
+                <td>competition.yaml</td>
+                <td>Lists all of the assets for a competition.</td>
+            </tr>
+            <tr>
+                <td>data.html</td>
+                <td>Contains links to the competition data.</td>
+            </tr>
+            <tr>
+                <td>evaluation.html</td>
+                <td>Explains the metrics and scoring methods for the challenge.</td>
+            </tr>
+            <tr>
+                <td>overview.html</td>
+                <td>Describes the goals of the competition.</td>
+            </tr>
+            <tr>
+                <td>terms_and_conditions.html</td>
+                <td>Lists the terms for participating in the challenge (for example data licensing and results submission).</td>
+            </tr>
+            <tr>
+                <td>program.zip</td>
+                <td>Contains the evaluation program which compares the submitted results with the answers and passes the scores to the CodaLab leaderboards.</td>
+            </tr>
+            <tr>
+                <td>reference.zip</td>
+                <td>Contains reference data used to score the competition.</td>
+            </tr>
+            <tr>
+                <td>logo.jpg</td>
+                <td>A logo or image for the competition.</td>
+            </tr>
+        </table>
+        
         <hr>
-        <a id="instructions" class="anchor"></a>
-        <h2>Participant Instructions</h2>
+        <a id="create-a-competition-bundle" class="anchor"></a>
+        <h2>Create a Competition Bundle</h2>
         <p>
-            The competition organizer is responsible for providing participants with documentation that 
-            describes the goals of the competition, input and output file formats, and details about 
-            how submissions will be evaluated and ranked. By default each competition has the following pages:
+            In this section you will learn how to create a competition bundle using an example competition bundle for guidance. The goal of the example competition is to compute the value of pi (3.14...). Each participant submits a single float value and the submission that contains the closest value of pi is the winner. 
         </p>
         <ul>
-            <li><strong>Overview</strong> - A brief description of the competition.</li>
-            <li><strong>Evaluation</strong> - Specify how results will be evaluated.</li>
-            <li><strong>Terms and Conditions</strong> - Describe terms that participants must agree to.</li>
-            <li><strong>Get Data</strong> - Provide competition data to participants.</li>
-        </ul>
-        <p>The instructions should be formatted in HTML and then added when running the <strong>Create Competition Wizard</strong>.</p>
-        <h3>Reference Data</h3>
-        <p>
-            Data forms the basis for competitions. In the training phase, participants use a set of training 
-            data to create their algorithms. In the competition phase a different set of data (testing) is 
-            used to evaluate and rank algorithms. Reference data can take many different forms. In our example 
-            competition the reference data consists of a set of CT scan images to evaluate (.mhd), and a 
-            corresponding set of coordinates for each image (.lml).
-        </p>
-        <h3>Evaluation Program</h3>
-        <p>The evaluation program compares the submitted results with the answers and passes the scores to the CodaLab leaderboards.</p>
-        <h3>Manifest Files</h3>
-        <p>Manifest files are used to identify the reference data and evaluation program to CodaLab. In our example there are two manifest files, one for the training data and one for the testing data. </p>
-        <hr>
-        <a id="set-up-competition-files" class="anchor"></a>
-        <h2>Set Up Competition Files</h2>
-        <p>
-            In this step, you will assemble the testing and training data, program file, and manifests.
-        </p>
-        <ul>
-            <li><a href="#example-project-file-structure">Example Project File Structure</a></li>
-            <li><a href="#create-manifest-files">Create Manifest Files</a></li>
+            <li><a href="#bundle-file-structure">Bundle File Structure</a></li>
+            <li><a href="#create-yaml-file">Create the YAML File</a></li>
             <li><a href="#add-folder-contents-to-zip-archives">Add Folder Contents to ZIP Archives</a></li>
         </ul>
 
-        <a id="example-project-file-structure" class="anchor"></a>
-        <h3>Example Project File Structure</h3>
-        <p>Throughout this document we will reference our example project, which is structured as follows:</p>
-        <br />
-        <pre><code>C:\MyCompetition
-|   manifest-testing.txt
-|   manifest-training.txt
-|
-+---program
-|   |   metadata.txt
-|   |
-|   \---bin
-|           FSharp.Core.dll
-|           FSharp.Core.xml
-|           SpineLocalization.exe
-|           SpineLocalization.exe.config
-|           SpineLocalization.pdb
-|           SpineLocalization.XML
-|
-+---reference-testing
-|   |   ids.txt
-|   |   metadata.txt
-|   |
-|   +---images
-|   |       4605250.mhd
-|   |       4605250.raw
-|   |       4608324.mhd
-|   |       4608324.raw
-|   |       4608357.mhd
-|   |       4608357.raw
-|   |       4613319.mhd
-|   |       4613319.raw
-|   |       4614554.mhd
-|   |       4614554.raw
-|   |
-|   \---labels
-|           4605250.lml
-|           4608324.lml
-|           4608357.lml
-|           4613319.lml
-|           4614554.lml
-|
-\---reference-training
-    |   ids.txt
-    |   metadata.txt
-    |
-    +---images
-    |       2495819.mhd
-    |       2495819.raw
-    |       2495831.mhd
-    |       2495831.raw
-    |       2504978.mhd
-    |       2504978.raw
-    |       2522404.mhd
-    |       2522404.raw
-    |       2539494.mhd
-    |       2539494.raw
-    |
-    \---labels
-            2495819.lml
-            2495831.lml
-            2504978.lml
-            2522404.lml
-            2539494.lml
-</code></pre>
+        <a id="bundle-file-structure" class="anchor"></a>
+        <h3>Bundle File Structure</h3>
+        <p>Competition bundles are structured as follows:</p>
 
-        <a id="create-manifest-files" class="anchor"></a>
-        <h3>Create Manifest Files</h3>
-        <p>Manifest files are used to associate reference data with the evaluation program. Create one manifest file each for training data and testing data. Save the files with a .txt filename extension.</p>
-        <p>Manifest files are defined using JSON. The following example shows a manifest file that links the training data in <b>reference-training.zip</b> with the evaluation program in <b>program.zip</b>:</p>
-        <br />
-        <pre><code>{
-   &quot;DataflowId&#64;&quot;:&quot;&lt;dataflow-id&gt;&quot;,
-   &quot;Parameters&#64;&quot;:[
-      {
-         &quot;Key&#64;&quot;:&quot;ProgramUrl&quot;,
-         &quot;Value&#64;&quot;:&quot;\/&lt;container&gt;\/program.zip&quot;
-      },
-      {
-         &quot;Key&#64;&quot;:&quot;ProgramConnectionString2&quot;,
-         &quot;Value&#64;&quot;:&quot;DefaultEndpointsProtocol=https;AccountName=&lt;account&gt;;AccountKey=&lt;access-key&gt;&quot;
-      },
-      {
-         &quot;Key&#64;&quot;:&quot;RefUrl&quot;,
-         &quot;Value&#64;&quot;:&quot;\/&lt;container&gt;\/reference-training.zip&quot;
-      },
-      {
-         &quot;Key&#64;&quot;:&quot;RefConnectionString1&quot;,
-         &quot;Value&#64;&quot;:&quot;DefaultEndpointsProtocol=https;AccountName=&lt;account&gt;;AccountKey=&lt;access-key&gt;&quot;
-      }
-   ]
-}
+        <pre><code>competition.zip
+  |- competition.yaml
+  |- data.html
+  |- evaluation.html
+  |- logo.jpg
+  |- overview.html
+  |- program.zip
+  |- reference.zip
+  |- terms_and_conditions.html
 </code></pre>
+        <p><b>Note:</b> There are no .zip archives in the example competition as downloaded. This is so that the files can be properly downloaded. You will need to manually create .zip archives from the program, and reference folders.</p>
 
-        <!-- What is DataflowID and how do I get it? -->
+        <a id="create-yaml-file" class="anchor"></a>
+        <h3>Create a YAML File</h3>
+        <p>The manifest file (competition.yaml) defines all aspects of the competition, and is defined using YAML. Here's the example competition.yaml:</p>
+        <pre><code># Build an example competition
+---
+title: Example Competition
+description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle.
+image: logo.jpg
+has_registration: True
+end_date: 2013-12-31
+html: 
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+    data: data.html
+phases:
+    1:
+        phasenumber: 1
+        label: "Test"
+        start_date: 2013-06-30
+        max_submissions: 100
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Data 1
+                url: http://spreadsheets.google.com/pub?key=pyj6tScZqmEfbZyl0qjbiRQ&output=xls
+                description: Example Dataset
+            2:
+                name: Data 2
+                url: http://spreadsheets.google.com/pub?key=0AgogXXPMARyldGJqTDRfNHBWODJMRWlZaVhNclhNZXc&output=xls 
+                description: Example Dataset
+    2:
+        phasenumber: 2
+        label: "Training"
+        start_date: 2013-08-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+    3:
+        phasenumber: 3
+        label: "Challenge"
+        start_date: 2013-09-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Challenge Data
+                url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
+                description: Example challenge data
+leaderboard:
+    leaderboards:
+        RESULTS: &RESULTS
+            label: Results
+            rank: 1
+    columns:
+        Difference:
+            group: *RESULTS
+            label: Difference
+            rank: 1
+            numeric_format: 6
+</code></pre>
+        
         <a id="add-folder-contents-to-zip-archives" class="anchor"></a>
         <h3>Add Folder Contents to ZIP Archives</h3>
-        <p>Add the contents of the program, testing, and training data folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, we would zip the contents of the following folders:</p>
-        <pre><code>C:\MyCompetition\Program -&gt; Program.zip
-C:\MyCompetition\reference-testing -&gt; reference-testing.zip
-C:\MyCompetition\reference-training -&gt; reference-training.zip
+        <p>To make this example complete it's important to understand how to build and package the program.zip and reference.zip referred to in the competition.yaml.</p>
+
+<p>The program.zip bundle contains the program that compares the users submission with the reference data (in the reference.zip bundle) to score the submission. In this case the reference data contains the value of pi. The program.zip bundle computes the absolute difference of the submitted value from the reference value.</p>
+
+<p>Here are the contents of the reference.zip file: 
+        <pre><code>reference.zip 
+  |- answer.txt (Contains: 3.14159265359)
+  |- metadata   (Contains: This is the authoritative result.)
+</code></pre>
+</p>
+
+<p>Here are the contents of the program.zip file</p>
+        <pre><code>program.zip
+  |- evaluate.exe (The program that is run)
+  |- metadata     (see below for contents)
+  |- supporting modules and libraries for evaluate.exe to run in isolation.
 </code></pre>
 
-
-        <hr>
-        <a id="upload-competition-data" class="anchor"></a>
-        <h2>Upload Competition Data</h2>
-        <p>Use the <a href="https://github.com/downloads/WindowsAzure/azure-sdk-downloads/AzCopy.zip">AzCopy</a> utility to upload data to the storage blob. </p>
-        <p><strong>To Upload Data to the Storage Blob</strong></p>
-        <ul>
-            <li>
-                <p>Use the AzCopy utility to upload the manifests and ZIP archives. The following example shows the AzCopy command syntax:</p>
-                <pre><code>AzCopy.exe .\ http://&lt;account&gt;.blob.core.windows.net/&lt;container&gt;/ 
-program.zip /destkey:&lt;access-key&gt;
-
-AzCopy.exe .\ http://&lt;account&gt;.blob.core.windows.net/&lt;container&gt;/ 
-manifest-*.txt /destkey:&lt;access-key&gt;
-
-AzCopy.exe .\ http://&lt;account&gt;.blob.core.windows.net/&lt;container&gt;/ 
-reference-*.zip /destkey:&lt;access-key&gt;
+<p>The program.zip metadata file contains:</p>
+        <pre><code>command: $program/evaluate.exe $input $output
+description: Example competition evaluation program.
 </code></pre>
 
-                <p>Note that the lines for the manifests and reference data files use a wildcard.</p>
-            </li>
-        </ul>
-        <p>For more information, see <a href="http://blogs.msdn.com/b/windowsazurestorage/archive/2012/12/03/azcopy-uploading-downloading-files-for-windows-azure-blobs.aspx" target="_blank">AzCopy – Uploading/Downloading files for Windows Azure Blobs</a></p>
-        <hr>
+        <p>1. Add the contents of the example program and reference folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, zip the contents of the following folders:
+        <pre><code>C:\MyCompetition\reference -&gt; reference.zip
+C:\MyCompetition\program -&gt; program.zip
+</code></pre>
+</p>
+        <p>2. Create a .zip archive of C:\MyCompetition. This will be known as the "competition bundle".</p>
 
-        <!--  /////  COMMENTED OUT OLD WIZARD INSTRUCTIONS  /////
-
-        <a id="create-a-codalab-competition"></a>
-        <h2>Create a CodaLab Competition</h2>
+        <a id="upload-a-competition-bundle" class="anchor"></a>
+        <h2>Upload a Competition Bundle</h2>
         <p>In this step you'll use the <strong>Create Competition Wizard</strong> to create a competition on CodaLab.</p>
-        <p><strong>To Create a Competition</strong></p>
-        <ol>
-            <li>Log in to CodaLab.</li>
-            <li>Click <strong>My CodaLab</strong>.</li>
-            <li>Click <strong>Create New Competition</strong>. </li>
-            <li>Click <strong>Start</strong> to start the <strong>Create Competition Wizard</strong>.</li>
-            <li>Follow the steps of the Wizard. Note that you can save the competition at any time.</li>
-        </ol>
-<<<<<<< HEAD
-        <h3>Create Competition Wizard Steps</h3>
-=======
-        <h5>Create Competition Wizard Steps</h5>
->>>>>>> 0ad306c81943f78968a84c24223fca0afffc70eb
-        <p>This section covers the details of each step in the <strong>Create Competition Wizard</strong>.</p>
-        <a id="overview"></a>
-        <h4>overview</h4>
-        <p>Enter a title and brief description, and select a thumbnail image.</p>
-        <p>
-            <img src="/static/img/docs/ccw_1_overview.png" alt="Wizard: Overview" />
-        </p>
-        <a id="phases"></a>
-        <h4>phases</h4>
-        <p>Define the start date and data set for each phase, and set the end date for the competition.</p>
+        <p><strong>To Create a Competition</strong><br />
+            1. Log in to CodaLab. <br />
+            2. Click <strong>My CodaLab</strong>.<br />
+            3. Click <strong>Competitions I'm Running</strong><br />
+            4. Click <strong>Create New Competition</strong>. <br />
+            5. Click <strong>Choose file</strong> and select the .zip archive containing the competition bundle.
+            6. Click <strong>Submit</strong> to upload the package data and create the competition.
 
-        <p>To access the endpoint URL and key for your storage container, navigate to the dashboard for your storage account and click the <strong>MANAGE ACCESS KEYS</strong> button at the bottom of the page.</p>
-        <p>
-            <img src="/static/img/docs/ccw_managekeys.png" />
-        </p>
-        <p>To get the URLs for the data you have <a href="#upload-competition-data">uploaded</a>:</p>
-        <ol>
-            <li>Go to the <a href="https://manage.windowsazure.com/" target="_blank">Azure Management Portal.</a></li>
-            <li>Click <b>Storage</b>, and then click the storage account name to open the dashboard.</li>
-            <li>Click <b>CONTAINERS</b>, and then click the name of the container.</li>
-            <li>You can copy the URL from the list of blobs.</li>
-        </ol>
-
-
-
-        <p>
-            <img src="/static/img/docs/ccw_2_phases.png" alt="Wizard: Phases" />
-        </p>
-        <a id="details"></a>
-        <h4>details</h4>
-        <p>This is where you provide documentation about the competition for participants.</p>
-        <p>
-            <img src="/static/img/docs/ccw_3_details.png" alt="Wizard: Details" />
-        </p>
-        <p>
-            <b>Learn the details tab</b>
-        </p>
-        <ul>
-            <li>Use the <b>Overview</b> page to give an overall description of the competition.</li>
-            <li>Use the <b>Evaluation</b> page to specify how the evaluation of results will be conducted.</li>
-            <li>Use the <b>Terms and Conditions</b> page to specify terms and conditions that participant must agree to.</li>
-        </ul>
-        <p><b>Participate tab</b></p>
-        <ul>   
-            <li>Use the <b>Get data</b> page to give participants access to the data of the competition.</li>
-        </ul>
-
-        <a id="publish"></a>
-        <h4>publish</h4>
-        <p>When you are ready to make your competition available, check the <b>competition is public</b> checkbox, and click <b>publish changes</b>.</p>
-        <p>
-            <img src="/static/img/docs/ccw_4_publish.png" alt="Wizard: Publish" />
-        </p>
-        <hr>
-        <a id="managing-your-competitions"></a>
-        <h2>Managing Your Competitions</h2>
-        <p>All of the competitions you have created will appear in <strong>My CodaLab</strong>, under the <strong>Competitions I Manage</strong> tab. There are options to <strong>delete</strong> or <strong>edit</strong> the competition, and view information about the competition participants.</p>
-        <p>
-            <img src="/static/img/docs/ccw_managetab.png" alt="Competitions I Manage" />
-        </p> 
-
-        -->
+            </p>
 
 
     <div class="spacer500">&nbsp;</div>
