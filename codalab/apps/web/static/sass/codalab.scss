@@ -1,5 +1,5 @@
 @import "compass/reset.scss";
-@import "settings";
+@import "_settings";
 @import "compass/layout.scss";
 
 @import "../img/icons/general/sass/general_foundicons";
@@ -7,6 +7,152 @@
 @import "../img/icons/accessibility/sass/accessibility_foundicons";
 @import "../img/icons/enclosed/sass/general_enclosed_foundicons";
 
-@import "../sass/foundation";
+@import "foundation";
 
 @include sticky-footer(25px, "#layout", "#layout_footer", "#footer");
+
+// _global customizations 
+$body-bg: #F7F7F7 !default;
+$primary-color: #739CB9 !default;
+$secondary-color: #E9E9E9 !default;
+$alert-color: #477473 !default;
+$success-color: #739CB9 !default;
+a:focus { outline: none; }   // Override outline from normalize, we don't like it
+body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
+
+
+// _buttons customizations
+@media only screen {
+    button, .button {
+      box-shadow: none;
+    }
+    button.selected, .button.selected {
+      background-color:#739CB9;
+      border-color: darken(#739CB9, $button-function-factor);
+    }
+  }
+
+
+// _panels customizations
+$panel-bg: darken(#fff, 8%) !default; // changed from 5%
+$panel-font-color: #555 !default;
+@if $include-html-panel-classes != false {
+  /* Panels */
+  .panel { @include panel;
+    margin-top: 15px; // added top margin
+  }
+}
+
+
+// _section customizations
+$section-title-color-active: #676278 !default;  // changed from #333
+
+@mixin section-style($section-type:accordion, $title-selector: $title-selector, $content-selector: $content-selector, $title-padding:$section-title-padding, $title-color:$section-title-color, $title-font-size:$section-font-size, $title-bg:$section-title-bg, $title-bg-hover:$section-title-bg-hover, $title-bg-active:$section-title-bg-active, $title-color-active:$section-title-color-active, $content-bg:$section-content-bg, $content-padding:$section-content-padding, $section-border-size:$section-border-size, $section-border-style:$section-border-style, $section-border-color: $section-border-color) {
+
+  // Default Styles
+  & > #{$title-selector} {
+  a {
+      color: $active; //Changed from $title-color
+    }
+  }
+  & > #{$content-selector} {
+    min-height: 400px;  // added
+    overflow: visible;  // added
+  }
+   // Style for when Accordion
+  @if $section-type == accordion {
+  }
+  // Styles for when tabs
+  @else if $section-type == tabs {
+  }
+    // Styles for when Vertical Tabs
+  @else if $section-type == vertical-tabs {
+
+    &#{$active-region-selector} {
+
+      & > #{$title-selector} {
+        border-left: 4px $active solid !important;  // added
+        text-indent: 4px;                           // added
+      }
+    }
+  }
+}
+
+
+// _side-nav customizations
+li {
+    a {
+      &.active {
+        color: $side-nav-link-color-active;
+        font-weight: $side-nav-font-weight;
+        border-left: #676278 4px solid;
+        text-indent: 10px;
+      }
+    }
+  }
+
+
+// _sub-nav customizations
+$sub-nav-border-radius: 4px !default; // changed from 1000px
+$sub-nav-active-padding: em-calc(8 12) !default;  //  changed from (3 9)
+
+
+// _switch customizations
+@mixin switch-base($transition-speed:$switch-paddle-transition-speed, $transition-ease:$switch-paddle-transition-ease) {
+  // Default position and structure for switch container.
+  width: 100%;
+}
+
+
+// _tables customizations
+$table-even-row-bg: #EEE !default;  // changed from #f9f9f9
+
+
+// _top-bar customizations
+$topbar-bg-color: #FFF !default;  // changed from #111
+$topbar-bg: $topbar-bg-color !default;
+$topbar-height: 49px !default;  // changed from 45px
+$topbar-margin-bottom: em-calc(30) !default;  // changed from 0
+$topbar-title-weight: normal !default;  // changed from bold
+$topbar-dropdown-bg: #FFF !default;  // changed from #222
+$topbar-dropdown-link-color: #739CB9 !default;  // changed from #FFF
+$topbar-dropdown-link-bg: lighten($topbar-bg, 5%) !default;  // changed from ($topbar-bg-color, 5%)
+$topbar-link-color: #739CB9 !default;  // changed from #FFF
+$topbar-link-color-hover: #676278 !default;  // changed from #FFF
+$topbar-link-color-active: #739CB9 !default;  // changed from #FFF
+$topbar-link-weight: normal !default;  // changed from bold
+$topbar-link-hover-lightness: lighten($topbar-link-color, 3%) !default;  // changed from -30%
+$topbar-link-bg-hover: darken($topbar-bg, 3%) !default;  // changed from: adjust-color($topbar-dropdown-bg, $lightness: $topbar-link-hover-lightness)
+$topbar-link-bg-active: lighten($topbar-bg, 3%) !default;  // changed from: darken($topbar-bg-color, 3%)
+$topbar-border-top: 4px $white solid;  // added
+$topbar-border-top-hover: 4px darken($topbar-bg, 3%) solid;  // added
+$topbar-border-top-active: 4px #739CB9 solid;  // added
+$topbar-menu-link-weight: normal !default;  // changed from bold
+$topbar-menu-link-color: #739CB9 !default;  // changed from #FFF
+$topbar-menu-icon-color: #739CB9 !default;  // changed from #FFF
+$topbar-divider-border-bottom: solid 1px lighten($topbar-bg, 10%) !default;  // changed from: solid 1px lighten($topbar-bg-color, 10%)
+$topbar-divider-border-top: solid 1px darken($topbar-bg, 10%) !default;  // changed from: solid 1px darken($topbar-bg-color, 10%)
+
+
+
+// _type customizations
+$header-font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;  // changed from "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !default;
+$header-font-weight: lighter !default;  // changed from bold
+$header-line-height: 1.4em !default;  // changed from 1.4
+ /* Default header styles */
+  h1, h2, h3 {  // added
+    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-style: $header-font-style;
+    color: $header-font-color;
+    text-rendering: $header-text-rendering;
+    margin-top: $header-top-margin;
+    margin-bottom: $header-bottom-margin;
+    line-height: $header-line-height - emCalc(3);
+
+    small {
+      font-size: $small-font-size;
+      color: $small-font-color;
+      line-height: 0;
+    }
+  }
