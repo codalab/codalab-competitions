@@ -6,7 +6,6 @@ from os.path import abspath, basename, dirname, join, normpath
 import zipfile
 import yaml
 import tempfile
-import requests
 import datetime
 import django.dispatch
 import time
@@ -266,54 +265,29 @@ def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_root(instance):
-    return "competition/%d/%d/submissions/%d/%d" % (instance.phase.competition.pk,
-                                                    instance.phase.pk,
-                                                    instance.participant.user.pk,
-                                                    instance.submission_number)
+    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk), 
+                        "submissions", str(instance.participant.user.pk), str(instance.submission_number))
 
 def submission_file_name(instance, filename="predictions.zip"):
-    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                                    instance.phase.pk,
-                                                                    instance.participant.user.pk,
-                                                                    instance.submission_number,
-                                                                    filename)
-def submission_inputfile_name(instance, filename="input.txt"):
-     return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                               instance.phase.pk,
-                                                               instance.participant.user.pk,
-                                                               instance.submission_number,
-                                                               filename)
-def submission_runfile_name(instance, filename="run.txt"):
-    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number,
-                                                            filename)
+    return os.path.join(submission_root(instance), filename)
 
-def submission_output_filename(instance,filename="output.zip"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
-def submission_stdout_filename(instance,filename="stdout.txt"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
-def submission_stderr_filename(instance,filename="stderr.txt"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
+def submission_inputfile_name(instance, filename="input.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_runfile_name(instance, filename="run.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_output_filename(instance, filename="output.zip"):
+    return os.path.join(submission_root(instance), "run", filename)
+
+def submission_stdout_filename(instance, filename="stdout.txt"):
+    return os.path.join(submission_root(instance), "run", filename)
+
+def submission_stderr_filename(instance, filename="stderr.txt"):
+    return os.path.join(submission_root(instance), "run", filename)
+
 def submission_file_blobkey(instance, filename="output.zip"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                       instance.phase.pk,
-                                                       instance.participant.user.pk,
-                                                       instance.submission_number,
-                                                       filename)
+    return os.path.join(submission_root(instance), "run", filename)
 
 # Competition Phase 
 class CompetitionPhase(models.Model):
@@ -539,6 +513,7 @@ class CompetitionPhase(models.Model):
                             scores[id]['values'].append({'val': v, 'rnk': r, 'name' : sdef.key})
                         else:
                             scores[id]['values'].append({'val': v, 'hidden_rnk': r, 'name' : sdef.key})
+                    print ranks
                     if (sdef.key == result['selection_key']):
                         overall_ranks = ranks[sdef.id]
                 ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
@@ -641,13 +616,6 @@ class CompetitionSubmission(models.Model):
     def inputfile_url(self):
         if self.inputfile:
             return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
-        return None
-
-    def get_execution_status(self):
-        if self.execution_key:
-            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
-            if res.status_code in (200,):
-                return res.json()
         return None
 
     def set_status(self,status,force_save=False):
@@ -791,7 +759,7 @@ class CompetitionDefBundle(models.Model):
             if 'leaderboards' in comp_spec['leaderboard']:
                 leaderboards = {}
                 for key, value in comp_spec['leaderboard']['leaderboards'].items():
-                    rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
+                    rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'].strip(), label=value['label'].strip(), ordering=value['rank'])
                     leaderboards[rg.label] = rg
                     for gp in comp.phases.all():
                         rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
@@ -803,7 +771,7 @@ class CompetitionDefBundle(models.Model):
                 for key, vals in comp_spec['leaderboard']['column_groups'].items():
                     if vals is None:
                         vals = dict()
-                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key, defaults=vals)
+                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=vals)
                     groups[s.label] = s
             print "Created score groups."
 
@@ -814,7 +782,7 @@ class CompetitionDefBundle(models.Model):
                     # Create the score definition
                     is_computed = 'computed' in vals
                     sdefaults = {
-                                    'label' : "" if 'label' not in vals else vals['label'],
+                                    'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : not is_computed,
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort']
