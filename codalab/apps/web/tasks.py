@@ -122,22 +122,22 @@ def submission_run(url, submission_id):
 
         # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
         inputfile = ContentFile(
-    """ref: %s
-    res: %s
-    """ % (dataset, submission.file.name))   
+"""ref: %s
+res: %s
+""" % (dataset, submission.file.name))   
         submission.inputfile.save('input.txt', inputfile)
         # Generate run bundle, which binds the input bundle to the scoring program
         runfile = ContentFile(
-    """program: %s
-    input: %s
-    """ % (program, submission.inputfile.name))
+"""program: %s
+input: %s
+""" % (program, submission.inputfile.name))
         submission.runfile.save('run.txt', runfile)
         # Log start of evaluation to stdout.txt
         stdoutfile = ContentFile(
-    """Standard output file for submission #%s:
+"""Standard output file for submission #%s:
 
-    """ % (submission.submission_number))
-        submission.stdout_file.save('run/stdout.txt', stdoutfile)
+""" % (submission.submission_number))
+        submission.stdout_file.save('stdout.txt', stdoutfile)
         submission.save()
         # Submit the request to the computation service
         headers = {'content-type': 'application/json'}
