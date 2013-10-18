@@ -2,7 +2,8 @@ import time
 import requests
 import json
 import re
-import io
+import io, zipfile
+import tempfile, os.path, subprocess, StringIO
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.files import File
@@ -19,45 +20,137 @@ import models
 
 main = base.Base.SITE_ROOT
 
-@celery.task(name='competition.submission_run')
-def submission_run(url,submission_id):
-    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+def local_run(url, submission):
+    """
+        This routine will take the job (initially a competition submission, later a run) and execute it locally.
+    """
     program = submission.phase.scoring_program.name
     dataset = submission.phase.reference_data.name
+    base_dir = models.submission_root(submission)
+    print "Running locally in directory: %s" % base_dir
 
-    # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
-    inputfile = ContentFile(
-"""ref: %s
-res: %s
-""" % (dataset, submission.file.name))   
-    submission.inputfile.save('input.txt', inputfile)
-    # Generate run bundle, which binds the input bundle to the scoring program
-    runfile = ContentFile(
-"""program: %s
-input: %s
-""" % (program, submission.inputfile.name))
-    submission.runfile.save('run.txt', runfile)
-    # Log start of evaluation to stdout.txt
-    stdoutfile = ContentFile(
-"""Standard output file for submission #%s:
-
-""" % (submission.submission_number))
-    submission.stdout_file.save('run/stdout.txt', stdoutfile)
-    submission.save()
-    # Submit the request to the computation service
-    headers = {'content-type': 'application/json'}
-    data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
-    res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
-    print "submitting: %s" % submission.runfile.name
-    if res.status_code in (200,201):
-        data = res.json()
-        submission.execution_key = data['Id']
-        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+    # Make a directory for the run
+    job_dir = os.path.join(tempfile.gettempdir(), base_dir)
+    print "Job Dir: %s" % job_dir
+    if not os.path.exists(job_dir):
+        os.makedirs(job_dir)
     else:
-        submission.set_status(models.CompetitionSubmissionStatus.FAILED)
+        print "Job dir already exists, clearing it out."
+        os.rmdir(job_dir)
+        os.makedirs(job_dir)
+
+    input_dir = os.path.join(job_dir, "input")
+    output_dir = os.path.join(job_dir, "output")
+    program_dir = os.path.join(job_dir, "program")
+
+    # Make the run/output directory
+    for d in [os.path.join(input_dir, "ref"), os.path.join(input_dir, "res"), program_dir, output_dir]:
+        os.makedirs(d)
+
+    # Grab the program bundle, unpack it in the run/program directory
+    pzip = zipfile.ZipFile(io.BytesIO(submission.phase.scoring_program.read()))
+    pzip.extractall(os.path.join(job_dir, "program"))
+    metadata = open(os.path.join(program_dir, "metadata")).readlines()
+    for line in metadata:
+        print line
+        key, value = line.split(":")
+        if "command" in key.lower():
+            for cmdterm in value.split(" "):
+                if "$program" in cmdterm:
+                    prefix, cmd = cmdterm.split("/")
+                    print cmd
+    command = os.path.join(program_dir, cmd)
+
+    # Grab the reference bundle, unpack in the run/input directory
+    rzip = zipfile.ZipFile(io.BytesIO(submission.phase.reference_data.read()))
+    rzip.extractall(os.path.join(job_dir, "input", "ref"))
+
+    # Grab the submission bundle, unpack it in the directory
+    szip = zipfile.ZipFile(io.BytesIO(submission.file.read()))
+    szip.extractall(os.path.join(job_dir, "input", "res"))
+
+    submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
     submission.save()
+
+    # Execute the job
+    stdout_fn = os.path.join(output_dir, "stdout.txt")
+    stderr_fn = os.path.join(output_dir, "stderr.txt")
+    score_fn  = os.path.join(output_dir, "scores.txt")
+    stdout_file = open(stdout_fn, 'wb')
+    stderr_file = open(stderr_fn, 'wb')
+    subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
+    stdout_file.close()
+    stderr_file.close()
+
+    # Pack up the output and store it in Azure.
+    bytes = StringIO.StringIO()
+    ozip = zipfile.ZipFile(bytes, 'w')
+    ozip.write(score_fn, "scores.txt")
+    ozip.close()
+    bytes.seek(0)
+
+    submission.output_file.save("output.zip", File(bytes))
+    submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
+    submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
+
+
+def submission_get_status(submission_id):
+    if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        return json.loads("{ \"Status\": \"Finished\" }")
+
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    if submission.execution_key:
+        res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
+        if res.status_code in (200,):
+            return res.json()
+    return None
+
+@celery.task(name='competition.submission_run')
+def submission_run(url, submission_id):
+    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
+    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+
+    if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+        submission.save()
+        local_run(url, submission)
+        submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
+        submission.save()
+    else:
+        program = submission.phase.scoring_program.name
+        dataset = submission.phase.reference_data.name
+
+        # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
+        inputfile = ContentFile(
+    """ref: %s
+    res: %s
+    """ % (dataset, submission.file.name))   
+        submission.inputfile.save('input.txt', inputfile)
+        # Generate run bundle, which binds the input bundle to the scoring program
+        runfile = ContentFile(
+    """program: %s
+    input: %s
+    """ % (program, submission.inputfile.name))
+        submission.runfile.save('run.txt', runfile)
+        # Log start of evaluation to stdout.txt
+        stdoutfile = ContentFile(
+    """Standard output file for submission #%s:
+
+    """ % (submission.submission_number))
+        submission.stdout_file.save('run/stdout.txt', stdoutfile)
+        submission.save()
+        # Submit the request to the computation service
+        headers = {'content-type': 'application/json'}
+        data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
+        res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
+        print "submitting: %s" % submission.runfile.name
+        if res.status_code in (200,201):
+            data = res.json()
+            submission.execution_key = data['Id']
+            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
+        else:
+            submission.set_status(models.CompetitionSubmissionStatus.FAILED)
+        submission.save()
     submission_get_results.delay(submission.pk,1)
     return submission.pk
 
@@ -70,7 +163,7 @@ def submission_get_results(submission_id,ct):
         # return None to indicate bailing on checking
         return (submission.pk,ct,'limit_exceeded',None)
     # Get status of computation from the computation engine
-    status = submission.get_execution_status()
+    status = submission_get_status(submission_id)
     print "Computation status: %s" % str(status)
     if status:
         if status['Status'] in ("Submitted"):
@@ -107,11 +200,12 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         for line in scores.split("\n"):
             if len(line) > 0:
                 label, value = line.split(":")
+                print "Processing |%s| => %s" % (label, value)
                 try:
                     scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
                     models.SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))                    
                 except models.SubmissionScoreDef.DoesNotExist as e:
-                    print "Score %s does not exist" % label
+                    print "Score '%s' does not exist" % label
                     pass
         print "Done processing scores..."
     elif state == 'limit_exceeded':
