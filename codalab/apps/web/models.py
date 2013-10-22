@@ -586,7 +586,7 @@ class CompetitionSubmission(models.Model):
             raise Exception("Competition for phase and participant must be the same")
         # only at save on object creation should it be submitted
         if not self.pk:
-            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
             if subnum is not None:
                 self.submission_number = subnum + 1
             else:
