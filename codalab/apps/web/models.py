@@ -612,7 +612,10 @@ class CompetitionSubmission(models.Model):
         self.file_url_base = self.file.storage.url('')
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        print "Submission id/pk: %d" % res
+        if res not None:
+            print "Submission id/pk: %d" % res
+        else:
+            print "Super save returned None."
         if self._do_submission:
             print "Sending signal to execute the submission scoring."
             signals.do_submission.send(sender=CompetitionSubmission, instance=self)
