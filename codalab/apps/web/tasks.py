@@ -127,12 +127,14 @@ def submission_run(url, submission_id):
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
 
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        print "Running locally."
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
         local_run(url, submission)
         submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
         submission.save()
     else:
+        print "Running against remote execution engine."
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
 
@@ -155,9 +157,12 @@ input: %s
 """ % (submission.submission_number))
         submission.stdout_file.save('stdout.txt', stdoutfile)
         submission.save()
+        print "Generated files for input and run"
+
         # Submit the request to the computation service
         headers = {'content-type': 'application/json'}
         data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
+        print "Posting request to remote execution engine."
         res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
         print "submitting: %s" % submission.runfile.name
         print "status: %d" % res.status_code
@@ -165,10 +170,14 @@ input: %s
         if res.status_code in (200,201):
             data = res.json()
             submission.execution_key = data['Id']
+            print "Setting status to submitted."
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         else:
+            print "Setting status to failed."
             submission.set_status(models.CompetitionSubmissionStatus.FAILED)
+        print "Saving submission."
         submission.save()
+    print "Kicking of results retrieval task."
     submission_get_results.delay(submission.pk,1)
     return submission.pk
 
