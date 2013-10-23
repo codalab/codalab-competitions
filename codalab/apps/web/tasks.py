@@ -93,7 +93,7 @@ def local_run(url, submission):
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
-
+@task(competition.
 def submission_get_status(submission_id):
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
         return json.loads("{ \"Status\": \"Finished\" }")
@@ -156,11 +156,14 @@ input: %s
 
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
+    print "%s: started" % __name__
     # TODO: Refactor
     # Hard-coded limits for now
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    print "Got submission %d." % submission_id
     if ct > 1000:
         # return None to indicate bailing on checking
+        print "Exceeded check count, not retrieving results for submission %d" % submission_id
         return (submission.pk,ct,'limit_exceeded',None)
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
