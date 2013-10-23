@@ -93,7 +93,6 @@ def local_run(url, submission):
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
-@task(competition.
 def submission_get_status(submission_id):
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
         return json.loads("{ \"Status\": \"Finished\" }")
