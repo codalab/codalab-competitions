@@ -94,14 +94,31 @@ def local_run(url, submission):
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
 def submission_get_status(submission_id):
+    """
+    Check on the status of a submission to the execution engine. If the submission was run locally, short circuit because it's finished.
+    """
+    # Handle the local execution case,  short-circuit and return Finished.
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        print "%s: Local Execution, returning finished." % __name__
         return json.loads("{ \"Status\": \"Finished\" }")
 
+    # Get the submission object
+    print "%s: Retrieving submission object for id: %s" % (__name__, submission_id)
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+
+    # If the submission object has an execution key, retrieve the status and return the json
     if submission.execution_key:
+        print "%s: Submission has an execution key, retrieving status from execution engine." % __name__
         res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
         if res.status_code in (200,):
+            print "%s: Submission status retrieved successfully." % __name__
+            print "Status: %s" % res.json()
             return res.json()
+        else:
+            print "%s: Submission status not retreived succesfully." % __name__
+            print "Status: %s\n%s" % (res.status_code, res.json())
+
+    # Otherwise return None
     return None
 
 @celery.task(name='competition.submission_run')
@@ -143,6 +160,8 @@ input: %s
         data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
         res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
         print "submitting: %s" % submission.runfile.name
+        print "status: %d" % res.status_code
+        print "%s" % res.json()
         if res.status_code in (200,201):
             data = res.json()
             submission.execution_key = data['Id']
