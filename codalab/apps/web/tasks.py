@@ -93,16 +93,32 @@ def local_run(url, submission):
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
-
 def submission_get_status(submission_id):
+    """
+    Check on the status of a submission to the execution engine. If the submission was run locally, short circuit because it's finished.
+    """
+    # Handle the local execution case,  short-circuit and return Finished.
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        print "%s: Local Execution, returning finished." % __name__
         return json.loads("{ \"Status\": \"Finished\" }")
 
+    # Get the submission object
+    print "%s: Retrieving submission object for id: %s" % (__name__, submission_id)
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+
+    # If the submission object has an execution key, retrieve the status and return the json
     if submission.execution_key:
+        print "%s: Submission has an execution key, retrieving status from execution engine." % __name__
         res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
         if res.status_code in (200,):
+            print "%s: Submission status retrieved successfully." % __name__
+            print "Status: %s" % res.json()
             return res.json()
+        else:
+            print "%s: Submission status not retreived succesfully." % __name__
+            print "Status: %s\n%s" % (res.status_code, res.json())
+
+    # Otherwise return None
     return None
 
 @celery.task(name='competition.submission_run')
@@ -111,12 +127,14 @@ def submission_run(url, submission_id):
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
 
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
+        print "Running locally."
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
         local_run(url, submission)
         submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
         submission.save()
     else:
+        print "Running against remote execution engine."
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
 
@@ -139,39 +157,48 @@ input: %s
 """ % (submission.submission_number))
         submission.stdout_file.save('stdout.txt', stdoutfile)
         submission.save()
+        print "Generated files for input and run"
+
         # Submit the request to the computation service
         headers = {'content-type': 'application/json'}
         data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
+        print "Posting request to remote execution engine."
         res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
         print "submitting: %s" % submission.runfile.name
+        print "status: %d" % res.status_code
+        print "%s" % res.json()
         if res.status_code in (200,201):
             data = res.json()
             submission.execution_key = data['Id']
+            print "Setting status to submitted."
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         else:
+            print "Setting status to failed."
             submission.set_status(models.CompetitionSubmissionStatus.FAILED)
+        print "Saving submission."
         submission.save()
+    print "Kicking of results retrieval task."
     submission_get_results.delay(submission.pk,1)
     return submission.pk
 
+
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
+    print "%s: started" % __name__
     # TODO: Refactor
     # Hard-coded limits for now
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    if ct > 1000:
-        # return None to indicate bailing on checking
-        return (submission.pk,ct,'limit_exceeded',None)
+    print "Got submission %d." % submission_id
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
     print "Computation status: %s" % str(status)
     if status:
         if status['Status'] in ("Submitted"):
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
-            return (submission.pk, ct+1, 'rerun', None)
+            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))
         if status['Status'] in ("Running"):
             submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
-            return (submission.pk, ct+1, 'rerun', None)
+            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))        
         elif status['Status'] == "Finished":
             submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
             return (submission.pk, ct, 'complete', status)
@@ -180,15 +207,12 @@ def submission_get_results(submission_id,ct):
             return (submission.pk, ct, 'failed', status)
     else:
         return (submission.pk,ct,'failure',None)
-    
+
 @task_success.connect(sender=submission_get_results)
 def submission_results_success_handler(sender,result=None,**kwargs):
     submission_id,ct,state,status = result
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    if state == 'rerun':
-        print "Querying for results again"
-        submission_get_results.apply_async((submission_id,ct),countdown=5)
-    elif state == 'complete':
+    if state == 'complete':
         print "Run is complete (submission.id: %s)" % submission.id
         submission.output_file.name = models.submission_file_blobkey(submission)
         submission.stderr_file.name = models.submission_stderr_filename(submission)
@@ -208,9 +232,6 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                     print "Score '%s' does not exist" % label
                     pass
         print "Done processing scores..."
-    elif state == 'limit_exceeded':
-        print "Run limit, or time limit exceeded."
-        raise Exception("Computation exceeded its allotted time quota.")
     else:
         raise Exception("An unexpected error has occurred.")
 
