@@ -181,6 +181,7 @@ input: %s
     submission_get_results.delay(submission.pk,1)
     return submission.pk
 
+
 @celery.task(name='competition.submission_get_results')
 def submission_get_results(submission_id,ct):
     print "%s: started" % __name__
@@ -188,20 +189,16 @@ def submission_get_results(submission_id,ct):
     # Hard-coded limits for now
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     print "Got submission %d." % submission_id
-    if ct > 1000:
-        # return None to indicate bailing on checking
-        print "Exceeded check count, not retrieving results for submission %d" % submission_id
-        return (submission.pk,ct,'limit_exceeded',None)
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
     print "Computation status: %s" % str(status)
     if status:
         if status['Status'] in ("Submitted"):
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
-            return (submission.pk, ct+1, 'rerun', None)
+            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))
         if status['Status'] in ("Running"):
             submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
-            return (submission.pk, ct+1, 'rerun', None)
+            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))        
         elif status['Status'] == "Finished":
             submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
             return (submission.pk, ct, 'complete', status)
@@ -210,15 +207,12 @@ def submission_get_results(submission_id,ct):
             return (submission.pk, ct, 'failed', status)
     else:
         return (submission.pk,ct,'failure',None)
-    
+
 @task_success.connect(sender=submission_get_results)
 def submission_results_success_handler(sender,result=None,**kwargs):
     submission_id,ct,state,status = result
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    if state == 'rerun':
-        print "Querying for results again"
-        submission_get_results.apply_async((submission_id,ct),countdown=5)
-    elif state == 'complete':
+    if state == 'complete':
         print "Run is complete (submission.id: %s)" % submission.id
         submission.output_file.name = models.submission_file_blobkey(submission)
         submission.stderr_file.name = models.submission_stderr_filename(submission)
@@ -238,9 +232,6 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                     print "Score '%s' does not exist" % label
                     pass
         print "Done processing scores..."
-    elif state == 'limit_exceeded':
-        print "Run limit, or time limit exceeded."
-        raise Exception("Computation exceeded its allotted time quota.")
     else:
         raise Exception("An unexpected error has occurred.")
 
