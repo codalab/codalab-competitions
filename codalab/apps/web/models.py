@@ -612,7 +612,7 @@ class CompetitionSubmission(models.Model):
         self.file_url_base = self.file.storage.url('')
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        if res not None:
+        if res is not None:
             print "Submission id/pk: %d" % res
         else:
             print "Super save returned None."
