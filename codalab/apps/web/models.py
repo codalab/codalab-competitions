@@ -582,24 +582,42 @@ class CompetitionSubmission(models.Model):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
     def save(self,*args,**kwargs):
+        print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
+
+        print "Checking that this is a new submission."
         # only at save on object creation should it be submitted
         if not self.pk:
-            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+            print "This is a new submission, getting the submission number."
+            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
             if subnum is not None:
                 self.submission_number = subnum + 1
             else:
                 self.submission_number = 1
+            print "This is submission number %d" % self.submission_number
+
             if (self.submission_number > self.phase.max_submissions):
+                print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
                 raise PermissionDenied("The maximum number of submissions has been reached.")
+            else:
+                print "Submission number below maximum."
+
+            print "Setting flags and status so this gets executed."
             self._do_submission = True
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
         else:
             self._do_submission = False
+        print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
+        print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
+        if res is not None:
+            print "Submission id/pk: %d" % res
+        else:
+            print "Super save returned None."
         if self._do_submission:
+            print "Sending signal to execute the submission scoring."
             signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
