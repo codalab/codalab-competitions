@@ -586,7 +586,6 @@ class CompetitionSubmission(models.Model):
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
-        print "Checking that this is a new submission."
         # only at save on object creation should it be submitted
         if not self.pk:
             print "This is a new submission, getting the submission number."
@@ -607,15 +606,15 @@ class CompetitionSubmission(models.Model):
             self._do_submission = True
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
         else:
+            print "This is saving an old submission."
             self._do_submission = False
+
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
+
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        if res is not None:
-            print "Submission id/pk: %d" % res
-        else:
-            print "Super save returned None."
+
         if self._do_submission:
             print "Sending signal to execute the submission scoring."
             signals.do_submission.send(sender=CompetitionSubmission, instance=self)

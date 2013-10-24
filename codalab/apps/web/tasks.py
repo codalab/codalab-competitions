@@ -181,8 +181,7 @@ input: %s
     submission_get_results.delay(submission.pk,1)
     return submission.pk
 
-
-@celery.task(name='competition.submission_get_results')
+@celery.task(name='competition.submission_get_results', max_retries=50, default_retry_delay=15)
 def submission_get_results(submission_id,ct):
     print "%s: started" % __name__
     # TODO: Refactor
