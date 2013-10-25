@@ -70,10 +70,9 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
         form.instance.owner = self.request.user
         form.instance.created_at = datetime.datetime.now()
         if form.is_valid():
-            cb = form.save(commit=False)
-            cb.save()
+            cb = form.save()
             # Disptch celery task to unpack competition bundle and create it
-            tasks.create_competition_from_bundle.delay(cb.id)
+            # tasks.create_competition_from_bundle.delay(cb.id)
             # Go back to the list of competitions
             # TODO: poll to see if create is finished and redirect to new competition
             #return(HttpResponseRedirect('/competitions/%d' % c.pk))    
