@@ -12,6 +12,7 @@ import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -389,9 +390,7 @@ class CompetitionPhase(models.Model):
             pass
         return ("{:." + str(p) + "f}").format(v)
 
-
     def scores(self,**kwargs):
-
         score_filters = kwargs.pop('score_filters',{})
 
         # Get the list of submissions in this leaderboard
@@ -640,7 +639,6 @@ class CompetitionSubmission(models.Model):
         if force_save:
             self.save()
 
-
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
     tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
@@ -844,6 +842,12 @@ class CompetitionDefBundle(models.Model):
         print "Added owner as participant."
 
         return comp
+
+def unpack_competition_task(sender, **kwargs):
+    instance = kwargs['instance']
+    print "Got signal, creating competition (%d)" % instance.id
+    #tasks.create_competition_from_bundle.apply_async((instance,), {'countdown' : 5})
+post_save.connect(unpack_competition_task, sender=CompetitionDefBundle)
 
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)

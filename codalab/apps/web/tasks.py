@@ -281,7 +281,7 @@ def echo(msg):
     print "Echoing %s" % (msg)
 
 @celery.task()
-def create_competition_from_bundle(comp_def_id):
+def create_competition_from_bundle(competition_bundle):
     """
     create_competition_from_bundle(competition_definition_bundle_id):
 
@@ -289,7 +289,5 @@ def create_competition_from_bundle(comp_def_id):
     The result is a competition created in CodaLab that's ready to use.
     """
     print "Creating competition for new competition bundle."
-    # Pull the competition from the database using the id passed in
-    competition_def = models.CompetitionDefBundle.objects.get(pk=comp_def_id)
-    return competition_def.unpack()
+    return competition_bundle.unpack()
 
