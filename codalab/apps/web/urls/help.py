@@ -7,4 +7,5 @@ urlpatterns = patterns('',
                        url(r'^about.html', TemplateView.as_view(template_name='web/help/about.html'), name='about'),
                        url(r'^create_competition$', TemplateView.as_view(template_name='web/help/create_competition.html'), name='help_create_competition'),
                        url(r'^configure_azure$', TemplateView.as_view(template_name='web/help/create_configure_azure.html'), name='help_configure_azure'),
+                       url(r'^yaml_reference$', TemplateView.as_view(template_name='web/help/yaml_reference.html'), name='yaml_reference'),
 )
