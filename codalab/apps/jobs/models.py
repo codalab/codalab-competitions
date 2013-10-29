@@ -22,18 +22,17 @@ def getQueue(name=None):
     Returns a Queue given its name.
     """
     if name is None:
-        name = "_default_site_queue"
+        name = settings.SBS_RESPONSE_QUEUE
     if name in _queues:
         return _queues[name]
 
     queue = None
     with _lock:
-        if name == "_default_site_queue":
-            queue = AzureServiceBusQueue(settings.SBS_NAMESPACE,
-                                         settings.SBS_ACCOUNT_KEY,
-                                         settings.SBS_ISSUER,
-                                         settings.SBS_RESPONSE_QUEUE)
-            _queues[name] = queue
+        queue = AzureServiceBusQueue(settings.SBS_NAMESPACE,
+                                     settings.SBS_ACCOUNT_KEY,
+                                     settings.SBS_ISSUER,
+                                     name)
+        _queues[name] = queue
 
     return queue
 
@@ -141,7 +140,8 @@ def update_job_status_task(job_id, args):
         args['status']: friendly code name of the new status
     """
     status_code_name = args['status']
-    logger.debug("Starting request to update job (id=%s) with new status name=%s", job_id, status_code_name)
+    logger.debug("Starting request to update job (id=%s) with new status (status_code_name=%s)",
+                 job_id, status_code_name)
     status = Job.STATUS_BY_CODE_NAME[status_code_name]
     with transaction.commit_on_success():
         job = Job.objects.select_for_update().get(pk=job_id)
@@ -150,39 +150,35 @@ def update_job_status_task(job_id, args):
             job.save()
             logger.info("Completed update for job id=%s. New status=%s.", job_id, job.status)
         else:
-            logger.info("Skipping update for job id=%s: invalid transition %s -> %s.", job_id, job.status, status)
+            logger.warning("Skipping update for job id=%s: invalid transition %s -> %s.", job_id, job.status, status)
 
-def run_job_task(job_id, computation):
+def run_job_task(job_id, computation, handle_exception=None):
     """
-    Runs the task associated with a job. If the computation succeeds (runs to completion without
-    raising an exception), then the job status is updated with the status code returned by the
-    computation, but if the computation fails then the job status is set to Failed.
+    Runs the computation associated with a job. If the computation succeeds (runs to completion without
+    raising an exception), then the job status is updated with the status code returned by the computation.
+    But if the computation fails then handle_exception is invoked and the status code returned by
+    handle_exception is used to update the job status. If an excpeption handler is not provided, the job
+    status is automatically set to Failed.
 
     job_id: The ID of the job.
     computation: The function invoked to run the task: new_status_code = computation(job).
+    handle_exception: An optional exception handler: new_status = handle_exception(job, ex), where job
+        is the current job object and ex is the exception which was caught.
     """
     logger.debug("Entering run_job_task (job_id=%s).", job_id)
     try:
         job = Job.objects.get(pk=job_id)
         new_status = computation(job)
-        logger.debug("Task execution succeeded (job_id=%s, new_status=%s).", job_id, new_status)
-        update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[new_status]['code_name'] })
-    except:
+        logger.debug("Task execution succeeded (job_id=%s, new_status=%s).",
+                     job_id, "unchanged" if new_status is None else new_status)
+        if new_status is not None:
+            update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[new_status]['code_name'] })
+    except Exception as ex:
         logger.exception("An error occurred during task execution (job_id=%s).", job_id)
-        update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[Job.FAILED]['code_name'] })
-
-# DbMessage, DbMessageQueue
-# DbMessage.objects.filter(read=False).order_by('pk')[0:1].get()
-#    @staticmethod
-#    def _get_next_dbmessage():
-#        """
-#        Gets the next message from the DbMessageQueue.
-#        """
-#        msg = None
-#        try:
-#            msg = DbMessage.objects.filter(read=False).order_by('pk')[0:1].get()
-#        except DbMessage.DoesNotExist:
-#            pass
-#        except:
-#            traceback.print_exc()
-#        return msg
+        new_status = Job.FAILED
+        if handle_exception is not None:
+            new_status = handle_exception(job, ex)
+            logger.debug("Task exception has been handled (job_id=%s, new_status=%s).",
+                         job_id, "unchanged" if new_status is None else new_status)
+        if new_status is not None:
+            update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[new_status]['code_name'] })

@@ -6,13 +6,13 @@ from os.path import abspath, basename, dirname, join, normpath
 import zipfile
 import yaml
 import tempfile
-import requests
 import datetime
 import django.dispatch
 import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -26,9 +26,6 @@ from django.contrib.contenttypes import generic
 
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
-
-import signals
-import tasks
 
 ## Needed for computation service handling
 ## Hack for now
@@ -266,54 +263,29 @@ def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_root(instance):
-    return "competition/%d/%d/submissions/%d/%d" % (instance.phase.competition.pk,
-                                                    instance.phase.pk,
-                                                    instance.participant.user.pk,
-                                                    instance.submission_number)
+    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk), 
+                        "submissions", str(instance.participant.user.pk), str(instance.submission_number))
 
 def submission_file_name(instance, filename="predictions.zip"):
-    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                                    instance.phase.pk,
-                                                                    instance.participant.user.pk,
-                                                                    instance.submission_number,
-                                                                    filename)
-def submission_inputfile_name(instance, filename="input.txt"):
-     return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                               instance.phase.pk,
-                                                               instance.participant.user.pk,
-                                                               instance.submission_number,
-                                                               filename)
-def submission_runfile_name(instance, filename="run.txt"):
-    return "competition/%d/%d/submissions/%d/%d/%s" % (instance.phase.competition.pk,
-                                                            instance.phase.pk,
-                                                            instance.participant.user.pk,
-                                                            instance.submission_number,
-                                                            filename)
+    return os.path.join(submission_root(instance), filename)
 
-def submission_output_filename(instance,filename="output.zip"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
-def submission_stdout_filename(instance,filename="stdout.txt"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
-def submission_stderr_filename(instance,filename="stderr.txt"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                                   instance.phase.pk,
-                                                                   instance.participant.user.pk,
-                                                                   instance.submission_number,
-                                                                   filename)
+def submission_inputfile_name(instance, filename="input.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_runfile_name(instance, filename="run.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_output_filename(instance, filename="output.zip"):
+    return os.path.join(submission_root(instance), "run", filename)
+
+def submission_stdout_filename(instance, filename="stdout.txt"):
+    return os.path.join(submission_root(instance), "run", filename)
+
+def submission_stderr_filename(instance, filename="stderr.txt"):
+    return os.path.join(submission_root(instance), "run", filename)
+
 def submission_file_blobkey(instance, filename="output.zip"):
-    return "competition/%d/%d/submissions/%d/%d/run/%s" % (instance.phase.competition.pk,
-                                                       instance.phase.pk,
-                                                       instance.participant.user.pk,
-                                                       instance.submission_number,
-                                                       filename)
+    return os.path.join(submission_root(instance), "run", filename)
 
 # Competition Phase 
 class CompetitionPhase(models.Model):
@@ -415,9 +387,7 @@ class CompetitionPhase(models.Model):
             pass
         return ("{:." + str(p) + "f}").format(v)
 
-
     def scores(self,**kwargs):
-
         score_filters = kwargs.pop('score_filters',{})
 
         # Get the list of submissions in this leaderboard
@@ -598,7 +568,6 @@ class CompetitionSubmission(models.Model):
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     _fileobj = None
-    _do_submission = False
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -607,25 +576,36 @@ class CompetitionSubmission(models.Model):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
     def save(self,*args,**kwargs):
+        print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
+
         # only at save on object creation should it be submitted
         if not self.pk:
-            subnum = CompetitionSubmission.objects.select_for_update().filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+            print "This is a new submission, getting the submission number."
+            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
             if subnum is not None:
                 self.submission_number = subnum + 1
             else:
                 self.submission_number = 1
+            print "This is submission number %d" % self.submission_number
+
             if (self.submission_number > self.phase.max_submissions):
+                print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
                 raise PermissionDenied("The maximum number of submissions has been reached.")
-            self._do_submission = True
+            else:
+                print "Submission number below maximum."
+
+            print "Setting flags and status so this gets executed."
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
         else:
-            self._do_submission = False
+            print "This is saving an old submission."
+
+        print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
+
+        print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        if self._do_submission:
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
     def file_url(self):
@@ -643,22 +623,10 @@ class CompetitionSubmission(models.Model):
             return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
         return None
 
-    def get_execution_status(self):
-        if self.execution_key:
-            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
-            if res.status_code in (200,):
-                return res.json()
-        return None
-
-    def set_status(self,status,force_save=False):
+    def set_status(self, status, force_save=False):
         self.status = CompetitionSubmissionStatus.objects.get(codename=status)
         if force_save:
             self.save()
-
-
-@receiver(signals.do_submission)
-def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
 
 class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
@@ -728,9 +696,6 @@ class CompetitionDefBundle(models.Model):
         print "Created base competition."
 
         # Unpack and save the logo
-        comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
-        if not os.path.exists(comp_root):
-            os.makedirs(comp_root)
         comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
         comp.save()
         print "Saved competition logo."
@@ -763,9 +728,6 @@ class CompetitionDefBundle(models.Model):
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             print "Created base phase object."
-            phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
-            if not os.path.exists(phase_path):
-                os.makedirs(phase_path)
             # Evaluation Program
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
@@ -791,7 +753,7 @@ class CompetitionDefBundle(models.Model):
             if 'leaderboards' in comp_spec['leaderboard']:
                 leaderboards = {}
                 for key, value in comp_spec['leaderboard']['leaderboards'].items():
-                    rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'], label=value['label'], ordering=value['rank'])
+                    rg,cr = SubmissionResultGroup.objects.get_or_create(competition=comp, key=value['label'].strip(), label=value['label'].strip(), ordering=value['rank'])
                     leaderboards[rg.label] = rg
                     for gp in comp.phases.all():
                         rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
@@ -803,7 +765,7 @@ class CompetitionDefBundle(models.Model):
                 for key, vals in comp_spec['leaderboard']['column_groups'].items():
                     if vals is None:
                         vals = dict()
-                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key, defaults=vals)
+                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=vals)
                     groups[s.label] = s
             print "Created score groups."
 
@@ -814,7 +776,7 @@ class CompetitionDefBundle(models.Model):
                     # Create the score definition
                     is_computed = 'computed' in vals
                     sdefaults = {
-                                    'label' : "" if 'label' not in vals else vals['label'],
+                                    'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : not is_computed,
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort']

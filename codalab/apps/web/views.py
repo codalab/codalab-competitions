@@ -70,10 +70,9 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
         form.instance.owner = self.request.user
         form.instance.created_at = datetime.datetime.now()
         if form.is_valid():
-            cb = form.save(commit=False)
-            cb.save()
+            cb = form.save()
             # Disptch celery task to unpack competition bundle and create it
-            tasks.create_competition_from_bundle.delay(cb.id)
+            tasks.create_competition(cb.id)
             # Go back to the list of competitions
             # TODO: poll to see if create is finished and redirect to new competition
             #return(HttpResponseRedirect('/competitions/%d' % c.pk))    
@@ -228,6 +227,7 @@ class CompetitionResultsDownload(View):
                     
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
+
         return response
 
 ### Views for My Codalab
@@ -337,7 +337,7 @@ class VersionView(TemplateView):
         out, err = p.communicate()
         ctx = super(VersionView,self).get_context_data()
         ctx['commit_hash'] = out
-        tasks.echo.delay("version is " + out)
+        tasks.echo("version is " + out)
         return ctx
 
 # Bundle Views
@@ -355,7 +355,7 @@ class BundleCreateView(CreateView):
     def form_valid(self, form):
         f = form.save(commit=False)
         f.save()
-        tasks.create_directory.delay(f.id)
+        # tasks.create_directory.delay(f.id)
         return HttpResponseRedirect('/bundles')
   
 class BundleDetailView(DetailView):
@@ -387,5 +387,5 @@ class RunDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
+
         return context
-        

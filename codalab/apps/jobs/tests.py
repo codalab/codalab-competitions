@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from apps.jobs import models
-from apps.jobs.models import Job
+from apps.jobs.models import Job, run_job_task
 
 class JobsTests(TestCase):
     """
@@ -122,8 +122,8 @@ class JobsTests(TestCase):
             return a_job.updated
 
         job = Job.objects.create()
-        self.assertEqual(job.status, Job.PENDING)
         self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
         last_updated = last_update_of(job)
         # pending -> running
         job = single_run(job.id, { 'status': 'running' })
@@ -139,4 +139,48 @@ class JobsTests(TestCase):
         job = single_run(job.id, { 'status': 'running' })
         self.assertEqual(job.status, Job.FINISHED)
         self.assertEqual(job.updated, last_updated)
+        job.delete()
+
+    def test_run_job_task1(self):
+        """Exercise basics of run_job_task function: no exceptions."""
+        job = Job.objects.create()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
+        run_job_task(job.id, lambda ajob : Job.RUNNING)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
+        run_job_task(job.id, lambda ajob : Job.FINISHED)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.FINISHED)
+        job.delete()
+
+    @staticmethod
+    def _comp_with_ex(ajob):
+        """Sample computation raising an exception."""
+        raise Exception(ajob)
+
+    def _ex_handler(self, ajob, aex):
+        """Sample exception handler"""
+        self.assertIsNotNone(aex.args[0])
+        self.assertEquals(ajob, aex.args[0])
+        return Job.RUNNING
+
+    def test_run_job_task2(self):
+        """Exercise basics of run_job_task function: exception no handler."""
+        job = Job.objects.create()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
+        run_job_task(job.id, JobsTests._comp_with_ex)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.FAILED)
+        job.delete()
+
+    def test_run_job_task3(self):
+        """Exercise basics of run_job_task function: exception with handler."""
+        job = Job.objects.create()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
+        run_job_task(job.id, JobsTests._comp_with_ex, self._ex_handler)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
+        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: None)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
+        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: Job.FAILED)
+        self.assertEqual(Job.objects.get(pk=job.id).status, Job.FAILED)
         job.delete()
