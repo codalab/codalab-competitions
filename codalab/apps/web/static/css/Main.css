@@ -2443,6 +2443,14 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .side-nav a {
     font-weight: normal;
 }
+.slider h1 {
+    font-family: 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    color: #FFF;
+    font-size: 1.1em;
+    letter-spacing: -2px;
+    margin: 0;
+}
 .mini_avatar {
     margin: -6px 6px 0 30px;
     padding: 0;

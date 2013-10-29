@@ -193,6 +193,8 @@ There are several applications of a worksheet:
 
 ## Competition
 
+THIS NEEDS TO BE UPDATED WITH CURRENT IMPLEMENTATION DETAILS
+
 Any user can create a competition.  He has to supply the following:
 - Deadline dates (when datasets will be released, etc.)
 - Multiple datasets (one for training, one for testing)
