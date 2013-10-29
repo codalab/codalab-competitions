@@ -70,8 +70,7 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
         form.instance.owner = self.request.user
         form.instance.created_at = datetime.datetime.now()
         if form.is_valid():
-            cb = form.save(commit=False)
-            cb.save()
+            cb = form.save()
             # Disptch celery task to unpack competition bundle and create it
             tasks.create_competition(cb.id)
             # Go back to the list of competitions
@@ -228,6 +227,7 @@ class CompetitionResultsDownload(View):
                     
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
+
         return response
 
 ### Views for My Codalab
@@ -387,5 +387,5 @@ class RunDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RunDetailView, self).get_context_data(**kwargs)
+
         return context
-        

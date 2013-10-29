@@ -3915,42 +3915,30 @@ button.large, .button.large {
 @media only screen {
   /* line 207, ../sass/foundation/components/_buttons.scss */
   button, .button {
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
     -webkit-transition: background-color 300ms ease-out;
     -moz-transition: background-color 300ms ease-out;
     transition: background-color 300ms ease-out;
   }
-  /* line 214, ../sass/foundation/components/_buttons.scss */
+  /* line 68, ../sass/foundation/components/_global.scss */
+  button:active, .button:active {
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
+  }
+  /* line 215, ../sass/foundation/components/_buttons.scss */
   button.radius, .button.radius {
     -webkit-border-radius: 3px;
     border-radius: 3px;
   }
-  /* line 215, ../sass/foundation/components/_buttons.scss */
+  /* line 216, ../sass/foundation/components/_buttons.scss */
   button.round, .button.round {
-    -webkit-border-radius: 1000px;
-    border-radius: 1000px;
-  }
-
-  /* line 218, ../sass/foundation/components/_buttons.scss */
-  button.selected, .button.selected {
-    background-color: #739CB9;
-    border-color: #5384a6;
-    -webkit-transition: background-color 300ms ease-out;
-    -moz-transition: background-color 300ms ease-out;
-    transition: background-color 300ms ease-out;
-  }
-  /* line 227, ../sass/foundation/components/_buttons.scss */
-  button.selected.radius, .button.selected.radius {
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-  }
-  /* line 228, ../sass/foundation/components/_buttons.scss */
-  button.selected.round, .button.selected.round {
     -webkit-border-radius: 1000px;
     border-radius: 1000px;
   }
 }
 @media only screen and (min-width: 768px) {
-  /* line 236, ../sass/foundation/components/_buttons.scss */
+  /* line 224, ../sass/foundation/components/_buttons.scss */
   button, .button {
     display: inline-block;
   }
@@ -7321,13 +7309,13 @@ label.error {
 }
 
 /* Custom Checkbox and Radio Inputs */
-/* line 62, ../sass/foundation/components/_custom-forms.scss */
+/* line 67, ../sass/foundation/components/_custom-forms.scss */
 form.custom .hidden-field {
   margin-left: -99999px;
   position: absolute;
   visibility: hidden;
 }
-/* line 68, ../sass/foundation/components/_custom-forms.scss */
+/* line 73, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom {
   display: inline-block;
   width: 16px;
@@ -7339,26 +7327,26 @@ form.custom .custom {
   border: solid 1px #cccccc;
   background: white;
 }
-/* line 78, ../sass/foundation/components/_custom-forms.scss */
+/* line 83, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.checkbox {
   -webkit-border-radius: 0px;
   border-radius: 0px;
-  padding: -1px;
+  padding: 0;
 }
-/* line 82, ../sass/foundation/components/_custom-forms.scss */
+/* line 87, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.radio {
   -webkit-border-radius: 1000px;
   border-radius: 1000px;
   padding: 3px;
 }
-/* line 87, ../sass/foundation/components/_custom-forms.scss */
+/* line 92, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.checkbox:before {
   content: "";
   display: block;
   font-size: 16px;
   color: white;
 }
-/* line 96, ../sass/foundation/components/_custom-forms.scss */
+/* line 101, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.radio.checked:before {
   content: "";
   display: block;
@@ -7369,7 +7357,7 @@ form.custom .custom.radio.checked:before {
   background: #222222;
   position: relative;
 }
-/* line 108, ../sass/foundation/components/_custom-forms.scss */
+/* line 113, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.checkbox.checked:before {
   content: "\00d7";
   color: #222222;
@@ -7381,11 +7369,11 @@ form.custom .custom.checkbox.checked:before {
 }
 
 /* Custom Select Options and Dropdowns */
-/* line 122, ../sass/foundation/components/_custom-forms.scss */
+/* line 127, ../sass/foundation/components/_custom-forms.scss */
 form.custom {
   /* Custom input, disabled */
 }
-/* line 123, ../sass/foundation/components/_custom-forms.scss */
+/* line 128, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown {
   display: block;
   position: relative;
@@ -7404,12 +7392,12 @@ form.custom .custom.dropdown {
   font-size: 0.875em;
   vertical-align: top;
 }
-/* line 143, ../sass/foundation/components/_custom-forms.scss */
+/* line 148, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul {
   overflow-y: auto;
   max-height: 200px;
 }
-/* line 148, ../sass/foundation/components/_custom-forms.scss */
+/* line 153, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .current {
   cursor: default;
   white-space: nowrap;
@@ -7421,7 +7409,7 @@ form.custom .custom.dropdown .current {
   margin-left: 0.5em;
   margin-right: 2.3125em;
 }
-/* line 160, ../sass/foundation/components/_custom-forms.scss */
+/* line 165, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .selector {
   cursor: default;
   position: absolute;
@@ -7431,7 +7419,7 @@ form.custom .custom.dropdown .selector {
   right: 0;
   top: 0;
 }
-/* line 168, ../sass/foundation/components/_custom-forms.scss */
+/* line 173, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .selector:after {
   content: "";
   display: block;
@@ -7447,7 +7435,7 @@ form.custom .custom.dropdown .selector:after {
   top: 50%;
   margin-top: -3px;
 }
-/* line 181, ../sass/foundation/components/_custom-forms.scss */
+/* line 186, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown:hover a.selector:after, form.custom .custom.dropdown.open a.selector:after {
   content: "";
   display: block;
@@ -7457,20 +7445,20 @@ form.custom .custom.dropdown:hover a.selector:after, form.custom .custom.dropdow
   border-color: #222222 transparent transparent transparent;
   border-top-style: solid;
 }
-/* line 185, ../sass/foundation/components/_custom-forms.scss */
+/* line 190, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .disabled {
   color: #888888;
 }
-/* line 187, ../sass/foundation/components/_custom-forms.scss */
+/* line 192, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .disabled:hover {
   background: transparent;
   color: #888888;
 }
-/* line 190, ../sass/foundation/components/_custom-forms.scss */
+/* line 195, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown .disabled:hover:after {
   display: none;
 }
-/* line 194, ../sass/foundation/components/_custom-forms.scss */
+/* line 199, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.open ul {
   display: block;
   z-index: 10;
@@ -7479,44 +7467,44 @@ form.custom .custom.dropdown.open ul {
   -webkit-box-sizing: content-box;
   box-sizing: content-box;
 }
-/* line 201, ../sass/foundation/components/_custom-forms.scss */
+/* line 206, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.small {
   max-width: 134px;
 }
-/* line 202, ../sass/foundation/components/_custom-forms.scss */
+/* line 207, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.medium {
   max-width: 254px;
 }
-/* line 203, ../sass/foundation/components/_custom-forms.scss */
+/* line 208, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.large {
   max-width: 434px;
 }
-/* line 204, ../sass/foundation/components/_custom-forms.scss */
+/* line 209, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.expand {
   width: 100% !important;
 }
-/* line 206, ../sass/foundation/components/_custom-forms.scss */
+/* line 211, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.open.small ul {
   min-width: 134px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 207, ../sass/foundation/components/_custom-forms.scss */
+/* line 212, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.open.medium ul {
   min-width: 254px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 208, ../sass/foundation/components/_custom-forms.scss */
+/* line 213, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown.open.large ul {
   min-width: 434px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 211, ../sass/foundation/components/_custom-forms.scss */
+/* line 216, ../sass/foundation/components/_custom-forms.scss */
 form.custom .error .custom.dropdown {
   border-color: #477473;
   background-color: rgba(71, 116, 115, 0.1);
@@ -7528,11 +7516,11 @@ form.custom .error .custom.dropdown:focus {
   background: #fafafa;
   border-color: #999999;
 }
-/* line 217, ../sass/foundation/components/_custom-forms.scss */
+/* line 222, ../sass/foundation/components/_custom-forms.scss */
 form.custom .error .custom.dropdown + small.error {
   margin-top: 0;
 }
-/* line 221, ../sass/foundation/components/_custom-forms.scss */
+/* line 226, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul {
   position: absolute;
   width: auto;
@@ -7548,7 +7536,7 @@ form.custom .custom.dropdown ul {
   border: solid 1px #cccccc;
   font-size: 16;
 }
-/* line 238, ../sass/foundation/components/_custom-forms.scss */
+/* line 243, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul li {
   color: #555555;
   font-size: 0.875em;
@@ -7563,27 +7551,27 @@ form.custom .custom.dropdown ul li {
   white-space: nowrap;
   list-style: none;
 }
-/* line 252, ../sass/foundation/components/_custom-forms.scss */
+/* line 257, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul li.selected {
   background: #eeeeee;
   color: black;
 }
-/* line 256, ../sass/foundation/components/_custom-forms.scss */
+/* line 261, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul li:hover {
   background-color: #e4e4e4;
   color: black;
 }
-/* line 260, ../sass/foundation/components/_custom-forms.scss */
+/* line 265, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul li.selected:hover {
   background: #eeeeee;
   cursor: default;
   color: black;
 }
-/* line 267, ../sass/foundation/components/_custom-forms.scss */
+/* line 272, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.dropdown ul.show {
   display: block;
 }
-/* line 271, ../sass/foundation/components/_custom-forms.scss */
+/* line 276, ../sass/foundation/components/_custom-forms.scss */
 form.custom .custom.disabled {
   background: #dddddd;
 }
@@ -8558,4 +8546,87 @@ html, body {
   position: relative;
   height: 40px;
   padding: 10px 0;
+}
+
+/* line 20, ../sass/codalab.scss */
+a:focus {
+  outline: none;
+}
+
+/* line 21, ../sass/codalab.scss */
+body {
+  font-size: 100%;
+  overflow: auto;
+}
+
+@media only screen {
+  /* line 26, ../sass/codalab.scss */
+  button, .button {
+    box-shadow: none;
+  }
+
+  /* line 29, ../sass/codalab.scss */
+  button.selected, .button.selected {
+    background-color: #739CB9;
+    border-color: #5384a6;
+  }
+}
+/* Panels */
+/* line 41, ../sass/codalab.scss */
+.panel {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #d1d1d1;
+  margin-bottom: 0px;
+  padding: 1.25em;
+  background: #ebebeb;
+  margin-top: 15px;
+}
+/* line 44, ../sass/foundation/components/_panels.scss */
+.panel > :first-child {
+  margin-top: 0;
+}
+/* line 45, ../sass/foundation/components/_panels.scss */
+.panel > :last-child {
+  margin-bottom: 0;
+}
+/* line 50, ../sass/foundation/components/_panels.scss */
+.panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6, .panel p {
+  color: #555555;
+}
+/* line 54, ../sass/foundation/components/_panels.scss */
+.panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6 {
+  line-height: 1;
+  margin-bottom: 0.625em;
+}
+/* line 56, ../sass/foundation/components/_panels.scss */
+.panel h1.subheader, .panel h2.subheader, .panel h3.subheader, .panel h4.subheader, .panel h5.subheader, .panel h6.subheader {
+  line-height: 1.4;
+}
+
+/* line 85, ../sass/codalab.scss */
+li a.active {
+  color: #676278;
+  font-weight: bold;
+  border-left: #676278 4px solid;
+  text-indent: 10px;
+}
+
+/* Default header styles */
+/* line 143, ../sass/codalab.scss */
+h1, h2, h3 {
+  font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 100;
+  font-style: normal;
+  color: #666666;
+  text-rendering: optimizeLegibility;
+  margin-top: 0.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.2125em;
+}
+/* line 153, ../sass/codalab.scss */
+h1 small, h2 small, h3 small {
+  font-size: 70%;
+  color: #999999;
+  line-height: 0;
 }
