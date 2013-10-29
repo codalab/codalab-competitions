@@ -27,9 +27,6 @@ from django.contrib.contenttypes import generic
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
 
-import signals
-import tasks
-
 ## Needed for computation service handling
 ## Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
@@ -94,10 +91,10 @@ class PageContainer(models.Model):
     def __unicode__(self):
         return self.name
 
-    def save(self,*args,**kwargs):      
+    def save(self,*args,**kwargs):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
-  
+
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
@@ -110,19 +107,19 @@ class Page(models.Model):
     markup = models.TextField(blank=True)
     html = models.TextField(blank=True)
 
-    class Meta: 
+    class Meta:
         ordering = ["rank"]
-        
+
     def __unicode__(self):
         return self.title
-    
+
     class Meta:
         unique_together = (('label','category','container'),)
         ordering = ['rank']
 
     def save(self,*args,**kwargs):
         if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label ) 
+            self.title = "%s - %s" % ( self.container.name,self.label )
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
@@ -130,7 +127,7 @@ class Page(models.Model):
                 raise Exception("Item is required and must be visible")
         return super(Page,self).save(*args,**kwargs)
 
-# External Files (These might be able to be removed, per a discussion 2013.7.29)    
+# External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -191,7 +188,7 @@ class Competition(models.Model):
 
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
-        
+
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
@@ -201,26 +198,26 @@ class Competition(models.Model):
 
     def __unicode__(self):
         return self.title
-    
+
     def set_owner(self,user):
         return assign_perm('view_task', user, self)
-    
+
     def save(self,*args,**kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
         # Do the real save
         return super(Competition,self).save(*args,**kwargs)
-        
+
     def image_url(self):
         # Return the transformed image_url
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
-    
+
     @property
     def is_active(self):
-        if self.end_date is None: 
-            return True 
+        if self.end_date is None:
+            return True
         if type(self.end_date) is datetime.datetime.date:
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
@@ -229,8 +226,8 @@ class Competition(models.Model):
 # Dataset model
 class Dataset(models.Model):
     """ 
-        This is a dataset for a competition. 
-        TODO: Consider if this is replaced or reimplemented as a 'bundle of data'. 
+    This is a dataset for a competition. 
+    TODO: Consider if this is replaced or reimplemented as a 'bundle of data'. 
     """
     creator =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
     name = models.CharField(max_length=50)
@@ -330,7 +327,7 @@ class CompetitionPhase(models.Model):
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    
+
     class Meta:
         ordering = ['phasenumber']
 
@@ -390,7 +387,7 @@ class CompetitionPhase(models.Model):
                 ranks[id] = r
         return ranks
 
-    @staticmethod 
+    @staticmethod
     def rank_submissions(ranks_by_id):
         def compare_ranks(a, b):
             limit = 1000000
@@ -405,7 +402,7 @@ class CompetitionPhase(models.Model):
             return ia - ib
         return compare_ranks
 
-    @staticmethod 
+    @staticmethod
     def format_value(v, precision="2"):
         p = 1
         try:
@@ -454,7 +451,7 @@ class CompetitionPhase(models.Model):
                     headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
-                            
+
             # compute total column span
             column_span = 2
             for gHeader in headers:
@@ -514,7 +511,7 @@ class CompetitionPhase(models.Model):
                             if (cnt > 0):
                                 computed_values = {}
                                 for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)                                    
+                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
                                 values[sdef.id] = computed_values
                                 ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
@@ -544,7 +541,7 @@ class CompetitionPhase(models.Model):
                 ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
                 final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
                 result['scores'] = final_scores
-                del result['scoredefs']        
+                del result['scoredefs']
         return results
 
 # Competition Participant
@@ -576,7 +573,7 @@ class CompetitionSubmissionStatus(models.Model):
 
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
-    
+
     def __unicode__(self):
         return self.name
 
@@ -591,14 +588,13 @@ class CompetitionSubmission(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     execution_key = models.TextField(blank=True,default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
-    status_details = models.CharField(max_length=100,null=True,blank=True)   
+    status_details = models.CharField(max_length=100,null=True,blank=True)
     submission_number = models.PositiveIntegerField(default=0)
     output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     _fileobj = None
-    _do_submission = False
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -618,14 +614,9 @@ class CompetitionSubmission(models.Model):
                 self.submission_number = 1
             if (self.submission_number > self.phase.max_submissions):
                 raise PermissionDenied("The maximum number of submissions has been reached.")
-            self._do_submission = True
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
-        else:
-            self._do_submission = False
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
-        if self._do_submission:
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
     def file_url(self):
@@ -643,24 +634,12 @@ class CompetitionSubmission(models.Model):
             return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
         return None
 
-    def get_execution_status(self):
-        if self.execution_key:
-            res = requests.get(settings.COMPUTATION_SUBMISSION_URL + self.execution_key)
-            if res.status_code in (200,):
-                return res.json()
-        return None
-
-    def set_status(self,status,force_save=False):
+    def set_status(self, status, force_save=False):
         self.status = CompetitionSubmissionStatus.objects.get(codename=status)
         if force_save:
             self.save()
 
-
-@receiver(signals.do_submission)
-def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
-
-class SubmissionResultGroup(models.Model):   
+class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
@@ -728,9 +707,6 @@ class CompetitionDefBundle(models.Model):
         print "Created base competition."
 
         # Unpack and save the logo
-        comp_root = os.path.join(settings.MEDIA_ROOT, competition_prefix(comp))
-        if not os.path.exists(comp_root):
-            os.makedirs(comp_root)
         comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
         comp.save()
         print "Saved competition logo."
@@ -763,9 +739,6 @@ class CompetitionDefBundle(models.Model):
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             print "Created base phase object."
-            phase_path = os.path.join(settings.MEDIA_ROOT, phase_prefix(phase))
-            if not os.path.exists(phase_path):
-                os.makedirs(phase_path)
             # Evaluation Program
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
@@ -839,15 +812,15 @@ class CompetitionDefBundle(models.Model):
                     if 'column_group' in vals:
                         gparent = groups[vals['column_group']['label']]
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-		                        competition=comp,
-                                parent=gparent,
-		                        key=sd.key,
-		                        defaults=dict(scoredef=sd, label=sd.label))
+                                    competition=comp,
+                                    parent=gparent,
+                                    key=sd.key,
+                                    defaults=dict(scoredef=sd, label=sd.label))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-		                        competition=comp,
-		                        key=sd.key,
-		                        defaults=dict(scoredef=sd, label=sd.label))
+                                    competition=comp,
+                                    key=sd.key,
+                                    defaults=dict(scoredef=sd, label=sd.label))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
