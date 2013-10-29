@@ -18,18 +18,21 @@
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
-      {{ form.as_p }}
-      {% for formset in inlines %}
-        {{ formset.as_p }}
-      {% endfor %}
-
-        
-    <div class="row">
-      <div class="large-12 columns">
-        <button type="submit" class="medium button blue">Submit</button>
-      </div>
-      <div class="spacer500">&nbsp;</div>
-    </div>
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+            </div>
+        {% endfor %}
+        {% for formset in inlines %}
+            {{ formset.as_p }}
+        {% endfor %}
+        <div class="row">
+          <div class="large-12 columns">
+            <button type="submit" class="medium button blue">Submit</button>
+          </div>
+          <div class="spacer500">&nbsp;</div>
+        </div>
   </form>
 </div>
 </div>

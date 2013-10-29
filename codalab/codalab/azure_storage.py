@@ -160,7 +160,7 @@ class AzureBlockBlobFile(RawIOBase):
             self.connection.put_block(self.container, self.name, data, blockid)
             self._block_list.append((blockid,len(data)))
             return len(data)
-        except WindowsAzureError as e:
+        except azure.WindowsAzureError as e:
             raise e
        
     def flush(self):
