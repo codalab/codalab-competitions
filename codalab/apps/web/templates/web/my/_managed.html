@@ -32,11 +32,15 @@
             </div>
           </a>
           <div class="small-10 columns cursor-default myCompetitionButtons">
-            <!-- comment out delete to make things safe -->
-            <!--
-            <a href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
-            -->
+            {% if not competition.published %}
+                <a href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
+            {% endif %}
             <a href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
+            {% if not competition.published %}
+                <button id="competition-publish-button" value="{{competition.pk}}" class="secondary button">Publish</button>
+            {% else %}
+                <button id="competition-unpublish-button" value="{{competition.pk}}" class="secondary button">Unpublish</button>
+            {% endif %}
             <a href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
          </div>
        </div>
