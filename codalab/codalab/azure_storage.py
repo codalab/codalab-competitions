@@ -24,7 +24,7 @@ def clean_name(name):
 
 
 class AzureStorage(Storage):
-    chunk_size = 65536 # Those were the days
+    chunk_size = 65536
 
     def __init__(self, *args, **kwargs):
         self.account_name = kwargs.pop('account_name',  setting("AZURE_ACCOUNT_NAME"))
