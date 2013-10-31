@@ -178,11 +178,11 @@ input: %s
         print "Saving submission."
         submission.save()
     print "Kicking of results retrieval task."
-    submission_get_results.delay(submission.pk,1)
+    submission_get_results.delay(submission.pk)
     return submission.pk
 
 @celery.task(name='competition.submission_get_results', max_retries=50, default_retry_delay=15)
-def submission_get_results(submission_id,ct):
+def submission_get_results(submission_id):
     print "%s: started" % __name__
     # TODO: Refactor
     # Hard-coded limits for now
@@ -200,16 +200,16 @@ def submission_get_results(submission_id,ct):
             raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))        
         elif status['Status'] == "Finished":
             submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
-            return (submission.pk, ct, 'complete', status)
+            return (submission.pk, 'complete', status)
         elif status['Status'] == "Failed":
             submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
-            return (submission.pk, ct, 'failed', status)
+            return (submission.pk, 'failed', status)
     else:
-        return (submission.pk,ct,'failure',None)
+        return (submission.pk,'failure',None)
 
 @task_success.connect(sender=submission_get_results)
 def submission_results_success_handler(sender,result=None,**kwargs):
-    submission_id,ct,state,status = result
+    submission_id,state,status = result
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     if state == 'complete':
         print "Run is complete (submission.id: %s)" % submission.id
