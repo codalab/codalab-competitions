@@ -14,14 +14,13 @@ bundles/bundles.fs
 
 # Virtuelenv files #
 ####################
-venv/*/*
-*venv*
+**/**/venv
 
 # Project Files #
 #################
-*.pyproj
-*.sln
-*.suo
+**/**/*.pyproj
+**/**/*.sln
+**/**/*.suo
 
 # Compass/SASS generated files #
 ################################
@@ -30,8 +29,8 @@ venv/*/*
 
 # Python specific files #
 #########################
-*.pot
-*.pyc
+**/**/*.pot
+**/**/*.pyc
 **/build/**
 **/dist/**
 
