@@ -18,67 +18,50 @@ from zipfile import ZipFile
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
-from codalabtools import BaseWorker
+from codalabtools import BaseWorker, BaseConfig
 from codalabtools.azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
 
-
-class WorkerConfig(object):
+class WorkerConfig(BaseConfig):
     """
     Defines configuration properties (mostly credentials) for a worker process.
     """
     def __init__(self, filename='.codalabconfig'):
-        fname = filename
-        paths_searched = [fname]
-        if not os.path.exists(fname):
-            fname = os.path.join(os.getcwd(), filename)
-            paths_searched.append(fname)
-            if not os.path.exists(fname):
-                if os.environ.has_key("USERPROFILE"):
-                    fname = os.path.join(os.environ["USERPROFILE"], filename)
-                elif os.environ.has_key("HOME"):
-                    fname = os.path.join(os.environ["HOME"], filename)
-                paths_searched.append(fname)
-            if not os.path.exists(fname):
-                msg = "Config file not found. Searched for:\n" + "\n".join(paths_searched)
-                raise EnvironmentError(msg)
-
-        with open(fname, "r") as f:
-            all_info =  yaml.load(f)
-            self.info = all_info['compute-worker']
+        super(WorkerConfig, self).__init__(filename)
+        self._winfo = self.info['compute-worker']
 
     def getAzureStorageAccountName(self):
         """Gets the Azure Storage account name."""
-        return self.info['azure-storage']['account-name']
+        return self._winfo['azure-storage']['account-name']
 
     def getAzureStorageAccountKey(self):
         """Gets the Azure Storage account key."""
-        return self.info['azure-storage']['account-key']
+        return self._winfo['azure-storage']['account-key']
 
     def getAzureServiceBusNamespace(self):
         """Gets the Azure Service Bus namespace."""
-        return self.info['azure-service-bus']['namespace']
+        return self._winfo['azure-service-bus']['namespace']
 
     def getAzureServiceBusKey(self):
         """Gets the Azure Service Bus key."""
-        return self.info['azure-service-bus']['key']
+        return self._winfo['azure-service-bus']['key']
 
     def getAzureServiceBusIssuer(self):
         """Gets the Azure Service Bus issuer."""
-        return self.info['azure-service-bus']['issuer']
+        return self._winfo['azure-service-bus']['issuer']
 
     def getAzureServiceBusQueue(self):
         """Gets the name of the Azure Service Bus queue to listen to."""
-        return self.info['azure-service-bus']['listen-to']
+        return self._winfo['azure-service-bus']['listen-to']
 
     def getLocalRoot(self):
         """Gets the path for the local directory where files are staged or None if the path is not provided."""
-        return self.info['local-root'] if 'local-root' in self.info else None
+        return self._winfo['local-root'] if 'local-root' in self._winfo else None
 
     def getLoggerDictConfig(self):
         """Gets Dict config for logging configuration."""
-        return self.info['logging'] if 'logging' in self.info else None
+        return self._winfo['logging'] if 'logging' in self._winfo else None
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
