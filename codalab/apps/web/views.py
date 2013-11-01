@@ -32,7 +32,7 @@ except ImportError:
 def competition_index(request):
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
-        'competitions' : models.Competition.objects.all(),
+        'competitions' : models.Competition.objects.filter(published=True),
         })
     return HttpResponse(template.render(context))
 

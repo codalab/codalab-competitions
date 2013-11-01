@@ -40,9 +40,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response), content_type="application/json")
 
-    @action(permission_classes=[permissions.IsAuthenticated])
-
-    def publish(self, request, pk, *args, **kwargs):
+    @action(methods=['GET'],permission_classes=[permissions.IsAuthenticated])
+    def publish(self, request, pk):
         """
         Publish a competition.
         """
@@ -57,8 +56,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
-    @action(permission_classes=[permissions.IsAuthenticated])
-    def unpublish(self, request, pk, *args, **kwargs):
+    @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    def unpublish(self, request, pk):
         """
         Unpublish a competition.
         """
