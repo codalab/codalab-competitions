@@ -394,19 +394,25 @@ $(document).ready(function () {
     });
 
     $("#competition-unpublish-button").click(function (event) {
-        var competition_actions = $(this).parent()[0];
-        request = $.ajax({
-            url: $(this)[0].value,
-            success: function (response, textStatus, jqXHR) {
-                console.log("Unpublished competition.");
-                $(competition_actions).children("#competition-publish-button").show();
-                $(competition_actions).children("#competition-delete-button").show();
-                $(competition_actions).children("#competition-unpublish-button").hide()
-            },
-            error: function (jsXHR, textStatus, errorThrown) {
-                console.log("Error unpublishing competition!");
-            }
-        });
+        // This shows how unpublishing a competition works. We have this commented out
+        // because we don't want competition owners to inadvertantly unpublish, then delete
+        // competitions that have submissions and results.
+        // If this decision is changed in the future simply uncommenting this code will enable
+        // competitions to be unpublished.
+        // Only unpublished competitions are able to be deleted.
+        //var competition_actions = $(this).parent()[0];
+        //request = $.ajax({
+        //    url: $(this)[0].value,
+        //    success: function (response, textStatus, jqXHR) {
+        //        console.log("Unpublished competition.");
+        //        $(competition_actions).children("#competition-publish-button").show();
+        //        $(competition_actions).children("#competition-delete-button").show();
+        //        $(competition_actions).children("#competition-unpublish-button").hide()
+        //    },
+        //    error: function (jsXHR, textStatus, errorThrown) {
+        //        console.log("Error unpublishing competition!");
+        //    }
+        //});
     });
 
     $("#submissions_phase_buttons .button").each(function (e, index) {
