@@ -32,7 +32,7 @@ except ImportError:
 def competition_index(request):
     template = loader.get_template("web/competitions/index.html")
     context = RequestContext(request, {
-        'competitions' : models.Competition.objects.all(),
+        'competitions' : models.Competition.objects.filter(published=True),
         })
     return HttpResponse(template.render(context))
 
@@ -58,7 +58,7 @@ class LoginRequiredMixin(object):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
-    template_name = 'web/competitions/edit-phase.html'
+    #template_name = 'web/competitions/edit-phase.html'
     extra = 0
 
 class CompetitionUpload(LoginRequiredMixin, CreateView):
@@ -150,8 +150,8 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
-        return context       
-       
+        return context     
+ 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the Participate tab of a competition.
     # Requires an authenticated user who is an approved participant of the competition.
