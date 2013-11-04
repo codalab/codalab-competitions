@@ -40,6 +40,38 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response), content_type="application/json")
 
+    @action(methods=['GET'],permission_classes=[permissions.IsAuthenticated])
+    def publish(self, request, pk):
+        """
+        Publish a competition.
+        """
+        c = webmodels.Competition.objects.get(id=pk)
+        response = {}
+        if self.request.user == c.creator:
+            c.published = True
+            c.save()
+            response['id'] = pk
+            response['status'] = 200
+        else:
+            response['status'] = 403
+        return Response(json.dumps(response), content_type="application/json")
+
+    @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
+    def unpublish(self, request, pk):
+        """
+        Unpublish a competition.
+        """
+        c = webmodels.Competition.objects.get(id=pk)
+        response = {}
+        if self.request.user == c.creator:
+            c.published = False
+            c.save()
+            response['id'] = pk
+            response['status'] = 200
+        else:
+            response['status'] = 403
+        return Response(json.dumps(response), content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self,request,pk=None):
         comp = self.get_object()
