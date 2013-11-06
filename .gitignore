@@ -18,9 +18,9 @@ bundles/bundles.fs
 
 # Project Files #
 #################
-codalab/**/*.pyproj
-codalab/**/*.sln
-codalab/**/*.suo
+*.pyproj
+*.suo
+*.sln
 
 # Compass/SASS generated files #
 ################################
