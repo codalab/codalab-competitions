@@ -181,11 +181,9 @@ input: %s
     submission_get_results.delay(submission.pk)
     return submission.pk
 
-@celery.task(name='competition.submission_get_results', max_retries=50, default_retry_delay=15)
+@celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=5)
 def submission_get_results(submission_id):
     print "%s: started" % __name__
-    # TODO: Refactor
-    # Hard-coded limits for now
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     print "Got submission %d." % submission_id
     # Get status of computation from the computation engine
@@ -194,10 +192,10 @@ def submission_get_results(submission_id):
     if status:
         if status['Status'] in ("Submitted"):
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
-            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))
+            raise submission_get_results.retry(exc=Exception("Submission not running yet."))
         if status['Status'] in ("Running"):
             submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
-            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))        
+            raise submission_get_results.retry(exc=Exception("Submission still running."))        
         elif status['Status'] == "Finished":
             submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
             return (submission.pk, 'complete', status)
