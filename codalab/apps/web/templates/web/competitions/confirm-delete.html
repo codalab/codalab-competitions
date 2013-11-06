@@ -1,9 +1,14 @@
 {% extends "base.html" %}
-{% block subheader %}Delete Competition{% endblock subheader %}
+
+{% block head_title %}Delete Competition{% endblock head_title %}
+{% block page_title %}Delete Competition{% endblock page_title %}
+
 {% block content %}
+    <div class="row">
 	<p>Really delete {{ competition }}?</p>
 	<form class="wide" method="POST" action="{% url 'competitions:delete' pk=competition.id %}" >
 		{% csrf_token %}
 		<input type="submit" class="submit small secondary button" value="Yes, delete the competition.">
 	</form>
+</div>
 {% endblock %}
