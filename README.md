@@ -1,12 +1,9 @@
 # CodaLab [![Build Status](https://travis-ci.org/codalab/codalab.png?branch=master)](https://travis-ci.org/codalab/codalab)
 
-This is CodaLab. It goes to eleven. Just not yet.
-
 ## What is it?
 
-Take a look at the [developing specification](docs/SPECIFICATION.md) and browse the [wiki](https://github.com/codalab/codalab/wiki).
+CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
 
 ## Getting started
 
-Read [this page](https://github.com/codalab/codalab/wiki/20.-Getting-Started-for-Developers) to learn how to start developing and contributing to CodaLab.
-
+Take a look at the [developing specification](docs/SPECIFICATION.md) and Visit the [CodaLab Wiki](https://github.com/codalab/codalab/wiki) to learn how to start developing and contributing to CodaLab.
