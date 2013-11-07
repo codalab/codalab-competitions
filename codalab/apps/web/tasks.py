@@ -188,6 +188,7 @@ def submission_get_results(submission_id):
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
+    print "Status for %d is %s" % (submission_id, status)
     if status:
         if status['Status'] in ("Submitted"):
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
