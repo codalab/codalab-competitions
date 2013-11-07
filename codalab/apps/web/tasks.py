@@ -133,6 +133,7 @@ def submission_run(url, submission_id):
         print "Running locally."
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
+        submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
         local_run(url, submission)
         submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
         submission.save()
@@ -186,7 +187,11 @@ input: %s
 
 @celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=6)
 def submission_get_results(submission_id):
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    except (ValueError, models.CompetitionSubmission.DoesNotExist):
+        print "Submission not retrievable, might be waiting on blobstore/django."
+        raise submission_get_results.retry(exc=Exception("Submission not in database yet."))
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
     print "Status for %d is %s" % (submission_id, status)
