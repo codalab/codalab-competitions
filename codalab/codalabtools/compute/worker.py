@@ -31,6 +31,13 @@ class WorkerConfig(BaseConfig):
         super(WorkerConfig, self).__init__(filename)
         self._winfo = self.info['compute-worker']
 
+    def getLoggerDictConfig(self):
+        """Gets Dict config for logging configuration."""
+        if 'logging' in self._winfo:
+            return self._winfo['logging']
+        else:
+            return super(WorkerConfig, self).getLoggerDictConfig()
+
     def getAzureStorageAccountName(self):
         """Gets the Azure Storage account name."""
         return self._winfo['azure-storage']['account-name']
@@ -58,10 +65,6 @@ class WorkerConfig(BaseConfig):
     def getLocalRoot(self):
         """Gets the path for the local directory where files are staged or None if the path is not provided."""
         return self._winfo['local-root'] if 'local-root' in self._winfo else None
-
-    def getLoggerDictConfig(self):
-        """Gets Dict config for logging configuration."""
-        return self._winfo['logging'] if 'logging' in self._winfo else None
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """

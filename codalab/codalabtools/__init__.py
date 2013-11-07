@@ -34,6 +34,11 @@ class BaseConfig(object):
         """Returns the full name of the configuration file."""
         return self._filename
 
+    def getLoggerDictConfig(self):
+        """Gets Dict config for logging configuration."""
+        return self.info['logging'] if 'logging' in self.info else None
+
+
 class Queue(object):
     """
     Provides an abstract definition for a queue providing one-way asynchronous messaging
