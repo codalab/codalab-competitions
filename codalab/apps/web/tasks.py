@@ -279,8 +279,8 @@ def sub_directories(bundleid):
 def echo(msg):
     print "Echoing %s" % (msg)
 
-@celery.task()
-def create_competition_from_bundle(competition_bundle):
+@celery.task(max_retries=20, default_retry_delay=2)
+def create_competition_from_bundle(competition_bundle_id):
     """
     create_competition_from_bundle(competition_definition_bundle_id):
 
@@ -288,5 +288,10 @@ def create_competition_from_bundle(competition_bundle):
     The result is a competition created in CodaLab that's ready to use.
     """
     print "Creating competition for new competition bundle."
+    try:
+        competition_bundle = models.CompetitionDefBundle.objects.get(id=competition_bundle_id)
+    except (ValueError, models.CompetitionDefBundle.DoesNotExist):
+        raise create_competition_from_bundle.retry(exc=Exception("Competition Bundle not in database/azure yet."))
+
     return competition_bundle.unpack()
 

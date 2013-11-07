@@ -846,7 +846,7 @@ class CompetitionDefBundle(models.Model):
 def unpack_competition_task(sender, **kwargs):
     instance = kwargs['instance']
     print "Got signal, creating competition (%d)" % instance.id
-    tasks.create_competition_from_bundle.apply_async((instance,))
+    tasks.create_competition_from_bundle.apply_async((instance.id,))
 post_save.connect(unpack_competition_task, sender=CompetitionDefBundle)
 
 class SubmissionScoreDefGroup(models.Model):
