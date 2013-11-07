@@ -12,7 +12,7 @@ import time
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -579,45 +579,6 @@ class CompetitionSubmission(models.Model):
 
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
-
-    def save(self,*args,**kwargs):
-        print "Saving competition submission."
-        if self.participant.competition != self.phase.competition:
-            raise Exception("Competition for phase and participant must be the same")
-
-        # only at save on object creation should it be submitted
-        if not self.pk:
-            print "This is a new submission, getting the submission number."
-            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
-            if subnum is not None:
-                self.submission_number = subnum + 1
-            else:
-                self.submission_number = 1
-            print "This is submission number %d" % self.submission_number
-
-            if (self.submission_number > self.phase.max_submissions):
-                print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
-                raise PermissionDenied("The maximum number of submissions has been reached.")
-            else:
-                print "Submission number below maximum."
-
-            print "Setting flags and status so this gets executed."
-            self._do_submission = True
-            self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
-        else:
-            print "This is saving an old submission."
-            self._do_submission = False
-
-        print "Setting the file url base."
-        self.file_url_base = self.file.storage.url('')
-
-        print "Calling super save."
-        res = super(CompetitionSubmission,self).save(*args,**kwargs)
-
-        if self._do_submission:
-            print "Sending signal to execute the submission scoring."
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
-        return res
     
     def file_url(self):
         if self.file:
@@ -639,9 +600,36 @@ class CompetitionSubmission(models.Model):
         if force_save:
             self.save()
 
-@receiver(signals.do_submission)
-def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
+def prepare_submission(sender, **kwargs):
+    instance = kwargs['instance']
+    if not instance.pk:
+        print "This is a new submission, getting the submission number."
+        subnum = CompetitionSubmission.objects.filter(phase=instance.phase, participant=instance.participant).aggregate(Max('submission_number'))['submission_number__max']
+        if subnum is not None:
+            instance.submission_number = subnum + 1
+        else:
+            instance.submission_number = 1
+        print "This is submission number %d" % instance.submission_number
+
+        if (instance.submission_number > instance.phase.max_submissions):
+            print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (instance.submission_number, instance.phase.max_submissions)
+            raise PermissionDenied("The maximum number of submissions has been reached.")
+        else:
+            print "Submission number below maximum."
+
+        print "Setting status to submitting."
+        instance.set_status(CompetitionSubmissionStatus.SUBMITTING)
+
+        print "Setting the file url base."
+        instance.file_url_base = instance.file.storage.url('')
+pre_save.connect(prepare_submission, sender=CompetitionSubmission)
+
+def do_submission_task(sender,**kwargs):
+    instance = kwargs['instance']
+    if instance.status.codename not in [CompetitionSubmissionStatus.SUBMITTED, CompetitionSubmissionStatus.RUNNING, CompetitionSubmissionStatus.FINISHED]:
+        print "Sending signal to execute the submission scoring."
+        tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
+post_save.connect(do_submission_task, sender=CompetitionSubmission)
 
 class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
