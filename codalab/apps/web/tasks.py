@@ -181,14 +181,11 @@ input: %s
     submission_get_results.delay(submission.pk)
     return submission.pk
 
-@celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=5)
+@celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=6)
 def submission_get_results(submission_id):
-    print "%s: started" % __name__
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    print "Got submission %d." % submission_id
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
-    print "Computation status: %s" % str(status)
     if status:
         if status['Status'] in ("Submitted"):
             submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
