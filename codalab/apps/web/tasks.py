@@ -121,10 +121,12 @@ def submission_get_status(submission_id):
     # Otherwise return None
     return None
 
-@celery.task(name='competition.submission_run')
+@celery.task(name='competition.submission_run', max_retries=15, default_retry_delay=2)
 def submission_run(url, submission_id):
-    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    except DoesNotExist:
+        raise submission_run.retry(exc=Exception("Submission not in database yet."))
 
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
         print "Running locally."
