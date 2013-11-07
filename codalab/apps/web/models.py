@@ -641,7 +641,7 @@ class CompetitionSubmission(models.Model):
 
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
+    tasks.submission_run.delay(submission_id=instance.pk)
 
 class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
