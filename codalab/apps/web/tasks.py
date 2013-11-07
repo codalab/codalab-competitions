@@ -125,7 +125,7 @@ def submission_get_status(submission_id):
 def submission_run(url, submission_id):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    except DoesNotExist:
+    except (ValueError, models.CompetitionSubmission.DoesNotExist):
         print "Submission not retrievable, might be waiting on blobstore/django."
         raise submission_run.retry(exc=Exception("Submission not in database yet."))
 
