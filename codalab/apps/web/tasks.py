@@ -20,7 +20,7 @@ import models
 
 main = base.Base.SITE_ROOT
 
-def local_run(url, submission):
+def local_run(submission):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
     """
@@ -122,7 +122,7 @@ def submission_get_status(submission_id):
     return None
 
 @celery.task(name='competition.submission_run', max_retries=20, default_retry_delay=2)
-def submission_run(url, submission_id):
+def submission_run(submission_id):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     except (ValueError, models.CompetitionSubmission.DoesNotExist):
@@ -134,7 +134,7 @@ def submission_run(url, submission_id):
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
         submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
-        local_run(url, submission)
+        local_run(submission)
         submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
         submission.save()
     else:
