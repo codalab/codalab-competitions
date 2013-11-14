@@ -5,13 +5,16 @@ from rest_framework import renderers
 from rest_framework.decorators import action,link,permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
-from apps.web import models as webmodels
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+
+from apps.web import signals
+from apps.web import tasks
+from apps.web import models as webmodels
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
@@ -268,7 +271,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 break
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail = 'Competition phase is closed.')
-        obj.phase = phase        
+        obj.phase = phase    
+            
+    def post_save(self,obj,created):
+        if created:
+            signals.do_submission.send(sender=webmodels.CompetitionSubmission, instance=obj)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:

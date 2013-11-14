@@ -572,7 +572,7 @@ class CompetitionSubmission(models.Model):
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     _fileobj = None
-    _do_submission = False
+    #_do_submission = False
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -601,12 +601,12 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            print "Setting flags and status so this gets executed."
-            self._do_submission = True
+            #print "Setting flags and status so this gets executed."
+            #self._do_submission = True
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
-        else:
-            print "This is saving an old submission."
-            self._do_submission = False
+        #else:
+        #    print "This is saving an old submission."
+        #    self._do_submission = False
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
@@ -614,9 +614,9 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
 
-        if self._do_submission:
-            print "Sending signal to execute the submission scoring."
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
+        #if self._do_submission:
+        #    print "Sending signal to execute the submission scoring."
+        #    signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
     def file_url(self):
