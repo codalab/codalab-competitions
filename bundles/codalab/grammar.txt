@@ -1,0 +1,73 @@
+# A bundle_spec search_query should evaluate to a single bundle, but that's a semantic error
+bundle_spec -> [bundle_id|search_query]
+bundle_id -> UUID
+search_query -> # TODO(skishore): Come up with a grammar for search queries
+
+# Grammar rules for defining dependencies
+dependency -> key:target
+key -> <any admissible directory name?> 
+target -> bundle_spec(/file_path)?
+file_path -> a path to a file on the local filesystem or in a bundle
+
+# Grammar for the command-line client commands.
+# This should be an exhaustive list of actions users can take.
+command -> [
+  # Commands that make new bundles and return their ids.
+  upload_command |
+  update_command |
+  make_command |
+  run_command |
+
+  # Commands that display info about bundles.
+  info_command |
+  ls_command |
+  cat_command |
+  grep_command |
+  search_command |
+
+  # Commands deal with the remote repository, modify bundle permissions, etc
+  remote_command |
+  import_command |
+  sync_command |
+
+  # Permissions management (also requires setting up a remote)
+  add_group_command |
+  edit_group_command |
+  chmod_command |
+  chgrp_command |
+
+  # Random utilities for interacting with the system.
+  wait_command |
+  download_command
+]
+
+upload_command -> upload file_path
+# If a file path is not provided during update, only the metadata is updated.
+update_command -> update bundle_spec file_path?
+make_command -> make dependency+
+# TODO(skishore): Come up with grammar for a run command.
+run_command -> run program_bundle_spec input_bundle_spec <command>
+
+info_command -> info bundle_spec
+ls_command -> ls target
+# Throws a semantic error if the target is a directory, like cat
+cat_command -> cat target
+grep_command -> grep [options] pattern target+
+search_command -> search search_query
+
+remote_command -> add-remote remote_name <URL where the remote is hosted>
+# Search for public bundles on the remote and add them to our bundles list.
+# If the search finds multiple bundles, it allows the user to select which one they want.
+import_command -> import search_query
+# Does some complicated sync logic which we won't describe here.
+sync_command -> sync remote_name
+
+# All permissions will be on a per-bundle level.
+# They will have user/group/all modes like in Unix, but we may only need one bit per level.
+add_group_command -> add-group group_name
+edit_group_command -> edit-group [add|remove] user_name
+chmod_command -> chmod mode bundle_spec
+chgrp_command -> chgrp group bundle_spec
+
+wait_command -> wait bundle_spec
+download_command -> download bundle_spec file_path
