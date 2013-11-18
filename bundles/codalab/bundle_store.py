@@ -4,6 +4,7 @@
 # - Tests! Need to be careful, as this changes the filesystem...
 import errno
 import hashlib
+import itertools
 import os
 import shutil
 import uuid
@@ -77,18 +78,37 @@ class BundleStore(object):
     return data_hash
 
   @classmethod
-  def set_permissions(cls, path, permissions):
+  def recursive_ls(cls, path):
     '''
-    Sets the permissions bits for all files and directories under the path.
+    Return two lists (directories, files) of files under the given path.
+    All subpaths are given as relative path under the directory.
     '''
     absolute_path = cls.normalize_path(path)
-    cls.check_isdir(absolute_path, 'set_permissions')
-    for (root, _, files) in os.walk(absolute_path):
+    cls.check_isdir(absolute_path, 'recursive_ls')
+    (directories, files) = ([], [])
+    for (root, _, file_names) in os.walk(absolute_path):
       assert(os.path.isabs(root)), 'Got relative root in os.walk: %s' % (root,)
-      os.chmod(root, permissions)
-      for file_name in files:
-        file_path = os.path.join(root, file_name)
-        os.chmod(file_path, permissions)
+      directories.append(root)
+      for file_name in file_names:
+        files.append(os.path.join(root, file_name))
+    return (directories, files)
+
+  @staticmethod
+  def get_relative_path(root, path):
+    if not path.startswith(root):
+      raise ValueError('Path %s was not under root %s' % (path, root))
+    return path[len(root):]
+
+  @classmethod
+  def set_permissions(cls, path, permissions):
+    '''
+    Sets the permissions bits for all directories and files under the path.
+    '''
+    (directories, files) = cls.recursive_ls(path)
+    for path in itertools.chain(directories, files):
+      if not os.path.isabs(path):
+        raise ValueError('set_permission got relative path: %s' % (path,))
+      os.chmod(path, permissions)
 
   @classmethod
   def hash_directory(cls, path):
@@ -99,22 +119,23 @@ class BundleStore(object):
     '''
     absolute_path = cls.normalize_path(path)
     cls.check_isdir(absolute_path, 'get_directory_hash')
-    overall_hash = hashlib.sha1()
-    for (root, _, files) in os.walk(absolute_path):
-      assert(os.path.isabs(root)), 'Got relative root in os.walk: %s' % (root,)
-      for file_name in files:
-        # For each file, we will update the overall hash with the hash of the
-        # file subpath and the hash of the file contents. It is important that
-        # we hash twice, so that we call update with a fixed-length string for
-        # each file - otherwise, a sequence of hash updates might be ambiguous.
-        file_path = os.path.join(root, file_name)
-        if not file_path.startswith(root):
-          raise ValueError('file_path %s not under root %s' % (file_path, root))
-        # Update the overall hash with the hash of the file subpath.
-        relative_path = file_path[len(root):]
-        overall_hash.update(hashlib.sha1(relative_path).hexdigest())
-        # Update the overall hash with the hash of the file contents.
-        overall_hash.update(cls.hash_file_contents(file_path))
+    (directories, files) = cls.recursive_ls(path)
+    # Sort and then hash all directories and then compute a hash of the hashes.
+    # This two-level hash is necessary so that the overall hash is unambiguous.
+    directory_hash = hashlib.sha1()
+    for directory in sorted(directories):
+      relative_path = cls.get_relative_path(absolute_path, directory)
+      directory_hash.update(hashlib.sha1(relative_path).hexdigest())
+    # Use a similar two-level hashing scheme for all files, but incorporate a
+    # hash of both the file name and contents.
+    file_hash = hashlib.sha1()
+    for file_name in sorted(files):
+      relative_path = cls.get_relative_path(absolute_path, file_name)
+      file_hash.update(hashlib.sha1(relative_path).hexdigest())
+      file_hash.update(cls.hash_file_contents(file_name))
+    # Return a hash of the two hashes.
+    overall_hash = hashlib.sha1(directory_hash.hexdigest())
+    overall_hash.update(file_hash.hexdigest())
     return overall_hash.hexdigest()
 
   @classmethod
