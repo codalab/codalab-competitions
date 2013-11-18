@@ -75,20 +75,27 @@ def local_run(submission):
     # Execute the job
     stdout_fn = os.path.join(output_dir, "stdout.txt")
     stderr_fn = os.path.join(output_dir, "stderr.txt")
-    score_fn  = os.path.join(output_dir, "scores.txt")
     stdout_file = open(stdout_fn, 'wb')
     stderr_file = open(stderr_fn, 'wb')
     subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
     stdout_file.close()
     stderr_file.close()
 
-    # Pack up the output and store it in Azure.
+    # Open output file
     bytes = StringIO.StringIO()
     ozip = zipfile.ZipFile(bytes, 'w')
-    ozip.write(score_fn, "scores.txt")
+
+    # Pack up all output files.
+    for fn in os.listdir(output_dir):
+        archive_fn = os.path.join(output_dir, fn)
+        print "Saving %s to output.zip" % fn
+        ozip.write(archive_fn, fn)
+
+    # Close output file
     ozip.close()
     bytes.seek(0)
 
+    # Write back to azure
     submission.output_file.save("output.zip", File(bytes))
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
