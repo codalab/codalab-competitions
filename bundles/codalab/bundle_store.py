@@ -121,7 +121,10 @@ class BundleStore(object):
     cls.check_isdir(absolute_path, 'get_directory_hash')
     (directories, files) = cls.recursive_ls(path)
     # Sort and then hash all directories and then compute a hash of the hashes.
-    # This two-level hash is necessary so that the overall hash is unambiguous.
+    # This two-level hash is necessary so that the overall hash is unambiguous -
+    # if we updated directory_hash with the directory names themselves, then
+    # we'd be hashing the concatenation of these names, which could be generated
+    # in multiple ways.
     directory_hash = hashlib.sha1()
     for directory in sorted(directories):
       relative_path = cls.get_relative_path(absolute_path, directory)
