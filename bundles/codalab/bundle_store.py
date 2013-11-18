@@ -1,5 +1,4 @@
 # TODOs:
-# - Deal with permissions bits / ownership
 # - Deal with symlinks
 # - Add a method to clean up the temp directory based on mtimes
 # - Tests! Need to be careful, as this changes the filesystem...
@@ -64,6 +63,7 @@ class BundleStore(object):
     temp_directory = str(uuid.uuid4())
     temp_path = os.path.join(self.temp, temp_directory)
     shutil.copytree(absolute_path, temp_path)
+    self.set_permissions(temp_path, 0o755)
     # Hash the contents of the temporary directory, and then if there is no
     # data with this hash value, move this directory into the data directory.
     data_hash = self.hash_directory(temp_path)
@@ -75,6 +75,20 @@ class BundleStore(object):
     # After this operation there should always be a directory at the final path.
     assert(os.path.isdir(final_path)), 'Uploaded to %s failed!' % (final_path,)
     return data_hash
+
+  @classmethod
+  def set_permissions(cls, path, permissions):
+    '''
+    Sets the permissions bits for all files and directories under the path.
+    '''
+    absolute_path = cls.normalize_path(path)
+    cls.check_isdir(absolute_path, 'set_permissions')
+    for (root, _, files) in os.walk(absolute_path):
+      assert(os.path.isabs(root)), 'Got relative root in os.walk: %s' % (root,)
+      os.chmod(root, permissions)
+      for file_name in files:
+        file_path = os.path.join(root, file_name)
+        os.chmod(file_path, permissions)
 
   @classmethod
   def hash_directory(cls, path):
