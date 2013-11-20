@@ -1,7 +1,5 @@
-# TODOs:
-# - Deal with symlinks
-# - Add a method to clean up the temp directory based on mtimes
-# - Tests! Need to be careful, as this changes the filesystem...
+# TODO(skishore): Add code to clean up the temp directory based on mtimes.
+# TODO(skishore): Maybe cache or reuse calls to recursive_ls.
 import errno
 import hashlib
 import itertools
@@ -64,6 +62,7 @@ class BundleStore(object):
     temp_directory = str(uuid.uuid4())
     temp_path = os.path.join(self.temp, temp_directory)
     shutil.copytree(absolute_path, temp_path)
+    self.check_for_symlinks(temp_path)
     self.set_permissions(temp_path, 0o755)
     # Hash the contents of the temporary directory, and then if there is no
     # data with this hash value, move this directory into the data directory.
@@ -100,14 +99,22 @@ class BundleStore(object):
     return path[len(root):]
 
   @classmethod
-  def set_permissions(cls, path, permissions):
+  def check_for_symlinks(cls, root):
+    '''
+    Raise ValueError if there are any symlinks under the given path.
+    '''
+    (directories, files) = cls.recursive_ls(root)
+    for path in itertools.chain(directories, files):
+      if os.path.islink(path):
+        raise ValueError('Found symlink %s under %s' % (path, root))
+
+  @classmethod
+  def set_permissions(cls, root, permissions):
     '''
     Sets the permissions bits for all directories and files under the path.
     '''
-    (directories, files) = cls.recursive_ls(path)
+    (directories, files) = cls.recursive_ls(root)
     for path in itertools.chain(directories, files):
-      if not os.path.isabs(path):
-        raise ValueError('set_permission got relative path: %s' % (path,))
       os.chmod(path, permissions)
 
   @classmethod

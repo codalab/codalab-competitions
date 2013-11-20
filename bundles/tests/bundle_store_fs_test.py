@@ -51,6 +51,19 @@ class BundleStoreFSTest(unittest.TestCase):
     self.assertEqual(set(directories), set(self.bundle_directories))
     self.assertEqual(set(files), set(self.bundle_files))
 
+  def test_check_for_symlinks(self):
+    '''
+    Test that check_for_symlinks raises a ValueError iff there is a symlink
+    underneat the given path.
+    '''
+    BundleStore.check_for_symlinks(self.bundle_path)
+    symlink_path = os.path.join(self.bundle_directories[-1], 'my_symlink')
+    os.symlink('/some/random/thing/to/symlink/to', symlink_path)
+    self.assertRaises(
+      ValueError,
+      lambda: BundleStore.check_for_symlinks(self.bundle_path),
+    )
+
   def test_set_permissions(self):
     '''
     Test that set_permissions sets permissions for all files in a directory.
