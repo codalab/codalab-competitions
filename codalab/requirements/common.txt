@@ -30,3 +30,8 @@ django-celery==3.0.23
 kombu==2.5.14
 librabbitmq==1.0.1
 pyyaml
+azure==0.7.1
+Whoosh==2.4.1
+django-jenkins==0.14.0
+django-debug-toolbar==0.9.4
+django-nose
