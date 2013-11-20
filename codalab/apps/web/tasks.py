@@ -97,42 +97,15 @@ def evaluate_submission_task(job_id, args):
         """
         Dispatches the evaluation of the given submission to an appropriate compute worker.
 
-    # If the submission object has an execution key, retrieve the status and return the json
-    if submission.execution_key:
-        print "%s: Submission has an execution key, retrieving status from execution engine." % __name__
-        res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
-        if res.status_code in (200,):
-            print "%s: Submission status retrieved successfully." % __name__
-            print "Status: %s" % res.json()
-            return res.json()
-        else:
-            print "%s: Submission status not retreived succesfully." % __name__
-            print "Status: %s\n%s" % (res.status_code, res.json())
-
-    # Otherwise return None
-    return None
-
-@celery.task(name='competition.submission_run')
-def submission_run(url, submission_id):
-    time.sleep(0.01) # Needed temporarily for using sqlite. Race.
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-
-    if 'local' in settings.COMPUTATION_SUBMISSION_URL:
-        print "Running locally."
-        submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
-        submission.save()
-        local_run(url, submission)
-        submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
-        submission.save()
-    else:
-        print "Running against remote execution engine."
+        submission: The CompetitionSubmission object.
+        """
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
         # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
         inputfile = ContentFile(
 """ref: %s
 res: %s
-""" % (dataset, submission.file.name))   
+""" % (dataset, submission.file.name))
         submission.inputfile.save('input.txt', inputfile)
         # Generate run bundle, which binds the input bundle to the scoring program
         runfile = ContentFile(
@@ -160,53 +133,71 @@ input: %s
         submission.execution_key = job_id
         submission.set_status(CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
-    print "Kicking of results retrieval task."
-    submission_get_results.delay(submission.pk,1)
-    return submission.pk
 
-@celery.task(name='competition.submission_get_results', max_retries=50, default_retry_delay=15)
-def submission_get_results(submission_id,ct):
-    print "%s: started" % __name__
-    # TODO: Refactor
-    # Hard-coded limits for now
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    print "Got submission %d." % submission_id
-    # Get status of computation from the computation engine
-    status = submission_get_status(submission_id)
-    print "Computation status: %s" % str(status)
-    if status:
-        if status['Status'] in ("Submitted"):
-            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
-            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))
-        if status['Status'] in ("Running"):
-            submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
-            raise submission_get_results.retry(exc=Exception("An unexpected error has occurred."))        
-        elif status['Status'] == "Finished":
-            submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
-            return (submission.pk, ct, 'complete', status)
-        elif status['Status'] == "Failed":
-            submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
-            return (submission.pk, ct, 'failed', status)
-    else:
-        return (submission.pk,ct,'failure',None)
+    def submit_it():
+        """Start the process to evaluate the given competition submission."""
+        logger.debug("Entering evaluate_submission_task (job_id=%s)", job_id)
+        submission_id = args['submission_id']
+        submission = CompetitionSubmission.objects.get(pk=submission_id)
+        logger.info("Dispatching evaluation request for competition submission (submission_id=%s, job_id=%s)",
+                    submission_id, job_id)
+        submit(submission)
+        logger.info("Done dispatching evaluation request for competition submission (submission_id=%s, job_id=%s)",
+                    submission_id, job_id)
+        logger.debug("Leaving evaluate_submission_task (job_id=%s)", job_id)
 
-@task_success.connect(sender=submission_get_results)
-def submission_results_success_handler(sender,result=None,**kwargs):
-    submission_id,ct,state,status = result
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-    if state == 'complete':
-        print "Run is complete (submission.id: %s)" % submission.id
-        submission.output_file.name = models.submission_file_blobkey(submission)
-        submission.stderr_file.name = models.submission_stderr_filename(submission)
-        submission.save()
+    submit_it()
+
+def evaluate_submission(submission_id):
+    """
+    Starts the process of evaluating a user's submission to a competition.
+
+    submission_id: The ID of the CompetitionSubmission object.
+
+    Returns a Job object which can be used to track the progress of the operation.
+    """
+    return Job.objects.create_and_dispatch_job('evaluate_submission', { 'submission_id': submission_id })
+
+class SubmissionUpdateException(Exception):
+    """Defines an exception that occurs during the update of a CompetitionSubmission object."""
+    def __init__(self, submission, inner_exception):
+        super(SubmissionUpdateException, self).__init__(inner_exception.message)
+        self.submission = submission
+        self.inner_exception = inner_exception
+
+def update_submission_task(job_id, args):
+    """
+    A task to update the status of an evaluating a submission in a competition.
+
+    job_id: The ID of the job.
+    args: A dictionary with the arguments for the task. Expected items are:
+        args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
+    """
+
+    def update_submission(submission, status):
+        """
+        Updates the status of a submission.
+
+        submission: The CompetitionSubmission object to update.
+        status: The new status string: 'running', 'finished' or 'failed'.
+        """
+        if (status == 'running'):
+            submission.set_status(CompetitionSubmissionStatus.RUNNING)
+            submission.save()
+            return Job.RUNNING
+
+        if (status == 'finished'):
+            submission.output_file.name = submission_file_blobkey(submission)
+            submission.stderr_file.name = submission_stderr_filename(submission)
+            submission.save()
             logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
             ozip = ZipFile(io.BytesIO(submission.output_file.read()))
-        scores = open(ozip.extract('scores.txt'), 'r').read()
+            scores = open(ozip.extract('scores.txt'), 'r').read()
             logger.debug("Processing scores... (submission_id=%s)", submission.id)
-        for line in scores.split("\n"):
-            if len(line) > 0:
-                label, value = line.split(":")
-    try:
+            for line in scores.split("\n"):
+                if len(line) > 0:
+                    label, value = line.split(":")
+                    try:
                         scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
                                                                          key=label.strip())
                         SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
@@ -222,16 +213,41 @@ def submission_results_success_handler(sender,result=None,**kwargs):
         submission.set_status(CompetitionSubmissionStatus.FAILED)
         submission.save()
 
-@celery.task()
-def create_competition_from_bundle(competition_bundle):
-    """
+    def handle_update_exception(job, ex):
+        """
         Handles exception that occur while attempting to update the status of a submission.
 
         job: The running Job instance.
         ex: The exception. The handler tries to acquire the CompetitionSubmission instance
             from a submission attribute on the exception.
-    """
-    print "Creating competition for new competition bundle."
-    return competition_bundle.unpack()
+        """
+        try:
+            submission = ex.submission
+            submission.set_status(CompetitionSubmissionStatus.FAILED)
+            submission.save()
+        except Exception:
+            logger.exception("Unable to set the submission status to Failed (job_id=%s)", job.id)
+        return Job.FAILED
+
+    def update_it(job):
+        """Updates the database to reflect the state of the evaluation of the given competition submission."""
+        logger.debug("Entering update_submission_task::update_it (job_id=%s)", job.id)
+        if (job.task_type != 'evaluate_submission'):
+            raise ValueError("Job has incorrect task_type (job.task_type=%s)", job.task_type)
+        task_args = json.loads(job.task_args_json)
+        submission_id = task_args['submission_id']
+        logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
+        submission = CompetitionSubmission.objects.get(pk=submission_id)
+        status = args['status']
+        logger.debug("Ready to update submission status (job_id=%s, submission_id=%s, status=%s)",
+                     job.id, submission_id, status)
+        result = None
+        try:
+            result = update_submission(submission, status)
+        except Exception as e:
+            logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
+                             job.id, submission_id, status)
+            raise SubmissionUpdateException(submission, e)
+        return result
 
     run_job_task(job_id, update_it, handle_update_exception)
