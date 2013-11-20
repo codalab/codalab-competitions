@@ -123,6 +123,8 @@ class BundleStoreTest(unittest.TestCase):
     temp_directory = os.path.join(test_temp, uuid)
     mock_uuid.uuid4.return_value = uuid
 
+    test_dirs_and_files = 'my test dirs_and_files sentinel'
+
     class MockBundleStore(BundleStore):
       def __init__(self, root):
         self.root = root
@@ -137,15 +139,25 @@ class BundleStoreTest(unittest.TestCase):
         tester.assertEqual(path, bundle_path)
         check_isdir_called[0] = True
       @classmethod
-      def check_for_symlinks(cls, path):
+      def recursive_ls(cls, path):
+        tester.assertEqual(path, temp_directory)
+        return test_dirs_and_files
+      @classmethod
+      def check_for_symlinks(cls, path, dirs_and_files=None):
+        if dirs_and_files is not None:
+          tester.assertEqual(dirs_and_files, test_dirs_and_files)
         tester.assertEqual(path, temp_directory)
         check_for_symlinks_called[0] = True
       @classmethod
-      def set_permissions(cls, path, permissions):
+      def set_permissions(cls, path, permissions, dirs_and_files=None):
+        if dirs_and_files is not None:
+          tester.assertEqual(dirs_and_files, test_dirs_and_files)
         tester.assertEqual(path, temp_directory)
         tester.assertEqual(permissions, 0o755)
       @classmethod
-      def hash_directory(cls, path):
+      def hash_directory(cls, path, dirs_and_files=None):
+        if dirs_and_files is not None:
+          tester.assertEqual(dirs_and_files, test_dirs_and_files)
         tester.assertTrue(path, temp_directory)
         return test_directory_hash
     bundle_store = MockBundleStore(test_root)

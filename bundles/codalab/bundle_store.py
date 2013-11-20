@@ -1,5 +1,4 @@
 # TODO(skishore): Add code to clean up the temp directory based on mtimes.
-# TODO(skishore): Maybe cache or reuse calls to recursive_ls.
 import errno
 import hashlib
 import itertools
@@ -62,11 +61,13 @@ class BundleStore(object):
     temp_directory = str(uuid.uuid4())
     temp_path = os.path.join(self.temp, temp_directory)
     shutil.copytree(absolute_path, temp_path)
-    self.check_for_symlinks(temp_path)
-    self.set_permissions(temp_path, 0o755)
+    # Recursively list the directory just once as an optimization.
+    dirs_and_files = self.recursive_ls(temp_path)
+    self.check_for_symlinks(temp_path, dirs_and_files)
+    self.set_permissions(temp_path, 0o755, dirs_and_files)
     # Hash the contents of the temporary directory, and then if there is no
     # data with this hash value, move this directory into the data directory.
-    data_hash = self.hash_directory(temp_path)
+    data_hash = self.hash_directory(temp_path, dirs_and_files)
     final_path = os.path.join(self.data, data_hash)
     if os.path.exists(final_path):
       shutil.rmtree(temp_path)
@@ -99,26 +100,26 @@ class BundleStore(object):
     return path[len(root):]
 
   @classmethod
-  def check_for_symlinks(cls, root):
+  def check_for_symlinks(cls, root, dirs_and_files=None):
     '''
     Raise ValueError if there are any symlinks under the given path.
     '''
-    (directories, files) = cls.recursive_ls(root)
+    (directories, files) = dirs_and_files or cls.recursive_ls(root)
     for path in itertools.chain(directories, files):
       if os.path.islink(path):
         raise ValueError('Found symlink %s under %s' % (path, root))
 
   @classmethod
-  def set_permissions(cls, root, permissions):
+  def set_permissions(cls, root, permissions, dirs_and_files=None):
     '''
     Sets the permissions bits for all directories and files under the path.
     '''
-    (directories, files) = cls.recursive_ls(root)
+    (directories, files) = dirs_and_files or cls.recursive_ls(root)
     for path in itertools.chain(directories, files):
       os.chmod(path, permissions)
 
   @classmethod
-  def hash_directory(cls, path):
+  def hash_directory(cls, path, dirs_and_files=None):
     '''
     Return the hash of the contents of the folder at the given path.
     This hash is independent of the path itself - if you were to move the
@@ -126,7 +127,7 @@ class BundleStore(object):
     '''
     absolute_path = cls.normalize_path(path)
     cls.check_isdir(absolute_path, 'get_directory_hash')
-    (directories, files) = cls.recursive_ls(absolute_path)
+    (directories, files) = dirs_and_files or cls.recursive_ls(absolute_path)
     # Sort and then hash all directories and then compute a hash of the hashes.
     # This two-level hash is necessary so that the overall hash is unambiguous -
     # if we updated directory_hash with the directory names themselves, then
