@@ -31,10 +31,6 @@ from guardian.shortcuts import assign_perm
 ## Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
-    PrivateStorage = StorageClass(account_name=settings.PRIVATE_AZURE_ACCOUNT_NAME,
-                                         account_key=settings.PRIVATE_AZURE_ACCOUNT_KEY,
-                                         azure_container=settings.PRIVATE_AZURE_CONTAINER)
-
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                         account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                         azure_container=settings.BUNDLE_AZURE_CONTAINER)
@@ -44,7 +40,6 @@ try:
                                         azure_container=settings.AZURE_CONTAINER)
 
 except:
-    PrivateStorage = StorageClass()
     BundleStorage = StorageClass()
     PublicStorage = StorageClass()
 

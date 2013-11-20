@@ -23,7 +23,7 @@ class Base(Settings):
     PORT = '8000'
     DOMAIN_NAME='localhost'
     SERVER_NAME='localhost'
-    DEBUG = True
+    DEBUG = False
     TEMPLATE_DEBUG = DEBUG
 
     if 'CONFIG_SERVER_NAME' in os.environ:
@@ -48,9 +48,8 @@ class Base(Settings):
     VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
 
     DEPLOY_ROLES = { 'web': ['localhost'],
-                    'celery': ['localhost'],
-                    }
-   
+                     'celery': ['localhost'], }
+
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     CODALAB_VERSION = __version__
@@ -325,15 +324,14 @@ class Base(Settings):
                 try:
                     __import__(a)
                 except ImportError as e:
-                    print e               
+                    print e
                 else:
                     cls.INSTALLED_APPS += (a,)
-        cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
-                                'CONFIG_SERVER_NAME': cls.SERVER_NAME
-                                })
+        cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
+                                 'CONFIG_SERVER_NAME': cls.SERVER_NAME })
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
             cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
-      
+
     @classmethod
     def post_setup(cls):
         if not hasattr(cls,'PORT'):
@@ -367,7 +365,7 @@ class DevBase(Base):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'),                      # Or path to database file if using sqlite3.
+            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
             # The following settings are not used with sqlite3:
             'USER': '',
             'PASSWORD': '',
