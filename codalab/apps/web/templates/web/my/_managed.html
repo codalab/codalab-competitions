@@ -31,12 +31,11 @@
               </div>
             </div>
           </a>
-          <div class="small-10 columns cursor-default myCompetitionButtons">
-            <!-- comment out delete to make things safe -->
-            <!--
-            <a href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
-            -->
+          <div id="competition-actions" published="{{competition.published}}" class="small-10 columns cursor-default myCompetitionButtons">
+            <a id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
             <a href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
+            <button value="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button" class="secondary button">Publish</button>
+<!--            <button value="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button" class="secondary button">Unpublish</button> -->
             <a href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
          </div>
        </div>
@@ -44,3 +43,7 @@
     </div>                
   {% endfor %}    
 {% endif %}
+
+{% block jsincludes %}
+<script type="text/javascript" src="{% static "js/Competition.js" %}"></script>
+{% endblock jsincludes %}

@@ -93,3 +93,9 @@ class CompetitionsPhase(TestCase):
         self.assertEqual(phases[0].is_active, False);
         self.assertEqual(phases[1].is_active, True);
  
+# Publish / Unpublish Test
+# Create a competition
+# Get the list of competitions (The new one should not be in it, and the new one should have the published flag set to false)
+# Publish the new one
+# The new one should be in the list and have the published flag set to true
+# Check turning off works

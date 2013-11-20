@@ -14,14 +14,14 @@ bundles/bundles.fs
 
 # Virtuelenv files #
 ####################
-venv/*/*
-*venv*
+**/**/venv
+venv/
 
 # Project Files #
 #################
 *.pyproj
-*.sln
 *.suo
+*.sln
 
 # Compass/SASS generated files #
 ################################
