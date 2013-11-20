@@ -81,7 +81,7 @@ class BundleStore(object):
   def recursive_ls(cls, path):
     '''
     Return two lists (directories, files) of files under the given path.
-    All subpaths are given as relative path under the directory.
+    All subpaths are given as absolute paths under the directory.
     '''
     absolute_path = cls.normalize_path(path)
     cls.check_isdir(absolute_path, 'recursive_ls')
@@ -119,7 +119,7 @@ class BundleStore(object):
     '''
     absolute_path = cls.normalize_path(path)
     cls.check_isdir(absolute_path, 'get_directory_hash')
-    (directories, files) = cls.recursive_ls(path)
+    (directories, files) = cls.recursive_ls(absolute_path)
     # Sort and then hash all directories and then compute a hash of the hashes.
     # This two-level hash is necessary so that the overall hash is unambiguous -
     # if we updated directory_hash with the directory names themselves, then
