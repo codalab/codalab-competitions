@@ -4,7 +4,7 @@ import mock
 import os
 import unittest
 
-from codalab.bundle_store import BundleStore
+from codalab.lib.bundle_store import BundleStore
 
 
 class BundleStoreTest(unittest.TestCase):
@@ -24,8 +24,8 @@ class BundleStoreTest(unittest.TestCase):
       assert(path == BundleStoreTest.unnormalized_test_root)
       return BundleStoreTest.test_root
 
-  @mock.patch('codalab.bundle_store.os')
-  @mock.patch('codalab.bundle_store.shutil', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.os')
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=lambda: None)
   def test_init(self, mock_shutil, mock_os):
     '''
     Check that __init__ calls normalize path and then creates the directories.
@@ -34,8 +34,8 @@ class BundleStoreTest(unittest.TestCase):
     self.MockBundleStore(self.unnormalized_test_root)
     self.assertEqual(mock_os.mkdir.call_args_list, self.mkdir_calls)
 
-  @mock.patch('codalab.bundle_store.os')
-  @mock.patch('codalab.bundle_store.shutil', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.os')
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=lambda: None)
   def test_init_with_existing_directories(self, mock_shutil, mock_os):
     '''
     Check that __init__ still works if store directories already exist.
@@ -53,8 +53,8 @@ class BundleStoreTest(unittest.TestCase):
     self.assertEqual(mock_os.mkdir.call_args_list, self.mkdir_calls)
     self.assertEqual(failures[0], 1)
 
-  @mock.patch('codalab.bundle_store.os')
-  @mock.patch('codalab.bundle_store.shutil', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.os')
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=lambda: None)
   def test_init_with_failures(self, mock_shutil, mock_os):
     '''
     Check that __init__ fails when mkdir fails with OS errors other than EEXIST.
@@ -71,8 +71,8 @@ class BundleStoreTest(unittest.TestCase):
     )
     self.assertEqual(mock_os.mkdir.call_args_list, self.mkdir_calls[:2])
 
-  @mock.patch('codalab.bundle_store.os', new_callable=lambda: None)
-  @mock.patch('codalab.bundle_store.shutil', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.os', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=lambda: None)
   def test_get_relative_path(self, mock_shutil, mock_os):
     '''
     Test that get_relative_path checks if the root is a prefix of the path,
@@ -89,9 +89,9 @@ class BundleStoreTest(unittest.TestCase):
       lambda: BundleStore.get_relative_path('asdfg', 'asdfblah'),
     )
 
-  @mock.patch('codalab.bundle_store.uuid')
-  @mock.patch('codalab.bundle_store.os', new_callable=mock.Mock)
-  @mock.patch('codalab.bundle_store.shutil', new_callable=mock.Mock)
+  @mock.patch('codalab.lib.bundle_store.uuid')
+  @mock.patch('codalab.lib.bundle_store.os', new_callable=mock.Mock)
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=mock.Mock)
   def run_upload_trial(self, mock_shutil, mock_os, mock_uuid, new):
     '''
     Test that upload takes the following actions, in order:
@@ -176,8 +176,8 @@ class BundleStoreTest(unittest.TestCase):
   def test_old_upload(self):
     self.run_upload_trial(new=False)
 
-  @mock.patch('codalab.bundle_store.os', new_callable=lambda: None)
-  @mock.patch('codalab.bundle_store.shutil', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.os', new_callable=lambda: None)
+  @mock.patch('codalab.lib.bundle_store.shutil', new_callable=lambda: None)
   def test_hash_directory(self, mock_shutil, mock_os):
     '''
     Test the two-level hashing scheme, mocking out all filesystem operations.

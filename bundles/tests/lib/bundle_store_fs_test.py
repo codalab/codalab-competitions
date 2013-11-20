@@ -5,7 +5,7 @@ import shutil
 import stat
 import unittest
 
-from codalab.bundle_store import BundleStore
+from codalab.lib.bundle_store import BundleStore
 
 
 class BundleStoreFSTest(unittest.TestCase):
