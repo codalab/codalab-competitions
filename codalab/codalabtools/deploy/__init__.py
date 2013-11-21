@@ -195,11 +195,11 @@ class DeploymentConfig(BaseConfig):
 
     def getServicePublicStorageContainer(self):
         """Gets the name of the public Blob container for the service."""
-        return self._svc['storage']['container-public']
+        return self._svc['storage']['public-container']
 
     def getServiceBundleStorageContainer(self):
         """Gets the name of the bundle Blob container for the service."""
-        return self._svc['storage']['container-bundles']
+        return self._svc['storage']['bundles-container']
 
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
