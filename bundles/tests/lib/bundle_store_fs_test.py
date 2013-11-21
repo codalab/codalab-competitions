@@ -1,3 +1,4 @@
+# TODO(skishore): Refactor this test to use tempfile / tempfs.
 import errno
 import hashlib
 import os

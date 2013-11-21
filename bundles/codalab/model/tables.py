@@ -1,33 +1,48 @@
+from sqlalchemy import (
+  Column,
+  ForeignKey,
+  MetaData,
+  Table,
+)
+from sqlalchemy.types import (
+  Boolean,
+  Integer,
+  String,
+  Text,
+)
+
 # TODO(skishore): Add various indices once we know how we're querying the db.
 # TODO(skishore): Write these in a MySQL-compatible form.
-create_table_statements = [
-  '''
-    CREATE TABLE bundle (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      bundle_type VARCHAR(63) NOT NULL,
-      status VARCHAR(63) NOT NULL,
-      is_active TINYINT NOT NULL,
-      data_hash VARCHAR(63) NOT NULL
-    )
-  ''',
-  '''
-    CREATE TABLE bundle_metadata (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      bundle_id INTEGER NOT NULL,
-      metadata_key VARCHAR(63) NOT NULL,
-      metadata_value VARCHAR(63) NOT NULL,
-      FOREIGN KEY (bundle_id) REFERENCES bundle(id)
-    )
-  ''',
-  '''
-    CREATE TABLE dependency (
-      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-      dependency_type VARCHAR(63) NOT NULL,
-      child_bundle_id INT(11) NOT NULL,
-      parent_bundle_id INT(11) NOT NULL,
-      parent_subpath MEDIUMTEXT NOT NULL,
-      FOREIGN KEY (child_bundle_id) REFERENCES bundle(id),
-      FOREIGN KEY (parent_bundle_id) REFERENCES bundle(id)
-    )
-  ''',
-]
+db_metadata = MetaData()
+
+bundle = Table(
+  'bundle',
+  db_metadata,
+  Column('id', Integer, primary_key=True, nullable=False),
+  Column('bundle_type', String(63), nullable=False),
+  Column('status', String(63), nullable=False),
+  Column('is_current', Boolean, nullable=False),
+  Column('data_hash', String(63), nullable=False),
+  sqlite_autoincrement=True,
+)
+
+bundle_metadata = Table(
+  'bundle_metadata',
+  db_metadata,
+  Column('id', Integer, primary_key=True, nullable=False),
+  Column('bundle_id', Integer, ForeignKey(bundle.c.id), nullable=False),
+  Column('metadata_key', String(63), nullable=False),
+  Column('metadata_value', String(63), nullable=False),
+  sqlite_autoincrement=True,
+)
+
+dependency = Table(
+  'dependency',
+  db_metadata,
+  Column('id', Integer, primary_key=True, nullable=False),
+  Column('dependency_type', String(63), nullable=False),
+  Column('child_bundle_id', Integer, ForeignKey(bundle.c.id), nullable=False),
+  Column('parent_bundle_id', Integer, ForeignKey(bundle.c.id), nullable=False),
+  Column('parent_subpath', Text, nullable=False),
+  sqlite_autoincrement=True,
+)

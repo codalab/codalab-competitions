@@ -1,13 +1,16 @@
 import os
-import sqlite3
+from sqlalchemy import create_engine
 
 from codalab.model.bundle_model import BundleModel
 
 
 class SQLiteModel(BundleModel):
-  SQLITE_DB_FILE_NAME = 'bundles.db'
+  SQLITE_DB_FILE_NAME = 'bundle.db'
 
   def __init__(self, root):
-    sqlite_db_path = os.path.join(root, self.SQLITE_DB_FILE_NAME)
-    sqlite_db = sqlite3.connect(sqlite_db_path)
-    super(SQLiteModel, self).__init__(sqlite_db.cursor())
+    if not os.path.isabs(root):
+      root = os.path.join(os.getcwd(), root)
+    normalized_root = os.path.normpath(root)
+    sqlite_db_path = os.path.join(normalized_root, self.SQLITE_DB_FILE_NAME)
+    engine = create_engine('sqlite:///%s' % (sqlite_db_path,))
+    super(SQLiteModel, self).__init__(engine)
