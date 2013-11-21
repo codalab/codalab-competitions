@@ -273,7 +273,7 @@ def deploy_web():
             with cd('codalab'):
                 run('python manage.py config_gen')
                 run('python manage.py syncdb --migrate')
-                run('python manage.py scripts/initialize.py')
+                run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
 
