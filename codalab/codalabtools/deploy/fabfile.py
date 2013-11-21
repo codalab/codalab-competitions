@@ -15,6 +15,7 @@ sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 from StringIO import StringIO
 from fabric.api import (cd,
                         env,
+                        execute,
                         prefix,
                         put,
                         require,
@@ -67,97 +68,8 @@ def provision_packages(packages=None):
     sudo('pip install -U --force-reinstall wheel')
 
 #
-# Tasks
+# Tasks for reading configuration information.
 #
-
-@task
-@roles('build', 'web')
-def connect():
-    """
-    Verifies that we can connect to all instances.
-    """
-    require('configuration')
-    sudo('hostname')
-
-
-@roles("build")
-@task
-def build():
-    """
-    Builds artifacts to install on the deployment instances.
-    """
-    require('configuration')
-
-    pip_cache_dir = os.path.join('builds', 'pip_cache')
-    if not exists(pip_cache_dir):
-        run('mkdir -p %s' % pip_cache_dir)
-    with cd(pip_cache_dir):
-        pip_download_cache = run('pwd')
-
-    build_dir = os.path.join('builds', env.git_user, env.git_repo)
-    src_dir = os.path.join(build_dir, env.git_tag)
-    if exists(src_dir):
-        run('rm -rf %s' % (src_dir.rstrip('/')))
-    with settings(warn_only=True):
-        run('mkdir -p %s' % src_dir)
-    with cd(src_dir):
-        run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
-        buf = StringIO()
-        buf.write(env.settings_content)
-        settings_file = os.path.join('codalab', 'codalab', 'settings', 'local.py')
-        put(buf, settings_file)
-    wheel_dir = os.path.join(src_dir, 'wheel_packages')
-    requirements_dir = os.path.join(src_dir, 'codalab', 'requirements')
-    run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
-                                                                                  wheel_dir,
-                                                                                  requirements_dir))
-    with cd(build_dir):
-        run('rm -f %s' % env.build_archive)
-        run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
-
-@roles("build")
-@task
-def push_build():
-    """
-    Pushes the output of the build task to the instances where the build artifacts will be installed.
-    """
-    require('configuration')
-    build_dir = os.path.join('builds', env.git_user, env.git_repo)
-    with cd(build_dir):
-        for host in env.roledefs['web']:
-            parts = host.split(':', 1)
-            host = parts[0]
-            port = parts[1]
-            run('scp -P {0} {1} {2}@{3}:{4}'.format(port, env.build_archive, env.user, host, env.build_archive))
-
-@roles('web')
-@task
-def deploy_web():
-    """
-    Installs the output of the build on the web instances.
-    """
-    require('configuration')
-
-    #export CONFIG_SERVER_NAME=cxpdev.cloudapp.net
-    #export DJANGO_SETTINGS_MODULE=codalab.settings
-    #export CONFIG_HTTP_PORT=80
-    #export DJANGO_CONFIGURATION=Prod
-    if exists(env.deploy_dir):
-        run('rm -rf %s' % env.deploy_dir)
-    run('tar -xvzf ../%s' % env.build_archive)
-    run('mv %s deploy' % env.git_tag)
-    run('source /usr/local/bin/virtualenvwrapper.sh')
-    run('mkvirtualenv venv')
-    with cd(env.deploy_dir):
-        with prefix('workon venv'), shell_env(**env.SHELL_ENV):
-            requirements_path = os.path.join('codalab', 'requirements', 'dev_azure_nix.txt')
-            pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
-            run(pip_cmd)
-            with cd('codalab'):
-                run('python manage.py config_gen')
-                run('python manage.py syncdb --migrate')
-                run('python manage.py collectstatic --noinput')
-                sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
 
 @task
 def using(path):
@@ -194,14 +106,39 @@ def config(label=None):
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
         env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
-
-        dep = Deployment(configuration)
-        env.settings_content = dep.getSettingsFileContent()
-        print env.settings_content
         env.deploy_dir = 'deploy'
         env.build_archive = '{0}.tar.gz'.format(env.git_tag)
+        env.django_settings_module = 'codalab.settings'
+        env.django_configuration = configuration.getDjangoConfiguration()
+        env.config_http_port = '80'
+        env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
 
     env.configuration = True
+
+#
+# Tasks for provisioning machines
+#
+
+@task
+@roles('build')
+def provision_build():
+    """
+    Installs required software packages on a newly provisioned build machine.
+    """
+    packages = ('build-essential python-crypto python2.7-dev python-setuptools ' +
+                'libmysqlclient-dev mysql-client-core-5.5 ' +
+                'libpcre3-dev libpng12-dev libjpeg-dev git')
+    provision_packages(packages)
+
+@task
+@roles('web')
+def provision_web():
+    """
+    Installs required software packages on a newly provisioned web instance.
+    """
+    packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
+                'libpcre3 libjpeg8 libpng3 nginx supervisor git')
+    provision_packages(packages)
 
 @task
 def provision(choice):
@@ -221,20 +158,10 @@ def provision(choice):
     dep.Deploy(assets)
     if 'build' in assets:
         logger.info("Installing sofware on the build machine.")
-        packages = ('build-essential python-crypto python2.7-dev python-setuptools' +
-                    'libmysqlclient-dev mysql-client-core-5.5' +
-                    'libpcre3-dev libpng12-dev libjpeg-dev' +
-                    'git')
-        provision_packages(packages)
+        execute(provision_build)
     if 'web' in assets:
         logger.info("Installing sofware on web instances.")
-        packages = ('language-pack-en' +
-                    'python2.7 python-setuptools' +
-                    'libmysqlclient18' +
-                    'libpcre3 libjpeg8 libpng3' +
-                    'nginx supervisor' +
-                    'git')
-        provision_packages(packages)
+        execute(provision_web)
     logger.info("Provisioning is complete.")
 
 @task
@@ -254,3 +181,125 @@ def teardown(choice):
     dep = Deployment(configuration)
     dep.Teardown(assets)
     logger.info("Teardown is complete.")
+
+@task
+@roles('build', 'web')
+def test_connections():
+    """
+    Verifies that we can connect to all instances.
+    """
+    require('configuration')
+    sudo('hostname')
+
+#
+# Tasks for creating and installing build artifacts
+#
+
+@roles("build")
+@task
+def build():
+    """
+    Builds artifacts to install on the deployment instances.
+    """
+    require('configuration')
+
+    pip_cache_dir = os.path.join('builds', 'pip_cache')
+    if not exists(pip_cache_dir):
+        run('mkdir -p %s' % pip_cache_dir)
+    with cd(pip_cache_dir):
+        pip_download_cache = run('pwd')
+
+    build_dir = os.path.join('builds', env.git_user, env.git_repo)
+    src_dir = os.path.join(build_dir, env.git_tag)
+    if exists(src_dir):
+        run('rm -rf %s' % (src_dir.rstrip('/')))
+    with settings(warn_only=True):
+        run('mkdir -p %s' % src_dir)
+    with cd(src_dir):
+        run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
+        # Generate settings file (local.py)
+        configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+        dep = Deployment(configuration)
+        buf = StringIO()
+        buf.write(dep.getSettingsFileContent())
+        settings_file = os.path.join('codalab', 'codalab', 'settings', 'local.py')
+        put(buf, settings_file)
+    wheel_dir = os.path.join(src_dir, 'wheel_packages')
+    requirements_dir = os.path.join(src_dir, 'codalab', 'requirements')
+    run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
+                                                                                  wheel_dir,
+                                                                                  requirements_dir))
+    with cd(build_dir):
+        run('rm -f %s' % env.build_archive)
+        run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
+
+@roles("build")
+@task
+def push_build():
+    """
+    Pushes the output of the build task to the instances where the build artifacts will be installed.
+    """
+    require('configuration')
+    build_dir = os.path.join('builds', env.git_user, env.git_repo)
+    with cd(build_dir):
+        for host in env.roledefs['web']:
+            parts = host.split(':', 1)
+            host = parts[0]
+            port = parts[1]
+            run('scp -P {0} {1} {2}@{3}:{4}'.format(port, env.build_archive, env.user, host, env.build_archive))
+
+@roles('web')
+@task
+def deploy_web():
+    """
+    Installs the output of the build on the web instances.
+    """
+    require('configuration')
+    if exists(env.deploy_dir):
+        run('rm -rf %s' % env.deploy_dir)
+    run('tar -xvzf %s' % env.build_archive)
+    run('mv %s deploy' % env.git_tag)
+    run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv venv')
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name)
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+            requirements_path = os.path.join('codalab', 'requirements', 'dev_azure_nix.txt')
+            pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
+            run(pip_cmd)
+            with cd('codalab'):
+                run('python manage.py config_gen')
+                run('python manage.py syncdb --migrate')
+                run('python manage.py scripts/initialize.py')
+                run('python manage.py collectstatic --noinput')
+                sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+
+@roles('web')
+@task
+def supervisor():
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisord -c codalab/config/generated/supervisor.conf')
+
+@roles('web')
+@task
+def supervisor_stop():
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
+
+@roles('web')
+@task
+def supervisor_restart():
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisorctl -c codalab/config/generated/supervisor.conf restart all')
+
+@roles('web')
+@task
+def nginx_restart():
+    sudo('/etc/init.d/nginx restart')
+

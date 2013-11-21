@@ -6,9 +6,8 @@ from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
-import djcelery
-__version__ = 'N/A'
 
+__version__ = 'N/A'
 try:
     import codalab.version
     __version__ = codalab.version.__version__
@@ -185,17 +184,10 @@ class Base(Settings):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
-        'djcelery',
-
-        # Django / Jenkins CI support
-        #'django_jenkins',
 
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
         'rest_framework',
-
-        # WYSIWYG Editor for Content pages
-        #'django_wysiwyg',
 
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',
@@ -231,7 +223,7 @@ class Base(Settings):
         'allauth.socialaccount',
     )
 
-    OPTIONAL_APPS = [ 'django_wsgiserver',]
+    OPTIONAL_APPS = []
     INTERNAL_IPS = []
 
     # Email Configuration
@@ -301,6 +293,11 @@ class Base(Settings):
             }
         },
         'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
             'django.request': {
                 'handlers': ['mail_admins'],
                 'level': 'ERROR',
@@ -359,8 +356,6 @@ class DevBase(Base):
             'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
         },
     }
-
-    INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
 
     DATABASES = {
         'default': {
