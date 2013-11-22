@@ -10,7 +10,6 @@
                 <li><a href="#develop" class="scrollTo" tabindex=8>Develop with Experiments</a></li>
                 <li><a href="#compete" class="scrollTo" tabindex=9>Compete in Challenges</a></li>
                 <li><a href="#yourdata" class="scrollTo" tabindex=10>Your Data in the Cloud</a></li>
-                <li><a href="#glossary" class="scrollTo" tabindex=11>Glossary</a></li>
             </ul>
         </div>
     </div>
@@ -37,7 +36,7 @@
         <a id="compete" class="anchor"></a>
         <h2>Compete in Challenges</h2>
         <p>
-            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <a href="{% url 'help_create_competition' %}">Get help with creating a competition</a>.
+            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <a href="{% url 'help' %}">Get help with creating a competition</a>.
         </p>
 
         <hr />
@@ -46,24 +45,6 @@
         <p>
             Datasets form the basis for competitions. CodaLab gives you the ability to upload data to Microsoft Azure&#8482; for use in competitions. Datasets can include CT scans, MRIs, and other types of images. Each dataset represents a problem or set of problems to solve. For example, a competition could be created to find the most efficient way of segmenting mitochondria in a scanned cross-section of a human brain.
         </p>
-
-        <hr />
-        <a id="glossary" class="anchor"></a>
-        <h2>Glossary</h2> 
-        <ul>
-            <li>
-                <b>Competition</b> - An organized way for users to upload either a program or a bundle with predictions. An evaluation program will automatically score these predictions against the dataset provided by the competition organizer.
-            </li>
-            <li>
-              <b>Bundle</b> - An immutable directory which could contain the code or data.  A Bundle can depend on other Bundles.
-            </li>
-            <li>
-              <b>Run</b> - A type of Bundle which is equipped with a command-line string, which specifies how to execute the code in the Bundle.  Execution produces an output directory and various statistics.
-            </li>
-            <li>
-                <b>User</b> - Someone who creates programs, datasets, experiments, and participates in competitions.
-            </li>
-        </ul>
         <div class="spacer500">&nbsp;</div>
     </div>    
     <!-- Nav Sidebar -->
