@@ -1,7 +1,7 @@
 class Metadata(object):
-  def __init__(self, metadata_dict):
+  def __init__(self, **kwargs):
     self._metadata_keys = set()
-    for (key, value) in metadata_dict.iteritems():
+    for (key, value) in kwargs.iteritems():
       self.set_metadata_key(key, value)
 
   def validate(self, metadata_types):
@@ -12,7 +12,7 @@ class Metadata(object):
     for key in self._metadata_keys:
       if key not in metadata_types:
         raise ValueError('Unexpected metadata key: %s' % (key,))
-    for (key, value_type) in self.metadata_types:
+    for (key, value_type) in metadata_types.iteritems():
       if key not in self._metadata_keys:
         raise ValueError('Missing metadata key: %s' % (key,))
       value = getattr(self, key)
@@ -57,13 +57,13 @@ class Metadata(object):
       if value_type == set:
         metadata_dict[key].add(value)
       else:
-        if key in metadata_dict:
+        if metadata_dict.get(key):
           raise ValueError(
             'Got duplicate values %s and %s for key %s' %
             (metadata_dict[key], value, key)
           )
         metadata_dict[key] = cls.get_type_constructor(value_type)(value)
-    return Metadata(metadata_dict)
+    return Metadata(**metadata_dict)
 
   def to_dicts(self, metadata_types):
     '''

@@ -1,9 +1,10 @@
 import re
 
-from codalab.objects.bundle import bundle
+from codalab.common import State
+from codalab.objects.bundle import Bundle
 
 
-class NamedBundle(Bundle):
+class UploadedBundle(Bundle):
   METADATA_TYPES = {
     'name': basestring,
     'description': basestring,
@@ -11,8 +12,18 @@ class NamedBundle(Bundle):
   }
   NAME_REGEX = '[a-zA-Z_][a-zA-Z0-9_]*'
 
+  @classmethod
+  def construct(cls, data_hash, metadata):
+    return cls({
+      'bundle_type': cls.BUNDLE_TYPE,
+      'data_hash': data_hash,
+      'state': State.READY,
+      'is_current': True,
+      'metadata': metadata,
+    })
+
   def validate(self):
-    super(NamedBundle, self).validate()
+    super(UploadedBundle, self).validate()
     class_name = self.__class__.__name__
     if not self.metadata.name:
       raise ValueError('%ss must have non-empty names' % (class_name,))

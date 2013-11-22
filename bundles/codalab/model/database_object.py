@@ -1,5 +1,6 @@
 class DatabaseObject(object):
   # To use this class, subclass it and set the list of non-id columns.
+  # The get_non_id_columns method may be helpful.
   COLUMNS = None
 
   def __init__(self, row):
@@ -22,3 +23,10 @@ class DatabaseObject(object):
     if hasattr(self, 'id'):
       result['id'] = self.id
     return result
+
+  @staticmethod
+  def get_non_id_columns(table):
+    '''
+    Return the tuple of names of non-id columns of a SQLAlchemy Table object.
+    '''
+    return tuple(column.name for column in table.c if column.name != 'id')
