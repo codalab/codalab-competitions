@@ -416,12 +416,13 @@ class Deployment(object):
         account_name = self.config.getStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
         blob_service = BlobService(account_name, account_key)
-        names = [ self.config.getServicePublicStorageContainer(),
-                  self.config.getServiceBundleStorageContainer() ]
-        for name in names:
+        name_and_access_list = [ (self.config.getServicePublicStorageContainer(), 'blob'),
+                                 (self.config.getServiceBundleStorageContainer(), None) ]
+        for name, access in name_and_access_list:
             logger.info("Checking for existence of Blob container %s.", name)
-            blob_service.create_container(name, fail_on_exist=False)
-            logger.info("Blob container %s is ready.", name)
+            blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
+            access_info = 'private' if access is None else 'public {0}'.format(access)
+            logger.info("Blob container %s is ready (access: %s).", name, access_info)
 
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
