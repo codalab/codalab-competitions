@@ -665,7 +665,7 @@ class SubmissionScoreDef(models.Model):
 class CompetitionDefBundle(models.Model):
     config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def unpack(self):
         """
