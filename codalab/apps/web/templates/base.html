@@ -83,6 +83,7 @@
                     <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
                 <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
+                <li id="liHelp"><a href="/help/help.html">Help</a></li>
                 {% if user.is_authenticated %}
                     <li class="has-dropdown">
                       <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
@@ -149,7 +150,7 @@
         <div class="small-6 columns">
             <ul class="inline-list right">
                 <!-- <li>CodaLab v.0 ()</li> -->
-                <li><a href="/help/about.html">Help</a></li>
+                <li><a href="/help/help.html">Help</a></li>
                 <li><a href="mailto:info@codalab.org">Contact Us</a></li>
                 <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Feedback</a></li>
                 <li><a href="http://codalab.github.io/codalab/notices.html">Notices</a></li>
