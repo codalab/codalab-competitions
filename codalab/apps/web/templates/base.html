@@ -83,6 +83,7 @@
                     <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my">My CodaLab</a></li>  
                 {% endif %}
                 <li id="liAbout"><a href="/help/about.html" tabindex=5>About</a></li>
+                <li id="liHelp"><a href="/help/help.html">Help</a></li>
                 {% if user.is_authenticated %}
                     <li class="has-dropdown">
                       <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
