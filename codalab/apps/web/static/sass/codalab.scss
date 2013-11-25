@@ -27,6 +27,12 @@ body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
   }
 
 
+// _grid customizations
+[class*="column"] + [class*="column"]:last-child {
+    float: none; // changed from right
+}
+
+
 // _panels customizations
 $panel-bg: darken(#fff, 8%) !default; // changed from 5%
 $panel-font-color: #555 !default;
