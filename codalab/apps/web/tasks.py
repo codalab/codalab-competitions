@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from apps.jobs.models import (Job,
                               run_job_task,
+                              JobTaskResult,
                               getQueue)
 from apps.web.models import (CompetitionSubmission,
                              CompetitionDefBundle,
@@ -35,7 +36,7 @@ def echo_task(job_id, args):
     def echo_it(job):
         """Echoes the message specified."""
         logger.info("Echoing (job id=%s): %s", job.id, args['message'])
-        return Job.FINISHED
+        return JobTaskResult(status=Job.FINISHED)
 
     run_job_task(job_id, echo_it)
 
@@ -63,11 +64,13 @@ def create_competition_task(job_id, args):
     def create_it(job):
         """Handles the actual creation of the competition"""
         comp_def_id = args['comp_def_id']
-        logger.info("Creating competition for competition bundle (bundle_id=%s, job_id=%s)", comp_def_id, job.id)
+        logger.info("Creating competition for competition bundle (bundle_id=%s, job_id=%s)",
+                    comp_def_id, job.id)
         competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
-        competition_def.unpack()
-        logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s)", comp_def_id, job.id)
-        return Job.FINISHED
+        competition = competition_def.unpack()
+        logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
+                    comp_def_id, job.id, competition.pk)
+        return JobTaskResult(status=Job.FINISHED, info={ 'competition_id': competition.pk })
 
     run_job_task(job_id, create_it)
 
@@ -227,14 +230,14 @@ def update_submission_task(job_id, args):
             submission.save()
         except Exception:
             logger.exception("Unable to set the submission status to Failed (job_id=%s)", job.id)
-        return Job.FAILED
+        return JobTaskResult(status=Job.FAILED)
 
     def update_it(job):
         """Updates the database to reflect the state of the evaluation of the given competition submission."""
         logger.debug("Entering update_submission_task::update_it (job_id=%s)", job.id)
         if (job.task_type != 'evaluate_submission'):
             raise ValueError("Job has incorrect task_type (job.task_type=%s)", job.task_type)
-        task_args = json.loads(job.task_args_json)
+        task_args = job.get_task_args()
         submission_id = task_args['submission_id']
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
@@ -248,6 +251,6 @@ def update_submission_task(job_id, args):
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)
             raise SubmissionUpdateException(submission, e)
-        return result
+        return JobTaskResult(status=result)
 
     run_job_task(job_id, update_it, handle_update_exception)

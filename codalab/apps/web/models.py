@@ -669,8 +669,10 @@ class CompetitionDefBundle(models.Model):
 
     def unpack(self):
         """
-        This method unpacks a competition bundle and creates a competition from the assets found inside (the competition bundle).
-        The competition bundle is described on the CodaLab Wiki: https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle
+        This method unpacks a competition bundle and creates a competition from
+        the assets found inside (the competition bundle). The format of the 
+        competition bundle is described on the CodaLab Wiki: 
+        https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle
         """
         # Get the bundle data, which is stored as a zipfile
         zf = zipfile.ZipFile(self.config_bundle)
@@ -796,15 +798,15 @@ class CompetitionDefBundle(models.Model):
                     if 'column_group' in vals:
                         gparent = groups[vals['column_group']['label']]
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-		                        competition=comp,
+                                competition=comp,
                                 parent=gparent,
-		                        key=sd.key,
-		                        defaults=dict(scoredef=sd, label=sd.label))
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
-		                        competition=comp,
-		                        key=sd.key,
-		                        defaults=dict(scoredef=sd, label=sd.label))
+                                competition=comp,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
