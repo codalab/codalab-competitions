@@ -2,18 +2,26 @@
 Defines unit tests for this Django app.
 """
 import json
+import logging
 import time
 
 from django.test import TestCase
 from django.utils import timezone
 
 from apps.jobs import models
-from apps.jobs.models import Job, run_job_task
+from apps.jobs.models import Job, run_job_task, JobTaskResult
 
 class JobsTests(TestCase):
     """
     Tests for creating, updating and deleting jobs.
     """
+    def setUp(self):
+        """
+        Class-level setup.
+        """
+        # Limit logging to critical to keep test output uncluttered.
+        for logger_name in ('codalab', 'apps'):
+            logging.getLogger(logger_name).setLevel(logging.CRITICAL)
 
     def test_basic_create_delete(self):
         """
@@ -141,14 +149,29 @@ class JobsTests(TestCase):
         self.assertEqual(job.updated, last_updated)
         job.delete()
 
+    def test_update_task_with_info(self):
+        """
+        Test setting and getting custom info on a job.
+        """
+        job = Job.objects.create()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
+        info = { 'key1': "value1", 'key2' : 2 }
+        models.update_job_status_task(job.id, { 'status': 'finished', 'info' : info })
+        job = Job.objects.get(pk=job.id)
+        self.assertEqual(job.status, Job.FINISHED)
+        self.assertDictEqual(job.get_task_info(), info)
+        job.delete()
+
     def test_run_job_task1(self):
         """Exercise basics of run_job_task function: no exceptions."""
         job = Job.objects.create()
         self.assertIsNotNone(job)
         self.assertEqual(job.status, Job.PENDING)
-        run_job_task(job.id, lambda ajob : Job.RUNNING)
+        self.assertDictEqual(job.get_task_info(), {})
+        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.RUNNING))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, lambda ajob : Job.FINISHED)
+        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.FINISHED))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.FINISHED)
         job.delete()
 
@@ -161,7 +184,7 @@ class JobsTests(TestCase):
         """Sample exception handler"""
         self.assertIsNotNone(aex.args[0])
         self.assertEquals(ajob, aex.args[0])
-        return Job.RUNNING
+        return JobTaskResult(status=Job.RUNNING)
 
     def test_run_job_task2(self):
         """Exercise basics of run_job_task function: exception no handler."""
@@ -179,8 +202,25 @@ class JobsTests(TestCase):
         self.assertEqual(job.status, Job.PENDING)
         run_job_task(job.id, JobsTests._comp_with_ex, self._ex_handler)
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: None)
+        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: JobTaskResult())
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: Job.FAILED)
+        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: JobTaskResult(status=Job.FAILED))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.FAILED)
+        job.delete()
+
+    def test_run_job_task4(self):
+        """Exercise basics of run_job_task function: with info provided."""
+        job = Job.objects.create()
+        self.assertIsNotNone(job)
+        self.assertEqual(job.status, Job.PENDING)
+        info1 = { 'key1': 'value1', 'key2': 2 }
+        info2 = { 'key1': 'value1', 'key2': 2, 'key3': 3.3 }
+        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.RUNNING, info=info1))
+        j = Job.objects.get(pk=job.id)
+        self.assertEqual(j.status, Job.RUNNING)
+        self.assertDictEqual(j.get_task_info(), info1)
+        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.FINISHED, info=info2))
+        j = Job.objects.get(pk=job.id)
+        self.assertEqual(j.status, Job.FINISHED)
+        self.assertDictEqual(j.get_task_info(), info2)
         job.delete()

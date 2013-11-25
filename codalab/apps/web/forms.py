@@ -5,11 +5,6 @@ import models
 
 User =  get_user_model()
 
-class CompetitionDefBundleForm(forms.ModelForm):
-    class Meta:
-        model = models.CompetitionDefBundle
-        fields = ['config_bundle']
-
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition

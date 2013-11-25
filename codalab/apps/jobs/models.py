@@ -96,11 +96,30 @@ class Job(models.Model):
     status = models.PositiveIntegerField('Status', default=PENDING, db_index=True)
     task_type = models.CharField('Task type', max_length=256)
     task_args_json = models.TextField('JSON-encoded task arguments', blank=True)
+    task_info_json = models.TextField('JSON-encoded task information', blank=True)
 
     objects = JobManager()
 
     def __unicode__(self):
         return "Job(pk={0})".format(self.pk)
+
+    def get_status_code_name(self):
+        """
+        Gets the code name of this job's status.
+        """
+        return Job.STATUS_BY_CODE[self.status]['code_name']
+
+    def get_task_args(self):
+        """
+        Gets the dictionary containing the task's arguments.
+        """
+        return json.loads(self.task_args_json) if len(self.task_args_json) > 0 else {}
+
+    def get_task_info(self):
+        """
+        Gets the dictionary containing information about the task's progress or its outcome.
+        """
+        return json.loads(self.task_info_json) if len(self.task_info_json) > 0 else {}
 
     def can_transition_to(self, new_status):
         """
@@ -136,21 +155,50 @@ def update_job_status_task(job_id, args):
     A task to update the status of a Job instance.
 
     job_id: The ID of the job to update.
-    args: A dictionary with the arguments for the task. Expected items are:
-        args['status']: friendly code name of the new status
+    args: A dictionary with the arguments for the task.
+          Required items are:
+            args['status']: friendly code name of the new status
+          Optional items are:
+            args['info']: a dictionary containing custom information about the
+                task's progress or outcome. The dictionary must be serializable
+                to JSON via the built-in 'json.dumps' function.
     """
     status_code_name = args['status']
     logger.debug("Starting request to update job (id=%s) with new status (status_code_name=%s)",
                  job_id, status_code_name)
     status = Job.STATUS_BY_CODE_NAME[status_code_name]
+    info_json = None
+    if 'info' in args:
+        info_json = json.dumps(args['info'])
     with transaction.commit_on_success():
         job = Job.objects.select_for_update().get(pk=job_id)
         if job.can_transition_to(status):
             job.status = status
+            if info_json is not None:
+                job.task_info_json = info_json
             job.save()
             logger.info("Completed update for job id=%s. New status=%s.", job_id, job.status)
         else:
             logger.warning("Skipping update for job id=%s: invalid transition %s -> %s.", job_id, job.status, status)
+
+class JobTaskResult(object):
+    """
+    Defines the result type expected from the computation method passed into the run_job_task function.
+    """
+    def __init__(self, status=None, info=None):
+        self.status = status
+        self.info = info
+        self._result = None
+        if status is not None:
+            self._result = { 'status': Job.STATUS_BY_CODE[status]['code_name'] }
+            if info is not None:
+                self._result['info'] = info
+
+    def get_dict(self):
+        """
+        Gets the result dictionary.
+        """
+        return self._result
 
 def run_job_task(job_id, computation, handle_exception=None):
     """
@@ -168,17 +216,19 @@ def run_job_task(job_id, computation, handle_exception=None):
     logger.debug("Entering run_job_task (job_id=%s).", job_id)
     try:
         job = Job.objects.get(pk=job_id)
-        new_status = computation(job)
+        result = computation(job)
         logger.debug("Task execution succeeded (job_id=%s, new_status=%s).",
-                     job_id, "unchanged" if new_status is None else new_status)
-        if new_status is not None:
-            update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[new_status]['code_name'] })
+                     job_id, "unchanged" if result.status is None else result.status)
+        result_dict = result.get_dict()
+        if result_dict is not None:
+            update_job_status_task(job_id, result_dict)
     except Exception as ex:
         logger.exception("An error occurred during task execution (job_id=%s).", job_id)
-        new_status = Job.FAILED
+        result = JobTaskResult(status=Job.FAILED)
         if handle_exception is not None:
-            new_status = handle_exception(job, ex)
+            result = handle_exception(job, ex)
             logger.debug("Task exception has been handled (job_id=%s, new_status=%s).",
-                         job_id, "unchanged" if new_status is None else new_status)
-        if new_status is not None:
-            update_job_status_task(job_id, { 'status': Job.STATUS_BY_CODE[new_status]['code_name'] })
+                         job_id, "unchanged" if result.status is None else result.status)
+        result_dict = result.get_dict()
+        if result_dict is not None:
+            update_job_status_task(job_id, result_dict)

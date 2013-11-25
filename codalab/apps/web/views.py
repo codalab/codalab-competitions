@@ -58,36 +58,11 @@ class LoginRequiredMixin(object):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
-    #template_name = 'web/competitions/edit-phase.html'
     extra = 0
 
 class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
-    form_class = forms.CompetitionDefBundleForm
     template_name = 'web/competitions/upload_competition.html'
-
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        form.instance.created_at = datetime.datetime.now()
-        if form.is_valid():
-            cb = form.save()
-            # Disptch celery task to unpack competition bundle and create it
-            tasks.create_competition(cb.id)
-            # Go back to the list of competitions
-            # TODO: poll to see if create is finished and redirect to new competition
-            #return(HttpResponseRedirect('/competitions/%d' % c.pk))    
-            return(HttpResponseRedirect('/my/#manage'))    
-
-class CompetitionCreate(LoginRequiredMixin, CreateWithInlinesView):
-    model = models.Competition
-    template_name = 'web/competitions/create.html'
-    form_class = forms.CompetitionForm
-    inlines = [PhasesInline]
-
-    def form_valid(self, form):
-        form.instance.creator = self.request.user
-        form.instance.modified_by = self.request.user
-        return super(CompetitionCreate, self).form_valid(form)
 
 class CompetitionEdit(LoginRequiredMixin, UpdateWithInlinesView):
     model = models.Competition
