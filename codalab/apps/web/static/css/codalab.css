@@ -7698,8 +7698,8 @@ body {
   }
 }
 /* line 31, ../sass/codalab.scss */
-[class*="column"] + [class*="column"]:last-child {
-  float: none;
+.column-selectable:last-child {
+  float: none !important;
 }
 
 /* Panels */

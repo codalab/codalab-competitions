@@ -27,9 +27,9 @@ body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
   }
 
 
-// _grid customizations
-[class*="column"] + [class*="column"]:last-child {
-    float: none; // changed from right
+// leaderboard customization
+.column-selectable:last-child {
+    float: none !important;
 }
 
 
