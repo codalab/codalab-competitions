@@ -1,2 +1,0 @@
--r prod.txt
--r azure.txt
