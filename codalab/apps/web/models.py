@@ -1,4 +1,5 @@
 import exceptions
+import logging
 import random
 import operator
 import os, io
@@ -26,6 +27,8 @@ from django.contrib.contenttypes import generic
 
 from mptt.models import MPTTModel, TreeForeignKey
 from guardian.shortcuts import assign_perm
+
+logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
 ## Hack for now
@@ -79,17 +82,17 @@ class PageContainer(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     owner = generic.GenericForeignKey('content_type', 'object_id')
-    
+
     class Meta:
         unique_together = (('object_id','content_type'),)
 
     def __unicode__(self):
         return self.name
 
-    def save(self,*args,**kwargs):      
+    def save(self,*args,**kwargs):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
-  
+
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
@@ -102,19 +105,16 @@ class Page(models.Model):
     markup = models.TextField(blank=True)
     html = models.TextField(blank=True)
 
-    class Meta: 
-        ordering = ["rank"]
-        
     def __unicode__(self):
         return self.title
-    
+
     class Meta:
         unique_together = (('label','category','container'),)
         ordering = ['rank']
 
     def save(self,*args,**kwargs):
         if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label ) 
+            self.title = "%s - %s" % ( self.container.name,self.label )
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
@@ -122,7 +122,7 @@ class Page(models.Model):
                 raise Exception("Item is required and must be visible")
         return super(Page,self).save(*args,**kwargs)
 
-# External Files (These might be able to be removed, per a discussion 2013.7.29)    
+# External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
@@ -183,7 +183,7 @@ class Competition(models.Model):
 
     def get_absolute_url(self):
         return reverse('competitions:view', kwargs={'pk':self.pk})
-        
+
     class Meta:
         permissions = (
             ('is_owner', 'Owner'),
@@ -193,26 +193,26 @@ class Competition(models.Model):
 
     def __unicode__(self):
         return self.title
-    
+
     def set_owner(self,user):
         return assign_perm('view_task', user, self)
-    
+
     def save(self,*args,**kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
         # Do the real save
         return super(Competition,self).save(*args,**kwargs)
-        
+
     def image_url(self):
         # Return the transformed image_url
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
-    
+
     @property
     def is_active(self):
-        if self.end_date is None: 
-            return True 
+        if self.end_date is None:
+            return True
         if type(self.end_date) is datetime.datetime.date:
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
@@ -220,9 +220,9 @@ class Competition(models.Model):
 
 # Dataset model
 class Dataset(models.Model):
-    """ 
-        This is a dataset for a competition. 
-        TODO: Consider if this is replaced or reimplemented as a 'bundle of data'. 
+    """
+        This is a dataset for a competition.
+        TODO: Consider if this is replaced or reimplemented as a 'bundle of data'.
     """
     creator =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
     name = models.CharField(max_length=50)
@@ -258,7 +258,7 @@ def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_root(instance):
-    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk), 
+    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk),
                         "submissions", str(instance.participant.user.pk), str(instance.submission_number))
 
 def submission_file_name(instance, filename="predictions.zip"):
@@ -282,9 +282,9 @@ def submission_stderr_filename(instance, filename="stderr.txt"):
 def submission_file_blobkey(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
-# Competition Phase 
+# Competition Phase
 class CompetitionPhase(models.Model):
-    """ 
+    """
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
@@ -297,7 +297,7 @@ class CompetitionPhase(models.Model):
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    
+
     class Meta:
         ordering = ['phasenumber']
 
@@ -309,7 +309,7 @@ class CompetitionPhase(models.Model):
         """ Returns true when this phase of the competition is on-going. """
         next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
         if (next_phase is not None) and (len(next_phase) > 0):
-            # there is a phase following this phase, thus this phase is active if the current date 
+            # there is a phase following this phase, thus this phase is active if the current date
             # is between the start of this phase and the start of the next phase
             return self.start_date <= now() and (now() < next_phase[0].start_date)
         else:
@@ -330,7 +330,7 @@ class CompetitionPhase(models.Model):
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
         """ Given a set of identifiers (ids) and a set of (id, value)-pairs
-            computes a ranking based on the value. The ranking is provided 
+            computes a ranking based on the value. The ranking is provided
             as a set of (id, rank) pairs for all id in ids.
         """
         ranks = {}
@@ -357,22 +357,22 @@ class CompetitionPhase(models.Model):
                 ranks[id] = r
         return ranks
 
-    @staticmethod 
+    @staticmethod
     def rank_submissions(ranks_by_id):
         def compare_ranks(a, b):
             limit = 1000000
             try:
-               ia = int(ranks_by_id[a])
+                ia = int(ranks_by_id[a])
             except exceptions.ValueError:
-               ia = limit
+                ia = limit
             try:
-               ib = int(ranks_by_id[b])
+                ib = int(ranks_by_id[b])
             except exceptions.ValueError:
-               ib = limit
+                ib = limit
             return ia - ib
         return compare_ranks
 
-    @staticmethod 
+    @staticmethod
     def format_value(v, precision="2"):
         p = 1
         try:
@@ -389,7 +389,8 @@ class CompetitionPhase(models.Model):
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-            for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list('result_id', 'result__participant__user__username'):
+            fields = 'result_id', 'result__participant__user__username'
+            for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list(fields):
                 submissions.append((rid,  name))
 
         results = []
@@ -398,7 +399,7 @@ class CompetitionPhase(models.Model):
             headers = []
             scores = {}
             for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
-    
+
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
@@ -419,7 +420,7 @@ class CompetitionPhase(models.Model):
                     headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
-                            
+
             # compute total column span
             column_span = 2
             for gHeader in headers:
@@ -437,8 +438,8 @@ class CompetitionPhase(models.Model):
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
             submission_ids = [id for (id,name) in submissions]
-            not_computed_scoredefs = {} # map (scoredef.id, scoredef) to keep track of non-computed scoredefs 
-            computed_scoredef_ids = []            
+            not_computed_scoredefs = {} # map (scoredef.id, scoredef) to keep track of non-computed scoredefs
+            computed_scoredef_ids = []
             computed_deps = {} # maps id of a computed scoredef to a list of ids for scoredefs which are input to the computation
             for result in results:
                 for sdef in result['scoredefs']:
@@ -479,7 +480,7 @@ class CompetitionPhase(models.Model):
                             if (cnt > 0):
                                 computed_values = {}
                                 for id in submission_ids:
-                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)                                    
+                                    computed_values[id] = sum([ranks[d.id][id] for d in computed_deps[sdef.id]]) / float(cnt)
                                 values[sdef.id] = computed_values
                                 ranks[sdef.id] = self.rank_values(submission_ids, computed_values, sort_ascending=sdef.sorting=='asc')
 
@@ -509,7 +510,7 @@ class CompetitionPhase(models.Model):
                 ranked_submissions = sorted(submission_ids, cmp=CompetitionPhase.rank_submissions(overall_ranks))
                 final_scores = [(overall_ranks[id], scores[id]) for id in ranked_submissions]
                 result['scores'] = final_scores
-                del result['scoredefs']        
+                del result['scoredefs']
         return results
 
 # Competition Participant
@@ -675,9 +676,9 @@ class CompetitionDefBundle(models.Model):
         https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle
         """
         # Get the bundle data, which is stored as a zipfile
+        logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
         zf = zipfile.ZipFile(self.config_bundle)
-
-        # Create the basic competition
+        logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
         comp_spec = yaml.load(zf.open(comp_spec_file))
         comp_base = comp_spec.copy()
@@ -690,12 +691,12 @@ class CompetitionDefBundle(models.Model):
             comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
         comp = Competition(**comp_base)
         comp.save()
-        print "Created base competition."
+        logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
 
         # Unpack and save the logo
         comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
         comp.save()
-        print "Saved competition logo."
+        logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
@@ -710,7 +711,7 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=participate_category, container=pc,  codename="get_data",
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
-        print "Created competition pages."
+        logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
         for p_num in comp_spec['phases']:
@@ -724,12 +725,12 @@ class CompetitionDefBundle(models.Model):
             if type(phase_spec['start_date']) is datetime.datetime.date:
                 phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
-            print "Created base phase object."
+            logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.save()
-            print "Saved scoring program and reference data for phase."
+            logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
             count = 1
             for ds in datasets.keys():
@@ -740,9 +741,9 @@ class CompetitionDefBundle(models.Model):
                 phase.datasets.add(d)
                 phase.save()
                 count += 1
-            print "Saved datasets for phase."
+            logger.debug("CompetitionDefBundle::unpack saved datasets (pk=%s)", self.pk)
 
-        print "Created competition phases."
+        logger.debug("CompetitionDefBundle::unpack saved created competition phases (pk=%s)", self.pk)
 
         # Create leaderboard
         if 'leaderboard' in comp_spec:
@@ -754,7 +755,7 @@ class CompetitionDefBundle(models.Model):
                     leaderboards[rg.label] = rg
                     for gp in comp.phases.all():
                         rgp,crx = SubmissionResultGroupPhase.objects.get_or_create(phase=gp, group=rg)
-            print "Created leaderboard(s)."
+            logger.debug("CompetitionDefBundle::unpack created leaderboard (pk=%s)", self.pk)
 
             # Create score groups
             if 'column_groups' in comp_spec['leaderboard']:
@@ -764,7 +765,7 @@ class CompetitionDefBundle(models.Model):
                         vals = dict()
                     s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=vals)
                     groups[s.label] = s
-            print "Created score groups."
+            logger.debug("CompetitionDefBundle::unpack created score groups (pk=%s)", self.pk)
 
             # Create scores.
             if 'columns' in comp_spec['leaderboard']:
@@ -810,12 +811,12 @@ class CompetitionDefBundle(models.Model):
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
-                print "Created scores."
+                logger.debug("CompetitionDefBundle::unpack created scores (pk=%s)", self.pk)
 
         # Add owner as participant so they can view the competition
         approved = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         resulting_participant, created = CompetitionParticipant.objects.get_or_create(user=self.owner, competition=comp, defaults={'status':approved})
-        print "Added owner as participant."
+        logger.debug("CompetitionDefBundle::unpack added owner as participant (pk=%s)", self.pk)
 
         return comp
 
