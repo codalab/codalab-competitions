@@ -62,14 +62,15 @@ $(document).ready(function () {
                             "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
                             "You can also manage it from <a href='/my/#manage'>your CodaLab dashboard.</a>"
                         );
+                        $('#uploadButton').removeClass('disabled');
                     } else if (data.status == 'failed') {
                         $('#details').html('Oops! There was a problem creating the competition.');
+                        $('#uploadButton').removeClass('disabled');
                     } else {
                         setTimeout(wait_for_competition, 1000);
                     }
                 }).fail(function() {
                     $('#details').html("An unexpected error occured.");
-                }).always(function() {
                     $('#uploadButton').removeClass('disabled');
                 });
             };
