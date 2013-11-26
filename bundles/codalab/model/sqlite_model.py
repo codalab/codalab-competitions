@@ -12,5 +12,6 @@ class SQLiteModel(BundleModel):
       root = os.path.join(os.getcwd(), root)
     normalized_root = os.path.normpath(root)
     sqlite_db_path = os.path.join(normalized_root, self.SQLITE_DB_FILE_NAME)
-    engine = create_engine('sqlite:///%s' % (sqlite_db_path,))
+    engine_url = 'sqlite:///%s' % (sqlite_db_path,)
+    engine = create_engine(engine_url, strategy='threadlocal')
     super(SQLiteModel, self).__init__(engine)

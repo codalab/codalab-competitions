@@ -1,6 +1,5 @@
-# TODO(skishore): Write tests for this using an in-memory SQLite database.
-from sqlalchemy.orm import sessionmaker
-
+# TODO(skishore): Write tests for this model using an in-memory SQLite database.
+from codalab.bundles import get_bundle_subclass
 from codalab.model.tables import (
   bundle as cl_bundle,
   bundle_metadata as cl_bundle_metadata,
@@ -14,7 +13,6 @@ class BundleModel(object):
     Initialize a BundleModel with the given SQLAlchemy engine.
     '''
     self.engine = engine
-    self.session = sessionmaker(bind=engine)
 
   def create_tables(self):
     '''
@@ -22,22 +20,38 @@ class BundleModel(object):
     '''
     db_metadata.create_all(self.engine)
 
-  def _execute(self, query):
-    return self.session.execute(query)
-
-  def _execute_ac(self, query):
-    result = self.session.execute(query)
-    self.session.commit()
-    return result
+  def get_bundle(self, uuid):
+    '''
+    Retrieve a bundle from the database given its uuid.
+    '''
+    with self.engine.begin() as connection:
+      bundle_row = connection.execute(cl_bundle.select().where(
+        cl_bundle.c.uuid == uuid
+      )).fetchone()
+      if not bundle_row:
+        raise ValueError('Could not find bundle with uuid %s' % (uuid,))
+      metadata_rows = connection.execute(cl_bundle_metadata.select().where(
+        cl_bundle_metadata.c.bundle_id == bundle_row.id
+      )).fetchall()
+    bundle_value = dict(bundle_row, metadata=metadata_rows)
+    bundle = get_bundle_subclass(bundle_value['bundle_type'])(bundle_value)
+    bundle.validate()
+    return bundle
 
   def save_bundle(self, bundle):
     '''
-    Save a bundle. On success, set the Bundle object's id from the result.
+    Save a bundle and return True if the database updates were successful.
+    On success, set the Bundle object's id from the result.
     '''
+    bundle.validate()
     bundle_value = bundle.to_dict()
     bundle_metadata_values = bundle_value.pop('metadata')
-    bundle_id = self._execute(cl_bundle.insert().values(bundle_value)).lastrowid
-    for value in bundle_metadata_values:
-      value['bundle_id'] = bundle_id
-    self._execute_ac(cl_bundle_metadata.insert().values(bundle_metadata_values))
-    bundle.id = bundle_id
+    with self.engine.begin() as connection:
+      result = connection.execute(cl_bundle.insert().values(bundle_value))
+      bundle_id = result.lastrowid
+      for metadata_row in bundle_metadata_values:
+        metadata_row['bundle_id'] = bundle_id
+      connection.execute(cl_bundle_metadata.insert(), bundle_metadata_values)
+      bundle.id = bundle_id
+      return True
+    return False

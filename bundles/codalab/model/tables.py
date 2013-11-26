@@ -3,6 +3,7 @@ from sqlalchemy import (
   ForeignKey,
   MetaData,
   Table,
+  UniqueConstraint,
 )
 from sqlalchemy.types import (
   Boolean,
@@ -19,11 +20,13 @@ bundle = Table(
   'bundle',
   db_metadata,
   Column('id', Integer, primary_key=True, nullable=False),
+  Column('uuid', String(63), nullable=False),
   Column('bundle_type', String(63), nullable=False),
   # The data_hash will be NULL if the bundle's value is still being computed.
   Column('data_hash', String(63), nullable=True),
   Column('state', String(63), nullable=False),
   Column('is_current', Boolean, nullable=False),
+  UniqueConstraint('uuid', name='uix_1'),
   sqlite_autoincrement=True,
 )
 
@@ -43,7 +46,7 @@ dependency = Table(
   Column('id', Integer, primary_key=True, nullable=False),
   Column('dependency_type', String(63), nullable=False),
   Column('child_bundle_id', Integer, ForeignKey(bundle.c.id), nullable=False),
-  Column('parent_bundle_id', Integer, ForeignKey(bundle.c.id), nullable=False),
+  Column('parent_bundle_id', String(63), ForeignKey(bundle.c.id), nullable=False),
   Column('parent_subpath', Text, nullable=False),
   sqlite_autoincrement=True,
 )

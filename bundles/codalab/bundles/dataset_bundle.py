@@ -1,5 +1,5 @@
-from codalab.bundles.named_bundle import NamedBundle
+from codalab.bundles.uploaded_bundle import UploadedBundle
 
 
-class DatasetBundle(NamedBundle):
+class DatasetBundle(UploadedBundle):
   BUNDLE_TYPE = 'dataset'

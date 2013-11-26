@@ -20,6 +20,10 @@ class MockBundle(Bundle):
 
 
 class BundleTest(unittest.TestCase):
+  columns = tuple(
+    column.name for column in Bundle.TABLE.c if column.name != 'id'
+  )
+
   str_metadata = 'my_str'
   int_metadata = 17
   set_metadata = ['value_1', 'value_2']
@@ -42,14 +46,17 @@ class BundleTest(unittest.TestCase):
       metadata=metadata,
     )
 
-  def check_bundle(self, bundle):
+  def check_bundle(self, bundle, uuid=None):
     for (key, value_type)in MockBundle.METADATA_TYPES.iteritems():
       expected_value = getattr(self, key)
       if value_type == set:
         expected_value = set(expected_value)
       self.assertEqual(getattr(bundle.metadata, key), expected_value)
-    for column in Bundle.COLUMNS:
-      expected_value = getattr(self, column)
+    for column in self.columns:
+      if column == 'uuid':
+        expected_value = uuid or getattr(bundle, column)
+      else:
+        expected_value = getattr(self, column)
       self.assertEqual(getattr(bundle, column), expected_value)
 
   def test_init(self):
@@ -70,4 +77,4 @@ class BundleTest(unittest.TestCase):
     # transferred over the wire or depressed into a database.
     json_bundle = json.loads(json.dumps(serialized_bundle))
     deserialized_bundle = MockBundle(json_bundle)
-    self.check_bundle(deserialized_bundle)
+    self.check_bundle(deserialized_bundle, uuid=bundle.uuid)

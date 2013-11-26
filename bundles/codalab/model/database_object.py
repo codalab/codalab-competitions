@@ -1,9 +1,11 @@
 class DatabaseObject(object):
-  # To use this class, subclass it and set the list of non-id columns.
-  # The get_non_id_columns method may be helpful.
-  COLUMNS = None
+  # To use this class, subclass it and set TABLE to a SQLAlchemy table object.
+  TABLE = None
 
   def __init__(self, row):
+    self.columns = tuple(
+      column.name for column in self.TABLE.c if column.name != 'id'
+    )
     self.update_in_memory(row)
 
   def update_in_memory(self, row):
@@ -11,22 +13,17 @@ class DatabaseObject(object):
     Initialize the attributes on this object from the data in the row.
     The attributes of the row are inferred from the table columns.
     '''
-    for column in self.COLUMNS:
-      setattr(self, column, row[column])
+    for column in self.columns:
+      if column not in row:
+        raise ValueError('Row %s is missing column: %s' % (row, column))
+    for (key, value) in row.iteritems():
+      if not hasattr(self.TABLE.c, key):
+        raise ValueError('Unexpected column in update: %s' % (key,))
+      setattr(self, key, value)
 
   def to_dict(self):
     '''
     Return a JSON-serializable and database-uploadable dictionary that
     represents this object.
     '''
-    result = {column: getattr(self, column) for column in self.COLUMNS}
-    if hasattr(self, 'id'):
-      result['id'] = self.id
-    return result
-
-  @staticmethod
-  def get_non_id_columns(table):
-    '''
-    Return the tuple of names of non-id columns of a SQLAlchemy Table object.
-    '''
-    return tuple(column.name for column in table.c if column.name != 'id')
+    return {column: getattr(self, column) for column in self.columns}
