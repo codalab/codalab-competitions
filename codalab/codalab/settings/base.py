@@ -279,7 +279,8 @@ class Base(Settings):
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
-                'formatter': 'simple'
+                'formatter': 'simple',
+                'stream': sys.stdout
             },
             'mail_admins': {
                 'level': 'ERROR',
