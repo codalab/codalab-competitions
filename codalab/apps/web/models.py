@@ -389,8 +389,8 @@ class CompetitionPhase(models.Model):
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-            fields = 'result_id', 'result__participant__user__username'
-            for (rid, name) in PhaseLeaderBoardEntry.objects.filter(board=lb).values_list(fields):
+            qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+            for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
 
         results = []
