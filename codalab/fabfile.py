@@ -70,19 +70,23 @@ def site_config(path=None,archive_name='latest_codalab_config.tar', url=None, mo
         env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath, os.path.basename(path)))
     env.EXTERNAL_SITE_CONFIG = True
 
+
 @task
 def local(**kwargs):
     set_env(**kwargs)
     env.run = local
+
 
 @task
 def remote(**kwargs):
     set_env(**kwargs)
     env.run = run
 
+
 @task
 def clone_repo(url='https://github.com/codalab/codalab.git', target='codalab'):
     env.run("git clone %s %s" % (url, target))
+
 
 @task
 def provision():
