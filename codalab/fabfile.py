@@ -17,7 +17,8 @@ from fabvenv import virtualenv
 
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
-PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'project', 'codalab', 'codalab')
+PROJECT_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'project', 'codalab', 'codalab')
 DEPLOY_PATH = 'codalab'
 
 THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR, 'codalab', 'settings')
@@ -31,7 +32,8 @@ def set_env(**kwargs):
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
     env.DEPLOY_PATH = DEPLOY_PATH
-    env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH, 'codalab', 'config', 'generated')
+    env.CONFIG_GEN_PATH = pathjoin(
+        DEPLOY_PATH, 'codalab', 'config', 'generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
     env.venvpath = pathjoin('/home', env.user, env.DEPLOY_PATH, 'venvd')
     env.EXTERNAL_SITE_CONFIG = False
@@ -43,7 +45,7 @@ def repotag(name='master'):
 
 
 @task
-def site_config(path=None,archive_name='latest_codalab_config.tar', url=None, module=None):
+def site_config(path=None, archive_name='latest_codalab_config.tar', url=None, module=None):
     spath = 'src'
     if path and os.path.exists(path):
         path = os.path.abspath(path)
@@ -56,33 +58,40 @@ def site_config(path=None,archive_name='latest_codalab_config.tar', url=None, mo
     with settings(warn_ony=True), lcd(path):
         res = lrun('git diff --exit-code')
         if res.return_code != 0:
-            raise Exception("*** Module has local changes. You must commit them.")
+            raise Exception(
+                "*** Module has local changes. You must commit them.")
         tmp = tempfile.mkdtemp()
         fname = archive_name
-        tmpf =  os.path.join(tmp, fname)
+        tmpf = os.path.join(tmp, fname)
         path = path.rstrip('/')
-        lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
+        lrun('git archive --prefix=%s%s -o %s HEAD' %
+             (os.path.basename(path), os.path.sep, tmpf))
     env.run('mkdir -p %s' % spath)
     put(tmpf)
     env.run('tar -C %s -xvf %s' % (spath, fname))
 
     with virtualenv(env.venvpath):
-        env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath, os.path.basename(path)))
+        env.run('pip install -U --force-reinstall ./%s' %
+                pathjoin(spath, os.path.basename(path)))
     env.EXTERNAL_SITE_CONFIG = True
+
 
 @task
 def local(**kwargs):
     set_env(**kwargs)
     env.run = lrun
 
+
 @task
 def remote(**kwargs):
     set_env(**kwargs)
     env.run = run
 
+
 @task
 def clone_repo(url='https://github.com/codalab/codalab.git', target='codalab'):
     env.run("git clone %s %s" % (url, target))
+
 
 @task
 def provision():
@@ -91,14 +100,16 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    put(pathjoin(PROJECT_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
+    put(pathjoin(PROJECT_DIR, 'scripts/ubuntu/'), 'codalab_scripts/')
     env.run('chmod a+x codalab_scripts/ubuntu/provision')
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
+
 @task
 def config_gen(config=None, settings_module=None):
-    with shell_env(DJANGO_CONFIGURATION=config,DJANGO_SETTINGS_MODULE=settings_module):
+    with shell_env(DJANGO_CONFIGURATION=config, DJANGO_SETTINGS_MODULE=settings_module):
         env.run('python manage.py config_gen')
+
 
 @task
 def makevenv(path=None):
@@ -110,14 +121,15 @@ def bootstrap(tag=None):
     with settings(warn_only=True):
         env.run('killall supervisord')
     if exists(env.DEPLOY_PATH):
-        env.run('mv %s %s' %  (env.DEPLOY_PATH, env.DEPLOY_PATH + '_' + str(datetime.datetime.now().strftime('%Y%m%d%f%S'))))
+        env.run('mv %s %s' % (env.DEPLOY_PATH, env.DEPLOY_PATH +
+                '_' + str(datetime.datetime.now().strftime('%Y%m%d%f%S'))))
     clone_repo(target=env.DEPLOY_PATH)
     with cd(env.DEPLOY_PATH):
         if tag:
             update_to_tag(tag=tag)
     makevenv(path=env.venvpath)
     #run('virtualenv --distribute %s' % env.venvpath)
-    #with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
+    # with prefix('source %s' % os.path.join(env.venvpath, 'bin/activate')):
     with settings(warn_only=True):
         env.run('killall supervisord')
     with virtualenv(env.venvpath):
@@ -129,23 +141,28 @@ def bootstrap(tag=None):
 def update_to_tag(tag=None):
     env.run('git checkout %s' % tag)
 
+
 @task
 def start_supervisor():
-    env.run('supervisord -c %s' % pathjoin(env.CONFIG_GEN_PATH, 'supervisor.conf'))
+    env.run('supervisord -c %s' %
+            pathjoin(env.CONFIG_GEN_PATH, 'supervisor.conf'))
+
 
 @task
 def restart_supervisor():
-    with virtualenv(env.venvpath),cd(env.DEPLOY_PATH):
+    with virtualenv(env.venvpath), cd(env.DEPLOY_PATH):
         if not exists('codalab/var/supervisord.pid', verbose=True):
             env.run('./supervisor')
         else:
             env.run('./supervisorctl update')
             env.run('./supervisorctl restart all')
 
+
 @task
 def rm_sqlite():
-    with cd(pathjoin(env.DEPLOY_PATH,'codalab')):
+    with cd(pathjoin(env.DEPLOY_PATH, 'codalab')):
         env.run('rm dev_db.sqlite')
+
 
 @task
 def update(tag=None):
@@ -156,11 +173,13 @@ def update(tag=None):
                 update_to_tag(tag=tag)
             requirements()
             with cd('codalab'):
-                config_gen(config=env.DJANGO_CONFIG, settings_module=env.SETTINGS_MODULE)
+                config_gen(config=env.DJANGO_CONFIG,
+                           settings_module=env.SETTINGS_MODULE)
                 env.run('./manage syncdb --noinput')
                 # When South is enabled
                 #env.run('./manage migrate')
                 env.run('./manage collectstatic --noinput')
+
 
 @task
 def requirements():

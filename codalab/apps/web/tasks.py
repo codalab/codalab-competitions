@@ -1,16 +1,18 @@
-import time
 import requests
 import json
-import re
-import io, zipfile
-import tempfile, os.path, subprocess, StringIO
+import io
+import zipfile
+import tempfile
+import os.path
+import subprocess
+import StringIO
 from django.conf import settings
-from django.dispatch import receiver
 from django.core.files import File
 from django.core.files.base import ContentFile
 
 import celery
-from celery.signals import task_success, task_failure, task_revoked, task_sent
+from celery.signals import task_failure
+from celery.signals import task_success
 
 from codalab.settings import base
 
@@ -20,12 +22,13 @@ import models
 
 main = base.Base.SITE_ROOT
 
+
 def local_run(submission):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
     """
-    program = submission.phase.scoring_program.name
-    dataset = submission.phase.reference_data.name
+    submission.phase.scoring_program.name
+    submission.phase.reference_data.name
     base_dir = models.submission_root(submission)
     print "Running locally in directory: %s" % base_dir
 
@@ -77,7 +80,8 @@ def local_run(submission):
     stderr_fn = os.path.join(output_dir, "stderr.txt")
     stdout_file = open(stdout_fn, 'wb')
     stderr_file = open(stderr_fn, 'wb')
-    subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
+    subprocess.call([command, input_dir, output_dir],
+                    stdout=stdout_file, stderr=stderr_file)
     stdout_file.close()
     stderr_file.close()
 
@@ -100,6 +104,7 @@ def local_run(submission):
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
 
+
 def submission_get_status(submission_id):
     """
     Check on the status of a submission to the execution engine. If the submission was run locally, short circuit because it's finished.
@@ -113,10 +118,12 @@ def submission_get_status(submission_id):
     print "%s: Retrieving submission object for id: %s" % (__name__, submission_id)
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
 
-    # If the submission object has an execution key, retrieve the status and return the json
+    # If the submission object has an execution key, retrieve the status and
+    # return the json
     if submission.execution_key:
         print "%s: Submission has an execution key, retrieving status from execution engine." % __name__
-        res = requests.get(settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
+        res = requests.get(
+            settings.COMPUTATION_SUBMISSION_URL + submission.execution_key)
         if res.status_code in (200,):
             print "%s: Submission status retrieved successfully." % __name__
             print "Status: %s" % res.json()
@@ -128,13 +135,15 @@ def submission_get_status(submission_id):
     # Otherwise return None
     return None
 
+
 @celery.task(name='competition.submission_run', max_retries=20, default_retry_delay=2)
 def submission_run(submission_id):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     except (ValueError, models.CompetitionSubmission.DoesNotExist):
         print "Submission not retrievable, might be waiting on blobstore/django."
-        raise submission_run.retry(exc=Exception("Submission not in database yet."))
+        raise submission_run.retry(
+            exc=Exception("Submission not in database yet."))
 
     if 'local' in settings.COMPUTATION_SUBMISSION_URL:
         print "Running locally."
@@ -142,28 +151,31 @@ def submission_run(submission_id):
         submission.save()
         submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
         local_run(submission)
-        submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
+        submission.set_status(models.CompetitionSubmissionStatus.FINISHED,
+                              force_save=True)
         submission.save()
     else:
         print "Running against remote execution engine."
         program = submission.phase.scoring_program.name
         dataset = submission.phase.reference_data.name
 
-        # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
+        # Generate input bundle pointing to reference/truth/gold dataset (ref)
+        # and user predictions (res).
         inputfile = ContentFile(
-"""ref: %s
+            """ref: %s
 res: %s
-""" % (dataset, submission.file.name))   
+""" % (dataset, submission.file.name))
         submission.inputfile.save('input.txt', inputfile)
-        # Generate run bundle, which binds the input bundle to the scoring program
+        # Generate run bundle, which binds the input bundle to the scoring
+        # program
         runfile = ContentFile(
-"""program: %s
+            """program: %s
 input: %s
 """ % (program, submission.inputfile.name))
         submission.runfile.save('run.txt', runfile)
         # Log start of evaluation to stdout.txt
         stdoutfile = ContentFile(
-"""Standard output file for submission #%s:
+            """Standard output file for submission #%s:
 
 """ % (submission.submission_number))
         submission.stdout_file.save('stdout.txt', stdoutfile)
@@ -172,13 +184,15 @@ input: %s
 
         # Submit the request to the computation service
         headers = {'content-type': 'application/json'}
-        data = json.dumps({ "RunId" : submission.runfile.name, "Container" : settings.BUNDLE_AZURE_CONTAINER })
+        data = json.dumps({"RunId": submission.runfile.name,
+                          "Container": settings.BUNDLE_AZURE_CONTAINER})
         print "Posting request to remote execution engine."
-        res = requests.post(settings.COMPUTATION_SUBMISSION_URL, data=data, headers=headers)
+        res = requests.post(settings.COMPUTATION_SUBMISSION_URL,
+                            data=data, headers=headers)
         print "submitting: %s" % submission.runfile.name
         print "status: %d" % res.status_code
         print "%s" % res.json()
-        if res.status_code in (200,201):
+        if res.status_code in (200, 201):
             data = res.json()
             submission.execution_key = data['Id']
             print "Setting status to submitted."
@@ -192,40 +206,51 @@ input: %s
     submission_get_results.delay(submission.pk)
     return submission.pk
 
+
 @celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=6)
 def submission_get_results(submission_id):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     except (ValueError, models.CompetitionSubmission.DoesNotExist):
         print "Submission not retrievable, might be waiting on blobstore/django."
-        raise submission_get_results.retry(exc=Exception("Submission not in database yet."))
+        raise submission_get_results.retry(
+            exc=Exception("Submission not in database yet."))
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
     print "Status for %d is %s" % (submission_id, status)
     if status:
         if status['Status'] in ("Submitted"):
-            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED, force_save=True)
-            raise submission_get_results.retry(exc=Exception("Submission not running yet."))
+            submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED,
+                                  force_save=True)
+            raise submission_get_results.retry(
+                exc=Exception("Submission not running yet."))
         if status['Status'] in ("Running"):
-            submission.set_status(models.CompetitionSubmissionStatus.RUNNING, force_save=True)
-            raise submission_get_results.retry(exc=Exception("Submission still running."))        
+            submission.set_status(models.CompetitionSubmissionStatus.RUNNING,
+                                  force_save=True)
+            raise submission_get_results.retry(
+                exc=Exception("Submission still running."))
         elif status['Status'] == "Finished":
-            submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
+            submission.set_status(models.CompetitionSubmissionStatus.FINISHED,
+                                  force_save=True)
             return (submission.pk, 'complete', status)
         elif status['Status'] == "Failed":
-            submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
+            submission.set_status(models.CompetitionSubmissionStatus.FAILED,
+                                  force_save=True)
             return (submission.pk, 'failed', status)
     else:
-        return (submission.pk,'failure',None)
+        return (submission.pk, 'failure', None)
+
 
 @task_success.connect(sender=submission_get_results)
-def submission_results_success_handler(sender,result=None,**kwargs):
-    submission_id,state,status = result
+def submission_results_success_handler(sender, result=None, **kwargs):
+    submission_id, state, status = result
     submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     if state == 'complete':
         print "Run is complete (submission.id: %s)" % submission.id
-        submission.output_file.name = models.submission_file_blobkey(submission)
-        submission.stderr_file.name = models.submission_stderr_filename(submission)
+        submission.output_file.name = models.submission_file_blobkey(
+            submission)
+        submission.stderr_file.name = models.submission_stderr_filename(
+            submission)
         submission.save()
         print "Retrieving output.zip and 'scores.txt' file"
         ozip = zipfile.ZipFile(io.BytesIO(submission.output_file.read()))
@@ -236,18 +261,21 @@ def submission_results_success_handler(sender,result=None,**kwargs):
                 label, value = line.split(":")
                 print "Processing |%s| => %s" % (label, value)
                 try:
-                    scoredef = models.SubmissionScoreDef.objects.get(competition=submission.phase.competition,  key=label.strip())
-                    models.SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))                    
-                except models.SubmissionScoreDef.DoesNotExist as e:
+                    scoredef = models.SubmissionScoreDef.objects.get(
+                        competition=submission.phase.competition, key=label.strip())
+                    models.SubmissionScore.objects.create(
+                        result=submission, scoredef=scoredef, value=float(value))
+                except models.SubmissionScoreDef.DoesNotExist:
                     print "Score '%s' does not exist" % label
-                    pass
         print "Done processing scores..."
     else:
         raise Exception("An unexpected error has occurred.")
 
+
 @task_success.connect(sender=submission_run)
 def submission_run_success_handler(sender, result=None, **kwargs):
     print "Successful submission"
+
 
 @task_failure.connect(sender=submission_run)
 def submission_run_error_handler(sender, exception=None, **kwargs):
@@ -255,18 +283,21 @@ def submission_run_error_handler(sender, exception=None, **kwargs):
     print "Handling failure for submission %s" % submission_id
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
-        submission.set_status(models.CompetitionSubmissionStatus.FAILED, force_save=True)
+        submission.set_status(models.CompetitionSubmissionStatus.FAILED,
+                              force_save=True)
     except:
         print "Unable to set Failed state of submission %s" % submission_id
 
 # Bundle Tasks
+
+
 @celery.task
 def create_directory(bundleid):
     import subprocess
     bundle = models.Bundle.objects.get(id=bundleid)
-    args = ['cd repositories && mkdir -p '+ bundle.name]
+    args = ['cd repositories && mkdir -p ' + bundle.name]
     subprocess.check_output(args, shell=True)
-    bundle.path = main+'/repositories/'+bundle.name
+    bundle.path = main + '/repositories/' + bundle.name
     bundle.save()
     print bundle.path
     sub_directories.delay(bundleid)
@@ -276,20 +307,23 @@ def create_directory(bundleid):
 def sub_directories(bundleid):
     import subprocess
     bundle = models.Bundle.objects.get(id=bundleid)
-    args = ['cd repositories/'+bundle.name+' && mkdir -p input && mkdir -p output']
+    args = ['cd repositories/' + bundle.name +
+            ' && mkdir -p input && mkdir -p output']
     subprocess.check_output(args, shell=True)
-    bundle.inputpath = bundle.path+'/input'
-    bundle.outputpath = bundle.path+'/output'
+    bundle.inputpath = bundle.path + '/input'
+    bundle.outputpath = bundle.path + '/output'
     bundle.save()
     print "The directories have been created"
-    args = ['cd '+bundle.path+' && touch bundle.yaml']
+    args = ['cd ' + bundle.path + ' && touch bundle.yaml']
     subprocess.check_output(args, shell=True)
     bundle.save()
     print "The bundle yaml has been created"
 
+
 @celery.task()
 def echo(msg):
     print "Echoing %s" % (msg)
+
 
 @celery.task(max_retries=20, default_retry_delay=2)
 def create_competition_from_bundle(competition_bundle_id):
@@ -301,9 +335,10 @@ def create_competition_from_bundle(competition_bundle_id):
     """
     print "Creating competition for new competition bundle."
     try:
-        competition_bundle = models.CompetitionDefBundle.objects.get(id=competition_bundle_id)
+        competition_bundle = models.CompetitionDefBundle.objects.get(
+            id=competition_bundle_id)
     except (ValueError, models.CompetitionDefBundle.DoesNotExist):
-        raise create_competition_from_bundle.retry(exc=Exception("Competition Bundle not in database/azure yet."))
+        raise create_competition_from_bundle.retry(
+            exc=Exception("Competition Bundle not in database/azure yet."))
 
     return competition_bundle.unpack()
-

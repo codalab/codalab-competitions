@@ -1,11 +1,11 @@
 import os.path
-import re, itertools, uuid
-from django.core.files.base import ContentFile, File
+import re
+import itertools
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
-from io import RawIOBase, BufferedRWPair, BufferedWriter
+from io import RawIOBase
 
-#keep consistent path separators
+# keep consistent path separators
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 try:
@@ -24,15 +24,17 @@ def clean_name(name):
 
 
 class AzureStorage(Storage):
-    chunk_size = 65536 # Those were the days
+    chunk_size = 65536  # Those were the days
 
     def __init__(self, *args, **kwargs):
-        self.account_name = kwargs.pop('account_name',  setting("AZURE_ACCOUNT_NAME"))
-        self.account_key = kwargs.pop('account_key', setting("AZURE_ACCOUNT_KEY"))
-        self.azure_container = kwargs.pop('azure_container', setting("AZURE_CONTAINER"))
+        self.account_name = kwargs.pop(
+            'account_name', setting("AZURE_ACCOUNT_NAME"))
+        self.account_key = kwargs.pop(
+            'account_key', setting("AZURE_ACCOUNT_KEY"))
+        self.azure_container = kwargs.pop(
+            'azure_container', setting("AZURE_CONTAINER"))
         super(AzureStorage, self).__init__(*args, **kwargs)
         self._connection = None
-        
 
     @property
     def connection(self):
@@ -46,7 +48,7 @@ class AzureStorage(Storage):
 
     def exists(self, name):
         try:
-            p = self.properties(name)
+            self.properties(name)
         except azure.WindowsAzureMissingResourceError:
             return False
         else:
@@ -56,43 +58,45 @@ class AzureStorage(Storage):
         self.connection.delete_blob(self.azure_container, name)
 
     def _save(self, name, content):
-        f = self._open(name,'wb')
-        cur = 0
+        f = self._open(name, 'wb')
         while True:
             data = content.read(self.chunk_size)
-            if not len(data): break
+            if not len(data):
+                break
             f.write(data)
         f.close()
         return name
-       
+
     def url(self, name):
         return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
-    
-    def properties(self,name):
+
+    def properties(self, name):
         return self.connection.get_blob_properties(
             self.azure_container, name)
-        
+
     def size(self, name):
         return self.properties(name)["content-length"]
 
-    def get_available_name(self,name):
+    def get_available_name(self, name):
         dir_path, file_name = os.path.split(name)
         name = clean_name(name)
         try:
-            file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$',file_name).groups()
+            file_root, file_ext = re.match(
+                '^([^\.\s]+)(\.\S+)$', file_name).groups()
         except AttributeError:
-            file_root, file_ext = (file_name,'')
-        path_prefix = pathjoin(dir_path,file_root)
-        file_list = {f.name: True for f in self.connection.list_blobs(self.azure_container,path_prefix)}
+            file_root, file_ext = (file_name, '')
+        path_prefix = pathjoin(dir_path, file_root)
+        file_list = {f.name: True for f in self.connection.list_blobs(
+            self.azure_container, path_prefix)}
         ct = itertools.count(1)
-        while name in file_list:            
-            name = path_prefix + "_%s%s" % (next(ct),file_ext)
+        while name in file_list:
+            name = path_prefix + "_%s%s" % (next(ct), file_ext)
         return name
 
 
 class AzureBlockBlobFile(RawIOBase):
 
-    def __init__(self,connection,container,name,mode):
+    def __init__(self, connection, container, name, mode):
         name = clean_name(name)
         self.connection = connection
         self.name = name
@@ -103,26 +107,27 @@ class AzureBlockBlobFile(RawIOBase):
             try:
                 self.properties
                 if 'a' not in mode:
-                    raise Exception("File Already Exists.")               
-            except azure.WindowsAzureMissingResourceError as e:
-                res = self.connection.put_blob(self.container,self.name,'',"BlockBlob")
+                    raise Exception("File Already Exists.")
+            except azure.WindowsAzureMissingResourceError:
+                self.connection.put_blob(
+                    self.container, self.name, '', "BlockBlob")
         self._cur = 0
-        self._end = ( int(self.properties['content-length']) - 1) if int(self.properties['content-length']) > 0 else 0
+        self._end = (int(self.properties['content-length']) -
+                     1) if int(self.properties['content-length']) > 0 else 0
         self._block_list = []
-        
 
     @property
     def properties(self):
         if self._properties is None:
-            self._properties=self.connection.get_blob_properties(
-                  self.container,self.name)
+            self._properties = self.connection.get_blob_properties(
+                self.container, self.name)
         return self._properties
 
     @property
     def size(self):
         return int(self.properties.get('content-length'))
 
-    def seek(self,offset,from_what=0):
+    def seek(self, offset, from_what=0):
         if from_what == 2:
             pos = int(offset) + (self.size - 1)
         elif from_what == 1:
@@ -137,38 +142,40 @@ class AzureBlockBlobFile(RawIOBase):
     def tell(self):
         return self._cur
 
-    def read(self,num_bytes=None):
+    def read(self, num_bytes=None):
         start = self._cur
         if not num_bytes:
-            end = self.size -1
+            end = self.size - 1
         else:
-            end = self._cur+num_bytes-1       
+            end = self._cur + num_bytes - 1
         if self._cur > self._end:
             raise Exception("Something odd happened.")
         if self._cur == self._end and not num_bytes:
             return None
         if self._end < end:
             end = self._end
-        content = self.connection.get_blob(self.container,self.name,
-                                           x_ms_range='bytes=%d-%d' % (start, end))       
-        self._cur = self._cur + len(content) if self._cur < self._end else self._end
+        content = self.connection.get_blob(self.container, self.name,
+                                           x_ms_range='bytes=%d-%d' % (start, end))
+        self._cur = self._cur + \
+            len(content) if self._cur < self._end else self._end
         return content
-    
-    def write(self,data):
+
+    def write(self, data):
         blockid = "%6d" % len(self._block_list)
         try:
             self.connection.put_block(self.container, self.name, data, blockid)
-            self._block_list.append((blockid,len(data)))
+            self._block_list.append((blockid, len(data)))
             return len(data)
         except azure.WindowsAzureError as e:
             raise e
-       
+
     def flush(self):
         if self._block_list:
-            res = self.connection.put_block_list(self.container,self.name,[b[0] for b in self._block_list])
+            self.connection.put_block_list(
+                self.container, self.name, [b[0] for b in self._block_list])
             self._end = sum([b[1] for b in self._block_list]) - 1
             self._cur = 0
             self._block_list = []
-            
+
     def close(self):
         self.flush()

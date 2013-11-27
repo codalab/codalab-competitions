@@ -4,7 +4,14 @@
 This is a prototype command-line utility for CodaLab.
 """
 
-import re, os, sys, yaml, sqlite3, time, tempfile, random
+import re
+import os
+import sys
+import yaml
+import sqlite3
+import time
+import tempfile
+import random
 
 # The base directory where all the Bundles are stored.
 bundlesPath = os.path.join(os.path.dirname(__file__), 'bundles.fs')
@@ -32,7 +39,10 @@ In a Program's command, the following variables will be substituted:
  - $input: path to the input (read everything from this directory).
  - $ouput: path to the output (write everything to this directory).
 """
+
+
 class Bundle:
+
     def __init__(self, arg):
         if isinstance(arg, int):
             # Just comes with the Bundle id
@@ -45,25 +55,33 @@ class Bundle:
         if not os.path.exists(self.path):
             raise Exception('Bundle path doesn\'t exist: ' + self.path)
 
-    def __str__(self): return str(self.bundleId)
-
+    def __str__(self):
+        return str(self.bundleId)
 """
 Represents a dependency of the key of a Bundle on the key of a source Bundle.
 (behaves like a symlink)
 """
+
+
 class Dep:
+
     def __init__(self, entry):
         self.bundleId, self.key, self.sourceBundleId, self.sourceKey = entry
-    def __str__(self): return '%s:%s/%s' % (self.key, self.sourceBundleId, self.sourceKey)
+
+    def __str__(self):
+        return '%s:%s/%s' % (self.key, self.sourceBundleId, self.sourceKey)
 
 ############################################################
 # General utilities
 
+
 def truncate(s, n):
-    if not s: return s
+    if not s:
+        return s
     if len(s) > n:
-        return s[0:n-3] + '...'
+        return s[0:n - 3] + '...'
     return s
+
 
 def readYaml(path):
     f = open(path)
@@ -71,10 +89,12 @@ def readYaml(path):
     f.close()
     return result
 
+
 def writeYaml(info, path):
     f = open(path, "w")
     f.write(yaml.dump(info, default_flow_style=False))
     f.close()
+
 
 def systemOrDie(command):
     #print >>sys.stderr, command
@@ -85,10 +105,13 @@ def systemOrDie(command):
 ############################################################
 # The main functionality
 
+
 class BundleServer:
+
     def __init__(self):
         self.bundlesDb = sqlite3.connect(bundlesDbPath)
-        if not os.path.exists(bundlesPath): os.mkdir(bundlesPath)
+        if not os.path.exists(bundlesPath):
+            os.mkdir(bundlesPath)
         cur = self.bundlesDb.cursor()
         cur.execute("""CREATE TABLE IF NOT EXISTS Bundles(
           Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,20 +142,25 @@ class BundleServer:
     def parseBundles(self, query):
         cur = self.bundlesDb.cursor()
         conditions = self.getBundleQueryConditions(query)
-        #print conditions
+        # print conditions
         if len(conditions) > 0:
-            cur.execute("SELECT * From Bundles WHERE %s" % ' AND '.join(conditions))
+            cur.execute("SELECT * From Bundles WHERE %s" %
+                        ' AND '.join(conditions))
         else:
             cur.execute('SELECT * FROM Bundles')
         entries = cur.fetchall()
         return [Bundle(entry) for entry in entries]
 
     def getBundleQueryConditions(self, query):
-        if query == None: return []
-        if re.search(r'^\d+$', query): return ["Id = %s" % query]
+        if query is None:
+            return []
+        if re.search(r'^\d+$', query):
+            return ["Id = %s" % query]
         m = re.search(r'^(\d+)-(\d+)$', query)
-        if m: return ["Id >= " + m.group(1), "Id <= " + m.group(2)]
-        if query == 'runs': return ['Command IS NOT NULL']
+        if m:
+            return ["Id >= " + m.group(1), "Id <= " + m.group(2)]
+        if query == 'runs':
+            return ['Command IS NOT NULL']
         m = re.search(r'^(\w+)(=|!=|<|>|<=|>=|LIKE)(.+)$', query)
         if m:
             return ["%s %s '%s'" % (m.group(1).capitalize(), m.group(2), m.group(3))]
@@ -144,76 +172,97 @@ class BundleServer:
         bundles = self.parseBundles(query)
         if len(bundles) == 0:
             print >>sys.stderr, 'No bundles matching "%s"' % query
-            sys.exit(1) # This might be a bit harsh
+            sys.exit(1)  # This might be a bit harsh
         if len(bundles) > 1:
-            print >>sys.stderr, '%d bundles matching "%s"' % (len(bundles), query)
+            print >>sys.stderr, '%d bundles matching "%s"' % (
+                len(bundles), query)
         return bundles[-1]
 
     def stringRepn(self, bundleId, title, description, command, deps):
         # Find a string representation of this Bundle
         items = [str(bundleId)]
-        if title: items.append('['+title+']')
-        if command: items.append('command('+command+')')
-        if deps: items.append('{' + self.depsToString(deps) + '}')
+        if title:
+            items.append('[' + title + ']')
+        if command:
+            items.append('command(' + command + ')')
+        if deps:
+            items.append('{' + self.depsToString(deps) + '}')
         return ' '.join(items)
 
     # Return a string representing the dependencies
     def depsToString(self, deps):
-        return ','.join([key+':'+str(sourceBundle.bundleId)+'/'+sourceKey for key, (sourceBundle, sourceKey) in sorted(deps.items())])
+        return ','.join([key + ':' + str(sourceBundle.bundleId) + '/' + sourceKey for key, (sourceBundle, sourceKey) in sorted(deps.items())])
 
     # Helper function.
     # Return the Bundle object and whether it was new or not.
     def createBundle(self, title, description, command, deps, bundleHash=None):
-        if title: title = str(title)
-        if description: description = str(description)
-        if command: command = str(command)
+        if title:
+            title = str(title)
+        if description:
+            description = str(description)
+        if command:
+            command = str(command)
 
         if not bundleHash:
             bundleHash = (command or '') + ';' + self.depsToString(deps)
-        # If a Bundle with the same hash already exists, don't recreate the Bundle.
+        # If a Bundle with the same hash already exists, don't recreate the
+        # Bundle.
         memoize = True
         if memoize:
             cur = self.bundlesDb.cursor()
             cur.execute("SELECT * FROM Bundles WHERE Hash = ?", (bundleHash,))
             for entry in cur.fetchall():
                 bundleId = entry[0]
-                print >>sys.stderr, 'Reusing existing bundle %s' % self.stringRepn(bundleId, title, description, command, deps)
+                print >>sys.stderr, 'Reusing existing bundle %s' % self.stringRepn(
+                    bundleId, title, description, command, deps)
                 return (Bundle(bundleId), False)
 
         # Write to the database
         cur = self.bundlesDb.cursor()
-        cur.execute("INSERT INTO Bundles(Title, Description, Command, Hash) VALUES (?,?,?,?);", (title, description, command, bundleHash))
+        cur.execute(
+            "INSERT INTO Bundles(Title, Description, Command, Hash) VALUES (?,?,?,?);",
+            (title, description, command, bundleHash))
         bundleId = cur.lastrowid
         if deps:
             for key, (sourceBundle, sourceKey) in deps.items():
-                cur.execute("INSERT INTO Deps(Id, Key, SourceId, SourceKey) VALUES (?,?,?,?)", (bundleId, key, sourceBundle.bundleId, sourceKey))
+                cur.execute(
+                    "INSERT INTO Deps(Id, Key, SourceId, SourceKey) VALUES (?,?,?,?)",
+                    (bundleId, key, sourceBundle.bundleId, sourceKey))
         self.bundlesDb.commit()
 
         # Create the directory
         os.mkdir(os.path.join(bundlesPath, str(bundleId)))
         bundle = Bundle(bundleId)
 
-        if command: self.updateStatus(bundle, 'ready')
+        if command:
+            self.updateStatus(bundle, 'ready')
 
         # Write metadata
         metadata = {}
-        if title: metadata['title'] = title
-        if description: metadata['description'] = description
-        if command: metadata['command'] = command
+        if title:
+            metadata['title'] = title
+        if description:
+            metadata['description'] = description
+        if command:
+            metadata['command'] = command
         if deps:
             metadataDeps = metadata['deps'] = {}
             for key, (sourceBundle, sourceKey) in deps.items():
-                metadataDeps[key] = str(sourceBundle.bundleId) + '/' + sourceKey
+                metadataDeps[key] = str(sourceBundle.bundleId) + \
+                    '/' + sourceKey
         writeYaml(metadata, os.path.join(bundle.path, 'metadata'))
 
-        print >>sys.stderr, 'Created new bundle %s' % self.stringRepn(bundleId, title, description, command, deps)
+        print >>sys.stderr, 'Created new bundle %s' % self.stringRepn(
+            bundleId, title, description, command, deps)
         return (bundle, True)
 
     def uploadBundle(self, path):
         # Compute statistics of the local directory
         sizeKb = int(os.popen('du -s %s | cut -f 1' % path).read())
-        bundleHash = os.popen('find %s -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | cut -f 1 -d " "' % path).read().strip()
-        print >>sys.stderr, '%s: %s KB, hash is %s' % (path, sizeKb, bundleHash)
+        bundleHash = os.popen(
+            'find %s -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | cut -f 1 -d " "' % path).read().strip()
+        print >>sys.stderr, '%s: %s KB, hash is %s' % (
+            path, sizeKb, bundleHash)
 
         # Read the metadata
         metadataPath = os.path.join(path, 'metadata')
@@ -226,7 +275,8 @@ class BundleServer:
         if 'title' not in metadata:
             metadata['title'] = os.path.basename(os.path.abspath(path))
 
-        bundle, isNew = self.createBundle(metadata.get('title'), metadata.get('description'), metadata.get('command'), metadata.get('deps'), bundleHash)
+        bundle, isNew = self.createBundle(metadata.get('title'), metadata.get(
+            'description'), metadata.get('command'), metadata.get('deps'), bundleHash)
         if isNew:
             if os.path.isfile(path):
                 systemOrDie('cp %s %s' % (path, bundle.path))
@@ -240,7 +290,8 @@ class BundleServer:
 
     def noteBundle(self, message):
         # Put it in the title for now
-        bundle, isNew = self.createBundle(message, None, None, {}, "%032x" % random.getrandbits(128))
+        bundle, isNew = self.createBundle(
+            message, None, None, {}, "%032x" % random.getrandbits(128))
         return bundle
 
     # Download the Bundle into the outPath.
@@ -250,12 +301,14 @@ class BundleServer:
             print >>sys.stderr, 'Directory %s already exists' % outPath
         else:
             systemOrDie('cp -a %s %s' % (inPath, outPath))
-            print >>sys.stderr, 'Downloaded bundle %s to %s' % (bundle, outPath)
+            print >>sys.stderr, 'Downloaded bundle %s to %s' % (
+                bundle, outPath)
 
     # Wait, printing out status for the Bundle to finish
     def waitBundle(self, bundle):
         while True:
-            bundle = self.parseBundle(str(bundle.bundleId))  # TODO: do this more directly
+            # TODO: do this more directly
+            bundle = self.parseBundle(str(bundle.bundleId))
             if bundle.status in ['done', 'failed']:
                 return
             time.sleep(1)
@@ -289,27 +342,36 @@ class BundleServer:
             title = truncate(bundle.title, maxLen)
             command = truncate(bundle.command, maxLen)
             deps = server.getDeps(bundle)
-            if deps: deps = ' '.join([str(dep) for dep in deps])
+            if deps:
+                deps = ' '.join([str(dep) for dep in deps])
             if verbose:
                 print '=========================='
                 print 'id:', bundle.bundleId
-                if title: print 'title:', title
-                if bundle.description: print 'description:', bundle.description
-                if command: print 'command:', command
-                if bundle.status: print 'status:', bundle.status
-                if deps: print 'deps:', deps
+                if title:
+                    print 'title:', title
+                if bundle.description:
+                    print 'description:', bundle.description
+                if command:
+                    print 'command:', command
+                if bundle.status:
+                    print 'status:', bundle.status
+                if deps:
+                    print 'deps:', deps
                 for filename in ['stdout', 'stderr']:
                     stdoutPath = os.path.join(bundle.path, filename)
                     if os.path.exists(stdoutPath):
                         stdout = open(stdoutPath).read()
-                        if len(stdout) > 0: print "--- " + filename + " ---\n" + stdout,
+                        if len(stdout) > 0:
+                            print "--- " + filename + " ---\n" + stdout,
                 print '--- files ---'
                 os.system('ls -l %s' % bundle.path)
             else:
-                rows.append([str(x) if x else '-' for x in [bundle.bundleId, title, command, bundle.status, deps]])
+                rows.append(
+                    [str(x) if x else '-' for x in [bundle.bundleId, title, command, bundle.status, deps]])
         if len(rows) > 0:
             numCols = len(rows[0])
-            maxWidths = [max(len(row[j]) for row in rows) for j in range(numCols)]
+            maxWidths = [max(len(row[j]) for row in rows)
+                         for j in range(numCols)]
             fmt = ' '.join(['%%-%ds' % maxWidths[j] for j in range(numCols)])
             for row in rows:
                 print fmt % tuple(row)
@@ -334,7 +396,8 @@ class BundleServer:
     # Helper method
     def updateStatus(self, bundle, status):
         cur = self.bundlesDb.cursor()
-        cur.execute('UPDATE Bundles SET Status = ? WHERE Id = ?', (status, bundle.bundleId))
+        cur.execute('UPDATE Bundles SET Status = ? WHERE Id = ?',
+                    (status, bundle.bundleId))
         self.bundlesDb.commit()
 
     def run(self, bundle):
@@ -353,7 +416,8 @@ class BundleServer:
             return False
 
         # Update command-line with the real paths
-        command = bundle.command.replace("$", runPath + '/') # for $program, $input, etc.
+        # for $program, $input, etc.
+        command = bundle.command.replace("$", runPath + '/')
 
         print
         print "BEGIN %s ====== run(%s) ======" % (bundle.bundleId, bundle.command)
@@ -363,14 +427,15 @@ class BundleServer:
         os.mkdir(outputPath)
 
         startTime = time.time()
-        exitCode = os.system(command+' >'+stdoutPath+' 2>'+stderrPath) # Run it!
+        # Run it!
+        exitCode = os.system(command + ' >' + stdoutPath + ' 2>' + stderrPath)
         endTime = time.time()
         elapsedTime = endTime - startTime
 
         status = {}
         status['exitCode'] = exitCode
         status['elapsedTime'] = elapsedTime
-        status['maxMemoryUsed'] = 100 # TODO
+        status['maxMemoryUsed'] = 100  # TODO
         writeYaml(status, os.path.join(runPath, 'status'))
         sys.stdout.write(open(stdoutPath).read())
         sys.stdout.write(open(stderrPath).read())
@@ -380,7 +445,8 @@ class BundleServer:
         # Copy output files back
         # TODO: copy back stderr/stdout incrementally as the process is running
         for filename in ['status', 'stderr', 'stdout', 'output']:
-            systemOrDie('cp -a %s %s' % (os.path.join(runPath, filename), bundle.path))
+            systemOrDie('cp -a %s %s' %
+                        (os.path.join(runPath, filename), bundle.path))
 
         return exitCode == 0
 
@@ -444,13 +510,16 @@ if command == 'up' or command == 'upload':
         print bundle.bundleId
 elif command == 'make' or command == 'run':
     if command == 'run':  # run is a special case of make
-        if len(args) == 2: args.append('-run') # Default way to run
+        if len(args) == 2:
+            args.append('-run')  # Default way to run
         if len(args) < 3:
             print >>sys.stderr, 'Missing arguments, usage is: <program> <input> [<command>]'
             sys.exit(1)
-        if args[2].startswith('-'): # Just provide the name of the program to invoke
+        # Just provide the name of the program to invoke
+        if args[2].startswith('-'):
             args[2] = '$program/' + args[2][1:] + ' $input $output'
-        args = ['program:' + args[0], 'input:' + args[1], 'command:'+' '.join(args[2:])]
+        args = ['program:' + args[0], 'input:' +
+                args[1], 'command:' + ' '.join(args[2:])]
 
     command = None
     deps = {}
@@ -469,7 +538,8 @@ elif command == 'make' or command == 'run':
     bundle = server.makeBundle(command, deps)
     print bundle.bundleId
 elif command == 'list' or command == 'info':
-    if len(args) == 0: args.append(None)
+    if len(args) == 0:
+        args.append(None)
     for arg in args:
         bundles = server.parseBundles(arg)
         server.showBundles(bundles, command == 'info')
@@ -491,7 +561,8 @@ elif command == 'wait':
             print bundle.bundleId
 elif command == 'cat':
     for arg in args:
-        if '/' not in arg: arg += '/'
+        if '/' not in arg:
+            arg += '/'
         bundleId, key = arg.split('/', 1)
         bundle = server.parseBundle(bundleId)
         server.catFile(bundle, key)

@@ -9,11 +9,12 @@ The objects ceated as here and referenced though the environment variable
 from base import DevBase
 from default import *
 
-from configurations import Settings
 
 import os
 
+
 class LocalEnvironment(object):
+
     """
     This creates the settings from environment variables that are set on the host.
     """
@@ -25,24 +26,30 @@ class LocalEnvironment(object):
     DB_HOST = os.environ.get('DB_HOST')
     DB_PORT = os.environ.get('DB_PORT')
 
+
 class LocalAzureBlobstore(object):
     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
     AZURE_ACCOUNT_NAME = "accountname"
     AZURE_ACCOUNT_KEY = 'xaedadsf34fCjHpYAKOpRE1uSw3y37MaRSUtUYkj+o2..aoHg5YwasdfGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7GT4=='
     AZURE_CONTAINER = 'containerx'
 
+
 class LocalSQLAzureLinux(object):
     # See the docs at https://github.com/michiya/django-pyodbc-azure
+
     """
     This is the configuration that works for deploying the project on Linux on Azure.
     PyODBC is used in conjunction with FreeTDS and employing the django-pyodbc-azure
     FreeTDS and ODBC Connection definitons are required to connect.
     """
 
-    ## Set environment variables for ODBC/FreeTDS
-    os.environ['FREETDS'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'freetds.conf')
-    os.environ['ODBCINSTINI'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'odbcinst.ini')
-    os.environ['ODBCINI'] = os.path.join(Base.CONFIG_GEN_GENERATED_DIR,'odbc.ini')
+    # Set environment variables for ODBC/FreeTDS
+    os.environ['FREETDS'] = os.path.join(
+        Base.CONFIG_GEN_GENERATED_DIR, 'freetds.conf')
+    os.environ['ODBCINSTINI'] = os.path.join(
+        Base.CONFIG_GEN_GENERATED_DIR, 'odbcinst.ini')
+    os.environ['ODBCINI'] = os.path.join(
+        Base.CONFIG_GEN_GENERATED_DIR, 'odbc.ini')
     os.environ['ODBCSYSINI'] = Base.CONFIG_GEN_GENERATED_DIR
 
     DB_ENGINE = 'sql_server.pyodbc'
@@ -52,64 +59,69 @@ class LocalSQLAzureLinux(object):
     DB_PASSWORD = '********'
     DB_HOST = '_host_name_.database.windows.net'
     DB_PORT = '1433'
-    DB_OPTIONS =  {
+    DB_OPTIONS = {
         'driver': 'FreeTDS',
         'host_is_server': False
-        }
-  
+    }
+
     DATABASES = {
         'default': {
-            'ENGINE':  DB_ENGINE, 
-            'NAME': DB_NAME,                      
-            
+            'ENGINE': DB_ENGINE,
+            'NAME': DB_NAME,
+
             'USER': DB_USER,
             'PASSWORD': DB_PASSWORD,
-            'HOST': DB_SERVER,                     
-            'PORT': DB_PORT,                      # Set to empty string for default.
-            
+            'HOST': DB_SERVER,
+            # Set to empty string for default.
+            'PORT': DB_PORT,
+
             'OPTIONS': DB_OPTIONS,
-            }
         }
+    }
+
 
 class LocalSQLAzureWindows(object):
+
     """
     This is the configuration that works for deploying the project on Windows on Azure.
     PyODBC is used as the bridge to the Windows ODBC connector. Also uses django-pyodbc-azure
     """
     # See the docs at https://github.com/michiya/django-pyodbc-azure
     DB_ENGINE = 'sql_server.pyodbc'
-    DB_NAME = 'djangodb' # Database name for django
-    DB_USER = 'db_user@xoagbc6d42' # Azure required usename@servername for db use
+    DB_NAME = 'djangodb'  # Database name for django
+    # Azure required usename@servername for db use
+    DB_USER = 'db_user@xoagbc6d42'
     DB_SERVER = 'xoagbc6d42'
-    DB_PASSWORD = '********' 
-    DB_HOST = 'xoagbc6d42.database.windows.net' # The Hostname of the SQL Server hosted on Azure
+    DB_PASSWORD = '********'
+    # The Hostname of the SQL Server hosted on Azure
+    DB_HOST = 'xoagbc6d42.database.windows.net'
     DB_PORT = '1433'
-    DB_OPTIONS =  {
-        'driver': 'SQL Server Native Client 10.0', # The driver as specified by the Azure Management Console
-	'dsn': 'codalab2', # This is the DSN defined in the ODBC Configuration
- 	'extra_params': 'Encrypt=yes;Connection Timeout=30;', # The Extra params as specified by Azure
+    DB_OPTIONS = {
+        # The driver as specified by the Azure Management Console
+        'driver': 'SQL Server Native Client 10.0',
+        'dsn': 'codalab2',  # This is the DSN defined in the ODBC Configuration
+        # The Extra params as specified by Azure
+        'extra_params': 'Encrypt=yes;Connection Timeout=30;',
 
-        }
-  
+    }
+
     DATABASES = {
         'default': {
-            'ENGINE':  DB_ENGINE, 
-            'NAME': DB_NAME,                     
-            
-            'HOST': DB_HOST,                     
+            'ENGINE': DB_ENGINE,
+            'NAME': DB_NAME,
+
+            'HOST': DB_HOST,
             # 'PORT': DB_PORT,                      # Set to empty string for default.
             'USER': DB_USER,
             'PASSWORD': DB_PASSWORD,
             'OPTIONS': DB_OPTIONS,
-            }
         }
+    }
 
 
-class Dev(DevBase,LocalSQLAzureLinux):
-    ### https://docs.djangoproject.com/en/1.5/topics/settings/
-    ### https://github.com/jezdez/django-configurations/blob/master/docs/index.rst
+class Dev(DevBase, LocalSQLAzureLinux):
+    # https://docs.djangoproject.com/en/1.5/topics/settings/
+    # https://github.com/jezdez/django-configurations/blob/master/docs/index.rst
 
-    ### https://docs.djangoproject.com/en/1.5/topics/email/#email-backends
+    # https://docs.djangoproject.com/en/1.5/topics/email/#email-backends
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-    
