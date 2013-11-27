@@ -11,27 +11,29 @@ from fabvenv import make_virtualenv, virtualenv
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'project', 'codalab', 'codalab')
-DEPLOY_PATH='codalab'
+DEPLOY_PATH = 'codalab'
 
-THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR,'codalab', 'settings')
+THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR, 'codalab', 'settings')
 
 sys.path.append('.')
+
 
 @task
 def set_env(**kwargs):
     env.repo_tag = 'master'
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
-    env.DEPLOY_PATH=DEPLOY_PATH
+    env.DEPLOY_PATH = DEPLOY_PATH
     env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH, 'codalab', 'config', 'generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
-    env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH, 'venvd')
-    VENV_PATH = env.venvpath
+    env.venvpath = pathjoin('/home', env.user, env.DEPLOY_PATH, 'venvd')
     env.EXTERNAL_SITE_CONFIG = False
+
 
 @task
 def repotag(name='master'):
     env.repo_tag = name
+
 
 @task
 def site_config(path=None,archive_name='latest_codalab_config.tar', url=None, module=None):
