@@ -46,7 +46,7 @@ var Competition;
                     rows.html("");
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
-                    row.html('<i class="enclosed-foundicon-checkmark"></i>');
+                    row.html('<i class="fi-check"></i>');
                     $('#user_results button.leaderBoardRemove').each(function (index) {
                         decorateLeaderboardButton($(this), false);
                     });
@@ -105,10 +105,10 @@ var Competition;
                     success: function (response) {
                         $("#user_results tr.noData").remove();
                         $("#user_results").append(Competition.displayNewSubmission(response));
-                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
+                        $('#user_results #' + response.id + ' .fi-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         $('#fileUploadButton').removeClass("disabled");
                         $('#fileUploadButton').text("Submit Results");
-                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
+                        $('#user_results #' + response.id + ' .fi-plus').click();
                     },
                     fail: function (jqXHR) {
                         var msg = "An unexpected error occured.";
@@ -121,7 +121,7 @@ var Competition;
                     }
                 });
 
-                $('#user_results .enclosed-foundicon-plus').on('click', function () {
+                $('#user_results .fi-plus').on('click', function () {
                     Competition.showOrHideSubmissionDetails(this);
                 });
             },
@@ -277,14 +277,14 @@ var Competition;
 
     Competition.showOrHideSubmissionDetails = function (obj) {
         var nTr = $(obj).parents('tr')[0];
-        if ($(obj).hasClass("enclosed-foundicon-minus")) {
-            $(obj).removeClass("enclosed-foundicon-minus");
-            $(obj).addClass("enclosed-foundicon-plus");
+        if ($(obj).hasClass("fi-minus")) {
+            $(obj).removeClass("fi-minus");
+            $(obj).addClass("fi-plus");
             $(nTr).next("tr.trDetails").remove();
         }
         else {
-            $(obj).removeClass("enclosed-foundicon-plus");
-            $(obj).addClass("enclosed-foundicon-minus");
+            $(obj).removeClass("fi-plus");
+            $(obj).addClass("fi-minus");
             var elem = $("#submission_details_template .trDetails").clone();
             elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
             var phasestate = $('#phasestate').val();
