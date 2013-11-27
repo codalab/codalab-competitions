@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block head_title %}Help: Build a Scoring Program{% endblock head_title %}
+{% block page_title %}Help: Build a Scoring Program{% endblock page_title %}
+{% block content %}
+    <!-- Main Content Section -->
+    <div class="large-9 columns">
+
+<p>In the current CodaLab competition model a competition is constructed with a set of Reference Data and a Scoring Program. The way competitions work currently the Reference Data is compared with a participants submission and the differences in the two are scored using the Scoring Program.</p>
+
+<p>The program.zip bundle contains the Scoring Program that compares the participants submission with the reference data (in the reference.zip bundle) to score the submission. In this example the reference data contains the value of pi. The program.zip bundle computes the absolute difference of the submitted value from the reference value.</p>
+
+<p>Here are the contents of the reference.zip file:</p>
+
+<pre><code>reference.zip 
+  |- answer.txt (Contains: 3.14159265359)
+  |- metadata   (Contains: This is the authoritative result.)
+</code></pre>
+
+<p>A submission.zip for this competition would look similar:</p>
+
+<pre><code>submission.zip 
+  |- answer.txt (Contains: 3.1415359)
+</code></pre>
+
+<p>Here are the contents of the program.zip file:</p>
+
+<pre><code>program.zip
+  |- evaluate.exe (The program that's run)
+  |- metadata     (Contents below...)
+  |- supporting modules and libraries for evaluate.exe to run in isolation.
+</code></pre>
+
+<p>The program.zip metadata file contains:</p>
+
+<pre><code>command: $program/evaluate.exe $input $output
+description: Example competition evaluation program.
+</code></pre>
+
+<p>Here are the assumptions about the scoring process and the scoring program:</p>
+
+<ol>
+<li>There is a fixed directory structure that the scoring program operates within. It looks like this:
+<code>
+Submission Directory
+  |- input
+    |- ref (This is the reference data unzipped)
+    |- res (This is the user submission unzipped)
+  |- program (This is the scoring program [and any included dependencies] unzipped)
+  |- output (This is where the scores.txt file needs to be written by the scoring program)
+</code>
+</li>
+<li>The scoring program will be invoked as <code>&lt;program&gt; &lt;input directory&gt; &lt;output directory&gt;</code>
+</li>
+<li>The scoring program is executed so that stderr and stdout are captured</li>
+<li>The scoring program will generate a scores.txt file (it has to be named scores.txt) that contains key value pairs of metrics. This is a score file for the example competition:
+<code>
+Difference: 0.0057
+</code>
+</li>
+<li>Each key in the scores.txt file is identical to a leaderboard column key in the competition.yaml. (e.g. "DIFFERENCE" in the <a href="https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle">example competition.yaml</a>. This is how scores are related to the competition for reporting so it is critical the leaderboard keys and the keys in the scores.txt are identical.</li>
+</ol>
+
+</div>
+{% endblock content %}
+{% block js %}
+    <!--  /////  Highlight current link  /////  -->
+    $(function() {
+        $(".side-nav > li > a").click(function(){
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liHelp").addClass("active");
+    });
+
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+    $('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+    });
+{% endblock js %}
