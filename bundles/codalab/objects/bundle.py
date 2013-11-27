@@ -28,11 +28,10 @@ class Bundle(DatabaseObject):
     self.metadata.validate(self.METADATA_TYPES)
 
   def __repr__(self):
-    return '%s(uuid=%r, name=%r, data_hash=%r)' % (
+    return '%s(uuid=%r, name=%r)' % (
       self.__class__.__name__,
       self.uuid,
       self.metadata.name,
-      self.data_hash,
     )
 
   def update_in_memory(self, row):
@@ -47,4 +46,6 @@ class Bundle(DatabaseObject):
   def to_dict(self):
     result = super(Bundle, self).to_dict()
     result['metadata'] = self.metadata.to_dicts(self.METADATA_TYPES)
+    for metadata_row in result['metadata']:
+      metadata_row['bundle_uuid'] = self.uuid
     return result

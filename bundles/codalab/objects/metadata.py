@@ -82,3 +82,14 @@ class Metadata(object):
           'metadata_value': unicode(value),
         })
     return result
+
+  def to_dict(self):
+    '''
+    Serialize this metadata to human-readable JSON format. This format is NOT
+    an appropriate one to save to a database.
+    '''
+    items = [(key, getattr(self, key)) for key in self._metadata_keys]
+    return {
+      key: list(value) if isinstance(value, (list, set, tuple)) else value
+      for (key, value) in items
+    }

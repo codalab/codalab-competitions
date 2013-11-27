@@ -1,19 +1,11 @@
-import os
-
 from codalab.model.sqlite_model import SQLiteModel
 
 
-home_directory = os.path.expanduser('~')
-model = SQLiteModel(home_directory)
+_models = {}
 
 
-from codalab.bundles.dataset_bundle import DatasetBundle
-from codalab.objects.metadata import Metadata
-model.create_tables()
-metadata = Metadata(
-  name='my_name',
-  description='my_description',
-  tags=list('tags'),
-)
-bundle = DatasetBundle.construct(data_hash='my_data_hash', metadata=metadata)
-bundle.validate()
+def get_codalab_model(codalab_home):
+  if codalab_home not in _models:
+    _models[codalab_home] = SQLiteModel(codalab_home)
+    _models[codalab_home].create_tables()
+  return _models[codalab_home]

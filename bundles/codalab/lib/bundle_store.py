@@ -12,17 +12,17 @@ class BundleStore(object):
   TEMP_SUBDIRECTORY = 'temp'
   BLOCK_SIZE = 0x40000
 
-  def __init__(self, root):
-    self.root = self.normalize_path(root)
-    self.data = os.path.join(self.root, self.DATA_SUBDIRECTORY)
-    self.temp = os.path.join(self.root, self.TEMP_SUBDIRECTORY)
+  def __init__(self, codalab_home):
+    self.codalab_home = self.normalize_path(codalab_home)
+    self.data = os.path.join(self.codalab_home, self.DATA_SUBDIRECTORY)
+    self.temp = os.path.join(self.codalab_home, self.TEMP_SUBDIRECTORY)
     self.make_directories()
 
   def make_directories(self):
     '''
     Create the root, data, and temp directories for this BundleStore.
     '''
-    for path in (self.root, self.data, self.temp):
+    for path in (self.codalab_home, self.data, self.temp):
       try:
         os.mkdir(path)
       except OSError, e:
@@ -47,6 +47,12 @@ class BundleStore(object):
     '''
     if not os.path.isdir(path):
       raise ValueError('%s called with non-directory: %s' % (fn_name, path))
+
+  def get_location(self, data_hash):
+    '''
+    Returns the on-disk location of the bundle with the given data hash.
+    '''
+    return os.path.join(self.data, data_hash)
 
   def upload(self, path):
     '''

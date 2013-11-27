@@ -31,7 +31,7 @@ class BundleModel(object):
       if not bundle_row:
         raise ValueError('Could not find bundle with uuid %s' % (uuid,))
       metadata_rows = connection.execute(cl_bundle_metadata.select().where(
-        cl_bundle_metadata.c.bundle_id == bundle_row.id
+        cl_bundle_metadata.c.bundle_uuid == uuid
       )).fetchall()
     bundle_value = dict(bundle_row, metadata=metadata_rows)
     bundle = get_bundle_subclass(bundle_value['bundle_type'])(bundle_value)
@@ -40,18 +40,12 @@ class BundleModel(object):
 
   def save_bundle(self, bundle):
     '''
-    Save a bundle and return True if the database updates were successful.
-    On success, set the Bundle object's id from the result.
+    Save a bundle. On success, sets the Bundle object's id from the result.
     '''
     bundle.validate()
     bundle_value = bundle.to_dict()
     bundle_metadata_values = bundle_value.pop('metadata')
     with self.engine.begin() as connection:
       result = connection.execute(cl_bundle.insert().values(bundle_value))
-      bundle_id = result.lastrowid
-      for metadata_row in bundle_metadata_values:
-        metadata_row['bundle_id'] = bundle_id
       connection.execute(cl_bundle_metadata.insert(), bundle_metadata_values)
-      bundle.id = bundle_id
-      return True
-    return False
+      bundle.id = result.lastrowid

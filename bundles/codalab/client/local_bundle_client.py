@@ -1,24 +1,48 @@
-import os
-import sqlite3
-
-# TODO(skishore): Get some sort of virtualenv / package system working.
-from codalab.bundle_client import BundleClient
-# TODO(skishore): There is no BundleModel...
-from codalab.bundle_model import BundleModel
+from codalab.bundles import get_bundle_subclass
+from codalab.bundles.uploaded_bundle import UploadedBundle
+from codalab.common import CODALAB_HOME
+from codalab.client.bundle_client import BundleClient
+from codalab.lib.bundle_store import BundleStore
+from codalab.lib.path_util import PathUtil
+from codalab.model.util import get_codalab_model
 
 
 class LocalBundleClient(BundleClient):
-  BUNDLES_DB_NAME = 'bundle.db'
+  def __init__(self, codalab_home=None):
+    codalab_home = codalab_home or CODALAB_HOME
+    self.bundle_store = BundleStore(codalab_home)
+    self.model = get_codalab_model(codalab_home)
 
-  def __init__(self, home, model):
-    # CodaLab data structures will live in a home directory that this client
-    # needs to know the location of. This directory defaults to $HOME/.codalab.
-    self.home = home
-    bundles_db_path = os.path.join(self.home, self.BUNDLES_DB_NAME)
-    # Ugh, should be initializing the model to point to either a MySQL server
-    # (with some url) or a sqlite3 file (with some path) based on config.
-    self.bundles_db = sqlite3.connect(bundles_db_path)
-    self.cursor = self.bundles_db.cursor()
-    self.model = BundleModel(self.cursor)
+  def upload(self, bundle_type, path, metadata):
+    bundle_subclass = get_bundle_subclass(bundle_type)
+    if not issubclass(bundle_subclass, UploadedBundle):
+      raise ValueError('Tried to upload %s!' % (bundle_subclass.__name__,))
+    data_hash = self.bundle_store.upload(path)
+    bundle = bundle_subclass.construct(data_hash=data_hash, metadata=metadata)
+    self.model.save_bundle(bundle)
+    return bundle.uuid
 
-  # TODO(skishore): Add a basic implementation of the BundleClient interface.
+  def make(self, targets):
+    bundle_subclass = get_bundle_subclass('make')
+    bundle = bundle_subclass.construct(targets)
+    self.model.save_bundle(bundle)
+    return bundle.uuid
+
+  def run(self, program_uuid, targets, command):
+    bundle_subclass = get_bundle_subclass('run')
+    bundle = bundle_subclass.construct(program_uuid, targets, command)
+    self.model.save_bundle(bundle)
+    return bundle.uuid
+
+  def info(self, uuid):
+    bundle = self.model.get_bundle(uuid)
+    return {
+      'bundle_type': bundle.bundle_type,
+      'location': self.bundle_store.get_location(bundle.data_hash),
+      'metadata': bundle.metadata.to_dict(),
+      'state': bundle.state,
+    }
+
+  def ls(self, target):
+    path = PathUtil.expand_target(self.bundle_store, self.model, target)
+    return PathUtil.ls(path)
