@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block head_title %}Help: Glossary{% endblock head_title %}
+{% block page_title %}Help: Glossary{% endblock page_title %}
+{% block content %}
+<div class="row glossary-page-container">
+    <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <ul class="side-nav side-nav--fullwidth">
+                <li><a href="#bundle" tabindex="1">bundle</a></li>
+                <li><a href="#competition" tabindex="2">competition</a></li>
+                <li><a href="#run" tabindex="3">run</a></li>
+                <li><a href="#user" tabindex="4">user</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Main Content Section -->
+    <div class="large-9 columns">
+        <a id="bundle" class="anchor"></a>
+        <h3>Bundle</h3>
+        <p>Within CodaLab the basic unit of self-describing storage is referred to as a bundle. A bundle is an immutable directory that can be zipped up into a file that contains a metadata file that describes the contents of the bundle. The <a href="https://github.com/codalab/codalab/blob/master/docs/SPECIFICATION.md">specification for bundles</a> is available in the Github repository. There are currently data bundles, algorithm bundles, run bundles, and competition bundles.</p>
+
+        <a id="competition" class="anchor"></a>
+        <h3>Competition</h3>
+        <p>An organized way for users to upload either a program or a bundle with predictions. An evaluation program will automatically score these predictions against the dataset provided by the competition organizer.</p>
+
+        <a id="run" class="anchor"></a>
+        <h3>Run</h3>
+        <p>type of Bundle which is equipped with a command-line string, which specifies how to execute the code in the Bundle.  Execution produces an output directory and various statistics.</p>
+
+        <a id="user" class="anchor"></a>
+        <h3>User</h3>
+        <p>Someone who creates programs, datasets, experiments, and participates in competitions.</p>
+
+        <hr />
+    </div>
+</div>
+{% endblock content %}
+{% block js %}
+    <!--  /////  Highlight current link  /////  -->
+$(function() {
+        $(".side-nav > li > a").click(function(){
+            $(".side-nav > li > a").removeClass("active");
+            $(this).addClass("active");
+        });
+        $(".top-bar-section ul > li > a").removeClass("active");
+        $("#liHelp").addClass("active");
+    });
+
+<!--  /////  Dock side-nav to top when scrolling down  /////  -->
+$('html, body').scroll(function() {
+        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+    });
+{% endblock js %}
