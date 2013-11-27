@@ -1,2 +1,0 @@
-django-jenkins
-nosexcover
