@@ -5,13 +5,16 @@ from rest_framework import renderers
 from rest_framework.decorators import action,link,permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
-from apps.web import models as webmodels
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+
+from apps.web import signals
+from apps.web import tasks
+from apps.web import models as webmodels
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
@@ -76,11 +79,16 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     def participate(self,request,pk=None):
         comp = self.get_object()
         terms = request.DATA['agreed_terms']
-        status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
-        p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
-                                                                   competition=comp,
-                                                                   defaults={'status': status,
-                                                                             'reason': None})
+
+        # If there is no registration required we just check to make sure they have agreed to the terms and conditions
+        # which is done by the javascript before the ajax call, during form validation.
+        if comp.has_registration:
+            status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
+        else:
+            status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.APPROVED)
+
+        p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user, competition=comp, defaults={'status': status, 'reason': None})
+
         response_data = {
             'result' : 201 if cr else 200,
             'id' : p.id
@@ -268,7 +276,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 break
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail = 'Competition phase is closed.')
-        obj.phase = phase        
+        obj.phase = phase    
+            
+    def post_save(self,obj,created):
+        if created:
+            signals.do_submission.send(sender=webmodels.CompetitionSubmission, instance=obj)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
