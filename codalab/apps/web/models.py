@@ -845,9 +845,6 @@ class CompetitionDefBundle(models.Model):
                     sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
                     for f in vals['computed']['fields'].split(","):
                         f=f.strip()
-                        # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
-                        # brats_leaderboard_defs after the fields they reference.
-                        # This is not a safe assumption -- given we can't control key/value ordering in a dictionary.
                         SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
                     columns[sd.key] = sd
 
