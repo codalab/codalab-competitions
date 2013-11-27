@@ -20,7 +20,7 @@ import models
 
 main = base.Base.SITE_ROOT
 
-def local_run(url, submission):
+def local_run(submission):
     """
         This routine will take the job (initially a competition submission, later a run) and execute it locally.
     """
@@ -75,20 +75,27 @@ def local_run(url, submission):
     # Execute the job
     stdout_fn = os.path.join(output_dir, "stdout.txt")
     stderr_fn = os.path.join(output_dir, "stderr.txt")
-    score_fn  = os.path.join(output_dir, "scores.txt")
     stdout_file = open(stdout_fn, 'wb')
     stderr_file = open(stderr_fn, 'wb')
     subprocess.call([command, input_dir, output_dir], stdout=stdout_file, stderr=stderr_file)
     stdout_file.close()
     stderr_file.close()
 
-    # Pack up the output and store it in Azure.
+    # Open output file
     bytes = StringIO.StringIO()
     ozip = zipfile.ZipFile(bytes, 'w')
-    ozip.write(score_fn, "scores.txt")
+
+    # Pack up all output files.
+    for fn in os.listdir(output_dir):
+        archive_fn = os.path.join(output_dir, fn)
+        print "Saving %s to output.zip" % fn
+        ozip.write(archive_fn, fn)
+
+    # Close output file
     ozip.close()
     bytes.seek(0)
 
+    # Write back to azure
     submission.output_file.save("output.zip", File(bytes))
     submission.stdout_file.save("stdout.txt", File(open(stdout_fn, 'r')))
     submission.stderr_file.save("stderr.txt", File(open(stderr_fn, 'r')))
@@ -122,7 +129,7 @@ def submission_get_status(submission_id):
     return None
 
 @celery.task(name='competition.submission_run', max_retries=20, default_retry_delay=2)
-def submission_run(url, submission_id):
+def submission_run(submission_id):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_id)
     except (ValueError, models.CompetitionSubmission.DoesNotExist):
@@ -133,7 +140,8 @@ def submission_run(url, submission_id):
         print "Running locally."
         submission.set_status(models.CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
-        local_run(url, submission)
+        submission.set_status(models.CompetitionSubmissionStatus.RUNNING)
+        local_run(submission)
         submission.set_status(models.CompetitionSubmissionStatus.FINISHED, force_save=True)
         submission.save()
     else:
@@ -186,7 +194,11 @@ input: %s
 
 @celery.task(name='competition.submission_get_results', max_retries=100, default_retry_delay=6)
 def submission_get_results(submission_id):
-    submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_id)
+    except (ValueError, models.CompetitionSubmission.DoesNotExist):
+        print "Submission not retrievable, might be waiting on blobstore/django."
+        raise submission_get_results.retry(exc=Exception("Submission not in database yet."))
     # Get status of computation from the computation engine
     status = submission_get_status(submission_id)
     print "Status for %d is %s" % (submission_id, status)

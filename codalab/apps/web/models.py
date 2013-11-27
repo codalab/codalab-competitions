@@ -572,7 +572,7 @@ class CompetitionSubmission(models.Model):
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     _fileobj = None
-    _do_submission = False
+    #_do_submission = False
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -601,12 +601,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            print "Setting flags and status so this gets executed."
-            self._do_submission = True
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
-        else:
-            print "This is saving an old submission."
-            self._do_submission = False
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
@@ -614,9 +609,6 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
 
-        if self._do_submission:
-            print "Sending signal to execute the submission scoring."
-            signals.do_submission.send(sender=CompetitionSubmission, instance=self)
         return res
     
     def file_url(self):
@@ -641,7 +633,7 @@ class CompetitionSubmission(models.Model):
 
 @receiver(signals.do_submission)
 def do_submission_task(sender,instance=None,**kwargs):
-    tasks.submission_run.delay(instance.file_url(), submission_id=instance.pk)
+    tasks.submission_run.delay(submission_id=instance.pk)
 
 class SubmissionResultGroup(models.Model):   
     competition = models.ForeignKey(Competition)
@@ -794,12 +786,13 @@ class CompetitionDefBundle(models.Model):
             if 'columns' in comp_spec['leaderboard']:
                 columns = {}
                 for key, vals in comp_spec['leaderboard']['columns'].items():
-                    # Create the score definition
-                    is_computed = 'computed' in vals
+                    # Do non-computed columns first
+                    if 'computed' in vals:
+                        continue
                     sdefaults = {
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
-                                    'show_rank' : not is_computed,
+                                    'show_rank' : True,
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort']
                                     }
                     if 'selection_default' in vals: 
@@ -808,14 +801,8 @@ class CompetitionDefBundle(models.Model):
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
                                 competition=comp,
                                 key=key,
-                                computed=is_computed,
+                                computed=False,
                                 defaults=sdefaults)
-                    if is_computed:
-                        sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
-                        for f in vals['computed']['fields']:
-                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
-                            # brats_leaderboard_defs after the fields they reference.
-                            SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
                     columns[sd.key] = sd
 
                     # Associate the score definition with its column group
@@ -834,6 +821,53 @@ class CompetitionDefBundle(models.Model):
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
+
+                for key, vals in comp_spec['leaderboard']['columns'].items():
+                    # Only process the computed columns this time around.
+                    if 'computed' not in vals:
+                        continue
+                    # Create the score definition
+                    is_computed = True
+                    sdefaults = {
+                                    'label' : "" if 'label' not in vals else vals['label'].strip(),
+                                    'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
+                                    'show_rank' : not is_computed,
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    }
+                    if 'selection_default' in vals: 
+                        sdefaults['selection_default'] = vals['selection_default']
+
+                    sd,cr = SubmissionScoreDef.objects.get_or_create(
+                                competition=comp,
+                                key=key,
+                                computed=is_computed,
+                                defaults=sdefaults)
+                    sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                    for f in vals['computed']['fields'].split(","):
+                        f=f.strip()
+                        # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
+                        # brats_leaderboard_defs after the fields they reference.
+                        # This is not a safe assumption -- given we can't control key/value ordering in a dictionary.
+                        SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
+                    columns[sd.key] = sd
+
+                    # Associate the score definition with its column group
+                    if 'column_group' in vals:
+                        gparent = groups[vals['column_group']['label']]
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+		                        competition=comp,
+                                parent=gparent,
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
+                    else:
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+		                        competition=comp,
+		                        key=sd.key,
+		                        defaults=dict(scoredef=sd, label=sd.label))
+
+                    # Associate the score definition with its leaderboard
+                    sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
+
                 print "Created scores."
 
         # Add owner as participant so they can view the competition
