@@ -280,6 +280,9 @@ def deploy_web():
 @roles('web')
 @task
 def supervisor():
+    """
+    Starts the supervisor on the web instances.
+    """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisord -c codalab/config/generated/supervisor.conf')
@@ -287,6 +290,9 @@ def supervisor():
 @roles('web')
 @task
 def supervisor_stop():
+    """
+    Stops the supervisor on the web instances.
+    """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
@@ -294,6 +300,9 @@ def supervisor_stop():
 @roles('web')
 @task
 def supervisor_restart():
+    """
+    Restarts the supervisor on the web instances.
+    """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf restart all')
@@ -301,5 +310,8 @@ def supervisor_restart():
 @roles('web')
 @task
 def nginx_restart():
+    """
+    Restarts nginx on the web instances.
+    """
     sudo('/etc/init.d/nginx restart')
 
