@@ -14,5 +14,5 @@ before_script:
   - "pylint --rcfile=pylint.rc tests"
   - "pylint --rcfile=pylint.rc setup.py"
 script:
-  - "cd codalab""
-  - "python manage.py test""
+  - "cd codalab"
+  - "python manage.py test"
