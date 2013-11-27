@@ -3,7 +3,7 @@ import sys
 import datetime
 import tempfile
 
-from fabric.operations import local
+from fabric.operations import local as lrun, run, put
 from fabric.api import env
 from fabric.api import task
 from fabric.api import cd
@@ -54,39 +54,35 @@ def site_config(path=None,archive_name='latest_codalab_config.tar', url=None, mo
         else:
             raise Exception("Must be a directory module")
     with settings(warn_ony=True), lcd(path):
-        res = local('git diff --exit-code')
+        res = lrun('git diff --exit-code')
         if res.return_code != 0:
             raise Exception("*** Module has local changes. You must commit them.")
         tmp = tempfile.mkdtemp()
         fname = archive_name
         tmpf =  os.path.join(tmp, fname)
         path = path.rstrip('/')
-        local('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
+        lrun('git archive --prefix=%s%s -o %s HEAD' % (os.path.basename(path),os.path.sep,tmpf))
     env.run('mkdir -p %s' % spath)
-    local(tmpf)
+    put(tmpf)
     env.run('tar -C %s -xvf %s' % (spath, fname))
 
     with virtualenv(env.venvpath):
         env.run('pip install -U --force-reinstall ./%s' % pathjoin(spath, os.path.basename(path)))
     env.EXTERNAL_SITE_CONFIG = True
 
-
 @task
 def local(**kwargs):
     set_env(**kwargs)
-    env.run = local
-
+    env.run = lrun
 
 @task
 def remote(**kwargs):
     set_env(**kwargs)
     env.run = run
 
-
 @task
 def clone_repo(url='https://github.com/codalab/codalab.git', target='codalab'):
     env.run("git clone %s %s" % (url, target))
-
 
 @task
 def provision():
@@ -95,7 +91,7 @@ def provision():
     """
     env.run('rm -rf codalab_scripts/*')
     env.run('mkdir -p codalab_scripts')
-    local(pathjoin(PROJECT_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
+    put(pathjoin(PROJECT_DIR,'scripts/ubuntu/'), 'codalab_scripts/')
     env.run('chmod a+x codalab_scripts/ubuntu/provision')
     sudo('codalab_scripts/ubuntu/provision %s' % env.DEPLOY_USER)
 
@@ -161,10 +157,10 @@ def update(tag=None):
             requirements()
             with cd('codalab'):
                 config_gen(config=env.DJANGO_CONFIG, settings_module=env.SETTINGS_MODULE)
-                env.run('./manage syncdb --noinlocal')
+                env.run('./manage syncdb --noinput')
                 # When South is enabled
                 #env.run('./manage migrate')
-                env.run('./manage collectstatic --noinlocal')
+                env.run('./manage collectstatic --noinput')
 
 @task
 def requirements():
