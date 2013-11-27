@@ -1,16 +1,18 @@
-import os,sys,datetime,tempfile
+import os
+import sys
+import datetime
+import tempfile
 from fabric.operations import local as lrun, run, put
-from fabric.api import env, task, hosts, roles, cd, shell_env, sudo, lcd, settings, prefix
+from fabric.api import env, task, cd, shell_env, sudo, lcd, settings
 from fabric.contrib.files import exists
 from fabvenv import make_virtualenv, virtualenv
 
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
-
-PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'project','codalab','codalab')
+PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'project', 'codalab', 'codalab')
 DEPLOY_PATH='codalab'
 
-THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR,'codalab','settings')
+THIS_SETTINGS_DIR = pathjoin(PROJECT_DIR,'codalab', 'settings')
 
 sys.path.append('.')
 
@@ -20,7 +22,7 @@ def set_env(**kwargs):
     env.REMOTE_USER = env.user
     env.DEPLOY_USER = env.user
     env.DEPLOY_PATH=DEPLOY_PATH
-    env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH,'codalab','config','generated')
+    env.CONFIG_GEN_PATH = pathjoin(DEPLOY_PATH, 'codalab', 'config', 'generated')
     env.REPO_URL = 'https://github.com/codalab/codalab.git'
     env.venvpath = pathjoin('/home',env.user,env.DEPLOY_PATH,'venvd')
     VENV_PATH = env.venvpath
