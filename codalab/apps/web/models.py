@@ -441,9 +441,12 @@ class CompetitionPhase(models.Model):
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
             submission_ids = [id for (id,name) in submissions]
-            not_computed_scoredefs = {} # map (scoredef.id, scoredef) to keep track of non-computed scoredefs
+            # not_computed_scoredefs: map (scoredef.id, scoredef) to keep track of non-computed scoredefs
+            not_computed_scoredefs = {}
             computed_scoredef_ids = []
-            computed_deps = {} # maps id of a computed scoredef to a list of ids for scoredefs which are input to the computation
+            # computed_deps: maps id of a computed scoredef to a list of ids for scoredefs which are
+            #                input to the computation
+            computed_deps = {}
             for result in results:
                 for sdef in result['scoredefs']:
                     if sdef.computed is True:
@@ -597,10 +600,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            print "Setting flags and status so this gets executed."
             self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
-        else:
-            print "This is saving an old submission."
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
@@ -765,8 +765,48 @@ class CompetitionDefBundle(models.Model):
             if 'columns' in comp_spec['leaderboard']:
                 columns = {}
                 for key, vals in comp_spec['leaderboard']['columns'].items():
+                    # Do non-computed columns first
+                    if 'computed' in vals:
+                        continue
+                    sdefaults = {
+                                    'label' : "" if 'label' not in vals else vals['label'].strip(),
+                                    'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
+                                    'show_rank' : True,
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    }
+                    if 'selection_default' in vals: 
+                        sdefaults['selection_default'] = vals['selection_default']
+
+                    sd,cr = SubmissionScoreDef.objects.get_or_create(
+                                competition=comp,
+                                key=key,
+                                computed=False,
+                                defaults=sdefaults)
+                    columns[sd.key] = sd
+
+                    # Associate the score definition with its column group
+                    if 'column_group' in vals:
+                        gparent = groups[vals['column_group']['label']]
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                parent=gparent,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+                    else:
+                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                                competition=comp,
+                                key=sd.key,
+                                defaults=dict(scoredef=sd, label=sd.label))
+
+                    # Associate the score definition with its leaderboard
+                    sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
+
+                for key, vals in comp_spec['leaderboard']['columns'].items():
+                    # Only process the computed columns this time around.
+                    if 'computed' not in vals:
+                        continue
                     # Create the score definition
-                    is_computed = 'computed' in vals
+                    is_computed = True
                     sdefaults = {
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
@@ -781,12 +821,13 @@ class CompetitionDefBundle(models.Model):
                                 key=key,
                                 computed=is_computed,
                                 defaults=sdefaults)
-                    if is_computed:
-                        sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
-                        for f in vals['computed']['fields']:
-                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in
-                            # brats_leaderboard_defs after the fields they reference.
-                            SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
+                    sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                    for f in vals['computed']['fields'].split(","):
+                        f=f.strip()
+                        # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in
+                        # brats_leaderboard_defs after the fields they reference.
+                        # This is not a safe assumption -- given we can't control key/value ordering in a dictionary.
+                        SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
                     columns[sd.key] = sd
 
                     # Associate the score definition with its column group

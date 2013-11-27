@@ -178,15 +178,42 @@ var Competition;
         };
     };
 
-    Competition.displayRegistrationStatus = function () {
+    Competition.displayRegistrationStatus = function (competitionId) {
         var sOut = "";
-        sOut = "<div class='participateInfoBlock pendingApproval'>"
-        sOut += "<div class='infoStatusBar'></div>"
-        sOut += "<div class='labelArea'>"
-        sOut += "<label class='regApprovLabel'>Your request to participate in this challenge has been received and a decision is pending.</label>"
-        sOut += "<label></label>"
-        sOut += "</div>"
-        sOut += "</div>"
+        $.ajax({
+            type: "GET",
+            url: "/api/competition/"+competitionId+"/mystatus/",
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if (data['status'] == "approved") {
+                    location.reload();
+                    console.log("Approved, figuing out how to update the div.");
+                } else if (data['status'] == "pending") {
+                    sOut = "<div class='participateInfoBlock pendingApproval'>"
+                    sOut += "<div class='infoStatusBar'></div>"
+                    sOut += "<div class='labelArea'>"
+                    sOut += "<label class='regApprovLabel'>Your request to participate in this challenge has been received and a decision is pending.</label>"
+                    sOut += "<label></label>"
+                    sOut += "</div>"
+                    sOut += "</div>"
+                } else if (data['status'] == "denied") {
+                    sOut = "<div class='participateInfoBlock'>"
+                    sOut += "<div class='infoStatusBar'></div>"
+                    sOut += "<div class='labelArea'>"
+                    sOut += "<label class='regDeniedLabel'>Your request to participate in this challenge has been denied. The reason for your denied registrations is: "+data['reason']+"</label>"
+                    sOut += "<label></label>"
+                    sOut += "</div>"
+                    sOut += "</div>"
+                }
+                location.reload();
+            },
+            error: function (xhr, status, err) {
+                $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
+            }
+        });
+
+
         return sOut;
     }
 
@@ -367,7 +394,7 @@ $(document).ready(function () {
             dataType: "text",
             data: values,
             success: function (response, textStatus, jqXHR) {
-                $('.content form').replaceWith(Competition.displayRegistrationStatus());
+                $('.content form').replaceWith(Competition.displayRegistrationStatus(competitionId));
             },
             error: function (jsXHR, textStatus, errorThrown) {
                 alert("There was a problem registering for this competition.");;

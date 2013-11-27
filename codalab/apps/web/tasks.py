@@ -235,7 +235,7 @@ def update_submission_task(job_id, args):
                         label, value = line.split(":")
                         try:
                             scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
-                                                                                key=label.strip())
+                                                                      key=label.strip())
                             SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
                         except SubmissionScoreDef.DoesNotExist:
                             logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
