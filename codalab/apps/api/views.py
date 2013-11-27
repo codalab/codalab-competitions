@@ -134,12 +134,18 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self, request, pk=None):
         comp = self.get_object()
-        terms = request.DATA['agreed_terms']
-        status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
-        p, cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
-                                                                   competition=comp,
-                                                                   defaults={'status': status,
-                                                                             'reason': None})
+
+        # If there is no registration required we just check to make sure they have agreed to the terms and conditions
+        # which is done by the javascript before the ajax call, during form validation.
+        if comp.has_registration:
+            status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.PENDING)
+        else:
+            status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.APPROVED)
+
+        p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
+                                                                      competition=comp,
+                                                                      defaults={'status': status, 'reason': None})
+
         response_data = {
             'result' : 201 if cr else 200,
             'id' : p.id
