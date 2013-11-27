@@ -4,6 +4,7 @@ Defines background tasks needed by the web site.
 import io
 import json
 import logging
+from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -14,8 +15,8 @@ from apps.jobs.models import (Job,
 from apps.web.models import (CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
-                             submission_file_blobkey,
-                             submission_stderr_filename,
+                             submission_prediction_output_filename,
+                             submission_output_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -87,79 +88,104 @@ def create_competition(comp_def_id):
 
 # Evaluate submissions in a competition
 
-def evaluate_submission_task(job_id, args):
+def predict(submission, job_id):
     """
-    A task to start the evaluation of a user's submission in a competition.
+    Dispatches the prediction taks for the given submission to an appropriate compute worker.
 
-    job_id: The ID of the job.
-    args: A dictionary with the arguments for the task. Expected items are:
-        args['submission_id']: The ID of the CompetitionSubmission object.
+    submission: The CompetitionSubmission object.
+    job_id: The job ID used to track the progress of the evaluation.
     """
+    # Generate metadata-only bundle describing the computation
+    lines = []
+    program_value = submission.file.name
+    if len(program_value) > 0:
+        lines.append("program: %s" % program_value)
+    else:
+        raise ValueError("Program is missing.")
+    input_value = submission.phase.input_data.name
+    if len(input_value) > 0:
+        lines.append("input: %s" % input_value)
+    submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
+    # Create stdout.txt & stderr.txt
+    username = submission.participant.user.username
+    lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+    lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+    # Store workflow state
+    submission.execution_key = json.dumps({ 'predict' : job_id })
+    submission.save()
+    # Submit the request to the computation service
+    body = json.dumps({ "id" : job_id,
+                        "task_type": "run",
+                        "task_args": {
+                            "bundle_id" : submission.prediction_runfile.name,
+                            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+                            "reply_to" : settings.SBS_RESPONSE_QUEUE } })
+    getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
+    # Update the submission object
+    submission.set_status(CompetitionSubmissionStatus.SUBMITTED)
+    submission.save()
 
-    def submit(submission):
-        """
-        Dispatches the evaluation of the given submission to an appropriate compute worker.
+def score(submission, job_id):
+    """
+    Dispatches the scoring task for the given submission to an appropriate compute worker.
 
-        submission: The CompetitionSubmission object.
-        """
-        program = submission.phase.scoring_program.name
-        dataset = submission.phase.reference_data.name
-        # Generate input bundle pointing to reference/truth/gold dataset (ref) and user predictions (res).
-        inputfile = ContentFile(
-"""ref: %s
-res: %s
-""" % (dataset, submission.file.name))
-        submission.inputfile.save('input.txt', inputfile)
-        # Generate run bundle, which binds the input bundle to the scoring program
-        runfile = ContentFile(
-"""program: %s
-input: %s
-""" % (program, submission.inputfile.name))
-        submission.runfile.save('run.txt', runfile)
-        # Log start of evaluation to stdout.txt
-        stdoutfile = ContentFile(
-"""Standard output file for submission #%s:
+    submission: The CompetitionSubmission object.
+    job_id: The job ID used to track the progress of the evaluation.
+    """
+    # Loads the computation state.
+    state = {}
+    if len(submission.execution_key) > 0:
+        state = json.loads(submission.execution_key)
+    has_generated_predictions = 'predict' in state
 
-""" % (submission.submission_number))
-        submission.stdout_file.save('stdout.txt', stdoutfile)
-        submission.save()
-        # Submit the request to the computation service
-        body = json.dumps({ "id" : job_id,
-                            "task_type": "run",
-                            "task_args": {
-                                "bundle_id" : submission.runfile.name,
-                                "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                                "reply_to" : settings.SBS_RESPONSE_QUEUE
-                            }
-                          })
-        getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-        submission.execution_key = job_id
+    # Generate metadata-only bundle describing the inputs. Reference data is an optional
+    # dataset provided by the competition organizer. Results are provided by the participant
+    # either indirectly (has_generated_predictions is True i.e. participant provides a program
+    # which is run to generate results) ordirectly (participant uploads results directly).
+    lines = []
+    ref_value = submission.phase.reference_data.name
+    if len(ref_value) > 0:
+        lines.append("ref: %s" % ref_value)
+    res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+    if len(res_value) > 0:
+        lines.append("res: %s" % res_value)
+    else:
+        raise ValueError("Results are missing.")
+    submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
+    # Generate metadata-only bundle describing the computation.
+    lines = []
+    program_value = submission.phase.scoring_program.name
+    if len(program_value) > 0:
+        lines.append("program: %s" % program_value)
+    else:
+        raise ValueError("Program is missing.")
+    lines.append("input: %s" % submission.inputfile.name)
+    submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
+
+    # Create stdout.txt & stderr.txt
+    if has_generated_predictions == False:
+        username = submission.participant.user.username
+        lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+        submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+        lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+        submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+    # Update workflow state
+    state['score'] = job_id
+    submission.execution_key = json.dumps(state)
+    submission.save()
+    # Submit the request to the computation service
+    body = json.dumps({ "id" : job_id,
+                        "task_type": "run",
+                        "task_args": {
+                            "bundle_id" : submission.runfile.name,
+                            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+                            "reply_to" : settings.SBS_RESPONSE_QUEUE } })
+    getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
+    if has_generated_predictions == False:
         submission.set_status(CompetitionSubmissionStatus.SUBMITTED)
         submission.save()
-
-    def submit_it():
-        """Start the process to evaluate the given competition submission."""
-        logger.debug("Entering evaluate_submission_task (job_id=%s)", job_id)
-        submission_id = args['submission_id']
-        submission = CompetitionSubmission.objects.get(pk=submission_id)
-        logger.info("Dispatching evaluation request for competition submission (submission_id=%s, job_id=%s)",
-                    submission_id, job_id)
-        submit(submission)
-        logger.info("Done dispatching evaluation request for competition submission (submission_id=%s, job_id=%s)",
-                    submission_id, job_id)
-        logger.debug("Leaving evaluate_submission_task (job_id=%s)", job_id)
-
-    submit_it()
-
-def evaluate_submission(submission_id):
-    """
-    Starts the process of evaluating a user's submission to a competition.
-
-    submission_id: The ID of the CompetitionSubmission object.
-
-    Returns a Job object which can be used to track the progress of the operation.
-    """
-    return Job.objects.create_and_dispatch_job('evaluate_submission', { 'submission_id': submission_id })
 
 class SubmissionUpdateException(Exception):
     """Defines an exception that occurs during the update of a CompetitionSubmission object."""
@@ -170,19 +196,20 @@ class SubmissionUpdateException(Exception):
 
 def update_submission_task(job_id, args):
     """
-    A task to update the status of an evaluating a submission in a competition.
+    A task to update the status of a submission in a competition.
 
     job_id: The ID of the job.
     args: A dictionary with the arguments for the task. Expected items are:
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status):
+    def update_submission(submission, status, job_id):
         """
         Updates the status of a submission.
 
         submission: The CompetitionSubmission object to update.
         status: The new status string: 'running', 'finished' or 'failed'.
+        job_id: The job ID used to track the progress of the evaluation.
         """
         if (status == 'running'):
             submission.set_status(CompetitionSubmissionStatus.RUNNING)
@@ -190,26 +217,44 @@ def update_submission_task(job_id, args):
             return Job.RUNNING
 
         if (status == 'finished'):
-            submission.output_file.name = submission_file_blobkey(submission)
-            submission.stderr_file.name = submission_stderr_filename(submission)
-            submission.save()
-            logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
-            ozip = ZipFile(io.BytesIO(submission.output_file.read()))
-            scores = open(ozip.extract('scores.txt'), 'r').read()
-            logger.debug("Processing scores... (submission_id=%s)", submission.id)
-            for line in scores.split("\n"):
-                if len(line) > 0:
-                    label, value = line.split(":")
-                    try:
-                        scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
-                                                                         key=label.strip())
-                        SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
-                    except SubmissionScoreDef.DoesNotExist:
-                        logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
-            logger.debug("Done processing scores... (submission_id=%s)", submission.id)
-            submission.set_status(CompetitionSubmissionStatus.FINISHED)
-            submission.save()
-            return Job.FINISHED
+            result = Job.FAILED
+            state = {}
+            if len(submission.execution_key) > 0:
+                logger.debug("update_submission_task loading state: %s", submission.execution_key)
+                state = json.loads(submission.execution_key)
+            if 'score' in state:
+                logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
+                submission.output_file.name = pathname2url(submission_output_filename(submission))
+                submission.save()
+                logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
+                ozip = ZipFile(io.BytesIO(submission.output_file.read()))
+                scores = open(ozip.extract('scores.txt'), 'r').read()
+                logger.debug("Processing scores... (submission_id=%s)", submission.id)
+                for line in scores.split("\n"):
+                    if len(line) > 0:
+                        label, value = line.split(":")
+                        try:
+                            scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
+                                                                                key=label.strip())
+                            SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
+                        except SubmissionScoreDef.DoesNotExist:
+                            logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
+                logger.debug("Done processing scores... (submission_id=%s)", submission.id)
+                submission.set_status(CompetitionSubmissionStatus.FINISHED)
+                submission.save()
+                result = Job.FINISHED
+            else:
+                logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
+                url_name = pathname2url(submission_prediction_output_filename(submission))
+                submission.prediction_output_file.name = url_name
+                submission.save()
+                try:
+                    score(submission, job_id)
+                    result = Job.RUNNING
+                    logger.debug("update_submission_task scoring phase entered (pk=%s)", submission.pk)
+                except Exception:
+                    logger.exception("update_submission_task failed to enter scoring phase (pk=%s)", submission.pk)
+            return result
 
         if (status != 'failed'):
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
@@ -246,7 +291,7 @@ def update_submission_task(job_id, args):
                      job.id, submission_id, status)
         result = None
         try:
-            result = update_submission(submission, status)
+            result = update_submission(submission, status, job.id)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)
@@ -254,3 +299,53 @@ def update_submission_task(job_id, args):
         return JobTaskResult(status=result)
 
     run_job_task(job_id, update_it, handle_update_exception)
+
+
+def evaluate_submission_task(job_id, args):
+    """
+    A task to start the evaluation of a user's submission in a competition.
+
+    job_id: The ID of the job.
+    args: A dictionary with the arguments for the task. Expected items are:
+        args['submission_id']: The ID of the CompetitionSubmission object.
+        args['predict']: A boolean value set to True to cause the evaluation to
+           generate predictions followed by a scoring round or set to False to
+           limit the evaluation to a scoring round.
+    """
+
+    def submit_it():
+        """Start the process to evaluate the given competition submission."""
+        logger.debug("evaluate_submission_task begins (job_id=%s)", job_id)
+        submission_id = args['submission_id']
+        logger.debug("evaluate_submission_task submission_id=%s (job_id=%s)", submission_id, job_id)
+        predict_and_score = args['predict'] == True
+        logger.debug("evaluate_submission_task predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
+        submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+        task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
+        try:
+            logger.debug("evaluate_submission_task dispatching %s task (submission_id=%s, job_id=%s)",
+                        task_name, submission_id, job_id)
+            task_func(submission, job_id)
+            logger.debug("evaluate_submission_task dispatched %s task (submission_id=%s, job_id=%s)",
+                        task_name, submission_id, job_id)
+        except Exception:
+            logger.exception("evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
+                             job_id, submission_id)
+            update_submission_task(job_id, { 'status': 'failed' })
+        logger.debug("evaluate_submission_task ends (job_id=%s)", job_id)
+
+    submit_it()
+
+def evaluate_submission(submission_id, is_scoring_only):
+    """
+    Starts the process of evaluating a user's submission to a competition.
+
+    submission_id: The ID of the CompetitionSubmission object.
+    is_scoring_only: True to skip the prediction step.
+
+    Returns a Job object which can be used to track the progress of the operation.
+    """
+    task_args = { 'submission_id': submission_id, 'predict': (not is_scoring_only) }
+    return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
+

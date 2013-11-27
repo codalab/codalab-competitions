@@ -182,12 +182,14 @@ def get_run_func(config):
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             # Fetch and stage the bundles
             blob_service = BlobService(config.getAzureStorageAccountName(),
-                                        config.getAzureStorageAccountKey())
+                                       config.getAzureStorageAccountKey())
             bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
-            # Verify we have an input
+            # Verify we have an input folder: create one if it's not in the bundle.
             input_rel_path = join('run', 'input')
             if input_rel_path not in bundles:
-                raise Exception("Input bundle is not available.")
+                input_dir = join(root_dir, 'run', 'input')
+                if os.path.exists(input_dir) == False:
+                    os.mkdir(input_dir)
             # Verify we have a program
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:

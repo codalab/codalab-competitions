@@ -216,6 +216,7 @@ def run_job_task(job_id, computation, handle_exception=None):
     logger.debug("Entering run_job_task (job_id=%s).", job_id)
     try:
         job = Job.objects.get(pk=job_id)
+        logger.debug("run_job_task got the Job object (job_id=%s).", job_id)
         result = computation(job)
         logger.debug("Task execution succeeded (job_id=%s, new_status=%s).",
                      job_id, "unchanged" if result.status is None else result.status)

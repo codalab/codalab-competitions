@@ -21,7 +21,7 @@ from django.core.files import File
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils.text import slugify
-from django.utils.timezone import utc,now
+from django.utils.timezone import utc, now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
@@ -279,8 +279,11 @@ def submission_stdout_filename(instance, filename="stdout.txt"):
 def submission_stderr_filename(instance, filename="stderr.txt"):
     return os.path.join(submission_root(instance), "run", filename)
 
-def submission_file_blobkey(instance, filename="output.zip"):
-    return os.path.join(submission_root(instance), "run", filename)
+def submission_prediction_runfile_name(instance, filename="run.txt"):
+    return os.path.join(submission_root(instance), "pred", filename)
+
+def submission_prediction_output_filename(instance, filename="output.zip"):
+    return os.path.join(submission_root(instance), "pred", "run", filename)
 
 # Competition Phase
 class CompetitionPhase(models.Model):
@@ -531,7 +534,7 @@ class CompetitionParticipant(models.Model):
         """ Returns true if this participant is approved into the competition. """
         return self.status.codename == ParticipantStatus.APPROVED
 
-# Competition Submission Status 
+# Competition Submission Status
 class CompetitionSubmissionStatus(models.Model):
     SUBMITTING = "submitting"
     SUBMITTED = "submitted"
@@ -542,7 +545,7 @@ class CompetitionSubmissionStatus(models.Model):
 
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
-    
+
     def __unicode__(self):
         return self.name
 
@@ -551,19 +554,21 @@ class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
-    file_url_base = models.CharField(max_length=2000,blank=True)
+    file_url_base = models.CharField(max_length=2000, blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
-    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True,blank=True)
+    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
-    execution_key = models.TextField(blank=True,default="")
+    execution_key = models.TextField(blank=True, default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
-    status_details = models.CharField(max_length=100,null=True,blank=True)   
+    status_details = models.CharField(max_length=100, null=True, blank=True)
     submission_number = models.PositiveIntegerField(default=0)
     output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
-
-    _fileobj = None
+    prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
+                                          storage=BundleStorage, null=True, blank=True)
+    prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
+                                              storage=BundleStorage, null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -603,28 +608,13 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         return res
-    
-    def file_url(self):
-        if self.file:
-            return os.path.join(self.file_url_base, self.file.name)
-        return None
-
-    def runfile_url(self):
-        if self.runfile:
-            return os.path.join(self.runfile.storage.url(''), self.runfile.name)
-        return None
-
-    def inputfile_url(self):
-        if self.inputfile:
-            return os.path.join(self.inputfile.storage.url(''), self.inputfile.name)
-        return None
 
     def set_status(self, status, force_save=False):
         self.status = CompetitionSubmissionStatus.objects.get(codename=status)
         if force_save:
             self.save()
 
-class SubmissionResultGroup(models.Model):   
+class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
@@ -637,7 +627,7 @@ class SubmissionResultGroup(models.Model):
 class SubmissionResultGroupPhase(models.Model):
     group = models.ForeignKey(SubmissionResultGroup)
     phase = models.ForeignKey(CompetitionPhase)
-    
+
     class Meta:
         unique_together = (('group','phase'),)
 
@@ -671,8 +661,8 @@ class CompetitionDefBundle(models.Model):
     def unpack(self):
         """
         This method unpacks a competition bundle and creates a competition from
-        the assets found inside (the competition bundle). The format of the 
-        competition bundle is described on the CodaLab Wiki: 
+        the assets found inside (the competition bundle). The format of the
+        competition bundle is described on the CodaLab Wiki:
         https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle
         """
         # Get the bundle data, which is stored as a zipfile
@@ -687,16 +677,18 @@ class CompetitionDefBundle(models.Model):
                 del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
-        if type(comp_base['end_date']) is datetime.datetime.date:
-            comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+        if 'end_date' in comp_base:
+            if type(comp_base['end_date']) is datetime.datetime.date:
+                comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
 
         # Unpack and save the logo
-        comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
-        comp.save()
-        logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+        if 'image' in comp_base:
+            comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+            comp.save()
+            logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
@@ -729,6 +721,8 @@ class CompetitionDefBundle(models.Model):
             # Evaluation Program
             phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            if 'input_data' in phase_spec:
+                phase.input_data.save(phase_spec['input_data'], File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
@@ -779,7 +773,7 @@ class CompetitionDefBundle(models.Model):
                                     'show_rank' : not is_computed,
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort']
                                     }
-                    if 'selection_default' in vals: 
+                    if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
@@ -790,7 +784,7 @@ class CompetitionDefBundle(models.Model):
                     if is_computed:
                         sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
                         for f in vals['computed']['fields']:
-                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in 
+                            # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in
                             # brats_leaderboard_defs after the fields they reference.
                             SubmissionComputedScoreField.objects.get_or_create(computed=sc, scoredef=columns[f])
                     columns[sd.key] = sd
@@ -826,7 +820,7 @@ class SubmissionScoreDefGroup(models.Model):
 
     class Meta:
         unique_together = (('scoredef','group'),)
-    
+
     def __unicode__(self):
         return "%s %s" % (self.scoredef,self.group)
 
@@ -847,7 +841,7 @@ class SubmissionComputedScoreField(models.Model):
         if self.scoredef.computed is True:
             raise IntegrityError("Cannot use a computed field for a computed score")
         super(SubmissionComputedScoreField,self).save(*args,**kwargs)
-        
+
 class SubmissionScoreSet(MPTTModel):
     parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
@@ -868,7 +862,7 @@ class SubmissionScore(models.Model):
 
     class Meta:
         unique_together = (('result','scoredef'),)
-    
+
     def save(self,*args,**kwargs):
         if self.scoredef.computed is True and value:
             raise IntegrityError("Score is computed. Cannot assign a value")
@@ -877,12 +871,12 @@ class SubmissionScore(models.Model):
 class PhaseLeaderBoard(models.Model):
     phase = models.OneToOneField(CompetitionPhase,related_name='board')
     is_open = models.BooleanField(default=True)
-    
+
     def submissions(self):
         return CompetitionSubmission.objects.filter(leaderboard_entry_result__board=self)
-    
+
     def __unicode__(self):
-        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')  
+        return "%s [%s]" % (self.phase.label,'Open' if self.is_open else 'Closed')
 
     def is_open(self):
         """
@@ -890,10 +884,10 @@ class PhaseLeaderBoard(models.Model):
         """
         self.is_open = self.phase.is_active
         return self.phase.is_active
-       
+
     def scores(self,**kwargs):
         return self.phase.scores(score_filters=dict(result__leaderboard_entry_result__board=self))
-    
+
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard, related_name='entries')
     result = models.ForeignKey(CompetitionSubmission,  related_name='leaderboard_entry_result')
@@ -915,13 +909,13 @@ class Bundle(models.Model):
     version = models.CharField(max_length=100)
     metadata = models.CharField(max_length=500)
     private = models.BooleanField()
-  
+
     class Meta:
         ordering = ['name']
-    
+
     def __unicode__(self):
         return self.name
-  
+
     def get_absolute_url(self):
         return ('project_bundle_detail', (), {'slug': self.slug})
     #get_absolute_url = models.permalink(get_absolute_url)
@@ -938,15 +932,15 @@ class Run(models.Model):
     inputPath = models.CharField(max_length=100)
     outputPath = models.CharField(max_length=100)
     cellout = models.FloatField(blank=True, null=True)
-  
-    #objects = models.Manager() 
-  
+
+    #objects = models.Manager()
+
     class Meta:
         ordering = ['-created']
-    
+
     def __unicode__(self):
         return u'%s' % self.bundle
-  
+
     def get_absolute_url(self):
         return ('bundle_run_detail', (), {'object_id': self.id })
     #get_absolute_url = models.permalink(get_absolute_url)
