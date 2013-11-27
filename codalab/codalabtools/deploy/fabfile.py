@@ -16,6 +16,7 @@ from StringIO import StringIO
 from fabric.api import (cd,
                         env,
                         execute,
+                        get,
                         prefix,
                         put,
                         require,
@@ -315,3 +316,16 @@ def nginx_restart():
     """
     sudo('/etc/init.d/nginx restart')
 
+#
+# Maintenance and diagnostics
+#
+
+@roles('web')
+@task
+def fetch_logs():
+    """
+    Fetch logs from the web instances into ~/logs.
+    """
+    require('configuration')
+    with cd(env.deploy_dir):
+        get('codalab/var/*.log', '~/logs/%(host)s/%(path)s')
