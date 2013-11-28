@@ -1,4 +1,3 @@
-# TODO(skishore): Write tests for this model using an in-memory SQLite database.
 from codalab.bundles import get_bundle_subclass
 from codalab.model.tables import (
   bundle as cl_bundle,
