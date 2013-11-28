@@ -1,36 +1,34 @@
-# TODO(skishore): Refactor this test to use tempfile / tempfs.
-import errno
 import hashlib
 import os
 import shutil
 import stat
+import tempfile
 import unittest
 
 from codalab.lib.bundle_store import BundleStore
 
 
 class BundleStoreFSTest(unittest.TestCase):
-  # WARNING: This directory is deleted in tearDown.
-  # Do not make it something important!
-  test_root = '/tmp/codalab_tests'
-
-  bundle_path = os.path.join(test_root, 'test_bundle')
-  bundle_directories = [
-    bundle_path,
-    os.path.join(bundle_path, 'asdf'),
-    os.path.join(bundle_path, 'asdf', 'craw'),
-    os.path.join(bundle_path, 'blah'),
-  ]
-  bundle_files = [
-    os.path.join(bundle_path, 'foo'),
-    os.path.join(bundle_path, 'asdf', 'bar'),
-    os.path.join(bundle_path, 'asdf', 'baz'),
-  ]
   contents = 'random file contents'
 
   def setUp(self):
-    self.tearDown()
-    os.mkdir(self.test_root)
+    self.temp_directory = tempfile.mkdtemp()
+    assert(os.path.isabs(self.temp_directory)), \
+      'tempfile.mkdtemp returned relative root: %s' % (self.temp_directory,)
+
+    self.bundle_path = os.path.join(self.temp_directory, 'test_bundle')
+    self.bundle_directories = [
+      self.bundle_path,
+      os.path.join(self.bundle_path, 'asdf'),
+      os.path.join(self.bundle_path, 'asdf', 'craw'),
+      os.path.join(self.bundle_path, 'blah'),
+    ]
+    self.bundle_files = [
+      os.path.join(self.bundle_path, 'foo'),
+      os.path.join(self.bundle_path, 'asdf', 'bar'),
+      os.path.join(self.bundle_path, 'asdf', 'baz'),
+    ]
+
     for directory in self.bundle_directories:
       os.mkdir(directory)
     for file_name in self.bundle_files:
@@ -38,11 +36,7 @@ class BundleStoreFSTest(unittest.TestCase):
         fd.write(self.contents)
 
   def tearDown(self):
-    try:
-      shutil.rmtree(self.test_root)
-    except OSError, e:
-      if e.errno != errno.ENOENT:
-        raise
+    shutil.rmtree(self.temp_directory)
 
   def test_recursive_ls(self):
     '''
