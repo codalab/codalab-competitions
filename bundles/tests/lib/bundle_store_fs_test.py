@@ -39,9 +39,15 @@ class BundleStoreFSTest(unittest.TestCase):
     shutil.rmtree(self.temp_directory)
 
   def test_normalize_path(self):
-    self.assertTrue(os.path.isabs(BundleStore.normalize_path('~')))
-    self.assertTrue(os.path.isabs(BundleStore.normalize_path('.')))
-    self.assertTrue(os.path.isabs(BundleStore.normalize_path('..')))
+    test_pairs = [
+      ('~', os.path.expanduser('~')),
+      (os.curdir, os.getcwd()),
+      (os.pardir, os.path.abspath(os.path.join(os.getcwd(), os.pardir))),
+    ]
+    for (test_path, expected_result) in test_pairs:
+      actual_result = BundleStore.normalize_path(test_path)
+      self.assertTrue(os.path.isabs(actual_result))
+      self.assertEqual(actual_result, expected_result)
 
   def test_recursive_ls(self):
     '''
