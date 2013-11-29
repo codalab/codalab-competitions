@@ -38,6 +38,11 @@ class BundleStoreFSTest(unittest.TestCase):
   def tearDown(self):
     shutil.rmtree(self.temp_directory)
 
+  def test_normalize_path(self):
+    self.assertTrue(os.path.isabs(BundleStore.normalize_path('~')))
+    self.assertTrue(os.path.isabs(BundleStore.normalize_path('.')))
+    self.assertTrue(os.path.isabs(BundleStore.normalize_path('..')))
+
   def test_recursive_ls(self):
     '''
     Test that recursive_ls lists all absolute paths within a directory.

@@ -34,11 +34,9 @@ class BundleStore(object):
   def normalize_path(path):
     '''
     Return the absolute path of the location specified by the given path.
-    This path is returned in a "canonical form", without .'s or ..'s.
+    This path is returned in a "canonical form", without ~'s, .'s, ..'s.
     '''
-    if not os.path.isabs(path):
-      path = os.path.join(os.getcwd(), path)
-    return os.path.normpath(path)
+    return os.path.abspath(os.path.expanduser(path))
 
   @staticmethod
   def check_isdir(path, fn_name):
