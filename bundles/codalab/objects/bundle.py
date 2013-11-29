@@ -39,7 +39,9 @@ class Bundle(DatabaseObject):
     if 'uuid' not in row:
       row['uuid'] = str(uuid.uuid4())
     super(Bundle, self).update_in_memory(row)
-    if not isinstance(metadata, Metadata):
+    if isinstance(metadata, dict):
+      metadata = Metadata(**metadata)
+    elif isinstance(metadata, (list, tuple)):
       metadata = Metadata.from_dicts(self.METADATA_TYPES, metadata)
     self.metadata = metadata
   
