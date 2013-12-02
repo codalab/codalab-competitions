@@ -1,4 +1,4 @@
-# CodaLab [![Build Status](https://travis-ci.org/codalab/codalab.png?branch=master)](https://travis-ci.org/codalab/codalab)
+# CodaLab [![Build Status](https://travis-ci.org/irjudson/codalab.png?branch=master)](https://travis-ci.org/irjudson/codalab)
 
 ## What is it?
 
