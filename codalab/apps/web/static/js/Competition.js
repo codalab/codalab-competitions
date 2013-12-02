@@ -131,44 +131,50 @@ var Competition;
         });
     }
 
-    Competition.getPhaseResults = function (competitionId, phaseId) {
+    Competition.getPhaseResults = function(competitionId, phaseId) {
         $(".competition_results").html("").append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = "/competitions/" + competitionId + "/results/" + phaseId;
         $.ajax({
             type: "GET",
             url: url,
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 $(".competition_results").html("").append(data);
-                $(".column-selectable").click(function (e) {
+                $(".column-selectable").click(function(e) {
                     var table = $(this).closest("table");
                     $(table).find(".column-selected").removeClass();
                     $(this).addClass("column-selected");
-                    columnId = $(this).attr("name");
-                    var rows = table.find('td').filter(function () {
+                    var columnId = $(this).attr("name");
+                    var rows = table.find('td').filter(function() {
                         return $(this).attr("name") === columnId;
                     }).addClass("column-selected");
-                    var sortedRows = rows.slice().sort(function (a, b) {
-                        var ar = parseInt($.text([$(a).find("span")]));
-                        if (isNaN(ar)) { ar = 100000; }
-                        var br = parseInt($.text([$(b).find("span")]));
-                        if (isNaN(br)) { br = 100000; }
-                        return ar - br;
-                    });
-                    var parent = rows[0].parentNode.parentNode;
-                    var clonedRows = sortedRows.map(function () { return this.parentNode.cloneNode(true); });
-                    for (var i = 0; i < clonedRows.length; i++) {
-                        $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
-                        parent.insertBefore(clonedRows[i], rows[i].parentNode);
-                        parent.removeChild(rows[i].parentNode);
+                    if (rows.length > 0) {
+                        var sortedRows = rows.slice().sort(function(a, b) {
+                            var ar = parseInt($.text([$(a).find("span")]));
+                            if (isNaN(ar)) {
+                                ar = 100000;
+                            }
+                            var br = parseInt($.text([$(b).find("span")]));
+                            if (isNaN(br)) {
+                                br = 100000;
+                            }
+                            return ar - br;
+                        });
+                        var parent = rows[0].parentNode.parentNode;
+                        var clonedRows = sortedRows.map(function() { return this.parentNode.cloneNode(true); });
+                        for (var i = 0; i < clonedRows.length; i++) {
+                            $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
+                            parent.insertBefore(clonedRows[i], rows[i].parentNode);
+                            parent.removeChild(rows[i].parentNode);
+                        }
                     }
                 });
             },
-            error: function (xhr, status, err) {
+            error: function(xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
-    }
+    };
 
     Competition.registationCanProceed = function () {
         if ($("#checkbox").is(":checked") === true) {
