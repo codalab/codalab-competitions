@@ -719,10 +719,10 @@ class CompetitionDefBundle(models.Model):
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
-            phase.scoring_program.save(phase_spec['scoring_program'], File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
-            phase.reference_data.save(phase_spec['reference_data'], File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+            phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             if 'input_data' in phase_spec:
-                phase.input_data.save(phase_spec['input_data'], File(io.BytesIO(zf.read(phase_spec['input_data']))))
+                phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
