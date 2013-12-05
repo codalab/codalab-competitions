@@ -17,6 +17,8 @@ from apps.web.models import (CompetitionSubmission,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
                              submission_output_filename,
+                             submission_stdout_filename,
+                             submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -105,6 +107,8 @@ def predict(submission, job_id):
     input_value = submission.phase.input_data.name
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
+    lines.append("stdout: %s" % submission_stdout_filename(submission))
+    lines.append("stderr: %s" % submission_stderr_filename(submission))
     submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
     # Create stdout.txt & stderr.txt
     username = submission.participant.user.username
@@ -162,6 +166,8 @@ def score(submission, job_id):
     else:
         raise ValueError("Program is missing.")
     lines.append("input: %s" % submission.inputfile.name)
+    lines.append("stdout: %s" % submission_stdout_filename(submission))
+    lines.append("stderr: %s" % submission_stderr_filename(submission))
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt

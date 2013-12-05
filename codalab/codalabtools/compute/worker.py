@@ -117,7 +117,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         # get referenced bundles
         if (bundle_info is not None) and (depth < max_depth):
             for (k, v) in bundle_info.items():
-                if k not in ("description", "command"):
+                if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr"):
                     if isinstance(v, str):
                         getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
         return bundles
@@ -219,7 +219,7 @@ def get_run_func(config):
             prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
                                 .replace("$input", join('.', 'input')) \
                                 .replace("$output", join('.', 'output')) \
-                                .replace("$tmp", join('.', 'tmp'))
+                                .replace("$tmp", join('.', 'temp'))
             logger.debug("Invoking program: %s", prog_cmd)
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
