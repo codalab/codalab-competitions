@@ -170,16 +170,20 @@ def update_job_status_task(job_id, args):
     info_json = None
     if 'info' in args:
         info_json = json.dumps(args['info'])
-    with transaction.commit_on_success():
-        job = Job.objects.select_for_update().get(pk=job_id)
-        if job.can_transition_to(status):
-            job.status = status
-            if info_json is not None:
-                job.task_info_json = info_json
-            job.save()
-            logger.info("Completed update for job id=%s. New status=%s.", job_id, job.status)
-        else:
-            logger.warning("Skipping update for job id=%s: invalid transition %s -> %s.", job_id, job.status, status)
+    changed = False
+    job = Job.objects.get(pk=job_id)
+    if job.can_transition_to(status):
+        with transaction.commit_on_success():
+            job = Job.objects.select_for_update().get(pk=job_id)
+            if job.can_transition_to(status):
+                job.status = status
+                if info_json is not None:
+                    job.task_info_json = info_json
+                job.save()
+                changed = True
+                logger.info("Completed update for job id=%s. New status=%s.", job_id, job.status)
+    if not changed:
+        logger.warning("Skipping update for job id=%s: invalid transition %s -> %s.", job_id, job.status, status)
 
 class JobTaskResult(object):
     """
