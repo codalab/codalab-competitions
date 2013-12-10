@@ -834,6 +834,10 @@ class Deployment(object):
             "            'PASSWORD': '{0}',".format(self.config.getDatabasePassword()),
             "            'HOST': '{0}',".format(self.config.getDatabaseHost()),
             "            'PORT': '{0}', ".format(self.config.getDatabasePort()),
+            "            'OPTIONS' : {",
+            "                'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',",
+            "                'read_timeout': 5",
+            "            }",
             "        }",
             "    }",
         ]
