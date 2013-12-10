@@ -82,8 +82,12 @@ class DeploymentConfig(BaseConfig):
         return "{0}location".format(self.getServicePrefix())
 
     def getStorageAccountName(self):
-        """Gets the cloud storage account name."""
+        """Gets the global cloud storage account name."""
         return '{0}storage'.format(self.getServicePrefix())
+
+    def getServicetorageAccountName(self):
+        """Gets the service cloud storage account name."""
+        return '{0}{1}storage'.format(self.getServicePrefix(), self.label)
 
     def getServiceCertificateAlgorithm(self):
         """Gets the algorithm for the service certificate."""
@@ -388,11 +392,10 @@ class Deployment(object):
             self.sms.create_affinity_group(name, name, location)
             logger.info("Created affinity group %s.", name)
 
-    def _ensureStorageAccountExists(self):
+    def _ensureStorageAccountExists(self, name):
         """
         Creates the storage account if it does not exist.
         """
-        name = self.config.getStorageAccountName()
         logger.info("Checking for existence of storage account (name=%s).", name)
         if self._resource_exists(lambda: self.sms.get_storage_account_properties(name)):
             logger.warn("A storage account named %s already exists.", name)
@@ -413,7 +416,7 @@ class Deployment(object):
         Creates Blob storage containers required by the service.
         """
         logger.info("Checking for existence of Blob containers.")
-        account_name = self.config.getStorageAccountName()
+        account_name = self.config.getServiceStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
         blob_service = BlobService(account_name, account_key)
         name_and_access_list = [ (self.config.getServicePublicStorageContainer(), 'blob'),
@@ -495,7 +498,7 @@ class Deployment(object):
             logger.info("Role instance %s provisioning begins.", vm_hostname)
             vm_diskname = '{0}.vhd'.format(vm_hostname)
             vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(
-                self.config.getStorageAccountName(), vm_diskname
+                self.config.getServiceStorageAccountName(), vm_diskname
             )
             ssh_port = str(self.config.getServiceInstanceSshPort() + vm_number)
 
@@ -654,11 +657,10 @@ class Deployment(object):
                                                 self.config.getAzureOperationTimeout())
             logger.info("Role instance %s has been created.", vm_hostname)
 
-    def _deleteStorageAccount(self):
+    def _deleteStorageAccount(self, name):
         """
         Deletes the storage account for the web site.
         """
-        name = self.config.getStorageAccountName()
         logger.info("Attempting to delete storage account %s.", name)
         if self._resource_exists(lambda: self.sms.get_storage_account_properties(name)) == False:
             logger.warn("Storage account %s not found: nothing to delete.", name)
@@ -737,7 +739,7 @@ class Deployment(object):
             raise ValueError("Set of assets to deploy is not specified.")
         logger.info("Starting deployment operation.")
         self._ensureAffinityGroupExists()
-        self._ensureStorageAccountExists()
+        self._ensureStorageAccountExists(self.config.getStorageAccountName())
         ## Build instance
         if 'build' in assets:
             self._ensureServiceExists(self.config.getBuildServiceName(), self.config.getAffinityGroupName())
@@ -745,6 +747,7 @@ class Deployment(object):
             self._ensureBuildMachineExists()
         # Web instances
         if 'web' in assets:
+            self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
@@ -766,12 +769,13 @@ class Deployment(object):
         if 'web' in assets:
             self._deleteVirtualMachines(self.config.getServiceName())
             self._deleteService(self.config.getServiceName())
+            self._deleteStorageAccount(self.config.getServiceStorageAccountName())
         if 'build' in assets:
             self._deleteVirtualMachines(self.config.getBuildServiceName())
             self._deleteService(self.config.getBuildServiceName())
+            self._deleteStorageAccount(self.config.getStorageAccountName())
         if ('web' in assets) and ('build' in assets):
             self._deleteServiceBusNamespace()
-            self._deleteStorageAccount()
             self._deleteAffinityGroup()
         logger.info("Teardown operation is complete.")
 
@@ -783,7 +787,7 @@ class Deployment(object):
         allowed_hosts.extend(self.config.getWebHostnames())
         allowed_hosts.extend(['www.codalab.org','codalab.org'])
 
-        storage_key = self._getStorageAccountKey(self.config.getStorageAccountName())
+        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         lines = [
@@ -798,7 +802,7 @@ class Deployment(object):
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
-            "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getStorageAccountName()),
+            "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
             "    AZURE_ACCOUNT_KEY = '{0}'".format(storage_key),
             "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
             "    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME",
