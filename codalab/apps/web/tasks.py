@@ -8,6 +8,7 @@ from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db import transaction
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -90,6 +91,33 @@ def create_competition(comp_def_id):
 
 # Evaluate submissions in a competition
 
+# CompetitionSubmission states which are final.
+_FINAL_STATES = {
+    CompetitionSubmissionStatus.FINISHED,
+    CompetitionSubmissionStatus.FAILED,
+    CompetitionSubmissionStatus.CANCELLED
+}
+
+def _set_submission_status(submission_id, status_codename):
+    """
+    Update the status of a submission.
+
+    submission_id: PK of CompetitionSubmission object.
+    status_codename: New status codename.
+    """
+    status = CompetitionSubmissionStatus.objects.get(codename=status_codename)
+    with transaction.commit_on_success():
+        submission = Job.objects.select_for_update().get(pk=submission_id)
+        old_status_codename = submission.status.codename
+        if old_status_codename not in _FINAL_STATES:
+            submission.status = status
+            submission.save()
+            logger.info("Changed submission status from %s to %s (id=%s).",
+                        old_status_codename, status_codename, submission_id)
+        else:
+            logger.info("Skipping update of submission status: invalid transition %s -> %s  (id=%s).",
+                        status_codename, old_status_codename, submission_id)
+
 def predict(submission, job_id):
     """
     Dispatches the prediction taks for the given submission to an appropriate compute worker.
@@ -128,8 +156,7 @@ def predict(submission, job_id):
                             "reply_to" : settings.SBS_RESPONSE_QUEUE } })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
-    submission.set_status(CompetitionSubmissionStatus.SUBMITTED)
-    submission.save()
+    _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 def score(submission, job_id):
     """
@@ -190,8 +217,7 @@ def score(submission, job_id):
                             "reply_to" : settings.SBS_RESPONSE_QUEUE } })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     if has_generated_predictions == False:
-        submission.set_status(CompetitionSubmissionStatus.SUBMITTED)
-        submission.save()
+        _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 class SubmissionUpdateException(Exception):
     """Defines an exception that occurs during the update of a CompetitionSubmission object."""
@@ -218,8 +244,7 @@ def update_submission_task(job_id, args):
         job_id: The job ID used to track the progress of the evaluation.
         """
         if (status == 'running'):
-            submission.set_status(CompetitionSubmissionStatus.RUNNING)
-            submission.save()
+            _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
             return Job.RUNNING
 
         if (status == 'finished'):
@@ -246,8 +271,7 @@ def update_submission_task(job_id, args):
                         except SubmissionScoreDef.DoesNotExist:
                             logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
                 logger.debug("Done processing scores... (submission_id=%s)", submission.id)
-                submission.set_status(CompetitionSubmissionStatus.FINISHED)
-                submission.save()
+                _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
                 result = Job.FINISHED
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
@@ -264,8 +288,7 @@ def update_submission_task(job_id, args):
 
         if (status != 'failed'):
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
-        submission.set_status(CompetitionSubmissionStatus.FAILED)
-        submission.save()
+        _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
         """
@@ -277,8 +300,7 @@ def update_submission_task(job_id, args):
         """
         try:
             submission = ex.submission
-            submission.set_status(CompetitionSubmissionStatus.FAILED)
-            submission.save()
+            _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
         except Exception:
             logger.exception("Unable to set the submission status to Failed (job_id=%s)", job.id)
         return JobTaskResult(status=Job.FAILED)
