@@ -27,7 +27,7 @@ class AzureServiceBusQueue(Queue):
 
     # Timeout in seconds. receive_message is blocking and returns as soon as one of two
     # conditions occurs: a message is received or the timeout period has elapsed.
-    polling_timeout = 15
+    polling_timeout = 60
 
     def __init__(self, namespace, key, issuer, name):
         self.service = ServiceBusService(service_namespace=namespace, account_key=key, issuer=issuer)
