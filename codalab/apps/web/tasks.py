@@ -107,7 +107,7 @@ def _set_submission_status(submission_id, status_codename):
     """
     status = CompetitionSubmissionStatus.objects.get(codename=status_codename)
     with transaction.commit_on_success():
-        submission = Job.objects.select_for_update().get(pk=submission_id)
+        submission = CompetitionSubmission.objects.select_for_update().get(pk=submission_id)
         old_status_codename = submission.status.codename
         if old_status_codename not in _FINAL_STATES:
             submission.status = status
@@ -244,7 +244,7 @@ def update_submission_task(job_id, args):
         job_id: The job ID used to track the progress of the evaluation.
         """
         if (status == 'running'):
-            _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
+            _set_submission_status(submission.id, CompetitionSubmissionStatus.RUNNING)
             return Job.RUNNING
 
         if (status == 'finished'):
