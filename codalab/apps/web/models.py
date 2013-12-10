@@ -600,7 +600,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            self.set_status(CompetitionSubmissionStatus.SUBMITTING,force_save=False)
+            self.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.SUBMITTING)
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
@@ -608,11 +608,6 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         return res
-
-    def set_status(self, status, force_save=False):
-        self.status = CompetitionSubmissionStatus.objects.get(codename=status)
-        if force_save:
-            self.save()
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
