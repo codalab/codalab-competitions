@@ -46,7 +46,7 @@ var Competition;
                     rows.html("");
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
-                    row.html('<i class="enclosed-foundicon-checkmark"></i>');
+                    row.html('<i class="fi-check"></i>');
                     $('#user_results button.leaderBoardRemove').each(function (index) {
                         decorateLeaderboardButton($(this), false);
                     });
@@ -105,10 +105,10 @@ var Competition;
                     success: function (response) {
                         $("#user_results tr.noData").remove();
                         $("#user_results").append(Competition.displayNewSubmission(response));
-                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
+                        $('#user_results #' + response.id + ' .fi-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         $('#fileUploadButton').removeClass("disabled");
                         $('#fileUploadButton').text("Submit Results");
-                        $('#user_results #' + response.id + ' .enclosed-foundicon-plus').click();
+                        $('#user_results #' + response.id + ' .fi-plus').click();
                     },
                     fail: function (jqXHR) {
                         var msg = "An unexpected error occured.";
@@ -121,7 +121,7 @@ var Competition;
                     }
                 });
 
-                $('#user_results .enclosed-foundicon-plus').on('click', function () {
+                $('#user_results .fi-plus').on('click', function () {
                     Competition.showOrHideSubmissionDetails(this);
                 });
             },
@@ -131,44 +131,50 @@ var Competition;
         });
     }
 
-    Competition.getPhaseResults = function (competitionId, phaseId) {
+    Competition.getPhaseResults = function(competitionId, phaseId) {
         $(".competition_results").html("").append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = "/competitions/" + competitionId + "/results/" + phaseId;
         $.ajax({
             type: "GET",
             url: url,
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 $(".competition_results").html("").append(data);
-                $(".column-selectable").click(function (e) {
+                $(".column-selectable").click(function(e) {
                     var table = $(this).closest("table");
                     $(table).find(".column-selected").removeClass();
                     $(this).addClass("column-selected");
-                    columnId = $(this).attr("name");
-                    var rows = table.find('td').filter(function () {
+                    var columnId = $(this).attr("name");
+                    var rows = table.find('td').filter(function() {
                         return $(this).attr("name") === columnId;
                     }).addClass("column-selected");
-                    var sortedRows = rows.slice().sort(function (a, b) {
-                        var ar = parseInt($.text([$(a).find("span")]));
-                        if (isNaN(ar)) { ar = 100000; }
-                        var br = parseInt($.text([$(b).find("span")]));
-                        if (isNaN(br)) { br = 100000; }
-                        return ar - br;
-                    });
-                    var parent = rows[0].parentNode.parentNode;
-                    var clonedRows = sortedRows.map(function () { return this.parentNode.cloneNode(true); });
-                    for (var i = 0; i < clonedRows.length; i++) {
-                        $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
-                        parent.insertBefore(clonedRows[i], rows[i].parentNode);
-                        parent.removeChild(rows[i].parentNode);
+                    if (rows.length > 0) {
+                        var sortedRows = rows.slice().sort(function(a, b) {
+                            var ar = parseInt($.text([$(a).find("span")]));
+                            if (isNaN(ar)) {
+                                ar = 100000;
+                            }
+                            var br = parseInt($.text([$(b).find("span")]));
+                            if (isNaN(br)) {
+                                br = 100000;
+                            }
+                            return ar - br;
+                        });
+                        var parent = rows[0].parentNode.parentNode;
+                        var clonedRows = sortedRows.map(function() { return this.parentNode.cloneNode(true); });
+                        for (var i = 0; i < clonedRows.length; i++) {
+                            $(clonedRows[i]).find("td.row-position").text($(clonedRows[i]).find("td.column-selected span").text());
+                            parent.insertBefore(clonedRows[i], rows[i].parentNode);
+                            parent.removeChild(rows[i].parentNode);
+                        }
                     }
                 });
             },
-            error: function (xhr, status, err) {
+            error: function(xhr, status, err) {
                 $(".competition_results").html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
-    }
+    };
 
     Competition.registationCanProceed = function () {
         if ($("#checkbox").is(":checked") === true) {
@@ -304,14 +310,14 @@ var Competition;
 
     Competition.showOrHideSubmissionDetails = function (obj) {
         var nTr = $(obj).parents('tr')[0];
-        if ($(obj).hasClass("enclosed-foundicon-minus")) {
-            $(obj).removeClass("enclosed-foundicon-minus");
-            $(obj).addClass("enclosed-foundicon-plus");
+        if ($(obj).hasClass("fi-minus")) {
+            $(obj).removeClass("fi-minus");
+            $(obj).addClass("fi-plus");
             $(nTr).next("tr.trDetails").remove();
         }
         else {
-            $(obj).removeClass("enclosed-foundicon-plus");
-            $(obj).addClass("enclosed-foundicon-minus");
+            $(obj).removeClass("fi-plus");
+            $(obj).addClass("fi-minus");
             var elem = $("#submission_details_template .trDetails").clone();
             elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
             var phasestate = $('#phasestate').val();
