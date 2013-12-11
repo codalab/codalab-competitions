@@ -3,7 +3,7 @@ from apps.web import models as webmodels
 
 class ContentCategorySerial(serializers.ModelSerializer):
     visibility = serializers.SlugField(source='visibility.codename')
-    
+
     class Meta:
         model = webmodels.ContentCategory
 
@@ -13,7 +13,6 @@ class DefaultContentSerial(serializers.ModelSerializer):
     initial_visibility = serializers.SlugField(source='initial_visibility.codename')
     class Meta:
         model = webmodels.DefaultContentItem
-        
 
 class PageSerial(serializers.ModelSerializer):
     container = serializers.RelatedField(required=False)
@@ -40,9 +39,8 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
             attr[source] = None
         return attr
 
-
 class CompetitionParticipantSerial(serializers.ModelSerializer):
-    
+
     class Meta:
         model = webmodels.CompetitionParticipant
 
@@ -73,15 +71,13 @@ class LeaderBoardSerial(serializers.ModelSerializer):
 
     class Meta:
         model = webmodels.PhaseLeaderBoard
-        
+
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True)
 
     class Meta:
         model = webmodels.Competition
- 
-
 
 class PhaseRel(serializers.RelatedField):
 
@@ -90,8 +86,7 @@ class PhaseRel(serializers.RelatedField):
         o = PhaseSerial(instance=value)
         return o.data
 
-        
-    def from_native(self,data=None,files=None):       
+    def from_native(self,data=None,files=None):
         kw = {'data': data,'partial':self.partial}
         args = []
         print data
@@ -108,7 +103,7 @@ class PhaseRel(serializers.RelatedField):
             raise Exception(o.errors)
 
 class CompetitionSerial(serializers.ModelSerializer):
-    phases = PhaseRel(many=True,read_only=False)    
+    phases = PhaseRel(many=True,read_only=False)
     image_url = serializers.CharField(source='image_url',read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
 
@@ -119,7 +114,6 @@ class CompetitionSerial(serializers.ModelSerializer):
 class ScoreSerial(serializers.ModelSerializer):
     class Meta:
         model = webmodels.SubmissionScore
-        
 
 class CompetitionScoresSerial(serializers.ModelSerializer):
     competition_id = serializers.IntegerField(source='phase.competition.pk')
