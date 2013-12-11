@@ -85,7 +85,7 @@ class DeploymentConfig(BaseConfig):
         """Gets the global cloud storage account name."""
         return '{0}storage'.format(self.getServicePrefix())
 
-    def getServicetorageAccountName(self):
+    def getServiceStorageAccountName(self):
         """Gets the service cloud storage account name."""
         return '{0}{1}storage'.format(self.getServicePrefix(), self.label)
 
