@@ -35,7 +35,7 @@ $(document).ready(function () {
     $('#fileUpload').liteUploader({
         script: '/api/competition/create',
         allowedFileTypes: 'application/zip,application/x-zip-compressed',
-        maxSizeInBytes: 104857600,
+        maxSizeInBytes: 256*1024*1024,
         customParams: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() },
         before: function () {
             $('#uploadButton').addClass('disabled');
