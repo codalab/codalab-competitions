@@ -87,7 +87,7 @@ var Competition;
                 {
                     script: '/api/competition/' + competitionId + '/submission',
                     allowedFileTypes: 'application/zip,application/x-zip-compressed',
-                    maxSizeInBytes: 104857600,
+                    maxSizeInBytes: 256*1024*1024,
                     csrfmiddlewaretoken: cstoken,
                     customParams: {
                         'csrfmiddlewaretoken': cstoken
