@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
+
 {% block title %}Help: Create and Configure Azure{% endblock title %}
 {% block page_title %}Help{% endblock page_title %}
+
 {% block content %}
 <div class="row glossary-page-container">
-<!-- Nav Sidebar -->
-    <!-- This is source ordered to be pulled to the left on larger screens -->
     <div id="dockable" class="large-3 columns">
         <div id="dockable_inner">
             <ul class="side-nav">
@@ -13,11 +13,8 @@
             </ul>
         </div>
     </div>
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns">
         <a id="create-an-azure-account" class="anchor"></a>
-        <hr />
         <h1>Create an Azure Account</h1>
         <p>Data for all CodaLab competitions <!-- and experiments? --> is stored on Microsoft Azure. Follow these steps to create a Windows Azure account. If you already have a Windows Azure account you can skip ahead to <a href="#configure-azure-storage">Configure Azure Storage</a>.</p>
         <ol>
@@ -49,21 +46,19 @@
     </div>
 </div>
 <div class="spacer500">&nbsp;</div>
-
 {% endblock content %}
-{% block js %}
-    <!--  /////  Highlight current link  /////  -->
-    $(function() {
-        $(".side-nav > li > a").click(function(){
-            $(".side-nav > li > a").removeClass("active");
-            $(this).addClass("active");
-        });
-        $(".top-bar-section ul > li > a").removeClass("active");
-        $("#liHelp").addClass("active");
-    });
 
-<!--  /////  Dock side-nav to top when scrolling down  /////  -->
-    $('html, body').scroll(function() {
-        $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+{% block js %}
+$(function() {
+    $(".side-nav > li > a").click(function(){
+        $(".side-nav > li > a").removeClass("active");
+        $(this).addClass("active");
     });
+    $(".top-bar-section ul > li > a").removeClass("active");
+    $("#liHelp").addClass("active");
+});
+
+$('html, body').scroll(function() {
+    $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+});
 {% endblock js %}
