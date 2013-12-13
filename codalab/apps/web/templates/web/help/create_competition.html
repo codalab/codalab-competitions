@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Help: Create a Competition{% endblock head_title %}
+{% block page_title %}Help: Create a Competition{% endblock page_title %}
+
+{% block content %}
+<div class="row glossary-page-container"> 
+    <div id="dockable" class="large-3 columns">
+        <div id="dockable_inner">
+            <ul class="side-nav side-nav--fullwidth">
+                <li><a href="#create-competition" class="scrollTo active" tabindex="1">Create a Competition</a></li>
+                <li><a href="#competition-overview" class="scrollTo" tabindex="2">Competition Overview</a></li>
+                <li><a href="#create-a-competition-bundle" class="scrollTo" tabindex="3">Create a Competition Bundle</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Main Content Section -->
+    <div class="large-9 columns">
+        <a id="create-competition" class="anchor"></a>
+        <h1>Create a Competition</h1>
+        <p>
+            CodaLab competitions provide an opportunity for researchers, developers and algorithmists to 
+            create solutions for problems across a wide range of domains, and advance the state of the art 
+            for their respective areas of interest. This guide covers everything you need to know to create 
+            and manage a CodaLab competition.
+        </p>
+        
+        <hr>
+        <a id="competition-overview" class="anchor"></a>
+        <h2>Competition Overview</h2>
+        <p>
+            Competitions are conducted in two phases: training and competition. The appropriate data 
+            is made available to participants at each phase of the competition. During the training 
+            phase, participants have access to training data to refine their algorithms. During the 
+            competition phase, participants are provided with competition data to generate results which 
+            they can then submit to the competition.
+        </p>
+        <p>To create a competition, you need to create and upload a Competition Bundle. A Competition Bundle is a .zip archive which contains a YAML file that describes the competition and its assets. The files that make up a competition bundle are as follows:</p>
+                
+        <table>
+            <tr>
+                <td><b>Item</b></td>
+                <td><b>Description</b></td>
+            </tr>
+            <tr>
+                <td>competition.yaml</td>
+                <td>Lists all of the assets for a competition.</td>
+            </tr>
+            <tr>
+                <td>data.html</td>
+                <td>Contains links to the competition data.</td>
+            </tr>
+            <tr>
+                <td>evaluation.html</td>
+                <td>Explains the metrics and scoring methods for the challenge.</td>
+            </tr>
+            <tr>
+                <td>overview.html</td>
+                <td>Describes the goals of the competition.</td>
+            </tr>
+            <tr>
+                <td>terms_and_conditions.html</td>
+                <td>Lists the terms for participating in the challenge (for example data licensing and results submission).</td>
+            </tr>
+            <tr>
+                <td>program.zip</td>
+                <td>Contains the evaluation program which compares the submitted results with the answers and passes the scores to the CodaLab leaderboards.</td>
+            </tr>
+            <tr>
+                <td>reference.zip</td>
+                <td>Contains reference data used to score the competition.</td>
+            </tr>
+            <tr>
+                <td>logo.jpg</td>
+                <td>A logo or image for the competition.</td>
+            </tr>
+        </table>
+        
+        <hr>
+        <a id="create-a-competition-bundle" class="anchor"></a>
+        <h2>Create a Competition Bundle</h2>
+        <p>
+            In this section you will learn how to create a competition bundle using an example competition bundle for guidance. The goal of the example competition is to compute the value of pi (3.14...). Each participant submits a single float value and the submission that contains the closest value of pi is the winner. 
+        </p>
+        <ul>
+            <li><a href="#bundle-file-structure">Bundle File Structure</a></li>
+            <li><a href="#create-yaml-file">Create the YAML File</a></li>
+            <li><a href="#add-folder-contents-to-zip-archives">Add Folder Contents to ZIP Archives</a></li>
+        </ul>
+
+        <a id="bundle-file-structure" class="anchor"></a>
+        <h3>Bundle File Structure</h3>
+        <p>Competition bundles are structured as follows:</p>
+
+        <pre><code>competition.zip
+  |- competition.yaml
+  |- data.html
+  |- evaluation.html
+  |- logo.jpg
+  |- overview.html
+  |- program.zip
+  |- reference.zip
+  |- terms_and_conditions.html
+</code></pre>
+        <p><b>Note:</b> There are no .zip archives in the example competition as downloaded. This is so that the files can be properly downloaded. You will need to manually create .zip archives from the program, and reference folders.</p>
+
+        <a id="create-yaml-file" class="anchor"></a>
+        <h3>Create a YAML File</h3>
+        <p>The manifest file (competition.yaml) defines all aspects of the competition, and is defined using YAML. Here's the example competition.yaml:</p>
+        <pre><code># Build an example competition
+---
+title: Example Competition
+description: This is a competition to test the competition bundle system. It should be able to create a competition from this bundle.
+image: logo.jpg
+has_registration: True
+end_date: 2013-12-31
+html: 
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+    data: data.html
+phases:
+    1:
+        phasenumber: 1
+        label: "Test"
+        start_date: 2013-06-30
+        max_submissions: 100
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Data 1
+                url: http://spreadsheets.google.com/pub?key=pyj6tScZqmEfbZyl0qjbiRQ&output=xls
+                description: Example Dataset
+            2:
+                name: Data 2
+                url: http://spreadsheets.google.com/pub?key=0AgogXXPMARyldGJqTDRfNHBWODJMRWlZaVhNclhNZXc&output=xls 
+                description: Example Dataset
+    2:
+        phasenumber: 2
+        label: "Training"
+        start_date: 2013-08-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+    3:
+        phasenumber: 3
+        label: "Challenge"
+        start_date: 2013-09-30
+        max_submissions: 3
+        scoring_program: program.zip
+        reference_data: reference.zip
+        datasets: 
+            1:
+                name: Challenge Data
+                url: http://spreadsheets.google.com/pub?key=t9GL1nIZdtxszJbjKErN2Hg&output=xls
+                description: Example challenge data
+leaderboard:
+    leaderboards:
+        RESULTS: &RESULTS
+            label: Results
+            rank: 1
+    columns:
+        Difference:
+            group: *RESULTS
+            label: Difference
+            rank: 1
+            numeric_format: 6
+</code></pre>
+        
+        <a id="add-folder-contents-to-zip-archives" class="anchor"></a>
+        <h3>Add Folder Contents to ZIP Archives</h3>
+        <p>To make this example complete it's important to understand how to build and package the program.zip and reference.zip referred to in the competition.yaml.</p>
+
+<p>The program.zip bundle contains the program that compares the users submission with the reference data (in the reference.zip bundle) to score the submission. In this case the reference data contains the value of pi. The program.zip bundle computes the absolute difference of the submitted value from the reference value.</p>
+
+<p>Here are the contents of the reference.zip file: 
+        <pre><code>reference.zip 
+  |- answer.txt (Contains: 3.14159265359)
+  |- metadata   (Contains: This is the authoritative result.)
+</code></pre>
+</p>
+
+<p>Here are the contents of the program.zip file</p>
+        <pre><code>program.zip
+  |- evaluate.exe (The program that is run)
+  |- metadata     (see below for contents)
+  |- supporting modules and libraries for evaluate.exe to run in isolation.
+</code></pre>
+
+<p>The program.zip metadata file contains:</p>
+        <pre><code>command: $program/evaluate.exe $input $output
+description: Example competition evaluation program.
+</code></pre>
+
+        <p>1. Add the contents of the example program and reference folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, zip the contents of the following folders:
+        <pre><code>C:\MyCompetition\reference -&gt; reference.zip
+C:\MyCompetition\program -&gt; program.zip
+</code></pre>
+</p>
+        <p>2. Create a .zip archive of C:\MyCompetition. This will be known as the "competition bundle".</p>
+        
+
+    <div class="spacer500">&nbsp;</div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+$(function() {
+    $(".side-nav > li > a").click(function(){
+        $(".side-nav > li > a").removeClass("active");
+        $(this).addClass("active");
+    });
+    $(".top-bar-section ul > li > a").removeClass("active");
+    $("#liHelp").addClass("active");
+});
+
+$('html, body').scroll(function() {
+    $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
+});
+{% endblock js %}

@@ -17,9 +17,9 @@
             <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
             {% csrf_token %}
             <div id="details">
-            </div>
-        </div>
     </div>
+	</div>
+  </div>
 
 </div>
 {% endblock %}
@@ -81,5 +81,5 @@ $(document).ready(function () {
             $('#uploadButton').removeClass('disabled');
         }
     });
-});
+  });
 {% endblock js %}
