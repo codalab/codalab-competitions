@@ -3,19 +3,16 @@ if not importer.installed:
     importer.install()
 
 from configurations import Settings
-import os
+from configurations.utils import uppercase_attributes
+import os, sys, pkgutil, subprocess
+from os.path import abspath, basename, dirname, join, normpath
 
-from os.path import abspath, dirname
-import djcelery
 __version__ = 'N/A'
-
 try:
-
     import codalab.version
     __version__ = codalab.version.__version__
 except ImportError:
     pass
-
 
 class Base(Settings):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,9 +20,9 @@ class Base(Settings):
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
     PORT = '8000'
-    DOMAIN_NAME = 'localhost'
-    SERVER_NAME = 'localhost'
-    DEBUG = True
+    DOMAIN_NAME='localhost'
+    SERVER_NAME='localhost'
+    DEBUG = False
     TEMPLATE_DEBUG = DEBUG
 
     if 'CONFIG_SERVER_NAME' in os.environ:
@@ -33,44 +30,34 @@ class Base(Settings):
     if 'CONFIG_HTTP_PORT' in os.environ:
         PORT = os.environ.get('CONFIG_HTTP_PORT')
 
-    STARTUP_ENV = {'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
-                   'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
-                   }
+    STARTUP_ENV = {
+        'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
+        'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+    }
 
-    TEST_DATA_PATH = os.path.join(PROJECT_DIR, 'test_data')
+    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
-    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
+    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
+    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
     DJANGO_ROOT = dirname(dirname(abspath(__file__)))
     SITE_ROOT = dirname(DJANGO_ROOT)
 
     SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
-    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
+    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
 
-    DEPLOY_ROLES = {'web': ['localhost'],
-                    'celery': ['localhost'],
-                    }
+    DEPLOY_ROLES = { 'web': ['localhost'],
+                     'celery': ['localhost'], }
 
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     CODALAB_VERSION = __version__
 
-    # CELERY CONFIG
-    # BROKER_URL = "memory://"
-    CELERY_IMPORTS = ['configurations.management']
-    djcelery.setup_loader()
-    BROKER_URL = 'amqp://guest:guest@localhost:5672/'  # for testing purposes
-    # CELERY_RESULT_BACKEND = "cache"
-    # CELERY_TASK_RESULT_EXPIRES=3600
-    # CELERY_CACHE_BACKEND = "memory://"
-    ##
-
     HAYSTACK_CONNECTIONS = {
         'default': {
             'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
+            },
+        }
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = []
@@ -78,7 +65,7 @@ class Base(Settings):
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
     )
-
+   
     MANAGERS = ADMINS
 
     # Local time zone for this installation. Choices can be found here:
@@ -127,16 +114,16 @@ class Base(Settings):
 
     # Additional locations of static files
     STATICFILES_DIRS = (
-        # Put strings here, like "/home/html/static" or "C:/www/django/static".
-        # Always use forward slashes, even on Windows.
-        # Don't forget to use absolute paths, not relative paths.
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
     )
 
     # List of finder classes that know how to find static files in
     # various locations.
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.FileSystemFinder', 
         #'django.contrib.staticfiles.finders.DefaultStorageFinder',
         'compressor.finders.CompressorFinder',
     )
@@ -157,11 +144,6 @@ class Base(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-
-        'django.middleware.transaction.TransactionMiddleware',
-
-        # Uncomment the next line for simple clickjacking protection:
-        # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     )
 
     ROOT_URLCONF = 'codalab.urls'
@@ -173,7 +155,7 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR, 'templates'),
+        os.path.join(PROJECT_DIR,'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
@@ -197,14 +179,10 @@ class Base(Settings):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
-        'djcelery',
 
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
         'rest_framework',
-
-        # WYSIWYG Editor for Content pages
-        #'django_wysiwyg',
 
         # This is used to manage the HTML page hierarchy for the competition
         'mptt',
@@ -222,16 +200,17 @@ class Base(Settings):
         'haystack',
 
         # Migration app
-        #'south',
+        'south',
 
-        # Django / Nose (This needs to come after South)
+        # Django Nose !!Important!! This needs to come after South.
         'django_nose',
 
         # CodaLab apps
         'apps.authenz',
+        'apps.jobs',
         'apps.api',
         'apps.web',
-        # 'apps.common',
+         # 'apps.common',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -239,7 +218,7 @@ class Base(Settings):
         'allauth.socialaccount',
     )
 
-    OPTIONAL_APPS = ['django_wsgiserver', ]
+    OPTIONAL_APPS = []
     INTERNAL_IPS = []
 
     # Email Configuration
@@ -255,14 +234,14 @@ class Base(Settings):
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/my'
     ANONYMOUS_USER_ID = -1
-    ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_EMAIL_REQUIRED = True
-    ACCOUNT_USERNAME_REQUIRED = False
-    ACCOUNT_EMAIL_VERIFICATION = 'none'
+    ACCOUNT_AUTHENTICATION_METHOD='username_email'
+    ACCOUNT_EMAIL_REQUIRED=True
+    ACCOUNT_USERNAME_REQUIRED=False
+    ACCOUNT_EMAIL_VERIFICATION='none'
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
-
+   
     # Django Analytical configuration
     GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
 
@@ -275,7 +254,7 @@ class Base(Settings):
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
-        )
+            )
     }
 
     # A sample logging configuration. The only tangible logging
@@ -286,12 +265,23 @@ class Base(Settings):
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '%(asctime)s %(levelname)s %(message)s'
+            },
+        },
         'filters': {
             'require_debug_false': {
                 '()': 'django.utils.log.RequireDebugFalse'
             }
         },
         'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+                'stream': sys.stdout
+            },
             'mail_admins': {
                 'level': 'ERROR',
                 'filters': ['require_debug_false'],
@@ -299,17 +289,30 @@ class Base(Settings):
             }
         },
         'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
             'django.request': {
                 'handlers': ['mail_admins'],
                 'level': 'ERROR',
                 'propagate': True,
             },
+            'codalab': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            },
+            'apps': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            }
         }
     }
 
     @classmethod
     def pre_setup(cls):
-        if hasattr(cls, 'OPTIONAL_APPS'):
+        if hasattr(cls,'OPTIONAL_APPS'):
             for a in cls.OPTIONAL_APPS:
                 try:
                     __import__(a)
@@ -317,28 +320,31 @@ class Base(Settings):
                     print e
                 else:
                     cls.INSTALLED_APPS += (a,)
-        cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
-                                'CONFIG_SERVER_NAME': cls.SERVER_NAME
-                                })
+        cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
+                                 'CONFIG_SERVER_NAME': cls.SERVER_NAME })
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
             cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
     @classmethod
     def post_setup(cls):
-        if not hasattr(cls, 'PORT'):
+        if not hasattr(cls,'PORT'):
             raise AttributeError("PORT environmenment variable required")
-        if not hasattr(cls, 'SERVER_NAME'):
+        if not hasattr(cls,'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
 
 class DevBase(Base):
-    OPTIONAL_APPS = ('debug_toolbar', 'django_extensions',)
+
+    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
-    DEBUG = True
+    DEBUG=True
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES': True,
+        'ENABLE_STACKTRACES' : True,
     }
+    # Increase amount of logging output in Dev mode.
+    for logger_name in ('codalab', 'apps'):
+        Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
 
     HAYSTACK_CONNECTIONS = {
         'default': {
@@ -347,22 +353,14 @@ class DevBase(Base):
         },
     }
 
-    INSTALLED_APPS = Base.INSTALLED_APPS + ('kombu.transport.django',)
-
-    INSTALLED_APPS = Base.INSTALLED_APPS + ('south',)
-
     DATABASES = {
         'default': {
-            # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'ENGINE': 'django.db.backends.sqlite3',
-            # Or path to database file if using sqlite3.
-            'NAME': os.path.join(Base.PROJECT_DIR, 'dev_db.sqlite'),
+            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
             # The following settings are not used with sqlite3:
             'USER': '',
             'PASSWORD': '',
-            # Empty for localhost through domain sockets or '127.0.0.1' for
-            # localhost through TCP.
-            'HOST': '',
+            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
             'PORT': '',                      # Set to empty string for default.
         }
     }

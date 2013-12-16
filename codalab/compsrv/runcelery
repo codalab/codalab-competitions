@@ -1,4 +1,0 @@
-#!/bin/bash
-
-source ../config/generated/startup_env.sh
-python ./celerysrv.py "$@"
