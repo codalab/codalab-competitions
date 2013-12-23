@@ -46,18 +46,10 @@ class Base(Settings):
     SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
     VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
 
-    DEPLOY_ROLES = { 'web': ['localhost'],
-                     'celery': ['localhost'], }
-
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     CODALAB_VERSION = __version__
 
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-            },
-        }
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
     ALLOWED_HOSTS = []
@@ -196,9 +188,6 @@ class Base(Settings):
         # Storage API
         'storages',
 
-        # Search app
-        'haystack',
-
         # Migration app
         'south',
 
@@ -210,7 +199,6 @@ class Base(Settings):
         'apps.jobs',
         'apps.api',
         'apps.web',
-         # 'apps.common',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -345,13 +333,6 @@ class DevBase(Base):
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
         Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
-
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-            'PATH': os.path.join(Base.PROJECT_DIR, 'whoosh_index'),
-        },
-    }
 
     DATABASES = {
         'default': {
