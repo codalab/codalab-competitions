@@ -10,7 +10,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'', include('apps.web.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^search/', include('haystack.urls')),
     url(r'^api/', include('apps.api.routers')),
     
     # Uncomment the admin/doc line below to enable admin documentation:
