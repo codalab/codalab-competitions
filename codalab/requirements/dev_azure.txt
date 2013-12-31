@@ -1,1 +1,2 @@
 -r common.txt
+django-pyodbc-azure<1.1
