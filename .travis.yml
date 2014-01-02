@@ -6,9 +6,9 @@ branches:
     - master
 install:
   - "pip install -r codalab/requirements/dev_azure_nix.txt --use-mirrors"
-  - "pip install -q flake8 pylint django-nose --use-mirrors"
+#  - "pip install -q flake8 pylint django-nose --use-mirrors"
 before_script:
-  - "flake8 --config=.flake8 ."
+#  - "flake8 --config=.flake8 ."
 #  - "pylint --rcfile=pylint.rc tests"
 #  - "pylint --rcfile=pylint.rc setup.py"
 script:
