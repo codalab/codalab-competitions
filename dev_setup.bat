@@ -9,13 +9,12 @@ REM Update pip
 %PYTHON%\Scripts\pip install virtualenv
 
 REM Create the virtual environment named venv
-%PYTHON%\Scripts\virtualenv --clear --distribute venv 
+%PYTHON%\Scripts\virtualenv --clear --distribute --system-site-packages venv 
 
 REM Activate the virtual environment
 CALL venv\Scripts\activate.bat
 
 REM Update pip and distribute in venv
-pip install pip
 pip install --upgrade distribute
 
 REM Install development requirements
