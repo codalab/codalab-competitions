@@ -18,6 +18,7 @@ from django.shortcuts import render_to_response
 from apps.web import models
 from apps.web import forms
 from apps.web import tasks
+from apps.web.bundles import BundleService
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
@@ -315,12 +316,18 @@ class VersionView(TemplateView):
         tasks.echo("version is " + out)
         return ctx
 
+#
 # Bundle Views
 #
-class BundleListView(ListView):
-    model = models.Bundle
-    queryset = models.Bundle.objects.all()
-  
+
+class BundleListView(TemplateView):
+    template_name = 'web/bundles/bundle_list.html'
+    def get_context_data(self, **kwargs):
+        context = super(BundleListView,self).get_context_data(**kwargs)
+        service = BundleService()
+        results = service.items()
+        context['bundles'] = results
+        return context
 
 class BundleCreateView(CreateView):
     model = models.Bundle
@@ -338,29 +345,4 @@ class BundleDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
-        return context
-
-#
-# Run Views
-#
-class RunListView(ListView):
-    model = models.Run
-    queryset = models.Run.objects.all()
-   
-class RunCreateView(CreateView):
-    model = models.Run
-    action = "created"
-    form_class = forms.RunForm
-  
-    def form_valid(self, form):
-        f = form.save(commit=False)
-        f.save()
-        return HttpResponseRedirect('/runs')
-  
-class RunDetailView(DetailView):
-    model = models.Run
-
-    def get_context_data(self, **kwargs):
-        context = super(RunDetailView, self).get_context_data(**kwargs)
-
         return context

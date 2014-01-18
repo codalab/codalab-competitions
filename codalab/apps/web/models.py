@@ -955,28 +955,3 @@ class Bundle(models.Model):
     def get_absolute_url(self):
         return ('project_bundle_detail', (), {'slug': self.slug})
     #get_absolute_url = models.permalink(get_absolute_url)
-
-
-# Run Model
-class Run(models.Model):
-    bundle = models.ForeignKey(Bundle)
-    created = models.DateTimeField(auto_now_add=True)
-    slug = models.SlugField(unique=True, max_length=255)
-    metadata = models.CharField(max_length=255)
-    bundlePath = dirname(dirname(abspath(__file__)))
-    programPath = models.CharField(max_length=100)
-    inputPath = models.CharField(max_length=100)
-    outputPath = models.CharField(max_length=100)
-    cellout = models.FloatField(blank=True, null=True)
-
-    #objects = models.Manager()
-
-    class Meta:
-        ordering = ['-created']
-
-    def __unicode__(self):
-        return u'%s' % self.bundle
-
-    def get_absolute_url(self):
-        return ('bundle_run_detail', (), {'object_id': self.id })
-    #get_absolute_url = models.permalink(get_absolute_url)

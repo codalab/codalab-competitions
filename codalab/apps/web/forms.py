@@ -28,10 +28,6 @@ class CompetitionParticipantForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionParticipant
 
-class RunForm(forms.ModelForm):
-    class Meta:
-        model = models.Run
-
 class BundleForm(forms.ModelForm):
     class Meta:
         model = models.Bundle

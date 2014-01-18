@@ -3,23 +3,16 @@
 {% block content %}
 
 <h3>Bundle List</h3>
-<p>if you like to submit a run, click below</p>
-<a href="./create_bundle">Create Bundle</a>
 <hr>
 
-  {% for bundle in object_list %}
-    <small>Bundle</small>
-    <h4>{{ bundle.name }} | ID: {{bundle.pk}}</h4>
-    <p>{{ bundle.created }}</p>
-    <p>{{ bundle.description }}</p>
-    <p>{{ bundle.metadata }}</p>
-    <small>
-      Path: {{ bundle.path }}<br>
-      InputPath: {{ bundle.inputpath }}<br>
-      OutputPath: {{ bundle.outputpath }}
-    </small>
-
-  {% endfor %}
+{% for bundle in bundles %}
+    <p>Type: {{ bundle.bundle_type }}</p>
+    <p>UUID: {{ bundle.uuid }}</p>
+    <p>Hash: {{ bundle.data_hash }}</p>
+    <p>State: {{ bundle.state }}</p>
+    <p>Metadata: {{ bundle.metadata }}</p>
+    <hr>
+{% endfor %}
 
 
 
