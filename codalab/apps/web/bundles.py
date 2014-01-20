@@ -1,7 +1,7 @@
 
 from django.conf import settings
 
-if settings.BUNDLE_SERVICE_ENABLED:
+if len(settings.BUNDLE_SERVICE_CODE_PATH) > 0:
     from codalab.client.remote_bundle_client import RemoteBundleClient
 
     class BundleService():
@@ -12,6 +12,10 @@ if settings.BUNDLE_SERVICE_ENABLED:
         def items(self):
             results = self.client.search()
             return results
+
+        def item(self, uuid):
+            result = self.client.info(uuid)
+            return result
 
 else:
 
