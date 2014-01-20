@@ -7,7 +7,7 @@
 
 {% for bundle in bundles %}
     <p>Type: {{ bundle.bundle_type }}</p>
-    <p>UUID: {{ bundle.uuid }}</p>
+    <p>UUID: <a href="/bundles/{{bundle.uuid}}"> {{ bundle.uuid }}</a></p>
     <p>Hash: {{ bundle.data_hash }}</p>
     <p>State: {{ bundle.state }}</p>
     <p>Metadata: {{ bundle.metadata }}</p>

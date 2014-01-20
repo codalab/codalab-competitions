@@ -7,18 +7,20 @@ class Dev(DevBase):
 
     # Azure storage
     DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
-    AZURE_ACCOUNT_NAME = "accname"
+    AZURE_ACCOUNT_NAME = 'accname'
     AZURE_ACCOUNT_KEY = 'asdfsdfsdafpRE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
     AZURE_CONTAINER = 'containername'
 
-    PRIVATE_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
-    PRIVATE_AZURE_ACCOUNT_NAME = "acctname"
-    PRIVATE_AZURE_ACCOUNT_KEY = "asdfsadfsadfdsalA8og4ApxsvZfiiWTsvthEiLmuJLyWrZ1VyDauwXDLClj+SZyKozFF65ZwnvQg=="
-    PRIVATE_AZURE_CONTAINER = "containername"
-    
-    BUNDLE_AZURE_CONTAINER = "bundles"
-    BUNDLE_AZURE_ACCOUNT_NAME = PRIVATE_AZURE_ACCOUNT_NAME
-    BUNDLE_AZURE_ACCOUNT_KEY = PRIVATE_AZURE_ACCOUNT_KEY
+    BUNDLE_AZURE_ACCOUNT_NAME = 'accname'
+    BUNDLE_AZURE_ACCOUNT_KEY = 'asdfsdfsdafpRE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
+    BUNDLE_AZURE_CONTAINER = 'bundles'
+
+    # Bundle service
+    BUNDLE_SERVICE_URL = ""
+    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\bundles" # path relative to this file
+    if len(BUNDLE_SERVICE_CODE_PATH) > 0:
+        sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
+        codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
 
     # Service Bus
     SBS_NAMESPACE = '<enter name>'
