@@ -215,16 +215,21 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            logger.debug("Execution directory: %s" % run_dir)
             # Update command-line with the real paths
+            logger.debug("CMD: %s" % prog_cmd)
             prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
                                 .replace("$input", join('.', 'input')) \
                                 .replace("$output", join('.', 'output')) \
-                                .replace("$tmp", join('.', 'temp'))
+                                .replace("$tmp", join('.', 'temp')) \
+                                .replace("/", os.path.sep) \
+                                .replace("\\", os.path.sep)
             logger.debug("Invoking program: %s", prog_cmd)
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
             exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
+            logger.debug("Exit Code: %d" % exitCode)
             endTime = time.time()
             elapsedTime = endTime - startTime
             prog_status = {
