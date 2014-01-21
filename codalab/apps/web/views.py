@@ -18,6 +18,7 @@ from django.shortcuts import render_to_response
 from apps.web import models
 from apps.web import forms
 from apps.web import tasks
+from apps.web.bundles import BundleService
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
 
@@ -315,52 +316,31 @@ class VersionView(TemplateView):
         tasks.echo("version is " + out)
         return ctx
 
+#
 # Bundle Views
 #
-class BundleListView(ListView):
-    model = models.Bundle
-    queryset = models.Bundle.objects.all()
-  
 
-class BundleCreateView(CreateView):
-    model = models.Bundle
-    action = "created"
-    form_class = forms.BundleForm
-  
-    def form_valid(self, form):
-        f = form.save(commit=False)
-        f.save()
-        # tasks.create_directory.delay(f.id)
-        return HttpResponseRedirect('/bundles')
-  
-class BundleDetailView(DetailView):
-    model = models.Bundle
-
+class BundleListView(TemplateView):
+    """
+    Displays the list of bundles.
+    """
+    template_name = 'web/bundles/bundle_list.html'
     def get_context_data(self, **kwargs):
-        context = super(BundleDetailView, self).get_context_data(**kwargs)
+        context = super(BundleListView,self).get_context_data(**kwargs)
+        service = BundleService()
+        results = service.items()
+        context['bundles'] = results
         return context
 
-#
-# Run Views
-#
-class RunListView(ListView):
-    model = models.Run
-    queryset = models.Run.objects.all()
-   
-class RunCreateView(CreateView):
-    model = models.Run
-    action = "created"
-    form_class = forms.RunForm
-  
-    def form_valid(self, form):
-        f = form.save(commit=False)
-        f.save()
-        return HttpResponseRedirect('/runs')
-  
-class RunDetailView(DetailView):
-    model = models.Run
-
+class BundleDetailView(TemplateView):
+    """
+    Displays details for a bundle.
+    """
+    template_name = 'web/bundles/bundle_detail.html'
     def get_context_data(self, **kwargs):
-        context = super(RunDetailView, self).get_context_data(**kwargs)
-
+        context = super(BundleDetailView,self).get_context_data(**kwargs)
+        uuid=kwargs.get('uuid')
+        service = BundleService()
+        results = service.item(uuid)
+        context['bundle'] = results
         return context
