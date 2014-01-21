@@ -15,11 +15,6 @@ class CompetitionPhaseForm(forms.ModelForm):
         model = models.CompetitionPhase
         fields = ['phasenumber', 'label', 'start_date', 'max_submissions', 'scoring_program', 'reference_data']
 
-    # def save(self, commit=True):
-    #     #self.request.FILES['dataset'] 
-    #     # Possibly need async proccessing
-    #     return super(CompetitionPhaseForm, self).save(commit)
-
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
@@ -27,7 +22,3 @@ class CompetitionDatasetForm(forms.ModelForm):
 class CompetitionParticipantForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionParticipant
-
-class BundleForm(forms.ModelForm):
-    class Meta:
-        model = models.Bundle

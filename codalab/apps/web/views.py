@@ -321,6 +321,9 @@ class VersionView(TemplateView):
 #
 
 class BundleListView(TemplateView):
+    """
+    Displays the list of bundles.
+    """
     template_name = 'web/bundles/bundle_list.html'
     def get_context_data(self, **kwargs):
         context = super(BundleListView,self).get_context_data(**kwargs)
@@ -330,6 +333,9 @@ class BundleListView(TemplateView):
         return context
 
 class BundleDetailView(TemplateView):
+    """
+    Displays details for a bundle.
+    """
     template_name = 'web/bundles/bundle_detail.html'
     def get_context_data(self, **kwargs):
         context = super(BundleDetailView,self).get_context_data(**kwargs)
@@ -338,15 +344,3 @@ class BundleDetailView(TemplateView):
         results = service.item(uuid)
         context['bundle'] = results
         return context
-
-class BundleCreateView(CreateView):
-    model = models.Bundle
-    action = "created"
-    form_class = forms.BundleForm
-
-    def form_valid(self, form):
-        f = form.save(commit=False)
-        f.save()
-        # tasks.create_directory.delay(f.id)
-        return HttpResponseRedirect('/bundles')
-  
