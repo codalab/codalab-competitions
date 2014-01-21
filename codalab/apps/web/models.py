@@ -931,27 +931,3 @@ class PhaseLeaderBoardEntry(models.Model):
     class Meta:
         unique_together = (('board', 'result'),)
 
-
-# Bundle Model
-class Bundle(models.Model):
-    path = models.CharField(max_length=100, blank=True)
-    inputpath = models.CharField(max_length=100, blank=True)
-    outputpath = models.CharField(max_length=100, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    #owner = models.ForeignKey(User, blank=True, null=True)
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)
-    description = models.TextField(blank=True)
-    version = models.CharField(max_length=100)
-    metadata = models.CharField(max_length=500)
-    private = models.BooleanField()
-
-    class Meta:
-        ordering = ['name']
-
-    def __unicode__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return ('project_bundle_detail', (), {'slug': self.slug})
-    #get_absolute_url = models.permalink(get_absolute_url)

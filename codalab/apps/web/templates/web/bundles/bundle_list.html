@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
+{% block head_title %}Bundles{% endblock head_title %}
+{% block page_title %}Bundles{% endblock page_title %}
+
 {% block content %}
-
-<h3>Bundle List</h3>
-<hr>
-
-{% for bundle in bundles %}
-    <p>Type: {{ bundle.bundle_type }}</p>
-    <p>UUID: <a href="/bundles/{{bundle.uuid}}"> {{ bundle.uuid }}</a></p>
-    <p>Hash: {{ bundle.data_hash }}</p>
-    <p>State: {{ bundle.state }}</p>
-    <p>Metadata: {{ bundle.metadata }}</p>
-    <hr>
-{% endfor %}
-
-
-
+<div class="row">
+    <div class="large-9 columns">
+        {% for bundle in bundles %}
+        <p>Type: {{ bundle.bundle_type }}</p>
+        <p>UUID: <a href="/bundles/{{bundle.uuid}}"> {{ bundle.uuid }}</a></p>
+        <p>Hash: {{ bundle.data_hash }}</p>
+        <p>State: {{ bundle.state }}</p>
+        <p>Metadata: {{ bundle.metadata }}</p>
+        <hr>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

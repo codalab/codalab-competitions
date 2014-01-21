@@ -77,7 +77,3 @@ admin.site.register(models.PageContainer, PageContainerAdmin)
 class PageAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Page, PageAdmin)
-
-class BundleAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(models.Bundle, BundleAdmin)
