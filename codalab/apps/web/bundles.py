@@ -1,7 +1,7 @@
 
 from django.conf import settings
 
-if len(settings.BUNDLE_SERVICE_CODE_PATH) > 0:
+if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.client.remote_bundle_client import RemoteBundleClient
 
     class BundleService():
