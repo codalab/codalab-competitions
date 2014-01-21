@@ -208,11 +208,11 @@ def build():
     """
     require('configuration')
 
-    pip_cache_dir = "/".join(['builds', 'pip_cache'])
-    if not exists(pip_cache_dir):
-        run('mkdir -p %s' % pip_cache_dir)
-    with cd(pip_cache_dir):
-        pip_download_cache = run('pwd')
+    #pip_cache_dir = "/".join(['builds', 'pip_cache'])
+    #if not exists(pip_cache_dir):
+    #    run('mkdir -p %s' % pip_cache_dir)
+    #with cd(pip_cache_dir):
+    #    pip_download_cache = run('pwd')
 
     build_dir = "/".join(['builds', env.git_user, env.git_repo])
     src_dir = "/".join([build_dir, env.git_tag])
@@ -231,9 +231,9 @@ def build():
         put(buf, settings_file)
     wheel_dir =  "/".join([src_dir, 'wheel_packages'])
     requirements_dir = "/".join([src_dir, 'codalab', 'requirements'])
-    run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
-                                                                                  wheel_dir,
-                                                                                  requirements_dir))
+    #run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
+    #                                                                              wheel_dir,
+    #                                                                              requirements_dir))
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
         run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
@@ -273,7 +273,8 @@ def deploy_web():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
             requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
-            pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
+            #pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
+            pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
             with cd('codalab'):
                 run('python manage.py config_gen')
