@@ -280,6 +280,31 @@ def deploy_web():
 
 @roles('web')
 @task
+def install_mysql():
+    """
+    Installs a local instance of MySQL of the web instance. This will only work
+    if the number of web instances is one.
+    """
+    require('configuration')
+    if len(env.roledefs['web']) <> 1:
+        raise(Exception("Task install_mysql requires exactly one web instance."))
+
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    dba_password = configuration.getDatabaseAdminPassword()
+    db_name = configuration.getDatabaseName()
+    db_user = configuration.getDatabaseUser()
+    db_password = configuration.getDatabasePassword()
+
+    sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
+    sudo('mysqladmin -u root password {0}'.format(dba_password))
+
+    cmds = ["create database {0};".format(db_name),
+            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
+    run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+
+@roles('web')
+@task
 def supervisor():
     """
     Starts the supervisor on the web instances.

@@ -186,7 +186,7 @@ class DeploymentConfig(BaseConfig):
         return self._svc['database']['user']
 
     def getDatabasePassword(self):
-        """Gets the database password."""
+        """Gets the password for the database user."""
         return self._svc['database']['password']
 
     def getDatabaseHost(self):
@@ -196,6 +196,10 @@ class DeploymentConfig(BaseConfig):
     def getDatabasePort(self):
         """Gets the database port."""
         return self._svc['database']['port']
+
+    def getDatabaseAdminPassword(self):
+        """Gets the password for the database admin."""
+        return self._svc['database']['admin_password']
 
     def getServicePublicStorageContainer(self):
         """Gets the name of the public Blob container for the service."""
