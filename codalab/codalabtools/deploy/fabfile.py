@@ -143,7 +143,7 @@ def provision_web():
     """
     packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
                 'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
-                'libmysqlclient-dev')
+                'libmysqlclient-dev mysql-client-core-5.5')
     provision_packages(packages)
 
 @task
@@ -271,6 +271,7 @@ def deploy_web():
         DJANGO_CONFIGURATION=env.django_configuration,
         CONFIG_HTTP_PORT=env.config_http_port,
         CONFIG_SERVER_NAME=env.config_server_name)
+    print env.SHELL_ENV
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
             requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
