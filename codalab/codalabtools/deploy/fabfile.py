@@ -142,7 +142,8 @@ def provision_web():
     Installs required software packages on a newly provisioned web instance.
     """
     packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
-                'libpcre3 libjpeg8 libpng3 nginx supervisor git')
+                'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
+                'libmysqlclient-dev')
     provision_packages(packages)
 
 @task
