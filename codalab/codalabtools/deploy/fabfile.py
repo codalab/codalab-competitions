@@ -143,7 +143,7 @@ def provision_web():
     """
     packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
                 'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
-                'libmysqlclient-dev mysql-client-core-5.5')
+                'libmysqlclient-dev mysql-client-core-5.5 uwsgi-plugin-python')
     provision_packages(packages)
 
 @task
