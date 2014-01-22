@@ -99,7 +99,7 @@ var Competition;
                     },
                     each: function (file, errors) {
                         if (errors.length > 0) {
-                            $('#details').html('The selected file is not a valid ZIP file under 100MB.');
+                            $('#details').html('The selected file is not a valid ZIP file under 256MB.');
                         }
                     },
                     success: function (response) {
