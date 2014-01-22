@@ -14,6 +14,5 @@ urlpatterns = patterns('',
                        url(r'^experiments/',
                            include('apps.web.urls.experiments')),
                        url(r'^help/', include('apps.web.urls.help')),
-                       url(r'^bundles/', include('apps.web.urls.bundles')),
-                       url(r'^runs/', include('apps.web.urls.runs'))
+                       url(r'^bundles/', include('apps.web.urls.bundles'))
                        )
