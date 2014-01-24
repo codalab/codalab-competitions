@@ -1,0 +1,3 @@
+[flake8]
+exclude: venv,scripts
+ignore: E501,F403

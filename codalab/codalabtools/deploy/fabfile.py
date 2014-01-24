@@ -88,8 +88,12 @@ def config(label=None):
     """
     env.cfg_label = label
     print "Deployment label is: ", env.cfg_label
+    filename = ".codalabconfig"
     if 'cfg_path' not in env:
-        env.cfg_path = os.path.join(os.environ['HOME'], '.codalabconfig')
+        if os.path.exists(filename):
+            env.cfg_path = os.path.join(os.getcwd(), filename)
+        elif os.path.exists(env.cfg_path):
+            env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
     print "Loading configuration from: ", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
@@ -138,7 +142,8 @@ def provision_web():
     Installs required software packages on a newly provisioned web instance.
     """
     packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
-                'libpcre3 libjpeg8 libpng3 nginx supervisor git')
+                'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
+                'libmysqlclient-dev mysql-client-core-5.5 uwsgi-plugin-python')
     provision_packages(packages)
 
 @task
@@ -204,14 +209,14 @@ def build():
     """
     require('configuration')
 
-    pip_cache_dir = os.path.join('builds', 'pip_cache')
-    if not exists(pip_cache_dir):
-        run('mkdir -p %s' % pip_cache_dir)
-    with cd(pip_cache_dir):
-        pip_download_cache = run('pwd')
+    #pip_cache_dir = "/".join(['builds', 'pip_cache'])
+    #if not exists(pip_cache_dir):
+    #    run('mkdir -p %s' % pip_cache_dir)
+    #with cd(pip_cache_dir):
+    #    pip_download_cache = run('pwd')
 
-    build_dir = os.path.join('builds', env.git_user, env.git_repo)
-    src_dir = os.path.join(build_dir, env.git_tag)
+    build_dir = "/".join(['builds', env.git_user, env.git_repo])
+    src_dir = "/".join([build_dir, env.git_tag])
     if exists(src_dir):
         run('rm -rf %s' % (src_dir.rstrip('/')))
     with settings(warn_only=True):
@@ -223,13 +228,13 @@ def build():
         dep = Deployment(configuration)
         buf = StringIO()
         buf.write(dep.getSettingsFileContent())
-        settings_file = os.path.join('codalab', 'codalab', 'settings', 'local.py')
+        settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
         put(buf, settings_file)
-    wheel_dir = os.path.join(src_dir, 'wheel_packages')
-    requirements_dir = os.path.join(src_dir, 'codalab', 'requirements')
-    run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
-                                                                                  wheel_dir,
-                                                                                  requirements_dir))
+    wheel_dir =  "/".join([src_dir, 'wheel_packages'])
+    requirements_dir = "/".join([src_dir, 'codalab', 'requirements'])
+    #run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
+    #                                                                              wheel_dir,
+    #                                                                              requirements_dir))
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
         run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
@@ -241,7 +246,7 @@ def push_build():
     Pushes the output of the build task to the instances where the build artifacts will be installed.
     """
     require('configuration')
-    build_dir = os.path.join('builds', env.git_user, env.git_repo)
+    build_dir = "/".join(['builds', env.git_user, env.git_repo])
     with cd(build_dir):
         for host in env.roledefs['web']:
             parts = host.split(':', 1)
@@ -266,10 +271,12 @@ def deploy_web():
         DJANGO_CONFIGURATION=env.django_configuration,
         CONFIG_HTTP_PORT=env.config_http_port,
         CONFIG_SERVER_NAME=env.config_server_name)
+    print env.SHELL_ENV
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
-            requirements_path = os.path.join('codalab', 'requirements', 'dev_azure_nix.txt')
-            pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
+            requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
+            #pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
+            pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
             with cd('codalab'):
                 run('python manage.py config_gen')

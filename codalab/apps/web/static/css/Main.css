@@ -2343,7 +2343,7 @@ ul.leftNavigation li.active a{
     height:18px;
     width:18px;
     display:inline-block;
-    margin-top:5px;
+    margin: 5px 0 5px 0;
 }
 .helpLinkIcon:hover {
     background: url('../img/helpicon.png') no-repeat center center;
@@ -2489,9 +2489,13 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
-    padding: 1em 0 .3em 0;
+    padding: 0;
     cursor: default;
     display: inline-block;
+}
+
+#edit_competition .fieldWrapper {
+    margin-bottom: 5px;
 }
 #edit_competition input, #edit_competition textarea, #edit_competition p {
     color: #666;

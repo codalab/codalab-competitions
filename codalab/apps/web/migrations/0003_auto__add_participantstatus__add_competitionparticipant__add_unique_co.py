@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -10,387 +9,592 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'ParticipantStatus'
         db.create_table(u'web_participantstatus', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('codename', self.gf('django.db.models.fields.CharField')(unique=True, max_length=30)),
-            ('description', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=30)),
+            ('codename', self.gf('django.db.models.fields.CharField')
+             (unique=True, max_length=30)),
+            ('description', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
         ))
         db.send_create_signal(u'web', ['ParticipantStatus'])
 
         # Adding model 'CompetitionParticipant'
         db.create_table(u'web_competitionparticipant', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='participation', to=orm['authenz.ClUser'])),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='participants', to=orm['web.Competition'])),
-            ('status', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.ParticipantStatus'])),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='participation', to=orm['authenz.ClUser'])),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='participants', to=orm['web.Competition'])),
+            ('status', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.ParticipantStatus'])),
+            ('reason', self.gf('django.db.models.fields.CharField')
+             (max_length=100, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['CompetitionParticipant'])
 
-        # Adding unique constraint on 'CompetitionParticipant', fields ['user', 'competition']
-        db.create_unique(u'web_competitionparticipant', ['user_id', 'competition_id'])
+        # Adding unique constraint on 'CompetitionParticipant', fields ['user',
+        # 'competition']
+        db.create_unique(u'web_competitionparticipant',
+                         ['user_id', 'competition_id'])
 
         # Adding model 'Run'
         db.create_table(u'web_run', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('bundle', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.Bundle'])),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255)),
-            ('metadata', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('programPath', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('inputPath', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('outputPath', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('cellout', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('bundle', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.Bundle'])),
+            ('created', self.gf('django.db.models.fields.DateTimeField')
+             (auto_now_add=True, blank=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=255)),
+            ('metadata', self.gf('django.db.models.fields.CharField')
+             (max_length=255)),
+            ('programPath', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('inputPath', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('outputPath', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('cellout', self.gf('django.db.models.fields.FloatField')
+             (null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['Run'])
 
         # Adding model 'SubmissionComputedScore'
         db.create_table(u'web_submissioncomputedscore', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('scoredef', self.gf('django.db.models.fields.related.OneToOneField')(related_name='computed_score', unique=True, to=orm['web.SubmissionScoreDef'])),
-            ('operation', self.gf('django.db.models.fields.CharField')(max_length=10)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('scoredef', self.gf('django.db.models.fields.related.OneToOneField')
+             (related_name='computed_score', unique=True, to=orm['web.SubmissionScoreDef'])),
+            ('operation', self.gf('django.db.models.fields.CharField')
+             (max_length=10)),
         ))
         db.send_create_signal(u'web', ['SubmissionComputedScore'])
 
         # Adding model 'ExternalFileSource'
         db.create_table(u'web_externalfilesource', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=50)),
-            ('service_url', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=50)),
+            ('service_url', self.gf('django.db.models.fields.URLField')
+             (max_length=200, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['ExternalFileSource'])
 
         # Adding model 'SubmissionScoreDefGroup'
         db.create_table(u'web_submissionscoredefgroup', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionScoreDef'])),
-            ('group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionResultGroup'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionScoreDef'])),
+            ('group', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionResultGroup'])),
         ))
         db.send_create_signal(u'web', ['SubmissionScoreDefGroup'])
 
-        # Adding unique constraint on 'SubmissionScoreDefGroup', fields ['scoredef', 'group']
-        db.create_unique(u'web_submissionscoredefgroup', ['scoredef_id', 'group_id'])
+        # Adding unique constraint on 'SubmissionScoreDefGroup', fields
+        # ['scoredef', 'group']
+        db.create_unique(u'web_submissionscoredefgroup',
+                         ['scoredef_id', 'group_id'])
 
         # Adding model 'PhaseLeaderBoard'
         db.create_table(u'web_phaseleaderboard', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('phase', self.gf('django.db.models.fields.related.OneToOneField')(related_name='board', unique=True, to=orm['web.CompetitionPhase'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('phase', self.gf('django.db.models.fields.related.OneToOneField')
+             (related_name='board', unique=True, to=orm['web.CompetitionPhase'])),
         ))
         db.send_create_signal(u'web', ['PhaseLeaderBoard'])
 
         # Adding model 'Bundle'
         db.create_table(u'web_bundle', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('path', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('inputpath', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('outputpath', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=50, blank=True)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('version', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('metadata', self.gf('django.db.models.fields.CharField')(max_length=500)),
-            ('private', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('path', self.gf('django.db.models.fields.CharField')
+             (max_length=100, blank=True)),
+            ('inputpath', self.gf('django.db.models.fields.CharField')
+             (max_length=100, blank=True)),
+            ('outputpath', self.gf('django.db.models.fields.CharField')
+             (max_length=100, blank=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')
+             (auto_now_add=True, blank=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('slug', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=50, blank=True)),
+            ('description',
+             self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('version', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('metadata', self.gf('django.db.models.fields.CharField')
+             (max_length=500)),
+            ('private', self.gf('django.db.models.fields.BooleanField')
+             (default=False)),
         ))
         db.send_create_signal(u'web', ['Bundle'])
 
         # Adding model 'DefaultContentItem'
         db.create_table(u'web_defaultcontentitem', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('category', self.gf('mptt.fields.TreeForeignKey')(to=orm['web.ContentCategory'])),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=100)),
-            ('rank', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('required', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('initial_visibility', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.ContentVisibility'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('category', self.gf('mptt.fields.TreeForeignKey')
+             (to=orm['web.ContentCategory'])),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=100)),
+            ('rank', self.gf('django.db.models.fields.IntegerField')
+             (default=0)),
+            ('required', self.gf('django.db.models.fields.BooleanField')
+             (default=False)),
+            ('initial_visibility', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.ContentVisibility'])),
         ))
         db.send_create_signal(u'web', ['DefaultContentItem'])
 
         # Adding model 'ExternalFileType'
         db.create_table(u'web_externalfiletype', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=20)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=20)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=20)),
         ))
         db.send_create_signal(u'web', ['ExternalFileType'])
 
         # Adding model 'Page'
         db.create_table(u'web_page', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('category', self.gf('mptt.fields.TreeForeignKey')(to=orm['web.ContentCategory'])),
-            ('defaults', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.DefaultContentItem'], null=True, blank=True)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(max_length=100)),
-            ('container', self.gf('django.db.models.fields.related.ForeignKey')(related_name='pages', to=orm['web.PageContainer'])),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('rank', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('visibility', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('markup', self.gf('django.db.models.fields.TextField')(blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('category', self.gf('mptt.fields.TreeForeignKey')
+             (to=orm['web.ContentCategory'])),
+            ('defaults', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.DefaultContentItem'], null=True, blank=True)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (max_length=100)),
+            ('container', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='pages', to=orm['web.PageContainer'])),
+            ('title', self.gf('django.db.models.fields.CharField')
+             (max_length=100, null=True, blank=True)),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('rank', self.gf('django.db.models.fields.IntegerField')
+             (default=0)),
+            ('visibility', self.gf('django.db.models.fields.BooleanField')
+             (default=True)),
+            ('markup', self.gf('django.db.models.fields.TextField')
+             (blank=True)),
             ('html', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal(u'web', ['Page'])
 
-        # Adding unique constraint on 'Page', fields ['label', 'category', 'container']
+        # Adding unique constraint on 'Page', fields ['label', 'category',
+        # 'container']
         db.create_unique(u'web_page', ['label', 'category_id', 'container_id'])
 
         # Adding model 'SubmissionComputedScoreField'
         db.create_table(u'web_submissioncomputedscorefield', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('computed', self.gf('django.db.models.fields.related.ForeignKey')(related_name='fields', to=orm['web.SubmissionComputedScore'])),
-            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionScoreDef'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('computed', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='fields', to=orm['web.SubmissionComputedScore'])),
+            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionScoreDef'])),
         ))
         db.send_create_signal(u'web', ['SubmissionComputedScoreField'])
 
         # Adding model 'SubmissionScoreDef'
         db.create_table(u'web_submissionscoredef', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.Competition'])),
-            ('key', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('sorting', self.gf('django.db.models.fields.SlugField')(default='asc', max_length=20)),
-            ('numeric_format', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('show_rank', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('selection_default', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('computed', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.Competition'])),
+            ('key', self.gf('django.db.models.fields.SlugField')
+             (max_length=50)),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('sorting', self.gf('django.db.models.fields.SlugField')
+             (default='asc', max_length=20)),
+            ('numeric_format', self.gf('django.db.models.fields.CharField')
+             (max_length=20, null=True, blank=True)),
+            ('show_rank', self.gf('django.db.models.fields.BooleanField')
+             (default=False)),
+            ('selection_default',
+             self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('computed', self.gf('django.db.models.fields.BooleanField')
+             (default=False)),
         ))
         db.send_create_signal(u'web', ['SubmissionScoreDef'])
 
-        # Adding unique constraint on 'SubmissionScoreDef', fields ['key', 'competition']
+        # Adding unique constraint on 'SubmissionScoreDef', fields ['key',
+        # 'competition']
         db.create_unique(u'web_submissionscoredef', ['key', 'competition_id'])
 
         # Adding model 'PageContainer'
         db.create_table(u'web_pagecontainer', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=200, blank=True)),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
         ))
         db.send_create_signal(u'web', ['PageContainer'])
 
-        # Adding unique constraint on 'PageContainer', fields ['object_id', 'content_type']
-        db.create_unique(u'web_pagecontainer', ['object_id', 'content_type_id'])
+        # Adding unique constraint on 'PageContainer', fields ['object_id',
+        # 'content_type']
+        db.create_unique(u'web_pagecontainer',
+                         ['object_id', 'content_type_id'])
 
         # Adding model 'ExternalFile'
         db.create_table(u'web_externalfile', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.ExternalFileType'])),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['authenz.ClUser'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('source_url', self.gf('django.db.models.fields.URLField')(max_length=200)),
-            ('source_address_info', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('type', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.ExternalFileType'])),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['authenz.ClUser'])),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('source_url', self.gf('django.db.models.fields.URLField')
+             (max_length=200)),
+            ('source_address_info', self.gf('django.db.models.fields.CharField')
+             (max_length=200, blank=True)),
         ))
         db.send_create_signal(u'web', ['ExternalFile'])
 
         # Adding model 'CompetitionDefBundle'
         db.create_table(u'web_competitiondefbundle', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('config_bundle', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owner', to=orm['authenz.ClUser'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('config_bundle', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100)),
+            ('owner', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='owner', to=orm['authenz.ClUser'])),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')()),
         ))
         db.send_create_signal(u'web', ['CompetitionDefBundle'])
 
         # Adding model 'Dataset'
         db.create_table(u'web_dataset', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='datasets', to=orm['authenz.ClUser'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='datasets', to=orm['authenz.ClUser'])),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
             ('description', self.gf('django.db.models.fields.TextField')()),
-            ('number', self.gf('django.db.models.fields.PositiveIntegerField')(default=1)),
-            ('datafile', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.ExternalFile'])),
+            ('number', self.gf('django.db.models.fields.PositiveIntegerField')
+             (default=1)),
+            ('datafile', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.ExternalFile'])),
         ))
         db.send_create_signal(u'web', ['Dataset'])
 
         # Adding model 'SubmissionScoreSet'
         db.create_table(u'web_submissionscoreset', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('parent', self.gf('mptt.fields.TreeForeignKey')(blank=True, related_name='children', null=True, to=orm['web.SubmissionScoreSet'])),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.Competition'])),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionScoreDef'], null=True, blank=True)),
-            ('lft', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('rght', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('tree_id', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('level', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('parent', self.gf('mptt.fields.TreeForeignKey')
+             (blank=True, related_name='children', null=True, to=orm['web.SubmissionScoreSet'])),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.Competition'])),
+            ('key', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionScoreDef'], null=True, blank=True)),
+            ('lft', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('rght', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('tree_id', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('level', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
         ))
         db.send_create_signal(u'web', ['SubmissionScoreSet'])
 
-        # Adding unique constraint on 'SubmissionScoreSet', fields ['key', 'competition']
+        # Adding unique constraint on 'SubmissionScoreSet', fields ['key',
+        # 'competition']
         db.create_unique(u'web_submissionscoreset', ['key', 'competition_id'])
 
         # Adding model 'CompetitionSubmissionStatus'
         db.create_table(u'web_competitionsubmissionstatus', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=20)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=20)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=20)),
         ))
         db.send_create_signal(u'web', ['CompetitionSubmissionStatus'])
 
         # Adding model 'SubmissionScore'
         db.create_table(u'web_submissionscore', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('result', self.gf('django.db.models.fields.related.ForeignKey')(related_name='scores', to=orm['web.CompetitionSubmission'])),
-            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionScoreDef'])),
-            ('value', self.gf('django.db.models.fields.DecimalField')(max_digits=20, decimal_places=10)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('result', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='scores', to=orm['web.CompetitionSubmission'])),
+            ('scoredef', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionScoreDef'])),
+            ('value', self.gf('django.db.models.fields.DecimalField')
+             (max_digits=20, decimal_places=10)),
         ))
         db.send_create_signal(u'web', ['SubmissionScore'])
 
-        # Adding unique constraint on 'SubmissionScore', fields ['result', 'scoredef']
+        # Adding unique constraint on 'SubmissionScore', fields ['result',
+        # 'scoredef']
         db.create_unique(u'web_submissionscore', ['result_id', 'scoredef_id'])
 
         # Adding model 'SubmissionResultGroupPhase'
         db.create_table(u'web_submissionresultgroupphase', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.SubmissionResultGroup'])),
-            ('phase', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.CompetitionPhase'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('group', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.SubmissionResultGroup'])),
+            ('phase', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.CompetitionPhase'])),
         ))
         db.send_create_signal(u'web', ['SubmissionResultGroupPhase'])
 
-        # Adding unique constraint on 'SubmissionResultGroupPhase', fields ['group', 'phase']
-        db.create_unique(u'web_submissionresultgroupphase', ['group_id', 'phase_id'])
+        # Adding unique constraint on 'SubmissionResultGroupPhase', fields
+        # ['group', 'phase']
+        db.create_unique(u'web_submissionresultgroupphase',
+                         ['group_id', 'phase_id'])
 
         # Adding model 'CompetitionSubmission'
         db.create_table(u'web_competitionsubmission', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('participant', self.gf('django.db.models.fields.related.ForeignKey')(related_name='submissions', to=orm['web.CompetitionParticipant'])),
-            ('phase', self.gf('django.db.models.fields.related.ForeignKey')(related_name='submissions', to=orm['web.CompetitionPhase'])),
-            ('file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('file_url_base', self.gf('django.db.models.fields.CharField')(max_length=2000, blank=True)),
-            ('inputfile', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('runfile', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('submitted_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('execution_key', self.gf('django.db.models.fields.TextField')(default='', blank=True)),
-            ('status', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.CompetitionSubmissionStatus'])),
-            ('status_details', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('submission_number', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
-            ('output_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('stdout_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('stderr_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('participant', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='submissions', to=orm['web.CompetitionParticipant'])),
+            ('phase', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='submissions', to=orm['web.CompetitionPhase'])),
+            ('file', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('file_url_base', self.gf('django.db.models.fields.CharField')
+             (max_length=2000, blank=True)),
+            ('inputfile', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('runfile', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('submitted_at', self.gf('django.db.models.fields.DateTimeField')
+             (auto_now_add=True, blank=True)),
+            ('execution_key', self.gf('django.db.models.fields.TextField')
+             (default='', blank=True)),
+            ('status', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.CompetitionSubmissionStatus'])),
+            ('status_details', self.gf('django.db.models.fields.CharField')
+             (max_length=100, null=True, blank=True)),
+            ('submission_number',
+             self.gf(
+                 'django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('output_file', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('stdout_file', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('stderr_file', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['CompetitionSubmission'])
 
-        # Adding unique constraint on 'CompetitionSubmission', fields ['submission_number', 'phase', 'participant']
-        db.create_unique(u'web_competitionsubmission', ['submission_number', 'phase_id', 'participant_id'])
+        # Adding unique constraint on 'CompetitionSubmission', fields
+        # ['submission_number', 'phase', 'participant']
+        db.create_unique(u'web_competitionsubmission',
+                         ['submission_number', 'phase_id', 'participant_id'])
 
         # Adding model 'ContentCategory'
         db.create_table(u'web_contentcategory', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('parent', self.gf('mptt.fields.TreeForeignKey')(blank=True, related_name='children', null=True, to=orm['web.ContentCategory'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=100)),
-            ('visibility', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.ContentVisibility'])),
-            ('is_menu', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('content_limit', self.gf('django.db.models.fields.PositiveIntegerField')(default=1)),
-            ('lft', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('rght', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('tree_id', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
-            ('level', self.gf('django.db.models.fields.PositiveIntegerField')(db_index=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('parent', self.gf('mptt.fields.TreeForeignKey')
+             (blank=True, related_name='children', null=True, to=orm['web.ContentCategory'])),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=100)),
+            ('visibility', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.ContentVisibility'])),
+            ('is_menu', self.gf('django.db.models.fields.BooleanField')
+             (default=True)),
+            ('content_limit',
+             self.gf(
+                 'django.db.models.fields.PositiveIntegerField')(default=1)),
+            ('lft', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('rght', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('tree_id', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
+            ('level', self.gf('django.db.models.fields.PositiveIntegerField')
+             (db_index=True)),
         ))
         db.send_create_signal(u'web', ['ContentCategory'])
 
         # Adding model 'CompetitionPhase'
         db.create_table(u'web_competitionphase', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='phases', to=orm['web.Competition'])),
-            ('phasenumber', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=50, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='phases', to=orm['web.Competition'])),
+            ('phasenumber',
+             self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=50, blank=True)),
             ('start_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('max_submissions', self.gf('django.db.models.fields.PositiveIntegerField')(default=100)),
-            ('is_scoring_only', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('scoring_program', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('reference_data', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('input_data', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            ('max_submissions',
+             self.gf(
+                 'django.db.models.fields.PositiveIntegerField')(default=100)),
+            ('is_scoring_only',
+             self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('scoring_program', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('reference_data', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('input_data', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['CompetitionPhase'])
 
         # Adding M2M table for field datasets on 'CompetitionPhase'
         m2m_table_name = db.shorten_name(u'web_competitionphase_datasets')
         db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('competitionphase', models.ForeignKey(orm[u'web.competitionphase'], null=False)),
+            ('id', models.AutoField(verbose_name='ID',
+             primary_key=True, auto_created=True)),
+            ('competitionphase',
+             models.ForeignKey(orm[u'web.competitionphase'], null=False)),
             ('dataset', models.ForeignKey(orm[u'web.dataset'], null=False))
         ))
         db.create_unique(m2m_table_name, ['competitionphase_id', 'dataset_id'])
 
         # Adding model 'PhaseLeaderBoardEntry'
         db.create_table(u'web_phaseleaderboardentry', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('board', self.gf('django.db.models.fields.related.ForeignKey')(related_name='entries', to=orm['web.PhaseLeaderBoard'])),
-            ('result', self.gf('django.db.models.fields.related.ForeignKey')(related_name='leaderboard_entry_result', to=orm['web.CompetitionSubmission'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('board', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='entries', to=orm['web.PhaseLeaderBoard'])),
+            ('result', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='leaderboard_entry_result', to=orm['web.CompetitionSubmission'])),
         ))
         db.send_create_signal(u'web', ['PhaseLeaderBoardEntry'])
 
-        # Adding unique constraint on 'PhaseLeaderBoardEntry', fields ['board', 'result']
-        db.create_unique(u'web_phaseleaderboardentry', ['board_id', 'result_id'])
+        # Adding unique constraint on 'PhaseLeaderBoardEntry', fields ['board',
+        # 'result']
+        db.create_unique(u'web_phaseleaderboardentry',
+                         ['board_id', 'result_id'])
 
         # Adding model 'Competition'
         db.create_table(u'web_competition', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('image', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('image_url_base', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('has_registration', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(related_name='competitioninfo_creator', to=orm['authenz.ClUser'])),
-            ('modified_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='competitioninfo_modified_by', to=orm['authenz.ClUser'])),
-            ('last_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('published', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('title', self.gf('django.db.models.fields.CharField')
+             (max_length=100)),
+            ('description', self.gf('django.db.models.fields.TextField')
+             (null=True, blank=True)),
+            ('image', self.gf('django.db.models.fields.files.FileField')
+             (max_length=100, null=True, blank=True)),
+            ('image_url_base', self.gf('django.db.models.fields.CharField')
+             (max_length=255)),
+            ('has_registration',
+             self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('end_date', self.gf('django.db.models.fields.DateTimeField')
+             (null=True, blank=True)),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='competitioninfo_creator', to=orm['authenz.ClUser'])),
+            ('modified_by', self.gf('django.db.models.fields.related.ForeignKey')
+             (related_name='competitioninfo_modified_by', to=orm['authenz.ClUser'])),
+            ('last_modified', self.gf('django.db.models.fields.DateTimeField')
+             (auto_now_add=True, blank=True)),
+            ('published', self.gf('django.db.models.fields.BooleanField')
+             (default=False)),
         ))
         db.send_create_signal(u'web', ['Competition'])
 
         # Adding model 'ContentVisibility'
         db.create_table(u'web_contentvisibility', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('codename', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=20)),
-            ('classname', self.gf('django.db.models.fields.CharField')(max_length=30, null=True, blank=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')
+             (max_length=20)),
+            ('codename', self.gf('django.db.models.fields.SlugField')
+             (unique=True, max_length=20)),
+            ('classname', self.gf('django.db.models.fields.CharField')
+             (max_length=30, null=True, blank=True)),
         ))
         db.send_create_signal(u'web', ['ContentVisibility'])
 
         # Adding model 'SubmissionResultGroup'
         db.create_table(u'web_submissionresultgroup', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('competition', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.Competition'])),
-            ('key', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('label', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('ordering', self.gf('django.db.models.fields.PositiveIntegerField')(default=1)),
+            (u'id', self.gf('django.db.models.fields.AutoField')
+             (primary_key=True)),
+            ('competition', self.gf('django.db.models.fields.related.ForeignKey')
+             (to=orm['web.Competition'])),
+            ('key', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('label', self.gf('django.db.models.fields.CharField')
+             (max_length=50)),
+            ('ordering', self.gf('django.db.models.fields.PositiveIntegerField')
+             (default=1)),
         ))
         db.send_create_signal(u'web', ['SubmissionResultGroup'])
 
-
     def backwards(self, orm):
-        # Removing unique constraint on 'PhaseLeaderBoardEntry', fields ['board', 'result']
-        db.delete_unique(u'web_phaseleaderboardentry', ['board_id', 'result_id'])
+        # Removing unique constraint on 'PhaseLeaderBoardEntry', fields
+        # ['board', 'result']
+        db.delete_unique(u'web_phaseleaderboardentry',
+                         ['board_id', 'result_id'])
 
-        # Removing unique constraint on 'CompetitionSubmission', fields ['submission_number', 'phase', 'participant']
-        db.delete_unique(u'web_competitionsubmission', ['submission_number', 'phase_id', 'participant_id'])
+        # Removing unique constraint on 'CompetitionSubmission', fields
+        # ['submission_number', 'phase', 'participant']
+        db.delete_unique(u'web_competitionsubmission',
+                         ['submission_number', 'phase_id', 'participant_id'])
 
-        # Removing unique constraint on 'SubmissionResultGroupPhase', fields ['group', 'phase']
-        db.delete_unique(u'web_submissionresultgroupphase', ['group_id', 'phase_id'])
+        # Removing unique constraint on 'SubmissionResultGroupPhase', fields
+        # ['group', 'phase']
+        db.delete_unique(u'web_submissionresultgroupphase',
+                         ['group_id', 'phase_id'])
 
-        # Removing unique constraint on 'SubmissionScore', fields ['result', 'scoredef']
+        # Removing unique constraint on 'SubmissionScore', fields ['result',
+        # 'scoredef']
         db.delete_unique(u'web_submissionscore', ['result_id', 'scoredef_id'])
 
-        # Removing unique constraint on 'SubmissionScoreSet', fields ['key', 'competition']
+        # Removing unique constraint on 'SubmissionScoreSet', fields ['key',
+        # 'competition']
         db.delete_unique(u'web_submissionscoreset', ['key', 'competition_id'])
 
-        # Removing unique constraint on 'PageContainer', fields ['object_id', 'content_type']
-        db.delete_unique(u'web_pagecontainer', ['object_id', 'content_type_id'])
+        # Removing unique constraint on 'PageContainer', fields ['object_id',
+        # 'content_type']
+        db.delete_unique(u'web_pagecontainer',
+                         ['object_id', 'content_type_id'])
 
-        # Removing unique constraint on 'SubmissionScoreDef', fields ['key', 'competition']
+        # Removing unique constraint on 'SubmissionScoreDef', fields ['key',
+        # 'competition']
         db.delete_unique(u'web_submissionscoredef', ['key', 'competition_id'])
 
-        # Removing unique constraint on 'Page', fields ['label', 'category', 'container']
+        # Removing unique constraint on 'Page', fields ['label', 'category',
+        # 'container']
         db.delete_unique(u'web_page', ['label', 'category_id', 'container_id'])
 
-        # Removing unique constraint on 'SubmissionScoreDefGroup', fields ['scoredef', 'group']
-        db.delete_unique(u'web_submissionscoredefgroup', ['scoredef_id', 'group_id'])
+        # Removing unique constraint on 'SubmissionScoreDefGroup', fields
+        # ['scoredef', 'group']
+        db.delete_unique(u'web_submissionscoredefgroup',
+                         ['scoredef_id', 'group_id'])
 
-        # Removing unique constraint on 'CompetitionParticipant', fields ['user', 'competition']
-        db.delete_unique(u'web_competitionparticipant', ['user_id', 'competition_id'])
+        # Removing unique constraint on 'CompetitionParticipant', fields
+        # ['user', 'competition']
+        db.delete_unique(u'web_competitionparticipant',
+                         ['user_id', 'competition_id'])
 
         # Deleting model 'ParticipantStatus'
         db.delete_table(u'web_participantstatus')
@@ -478,7 +682,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'SubmissionResultGroup'
         db.delete_table(u'web_submissionresultgroup')
-
 
     models = {
         u'auth.group': {

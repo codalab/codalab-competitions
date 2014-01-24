@@ -1,5 +1,6 @@
 from django.conf import settings
 
+
 def app_version_proc(request):
     "A context processor that provides 'app_version'."
     return {
