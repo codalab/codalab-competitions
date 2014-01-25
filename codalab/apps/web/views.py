@@ -14,6 +14,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
+from django.contrib.contenttypes import generic
 
 from apps.web import models
 from apps.web import forms
@@ -59,6 +60,11 @@ class LoginRequiredMixin(object):
 class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
+    extra = 0
+
+class PageContainersInline(generic.GenericStackedInline):
+    model = models.PageContainer
+    form_class = forms.PageContainerForm
     extra = 0
 
 class CompetitionUpload(LoginRequiredMixin, CreateView):

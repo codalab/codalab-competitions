@@ -15,6 +15,16 @@ class CompetitionPhaseForm(forms.ModelForm):
         model = models.CompetitionPhase
         fields = ('phasenumber', 'label', 'start_date', 'max_submissions', 'scoring_program', 'reference_data')
 
+class PageContainerForm(forms.ModelForm):
+    class Meta:
+        model = models.PageContainer
+        #fields = ()
+
+class PageForm(forms.ModelForm):
+    class Meta:
+        model = models.Page
+        fields = ('title', 'codename', 'container', 'label', 'rank', 'visibility', 'markup', 'html' )
+
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
