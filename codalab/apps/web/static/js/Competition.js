@@ -194,7 +194,6 @@ var Competition;
                 console.log(data);
                 if (data['status'] == "approved") {
                     location.reload();
-                    console.log("Approved, figuing out how to update the div.");
                 } else if (data['status'] == "pending") {
                     sOut = "<div class='participateInfoBlock pendingApproval'>"
                     sOut += "<div class='infoStatusBar'></div>"

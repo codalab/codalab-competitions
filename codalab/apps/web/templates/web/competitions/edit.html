@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load codalab %}
 
 {% block head_title %}Edit Competition{% endblock head_title %}
 {% block page_title %}Edit Competition{% endblock page_title %}
@@ -18,10 +19,40 @@
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
-        {{ form.as_p }}
-        <div class="competition-edit-phase">
+        {% for field in form %}
+            <div class="fieldWrapper">
+                <div class="row">
+                    {{ field.errors }}
+                    <div class="large-3 columns">
+                        <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
+                    </div>
+                    <div class="large-9 columns">
+                        {{ field }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="competition-edit-phase" style="border: 1px">
         {% for formset in inlines %}
-            {{ formset.as_p }}
+            {% for iform in formset %}
+                <fieldset>
+                    {% for ifield in iform %}
+                        <div class="fieldWrapper">
+                            <div class="row">
+                                {{ ifield.errors }}
+                                <div class="large-3 columns">
+                                    {% if not ifield.is_hidden %}
+                                        <label for="{{ifield.id_for_label}}" class="inline">{{ifield.label}}{{iform.label_suffix}}</label>
+                                    {% endif %}
+                                </div>
+                                <div class="large-9 columns">
+                                    {{ ifield }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}                
+                </fieldset> 
+            {% endfor %}
         {% endfor %}
         </div>
         <div class="row">
