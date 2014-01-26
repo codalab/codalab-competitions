@@ -316,10 +316,8 @@ def deploy_compute():
             with cd('codalab'):
                 # Write out configuration
                 run('python manage.py config_gen')
-                run("cp config/generated/.codalabconfig codalabtools/compute/.codalabconfig")
-
-                # Setup process to run at boot and get restarted if it crashes
-                print "This is where the compute worker gets configured for deployment."
+                run('cp config/generated/.codalabconfig codalabtools/compute/.codalabconfig')
+                run('cp config/generated/supervisor-compute.conf config/generated/supervisor.conf')
 
 @roles('web')
 @task
