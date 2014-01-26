@@ -344,7 +344,7 @@ def install_mysql():
             "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
     run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
-@roles('web')
+@roles('web', 'compute')
 @task
 def supervisor():
     """
@@ -354,7 +354,7 @@ def supervisor():
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisord -c codalab/config/generated/supervisor.conf')
 
-@roles('web')
+@roles('web', 'compute')
 @task
 def supervisor_stop():
     """
@@ -364,7 +364,7 @@ def supervisor_stop():
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
 
-@roles('web')
+@roles('web', 'compute')
 @task
 def supervisor_restart():
     """
@@ -386,7 +386,7 @@ def nginx_restart():
 # Maintenance and diagnostics
 #
 
-@roles('web')
+@roles('web', 'compute')
 @task
 def fetch_logs():
     """
