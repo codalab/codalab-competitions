@@ -153,6 +153,30 @@ class DeploymentConfig(BaseConfig):
         """Gets the base SSH port value. If this value is N, the k-th web instance will have SSH port number (N+k)."""
         return self._svc['vm']['ssh-port']
 
+    def getServiceInstanceName(self, number):
+        """Gets a compute node machine name."""
+        return '{0}{1}-{2}'.format(self.getServicePrefix(), self.label, number)
+
+    def getComputeOSImageName(self):
+        """Gets the name of the OS image used to create virtual machines in the service deployment."""
+        return self._svc['compute']['os-image']
+
+    def getComputeInstanceCount(self):
+        """Gets the number of virtual machines to create in the service deployment."""
+        return self._svc['compute']['count']
+
+    def getComputeInstanceRoleSize(self):
+        """Gets the role size for each virtual machine in the service deployment."""
+        return self._svc['compute']['role-size']
+
+    def getComputeInstanceSshPort(self):
+        """Gets the base SSH port value. If this value is N, the k-th web instance will have SSH port number (N+k)."""
+        return self._svc['compute']['ssh-port']
+
+    def getComputeInstanceName(self, number):
+        """Gets a compute node machine name."""
+        return '{0}{1}compute-{2}'.format(self.getServicePrefix(), self.label, number)
+
     def getGitUser(self):
         """Gets the name of the Git user associated with the target source code repository."""
         return self._svc['git']['user']
@@ -244,6 +268,15 @@ class DeploymentConfig(BaseConfig):
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
 
+    def getComputeHostnames(self):
+        """
+        Gets the list of compute instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
+        """
+        service_name = self.getServiceName()
+        vm_numbers = range(1, 1 + self.getComputeInstanceCount())
+        ssh_port = self.getComputeInstanceSshPort()
+        return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
 class Deployment(object):
     """
     Helper class to handle deployment of the web site.
@@ -294,6 +327,8 @@ class Deployment(object):
             result = self.sms.get_operation_status(request_id)
             now = time.time()
         if result.status != 'Succeeded':
+            print result.error.code
+            print result.error.message
             raise Exception("Operation terminated but it did not succeed.")
 
     def _wait_for_role_instance_status(self, role_instance_name, service_name, expected_status, timeout=600, wait=5):
@@ -565,6 +600,68 @@ class Deployment(object):
 
             logger.info("Role instance %s has been created.", vm_hostname)
 
+    def _ensureComputeVirtualMachinesExist(self):
+        """
+        Creates the VMs for the web site.
+        """
+        service_name = self.config.getServiceName()
+        cert_thumbprint = self.config.getServiceCertificateThumbprint()
+        vm_username = self.config.getVirtualMachineLogonUsername()
+        vm_password = self.config.getVirtualMachineLogonPassword()
+        vm_role_size = self.config.getComputeInstanceRoleSize()
+        vm_numbers = self.config.getComputeInstanceCount()
+        if vm_numbers < 1:
+            raise Exception("Detected an invalid number of instances: {0}.".format(vm_numbers))
+
+        self._assertOsImageExists(self.config.getComputeOSImageName())
+
+        role_instances = self._getRoleInstances(service_name)
+        for vm_number in range(1, vm_numbers+1):
+            vm_hostname = '{0}-compute-{1}'.format(service_name, vm_number)
+            if vm_hostname in role_instances:
+                logger.warn("Role instance %s already exists: skipping creation.", vm_hostname)
+                continue
+
+            logger.info("Role instance %s provisioning begins.", vm_hostname)
+            vm_diskname = '{0}.vhd'.format(vm_hostname)
+            vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(
+                self.config.getServiceStorageAccountName(), vm_diskname
+            )
+            ssh_port = str(self.config.getComputeInstanceSshPort() + vm_number)
+            os_hd = OSVirtualHardDisk(self.config.getComputeOSImageName(),
+                                      vm_disk_media_link,
+                                      disk_name = vm_diskname,
+                                      disk_label = vm_diskname)
+            linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
+            linux_config.ssh.public_keys.public_keys.append(
+                PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
+            )
+            linux_config.ssh.key_pairs.key_pairs.append(
+                KeyPair(cert_thumbprint, u'/home/{0}/.ssh/id_rsa'.format(vm_username))
+            )
+            network_config = ConfigurationSet()
+            network_config.configuration_set_type = 'NetworkConfiguration'
+            ssh_endpoint = ConfigurationSetInputEndpoint(name='SSH',
+                                                         protocol='TCP',
+                                                         port=ssh_port,
+                                                         local_port=u'22')
+            network_config.input_endpoints.input_endpoints.append(ssh_endpoint)
+
+            result = self.sms.add_role(service_name=service_name,
+                                        deployment_name=service_name,
+                                        role_name=vm_hostname,
+                                        system_config=linux_config,
+                                        os_virtual_hard_disk=os_hd,
+                                        network_config=network_config,
+                                        availability_set_name=service_name,
+                                        role_size=vm_role_size)
+            self._wait_for_operation_success(result.request_id,
+                                                timeout=self.config.getAzureOperationTimeout())
+            self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
+                                                self.config.getAzureOperationTimeout())
+
+            logger.info("Role instance %s has been created.", vm_hostname)
+
     def _deleteVirtualMachines(self, service_name):
         """
         Deletes the VMs in the given cloud service.
@@ -605,6 +702,7 @@ class Deployment(object):
                 disk_name = "{0}.vhd".format(role_instance_name)
                 self._wait_for_disk_deletion(disk_name)
             logger.info("Deployment %s deleted.", service_name)
+
 
     def _ensureBuildMachineExists(self):
         """
@@ -758,6 +856,9 @@ class Deployment(object):
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
             self._ensureServiceCertificateExists(self.config.getServiceName())
             self._ensureVirtualMachinesExist()
+        # Compute instances
+        if 'compute' in assets:
+            self._ensureComputeVirtualMachinesExist()
         #queues
         logger.info("Deployment operation is complete.")
 

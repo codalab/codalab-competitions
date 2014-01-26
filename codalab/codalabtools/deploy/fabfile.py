@@ -44,11 +44,13 @@ def _validate_asset_choice(choice):
     choice: One of 'all', 'build' or 'web'.
     """
     if choice == 'all':
-        assets = {'build', 'web'}
+        assets = {'build', 'web', 'compute'}
     elif choice == 'build':
         assets = {'build'}
     elif choice == 'web':
         assets = {'web'}
+    elif choice == 'compute':
+        assets = { 'compute' }
     else:
         raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
     return assets
@@ -66,7 +68,6 @@ def provision_packages(packages=None):
     sudo('pip install -U --force-reinstall pip')
     sudo('pip install -U --force-reinstall setuptools')
     sudo('pip install -U --force-reinstall virtualenvwrapper')
-    sudo('pip install -U --force-reinstall wheel')
 
 #
 # Tasks for reading configuration information.
@@ -106,7 +107,7 @@ def config(label=None):
     env.roledefs = { 'build' : [ configuration.getBuildHostname() ] }
 
     if label is not None:
-        env.roledefs.update({ 'web' : configuration.getWebHostnames() })
+        env.roledefs.update({ 'web' : configuration.getWebHostnames(), 'compute' : configuration.getComputeHostnames() })
         env.git_user = configuration.getGitUser()
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
@@ -147,14 +148,27 @@ def provision_web():
     provision_packages(packages)
 
 @task
+@roles('compute')
+def provision_compute():
+    """
+    Installs required software packages on a newly provisioned web instance.
+    """
+    packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
+                'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
+                'libmysqlclient-dev mysql-client-core-5.5 uwsgi-plugin-python ' +
+                'science-numericalcomputation')
+    provision_packages(packages)
+
+@task
 def provision(choice):
     """
     Provisions specified assets in the deployment.
 
     choice: Indicates which assets to provision:
-        'build' -> provision the build machine
-        'web'   -> provision the web instances
-        'all'   -> provision everything
+        'build'   -> provision the build machine
+        'web'     -> provision the web instances
+        'compute' -> provision the compute instances
+        'all'     -> provision everything
     """
     assets = _validate_asset_choice(choice)
     require('configuration')
@@ -168,6 +182,9 @@ def provision(choice):
     if 'web' in assets:
         logger.info("Installing sofware on web instances.")
         execute(provision_web)
+    if 'compute' in assets:
+        logger.info("Installing software on compute instances.")
+        execute(provision_compute)
     logger.info("Provisioning is complete.")
 
 @task
@@ -176,9 +193,10 @@ def teardown(choice):
     Deletes specified assets in the deployment. Be careful: there is no undoing!
 
     choice: Indicates which assets to delete:
-        'build' -> provision the build machine
-        'web'   -> provision the web instances
-        'all'   -> provision everything
+        'build'   -> teardown the build machine
+        'web'     -> teardown the web instances
+        'compute' -> teardown the compute instances
+        'all'     -> teardown everything
     """
     assets = _validate_asset_choice(choice)
     require('configuration')
@@ -189,7 +207,7 @@ def teardown(choice):
     logger.info("Teardown is complete.")
 
 @task
-@roles('build', 'web')
+@roles('build', 'web', 'compute')
 def test_connections():
     """
     Verifies that we can connect to all instances.
@@ -208,13 +226,6 @@ def build():
     Builds artifacts to install on the deployment instances.
     """
     require('configuration')
-
-    #pip_cache_dir = "/".join(['builds', 'pip_cache'])
-    #if not exists(pip_cache_dir):
-    #    run('mkdir -p %s' % pip_cache_dir)
-    #with cd(pip_cache_dir):
-    #    pip_download_cache = run('pwd')
-
     build_dir = "/".join(['builds', env.git_user, env.git_repo])
     src_dir = "/".join([build_dir, env.git_tag])
     if exists(src_dir):
@@ -230,11 +241,6 @@ def build():
         buf.write(dep.getSettingsFileContent())
         settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
         put(buf, settings_file)
-    wheel_dir =  "/".join([src_dir, 'wheel_packages'])
-    requirements_dir = "/".join([src_dir, 'codalab', 'requirements'])
-    #run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
-    #                                                                              wheel_dir,
-    #                                                                              requirements_dir))
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
         run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
@@ -248,7 +254,7 @@ def push_build():
     require('configuration')
     build_dir = "/".join(['builds', env.git_user, env.git_repo])
     with cd(build_dir):
-        for host in env.roledefs['web']:
+        for host in env.roledefs['web'] + env.roledefs['compute']:
             parts = host.split(':', 1)
             host = parts[0]
             port = parts[1]
@@ -275,7 +281,6 @@ def deploy_web():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
             requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
-            #pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
             pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
             with cd('codalab'):
@@ -284,6 +289,37 @@ def deploy_web():
                 run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+
+@roles('compute')
+@task
+def deploy_compute():
+    """
+    Installs the output of the build on the compute instances.
+    """
+    require('configuration')
+    if exists(env.deploy_dir):
+        run('rm -rf %s' % env.deploy_dir)
+    run('tar -xvzf %s' % env.build_archive)
+    run('mv %s deploy' % env.git_tag)
+    run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv venv')
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name)
+    print env.SHELL_ENV
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+            requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
+            pip_cmd = 'pip install -r {0}'.format(requirements_path)
+            run(pip_cmd)
+            with cd('codalab'):
+                # Write out configuration
+                run('python manage.py config_gen')
+                run('cp config/generated/.codalabconfig codalabtools/compute/.codalabconfig')
+
+                # Setup process to run at boot and get restarted if it crashes
+                print "This is where the compute worker gets configured for deployment."
 
 @roles('web')
 @task

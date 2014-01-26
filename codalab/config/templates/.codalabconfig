@@ -1,0 +1,29 @@
+compute-worker:
+    azure-storage:
+        account-name: "{{AZURE_ACCOUNT_NAME}}"
+        account-key: "{{AZURE_ACCOUNT_KEY}}"
+    azure-service-bus:
+        namespace: "{{SBS_NAMESPACE}}"
+        key: "{{SBS_ACCOUNT_KEY}}"
+        issuer: "{{SBS_ISSUER}}"
+        listen-to: "{{SBS_COMPUTE_QUEUE}}"
+    local-root: "/tmp"
+    logging:
+        version: 1
+        formatters:
+            simple:
+                format: '%(asctime)s %(levelname)s %(message)s'
+        handlers:
+            console:
+                class: logging.StreamHandler
+                level: DEBUG
+                formatter: simple
+                stream: ext://sys.stdout
+        loggers:
+            codalabtools:
+                level: DEBUG
+                handlers: [console]
+                propagate: no
+        root:
+          level: DEBUG
+          handlers: [console]
