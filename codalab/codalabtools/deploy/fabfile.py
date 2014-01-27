@@ -90,9 +90,8 @@ def config(label=None):
     print "Deployment label is: ", env.cfg_label
     filename = ".codalabconfig"
     if 'cfg_path' not in env:
-        if os.path.exists(filename):
-            env.cfg_path = os.path.join(os.getcwd(), filename)
-        elif os.path.exists(env.cfg_path):
+        env.cfg_path = os.path.join(os.getcwd(), filename)
+        if os.path.exists(env.cfg_path) == False:
             env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
     print "Loading configuration from: ", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
