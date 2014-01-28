@@ -22,7 +22,7 @@ from apps.web import tasks
 from apps.web.bundles import BundleService
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet
-
+from extra_views import generic
 try:
     import azure
     import azure.storage
@@ -62,9 +62,9 @@ class PhasesInline(InlineFormSet):
     form_class = forms.CompetitionPhaseForm
     extra = 0
 
-class PageContainersInline(generic.GenericStackedInline):
-    model = models.PageContainer
-    form_class = forms.PageContainerForm
+class PagesInline(InlineFormSet):
+    model = models.Page
+    form_class = forms.PageForm
     extra = 0
 
 class CompetitionUpload(LoginRequiredMixin, CreateView):
@@ -74,7 +74,7 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
 class CompetitionEdit(LoginRequiredMixin, UpdateWithInlinesView):
     model = models.Competition
     form_class = forms.CompetitionForm
-    inlines = [PhasesInline]
+    inlines = [PagesInline, PhasesInline]
     template_name = 'web/competitions/edit.html'
 
     def form_valid(self, form):
