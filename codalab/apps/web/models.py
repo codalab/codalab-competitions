@@ -93,35 +93,6 @@ class PageContainer(models.Model):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
 
-class Page(models.Model):
-    category = TreeForeignKey(ContentCategory)
-    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
-    codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages')
-    title = models.CharField(max_length=100, null=True, blank=True)
-    label = models.CharField(max_length=100)
-    rank = models.IntegerField(default=0)
-    visibility = models.BooleanField(default=True)
-    markup = models.TextField(blank=True)
-    html = models.TextField(blank=True)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        unique_together = (('label','category','container'),)
-        ordering = ['rank']
-
-    def save(self,*args,**kwargs):
-        if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label )
-        if self.defaults:
-            if self.category != self.defaults.category:
-                raise Exception("Defaults category must match Item category")
-            if self.defaults.required and self.visibility is False:
-                raise Exception("Item is required and must be visible")
-        return super(Page,self).save(*args,**kwargs)
-
 # External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -217,6 +188,36 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
+
+class Page(models.Model):
+    category = TreeForeignKey(ContentCategory)
+    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    codename = models.SlugField(max_length=100)
+    container = models.ForeignKey(PageContainer, related_name='pages')
+    title = models.CharField(max_length=100, null=True, blank=True)
+    label = models.CharField(max_length=100)
+    rank = models.IntegerField(default=0)
+    visibility = models.BooleanField(default=True)
+    markup = models.TextField(blank=True)
+    html = models.TextField(blank=True)
+    competition = models.ForeignKey(Competition, related_name='pages', null=True)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        unique_together = (('label','category','container'),)
+        ordering = ['rank']
+
+    def save(self,*args,**kwargs):
+        if not self.title:
+            self.title = "%s - %s" % ( self.container.name,self.label )
+        if self.defaults:
+            if self.category != self.defaults.category:
+                raise Exception("Defaults category must match Item category")
+            if self.defaults.required and self.visibility is False:
+                raise Exception("Item is required and must be visible")
+        return super(Page,self).save(*args,**kwargs)
 
 # Dataset model
 class Dataset(models.Model):
