@@ -1,4 +1,4 @@
-﻿{
+{
   "home": "~/.codalab",
   "client": {
     "class": "LocalBundleClient"
@@ -11,6 +11,6 @@
     "database": "{{BUNDLE_DB_NAME}}"
   },
   "server": {
-    "address": ["localhost", {{DB_PORT}}]
+    "address": ["localhost", {{BUNDLE_DB_PORT}}]
   }
 }
