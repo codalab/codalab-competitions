@@ -903,8 +903,8 @@ class Deployment(object):
             "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
             "",
             "    BUNDLE_SERVICE_URL = 'http://localhost:2800/'",
-            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/codalab/bundles'".format(self.config.getVirtualMachineLogonUsername()),
-            "    sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))",
+            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "",
         ]
