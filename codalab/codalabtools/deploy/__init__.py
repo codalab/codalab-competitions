@@ -178,7 +178,7 @@ class DeploymentConfig(BaseConfig):
         return self._svc['database']['engine']
 
     def getDatabaseName(self):
-        """Gets the database name."""
+        """Gets the Django site database name."""
         return self._svc['database']['name']
 
     def getDatabaseUser(self):
@@ -217,6 +217,22 @@ class DeploymentConfig(BaseConfig):
             name = '{0}{1}Bus'.format(cap(self.getServicePrefix()), cap(self.label))
         return name
 
+    def getSslCertificatePath(self):
+        """Gets the path of the SSL certificate file to install."""
+        return self._svc['ssl']['filename']
+
+    def getSslCertificateKeyPath(self):
+        """Gets the path of the SSL certificate key file to install."""
+        return self._svc['ssl']['key-filename']
+
+    def getSslCertificateInstalledPath(self):
+        """Gets the path of the installed SSL certificate file."""
+        return os.path.join('/etc', 'ssl', 'certs', os.path.basename(self.getSslCertificatePath()))
+
+    def getSslCertificateKeyInstalledPath(self):
+        """Gets the path of the installed SSL certificate key file."""
+        return os.path.join('/etc', 'ssl', 'private', os.path.basename(self.getSslCertificateKeyPath()))
+
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
         return "{0}build".format(self.getServicePrefix(), self.label)
@@ -243,6 +259,30 @@ class DeploymentConfig(BaseConfig):
         vm_numbers = range(1, 1 + self.getServiceInstanceCount())
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
+    def getBundleServiceGitUser(self):
+        """Gets the name of the Git user associated with the target source code repository for bundles."""
+        return self._svc['git-bundles']['user']
+
+    def getBundleServiceGitRepo(self):
+        """Gets the name of the Git of the target source code repository  for bundles."""
+        return self._svc['git-bundles']['repo']
+
+    def getBundleServiceGitTag(self):
+        """Gets the Git tag defining the specific version of the source code  for bundles."""
+        return self._svc['git-bundles']['tag']
+
+    def getBundleServiceDatabaseName(self):
+        """Gets the bundle service database name."""
+        return self._svc['database']['bundle_db_name']
+
+    def getBundleServiceDatabaseUser(self):
+        """Gets the database username."""
+        return self._svc['database']['bundle_user']
+
+    def getBundleServiceDatabasePassword(self):
+        """Gets the password for the database user."""
+        return self._svc['database']['bundle_password']
 
 class Deployment(object):
     """
@@ -805,6 +845,10 @@ class Deployment(object):
             "",
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
+            "    SSL_PORT = '443'",
+            "    SSL_CERTIFICATE = {0}".format(self.config.getSslCertificateInstalledPath()),
+            "    SSL_CERTIFICATE_KEY = ''".format(self.config.getSslCertificateKeyInstalledPath()),
+            "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
             "    AZURE_ACCOUNT_KEY = '{0}'".format(storage_key),
@@ -848,9 +892,18 @@ class Deployment(object):
             "            }",
             "        }",
             "    }",
+            "",
+            "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
+            "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
+            "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
+            "",
+            "    BUNDLE_SERVICE_URL = 'http://localhost:2800/'",
+            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))",
+            "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
+            "",
         ]
         return '\n'.join(lines)
-
 
 if __name__ == "__main__":
 
