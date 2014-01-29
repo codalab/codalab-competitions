@@ -11,6 +11,6 @@
     "database": "{{BUNDLE_DB_NAME}}"
   },
   "server": {
-    "address": ["localhost", {{BUNDLE_DB_PORT}}]
+    "address": ["localhost", 2800]
   }
 }

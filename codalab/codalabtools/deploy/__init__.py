@@ -901,7 +901,6 @@ class Deployment(object):
             "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
             "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
             "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
-            "    BUNDLE_DB_PORT = '{0}'".format(self.config.getDatabasePort()),
             "",
             "    BUNDLE_SERVICE_URL = 'http://localhost:2800/'",
             "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
