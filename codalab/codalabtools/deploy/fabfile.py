@@ -240,9 +240,9 @@ def build():
     with cd(src_dir_b):
         run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
     # Replace current bundles dir in main CodaLab other bundles repo.
-    bundles_dir = "/".join(src_dir, 'bundles')
+    bundles_dir = "/".join([src_dir, 'bundles'])
     run('rm -rf %s' % (bundles_dir.rstrip('/')))
-    run('mv %s %s' & (src_dir_b, bundles_dir))
+    run('mv %s %s' % (src_dir_b, bundles_dir))
     # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
@@ -343,9 +343,9 @@ def install_mysql(choice='all'):
         db_name = configuration.getBundleServiceDatabaseName()
         db_user = configuration.getBundleServiceDatabaseUser()
         db_password = configuration.getBundleServiceDatabasePassword()
-        cmds = ["create database '{0}';".format(db_name),
+        cmds = ["create database {0};".format(db_name),
                 "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-                "GRANT ALL PRIVILEGES ON '{0}'.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
+                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
         run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
 @roles('web')
