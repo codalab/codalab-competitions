@@ -1,0 +1,16 @@
+﻿{
+  "home": "~/.codalab",
+  "client": {
+    "class": "LocalBundleClient"
+  },
+  "model": {
+    "class": "MySQLModel",
+    "username": "{{BUNDLE_DB_USER}}",
+    "password": "{{BUNDLE_DB_PASSWORD}}",
+    "address": "localhost",
+    "database": "{{BUNDLE_DB_NAME}}"
+  },
+  "server": {
+    "address": ["localhost", {{DB_PORT}}]
+  }
+}
