@@ -463,8 +463,8 @@ class Deployment(object):
         account_name = self.config.getServiceStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
         blob_service = BlobService(account_name, account_key)
-        name_and_access_list = [ (self.config.getServicePublicStorageContainer(), 'blob'),
-                                 (self.config.getServiceBundleStorageContainer(), None) ]
+        name_and_access_list = [(self.config.getServicePublicStorageContainer(), 'blob'),
+                                (self.config.getServiceBundleStorageContainer(), None)]
         for name, access in name_and_access_list:
             logger.info("Checking for existence of Blob container %s.", name)
             blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
@@ -548,8 +548,8 @@ class Deployment(object):
 
             os_hd = OSVirtualHardDisk(self.config.getServiceOSImageName(),
                                       vm_disk_media_link,
-                                      disk_name = vm_diskname,
-                                      disk_label = vm_diskname)
+                                      disk_name=vm_diskname,
+                                      disk_label=vm_diskname)
             linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
             linux_config.ssh.public_keys.public_keys.append(
                 PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
@@ -573,7 +573,7 @@ class Deployment(object):
             http_endpoint.load_balancer_probe.protocol = 'TCP'
             network_config.input_endpoints.input_endpoints.append(http_endpoint)
 
-            if (vm_number == 1):
+            if vm_number == 1:
                 result = self.sms.create_virtual_machine_deployment(service_name=service_name,
                                                                     deployment_name=service_name,
                                                                     deployment_slot='Production',
@@ -668,8 +668,8 @@ class Deployment(object):
             vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(service_storage_name, vm_diskname)
             os_hd = OSVirtualHardDisk(self.config.getBuildOSImageName(),
                                       vm_disk_media_link,
-                                      disk_name = vm_diskname,
-                                      disk_label = vm_diskname)
+                                      disk_name=vm_diskname,
+                                      disk_label=vm_diskname)
             linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
             linux_config.ssh.public_keys.public_keys.append(
                 PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
@@ -696,7 +696,7 @@ class Deployment(object):
                                                                 availability_set_name=None,
                                                                 data_virtual_hard_disks=None,
                                                                 role_size=self.config.getBuildInstanceRoleSize())
-            self._wait_for_operation_success(result.request_id, timeout = self.config.getAzureOperationTimeout())
+            self._wait_for_operation_success(result.request_id, timeout=self.config.getAzureOperationTimeout())
             self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
                                                 self.config.getAzureOperationTimeout())
             logger.info("Role instance %s has been created.", vm_hostname)
@@ -755,7 +755,7 @@ class Deployment(object):
         logger.info("Checking for existence of Service Bus Queues.")
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
         sbs = ServiceBusService(namespace.name, namespace.default_key, issuer='owner')
-        queue_names = [ 'jobresponsequeue', 'windowscomputequeue', 'linuxcomputequeue' ]
+        queue_names = ['jobresponsequeue', 'windowscomputequeue', 'linuxcomputequeue']
         for name in queue_names:
             logger.info("Checking for existence of Queue %s.", name)
             sbs.create_queue(name, fail_on_exist=False)
@@ -829,7 +829,7 @@ class Deployment(object):
         """
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
-        allowed_hosts.extend(['www.codalab.org','codalab.org'])
+        allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
 
         storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())

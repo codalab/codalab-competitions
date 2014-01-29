@@ -61,7 +61,7 @@ def provision_packages(packages=None):
         sudo apt-get -y install <packages>
     """
     sudo('apt-get update')
-    sudo('apt-get -y install %s' % packages )
+    sudo('apt-get -y install %s' % packages)
     sudo('easy_install pip')
     sudo('pip install -U --force-reinstall pip')
     sudo('pip install -U --force-reinstall setuptools')
@@ -102,19 +102,19 @@ def config(label=None):
     env.user = configuration.getVirtualMachineLogonUsername()
     env.password = configuration.getVirtualMachineLogonPassword()
     env.key_filename = configuration.getServiceCertificateKeyFilename()
-    env.roledefs = { 'build' : [ configuration.getBuildHostname() ] }
+    env.roledefs = {'build' : [configuration.getBuildHostname()]}
 
     if label is not None:
-        env.roledefs.update({ 'web' : configuration.getWebHostnames() })
+        env.roledefs.update({'web' : configuration.getWebHostnames()})
         # Information about main CodaLab repo
         env.git_user = configuration.getGitUser()
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
         env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
         # Information about Bundles repo
-        env.git_bundles_user = configuration.getBundlesServiceGitUser()
-        env.git_bundles_repo = configuration.getBundlesServiceGitRepo()
-        env.git_bundles_tag = configuration.getBundlesServiceGitTag()
+        env.git_bundles_user = configuration.getBundleServiceGitUser()
+        env.git_bundles_repo = configuration.getBundleServiceGitRepo()
+        env.git_bundles_tag = configuration.getBundleServiceGitTag()
         env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
         env.deploy_dir = 'deploy'
         env.build_archive = '{0}.tar.gz'.format(env.git_tag)
@@ -240,9 +240,9 @@ def build():
     with cd(src_dir_b):
         run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
     # Replace current bundles dir in main CodaLab other bundles repo.
-    bundles_dir = join(src_dir, 'bundles')
+    bundles_dir = "/".join(src_dir, 'bundles')
     run('rm -rf %s' % (bundles_dir.rstrip('/')))
-    run ('mv %s %s' & (src_dir_b, bundles_dir))
+    run('mv %s %s' & (src_dir_b, bundles_dir))
     # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
@@ -287,7 +287,7 @@ def deploy_web():
             pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
             # additional requirements for bundle service
-            run ('pip install SQLAlchemy simplejson')
+            run('pip install SQLAlchemy simplejson')
             with cd('codalab'):
                 run('python manage.py config_gen')
                 run('python manage.py syncdb --migrate')
@@ -309,17 +309,17 @@ def install_mysql(choice='all'):
         'all' or ''  -> install all three
     """
     require('configuration')
-    if len(env.roledefs['web']) <> 1:
-        raise(Exception("Task install_mysql requires exactly one web instance."))
+    if len(env.roledefs['web']) != 1:
+        raise Exception("Task install_mysql requires exactly one web instance.")
 
     if choice == 'mysql':
-        choices = {'mysql' }
+        choices = {'mysql'}
     elif choice == 'site_db':
         choices = {'site_db'}
     elif choice == 'bundles_db':
         choices = {'bundles_db'}
     elif choice == 'all':
-        choices = { 'mysql', 'site_db', 'bundles_db' }
+        choices = {'mysql', 'site_db', 'bundles_db'}
     else:
         raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
 
@@ -336,7 +336,7 @@ def install_mysql(choice='all'):
         db_password = configuration.getDatabasePassword()
         cmds = ["create database {0};".format(db_name),
                 "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
+                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
         run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
     if 'bundles_db' in choices:
