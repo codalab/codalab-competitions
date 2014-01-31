@@ -5,14 +5,28 @@
 
 {% block content %}
 <div class="row">
-    <div class="large-9 columns">
+    <div class="large-12 columns">
         {% for bundle in bundles %}
-        <p>Type: {{ bundle.bundle_type }}</p>
-        <p>UUID: <a href="/bundles/{{bundle.uuid}}"> {{ bundle.uuid }}</a></p>
-        <p>Hash: {{ bundle.data_hash }}</p>
-        <p>State: {{ bundle.state }}</p>
-        <p>Metadata: {{ bundle.metadata }}</p>
-        <hr>
+        <div class="bundle-tile">
+            <div class="large-12 columns">
+                <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                <span class="bundle-status--{{ bundle.state }}"></span>
+            </div>
+            <div class="large-8 columns">
+                <p> {{ bundle.metadata.description }} </p>
+            </div>
+            <div class="large-4 columns bundle-meta">
+                <p><strong>Status:</strong><em> &nbsp; {{ bundle.state }} </em></p>
+                <p><strong>Created:</strong><em> &nbsp; {{ bundle.metadata.created }} </em></p>
+                <p><strong>Type:</strong><em> &nbsp; {{ bundle.bundle_type }} </em></p>
+                <p><strong>Size:</strong><em> &nbsp; {{ bundle.metadata.data_size }} bytes</em></p>
+            </div>
+            <hr>
+            <div class="large-12 columns">
+                <p><strong>Tags</strong></p>
+                <p> {{ bundle.metadata.tags }} </p>
+            </div>
+        </div>
         {% endfor %}
     </div>
 </div>
