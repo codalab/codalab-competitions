@@ -71,5 +71,6 @@
   $('document').ready(function() {
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
+    $("input[name*='_date']").datepicker();
   });
 {% endblock js %}
