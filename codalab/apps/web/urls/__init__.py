@@ -14,5 +14,6 @@ urlpatterns = patterns('',
                        url(r'^experiments/',
                            include('apps.web.urls.experiments')),
                        url(r'^help/', include('apps.web.urls.help')),
+                       url(r'^about/', TemplateView.as_view(template_name='web/help/about.html'), name='about'),
                        url(r'^bundles/', include('apps.web.urls.bundles'))
                        )

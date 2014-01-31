@@ -42,9 +42,10 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     denied=models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+    approved=models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.APPROVED)
     context = RequestContext(request, {
         'my_competitions' : models.Competition.objects.filter(creator=request.user),
-        'competitions_im_in' : request.user.participation.all().exclude(status=denied)
+        'competitions_im_in' : request.user.participation.all().exclude(status=denied).exclude(status=approved)
         })
     return HttpResponse(template.render(context))
 
