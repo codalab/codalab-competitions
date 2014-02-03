@@ -356,8 +356,11 @@ def install_ssl_certificates():
     """
     require('configuration')
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
-    put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
-    put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
+        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
+        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    else:
+        logger.info("Skipping certificate installation because both files are not specified.")
 
 @roles('web')
 @task

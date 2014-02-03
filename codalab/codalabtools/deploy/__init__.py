@@ -227,11 +227,17 @@ class DeploymentConfig(BaseConfig):
 
     def getSslCertificateInstalledPath(self):
         """Gets the path of the installed SSL certificate file."""
-        return os.path.join('/etc', 'ssl', 'certs', os.path.basename(self.getSslCertificatePath()))
+        if len(self.getSslCertificatePath()) > 0:
+            return os.path.join('/etc', 'ssl', 'certs', os.path.basename(self.getSslCertificatePath()))
+        else:
+            return ""
 
     def getSslCertificateKeyInstalledPath(self):
         """Gets the path of the installed SSL certificate key file."""
-        return os.path.join('/etc', 'ssl', 'private', os.path.basename(self.getSslCertificateKeyPath()))
+        if len(self.getSslCertificateKeyPath()) > 0:
+            return os.path.join('/etc', 'ssl', 'private', os.path.basename(self.getSslCertificateKeyPath()))
+        else:
+            return ""
 
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
