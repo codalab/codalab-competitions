@@ -61,7 +61,7 @@ def provision_packages(packages=None):
         sudo apt-get -y install <packages>
     """
     sudo('apt-get update')
-    sudo('apt-get -y install %s' % packages )
+    sudo('apt-get -y install %s' % packages)
     sudo('easy_install pip')
     sudo('pip install -U --force-reinstall pip')
     sudo('pip install -U --force-reinstall setuptools')
@@ -102,14 +102,20 @@ def config(label=None):
     env.user = configuration.getVirtualMachineLogonUsername()
     env.password = configuration.getVirtualMachineLogonPassword()
     env.key_filename = configuration.getServiceCertificateKeyFilename()
-    env.roledefs = { 'build' : [ configuration.getBuildHostname() ] }
+    env.roledefs = {'build' : [configuration.getBuildHostname()]}
 
     if label is not None:
-        env.roledefs.update({ 'web' : configuration.getWebHostnames() })
+        env.roledefs.update({'web' : configuration.getWebHostnames()})
+        # Information about main CodaLab repo
         env.git_user = configuration.getGitUser()
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
         env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
+        # Information about Bundles repo
+        env.git_bundles_user = configuration.getBundleServiceGitUser()
+        env.git_bundles_repo = configuration.getBundleServiceGitRepo()
+        env.git_bundles_tag = configuration.getBundleServiceGitTag()
+        env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_bundles_user, env.git_bundles_repo)
         env.deploy_dir = 'deploy'
         env.build_archive = '{0}.tar.gz'.format(env.git_tag)
         env.django_settings_module = 'codalab.settings'
@@ -208,12 +214,7 @@ def build():
     """
     require('configuration')
 
-    #pip_cache_dir = "/".join(['builds', 'pip_cache'])
-    #if not exists(pip_cache_dir):
-    #    run('mkdir -p %s' % pip_cache_dir)
-    #with cd(pip_cache_dir):
-    #    pip_download_cache = run('pwd')
-
+    # Assemble source and configurations for the web site
     build_dir = "/".join(['builds', env.git_user, env.git_repo])
     src_dir = "/".join([build_dir, env.git_tag])
     if exists(src_dir):
@@ -229,11 +230,20 @@ def build():
         buf.write(dep.getSettingsFileContent())
         settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
         put(buf, settings_file)
-    wheel_dir =  "/".join([src_dir, 'wheel_packages'])
-    requirements_dir = "/".join([src_dir, 'codalab', 'requirements'])
-    #run('pip wheel --download-cache %s --wheel-dir=%s -r %s/dev_azure_nix.txt' % (pip_download_cache,
-    #                                                                              wheel_dir,
-    #                                                                              requirements_dir))
+    # Assemble source and configurations for the bundle service
+    build_dir_b = "/".join(['builds', env.git_bundles_user, env.git_bundles_repo])
+    src_dir_b = "/".join([build_dir_b, env.git_bundles_tag])
+    if exists(src_dir_b):
+        run('rm -rf %s' % (src_dir_b.rstrip('/')))
+    with settings(warn_only=True):
+        run('mkdir -p %s' % src_dir_b)
+    with cd(src_dir_b):
+        run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
+    # Replace current bundles dir in main CodaLab other bundles repo.
+    bundles_dir = "/".join([src_dir, 'bundles'])
+    run('rm -rf %s' % (bundles_dir.rstrip('/')))
+    run('mv %s %s' % (src_dir_b, bundles_dir))
+    # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
         run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
@@ -274,9 +284,10 @@ def deploy_web():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
             requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
-            #pip_cmd = 'pip install --use-wheel --no-index --find-links=wheel_packages -r {0}'.format(requirements_path)
             pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
+            # additional requirements for bundle service
+            run('pip install SQLAlchemy simplejson')
             with cd('codalab'):
                 run('python manage.py config_gen')
                 run('python manage.py syncdb --migrate')
@@ -286,28 +297,70 @@ def deploy_web():
 
 @roles('web')
 @task
-def install_mysql():
+def install_mysql(choice='all'):
     """
     Installs a local instance of MySQL of the web instance. This will only work
     if the number of web instances is one.
+
+    choice: Indicates which assets to create/install:
+        'mysql'      -> just install MySQL; don't create the databases
+        'site_db'    -> just create the site database
+        'bundles_db' -> just create the bundle service database
+        'all' or ''  -> install all three
     """
     require('configuration')
-    if len(env.roledefs['web']) <> 1:
-        raise(Exception("Task install_mysql requires exactly one web instance."))
+    if len(env.roledefs['web']) != 1:
+        raise Exception("Task install_mysql requires exactly one web instance.")
+
+    if choice == 'mysql':
+        choices = {'mysql'}
+    elif choice == 'site_db':
+        choices = {'site_db'}
+    elif choice == 'bundles_db':
+        choices = {'bundles_db'}
+    elif choice == 'all':
+        choices = {'mysql', 'site_db', 'bundles_db'}
+    else:
+        raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
 
     configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
     dba_password = configuration.getDatabaseAdminPassword()
-    db_name = configuration.getDatabaseName()
-    db_user = configuration.getDatabaseUser()
-    db_password = configuration.getDatabasePassword()
 
-    sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
-    sudo('mysqladmin -u root password {0}'.format(dba_password))
+    if 'mysql' in choices:
+        sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
+        sudo('mysqladmin -u root password {0}'.format(dba_password))
 
-    cmds = ["create database {0};".format(db_name),
-            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
-    run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+    if 'site_db' in choices:
+        db_name = configuration.getDatabaseName()
+        db_user = configuration.getDatabaseUser()
+        db_password = configuration.getDatabasePassword()
+        cmds = ["create database {0};".format(db_name),
+                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+
+    if 'bundles_db' in choices:
+        db_name = configuration.getBundleServiceDatabaseName()
+        db_user = configuration.getBundleServiceDatabaseUser()
+        db_password = configuration.getBundleServiceDatabasePassword()
+        cmds = ["create database {0};".format(db_name),
+                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+
+@roles('web')
+@task
+def install_ssl_certificates():
+    """
+    Installs SSL certificates on the web instance.
+    """
+    require('configuration')
+    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
+        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
+        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    else:
+        logger.info("Skipping certificate installation because both files are not specified.")
 
 @roles('web')
 @task
