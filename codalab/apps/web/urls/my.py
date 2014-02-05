@@ -22,7 +22,7 @@ urlpatterns = patterns(
     url(r'^competition/(?P<competition_id>\d+)/participants/',
         views.MyCompetitionParticipantView.as_view(),
         name='my_competition_participants'),
-    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|output.zip)$',
+    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|input.zip|prediction-output.zip|output.zip)$',
         views.MyCompetitionSubmisisonOutput.as_view(),
         name='my_competition_output'),
     url(r'^_partials/', include(partials_patterns)),
