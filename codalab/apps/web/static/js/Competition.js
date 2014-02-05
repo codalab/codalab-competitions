@@ -333,14 +333,17 @@ var Competition;
                 });
             }
             else {
-                var status = $(nTr).find(".statusName").html();
+                var status = $.trim($(nTr).find(".statusName").html());
                 var btn = elem.find("button").addClass("hide");
-                if ($.trim(status) === "Submitting" || $.trim(status) === "Submitted" || $.trim(status) === "Running") {
+                if (status === "Submitting" || status === "Submitted" || status === "Running") {
                     btn.removeClass("hide");
                     btn.text("Refresh status")
                     btn.on('click', function () {
-                        Competition.updateSubmissionStatus($("#competitionId").val(), nTr.id, this)
+                        Competition.updateSubmissionStatus($("#competitionId").val(), nTr.id, this);
                     });
+                }
+                if (status === "Failed" || status === "Cancelled") {
+                    elem.find("a").removeClass("hide");
                 }
             }
             $(nTr).after(elem);
@@ -371,6 +374,7 @@ var Competition;
                 }
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass("hide");
+                    $(obj).parent().parent().find("a").removeClass("hide");
                 }
                 $(".competitionPreloader").hide();
             },

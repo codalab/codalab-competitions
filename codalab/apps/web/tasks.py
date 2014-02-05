@@ -13,7 +13,8 @@ from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
                               getQueue)
-from apps.web.models import (CompetitionSubmission,
+from apps.web.models import (add_submission_to_leaderboard,
+                             CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
@@ -272,6 +273,11 @@ def update_submission_task(job_id, args):
                             logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
                 logger.debug("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
+                # Automatically submit to the leaderboard?
+                if submission.phase.is_blind:
+                    logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
+                    add_submission_to_leaderboard(submission)
+                    logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
                 result = Job.FINISHED
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
