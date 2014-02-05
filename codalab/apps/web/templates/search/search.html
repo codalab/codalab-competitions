@@ -1,26 +1,44 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block head_title %}Search{% endblock head_title %}
 {% block page_title %}Search{% endblock page_title %}
 
 {% block content %}
     <form method="get" action=".">
-        <!--<table>
-            {{ form.as_table }}
-            <tr>
-                <td>&nbsp;</td>
-                <td>
-                    <input type="submit" value="Search">
-                </td>
-            </tr>
-        </table>-->
-
         {% if query %}
             <h3>Results</h3>
-
-            {% for result in page.object_list %}
-                <p>
-                    <a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>
-                </p>
+            <div class="row">
+                <div class="large-10 large-offset-1 columns centered">
+                   {% for competition in page.object_list %}
+                    <div class="competition-tile">
+                      <article class="subContainer">
+                        <input id="competitionID" type="hidden" value="{{ competition.pk }}" />
+                        <div class="competitionTileLftStrip"></div>
+                        <div class="articleTextArea">
+                          <a href="/competitions/{{competition.pk}}">
+                            <div class="articleTextAreaContainer">
+                              <div class="articleImageContainer">
+                                <div class="subContainerPadding">
+                                    {% if competition.image_url %}
+                                        <img id="imgProfileImage" src="{{ competition.image_url }}">
+                                    {% else %}
+                                        <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
+                                    {% endif %}
+                                </div>
+                              </div>
+              
+                              <div class="subContainerPadding">
+                                <div class="articleHeadingContainer">
+                                  <h3>{{ competition.title }}</h3>
+                                  <label>Organized by {{ competition.creator }}</label>
+                                </div>
+                                <p>{{ competition.description }}</p>
+                              </div>
+                            </div>
+                          </a>
+                       </div>
+                     </article>
+                    </div>                
             {% empty %}
                 <p>No results found for query: {{ query }}.</p>
             {% endfor %}
