@@ -143,9 +143,12 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
                 submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
-                # find which submission is in the leaderboard (if any)
-                ids = [ e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase) if e.result in submissions ]
-                id_of_submission_in_leaderboard = ids[0] if len(ids) > 0 else -1
+                # find which submission is in the leaderboard, if any and only if phase allows seeing results.
+                id_of_submission_in_leaderboard = -1
+                if not phase.is_blind:
+                    ids = [ e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase)
+                                        if e.result in submissions ]
+                    if len(ids) > 0: id_of_submission_in_leaderboard = ids[0]
                 # map submissions to view data
                 submission_info_list = []
                 for submission in submissions:

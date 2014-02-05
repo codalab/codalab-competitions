@@ -370,13 +370,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if submission.participant.user != self.request.user:
             raise ParseError(detail = 'Invalid submission')
         response = dict()
-        lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
-        # Currently we only allow one submission into the leaderboard although the leaderboard
-        # is setup to accept multiple submissions from the same participant.
-        entries = webmodels.PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=participant)
-        for entry in entries:
-            entry.delete()
-        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+        lbe,cr = webmodels.add_submission_to_leaderboard(submission)
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 

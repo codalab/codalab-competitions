@@ -1,8 +1,12 @@
 {% if phase == None %}
 {% elif phase.is_future %}
-    <p>This phase of the competition has not started yet. Please check back later.</p>
+    <div class="columns">
+        <p>This phase of the competition has not started yet. Please check back later.</p>
+    </div>
 {% elif phase.is_blind %}
-    <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
+    <div class="columns">
+        <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
+    </div>
 {% else %}
     {% if groups|length > 0 %}
     <div class="small-12 columns icon_excel">
