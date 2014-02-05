@@ -3,7 +3,7 @@ import logging
 import random
 import operator
 import os, io
-from os.path import abspath, basename, dirname, join, normpath
+from os.path import abspath, basename, dirname, join, normpath, split
 import zipfile
 import yaml
 import tempfile
@@ -330,6 +330,13 @@ class CompetitionPhase(models.Model):
         """ Returns true if this phase of the competition has already ended. """
         return (not self.is_active) and (not self.is_future)
 
+    @property
+    def is_blind(self):
+        """
+        Indicates whether results are always hidden from participants.
+        """
+        return True
+
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
         """ Given a set of identifiers (ids) and a set of (id, value)-pairs
@@ -554,6 +561,9 @@ class CompetitionSubmissionStatus(models.Model):
 
 # Competition Submission
 class CompetitionSubmission(models.Model):
+    """
+    Represents a submission from a competition participant.
+    """
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
@@ -608,6 +618,53 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         return res
+
+    def get_filename(self):
+        """
+        Returns the short name of the file which was uploaded to create the submission.
+        """
+        return split(self.file.name)[1]
+
+    def get_file_for_download(self, key, requested_by, requested_by_competition_owner=False):
+        """
+        Returns the FileField object for the file that is to be downloaded by the given user.
+
+        key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
+           'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
+        requested_by: A user object identifying the user making the request to access the file.
+        requested_by_competition_owner: A boolean flag indicating whether the user is making
+           the request as a competition owner (True) or as a competition participant (False).
+           Access rules are affected by the value of this flag.
+
+        Raises:
+           ValueError exception for improper arguments.
+           PermissionDenied exception when access to the file cannot be granted.
+        """
+        downloadable_files = {
+            'input.zip': ('file', 'zip', False),
+            'output.zip': ('output_file', 'zip', True),
+            'prediction-output.zip': ('prediction_output_file', 'zip', True),
+            'stdout.txt': ('stdout_file', 'txt', True),
+            'stderr.txt': ('stderr_file', 'txt', False)
+        }
+        if key not in downloadable_files:
+            raise ValueError("File requested is not valid.")
+        file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
+        # Verify access rules
+        if requested_by_competition_owner:
+            # User making request must be in the "competition owner" group.
+            if self.participant.competition.creator.id != requested_by.id:
+                raise PermissionDenied()
+        else:
+            # User making request must be owner of this submission and be granted
+            # download privilege by the competition owners.
+            if self.participant.user.id != requested_by.id:
+                raise PermissionDenied()
+            if file_has_restricted_access and self.phase.is_blind:
+                raise PermissionDenied()
+        file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
+        file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+        return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)

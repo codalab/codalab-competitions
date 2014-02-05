@@ -340,8 +340,10 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not participant.is_approved:
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
-        if submission.phase.is_active is False:
+        if not submission.phase.is_active:
             raise PermissionDenied(detail = 'Competition phase is closed.')
+        if submission.phase.is_blind:
+            raise PermissionDenied(detail = 'Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
             raise ParseError(detail = 'Invalid submission')
         response = dict()
@@ -361,8 +363,10 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not participant.is_approved:
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
-        if submission.phase.is_active is False:
+        if not submission.phase.is_active:
             raise PermissionDenied(detail = 'Competition phase is closed.')
+        if submission.phase.is_blind:
+            raise PermissionDenied(detail = 'Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
             raise ParseError(detail = 'Invalid submission')
         response = dict()
@@ -402,21 +406,3 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
 
-class SubmissionScoreViewSet(viewsets.ModelViewSet):
-    queryset = webmodels.CompetitionSubmission.objects.all()
-    serializer_class = serializers.CompetitionScoresSerial
-
-    def get_queryset(self):
-        kw = {}
-        competition_id = self.kwargs.get('competition_id', None)
-        phase_id = self.kwargs.get('phase_id', None)
-        participant_id = self.kwargs.get('participant_id', None)
-        if competition_id:
-            kw['submission__phase__competition__pk'] = competition_id
-        if phase_id:
-            kw['submission__phase__pk'] = phase_id
-        if participant_id:
-            kw['submission__participant__pk'] = participant_id
-        return self.queryset.filter(**kw)
-
-competition_scores_list = SubmissionScoreViewSet.as_view( {'get':'list'} )

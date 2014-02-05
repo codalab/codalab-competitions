@@ -5,6 +5,7 @@ import csv
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.edit import FormMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -142,10 +143,24 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
                 submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
-                context['my_submissions'] = submissions
-                context['phase'] = phase
+                # find which submission is in the leaderboard (if any)
                 ids = [ e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase) if e.result in submissions ]
-                context['id_of_submission_in_leaderboard'] = ids[0] if len(ids) > 0 else -1
+                id_of_submission_in_leaderboard = ids[0] if len(ids) > 0 else -1
+                # map submissions to view data
+                submission_info_list = []
+                for submission in submissions:
+                    submission_info = {
+                        'id': submission.id,
+                        'number': submission.submission_number,
+                        'filename': submission.get_filename(),
+                        'submitted_at': submission.submitted_at,
+                        'status_name': submission.status.name,
+                        'is_finished': submission.status.codename == 'finished',
+                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard
+                    }
+                    submission_info_list.append(submission_info)
+                context['submission_info_list'] = submission_info_list
+                context['phase'] = phase
         return context
 
 class CompetitionResultsPage(TemplateView):
@@ -283,27 +298,34 @@ class MySubmissionResultsPartial(TemplateView):
         return ctx
 
 class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
-
+    """
+    This view serves the files associated with a submission.
+    """
     def get(self,request,*args,**kwargs):
         submission=models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
-        name, ext = filetype.split('.')
-        fileattr = name +'_file'
-        resp = None
-        if hasattr(submission, fileattr):
-            f = getattr(submission, fileattr)
-            if f:   
-                try:             
-                    resp = HttpResponse(f.read(), status=200, content_type='text/plain' if ext == 'txt' else 'application/zip')
-                except azure.WindowsAzureMissingResourceError:
-                    # for stderr.txt which does not exist when no errors have occurred
-                    # this may hide a true 404 in an unexpected circumstances
-                    resp = HttpResponse("", status=200, content_type='text/plain')
-                except:
-                    resp = HttpResponse("There was an error retrieving file '%s'. Please try again later or report the issue." % filetype, status=200, content_type='text/plain')
-        return resp if resp is not None else HttpResponse("The file '%s' does not exist." % filetype, status=200, content_type='text/plain')
-                                                           
-        
+        try:
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user, False)
+        except PermissionDenied:
+            return HttpResponse(status=403)
+        except ValueError:
+            return HttpResponse(status=400)
+        except:
+            return HttpResponse(status=500)
+        try:
+            response = HttpResponse(file.read(), status=200, content_type=file_type)
+            if file_type != 'text/plain':
+                response['Content-Type'] = 'application/zip'
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+            return response
+        except azure.WindowsAzureMissingResourceError:
+            # for stderr.txt which does not exist when no errors have occurred
+            # this may hide a true 404 in unexpected circumstances
+            return HttpResponse("", status=200, content_type='text/plain')
+        except:
+            msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+            return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+
 class VersionView(TemplateView):
     template_name='web/project_version.html'
 
