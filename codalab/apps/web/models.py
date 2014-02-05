@@ -285,42 +285,6 @@ def submission_prediction_runfile_name(instance, filename="run.txt"):
 def submission_prediction_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
 
-class _LeaderboardSubmissionMode():
-    """
-    Provides a set of constants which define how successfull submission are added to the leaderboard.
-    """
-    @property
-    def MANUAL(self):
-        """Specifies that successful submissions are added manually to the leaderboard."""
-        return 'manual'
-    @property
-    def LAST_SUCCESSFUL(self):
-        """Specifies that the last successful submissions is added automatically to the leaderboard."""
-        return 'last_successful'
-    def is_valid(self, mode):
-        """Returns true if the given string is a valid constant to define a submission mode."""
-        return mode == self.MANUAL or mode == self.LAST_SUCCESSFUL
-
-LeaderboardSubmissionMode = _LeaderboardSubmissionMode()
-
-class _LeaderboardManagementMode():
-    """
-    Provides a set of constants which define when results become visible to participants.
-    """
-    @property
-    def DEFAULT(self):
-        """Specifies that results are visible as soon as they are available."""
-        return 'default'
-    @property
-    def HIDE_ALL_RESULTS(self):
-        """Specifies that results are hidden from participants until competition owners make them visible."""
-        return 'hide_all_results'
-    def is_valid(self, mode):
-        """Returns true if the given string is a valid constant to define a management mode."""
-        return mode == self.DEFAULT or mode == self.HIDE_ALL_RESULTS
-
-LeaderboardManagementMode = _LeaderboardManagementMode()
-
 # Competition Phase
 class CompetitionPhase(models.Model):
     """
@@ -336,8 +300,6 @@ class CompetitionPhase(models.Model):
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    leaderboard_submission_mode = models.CharField(max_length=50, default=LeaderboardSubmissionMode.MANUAL)
-    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT)
 
     class Meta:
         ordering = ['phasenumber']
@@ -373,7 +335,7 @@ class CompetitionPhase(models.Model):
         """
         Indicates whether results are always hidden from participants.
         """
-        return self.leaderboard_management_mode == LeaderboardManagementMode.HIDE_ALL_RESULTS
+        return True
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
@@ -606,7 +568,6 @@ class CompetitionSubmission(models.Model):
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
-    description = models.CharField(max_length=256, blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
@@ -799,23 +760,6 @@ class CompetitionDefBundle(models.Model):
         # Create phases
         for p_num in comp_spec['phases']:
             phase_spec = comp_spec['phases'][p_num].copy()
-
-            if 'leaderboard_submission_mode' in phase_spec:
-                if not LeaderboardSubmissionMode.is_valid(phase_spec['leaderboard_submission_mode']):
-                    msg = "Invalid leaderboard_submission_mode ({0}) specified for phase {1}. Reverting to default."
-                    logger.warn(msg.format(phase_spec['leaderboard_submission_mode'], p_num))
-                    phase_spec['leaderboard_submission_mode'] = LeaderboardSubmissionMode.MANUAL
-            else:
-                phase_spec['leaderboard_submission_mode'] = LeaderboardSubmissionMode.MANUAL
-
-            if 'leaderboard_management_mode' in phase_spec:
-                if not LeaderboardManagementMode.is_valid(phase_spec['leaderboard_management_mode']):
-                    msg = "Invalid leaderboard_management_mode ({0}) specified for phase {1}. Reverting to default."
-                    logger.warn(msg.format(phase_spec['leaderboard_management_mode'], p_num))
-                    phase_spec['leaderboard_management_mode'] = LeaderboardManagementMode.DEFAULT
-            else:
-                phase_spec['leaderboard_management_mode'] = LeaderboardManagementMode.DEFAULT
-
             phase_spec['competition'] = comp
             if 'datasets' in phase_spec:
                 datasets = phase_spec['datasets']
