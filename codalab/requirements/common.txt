@@ -25,5 +25,4 @@ anyjson==0.3.3
 django-appconf==0.6
 pyyaml
 azure==0.7.1
-django-debug-toolbar==0.9.4
-django-nose
+django-haystack

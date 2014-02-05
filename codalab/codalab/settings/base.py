@@ -208,6 +208,9 @@ class Base(Settings):
         'allauth',
         'allauth.account',
         'allauth.socialaccount',
+        
+        # 
+        'haystack'
     )
 
     OPTIONAL_APPS = []
@@ -248,6 +251,21 @@ class Base(Settings):
             'rest_framework.renderers.JSONRenderer',
             )
     }
+
+    #HAYSTACK_CONNECTIONS = {
+    #    'default': {
+    #        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+    #        'URL': 'http://127.0.0.1:8983/solr'
+    #        # ...or for multicore...
+    #        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
+    #    },
+    #}
+
+    HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
 
     BUNDLE_SERVICE_URL = ""
 
