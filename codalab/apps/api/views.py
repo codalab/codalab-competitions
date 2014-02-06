@@ -48,7 +48,7 @@ class CompetitionCreationApi(views.APIView):
         logger.debug("CompetitionCreation def: owner=%s; def=%s; blob=%s.", owner.id, cdb.pk, cdb.config_bundle.name)
         job = create_competition(cdb.pk)
         logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
-        return Response({'token' : job.pk }, status=status.HTTP_201_CREATED)
+        return Response({'token' : job.pk}, status=status.HTTP_201_CREATED)
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationStatusApi(views.APIView):
@@ -68,7 +68,7 @@ class CompetitionCreationStatusApi(views.APIView):
         except Job.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         logger.debug("CompetitionCreationStatus: requestor=%s; job=%s; job.status:%s.", user_id, job.pk, job.status)
-        data = {'status' : job.get_status_code_name() }
+        data = {'status' : job.get_status_code_name()}
         info = job.get_task_info()
         if 'competition_id' in info:
             data['id'] = info['competition_id']
@@ -99,7 +99,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response), content_type="application/json")
 
-    @action(methods=['GET'],permission_classes=[permissions.IsAuthenticated])
+    @action(methods=['GET'], permission_classes=[permissions.IsAuthenticated])
     def publish(self, request, pk):
         """
         Publish a competition.
@@ -142,9 +142,9 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         else:
             status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.APPROVED)
 
-        p,cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
-                                                                      competition=comp,
-                                                                      defaults={'status': status, 'reason': None})
+        p, cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
+                                                                       competition=comp,
+                                                                       defaults={'status': status, 'reason': None})
 
         response_data = {
             'result' : 201 if cr else 200,
@@ -153,24 +153,24 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(response_data), content_type="application/json")
 
-    def _get_userstatus(self,request,pk=None,participant_id=None):
+    def _get_userstatus(self, request, pk=None, participant_id=None):
         comp = self.get_object()
         resp = {}
         status = 200
         try:
-            p = webmodels.CompetitionParticipant.objects.get(user=self.request.user,competition=comp)
+            p = webmodels.CompetitionParticipant.objects.get(user=self.request.user, competition=comp)
             resp = {'status': p.status.codename, 'reason': p.reason}
         except ObjectDoesNotExist:
             resp = {'status': None, 'reason': None}
             status = 400
-        return Response(resp,status=status)
+        return Response(resp, status=status)
 
     @link(permission_classes=[permissions.IsAuthenticated])
-    def mystatus(self,request,pk=None):
-        return self._get_userstatus(request,pk)
+    def mystatus(self, request, pk=None):
+        return self._get_userstatus(request, pk)
 
-    @action(methods=['POST','PUT'], permission_classes=[permissions.IsAuthenticated])
-    def participation_status(self,request,pk=None):
+    @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    def participation_status(self, request, pk=None):
         comp = self.get_object()
         resp = {}
         status = request.DATA['status']
@@ -195,26 +195,26 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         return Response(json.dumps(resp), content_type="application/json")
 
     @action(permission_classes=[permissions.IsAuthenticated])
-    def info(self,request,*args,**kwargs):
+    def info(self, request, *args, **kwargs):
         comp = self.get_object()
         comp.title = request.DATA.get('title')
         comp.description = request.DATA.get('description')
         comp.save()
-        return Response({ "data": {
-                              "title": comp.title,
-                              "description": comp.description,
-                              "imageUrl": comp.image.url if comp.image else None },
-                          "published": 3 }, status=200)
+        return Response({"data": {
+                             "title": comp.title,
+                             "description": comp.description,
+                             "imageUrl": comp.image.url if comp.image else None},
+                         "published": 3}, status=200)
 
-competition_list =   CompetitionAPIViewSet.as_view({'get':'list','post':'create', 'post': 'participate',})
-competition_retrieve =   CompetitionAPIViewSet.as_view({'get':'retrieve','put':'update', 'patch': 'partial_update'})
+competition_list = CompetitionAPIViewSet.as_view({'get':'list', 'post': 'participate'})
+competition_retrieve = CompetitionAPIViewSet.as_view({'get':'retrieve', 'put':'update', 'patch': 'partial_update'})
 
 class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionParticipantSerial
     queryset = webmodels.CompetitionParticipant.objects.all()
 
     def get_queryset(self):
-        competition_id = self.kwargs.get('competition_id',None)
+        competition_id = self.kwargs.get('competition_id', None)
         return self.queryset.filter(competition__pk=competition_id)
 
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
@@ -222,8 +222,8 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     queryset = webmodels.Competition.objects.all()
 
     def get_queryset(self):
-        competition_id = self.kwargs.get('pk',None)
-        phasenumber = self.kwargs.get('phasenumber',None)
+        competition_id = self.kwargs.get('pk', None)
+        phasenumber = self.kwargs.get('phasenumber', None)
         kw = {}
         if competition_id:
             kw['pk'] = competition_id
@@ -231,7 +231,7 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
             kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
 
-competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list','post':'create'})
+competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list', 'post':'create'})
 competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve',
                                                                 'put':'update',
                                                                 'patch':'partial_update'})
@@ -257,11 +257,11 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
         else:
             return self.queryset
 
-    def dispatch(self,request,*args,**kwargs):
+    def dispatch(self, request, *args, **kwargs):
         if 'competition_id' in kwargs:
             self._pagecontainer_q = webmodels.PageContainer.objects.filter(object_id=kwargs['competition_id'],
                                                                            content_type=self.content_type)
-        return super(CompetitionPageViewSet,self).dispatch(request,*args,**kwargs)
+        return super(CompetitionPageViewSet, self).dispatch(request, *args, **kwargs)
 
     @property
     def pagecontainer(self):
@@ -272,9 +272,9 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
                 self._pagecontainer = None
         return self._pagecontainer
 
-    def new_pagecontainer(self,competition_id):
+    def new_pagecontainer(self, competition_id):
         try:
-            competition=webmodels.Competition.objects.get(pk=competition_id)
+            competition = webmodels.Competition.objects.get(pk=competition_id)
         except ObjectDoesNotExist:
             raise Http404
         self._pagecontainer = webmodels.PageContainer.objects.create(object_id=competition_id,
@@ -282,19 +282,19 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
         return self._pagecontainer
 
     def get_serializer_context(self):
-        ctx = super(CompetitionPageViewSet,self).get_serializer_context()
+        ctx = super(CompetitionPageViewSet, self).get_serializer_context()
         if 'competition_id' in self.kwargs:
             ctx.update({'container': self.pagecontainer})
         return ctx
 
-    def create(self,request,*args,**kwargs):
+    def create(self, request, *args, **kwargs):
         container = self.pagecontainer
         if not container:
             container = self.new_pagecontainer(self.kwargs.get('competition_id'))
-        return  super(CompetitionPageViewSet,self).create(request,*args,**kwargs)
+        return  super(CompetitionPageViewSet, self).create(request, *args, **kwargs)
 
-competition_page_list = CompetitionPageViewSet.as_view({'get':'list','post':'create'})
-competition_page = CompetitionPageViewSet.as_view({'get':'retrieve','put':'update','patch':'partial_update'})
+competition_page_list = CompetitionPageViewSet.as_view({'get':'list', 'post':'create'})
+competition_page = CompetitionPageViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
 
 
 @permission_classes((permissions.IsAuthenticated,))
@@ -306,7 +306,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(phase__competition__pk=self.kwargs['competition_id'])
 
-    def pre_save(self,obj):
+    def pre_save(self, obj):
         try:
             obj.participant = webmodels.CompetitionParticipant.objects.filter(
                                 competition=self.kwargs['competition_id'], user=self.request.user).get()
@@ -318,16 +318,16 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             if phase.is_active is True:
                 break
         if phase is None or phase.is_active is False:
-            raise PermissionDenied(detail = 'Competition phase is closed.')
+            raise PermissionDenied(detail='Competition phase is closed.')
         obj.phase = phase
 
-    def post_save(self,obj,created):
+    def post_save(self, obj, created):
         if created:
             evaluate_submission(obj.pk, obj.phase.is_scoring_only)
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:
-            exc = PermissionDenied(detail = str(exc))
+            exc = PermissionDenied(detail=str(exc))
         return super(CompetitionSubmissionViewSet, self).handle_exception(exc)
 
     @action(methods=["DELETE"])
@@ -340,10 +340,12 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not participant.is_approved:
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
-        if submission.phase.is_active is False:
-            raise PermissionDenied(detail = 'Competition phase is closed.')
+        if not submission.phase.is_active:
+            raise PermissionDenied(detail='Competition phase is closed.')
+        if submission.phase.is_blind:
+            raise PermissionDenied(detail='Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
-            raise ParseError(detail = 'Invalid submission')
+            raise ParseError(detail='Invalid submission')
         response = dict()
         lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
         lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
@@ -361,18 +363,14 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if not participant.is_approved:
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
-        if submission.phase.is_active is False:
-            raise PermissionDenied(detail = 'Competition phase is closed.')
+        if not submission.phase.is_active:
+            raise PermissionDenied(detail='Competition phase is closed.')
+        if submission.phase.is_blind:
+            raise PermissionDenied(detail='Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
-            raise ParseError(detail = 'Invalid submission')
+            raise ParseError(detail='Invalid submission')
         response = dict()
-        lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
-        # Currently we only allow one submission into the leaderboard although the leaderboard
-        # is setup to accept multiple submissions from the same participant.
-        entries = webmodels.PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=participant)
-        for entry in entries:
-            entry.delete()
-        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+        _, cr = webmodels.add_submission_to_leaderboard(submission)
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
@@ -395,28 +393,10 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
             kw['phase__competition__pk'] = competition_id
         return self.queryset.filter(**kw)
 
-leaderboard_list = LeaderBoardViewSet.as_view({'get':'list','post':'create'} )
-leaderboard_retrieve = LeaderBoardViewSet.as_view( {'get':'retrieve','put':'update','patch':'partial_update'} )
+leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
+leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
 
-class SubmissionScoreViewSet(viewsets.ModelViewSet):
-    queryset = webmodels.CompetitionSubmission.objects.all()
-    serializer_class = serializers.CompetitionScoresSerial
-
-    def get_queryset(self):
-        kw = {}
-        competition_id = self.kwargs.get('competition_id', None)
-        phase_id = self.kwargs.get('phase_id', None)
-        participant_id = self.kwargs.get('participant_id', None)
-        if competition_id:
-            kw['submission__phase__competition__pk'] = competition_id
-        if phase_id:
-            kw['submission__phase__pk'] = phase_id
-        if participant_id:
-            kw['submission__participant__pk'] = participant_id
-        return self.queryset.filter(**kw)
-
-competition_scores_list = SubmissionScoreViewSet.as_view( {'get':'list'} )
