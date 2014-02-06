@@ -46,9 +46,10 @@ class CompetitionParticipantSerial(serializers.ModelSerializer):
 
 class CompetitionSubmissionSerial(serializers.ModelSerializer):
     status = serializers.SlugField(source="status.codename", read_only=True)
+    filename = serializers.Field(source="get_filename")
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file')
+        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename')
         read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number')
 
 class PhaseSerial(serializers.ModelSerializer):
