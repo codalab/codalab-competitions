@@ -2548,3 +2548,11 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     margin-top:-81px;
     float:left;
 }
+
+.competition-editor-description {
+    height: 10em;
+}
+
+.competition-editor-page-html {
+    height: 20em;
+}
