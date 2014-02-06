@@ -3,7 +3,7 @@ from haystack import indexes
 from models import Competition
 
 class CompetitionIndex(indexes.SearchIndex, indexes.Indexable):
-    text = indexes.CharField(document=True, use_template=True)
+    text = indexes.CharField(document=True)
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description')
     end_date = indexes.DateTimeField(model_attr='end_date')
