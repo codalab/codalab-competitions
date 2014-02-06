@@ -9,47 +9,23 @@
             <h3>Results</h3>
             <div class="row">
                 <div class="large-10 large-offset-1 columns centered">
-                   {% for competition in page.object_list %}
-                    <div class="competition-tile">
-                      <article class="subContainer">
-                        <input id="competitionID" type="hidden" value="{{ competition.pk }}" />
-                        <div class="competitionTileLftStrip"></div>
-                        <div class="articleTextArea">
-                          <a href="/competitions/{{competition.pk}}">
-                            <div class="articleTextAreaContainer">
-                              <div class="articleImageContainer">
-                                <div class="subContainerPadding">
-                                    {% if competition.image_url %}
-                                        <img id="imgProfileImage" src="{{ competition.image_url }}">
-                                    {% else %}
-                                        <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
-                                    {% endif %}
-                                </div>
-                              </div>
-              
-                              <div class="subContainerPadding">
-                                <div class="articleHeadingContainer">
-                                  <h3>{{ competition.title }}</h3>
-                                  <label>Organized by {{ competition.creator }}</label>
-                                </div>
-                                <p>{{ competition.description }}</p>
-                              </div>
-                            </div>
-                          </a>
-                       </div>
-                     </article>
-                    </div>                
-            {% empty %}
-                <p>No results found for query: {{ query }}.</p>
-            {% endfor %}
-
-            {% if page.has_previous or page.has_next %}
-                <div>
-                    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-                    |
-                    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+                    {% for result in page.object_list %}
+                        {% if result.content_type == "web.competition" %}
+                            {% include "web/competitions/summary.html" with competition=result.object %}
+                        {% endif %}
+                    {% empty %}
+                        <p>No results found for query: {{ query }}.</p>
+                    {% endfor %}
                 </div>
-            {% endif %}
+
+                {% if page.has_previous or page.has_next %}
+                    <div>
+                        {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                        |
+                        {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+                    </div>
+                {% endif %}
+            </div>
         {% else %}
             {# Show some example queries to run, maybe query syntax, something else? #}
         {% endif %}
