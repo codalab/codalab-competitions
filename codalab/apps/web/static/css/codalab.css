@@ -2402,7 +2402,7 @@ td {
 /* line 151, ../sass/foundation/components/_type.scss */
 a {
   color: #676278;
-  text-decoration: none;
+  text-decoration: underline;
   line-height: inherit;
   font-weight: bold;
 }
