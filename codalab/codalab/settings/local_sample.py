@@ -17,7 +17,7 @@ class Dev(DevBase):
 
     # Bundle service
     BUNDLE_SERVICE_URL = ""
-    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\bundles" # path relative to this file
+    BUNDLE_SERVICE_CODE_PATH = "" # path relative to this file
     if len(BUNDLE_SERVICE_CODE_PATH) > 0:
         sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
         codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
