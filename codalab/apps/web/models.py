@@ -137,15 +137,15 @@ class Competition(models.Model):
     """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True)
+    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
-    has_registration = models.BooleanField(default=False)
-    end_date = models.DateTimeField(null=True,blank=True)
+    has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
+    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
-    published = models.BooleanField(default=False)
+    published = models.BooleanField(default=False, verbose_name="Publicly Available")
 
     @property
     def pagecontent(self):
@@ -195,11 +195,11 @@ class Page(models.Model):
     codename = models.SlugField(max_length=100)
     container = models.ForeignKey(PageContainer, related_name='pages')
     title = models.CharField(max_length=100, null=True, blank=True)
-    label = models.CharField(max_length=100)
-    rank = models.IntegerField(default=0)
-    visibility = models.BooleanField(default=True)
+    label = models.CharField(max_length=100, verbose_name="Title")
+    rank = models.IntegerField(default=0, verbose_name="Order")
+    visibility = models.BooleanField(default=True, verbose_name="Visible")
     markup = models.TextField(blank=True)
-    html = models.TextField(blank=True)
+    html = models.TextField(blank=True, verbose_name="HTML Content")
     competition = models.ForeignKey(Competition, related_name='pages', null=True)
 
     def __unicode__(self):
@@ -318,13 +318,13 @@ class CompetitionPhase(models.Model):
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
-    phasenumber = models.PositiveIntegerField()
-    label = models.CharField(max_length=50, blank=True)
-    start_date = models.DateTimeField()
-    max_submissions = models.PositiveIntegerField(default=100)
-    is_scoring_only = models.BooleanField(default=True)
-    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True)
-    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
+    phasenumber = models.PositiveIntegerField(verbose_name="Number")
+    label = models.CharField(max_length=50, blank=True, verbose_name="Name")
+    start_date = models.DateTimeField(verbose_name="Start Date")
+    max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    is_scoring_only = models.BooleanField(default=True, verbose_name="Data Submissions Only")
+    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
+    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
