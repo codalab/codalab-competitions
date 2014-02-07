@@ -4,15 +4,14 @@ from apps.web import views
 
 partials_patterns = patterns(
     '',
-    url(r'^_competitions_managed$',
-        login_required(views.MyCompetitionsManagedPartial.as_view()),
+    url(r'^_competitions_managed$', login_required(views.MyCompetitionsManagedPartial.as_view()),
         name='my_competitions_managed'),
-    url(r'^_competitions_entered$',
-        login_required(views.MyCompetitionsEnteredPartial.as_view()),
+    url(r'^_competitions_entered$', login_required(views.MyCompetitionsEnteredPartial.as_view()),
         name='my_competitions_entered'),
     url(r'^(?P<phase_id>\d+)/(?P<participant_id>\d+)/_submission_results',
-        login_required(views.MySubmissionResultsPartial.as_view()),
-        name='my_competition_submissions'),
+        login_required(
+            views.MySubmissionResultsPartial.as_view(
+            )), name='my_competition_submissions'),
 )
 
 urlpatterns = patterns(

@@ -92,7 +92,7 @@ def config(label=None):
     filename = ".codalabconfig"
     if 'cfg_path' not in env:
         if os.path.exists(filename):
-            env.cfg_path = os.path.join(os.getcwd(), filename)
+        env.cfg_path = os.path.join(os.getcwd(), filename)
         elif os.path.exists(env.cfg_path):
             env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
     print "Loading configuration from: ", env.cfg_path
@@ -336,15 +336,29 @@ def install_mysql():
     db_user = configuration.getDatabaseUser()
     db_password = configuration.getDatabasePassword()
 
-    sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
-    sudo('mysqladmin -u root password {0}'.format(dba_password))
+        sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
+        sudo('mysqladmin -u root password {0}'.format(dba_password))
 
-    cmds = ["create database {0};".format(db_name),
-            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+        cmds = ["create database {0};".format(db_name),
+                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
             "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
-    run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
 @roles('web', 'compute')
+@task
+def install_ssl_certificates():
+    """
+    Installs SSL certificates on the web instance.
+    """
+    require('configuration')
+    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
+        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
+        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    else:
+        logger.info("Skipping certificate installation because both files are not specified.")
+
+@roles('web')
 @task
 def supervisor():
     """

@@ -22,6 +22,11 @@ class PageForm(forms.ModelForm):
         fields = ('html',)
         widgets = { 'html' : forms.Textarea(attrs={'rows' : 20, 'class' : 'competition-editor-page-html' }) }
 
+class PageForm(forms.ModelForm):
+    class Meta:
+        model = models.Page
+        fields = ('label', 'rank', 'visibility', 'html' )
+
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
         model = models.Dataset
