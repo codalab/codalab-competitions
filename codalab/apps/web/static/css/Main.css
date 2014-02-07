@@ -2416,11 +2416,9 @@ ul.leftNavigation li.active a{
 }
 .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
     height: 65px;
-    text-decoration: none;
 }
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
     height: 65px !important;
-    text-decoration: none;
 }
 .pad15 {
     padding: 15px;
@@ -2615,9 +2613,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     letter-spacing: 3px;
     text-transform: uppercase;
 }
-li > a, .title a {
-    text-decoration: none;
-}
+
+
 
 .submission_details {
     padding-top: 17px;
