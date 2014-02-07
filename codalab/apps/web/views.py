@@ -85,7 +85,7 @@ class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
     success_url = '/my/#manage'
-    
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
@@ -103,7 +103,7 @@ class CompetitionDetailView(DetailView):
                 tc = [x for x in pagecontent.pages.filter(category=category)]
             else:
                 tc = []
-            side_tabs[category] = tc 
+            side_tabs[category] = tc
         context['tabs'] = side_tabs
         submissions = dict()
         all_submissions = dict()
@@ -128,8 +128,8 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
-        return context     
- 
+        return context
+
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the Participate tab of a competition.
     # Requires an authenticated user who is an approved participant of the competition.
@@ -193,7 +193,7 @@ class CompetitionResultsDownload(View):
         for group in groups:
             csvwriter.writerow([group['label']])
             csvwriter.writerow([])
-            
+
             headers = ["User"]
             sub_headers = [""]
             for header in group['headers']:
@@ -221,7 +221,7 @@ class CompetitionResultsDownload(View):
 
             csvwriter.writerow([])
             csvwriter.writerow([])
-                    
+
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
 
@@ -247,17 +247,17 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
 ## Partials
 
 class CompetitionIndexPartial(TemplateView):
-    
+
     def get_context_data(self, **kwargs):
         ## Currently gets all competitions
         context = super(CompetitionIndexPartial, self).get_context_data(**kwargs)
         per_page = self.request.GET.get('per_page', 6)
         page = self.request.GET.get('page', 1)
         clist = models.Competition.objects.all()
-        
+
         pgn = Paginator(clist, per_page)
         try:
-           competitions = pgn.page(page)
+            competitions = pgn.page(page)
         except PageNotAnInteger:
             # If page is not an integer, deliver first page.
             competitions = pgn.page(1)
@@ -282,13 +282,13 @@ class MyCompetitionsEnteredPartial(ListView):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
-        
+
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
 
 class MySubmissionResultsPartial(TemplateView):
     template_name = 'web/my/_submission_results.html'
-    
+
     def get_context_data(self, **kwargs):
         ctx = super(MySubmissionResultsPartial, self).get_context_data(**kwargs)
 
@@ -300,7 +300,7 @@ class MySubmissionResultsPartial(TemplateView):
 
         ctx['active_phase'] = phase
         ctx['my_active_phase_submissions'] = phase.submissions.filter(participant=participant)
-        
+
         return ctx
 
 class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):

@@ -298,7 +298,6 @@ def deploy_web():
                 run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
-                sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
 
 @roles('web')
 @task
