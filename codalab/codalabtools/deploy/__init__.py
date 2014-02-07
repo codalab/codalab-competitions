@@ -314,6 +314,15 @@ class DeploymentConfig(BaseConfig):
         """Gets the password for the database user."""
         return self._svc['database']['bundle_password']
 
+    def getComputeHostnames(self):
+        """
+        Gets the list of compute instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
+        """
+        service_name = self.getServiceName()
+        vm_numbers = range(1, 1 + self.getComputeInstanceCount())
+        ssh_port = self.getComputeInstanceSshPort()
+        return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
 class Deployment(object):
     """
     Helper class to handle deployment of the web site.
