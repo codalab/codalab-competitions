@@ -285,7 +285,7 @@ def submission_prediction_runfile_name(instance, filename="run.txt"):
 def submission_prediction_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
 
-class _LeaderboardManagementMode():
+class _LeaderboardManagementMode(object):
     """
     Provides a set of constants which define when results become visible to participants
     and how successful submisstion are added to the leaderboard.

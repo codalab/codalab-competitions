@@ -143,8 +143,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             status = webmodels.ParticipantStatus.objects.get(codename=webmodels.ParticipantStatus.APPROVED)
 
         p, cr = webmodels.CompetitionParticipant.objects.get_or_create(user=self.request.user,
-                                                                      competition=comp,
-                                                                      defaults={'status': status, 'reason': None})
+                                                                       competition=comp,
+                                                                       defaults={'status': status, 'reason': None})
 
         response_data = {
             'result' : 201 if cr else 200,
@@ -201,8 +201,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         comp.description = request.DATA.get('description')
         comp.save()
         return Response({"data": {
-                              "title": comp.title,
-                              "description": comp.description,
+                             "title": comp.title,
+                             "description": comp.description,
                              "imageUrl": comp.image.url if comp.image else None},
                          "published": 3}, status=200)
 
@@ -341,11 +341,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
         if not submission.phase.is_active:
-            raise PermissionDenied(detail = 'Competition phase is closed.')
+            raise PermissionDenied(detail='Competition phase is closed.')
         if submission.phase.is_blind:
-            raise PermissionDenied(detail = 'Competition phase does not allow participants to modify the leaderboard.')
+            raise PermissionDenied(detail='Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
-            raise ParseError(detail = 'Invalid submission')
+            raise ParseError(detail='Invalid submission')
         response = dict()
         lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
         lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
@@ -364,19 +364,13 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         submission = webmodels.CompetitionSubmission.objects.get(id=pk)
         if not submission.phase.is_active:
-            raise PermissionDenied(detail = 'Competition phase is closed.')
+            raise PermissionDenied(detail='Competition phase is closed.')
         if submission.phase.is_blind:
-            raise PermissionDenied(detail = 'Competition phase does not allow participants to modify the leaderboard.')
+            raise PermissionDenied(detail='Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
-            raise ParseError(detail = 'Invalid submission')
+            raise ParseError(detail='Invalid submission')
         response = dict()
-        lb,_ = webmodels.PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
-        # Currently we only allow one submission into the leaderboard although the leaderboard
-        # is setup to accept multiple submissions from the same participant.
-        entries = webmodels.PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=participant)
-        for entry in entries:
-            entry.delete()
-        lbe,cr = webmodels.PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+        _, cr = webmodels.add_submission_to_leaderboard(submission)
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
