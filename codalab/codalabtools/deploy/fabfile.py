@@ -115,7 +115,10 @@ def config(label=None):
         env.git_bundles_user = configuration.getBundleServiceGitUser()
         env.git_bundles_repo = configuration.getBundleServiceGitRepo()
         env.git_bundles_tag = configuration.getBundleServiceGitTag()
-        env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_bundles_user, env.git_bundles_repo)
+        if len(configuration.getBundleServiceUrl()) > 0:
+            env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_bundles_user, env.git_bundles_repo)
+        else:
+            env.git_bundles_repo_url = ''
         env.deploy_dir = 'deploy'
         env.build_archive = '{0}.tar.gz'.format(env.git_tag)
         env.django_settings_module = 'codalab.settings'
@@ -231,18 +234,19 @@ def build():
         settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
         put(buf, settings_file)
     # Assemble source and configurations for the bundle service
-    build_dir_b = "/".join(['builds', env.git_bundles_user, env.git_bundles_repo])
-    src_dir_b = "/".join([build_dir_b, env.git_bundles_tag])
-    if exists(src_dir_b):
-        run('rm -rf %s' % (src_dir_b.rstrip('/')))
-    with settings(warn_only=True):
-        run('mkdir -p %s' % src_dir_b)
-    with cd(src_dir_b):
-        run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
-    # Replace current bundles dir in main CodaLab other bundles repo.
-    bundles_dir = "/".join([src_dir, 'bundles'])
-    run('rm -rf %s' % (bundles_dir.rstrip('/')))
-    run('mv %s %s' % (src_dir_b, bundles_dir))
+    if len(env.git_bundles_repo_url) > 0:
+        build_dir_b = "/".join(['builds', env.git_bundles_user, env.git_bundles_repo])
+        src_dir_b = "/".join([build_dir_b, env.git_bundles_tag])
+        if exists(src_dir_b):
+            run('rm -rf %s' % (src_dir_b.rstrip('/')))
+        with settings(warn_only=True):
+            run('mkdir -p %s' % src_dir_b)
+        with cd(src_dir_b):
+            run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
+        # Replace current bundles dir in main CodaLab other bundles repo.
+        bundles_dir = "/".join([src_dir, 'bundles'])
+        run('rm -rf %s' % (bundles_dir.rstrip('/')))
+        run('mv %s %s' % (src_dir_b, bundles_dir))
     # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)

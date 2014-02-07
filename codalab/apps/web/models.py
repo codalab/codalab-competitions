@@ -804,7 +804,7 @@ class CompetitionDefBundle(models.Model):
             else:
                 datasets = {}
             if type(phase_spec['start_date']) is datetime.datetime.date:
-                phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+                phase_spec['start_date'] = datetime.datetime.combine(phase_spec['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
@@ -994,7 +994,7 @@ class SubmissionScore(models.Model):
         unique_together = (('result','scoredef'),)
 
     def save(self,*args,**kwargs):
-        if self.scoredef.computed is True and value:
+        if self.scoredef.computed is True and self.value:
             raise IntegrityError("Score is computed. Cannot assign a value")
         super(SubmissionScore,self).save(*args,**kwargs)
 
@@ -1026,6 +1026,10 @@ class PhaseLeaderBoardEntry(models.Model):
         unique_together = (('board', 'result'),)
 
 def add_submission_to_leaderboard(submission):
+    """
+    Adds the given submission to its leaderboard. It is the caller responsiblity to make
+    sure the submission is ready to be added (e.g. it's in the finished state).
+    """
     lb,_ = PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
     # Currently we only allow one submission into the leaderboard although the leaderboard
     # is setup to accept multiple submissions from the same participant.
