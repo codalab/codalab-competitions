@@ -318,20 +318,20 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
             return HttpResponse(status=400)
         except:
             return HttpResponse(status=500)
-                try:             
+        try:
             response = HttpResponse(file.read(), status=200, content_type=file_type)
             if file_type != 'text/plain':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
             return response
-                except azure.WindowsAzureMissingResourceError:
-                    # for stderr.txt which does not exist when no errors have occurred
+        except azure.WindowsAzureMissingResourceError:
+            # for stderr.txt which does not exist when no errors have occurred
             # this may hide a true 404 in unexpected circumstances
             return HttpResponse("", status=200, content_type='text/plain')
-                except:
+        except:
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
-        
+
 class VersionView(TemplateView):
     template_name = 'web/project_version.html'
 
