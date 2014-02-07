@@ -2619,3 +2619,7 @@ li > a, .title a {
     text-decoration: none;
 }
 
+.submission_details {
+    padding-top: 17px;
+}
+
