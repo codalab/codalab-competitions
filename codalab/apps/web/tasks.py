@@ -53,7 +53,7 @@ def echo(text):
 
     Returns a Job object which can be used to track the progress of the operation.
     """
-    return Job.objects.create_and_dispatch_job('echo', { 'message': text })
+    return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
 # Create competition
 
@@ -75,7 +75,7 @@ def create_competition_task(job_id, args):
         competition = competition_def.unpack()
         logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
                     comp_def_id, job.id, competition.pk)
-        return JobTaskResult(status=Job.FINISHED, info={ 'competition_id': competition.pk })
+        return JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
 
     run_job_task(job_id, create_it)
 
@@ -88,7 +88,7 @@ def create_competition(comp_def_id):
 
     Returns a Job object which can be used to track the progress of the operation.
     """
-    return Job.objects.create_and_dispatch_job('create_competition', { 'comp_def_id': comp_def_id })
+    return Job.objects.create_and_dispatch_job('create_competition', {'comp_def_id': comp_def_id})
 
 # Evaluate submissions in a competition
 
@@ -146,15 +146,15 @@ def predict(submission, job_id):
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
     # Store workflow state
-    submission.execution_key = json.dumps({ 'predict' : job_id })
+    submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({ "id" : job_id,
-                        "task_type": "run",
-                        "task_args": {
-                            "bundle_id" : submission.prediction_runfile.name,
-                            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                            "reply_to" : settings.SBS_RESPONSE_QUEUE } })
+    body = json.dumps({"id" : job_id,
+                       "task_type": "run",
+                       "task_args": {
+                           "bundle_id" : submission.prediction_runfile.name,
+                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -210,12 +210,12 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({ "id" : job_id,
-                        "task_type": "run",
-                        "task_args": {
-                            "bundle_id" : submission.runfile.name,
-                            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                            "reply_to" : settings.SBS_RESPONSE_QUEUE } })
+    body = json.dumps({"id" : job_id,
+                       "task_type": "run",
+                       "task_args": {
+                           "bundle_id" : submission.runfile.name,
+                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -244,11 +244,11 @@ def update_submission_task(job_id, args):
         status: The new status string: 'running', 'finished' or 'failed'.
         job_id: The job ID used to track the progress of the evaluation.
         """
-        if (status == 'running'):
+        if status == 'running':
             _set_submission_status(submission.id, CompetitionSubmissionStatus.RUNNING)
             return Job.RUNNING
 
-        if (status == 'finished'):
+        if status == 'finished':
             result = Job.FAILED
             state = {}
             if len(submission.execution_key) > 0:
@@ -292,7 +292,7 @@ def update_submission_task(job_id, args):
                     logger.exception("update_submission_task failed to enter scoring phase (pk=%s)", submission.pk)
             return result
 
-        if (status != 'failed'):
+        if status != 'failed':
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
@@ -314,7 +314,7 @@ def update_submission_task(job_id, args):
     def update_it(job):
         """Updates the database to reflect the state of the evaluation of the given competition submission."""
         logger.debug("Entering update_submission_task::update_it (job_id=%s)", job.id)
-        if (job.task_type != 'evaluate_submission'):
+        if job.task_type != 'evaluate_submission':
             raise ValueError("Job has incorrect task_type (job.task_type=%s)", job.task_type)
         task_args = job.get_task_args()
         submission_id = task_args['submission_id']
@@ -366,7 +366,7 @@ def evaluate_submission_task(job_id, args):
         except Exception:
             logger.exception("evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
                              job_id, submission_id)
-            update_submission_task(job_id, { 'status': 'failed' })
+            update_submission_task(job_id, {'status': 'failed'})
         logger.debug("evaluate_submission_task ends (job_id=%s)", job_id)
 
     submit_it()
@@ -380,6 +380,5 @@ def evaluate_submission(submission_id, is_scoring_only):
 
     Returns a Job object which can be used to track the progress of the operation.
     """
-    task_args = { 'submission_id': submission_id, 'predict': (not is_scoring_only) }
+    task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
     return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
-

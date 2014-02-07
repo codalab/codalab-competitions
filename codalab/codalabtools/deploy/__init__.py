@@ -219,11 +219,11 @@ class DeploymentConfig(BaseConfig):
 
     def getSslCertificatePath(self):
         """Gets the path of the SSL certificate file to install."""
-        return self._svc['ssl']['filename']
+        return self._svc['ssl']['filename'] if 'ssl' in self._svc else ""
 
     def getSslCertificateKeyPath(self):
         """Gets the path of the SSL certificate key file to install."""
-        return self._svc['ssl']['key-filename']
+        return self._svc['ssl']['key-filename'] if 'ssl' in self._svc else ""
 
     def getSslCertificateInstalledPath(self):
         """Gets the path of the installed SSL certificate file."""
@@ -268,27 +268,31 @@ class DeploymentConfig(BaseConfig):
 
     def getBundleServiceGitUser(self):
         """Gets the name of the Git user associated with the target source code repository for bundles."""
-        return self._svc['git-bundles']['user']
+        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
 
     def getBundleServiceGitRepo(self):
         """Gets the name of the Git of the target source code repository  for bundles."""
-        return self._svc['git-bundles']['repo']
+        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
 
     def getBundleServiceGitTag(self):
         """Gets the Git tag defining the specific version of the source code  for bundles."""
-        return self._svc['git-bundles']['tag']
+        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceUrl(self):
+        """Gets the URL for the bundle service."""
+        return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
 
     def getBundleServiceDatabaseName(self):
         """Gets the bundle service database name."""
-        return self._svc['database']['bundle_db_name']
+        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
 
     def getBundleServiceDatabaseUser(self):
         """Gets the database username."""
-        return self._svc['database']['bundle_user']
+        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
 
     def getBundleServiceDatabasePassword(self):
         """Gets the password for the database user."""
-        return self._svc['database']['bundle_password']
+        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
 
 class Deployment(object):
     """
@@ -908,7 +912,7 @@ class Deployment(object):
             "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
             "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
             "",
-            "    BUNDLE_SERVICE_URL = 'http://localhost:2800/'",
+            "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
             "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
