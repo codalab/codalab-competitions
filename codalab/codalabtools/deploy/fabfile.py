@@ -92,8 +92,8 @@ def config(label=None):
     filename = ".codalabconfig"
     if 'cfg_path' not in env:
             env.cfg_path = os.path.join(os.getcwd(), filename)
-        if os.path.exists(env.cfg_path) == False:
-            env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
+            if not os.path.exists(env.cfg_path):
+                env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
     print "Loading configuration from: ", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
@@ -377,9 +377,9 @@ def install_mysql(choice='all'):
         sudo('mysqladmin -u root password {0}'.format(dba_password))
 
     if 'site_db' in choices:
-    db_name = configuration.getDatabaseName()
-    db_user = configuration.getDatabaseUser()
-    db_password = configuration.getDatabasePassword()
+        db_name = configuration.getDatabaseName()
+        db_user = configuration.getDatabaseUser()
+        db_password = configuration.getDatabasePassword()
         cmds = ["create database {0};".format(db_name),
                 "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
                 "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
@@ -389,10 +389,10 @@ def install_mysql(choice='all'):
         db_name = configuration.getBundleServiceDatabaseName()
         db_user = configuration.getBundleServiceDatabaseUser()
         db_password = configuration.getBundleServiceDatabasePassword()
-    cmds = ["create database {0};".format(db_name),
+        cmds = ["create database {0};".format(db_name),
             "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
                 "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
-    run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
 @roles('web', 'compute')
 @task
