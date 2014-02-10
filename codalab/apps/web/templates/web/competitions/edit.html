@@ -34,6 +34,7 @@
         {% endfor %}
         <div class="competition-edit-phase" style="border: 1px">
         {% for formset in inlines %}
+            {{ formset.management_form }}
             {% for iform in formset %}
                 <fieldset>
                     {% for ifield in iform %}
