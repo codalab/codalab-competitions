@@ -21,7 +21,8 @@ import os
 # os.environ["DJANGO_SETTINGS_MODULE"] = "codalab.settings"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 os.environ.setdefault('DJANGO_CONFIGURATION', 'Dev')
-os.environ.setdefault('DJANGO_LOCAL_CONFIGURATION', 'codalab.settings.local_environment')
+os.environ.setdefault('DJANGO_LOCAL_CONFIGURATION',
+                      'codalab.settings.local_environment')
 
 from configurations.wsgi import get_wsgi_application
 

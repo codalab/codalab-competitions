@@ -18,10 +18,7 @@ class BaseConfig(object):
             self._filename = os.path.join(os.getcwd(), filename)
             paths_searched.append(self._filename)
             if not os.path.exists(self._filename):
-                if os.environ.has_key("USERPROFILE"):
-                    self._filename = os.path.join(os.environ["USERPROFILE"], filename)
-                elif os.environ.has_key("HOME"):
-                    self._filename = os.path.join(os.environ["HOME"], filename)
+                self._filename = os.path.join(os.path.expanduser("~"), filename)
                 paths_searched.append(self._filename)
             if not os.path.exists(self._filename):
                 msg = "Config file not found. Searched for:\n" + "\n".join(paths_searched)

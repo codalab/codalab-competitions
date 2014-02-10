@@ -99,7 +99,7 @@ var Competition;
                     },
                     each: function (file, errors) {
                         if (errors.length > 0) {
-                            $('#details').html('The selected file is not a valid ZIP file under 100MB.');
+                            $('#details').html('The selected file is not a valid ZIP file under 256MB.');
                         }
                     },
                     success: function (response) {
@@ -194,7 +194,6 @@ var Competition;
                 console.log(data);
                 if (data['status'] == "approved") {
                     location.reload();
-                    console.log("Approved, figuing out how to update the div.");
                 } else if (data['status'] == "pending") {
                     sOut = "<div class='participateInfoBlock pendingApproval'>"
                     sOut += "<div class='infoStatusBar'></div>"
@@ -264,7 +263,8 @@ var Competition;
             switch (index) {
                 case 0: if (response.status === "finished") { $(this).val("1"); } break;
                 case 1: $(this).html(response.submission_number.toString()); break;
-                case 2:
+                case 2: $(this).html(response.filename); break;
+                case 3:
                     var fmt = function (val) {
                         var s = val.toString();
                         if (s.length == 1) {
@@ -279,7 +279,7 @@ var Competition;
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + " " + h + ":" + m + ":" + s);
                     break;
-                case 3: $(this).html(Competition.getSubmissionStatus(response.status)); break;
+                case 4: $(this).html(Competition.getSubmissionStatus(response.status)); break;
             }
         }
       );
@@ -333,14 +333,17 @@ var Competition;
                 });
             }
             else {
-                var status = $(nTr).find(".statusName").html();
+                var status = $.trim($(nTr).find(".statusName").html());
                 var btn = elem.find("button").addClass("hide");
-                if ($.trim(status) === "Submitting" || $.trim(status) === "Submitted" || $.trim(status) === "Running") {
+                if (status === "Submitting" || status === "Submitted" || status === "Running") {
                     btn.removeClass("hide");
                     btn.text("Refresh status")
                     btn.on('click', function () {
-                        Competition.updateSubmissionStatus($("#competitionId").val(), nTr.id, this)
+                        Competition.updateSubmissionStatus($("#competitionId").val(), nTr.id, this);
                     });
+                }
+                if (status === "Failed" || status === "Cancelled") {
+                    elem.find("a").removeClass("hide");
                 }
             }
             $(nTr).after(elem);
@@ -371,6 +374,7 @@ var Competition;
                 }
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass("hide");
+                    $(obj).parent().parent().find("a").removeClass("hide");
                 }
                 $(".competitionPreloader").hide();
             },
