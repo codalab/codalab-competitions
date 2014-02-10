@@ -92,8 +92,8 @@ def config(label=None):
     filename = ".codalabconfig"
     if 'cfg_path' not in env:
         if os.path.exists(filename):
-        env.cfg_path = os.path.join(os.getcwd(), filename)
-        elif os.path.exists(env.cfg_path):
+            env.cfg_path = os.path.join(os.getcwd(), filename)
+            if not os.path.exists(env.cfg_path):
             env.cfg_path = os.path.join(os.path.expanduser("~"), filename)
     print "Loading configuration from: ", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
@@ -112,6 +112,14 @@ def config(label=None):
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
         env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
+        # Information about Bundles repo
+        env.git_bundles_user = configuration.getBundleServiceGitUser()
+        env.git_bundles_repo = configuration.getBundleServiceGitRepo()
+        env.git_bundles_tag = configuration.getBundleServiceGitTag()
+        if len(configuration.getBundleServiceUrl()) > 0:
+            env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_bundles_user, env.git_bundles_repo)
+        else:
+            env.git_bundles_repo_url = ''
         env.deploy_dir = 'deploy'
         env.build_archive = '{0}.tar.gz'.format(env.git_tag)
         env.django_settings_module = 'codalab.settings'
@@ -241,6 +249,21 @@ def build():
         buf.write(dep.getSettingsFileContent())
         settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
         put(buf, settings_file)
+    # Assemble source and configurations for the bundle service
+    if len(env.git_bundles_repo_url) > 0:
+        build_dir_b = "/".join(['builds', env.git_bundles_user, env.git_bundles_repo])
+        src_dir_b = "/".join([build_dir_b, env.git_bundles_tag])
+        if exists(src_dir_b):
+            run('rm -rf %s' % (src_dir_b.rstrip('/')))
+        with settings(warn_only=True):
+            run('mkdir -p %s' % src_dir_b)
+        with cd(src_dir_b):
+            run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
+        # Replace current bundles dir in main CodaLab other bundles repo.
+        bundles_dir = "/".join([src_dir, 'bundles'])
+        run('rm -rf %s' % (bundles_dir.rstrip('/')))
+        run('mv %s %s' % (src_dir_b, bundles_dir))
+    # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
         run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
@@ -289,6 +312,7 @@ def deploy_web():
                 run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+                sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
 
 @roles('compute')
 @task
@@ -339,10 +363,10 @@ def install_mysql():
         sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
         sudo('mysqladmin -u root password {0}'.format(dba_password))
 
-        cmds = ["create database {0};".format(db_name),
-                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+    cmds = ["create database {0};".format(db_name),
+            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
             "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user) ]
-        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+    run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
 @roles('web', 'compute')
 @task

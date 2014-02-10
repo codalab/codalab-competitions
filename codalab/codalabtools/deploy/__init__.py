@@ -241,6 +241,28 @@ class DeploymentConfig(BaseConfig):
             name = '{0}{1}Bus'.format(cap(self.getServicePrefix()), cap(self.label))
         return name
 
+    def getSslCertificatePath(self):
+        """Gets the path of the SSL certificate file to install."""
+        return self._svc['ssl']['filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateKeyPath(self):
+        """Gets the path of the SSL certificate key file to install."""
+        return self._svc['ssl']['key-filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateInstalledPath(self):
+        """Gets the path of the installed SSL certificate file."""
+        if len(self.getSslCertificatePath()) > 0:
+            return "/etc/ssl/certs/%s" % os.path.basename(self.getSslCertificatePath())
+        else:
+            return ""
+
+    def getSslCertificateKeyInstalledPath(self):
+        """Gets the path of the installed SSL certificate key file."""
+        if len(self.getSslCertificateKeyPath()) > 0:
+            return "/etc/ssl/private/%s" % os.path.basename(self.getSslCertificateKeyPath())
+        else:
+            return ""
+
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
         return "{0}build".format(self.getServicePrefix(), self.label)
@@ -267,6 +289,42 @@ class DeploymentConfig(BaseConfig):
         vm_numbers = range(1, 1 + self.getServiceInstanceCount())
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
+    def getComputeHostnames(self):
+        """
+        Gets the list of compute instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
+        """
+        service_name = self.getServiceName()
+        vm_numbers = range(1, 1 + self.getComputeInstanceCount())
+        ssh_port = self.getComputeInstanceSshPort()
+        return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+    def getBundleServiceGitUser(self):
+        """Gets the name of the Git user associated with the target source code repository for bundles."""
+        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitRepo(self):
+        """Gets the name of the Git of the target source code repository  for bundles."""
+        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitTag(self):
+        """Gets the Git tag defining the specific version of the source code  for bundles."""
+        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceUrl(self):
+        """Gets the URL for the bundle service."""
+        return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceDatabaseName(self):
+        """Gets the bundle service database name."""
+        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
+
+    def getBundleServiceDatabaseUser(self):
+        """Gets the database username."""
+        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
+
+    def getBundleServiceDatabasePassword(self):
+        """Gets the password for the database user."""
+        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
 
     def getComputeHostnames(self):
         """
@@ -949,6 +1007,16 @@ class Deployment(object):
             "            }",
             "        }",
             "    }",
+            "",
+            "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
+            "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
+            "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
+            "",
+            "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
+            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
+            "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
+            "",
         ]
         return '\n'.join(lines)
 
