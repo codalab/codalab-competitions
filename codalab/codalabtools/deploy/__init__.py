@@ -178,7 +178,7 @@ class DeploymentConfig(BaseConfig):
         return self._svc['database']['engine']
 
     def getDatabaseName(self):
-        """Gets the database name."""
+        """Gets the Django site database name."""
         return self._svc['database']['name']
 
     def getDatabaseUser(self):
@@ -186,7 +186,7 @@ class DeploymentConfig(BaseConfig):
         return self._svc['database']['user']
 
     def getDatabasePassword(self):
-        """Gets the database password."""
+        """Gets the password for the database user."""
         return self._svc['database']['password']
 
     def getDatabaseHost(self):
@@ -196,6 +196,10 @@ class DeploymentConfig(BaseConfig):
     def getDatabasePort(self):
         """Gets the database port."""
         return self._svc['database']['port']
+
+    def getDatabaseAdminPassword(self):
+        """Gets the password for the database admin."""
+        return self._svc['database']['admin_password']
 
     def getServicePublicStorageContainer(self):
         """Gets the name of the public Blob container for the service."""
@@ -212,6 +216,28 @@ class DeploymentConfig(BaseConfig):
             cap = DeploymentConfig._cap
             name = '{0}{1}Bus'.format(cap(self.getServicePrefix()), cap(self.label))
         return name
+
+    def getSslCertificatePath(self):
+        """Gets the path of the SSL certificate file to install."""
+        return self._svc['ssl']['filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateKeyPath(self):
+        """Gets the path of the SSL certificate key file to install."""
+        return self._svc['ssl']['key-filename'] if 'ssl' in self._svc else ""
+
+    def getSslCertificateInstalledPath(self):
+        """Gets the path of the installed SSL certificate file."""
+        if len(self.getSslCertificatePath()) > 0:
+            return os.path.join('/etc', 'ssl', 'certs', os.path.basename(self.getSslCertificatePath()))
+        else:
+            return ""
+
+    def getSslCertificateKeyInstalledPath(self):
+        """Gets the path of the installed SSL certificate key file."""
+        if len(self.getSslCertificateKeyPath()) > 0:
+            return os.path.join('/etc', 'ssl', 'private', os.path.basename(self.getSslCertificateKeyPath()))
+        else:
+            return ""
 
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
@@ -239,6 +265,34 @@ class DeploymentConfig(BaseConfig):
         vm_numbers = range(1, 1 + self.getServiceInstanceCount())
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+
+    def getBundleServiceGitUser(self):
+        """Gets the name of the Git user associated with the target source code repository for bundles."""
+        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitRepo(self):
+        """Gets the name of the Git of the target source code repository  for bundles."""
+        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceGitTag(self):
+        """Gets the Git tag defining the specific version of the source code  for bundles."""
+        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceUrl(self):
+        """Gets the URL for the bundle service."""
+        return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
+
+    def getBundleServiceDatabaseName(self):
+        """Gets the bundle service database name."""
+        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
+
+    def getBundleServiceDatabaseUser(self):
+        """Gets the database username."""
+        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
+
+    def getBundleServiceDatabasePassword(self):
+        """Gets the password for the database user."""
+        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
 
 class Deployment(object):
     """
@@ -419,8 +473,8 @@ class Deployment(object):
         account_name = self.config.getServiceStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
         blob_service = BlobService(account_name, account_key)
-        name_and_access_list = [ (self.config.getServicePublicStorageContainer(), 'blob'),
-                                 (self.config.getServiceBundleStorageContainer(), None) ]
+        name_and_access_list = [(self.config.getServicePublicStorageContainer(), 'blob'),
+                                (self.config.getServiceBundleStorageContainer(), None)]
         for name, access in name_and_access_list:
             logger.info("Checking for existence of Blob container %s.", name)
             blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
@@ -504,8 +558,8 @@ class Deployment(object):
 
             os_hd = OSVirtualHardDisk(self.config.getServiceOSImageName(),
                                       vm_disk_media_link,
-                                      disk_name = vm_diskname,
-                                      disk_label = vm_diskname)
+                                      disk_name=vm_diskname,
+                                      disk_label=vm_diskname)
             linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
             linux_config.ssh.public_keys.public_keys.append(
                 PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
@@ -529,7 +583,7 @@ class Deployment(object):
             http_endpoint.load_balancer_probe.protocol = 'TCP'
             network_config.input_endpoints.input_endpoints.append(http_endpoint)
 
-            if (vm_number == 1):
+            if vm_number == 1:
                 result = self.sms.create_virtual_machine_deployment(service_name=service_name,
                                                                     deployment_name=service_name,
                                                                     deployment_slot='Production',
@@ -624,8 +678,8 @@ class Deployment(object):
             vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(service_storage_name, vm_diskname)
             os_hd = OSVirtualHardDisk(self.config.getBuildOSImageName(),
                                       vm_disk_media_link,
-                                      disk_name = vm_diskname,
-                                      disk_label = vm_diskname)
+                                      disk_name=vm_diskname,
+                                      disk_label=vm_diskname)
             linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
             linux_config.ssh.public_keys.public_keys.append(
                 PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
@@ -652,7 +706,7 @@ class Deployment(object):
                                                                 availability_set_name=None,
                                                                 data_virtual_hard_disks=None,
                                                                 role_size=self.config.getBuildInstanceRoleSize())
-            self._wait_for_operation_success(result.request_id, timeout = self.config.getAzureOperationTimeout())
+            self._wait_for_operation_success(result.request_id, timeout=self.config.getAzureOperationTimeout())
             self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
                                                 self.config.getAzureOperationTimeout())
             logger.info("Role instance %s has been created.", vm_hostname)
@@ -711,7 +765,7 @@ class Deployment(object):
         logger.info("Checking for existence of Service Bus Queues.")
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
         sbs = ServiceBusService(namespace.name, namespace.default_key, issuer='owner')
-        queue_names = [ 'jobresponsequeue', 'windowscomputequeue', 'linuxcomputequeue' ]
+        queue_names = ['jobresponsequeue', 'windowscomputequeue', 'linuxcomputequeue']
         for name in queue_names:
             logger.info("Checking for existence of Queue %s.", name)
             sbs.create_queue(name, fail_on_exist=False)
@@ -785,7 +839,7 @@ class Deployment(object):
         """
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
-        allowed_hosts.extend(['www.codalab.org','codalab.org'])
+        allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
 
         storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
@@ -795,11 +849,20 @@ class Deployment(object):
             "from default import *",
             "from configurations import Settings",
             "",
+            "import sys",
+            "from os.path import dirname, abspath, join",
+            "from pkgutil import extend_path",
+            "import codalab",
+            "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
             "    DEBUG=False",
             "",
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
+            "",
+            "    SSL_PORT = '443'",
+            "    SSL_CERTIFICATE = '{0}'".format(self.config.getSslCertificateInstalledPath()),
+            "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
@@ -844,9 +907,18 @@ class Deployment(object):
             "            }",
             "        }",
             "    }",
+            "",
+            "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
+            "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
+            "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
+            "",
+            "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
+            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
+            "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
+            "",
         ]
         return '\n'.join(lines)
-
 
 if __name__ == "__main__":
 

@@ -3,7 +3,7 @@ import logging
 import random
 import operator
 import os, io
-from os.path import abspath, basename, dirname, join, normpath
+from os.path import abspath, basename, dirname, join, normpath, split
 import zipfile
 import yaml
 import tempfile
@@ -285,6 +285,32 @@ def submission_prediction_runfile_name(instance, filename="run.txt"):
 def submission_prediction_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
 
+class _LeaderboardManagementMode(object):
+    """
+    Provides a set of constants which define when results become visible to participants
+    and how successful submisstion are added to the leaderboard.
+    """
+    @property
+    def DEFAULT(self):
+        """
+        Specifies that results are visible as soon as they are available and that adding
+        a successful submission to the leaderboard is a manual step.
+        """
+        return 'default'
+    @property
+    def HIDE_RESULTS(self):
+        """
+        Specifies that results are hidden from participants until competition owners make
+        them visible and that a participant's last successful submission is automatically
+        added to the leaderboard.
+        """
+        return 'hide_results'
+    def is_valid(self, mode):
+        """Returns true if the given string is a valid constant to define a management mode."""
+        return mode == self.DEFAULT or mode == self.HIDE_RESULTS
+
+LeaderboardManagementMode = _LeaderboardManagementMode()
+
 # Competition Phase
 class CompetitionPhase(models.Model):
     """
@@ -300,6 +326,7 @@ class CompetitionPhase(models.Model):
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
+    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT)
 
     class Meta:
         ordering = ['phasenumber']
@@ -329,6 +356,13 @@ class CompetitionPhase(models.Model):
     def is_past(self):
         """ Returns true if this phase of the competition has already ended. """
         return (not self.is_active) and (not self.is_future)
+
+    @property
+    def is_blind(self):
+        """
+        Indicates whether results are always hidden from participants.
+        """
+        return self.leaderboard_management_mode == LeaderboardManagementMode.HIDE_RESULTS
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
@@ -554,10 +588,14 @@ class CompetitionSubmissionStatus(models.Model):
 
 # Competition Submission
 class CompetitionSubmission(models.Model):
+    """
+    Represents a submission from a competition participant.
+    """
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
+    description = models.CharField(max_length=256, blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
@@ -608,6 +646,53 @@ class CompetitionSubmission(models.Model):
         print "Calling super save."
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         return res
+
+    def get_filename(self):
+        """
+        Returns the short name of the file which was uploaded to create the submission.
+        """
+        return split(self.file.name)[1]
+
+    def get_file_for_download(self, key, requested_by, requested_by_competition_owner=False):
+        """
+        Returns the FileField object for the file that is to be downloaded by the given user.
+
+        key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
+           'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
+        requested_by: A user object identifying the user making the request to access the file.
+        requested_by_competition_owner: A boolean flag indicating whether the user is making
+           the request as a competition owner (True) or as a competition participant (False).
+           Access rules are affected by the value of this flag.
+
+        Raises:
+           ValueError exception for improper arguments.
+           PermissionDenied exception when access to the file cannot be granted.
+        """
+        downloadable_files = {
+            'input.zip': ('file', 'zip', False),
+            'output.zip': ('output_file', 'zip', True),
+            'prediction-output.zip': ('prediction_output_file', 'zip', True),
+            'stdout.txt': ('stdout_file', 'txt', True),
+            'stderr.txt': ('stderr_file', 'txt', False)
+        }
+        if key not in downloadable_files:
+            raise ValueError("File requested is not valid.")
+        file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
+        # Verify access rules
+        if requested_by_competition_owner:
+            # User making request must be in the "competition owner" group.
+            if self.participant.competition.creator.id != requested_by.id:
+                raise PermissionDenied()
+        else:
+            # User making request must be owner of this submission and be granted
+            # download privilege by the competition owners.
+            if self.participant.user.id != requested_by.id:
+                raise PermissionDenied()
+            if file_has_restricted_access and self.phase.is_blind:
+                raise PermissionDenied()
+        file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
+        file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+        return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
@@ -704,13 +789,22 @@ class CompetitionDefBundle(models.Model):
         for p_num in comp_spec['phases']:
             phase_spec = comp_spec['phases'][p_num].copy()
             phase_spec['competition'] = comp
+
+            if 'leaderboard_management_mode' in phase_spec:
+                if not LeaderboardManagementMode.is_valid(phase_spec['leaderboard_management_mode']):
+                    msg = "Invalid leaderboard_management_mode ({0}) specified for phase {1}. Reverting to default."
+                    logger.warn(msg.format(phase_spec['leaderboard_management_mode'], p_num))
+                    phase_spec['leaderboard_management_mode'] = LeaderboardManagementMode.DEFAULT
+            else:
+                phase_spec['leaderboard_management_mode'] = LeaderboardManagementMode.DEFAULT
+
             if 'datasets' in phase_spec:
                 datasets = phase_spec['datasets']
                 del phase_spec['datasets']
             else:
                 datasets = {}
             if type(phase_spec['start_date']) is datetime.datetime.date:
-                phase_spec['start_date'] = datetime.datetime.combine(phase['start_date'], datetime.time())
+                phase_spec['start_date'] = datetime.datetime.combine(phase_spec['start_date'], datetime.time())
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
@@ -900,7 +994,7 @@ class SubmissionScore(models.Model):
         unique_together = (('result','scoredef'),)
 
     def save(self,*args,**kwargs):
-        if self.scoredef.computed is True and value:
+        if self.scoredef.computed is True and self.value:
             raise IntegrityError("Score is computed. Cannot assign a value")
         super(SubmissionScore,self).save(*args,**kwargs)
 
@@ -931,52 +1025,16 @@ class PhaseLeaderBoardEntry(models.Model):
     class Meta:
         unique_together = (('board', 'result'),)
 
-
-# Bundle Model
-class Bundle(models.Model):
-    path = models.CharField(max_length=100, blank=True)
-    inputpath = models.CharField(max_length=100, blank=True)
-    outputpath = models.CharField(max_length=100, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    #owner = models.ForeignKey(User, blank=True, null=True)
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)
-    description = models.TextField(blank=True)
-    version = models.CharField(max_length=100)
-    metadata = models.CharField(max_length=500)
-    private = models.BooleanField()
-
-    class Meta:
-        ordering = ['name']
-
-    def __unicode__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return ('project_bundle_detail', (), {'slug': self.slug})
-    #get_absolute_url = models.permalink(get_absolute_url)
-
-
-# Run Model
-class Run(models.Model):
-    bundle = models.ForeignKey(Bundle)
-    created = models.DateTimeField(auto_now_add=True)
-    slug = models.SlugField(unique=True, max_length=255)
-    metadata = models.CharField(max_length=255)
-    bundlePath = dirname(dirname(abspath(__file__)))
-    programPath = models.CharField(max_length=100)
-    inputPath = models.CharField(max_length=100)
-    outputPath = models.CharField(max_length=100)
-    cellout = models.FloatField(blank=True, null=True)
-
-    #objects = models.Manager()
-
-    class Meta:
-        ordering = ['-created']
-
-    def __unicode__(self):
-        return u'%s' % self.bundle
-
-    def get_absolute_url(self):
-        return ('bundle_run_detail', (), {'object_id': self.id })
-    #get_absolute_url = models.permalink(get_absolute_url)
+def add_submission_to_leaderboard(submission):
+    """
+    Adds the given submission to its leaderboard. It is the caller responsiblity to make
+    sure the submission is ready to be added (e.g. it's in the finished state).
+    """
+    lb,_ = PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+    # Currently we only allow one submission into the leaderboard although the leaderboard
+    # is setup to accept multiple submissions from the same participant.
+    entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=submission.participant)
+    for entry in entries:
+        entry.delete()
+    lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
+    return lbe, created

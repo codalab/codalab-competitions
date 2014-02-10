@@ -35,6 +35,10 @@ class Base(Settings):
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
     }
 
+    SSL_PORT = ''
+    SSL_CERTIFICATE = ''
+    SSL_CERTIFICATE_KEY = ''
+
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
@@ -244,6 +248,8 @@ class Base(Settings):
             'rest_framework.renderers.JSONRenderer',
             )
     }
+
+    BUNDLE_SERVICE_URL = ""
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to

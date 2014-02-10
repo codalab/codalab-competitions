@@ -617,7 +617,7 @@ input[type="submit"][value="Delete"]
     overflow:hidden;
     padding:15px;
 }
-.competitionTileLftStrip{
+.competitionTileLftStrip {
     background:#739CB9;
     display:table-cell;
     width:10px;
@@ -2343,7 +2343,7 @@ ul.leftNavigation li.active a{
     height:18px;
     width:18px;
     display:inline-block;
-    margin-top:5px;
+    margin: 5px 0 5px 0;
 }
 .helpLinkIcon:hover {
     background: url('../img/helpicon.png') no-repeat center center;
@@ -2416,9 +2416,11 @@ ul.leftNavigation li.active a{
 }
 .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
     height: 65px;
+    text-decoration: none;
 }
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
     height: 65px !important;
+    text-decoration: none;
 }
 .pad15 {
     padding: 15px;
@@ -2489,9 +2491,13 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
-    padding: 1em 0 .3em 0;
+    padding: 0;
     cursor: default;
     display: inline-block;
+}
+
+#edit_competition .fieldWrapper {
+    margin-bottom: 5px;
 }
 #edit_competition input, #edit_competition textarea, #edit_competition p {
     color: #666;
@@ -2543,4 +2549,87 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     position: relative;
     margin-top:-81px;
     float:left;
+}
+.h-caps {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.bundle-tile {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px #CCC solid;
+    border-left: 10px #739CB9 solid;
+    border-radius: 3px;
+    background: #FFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+.bundle-meta {
+    color: #999;
+}
+.bundle-meta p {
+    line-height: 16px;
+}
+.bundle-meta p em {
+    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
+    font-style: italic;
+}
+.bundle-name {
+    padding:0;
+    color:#535353;
+}
+.bundle-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_bundle_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.bundle-icon {
+    text-indent: 75px;
+    background: url('../img/icon_bundle.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running, .bundle-status--ready, .bundle-status--failed {
+    height: 32px;
+    width: 32px;
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 0;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running {
+    background: url('../img/icon_yellowlight.png') no-repeat;
+}
+.bundle-status--ready {
+    background: url('../img/icon_greenlight.png') no-repeat;
+}
+.bundle-status--failed {
+    background: url('../img/icon_redlight.png') no-repeat;
+}
+.med.button {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+li > a, .title a {
+   text-decoration: none;
+}
+.submission_details {
+    padding-top: 17px;
+}
+p i {
+    color: #739cb9;
+}
+th > i {
+color: #FFF;
+}
+a i {
+    cursor: pointer;
+}
+.competition-tile a, .competitions a {
+    text-decoration: none;
 }

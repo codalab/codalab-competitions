@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load tz %}
 {% block title %}Competition - [{{ competition.title }}]{% endblock title %}
 {% block page_title %}Competition{% endblock page_title %}
 
@@ -17,7 +18,7 @@
                 </figure>
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
-                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
+                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
                     <div class="StatusStripContainer">
@@ -38,13 +39,13 @@
                                 {% endif %}
                                         <span class="phaseLabel">{{phase.label}}</span> 
                                         <br>
-                                        <span>{{phase.start_date}}</span>
+                                        <span>{{phase.start_date|utc}} UTC</span>
                                 </section>
                             {% endfor %}
                                 <section>
                                         <span class="phaseLabel">Competition Ends</span> 
                                         <br>
-                                        <span>{{competition.end_date|default:"Never"}}</span>
+                                        <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
                                 </section>
                             </section>
                         </div>
