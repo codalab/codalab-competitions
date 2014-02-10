@@ -2633,3 +2633,8 @@ a i {
 .competition-tile a, .competitions a {
     text-decoration: none;
 }
+.bundle__meta__desc {
+    padding: 0 10px;
+    white-space: normal;
+
+}

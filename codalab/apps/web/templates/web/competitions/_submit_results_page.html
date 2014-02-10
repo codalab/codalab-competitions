@@ -70,6 +70,9 @@
             <tr class="trDetails">
                 <td class="tdDetails" colspan="6">
                     <div class="submission_details">
+                        <div class="bundle__meta__desc">
+                            <p>No description given.</p>
+                        </div>
                         <div class="small-2 large-4 columns">
                             <a href="/my/competition/submission/_/input.zip">Download your submission</a></br>
                             {% if phase.is_blind %}
@@ -80,7 +83,7 @@
                                 {% if not phase.is_scoring_only %}
                                 <a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></br>
                                 {% endif %}
-                                <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a>
+                                <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br><br>
                             {% endif %}
                         </div>
                         <div class="small-2 large-4 columns preloader-handler"></div>
