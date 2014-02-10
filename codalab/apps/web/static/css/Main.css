@@ -2630,6 +2630,6 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
-.competition-tile a {
+.competition-tile a, .competitions a {
     text-decoration: none;
 }
