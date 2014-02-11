@@ -1,41 +1,58 @@
+"""
+Provide a template to define local configuration settings. Make a copy of this
+file named 'local.py' and set appropriate values for the settings.
+"""
 from base import DevBase
 from default import *
 from configurations import Settings
 
+import sys
+from os.path import dirname, abspath, join
+from pkgutil import extend_path
+import codalab
 
 class Dev(DevBase):
+
+    # Azure storage
     DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
-    AZURE_ACCOUNT_NAME = "accname"
-    AZURE_ACCOUNT_KEY = 'asdfsdfsdafpRE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
-    AZURE_CONTAINER = 'containername'
+    AZURE_ACCOUNT_NAME = 'your_account_name'
+    AZURE_ACCOUNT_KEY = 'your_key_RE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
+    AZURE_CONTAINER = 'name_of_your_container_for_public_blobs'
 
-    PRIVATE_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
-    PRIVATE_AZURE_ACCOUNT_NAME = "acctname"
-    PRIVATE_AZURE_ACCOUNT_KEY = "asdfsadfsadfdsalA8og4ApxsvZfiiWTsvthEiLmuJLyWrZ1VyDauwXDLClj+SZyKozFF65ZwnvQg=="
-    PRIVATE_AZURE_CONTAINER = "containername"
-    
-    BUNDLE_AZURE_CONTAINER = "bundles"
-    BUNDLE_AZURE_ACCOUNT_NAME = PRIVATE_AZURE_ACCOUNT_NAME
-    BUNDLE_AZURE_ACCOUNT_KEY = PRIVATE_AZURE_ACCOUNT_KEY
-    
+    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME
+    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY
+    BUNDLE_AZURE_CONTAINER = 'name_of_your_private_container_for_bundles'
 
-    COMPUTATION_SUBMISSION_URL = 'http://sdafsdafsadfsdaf.cloudapp.net/api/computation/'
+    # Bundle service: leave this URL blank to by-pass this functionality
+    BUNDLE_SERVICE_URL = ""
+    # Following config is necessary to use a bundle service
+    # CODE_PATH points to local source code for bundles repo. Path is relative to this file.
+    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\bundles"
+    if len(BUNDLE_SERVICE_CODE_PATH) > 0:
+        sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
+        codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
+    # Bundle service DB information. These settings are used to generate the bundle
+    # server config (see config\templats\bundle_server_config.json) using the command
+    # 'python manage.py config_gen'
+    BUNDLE_DB_NAME = 'bundles_db_name'
+    BUNDLE_DB_USER = 'bundles_db_user'
+    BUNDLE_DB_PASSWORD = 'bundles_db_password'
 
-    # CELERY CONFIG
-    BROKER_URL = "amqp://guest:guest@localhost:5672//"
-    CELERY_RESULT_BACKEND = "amqp"
-    CELERY_TASK_RESULT_EXPIRES=3600
-    ##
+    # Service Bus
+    SBS_NAMESPACE = '<enter name>'
+    SBS_ISSUER = 'owner'
+    SBS_ACCOUNT_KEY = '<enter key>'
+    SBS_RESPONSE_QUEUE = '<enter queue name>' # incoming queue for site worker
+    SBS_COMPUTE_QUEUE = '<enter queue name>'  # incoming queue for Windows compute worker
 
-    DATABASES = {'default': {
+    DATABASES = {
+        'default': {
             'ENGINE':  'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'MySQL_DevDB',                      # Or path to database file if using sqlite3.
+            'NAME': 'MySQL_DevDB',                 # Or path to database file if using sqlite3.
             # The following settings are not used with sqlite3:
-            'USER': 'b7850380393093',
-            'PASSWORD': '04854030',
-            'HOST': 'SERVERNAME.cleardb.com',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
-            
-
-            }
-   }
+            'USER': 'someuser',
+            'PASSWORD': 'somepassword',
+            'HOST': 'someserver', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            'PORT': '',           # Set to empty string for default.
+        }
+    }

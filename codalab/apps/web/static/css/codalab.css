@@ -428,7 +428,7 @@ p.competition-paragraph {
 }
 
 /* line 390, ../sass/_settings.scss */
-.competition-tile h3 {
+.competition-tile h3, .bundle-tile h3 {
   font-size: 16px;
   color: #333333;
 }
@@ -2402,7 +2402,7 @@ td {
 /* line 151, ../sass/foundation/components/_type.scss */
 a {
   color: #676278;
-  text-decoration: none;
+  text-decoration: underline;
   line-height: inherit;
   font-weight: bold;
 }
@@ -7697,8 +7697,13 @@ body {
     border-color: #5384a6;
   }
 }
+/* line 30, ../sass/codalab.scss */
+.column-selectable:last-child {
+  float: none !important;
+}
+
 /* Panels */
-/* line 35, ../sass/codalab.scss */
+/* line 39, ../sass/codalab.scss */
 .panel {
   border-style: solid;
   border-width: 1px;
@@ -7730,7 +7735,7 @@ body {
   line-height: 1.4;
 }
 
-/* line 79, ../sass/codalab.scss */
+/* line 83, ../sass/codalab.scss */
 li a.active {
   color: #676278;
   font-weight: bold;
@@ -7739,7 +7744,7 @@ li a.active {
 }
 
 /* Default header styles */
-/* line 137, ../sass/codalab.scss */
+/* line 141, ../sass/codalab.scss */
 h1, h2, h3 {
   font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 100;
@@ -7750,7 +7755,7 @@ h1, h2, h3 {
   margin-bottom: 0.5em;
   line-height: 1.2125em;
 }
-/* line 147, ../sass/codalab.scss */
+/* line 151, ../sass/codalab.scss */
 h1 small, h2 small, h3 small {
   font-size: 70%;
   color: #999999;

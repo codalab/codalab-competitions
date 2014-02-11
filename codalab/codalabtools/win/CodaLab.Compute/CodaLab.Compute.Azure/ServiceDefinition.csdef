@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="CodaLab.Compute.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2013-03.2.0">
+  <WorkerRole name="CodaLab.Compute.Worker" vmsize="Small">
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="CodaLab.ServiceBus.ConnectionString" />
+      <Setting name="CodaLab.Compute.QueueName" />
+      <Setting name="CodaLab.Storage.ConnectionString" />
+    </ConfigurationSettings>
+    <Startup>
+      <Task commandLine="startup.cmd" executionContext="elevated">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+          <Variable name="INSTALL_PATH">
+            <RoleInstanceValue xpath="/RoleEnvironment/CurrentInstance/LocalResources/LocalResource[@name='RunStorage']/@path" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
+    <Runtime>
+      <Environment>
+        <Variable name="INSTALL_PATH" value="D:\Python27">
+        </Variable>
+      </Environment>
+    </Runtime>
+    <LocalResources>
+      <LocalStorage name="RunStorage" cleanOnRoleRecycle="true" sizeInMB="200000" />
+    </LocalResources>
+  </WorkerRole>
+</ServiceDefinition>
