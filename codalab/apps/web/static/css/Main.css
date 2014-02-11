@@ -2634,10 +2634,16 @@ a i {
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
+}
+
 .competition-editor-page-html {
     height: 20em;
 }
+
 .competition-editor-phase-leaderboard-mode {
     height: 25px;
     min-height: 25px;
+}
+.competition-editor-description {
+    height: auto;
 }
