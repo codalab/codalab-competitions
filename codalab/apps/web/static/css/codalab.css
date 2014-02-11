@@ -228,7 +228,7 @@ a > i {
 
 /* line 217, ../sass/_settings.scss */
 .user_results, .competition_results {
-  padding-top: 10px;
+  padding: 10px 0;
 }
 
 /* line 221, ../sass/_settings.scss */
