@@ -1,0 +1,2 @@
+program: competition1/program.zip
+input: competition1/submission1/input.txt
