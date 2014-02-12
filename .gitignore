@@ -99,3 +99,4 @@ requirements/src/
 *.dump
 *.cache
 wheel_packages/
+codalab/MySQL_DevDB
