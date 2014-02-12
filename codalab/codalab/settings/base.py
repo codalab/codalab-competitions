@@ -158,6 +158,7 @@ class Base(Settings):
         "allauth.account.context_processors.account",
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
+        "apps.web.context_processors.beta",
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -264,10 +265,13 @@ class Base(Settings):
     HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    },
-}
+        },
+    }
 
     BUNDLE_SERVICE_URL = ""
+
+    # Currently the search bar is hidden using this flag
+    SHOW_BETA_FEATURES = False
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
