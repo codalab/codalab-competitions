@@ -208,6 +208,7 @@ class Base(Settings):
         'allauth',
         'allauth.account',
         'allauth.socialaccount',
+        'tinymce'
     )
 
     OPTIONAL_APPS = []

@@ -2,6 +2,7 @@ from django import forms
 from django.forms.formsets import formset_factory
 from django.contrib.auth import get_user_model
 import models
+from tinymce.widgets import TinyMCE
 
 User =  get_user_model()
 
@@ -9,7 +10,7 @@ class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
         fields = ('title', 'description', 'image', 'has_registration', 'end_date', 'published')
-        widgets = { 'description' : forms.Textarea(attrs={'rows' : 20, 'class' : 'competition-editor-description'}) }
+        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'}) }
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
@@ -21,7 +22,7 @@ class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
         fields = ('html',)
-        widgets = { 'html' : forms.Textarea(attrs={'rows' : 20, 'class' : 'competition-editor-page-html' }) }
+        widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html' }) }
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
