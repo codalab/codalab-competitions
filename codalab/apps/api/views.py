@@ -3,6 +3,7 @@ Defines Django views for 'apps.api' app.
 """
 import json
 import logging
+from exceptions import ValueError
 from . import serializers
 from rest_framework import (permissions, status, viewsets, views)
 from rest_framework.decorators import action, link, permission_classes
@@ -18,6 +19,7 @@ from django.utils.decorators import method_decorator
 
 from apps.jobs.models import Job
 from apps.web import models as webmodels
+from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 logger = logging.getLogger(__name__)
@@ -400,3 +402,27 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
 
+#
+# Experiments/Worksheets
+#
+class ExperimentContentApi(views.APIView):
+    """
+    Provides a web API to fetch the content of a worksheet.
+    """
+    def get(self, request, uuid):
+        """
+        Returns the operation status:
+           { 'status': <value> }
+        where <value> is status of the job as defined by the 'code_name' in apps.jobs.models.Job.STATUS_BY_CODE.
+        """
+        user_id = self.request.user.id
+        logger.debug("ExperimentContent: user_id=%s; uuid=%s.", user_id, uuid)
+        try:
+            service = BundleService()
+            worksheet = service.worksheet(uuid)
+            return Response(worksheet)
+        except ValueError as e:
+            #todo -
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
