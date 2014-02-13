@@ -83,9 +83,9 @@
                     </form>
                 </li> 
                 -->
-                <!-- 
+                {%if True %}
                 <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> 
-                -->
+                {% endif %}
                 <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
                 {% if user.is_authenticated %}
                     <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>

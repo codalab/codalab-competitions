@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block head_title %}Experiment details{% endblock head_title %}
+{% block page_title %}Experiment details{% endblock page_title %}
+
+{% block content %}
+<div class="large-9 large-centered columns content">
+    <div id="worksheet-message">
+        Loading worksheet...
+    </div>
+    <div id="worksheet-body">
+        <div id="worksheet-content">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsincludes %}
+<script src="{{ STATIC_URL }}js/markdown.min.js"></script>
+<script>
+var WorksheetRenderer = (function () {
+    WorksheetRenderer.prototype.renderBundle = function (data) {
+        var lines = [
+            "> type: " + data.bundle_type,
+            "> uuid:" + data.uuid,
+            "> state: " + data.state,
+            "> metadata > name: " + data.metadata.name,
+            "> metadata > description: " + data.metadata.description,
+            "> metadata > created: " + data.metadata.created,
+            "> metadata > size: " + data.metadata.data_size,
+            "> metadata > tags: " + data.metadata.tags,
+            "> browse"
+        ];
+        return markdown.toHTML(lines.join('\n\n'));
+    };
+    function WorksheetRenderer(element, data) {
+        if (data && data.items && Array.isArray(data.items)) {
+            var _this = this;
+            blocks = data.items.map(function (item) {
+                if (item[0] === null) {
+                    return markdown.toHTML(item[1]);
+                }
+                return _this.renderBundle(item[0]); 
+            });
+            element.innerHTML = blocks.join('\n');
+        }
+    }
+    return WorksheetRenderer;
+})();
+
+
+$(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "/api" + document.location.pathname,
+        cache: false,
+        success: function (data) {
+            new WorksheetRenderer($("#worksheet-content").get(0), data);
+            $("#worksheet-message").hide();
+        },
+        error: function (xhr, status, err) {
+            if (xhr.status == 404) {
+                $("#worksheet-message").html("Experiment was not found.");
+            } else {
+                $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
+            }
+        }
+    });
+});
+</script>
+{% endblock jsincludes %}
