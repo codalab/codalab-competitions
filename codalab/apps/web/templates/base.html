@@ -76,13 +76,13 @@
 
               <!-- Right Nav Section -->
               <ul class="right">
-                <!--                 
+                {% if BETA %}
                 <li class="has-form">
                     <form action="/search" method="get">
-                    <input name="query" type="search" placeholder="Search">
+                    <input class="round" name="q" type="search" placeholder="Search">
                     </form>
                 </li> 
-                -->
+                {% endif %}
                 {%if True %}
                 <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> 
                 {% endif %}
