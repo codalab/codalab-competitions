@@ -372,3 +372,39 @@ class BundleDetailView(TemplateView):
         results = service.item(uuid)
         context['bundle'] = results
         return context
+
+# Experiments
+
+class ExperimentListView(TemplateView):
+    """
+    Displays worksheets/experiments as a list.
+    """
+    template_name = 'web/experiments/index.html'
+    def get_context_data(self, **kwargs):
+        context = super(ExperimentListView, self).get_context_data(**kwargs)
+        service = BundleService()
+        worksheets = service.worksheets()
+        items = []
+        for worksheet in worksheets:
+            item = {'uuid': worksheet['uuid'],
+                    'details_url': '/experiments/{0}'.format(worksheet['uuid']),
+                    'name': '<name not specified>',
+                    'title': '<title not specified>',
+                    'creator': '<creator not specified>',
+                    'description': '<description not specified>'}
+            for key in ['name', 'title', 'creator', 'description']:
+                if key in worksheet:
+                    item[key] = worksheet[key]
+            items.append(item)
+        context['items'] = items
+        context['items_label'] = 'experiments'
+        return context
+
+class ExperimentDetailView(TemplateView):
+    """
+    Displays details of a worksheet/experiment.
+    """
+    template_name = 'web/experiments/detail.html'
+    def get_context_data(self, **kwargs):
+        context = super(ExperimentDetailView, self).get_context_data(**kwargs)
+        return context
