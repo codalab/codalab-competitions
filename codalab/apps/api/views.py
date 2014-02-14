@@ -18,6 +18,7 @@ from django.utils.decorators import method_decorator
 
 from apps.jobs.models import Job
 from apps.web import models as webmodels
+from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 logger = logging.getLogger(__name__)
@@ -400,3 +401,37 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
 
+#
+# Experiments/Worksheets
+#
+class ExperimentContentApi(views.APIView):
+    """
+    Provides a web API to fetch the content of a worksheet.
+    """
+    def get(self, request, uuid):
+        """
+        """
+        user_id = self.request.user.id
+        logger.debug("ExperimentContent: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
+        try:
+            worksheet = service.worksheet(uuid)
+            return Response(worksheet)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleContentApi(views.APIView):
+    """
+    Provides a web API to browse the content of a bundle.
+    """
+    def get(self, request, uuid, path):
+        """
+        """
+        user_id = self.request.user.id
+        logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
+        service = BundleService()
+        try:
+            items = service.ls(uuid, path)
+            return Response(items)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
