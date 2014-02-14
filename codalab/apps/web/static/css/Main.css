@@ -2636,5 +2636,9 @@ a i {
 .bundle__meta__desc {
     padding: 0 10px;
     white-space: normal;
-
 }
+.coda-jax {
+    background: transparent;
+    color: #3b3b3b;
+}
+
