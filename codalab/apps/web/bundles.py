@@ -4,6 +4,8 @@ from time import sleep
 from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
+
+    from codalab.common import UsageError
     from codalab.client.remote_bundle_client import RemoteBundleClient
 
     def _call_with_retries(f, retry_count=0):
@@ -32,9 +34,31 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def worksheet(self, uuid):
             return _call_with_retries(lambda: self.client.worksheet_info(uuid))
 
+        def ls(self, uuid, path):
+            return _call_with_retries(lambda: self.client.ls((uuid, path)))
+
+        def http_status_from_exception(self, ex):
+            # This is brittle. See https://github.com/codalab/codalab/issues/345.
+            if type(ex) == UsageError:
+                return 404
+            return 500
+
 else:
 
     class BundleService():
 
         def items(self):
             return []
+
+        def item(self, uuid):
+            raise NotImplementedError
+
+        def worksheets(self):
+            return []
+
+        def worksheet(self, uuid):
+            raise NotImplementedError
+
+        def ls(self, uuid, path):
+            raise NotImplementedError
+
