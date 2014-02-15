@@ -26,7 +26,7 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family: 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:lighter;
     color:#777;
@@ -581,7 +581,7 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 17px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
     font-weight: lighter;
 }
@@ -601,7 +601,7 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font: 20px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 20px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
     font-weight: lighter;
@@ -669,7 +669,7 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 25px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
@@ -2446,7 +2446,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-weight: normal;
 }
 .slider h1 {
-    font-family: 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     color: #FFF;
     font-size: 1.1em;
@@ -2488,7 +2488,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 0.9375em;
 }
 #edit_competition label {
-    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
     padding: 0;
@@ -2556,7 +2556,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     letter-spacing: 3px;
     text-transform: uppercase;
 }
-.bundle-tile {
+.bundle-tile, .worksheet-tile {
     margin-bottom: 30px;
     padding: 15px;
     border: 1px #CCC solid;
@@ -2568,19 +2568,52 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
     overflow: hidden;
 }
-.bundle-meta {
+.bundle-meta, .bundle-meta a, .bundle span {
     color: #999;
+    font-size: 14px;
 }
 .bundle-meta p {
-    line-height: 16px;
+    line-height: 20px;
+    display: block;
 }
-.bundle-meta p em {
+.bundle-meta p strong {
+    min-width: 90px;
+    display: inline-block;
+}
+.bundle-meta p em, .bundle-meta p em a, .bundle-meta p span, .bundle-meta p span a {
     font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
     font-style: italic;
 }
-.bundle-name {
+.bundle-meta p em a, .bundle-meta p span a {
+    font-weight: normal;
+    font-size: 12px;
+}
+.bundle-meta p span {
+    display: inline-block;
+    vertical-align: text-top;
+}
+.bundle-name, .worksheet-name {
     padding:0;
     color:#535353;
+}
+.worksheet-name label, .worksheet-author {
+    color: #a4a4a4;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+.worksheet-name button {
+    margin: 20px 0 0 0;
+}
+.worksheet-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
 }
 .bundle-icon-sm {
     text-indent: 50px;
@@ -2636,5 +2669,29 @@ a i {
 .bundle__meta__desc {
     padding: 0 10px;
     white-space: normal;
-
+}
+.bundle__expand_button {
+    position: absolute;
+    bottom: 32px;
+    right: 22px;
+    z-index: 500;
+}
+.bundle__expand_button.expanded {
+    -webkit-transform: rotate(180deg);
+     -moz-transform: rotate(180deg);
+     -ms-transform: rotate(180deg);
+     -o-transform: rotate(180deg);
+     transform: rotate(180deg); 
+}
+.bundle__file_view {
+    width: 100%;
+    margin: 0 0 30px 0;
+    display: none;
+}
+.bundle__file_view td {
+    padding: 8px;
+    height: 32px;
+}
+.bundle__file_view.expanded {
+    display: inline-table;
 }

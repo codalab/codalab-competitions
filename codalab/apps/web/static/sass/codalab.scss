@@ -139,7 +139,7 @@ $header-font-weight: lighter !default;  // changed from bold
 $header-line-height: 1.4em !default;  // changed from 1.4
  /* Default header styles */
   h1, h2, h3 {  // added
-    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-style: $header-font-style;
     color: $header-font-color;

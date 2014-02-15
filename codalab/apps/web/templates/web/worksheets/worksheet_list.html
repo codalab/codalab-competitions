@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block head_title %}Worksheets{% endblock head_title %}
+{% block page_title %}Worksheets{% endblock page_title %}
+
+{% block content %}
+<div class="large-12 columns">
+    {% for worksheet in worksheets %}
+    <div class="row">
+        <div class="worksheet-tile">
+            <div class="large-12 columns">
+                <a href="#" class="right">
+                    <button class="med button">Export</button>
+                </a>
+                <a href="/worksheets/{{worksheet.uuid}}"><h4 class="worksheet-name worksheet-icon-sm">basic_ml</h4></a>
+                <p class="worksheet-author">By: Percy Liang</p>
+            </div>
+            <div class="large-12 columns">
+                <p>This worksheet performs the basic machine learning pipeline for evaluating a single learning algorithm on a single dataset. We first split the dataset into two parts, one for training and the other for testing.  We use the learning algorithm to learn a model on the training data, and then use that model to make predictions on the test data.  A separate evaluation module is used to report the error (number of misclassified examples).</p>
+            </div>
+            <hr>
+            <div class="large-12 columns">
+                <p class="h-caps">Tags</p>
+                <p> {{ bundle.metadata.tags }} </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
