@@ -77,6 +77,12 @@ $section-title-color-active: #676278 !default;  // changed from #333
 }
 
 
+
+// _settings customizations
+$list-style-position: inside; // changed from outside
+
+
+
 // _side-nav customizations
 li {
     a {
@@ -90,9 +96,11 @@ li {
   }
 
 
+
 // _sub-nav customizations
 $sub-nav-border-radius: 4px !default; // changed from 1000px
 $sub-nav-active-padding: em-calc(8 12) !default;  //  changed from (3 9)
+
 
 
 // _switch customizations
@@ -102,8 +110,10 @@ $sub-nav-active-padding: em-calc(8 12) !default;  //  changed from (3 9)
 }
 
 
+
 // _tables customizations
 $table-even-row-bg: #EEE !default;  // changed from #f9f9f9
+
 
 
 // _top-bar customizations
@@ -154,3 +164,5 @@ $header-line-height: 1.4em !default;  // changed from 1.4
       line-height: 0;
     }
   }
+  
+  $anchor-text-decoration: underline !default; // changed from none

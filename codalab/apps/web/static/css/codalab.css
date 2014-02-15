@@ -2401,7 +2401,7 @@ td {
 /* line 151, ../sass/foundation/components/_type.scss */
 a {
   color: #676278;
-  text-decoration: underline;
+  text-decoration: none;
   line-height: inherit;
   font-weight: bold;
 }
@@ -7733,7 +7733,7 @@ body {
   line-height: 1.4;
 }
 
-/* line 83, ../sass/codalab.scss */
+/* line 89, ../sass/codalab.scss */
 li a.active {
   color: #676278;
   font-weight: bold;
@@ -7742,7 +7742,7 @@ li a.active {
 }
 
 /* Default header styles */
-/* line 141, ../sass/codalab.scss */
+/* line 151, ../sass/codalab.scss */
 h1, h2, h3 {
   font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 100;
@@ -7753,7 +7753,7 @@ h1, h2, h3 {
   margin-bottom: 0.5em;
   line-height: 1.2125em;
 }
-/* line 151, ../sass/codalab.scss */
+/* line 161, ../sass/codalab.scss */
 h1 small, h2 small, h3 small {
   font-size: 70%;
   color: #999999;

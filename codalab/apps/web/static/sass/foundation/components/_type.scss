@@ -49,7 +49,7 @@ $code-font-family: Consolas, 'Liberation Mono', Courier, monospace !default;
 $code-font-weight: bold !default;
 
 // We use these to style anchors
-$anchor-text-decoration: underline !default; // changed from none
+$anchor-text-decoration: none !default;
 $anchor-font-color: $primary-color !default;
 $anchor-font-color-hover: darken($primary-color, 5%) !default;
 
