@@ -28,5 +28,6 @@ urlpatterns += (
     url(r'^competition/(?P<pk>\d+)/pages/(?P<entity_label>\w[\w\d\-\_]+)/$', views.competition_page_list, name='api_competition_page_list'),
 
     url(r'^experiments/(?P<uuid>[A-Za-z0-9]+)$', views.ExperimentContentApi.as_view(), name='api_experiment_content'),
+    url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)$', views.BundleContentApi.as_view(), name='api_bundle_content'),
 
 )
