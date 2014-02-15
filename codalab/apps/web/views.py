@@ -375,23 +375,6 @@ class BundleDetailView(TemplateView):
 
 # Experiments
 
-_MOCK_EXPERIMENTS = [
-    { 'id': 1,
-      'details_url': '/experiments/1',
-      'image_url': '' ,
-      'title': 'Congressional voting dataset' ,
-      'creator': 'codalab' ,
-      'last_modified': '2013-02-12 09:58:19.404000' ,
-      'description': 'This data set includes votes for each of the U.S. House of Representatives Congressmen on the 16 key votes identified by the CQA. The CQA lists...' },
-    { 'id': 2,
-      'details_url': '/experiments/2',
-      'image_url': '' ,
-      'title': 'Basic machine learning experiment' ,
-      'creator': 'pliang' ,
-      'last_modified': '2014-02-14 06:38:00.000000' ,
-      'description': 'This worksheet performs the basic machine learning pipeline for evaluating a single learning algorithm on a single dataset. We first split the dataset into two parts, one for training and the other for testing. We use the learning algorithm to learn a model on the training data, and then use that model to make...' }
-    ]
-
 class ExperimentListView(TemplateView):
     """
     Displays worksheets/experiments as a list.

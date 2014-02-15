@@ -3,7 +3,6 @@ Defines Django views for 'apps.api' app.
 """
 import json
 import logging
-from exceptions import ValueError
 from . import serializers
 from rest_framework import (permissions, status, viewsets, views)
 from rest_framework.decorators import action, link, permission_classes
@@ -411,18 +410,28 @@ class ExperimentContentApi(views.APIView):
     """
     def get(self, request, uuid):
         """
-        Returns the operation status:
-           { 'status': <value> }
-        where <value> is status of the job as defined by the 'code_name' in apps.jobs.models.Job.STATUS_BY_CODE.
         """
         user_id = self.request.user.id
         logger.debug("ExperimentContent: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
         try:
-            service = BundleService()
             worksheet = service.worksheet(uuid)
             return Response(worksheet)
-        except ValueError as e:
-            #todo -
-            return Response(status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleContentApi(views.APIView):
+    """
+    Provides a web API to browse the content of a bundle.
+    """
+    def get(self, request, uuid, path):
+        """
+        """
+        user_id = self.request.user.id
+        logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
+        service = BundleService()
+        try:
+            items = service.ls(uuid, path)
+            return Response(items)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
