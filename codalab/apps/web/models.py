@@ -782,7 +782,7 @@ class CompetitionDefBundle(models.Model):
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data",
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit/View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
