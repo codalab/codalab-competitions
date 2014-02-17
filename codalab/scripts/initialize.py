@@ -115,7 +115,7 @@ def insert_data():
               'required' : True,
               'rank' : 1,
               'codename' : 'submit_results',
-              'label' : "Submit Results" } ]
+              'label' : "Submit/View Results" } ]
 
     for dci in cis:
         dcii, _ = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
