@@ -2543,7 +2543,7 @@ dl {
   font-size: 1em;
   line-height: 1.6em;
   margin-bottom: 1.25em;
-  list-style-position: inside;
+  list-style-position: outside;
   font-family: inherit;
 }
 
