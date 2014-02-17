@@ -109,7 +109,7 @@ $button-disabled-opacity: 0.6 !default;
 }
 
 // We use this mixin to add button color styles
-@mixin button-style($bg:$primary-button-color, $radius:false, $disabled:false) {
+@mixin button-style($bg:$active, $radius:false, $disabled:false) {
 
   // We control which background styles are used,
   // these can be removed by setting $bg:false
