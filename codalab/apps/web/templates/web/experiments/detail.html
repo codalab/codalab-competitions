@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block head_title %}Experiment details{% endblock head_title %}
-{% block page_title %}Experiment details{% endblock page_title %}
+{% block subheader %}{% endblock subheader %}
 
 {% block content %}
 <div class="row">
-    <div class="large-9 columns competitions">
+    <div class="large-12 columns worksheet-details">
         <div id="worksheet-message">
             Loading worksheet...
         </div>
@@ -15,6 +15,29 @@
         </div>
     </div>
 </div>
+
+<div id="bundle-template" style="visibility: hidden;">
+    <div class="row">
+        <div class="large-12 columns worksheet-details">
+            <div class="bundle-tile">
+                <div class="large-12 columns">
+                    <a href="" class="bundle-download">
+                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                    </a>
+                    <a href=""><h4 class="bundle-name bundle-icon-sm"></h4></a>
+                    <span class="bundle-status"></span>
+                    <label class="bundle-uuid"></label><hr>
+                </div>
+                <div class="bundle-meta-view-container"></div>
+                <a href="" class="bundle__expand_button">SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a>
+                <div class="bundle-file-view-container large-12-columns"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 {% endblock %}
 
 {% block jsincludes %}
@@ -29,35 +52,325 @@ MathJax.Hub.Config({
     }
 });
 
-var WorksheetRenderer = (function () {
-    WorksheetRenderer.prototype.renderBundle = function (data) {
-        var lines = [
-            "> type: " + data.bundle_type,
-            "> uuid:" + data.uuid,
-            "> state: " + data.state,
-            "> metadata > name: " + data.metadata.name,
-            "> metadata > description: " + data.metadata.description,
-            "> metadata > created: " + data.metadata.created,
-            "> metadata > size: " + data.metadata.data_size,
-            "> metadata > tags: " + data.metadata.tags,
-            "> browse"
-        ];
-        return markdown.toHTML(lines.join('\n\n'));
+var BundleContentNode = (function () {
+    function BundleContentNode(url, name, parent, children) {
+        this.url = url;
+        this.name = name;
+        this.parent = parent;
+        this.children = children;
+    }
+    BundleContentNode.prototype.isRootNode = function () {
+        return this.parent === undefined;
     };
-    function WorksheetRenderer(element, data) {
+    BundleContentNode.prototype.isLeafNode = function () {
+        return this.children === null;
+    };
+    BundleContentNode.prototype.getUrl = function () {
+        return this.url;
+    };
+    BundleContentNode.prototype.getName = function () {
+        return this.name;
+    };
+    BundleContentNode.prototype.getFullName = function () {
+        if (this.isRootNode()) {
+            return this.name;
+        }
+        return [this.parent.getFullName(), this.name].join('/');
+    };
+    BundleContentNode.prototype.getParent = function () {
+        return this.parent;
+    };
+    BundleContentNode.prototype.getChildren = function () {
+        return this.children;
+    };
+    BundleContentNode.prototype.setChildren = function (children) {
+        this.children = children;
+    };
+    return BundleContentNode;
+})();
+
+var BundleRenderer = (function () {
+    function BundleRenderer(element) {
+        this.template = element;
+    }
+    BundleRenderer.loadContentAsync = function (container, parent) {
+        $.ajax({
+            type: "GET",
+            url: [parent.getUrl(), parent.getFullName()].join('/'),
+            cache: false,
+            success: function (data) {
+                var children = [];
+                if (Array.isArray(data) && data.length == 2) {
+                    var set1 = data[0].map(function (item) {
+                        return new BundleContentNode(parent.getUrl(), item, parent);
+                    });
+                    var set2 = data[1].map(function (item) {
+                        return new BundleContentNode(parent.getUrl(), item, parent, null);
+                    });
+                    children = set1.concat(set2).sort(function (a, b) {
+                        return a.getName().localeCompare(b.getName());
+                    });
+                }
+                parent.setChildren(children);
+                BundleRenderer.renderTable(container, BundleRenderer.getContentTableModel(parent, container));
+            },
+            error: function (xhr, status, err) {
+            }
+        });
+    };
+
+    BundleRenderer.getContentTableModel = function (node, container) {
+        var numRows = 0;
+        var children = node.getChildren();
+        if (children !== undefined) {
+            numRows = children.length;
+        }
+        if (node.isRootNode() == false) {
+            numRows += 1;
+        }
+
+        var renderHeaderKey = function (element) {
+            element.setAttribute('class', 'col bundle__file_view__icon');
+            var innerElement = document.createElement('i');
+            innerElement.setAttribute('class', 'fi-arrow-left');
+            element.appendChild(innerElement);
+            innerElement.onclick = function (e) {
+                BundleRenderer.loadContentAsync(container, node.getParent());
+                e.preventDefault();
+            };
+        };
+        var renderHeaderValue = function (element) {
+            element.setAttribute('class', 'col bundle-item-type-goup');
+
+            var parents = [];
+            var parent = node.getParent();
+            while (parent !== undefined) {
+                parents.push(parent);
+                parent = parent.getParent();
+            }
+            parents.reverse().forEach(function (p) {
+                var link = document.createElement('a');
+                link.textContent = p.getName();
+                link.setAttribute('href', '');
+                link.onclick = function (e) {
+                    BundleRenderer.loadContentAsync(container, p);
+                    e.preventDefault();
+                };
+                element.appendChild(link);
+                element.appendChild(document.createTextNode(' / '));
+            });   
+            element.appendChild(document.createTextNode(node.getName()));
+        };
+        var renderKey = function (element, child) {
+            element.setAttribute('class', 'col bundle__file_view__icon');
+            var e = document.createElement('i');
+            e.setAttribute('class', child.isLeafNode() ? 'fi-page' : 'fi-folder');
+            element.appendChild(e);
+        };
+        var renderValue = function (element, child) {
+            if (child.isLeafNode()) {
+                element.setAttribute('class', 'col');
+                element.textContent = child.getName();
+            } else {
+                element.setAttribute('class', 'col bundle-item-type-folder');
+                var link = document.createElement('a');
+                link.textContent = child.getName();
+                link.setAttribute('href', '');
+                link.onclick = function (e) {
+                    BundleRenderer.loadContentAsync(container, child);
+                    e.preventDefault();
+                };
+                element.appendChild(link);
+            }
+        };
+
+        return {
+            tableDecorations: 'bundle__file_view expanded',
+            rowDecorations: 'row',
+            numRows: numRows,
+            numCols: 2,
+            render: function (row, col, td) {
+                if ((node.isRootNode() === false) && (row <= 0)) {
+                    if (col == 0) {
+                        renderHeaderKey(td);
+                    } else {
+                        renderHeaderValue(td);
+                    }
+                    return;
+                }
+
+                var offset = 0;
+                if (node.isRootNode() === false) {
+                    offset = 1;
+                }
+                var child = node.getChildren()[row - offset];
+                if (col == 0) {
+                    renderKey(td, child);
+                } else {
+                    renderValue(td, child);
+                }
+            }
+        };
+    };
+
+    BundleRenderer.getMetadataTableModel = function (data) {
+        var rows = [];
+        for (var k in data.metadata) {
+            if (k !== "name") {
+                rows.push([k, data.metadata[k]]);
+            }
+        }
+
+        var renderKey = function (element, row, col) {
+            element.setAttribute('class', 'bundle-meta-key');
+            element.textContent = rows[row][col];
+        };
+        var renderValue = function (element, row, col) {
+            element.setAttribute('class', 'bundle-meta-value');
+            element.textContent = rows[row][col];
+        };
+
+        return {
+            tableDecorations: 'bundle-meta-view',
+            rowDecorations: 'row',
+            numRows: rows.length,
+            numCols: 2,
+            render: function (row, col, td) {
+                if (col == 0) {
+                    renderKey(td, row, col);
+                } else {
+                    renderValue(td, row, col);
+                }
+            }
+        };
+    };
+
+    BundleRenderer.getMetadataListModel = function (data) {
+        var rows = [];
+        for (var k in data.metadata) {
+            if (k !== "name") {
+                rows.push([k, data.metadata[k]]);
+            }
+        }
+
+        var renderKeyValue = function (element, row) {
+            var item = rows[row];
+            var key = document.createElement('strong');
+            key.innerText = item[0];
+            element.appendChild(key);
+            var val = document.createElement('span');
+            val.innerText = item[1];
+            element.appendChild(val);
+        };
+
+        return {
+            tableElementType: 'div',
+            rowElementType: 'p',
+            tableDecorations: 'large-12 columns bundle-meta',
+            numRows: rows.length,
+            numCols: 0,
+            render: function (row, td) {
+                renderKeyValue(td, row);
+            }
+        };
+    };
+
+    BundleRenderer.getElementType = function (value, defaultValue) {
+        if (value !== undefined) {
+            return value;
+        }
+        return defaultValue;
+    };
+
+    BundleRenderer.renderTable = function (container, model) {
+        var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
+        var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
+        var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
+        var table = document.createElement(tableElementType);
+        if (model.tableDecorations !== undefined) {
+            table.setAttribute('class', model.tableDecorations);
+        }
+        for (var ir = 0; ir < model.numRows; ir++) {
+            var tr = document.createElement(rowElementType);
+            if (model.numCols > 0) {
+                for (var ic = 0; ic < model.numCols; ic++) {
+                    var td = document.createElement(columnElementType);
+                    model.render(ir, ic, td);
+                    tr.appendChild(td);
+                }
+            } else {
+                model.render(ir, tr);
+            }
+            table.appendChild(tr);
+        }
+        if (container.firstChild != undefined) {
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(table);
+    };
+
+    BundleRenderer.prototype.render = function (data) {
+        var clone = $(this.template.cloneNode(true));
+
+        clone.find(".bundle-name").text(data.metadata.name);
+        clone.find(".bundle-icon-sm")
+            .removeClass("bundle-icon-sm")
+            .addClass("bundle-icon-sm--" + data.bundle_type);
+        clone.find(".bundle-uuid").text(data.uuid);
+        clone.find(".bundle-status")
+            .removeClass("bundle-status")
+            .addClass("bundle-status--" + data.state);
+
+        var metaContainer = clone.find(".bundle-meta-view-container").get(0);
+        BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataListModel(data));
+
+        var toggle = clone.find(".bundle__expand_button");
+        var container = clone.find(".bundle-file-view-container");
+        toggle.on('click', function (e) {
+            var button = $(e.target);
+            if (button.hasClass('expanded')) {
+                container.removeClass('expanded');
+                container.children().removeClass('expanded');
+                button.removeClass('expanded');
+                button.html('SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More">');
+            } else {
+                if (container.get(0).firstChild == undefined) {
+                    var root = new BundleContentNode('/api/bundles', data.uuid);
+                    BundleRenderer.loadContentAsync(container.get(0), root);
+                } else {
+                    container.children().addClass('expanded');
+                }
+                container.addClass('expanded');
+                button.addClass('expanded');
+                button.html('HIDE BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="Less">');
+            }
+            e.preventDefault();
+        });
+
+        return clone.get(0);
+    };
+    return BundleRenderer;
+})();
+
+var WorksheetRenderer = (function () {
+    function WorksheetRenderer(element, renderer, data) {
+        this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
-            blocks = data.items.map(function (item) {
+            var blocks = data.items.forEach(function (item) {
                 if (item[0] === null) {
-                    return markdown.toHTML(item[1]);
+                    var e = document.createElement('div');
+                    e.innerHTML = markdown.toHTML(item[1]);
+                    element.appendChild(e);
+                } else {
+                    element.appendChild(_this.renderer.render(item[0]));
                 }
-                return _this.renderBundle(item[0]); 
             });
-            element.innerHTML = blocks.join('\n');
+
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, element.id]);
-            MathJax.Hub.Queue(function() {
+            MathJax.Hub.Queue(function () {
                 var all = MathJax.Hub.getAllJax();
-                for(var i = 0; i < all.length; i += 1) {
+                for (var i = 0; i < all.length; i += 1) {
                     $(all[i].SourceElement().parentNode).addClass('coda-jax');
                 }
             });
@@ -72,7 +385,7 @@ $(document).ready(function() {
         url: "/api" + document.location.pathname,
         cache: false,
         success: function (data) {
-            new WorksheetRenderer($("#worksheet-content").get(0), data);
+            new WorksheetRenderer($("#worksheet-content").get(0), new BundleRenderer($("#bundle-template > div").get(0)), data);
             $("#worksheet-message").hide();
         },
         error: function (xhr, status, err) {
