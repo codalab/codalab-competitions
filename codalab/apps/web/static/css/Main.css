@@ -2556,7 +2556,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     letter-spacing: 3px;
     text-transform: uppercase;
 }
-.bundle-tile {
+.bundle-tile, .worksheet-tile {
     margin-bottom: 30px;
     padding: 15px;
     border: 1px #CCC solid;
@@ -2568,19 +2568,58 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
     overflow: hidden;
 }
-.bundle-meta {
+.bundle-meta, .bundle-meta a, .bundle span {
     color: #999;
+    font-size: 14px;
 }
 .bundle-meta p {
-    line-height: 16px;
+    line-height: 20px;
+    display: block;
 }
-.bundle-meta p em {
+.bundle-meta p strong {
+    min-width: 90px;
+    display: inline-block;
+}
+.bundle-meta p em, .bundle-meta p em a, .bundle-meta p span, .bundle-meta p span a {
     font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
     font-style: italic;
 }
-.bundle-name {
+.bundle-meta p em a, .bundle-meta p span a {
+    font-weight: normal;
+    font-size: 12px;
+}
+.bundle-meta p span {
+    display: inline-block;
+    vertical-align: text-top;
+}
+.bundle-name, .worksheet-name {
     padding:0;
     color:#535353;
+}
+.worksheet-name label, .worksheet-author, .bundle-tile label {
+    color: #a4a4a4;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+.worksheet-details {
+    margin-top: 20px
+}
+.bundle-tile label {
+    cursor: default;
+}
+.worksheet-name button {
+    margin: 20px 0 0 0;
+}
+.worksheet-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
 }
 .bundle-icon-sm {
     text-indent: 50px;
@@ -2597,7 +2636,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     width: 32px;
     position: absolute;
     display: block;
-    top: 0;
+    top: 10px;
     right: 0;
 }
 .bundle-status--created, .bundle-status--staged, .bundle-status--running {
@@ -2630,6 +2669,11 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
+.bundle-download {
+    position: absolute;
+    top: 10px;
+    right: 44px;
+}
 .competition-tile a, .competitions a {
     text-decoration: none;
 }
@@ -2637,8 +2681,51 @@ a i {
     padding: 0 10px;
     white-space: normal;
 }
+.bundle__expand_button {
+    position: absolute;
+    bottom: 32px;
+    right: 22px;
+    z-index: 500;
+    font-size: 11px;
+}
+.bundle__expand_button.expanded img {
+    -webkit-transform: rotate(180deg);
+     -moz-transform: rotate(180deg);
+     -ms-transform: rotate(180deg);
+     -o-transform: rotate(180deg);
+     transform: rotate(180deg); 
+}
+.bundle__file_view {
+    width: 100%;
+    margin: 0 0 30px 0;
+    display: none;
+}
+.bundle__file_view td {
+    padding: 8px;
+    height: 32px;
+}
+.bundle__file_view.expanded {
+    display: inline-table;
+}
 .coda-jax {
     background: transparent;
     color: #3b3b3b;
 }
+.bundle__file_view__icon {
+    width: 32px;
+}
+.bundle-icon-sm--program {
 
+}
+.bundle-icon-sm--dataset {
+
+}
+.bundle-icon-sm--macro {
+
+}
+.bundle-icon-sm--make {
+
+}
+.bundle-icon-sm--run {
+
+}
