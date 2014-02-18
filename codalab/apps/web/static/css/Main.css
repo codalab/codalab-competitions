@@ -2596,11 +2596,14 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding:0;
     color:#535353;
 }
-.worksheet-name label, .worksheet-author {
+.worksheet-name label, .worksheet-author, .bundle-tile label {
     color: #a4a4a4;
     margin-top: 4px;
     margin-bottom: 14px;
     font-size: 12px;
+}
+.bundle-tile label {
+    cursor: default;
 }
 .worksheet-name button {
     margin: 20px 0 0 0;
@@ -2630,7 +2633,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     width: 32px;
     position: absolute;
     display: block;
-    top: 0;
+    top: 10px;
     right: 0;
 }
 .bundle-status--created, .bundle-status--staged, .bundle-status--running {
@@ -2663,6 +2666,11 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
+.bundle-download {
+    position: absolute;
+    top: 10px;
+    right: 44px;
+}
 .competition-tile a, .competitions a {
     text-decoration: none;
 }
@@ -2675,8 +2683,9 @@ a i {
     bottom: 32px;
     right: 22px;
     z-index: 500;
+    font-size: 11px;
 }
-.bundle__expand_button.expanded {
+.bundle__expand_button.expanded img {
     -webkit-transform: rotate(180deg);
      -moz-transform: rotate(180deg);
      -ms-transform: rotate(180deg);
@@ -2698,4 +2707,22 @@ a i {
 .coda-jax {
     background: transparent;
     color: #3b3b3b;
+}
+.bundle__file_view__icon {
+    width: 32px;
+}
+.bundle-icon-sm--program {
+
+}
+.bundle-icon-sm--dataset {
+
+}
+.bundle-icon-sm--macro {
+
+}
+.bundle-icon-sm--make {
+
+}
+.bundle-icon-sm--run {
+
 }

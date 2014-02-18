@@ -9,25 +9,28 @@
         {% for bundle in bundles %}
         <div class="bundle-tile">
             <div class="large-12 columns">
+                <a href="#" class="bundle-download">
+                    <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                </a>
                 <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
                 <span class="bundle-status--{{ bundle.state }}"></span>
+                <label> {{bundle.uuid}} </label><hr>
             </div>
-            <div class="large-8 columns">
+            <div class="large-6 columns bundle-meta">
+                <p><strong>Status:</strong><span> {{ bundle.state }} </span></p>
+                <p><strong>Created:</strong><span> {{ bundle.metadata.created }} </span></p>
+                <p><strong>Type:</strong><span> {{ bundle.bundle_type }} </span></p>
+                <p><strong>Size:</strong><span> {{ bundle.metadata.data_size }} bytes</span></p>
+                <p><strong>Tags:</strong><span> {{ bundle.metadata.tags }} </span></p>
+            </div>
+            <div class="large-6 columns">
                 <p> {{ bundle.metadata.description }} </p>
-            </div>
-            <div class="large-4 columns bundle-meta">
-                <p><strong>Status:</strong><em> &nbsp; {{ bundle.state }} </em></p>
-                <p><strong>Created:</strong><em> &nbsp; {{ bundle.metadata.created }} </em></p>
-                <p><strong>Type:</strong><em> &nbsp; {{ bundle.bundle_type }} </em></p>
-                <p><strong>Size:</strong><em> &nbsp; {{ bundle.metadata.data_size }} bytes</em></p>
-            </div>
-            <hr>
-            <div class="large-12 columns">
-                <p><strong>Tags</strong></p>
-                <p> {{ bundle.metadata.tags }} </p>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
 {% endblock %}
+
+
+

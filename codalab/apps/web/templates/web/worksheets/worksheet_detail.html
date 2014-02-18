@@ -7,20 +7,16 @@
 <div class="large-12 columns content">
     <div class="row">
         <div class="large-12 columns worksheet-name">
-            <a href="#" class="right">
+            <!-- COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
+                <a href="#" class="right">
                 <button class="med button">Export</button>
-            </a>
+            </a> -->
             <h2 class="worksheet-icon">basic_ml</h2>
             <label>By Author Name</label>
         </div>
         <div class="large-12 columns">
             <p>This worksheet performs the basic machine learning pipeline for evaluating a single learning algorithm on a single dataset. We first split the dataset into two parts, one for training and the other for testing.  We use the learning algorithm to learn a model on the training data, and then use that model to make predictions on the test data.  A separate evaluation module is used to report the error (number of misclassified examples).</p>
         </div>
-        <div class="large-12 columns">
-        <hr>
-        <p class="h-caps">Tags</p>
-        <p> {{ bundle.metadata.tags }} </p>
-    </div>
     </div>
     <div class="row">
         <div class="large-12 columns">
@@ -28,22 +24,23 @@
             <p>We first insert <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka</a>, a suite of basic machine learning utilities, which includes many learning algorithms as well as helpers for splitting data, performing evaluation, etc.</p>
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                    <a href="#" class="right">
-                        <button class="med button">Download</button>
-                    </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm">weka</h4></a>
-                </div>
+                <a href="#" class="bundle-download">
+                    <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                </a>
+                <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                <span class="bundle-status--{{ bundle.state }}"></span>
+                <label> {{bundle.uuid}} </label><hr>
+            </div>
                 <div class="large-6 columns bundle-meta">
                     <p><strong>Name:</strong><span>base/weka</span></p>
                     <p><strong>Source:</strong><span><a href="http://www.cs.waikato.ac.nz/ml/weka/" target="_blank">http://www.cs.waikato.ac.nz/ml/weka</a></span></p>
                     <p><strong>Required:</strong><span>Linux</span></p>
+                    <p><strong>Tags:</strong><span>tag1, tag2, tag3, tag4, tag5, tag6</span></p>
                 </div>
                 <div class="large-6 columns">
                     <p>Weka is a collection of machine learning algorithms for data mining tasks. The algorithms can either be applied directly to a dataset or called from your own Java code. Weka contains tools for data pre-processing, classification, regression, clustering, association rules, and visualization. It is also well-suited for developing new machine learning schemes.</p>
                 </div>
-                <a href="#" class="bundle__expand_button">
-                    <img src="/static/img/expand-arrow.png" alt="Expand">
-                </a>
+                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
             </div>
         </div>
     </div>
@@ -53,100 +50,64 @@
             <p>We insert a small dataset from the <a href="http://archive.ics.uci.edu/ml/datasets/Congressional+Voting+Records" target="_blank">UCI repository on Congressional voting records</a>.</p>
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                    <a href="#" class="right">
-                        <button class="med button">Download</button>
+                    <a href="#" class="bundle-download">
+                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
                     </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm">dataset</h4></a>
+                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                    <span class="bundle-status--{{ bundle.state }}"></span>
+                    <label> {{bundle.uuid}} </label><hr>
                 </div>
                 <div class="large-6 columns bundle-meta">
                     <p><strong>Name:</strong><span>base/uci_arff/vote</span></p>
                     <p><strong>Size:</strong><span>24,000,096 bytes</span></p>
                     <p><strong>Source:</strong><span><a href="http://repository.seasr.org/Datasets/UCI/arff" target="_blank">http://repository.seasr.org/Datasets/UCI/arff</a></span></p>
+                    <p><strong>Tags:</strong><span>tag1, tag2, tag3, tag4, tag5, tag6</span></p>
                 </div>
                 <div class="large-6 columns">
                     <p>1984 United States Congressional Voting Records Database</p>
                 </div>
-                <a href="#" class="bundle__expand_button">
-                    <img src="/static/img/expand-arrow.png" alt="Expand">
-                </a>
+                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
                 <div class="large-12 columns">
                     <table class="bundle__file_view">
                         <tr class="row">
-                            <td class="col">COL 1</td>
-                            <td class="col">COL 2</td>
-                            <td class="col">COL 3</td>
-                            <td class="col">COL 4</td>
-                            <td class="col">COL 5</td>
+                            <td class="col bundle__file_view__icon"><a href="#"><i class="fi-arrow-left"></a></td>
+                            <td class="col"><a href="#">path</a> / <a href="#">to</a> / <a href="#">folder</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 1</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_1</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 2</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_2</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 3</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_3</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 4</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_1</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 5</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_2</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 6</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_3</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 7</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_4</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 8</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_5</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 9</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col">ROW 10</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_6</a></td>
                         </tr>
                     </table>
                 </div>
@@ -159,10 +120,12 @@
             <p>Split this dataset into training and test portions using the Weka utilities. 4 specifies the number of folds (3/4 is used for training, 1/4 for test).</p>
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                    <a href="#" class="right">
-                        <button class="med button">Download</button>
+                    <a href="#" class="bundle-download">
+                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
                     </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm">split</h4></a>
+                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                    <span class="bundle-status--{{ bundle.state }}"></span>
+                    <label> {{bundle.uuid}} </label><hr>
                 </div>
                 <div class="large-6 columns bundle-meta">
                     <p><strong>Name:</strong><span>generated/2</span></p>
@@ -172,9 +135,7 @@
                 <div class="large-6 columns">
                     <p>No description</p>
                 </div>
-                <a href="#" class="bundle__expand_button">
-                    <img src="/static/img/expand-arrow.png" alt="Expand">
-                </a>
+                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
             </div>
         </div>
     </div>
@@ -182,10 +143,12 @@
         <div class="large-12 columns">
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                    <a href="#" class="right">
-                        <button class="med button">Download</button>
+                    <a href="#" class="bundle-download">
+                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
                     </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm">splitData</h4></a>
+                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                    <span class="bundle-status--{{ bundle.state }}"></span>
+                    <label> {{bundle.uuid}} </label><hr>
                 </div>
                 <div class="large-6 columns bundle-meta">
                     <p><strong>Name:</strong><span>generated/3</span></p>
@@ -199,87 +162,48 @@
                 <div class="large-6 columns">
                     <p>No description</p>
                 </div>
-                <a href="#" class="bundle__expand_button expanded">
-                    <img src="/static/img/expand-arrow.png" alt="Expand">
-                </a>
+                <a href="#" class="bundle__expand_button expanded">LESS<img src="/static/img/expand-arrow.png" alt="Less"></a>
                 <div class="large-12 columns">
                     <table class="bundle__file_view expanded">
                         <tr class="row">
-                            <td class="col">COL 1</td>
-                            <td class="col">COL 2</td>
-                            <td class="col">COL 3</td>
-                            <td class="col">COL 4</td>
-                            <td class="col">COL 5</td>
+                            <td class="col bundle__file_view__icon"><a href="#"><i class="fi-arrow-left"></a></td>
+                            <td class="col"><a href="#">path</a> / <a href="#">to</a> / <a href="#">folder</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 1</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_1</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 2</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_2</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 3</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_3</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 4</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_1</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 5</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_2</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 6</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_3</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 7</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_4</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 8</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_5</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col">ROW 9</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col">ROW 10</td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
-                            <td class="col"></td>
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_6</a></td>
                         </tr>
                     </table>
                 </div>

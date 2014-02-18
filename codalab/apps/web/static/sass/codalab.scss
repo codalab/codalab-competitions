@@ -1,5 +1,4 @@
 @import "compass/reset.scss";
-@import "_settings";
 @import "compass/layout.scss";
 @import "foundation";
 
@@ -26,10 +25,12 @@ body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
     }
   }
 
+
 // leaderboard customization
 .column-selectable:last-child {
     float: none !important;
 }
+
 
 // _panels customizations
 $panel-bg: darken(#fff, 8%) !default; // changed from 5%

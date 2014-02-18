@@ -7672,24 +7672,24 @@ html, body {
   height: 25px;
 }
 
-/* line 14, ../sass/codalab.scss */
+/* line 13, ../sass/codalab.scss */
 a:focus {
   outline: none;
 }
 
-/* line 15, ../sass/codalab.scss */
+/* line 14, ../sass/codalab.scss */
 body {
   font-size: 100%;
   overflow: auto;
 }
 
 @media only screen {
-  /* line 20, ../sass/codalab.scss */
+  /* line 19, ../sass/codalab.scss */
   button, .button {
     box-shadow: none;
   }
 
-  /* line 23, ../sass/codalab.scss */
+  /* line 22, ../sass/codalab.scss */
   button.selected, .button.selected {
     background-color: #739CB9;
     border-color: #5384a6;
@@ -7701,7 +7701,7 @@ body {
 }
 
 /* Panels */
-/* line 39, ../sass/codalab.scss */
+/* line 40, ../sass/codalab.scss */
 .panel {
   border-style: solid;
   border-width: 1px;
@@ -7733,7 +7733,7 @@ body {
   line-height: 1.4;
 }
 
-/* line 89, ../sass/codalab.scss */
+/* line 90, ../sass/codalab.scss */
 li a.active {
   color: #676278;
   font-weight: bold;
@@ -7742,7 +7742,7 @@ li a.active {
 }
 
 /* Default header styles */
-/* line 151, ../sass/codalab.scss */
+/* line 152, ../sass/codalab.scss */
 h1, h2, h3 {
   font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 100;
@@ -7753,7 +7753,7 @@ h1, h2, h3 {
   margin-bottom: 0.5em;
   line-height: 1.2125em;
 }
-/* line 161, ../sass/codalab.scss */
+/* line 162, ../sass/codalab.scss */
 h1 small, h2 small, h3 small {
   font-size: 70%;
   color: #999999;
