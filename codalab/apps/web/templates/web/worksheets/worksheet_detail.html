@@ -24,145 +24,38 @@
             <p>We first insert <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka</a>, a suite of basic machine learning utilities, which includes many learning algorithms as well as helpers for splitting data, performing evaluation, etc.</p>
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                <a href="#" class="bundle-download">
-                    <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
-                </a>
-                <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
-                <span class="bundle-status--{{ bundle.state }}"></span>
-                <label> {{bundle.uuid}} </label><hr>
-            </div>
-                <div class="large-6 columns bundle-meta">
-                    <p><strong>Name:</strong><span>base/weka</span></p>
-                    <p><strong>Source:</strong><span><a href="http://www.cs.waikato.ac.nz/ml/weka/" target="_blank">http://www.cs.waikato.ac.nz/ml/weka</a></span></p>
-                    <p><strong>Required:</strong><span>Linux</span></p>
-                    <p><strong>Tags:</strong><span>tag1, tag2, tag3, tag4, tag5, tag6</span></p>
-                </div>
-                <div class="large-6 columns">
-                    <p>Weka is a collection of machine learning algorithms for data mining tasks. The algorithms can either be applied directly to a dataset or called from your own Java code. Weka contains tools for data pre-processing, classification, regression, clustering, association rules, and visualization. It is also well-suited for developing new machine learning schemes.</p>
-                </div>
-                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="large-12 columns">
-            <hr>
-            <p>We insert a small dataset from the <a href="http://archive.ics.uci.edu/ml/datasets/Congressional+Voting+Records" target="_blank">UCI repository on Congressional voting records</a>.</p>
-            <div class="bundle-tile">
-                <div class="large-12 columns">
-                    <a href="#" class="bundle-download">
-                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm">Name Here{{ bundle.metadata.name }} </h4></a>
+                    <a href="#" class="bundle-download" alt="Download Bundle">
+                        <button class="small button secondary"><i class="fi-arrow-down"></i></button>
                     </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
-                    <span class="bundle-status--{{ bundle.state }}"></span>
-                    <label> {{bundle.uuid}} </label><hr>
+                    <span class="bundle-status--ready"></span>
+                    <label>8a8sd8f7982758ares7f987 {{bundle.uuid}} </label><hr>
                 </div>
-                <div class="large-6 columns bundle-meta">
-                    <p><strong>Name:</strong><span>base/uci_arff/vote</span></p>
-                    <p><strong>Size:</strong><span>24,000,096 bytes</span></p>
-                    <p><strong>Source:</strong><span><a href="http://repository.seasr.org/Datasets/UCI/arff" target="_blank">http://repository.seasr.org/Datasets/UCI/arff</a></span></p>
-                    <p><strong>Tags:</strong><span>tag1, tag2, tag3, tag4, tag5, tag6</span></p>
-                </div>
-                <div class="large-6 columns">
-                    <p>1984 United States Congressional Voting Records Database</p>
-                </div>
-                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
-                <div class="large-12 columns">
-                    <table class="bundle__file_view">
+                <div class="large-12 columns bundle-meta">
+                    <table class="bundle__meta_table">
                         <tr class="row">
-                            <td class="col bundle__file_view__icon"><a href="#"><i class="fi-arrow-left"></a></td>
-                            <td class="col"><a href="#">path</a> / <a href="#">to</a> / <a href="#">folder</a></td>
+                            <td class="col bundle__meta_type">Name:</td>
+                            <td class="col">base/weka</td>
                         </tr>
                         <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
-                            <td class="col"><a href="#">folder_name_1</a></td>
+                            <td class="col bundle__meta_type">Description:</td>
+                            <td class="col">Weka is a collection of machine learning algorithms for data mining tasks. The algorithms can either be applied directly to a dataset or called from your own Java code. Weka contains tools for data pre-processing, classification, regression, clustering, association rules, and visualization. It is also well-suited for developing new machine learning schemes.</td>
                         </tr>
                         <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
-                            <td class="col"><a href="#">folder_name_2</a></td>
+                            <td class="col bundle__meta_type">Source:</td>
+                            <td class="col"><a href="http://www.cs.waikato.ac.nz/ml/weka/" target="_blank">http://www.cs.waikato.ac.nz/ml/weka</a></td>
                         </tr>
                         <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
-                            <td class="col"><a href="#">folder_name_3</a></td>
+                            <td class="col bundle__meta_type">Required:</td>
+                            <td class="col">Linux</td>
                         </tr>
                         <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_1</a></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_2</a></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_3</a></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_4</a></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_5</a></td>
-                        </tr>
-                        <tr class="row">
-                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
-                            <td class="col"><a href="#">file_name_6</a></td>
+                            <td class="col bundle__meta_type">Tags:</td>
+                            <td class="col">tag1, tag2, tag3, tag4, tag5, tag6</td>
                         </tr>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="large-12 columns">
-            <hr>
-            <p>Split this dataset into training and test portions using the Weka utilities. 4 specifies the number of folds (3/4 is used for training, 1/4 for test).</p>
-            <div class="bundle-tile">
-                <div class="large-12 columns">
-                    <a href="#" class="bundle-download">
-                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
-                    </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
-                    <span class="bundle-status--{{ bundle.state }}"></span>
-                    <label> {{bundle.uuid}} </label><hr>
-                </div>
-                <div class="large-6 columns bundle-meta">
-                    <p><strong>Name:</strong><span>generated/2</span></p>
-                    <p><strong>Base:</strong><span>basae/weka</span></p>
-                    <p><strong>Command:</strong><span>$program/base/split $input $output 4</span></p>
-                </div>
-                <div class="large-6 columns">
-                    <p>No description</p>
-                </div>
-                <a href="#" class="bundle__expand_button">MORE<img src="/static/img/expand-arrow.png" alt="More"></a>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="large-12 columns">
-            <div class="bundle-tile">
-                <div class="large-12 columns">
-                    <a href="#" class="bundle-download">
-                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
-                    </a>
-                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
-                    <span class="bundle-status--{{ bundle.state }}"></span>
-                    <label> {{bundle.uuid}} </label><hr>
-                </div>
-                <div class="large-6 columns bundle-meta">
-                    <p><strong>Name:</strong><span>generated/3</span></p>
-                    <p><strong>Input:</strong><span>base/uci_arff/vote [dataset]</span></p>
-                    <p><strong>Program:</strong><span>generated/2 [split]</span></p>
-                    <p><strong>Output:</strong><span>train test</span></p>
-                    <p><strong>StdOut:</strong><span>Splitting into train... <br>Splitting into test...</span></p>
-                    <p><strong>StdErr:</strong><span></span></p>
-                    <p><strong>Status:</strong><span>elapsedTime: 0.380047082901001 <br>exitCode: 0 <br>maxMemoryUsed: 100</span></p>
-                </div>
-                <div class="large-6 columns">
-                    <p>No description</p>
-                </div>
-                <a href="#" class="bundle__expand_button expanded">LESS<img src="/static/img/expand-arrow.png" alt="Less"></a>
+                <a href="#" class="bundle__expand_button expanded">LESS<img src="/static/img/expand-arrow.png" alt="More"></a>
                 <div class="large-12 columns">
                     <table class="bundle__file_view expanded">
                         <tr class="row">

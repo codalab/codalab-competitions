@@ -2577,16 +2577,11 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     display: block;
 }
 .bundle-meta p strong {
-    min-width: 90px;
+    min-width: 100px;
     display: inline-block;
-}
-.bundle-meta p em, .bundle-meta p em a, .bundle-meta p span, .bundle-meta p span a {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
 }
 .bundle-meta p em a, .bundle-meta p span a {
     font-weight: normal;
-    font-size: 12px;
 }
 .bundle-meta p span {
     display: inline-block;
@@ -2604,6 +2599,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .bundle-tile label {
     cursor: default;
+    display: inline-block;
+    vertical-align: top;
 }
 .worksheet-name button {
     margin: 20px 0 0 0;
@@ -2631,10 +2628,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .bundle-status--created, .bundle-status--staged, .bundle-status--running, .bundle-status--ready, .bundle-status--failed {
     height: 32px;
     width: 32px;
-    position: absolute;
-    display: block;
-    top: 10px;
-    right: 0;
+    display: inline-block;
+    margin: -7px 0 0 0;
 }
 .bundle-status--created, .bundle-status--staged, .bundle-status--running {
     background: url('../img/icon_yellowlight.png') no-repeat;
@@ -2669,7 +2664,7 @@ a i {
 .bundle-download {
     position: absolute;
     top: 10px;
-    right: 44px;
+    right: 10px;
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
@@ -2678,11 +2673,21 @@ a i {
     padding: 0 10px;
     white-space: normal;
 }
+.bundle__meta_type {
+    font-weight: bold;
+    min-width: 100px;
+}
+table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table .row, table.bundle__meta_table td {
+    color: #777;
+    border: none;
+    background-color: #FFF;
+    vertical-align: top;
+    margin: 0;
+    font-size: 14px;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 .bundle__expand_button {
-    position: absolute;
-    bottom: 32px;
-    right: 22px;
-    z-index: 500;
+    float: right;
     font-size: 11px;
 }
 .bundle__expand_button.expanded img {
@@ -2694,7 +2699,6 @@ a i {
 }
 .bundle__file_view {
     width: 100%;
-    margin: 0 0 30px 0;
     display: none;
 }
 .bundle__file_view td {
