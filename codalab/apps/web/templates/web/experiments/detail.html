@@ -5,7 +5,17 @@
 
 {% block content %}
 <div class="row">
-    <div class="large-12 columns worksheet-details">
+    <div class="large-12 columns worksheet-name">
+        <!-- COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
+            <a href="#" class="right">
+            <button class="med button">Export</button>
+        </a> -->
+        <h2 class="worksheet-icon"></h2>
+        <label class="worksheet-author"></label>
+    </div>
+</div>
+<div class="row">
+    <div class="large-12 columns">
         <div id="worksheet-message">
             Loading worksheet...
         </div>
@@ -18,13 +28,13 @@
 
 <div id="bundle-template" style="visibility: hidden;">
     <div class="row">
-        <div class="large-12 columns worksheet-details">
+        <div class="large-12 columns">
             <div class="bundle-tile">
                 <div class="large-12 columns">
-                    <a href="" class="bundle-download">
-                        <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                    <a href="" class="bundle-link"><h4 class="bundle-name bundle-icon-sm"></h4></a>
+                    <a href="" class="bundle-download" alt="Download Bundle">
+                        <button class="small button secondary"><i class="fi-arrow-down"></i></button>
                     </a>
-                    <a href=""><h4 class="bundle-name bundle-icon-sm"></h4></a>
                     <span class="bundle-status"></span>
                     <label class="bundle-uuid"></label><hr>
                 </div>
@@ -222,16 +232,16 @@ var BundleRenderer = (function () {
         }
 
         var renderKey = function (element, row, col) {
-            element.setAttribute('class', 'bundle-meta-key');
+            element.setAttribute('class', 'col bundle__meta_type');
             element.textContent = rows[row][col];
         };
         var renderValue = function (element, row, col) {
-            element.setAttribute('class', 'bundle-meta-value');
+            element.setAttribute('class', 'col');
             element.textContent = rows[row][col];
         };
 
         return {
-            tableDecorations: 'bundle-meta-view',
+            tableDecorations: 'bundle__meta_table',
             rowDecorations: 'row',
             numRows: rows.length,
             numCols: 2,
@@ -241,36 +251,6 @@ var BundleRenderer = (function () {
                 } else {
                     renderValue(td, row, col);
                 }
-            }
-        };
-    };
-
-    BundleRenderer.getMetadataListModel = function (data) {
-        var rows = [];
-        for (var k in data.metadata) {
-            if (k !== "name") {
-                rows.push([k, data.metadata[k]]);
-            }
-        }
-
-        var renderKeyValue = function (element, row) {
-            var item = rows[row];
-            var key = document.createElement('strong');
-            key.innerText = item[0];
-            element.appendChild(key);
-            var val = document.createElement('span');
-            val.innerText = item[1];
-            element.appendChild(val);
-        };
-
-        return {
-            tableElementType: 'div',
-            rowElementType: 'p',
-            tableDecorations: 'large-12 columns bundle-meta',
-            numRows: rows.length,
-            numCols: 0,
-            render: function (row, td) {
-                renderKeyValue(td, row);
             }
         };
     };
@@ -320,9 +300,13 @@ var BundleRenderer = (function () {
         clone.find(".bundle-status")
             .removeClass("bundle-status")
             .addClass("bundle-status--" + data.state);
-
+        clone.find(".bundle-link").attr('href', '/bundles/' + data.uuid);
+        clone.find(".bundle-download").on('click', function(e) {
+            alert('This will allow you to download the bundle');
+            e.preventDefault();
+        });
         var metaContainer = clone.find(".bundle-meta-view-container").get(0);
-        BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataListModel(data));
+        BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataTableModel(data));
 
         var toggle = clone.find(".bundle__expand_button");
         var container = clone.find(".bundle-file-view-container");
@@ -357,6 +341,16 @@ var WorksheetRenderer = (function () {
         this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
+            var title = data.name;
+            if (data.items.length > 0) {
+                var item = data.items[0];
+                if ((item[0] === null) && (item[1].indexOf('#') == 0)) {
+                    title = markdown.toHTML(item[1]).replace(/^<h1>/, '').replace(/<\/h1>$/, '');
+                    data.items = data.items.slice(1);
+                }
+            }
+            $('.worksheet-icon').html(title);
+            $('.worksheet-author').html('By Author Name');
             var blocks = data.items.forEach(function (item) {
                 if (item[0] === null) {
                     var e = document.createElement('div');
