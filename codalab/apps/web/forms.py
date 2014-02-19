@@ -10,7 +10,7 @@ class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
         fields = ('title', 'description', 'image', 'has_registration', 'end_date', 'published')
-        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'}) }
+        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'}, mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}) }
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
@@ -22,7 +22,7 @@ class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
         fields = ('html',)
-        widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html' }) }
+        widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'}, mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}) }
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
