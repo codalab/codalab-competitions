@@ -2715,18 +2715,48 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .bundle__file_view__icon {
     width: 32px;
 }
-.bundle-icon-sm--program {
-
+.bundle-icon-sm--program--created, .bundle-icon-sm--program--staged, .bundle-icon-sm--program--running {
+    background: url('../img/bundle_icon_program_sm-yellow.png') no-repeat;
 }
-.bundle-icon-sm--dataset {
-
+.bundle-icon-sm--program--ready {
+    background: url('../img/bundle_icon_program_sm.png') no-repeat;
 }
-.bundle-icon-sm--macro {
-
+.bundle-icon-sm--program--failed {
+    background: url('../img/bundle_icon_program_sm-red.png') no-repeat;
 }
-.bundle-icon-sm--make {
-
+.bundle-icon-sm--dataset--created, .bundle-icon-sm--dataset--staged, .bundle-icon-sm--dataset--running {
+    background: url('../img/bundle_icon_dataset_sm-yellow.png') no-repeat;
 }
-.bundle-icon-sm--run {
-
+.bundle-icon-sm--dataset--ready {
+    background: url('../img/bundle_icon_dataset_sm.png') no-repeat;
+}
+.bundle-icon-sm--dataset--failed {
+    background: url('../img/bundle_icon_dataset_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--macro--created, .bundle-icon-sm--macro--staged, .bundle-icon-sm--macro--running {
+    background: url('../img/bundle_icon_macro_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--macro--ready {
+    background: url('../img/bundle_icon_macro_sm.png') no-repeat;
+}
+.bundle-icon-sm--macro--failed {
+    background: url('../img/bundle_icon_macro_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--make--created, .bundle-icon-sm--make--staged, .bundle-icon-sm--make--running {
+    background: url('../img/bundle_icon_make_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--make--ready {
+    background: url('../img/bundle_icon_make_sm.png') no-repeat;
+}
+.bundle-icon-sm--make--failed {
+    background: url('../img/bundle_icon_make_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--run--created, .bundle-icon-sm--run--staged, .bundle-icon-sm--run--running {
+    background: url('../img/bundle_icon_run_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--run--ready {
+    background: url('../img/bundle_icon_run_sm.png') no-repeat;
+}
+.bundle-icon-sm--run--failed {
+    background: url('../img/bundle_icon_run_sm-red.png') no-repeat;
 }
