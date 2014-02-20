@@ -2393,11 +2393,6 @@ ul.leftNavigation li.active a{
 .cl-logo  {
     padding: 9px 100px 0 14px;
 }
-.experiment__date {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
-    color: #777;
-}
 .button a, .button a:hover {
     color: #FFF;
 }
