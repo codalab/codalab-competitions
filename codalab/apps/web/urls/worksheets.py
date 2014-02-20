@@ -5,6 +5,6 @@ from django.views.generic import TemplateView
 from .. import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.ExperimentListView.as_view(), name='list'),
-    url(r'^(?P<uuid>[A-Za-z0-9]+)$', views.ExperimentDetailView.as_view(), name='view'),
+    url(r'^$', views.WorksheetListView.as_view(), name='list'),
+    url(r'^(?P<uuid>[A-Za-z0-9]+)$', views.WorksheetDetailView.as_view(), name='view'),
 )

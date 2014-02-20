@@ -373,21 +373,21 @@ class BundleDetailView(TemplateView):
         context['bundle'] = results
         return context
 
-# Experiments
+# Worksheets
 
-class ExperimentListView(TemplateView):
+class WorksheetListView(TemplateView):
     """
-    Displays worksheets/experiments as a list.
+    Displays worksheets as a list.
     """
-    template_name = 'web/experiments/index.html'
+    template_name = 'web/worksheets/index.html'
     def get_context_data(self, **kwargs):
-        context = super(ExperimentListView, self).get_context_data(**kwargs)
+        context = super(WorksheetListView, self).get_context_data(**kwargs)
         service = BundleService()
         worksheets = service.worksheets()
         items = []
         for worksheet in worksheets:
             item = {'uuid': worksheet['uuid'],
-                    'details_url': '/experiments/{0}'.format(worksheet['uuid']),
+                    'details_url': '/worksheets/{0}'.format(worksheet['uuid']),
                     'name': '<name not specified>',
                     'title': '<title not specified>',
                     'creator': '<creator not specified>',
@@ -397,14 +397,14 @@ class ExperimentListView(TemplateView):
                     item[key] = worksheet[key]
             items.append(item)
         context['items'] = items
-        context['items_label'] = 'experiments'
+        context['items_label'] = 'worksheets'
         return context
 
-class ExperimentDetailView(TemplateView):
+class WorksheetDetailView(TemplateView):
     """
-    Displays details of a worksheet/experiment.
+    Displays details of a worksheet.
     """
-    template_name = 'web/experiments/detail.html'
+    template_name = 'web/worksheets/detail.html'
     def get_context_data(self, **kwargs):
-        context = super(ExperimentDetailView, self).get_context_data(**kwargs)
+        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
