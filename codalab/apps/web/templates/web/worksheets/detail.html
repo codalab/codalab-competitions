@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block head_title %}Experiment details{% endblock head_title %}
+{% block head_title %}Worksheet details{% endblock head_title %}
 {% block subheader %}{% endblock subheader %}
 
 {% block content %}
@@ -44,10 +44,14 @@
         </div>
     </div>
 </div>
+{% endblock content %}
 
-
-
-{% endblock %}
+{% block js %}
+$(function () {
+    $(".top-bar-section ul > li").removeClass("active");
+    $("#liWorksheets").addClass("active");
+});
+{% endblock js %}
 
 {% block jsincludes %}
 <script src="{{ STATIC_URL }}js/markdown.min.js"></script>
@@ -380,7 +384,7 @@ $(document).ready(function() {
         },
         error: function (xhr, status, err) {
             if (xhr.status == 404) {
-                $("#worksheet-message").html("Experiment was not found.");
+                $("#worksheet-message").html("Worksheet was not found.");
             } else {
                 $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
             }
