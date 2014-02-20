@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block head_title %}Experiments{% endblock head_title %}
-{% block page_title %}Experiments{% endblock page_title %}
+{% block head_title %}Worksheets{% endblock head_title %}
+{% block page_title %}Worksheets{% endblock page_title %}
 {% block content %}
 
 {% load static %}
@@ -73,6 +73,6 @@
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
-        $("#liExperiments").addClass("active");
+        $("#liWorksheets").addClass("active");
     });
 {% endblock js %}

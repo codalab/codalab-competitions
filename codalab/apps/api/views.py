@@ -402,9 +402,9 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DefaultContentSerial
 
 #
-# Experiments/Worksheets
+# Worksheets
 #
-class ExperimentContentApi(views.APIView):
+class WorksheetContentApi(views.APIView):
     """
     Provides a web API to fetch the content of a worksheet.
     """
@@ -412,7 +412,7 @@ class ExperimentContentApi(views.APIView):
         """
         """
         user_id = self.request.user.id
-        logger.debug("ExperimentContent: user_id=%s; uuid=%s.", user_id, uuid)
+        logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService()
         try:
             worksheet = service.worksheet(uuid)

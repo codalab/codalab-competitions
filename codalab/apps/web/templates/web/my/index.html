@@ -38,23 +38,25 @@
                     </div>
                 </div>
             </section>
+            {%if PREVIEW_WORKSHEETS %}
             <section>
-                <p class="title active" id="experimentation" data-section-title>
-                    <a href="#experiments">My Experiments</a>
+                <p class="title active" data-section-title>
+                    <a href="#worksheets">My Worksheets</a>
                 </p>
-                <div class="content" data-section-content data-slug="experiments">
+                <div class="content" data-section-content data-slug="worksheets">
                     <div class="row">
                         <div class="large-9 push-3 columns ">
                             <div class="my_managing">
-                                {% include "web/my/_experiments.html" %}
+                                {% include "web/my/_worksheets.html" %}
                             </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="#"><button class="small button">Create Experiment</button></a>
+                            <a href="#"><button class="small button">Create Worksheet</button></a>
                         </div>
                     </div>
                 </div>
             </section>
+            {% endif %}
         </div>
     </div>
 </div>
