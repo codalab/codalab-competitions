@@ -40,7 +40,7 @@
 							    <h3>{{ item.title }}</h3>
 							    <label>Organized by {{ item.creator }}</label>
 						    </div>
-						    <p class="competition-paragraph">{{ item.description }}</p>
+						    <p class="competition-paragraph">{{ item.description|safe}}</p>
 					    </div>
 				    </div>
 			    </article>
@@ -50,22 +50,7 @@
         {% endif %}
 	</div>
 	<div class="large-3 columns ">
-	    <!-- ////////////////  Commented out until we have stats  /////////////////
-		<div class="panel">
-			<input type="text" placeholder="Filter by Keyword"></input>
-			<h5>Show:</h5>
-			<div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
-			    <ul>
-				    <li>
-					    <input type="checkbox">&nbsp; Medical Imaging</input>
-				    </li>
-				    <li>
-					    <input type="checkbox">&nbsp; Quick Filter #2</input>
-				    </li>
-				</ul>
-			</div>
-		</div>
-        -->
+        <!-- This is where statistic were in the mockup. -->
     </div>  
 </div>
 {% endblock content%}
