@@ -5,6 +5,6 @@ from apps.web import views
 
 
 urlpatterns = patterns('',
-    url(r'^$', views.BundleListView.as_view(template_name='web/bundles/bundle_list.html'), name='bundles'),
-    url(r'^(?P<uuid>[A-Za-z0-9]+)$', views.BundleDetailView.as_view(template_name='web/bundles/bundle_detail.html'), name="bundle_detail"),
+    url(r'^$', views.BundleListView.as_view(), name='bundle_list'),
+    url(r'^(?P<uuid>[A-Za-z0-9]+)$', views.BundleDetailView.as_view(), name="bundle_detail"),
 )

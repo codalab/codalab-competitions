@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block head_title %}Worksheet details{% endblock head_title %}
-{% block subheader %}{% endblock subheader %}
+{% block head_title %}Bundle details{% endblock head_title %}
+{% block page_title %}Bundle details{% endblock page_title %}
 
 {% block content %}
 <div class="row">
@@ -16,12 +16,10 @@
 </div>
 <div class="row">
     <div class="large-12 columns">
-        <div id="worksheet-message">
-            Loading worksheet...
+        <div id="bundle-message">
+            Loading bundle information...
         </div>
-        <div id="worksheet-body">
-            <div id="worksheet-content">
-            </div>
+        <div id="bundle-content">
         </div>
     </div>
 </div>
@@ -44,12 +42,12 @@
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}
 
 {% block js %}
 $(function () {
     $(".top-bar-section ul > li").removeClass("active");
-    $("#liWorksheets").addClass("active");
+    $("#liBundles").addClass("active");
 });
 {% endblock js %}
 
@@ -379,14 +377,15 @@ $(document).ready(function() {
         url: "/api" + document.location.pathname,
         cache: false,
         success: function (data) {
-            new WorksheetRenderer($("#worksheet-content").get(0), new BundleRenderer($("#bundle-template > div").get(0)), data);
-            $("#worksheet-message").hide();
+            bundleElement = (new BundleRenderer($("#bundle-template > div").get(0))).render(data);
+            $("#bundle-content").append(bundleElement);
+            $("#bundle-message").hide();
         },
         error: function (xhr, status, err) {
             if (xhr.status == 404) {
-                $("#worksheet-message").html("Worksheet was not found.");
+                $("#bundle-message").html("Bundle was not found.");
             } else {
-                $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
+                $("#bundle-message").html("An error occurred. Please try refreshing the page.");
             }
         }
     });
