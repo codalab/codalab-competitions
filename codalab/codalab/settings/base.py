@@ -209,13 +209,18 @@ class Base(Settings):
         'allauth',
         'allauth.account',
         'allauth.socialaccount',
-        
-        # 
+        'oauth2_provider',
+
+        # Search
         'haystack'
     )
 
     OPTIONAL_APPS = []
     INTERNAL_IPS = []
+
+    OAUTH2_PROVIDER = {
+        'OAUTH2_VALIDATOR_CLASS': 'apps.authenz.oauth.Validator',
+    }
 
     # Email Configuration
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -250,7 +255,7 @@ class Base(Settings):
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
-            )
+        ),
     }
 
     #HAYSTACK_CONNECTIONS = {
