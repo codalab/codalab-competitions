@@ -10,6 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'', include('apps.web.urls')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^clients/', include('apps.authenz.urls')),
     url(r'^api/', include('apps.api.routers')),
     url(r'^search/', include('haystack.urls')),
 
@@ -29,4 +30,4 @@ urlpatterns = patterns('',
 
     # JS Reverse for saner AJAX calls
     url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse')
-) 
+)
