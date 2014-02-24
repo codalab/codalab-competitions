@@ -435,3 +435,19 @@ class BundleContentApi(views.APIView):
             return Response(items)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
+
+class BundleInfoApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request, uuid):
+        """
+        """
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
+        try:
+            item = service.item(uuid)
+            return Response(item, content_type="application/json")
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
