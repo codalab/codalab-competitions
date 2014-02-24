@@ -107,7 +107,7 @@ var Competition;
                         $("#user_results").append(Competition.displayNewSubmission(response));
                         $('#user_results #' + response.id + ' .fi-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
                         $('#fileUploadButton').removeClass("disabled");
-                        $('#fileUploadButton').text("Submit Results");
+                        $('#fileUploadButton').text("Submit Results...");
                         $('#user_results #' + response.id + ' .fi-plus').click();
                     },
                     fail: function (jqXHR) {
@@ -116,7 +116,7 @@ var Competition;
                             msg = jqXHR.responseJSON.detail;
                         }
                         $('#details').html(msg);
-                        $('#fileUploadButton').text("Submit Results");
+                        $('#fileUploadButton').text("Submit Results...");
                         $('#fileUploadButton').removeClass('disabled');
                     }
                 });
