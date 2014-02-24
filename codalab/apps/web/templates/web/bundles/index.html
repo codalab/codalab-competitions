@@ -1,14 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block head_title %}Worksheets{% endblock head_title %}
-{% block page_title %}Worksheets{% endblock page_title %}
+{% block head_title %}Bundles{% endblock head_title %}
+{% block page_title %}Bundles{% endblock page_title %}
 
 {% block content %}
 <div class="row">
     <div class="large-9 columns competitions">
-        <dl class="sub-nav">
-        </dl>
+        <dl class="sub-nav"></dl>
         {% if not items %}
         <p>There are no {{items_label}}.</p>
         {% else %}
@@ -21,7 +20,7 @@
                     <div class="articleImageContainer">
                         <div class="subContainerPadding">
                             {% if not item.image_url %}
-                            <img src="{% static "img/icon_worksheet.png" %}">
+                            <img src="{% static "img/icon_bundle.png" %}">
                             {% else %}
                             <img src="{{ item.image_url }}">
                             {% endif %}
@@ -37,20 +36,20 @@
                         </div>
                     </div>
                 </article>
-            </div> 
+            </div>
         </a>
         {% endfor %}
         {% endif %}
     </div>
     <div class="large-3 columns ">
-    </div>  
+    </div>
 </div>
 {% endblock content%}
 
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
-        $("#liWorksheets").addClass("active");
+        $("#liBundles").addClass("active");
     });
 {% endblock js %}
 
