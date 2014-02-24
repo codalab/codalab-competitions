@@ -776,13 +776,13 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=details_category, container=pc,  codename="overview",
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation",
-                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
+                                   label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
-                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data",
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
