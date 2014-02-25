@@ -21,7 +21,30 @@ from apps.web.models import (CompetitionSubmissionStatus,
                              ContentVisibility,
                              DefaultContentItem,
                              ParticipantStatus)
+from apps.web.models import (Page)
 from django.conf import settings
+
+def migrate_data():
+    """
+    Run necessary data migrations.
+    """
+
+    # For https://github.com/codalab/codalab/issues/322
+
+    categories = ContentCategory.objects.filter(codename='participate')
+    for category in categories:
+
+        dcitems = DefaultContentItem.objects.filter(category=category, rank=1, required=True)
+        for dcitem in dcitems:
+            if dcitem.label == "Submit Results":
+                dcitem.label = "Submit / View Results"
+                dcitem.save()
+
+        pages = Page.objects.filter(category=category, rank=1)
+        for page in pages:
+            if page.label == "Submit Results":
+                page.label = "Submit / View Results"
+                page.save()
 
 def insert_data():
     """
@@ -38,7 +61,9 @@ def insert_data():
 
     site, _ = Site.objects.get_or_create(pk=settings.SITE_ID)
     if site.name == settings.CODALAB_SITE_NAME:
-        print "Initial data has been detected in the database: skipping all inserts."
+        print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
+        migrate_data()
+        print "Data migration complete."
         return
     site.domain = settings.CODALAB_SITE_DOMAIN
     site.name = settings.CODALAB_SITE_NAME
@@ -115,7 +140,7 @@ def insert_data():
               'required' : True,
               'rank' : 1,
               'codename' : 'submit_results',
-              'label' : "Submit Results" } ]
+              'label' : "Submit / View Results" } ]
 
     for dci in cis:
         dcii, _ = DefaultContentItem.objects.get_or_create(category=dci['category'], label=dci['label'],
