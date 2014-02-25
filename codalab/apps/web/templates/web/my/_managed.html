@@ -27,7 +27,7 @@
                   <h3>{{ competition.title }}</h3>
                   <label>Organized by {{ competition.creator }}</label>
                 </div>
-                <p>{{ competition.description|safe }}</p>
+                {{ competition.description|safe }}
               </div>
             </div>
           </a>
