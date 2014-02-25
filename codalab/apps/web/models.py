@@ -774,14 +774,14 @@ class CompetitionDefBundle(models.Model):
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
         details_category = ContentCategory.objects.get(name="Learn the Details")
-        Page.objects.create(category=details_category, container=pc,  codename="overview",
+        Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
-        Page.objects.create(category=details_category, container=pc,  codename="evaluation",
+        Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
                                    label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
-        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
+        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(category=participate_category, container=pc,  codename="get_data",
+        Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
