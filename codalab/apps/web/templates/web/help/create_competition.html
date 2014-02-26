@@ -4,13 +4,14 @@
 {% block page_title %}Help: Create a Competition{% endblock page_title %}
 
 {% block content %}
-<div class="row glossary-page-container"> 
+<div class="row glossary-page-container">
     <div id="dockable" class="large-3 columns">
         <div id="dockable_inner">
             <ul class="side-nav side-nav--fullwidth">
                 <li><a href="#create-competition" class="scrollTo active" tabindex="1">Create a Competition</a></li>
                 <li><a href="#competition-overview" class="scrollTo" tabindex="2">Competition Overview</a></li>
                 <li><a href="#create-a-competition-bundle" class="scrollTo" tabindex="3">Create a Competition Bundle</a></li>
+                <li><a href="#upload-competition-bundle">Upload a Competition Bundle</a></li>
             </ul>
         </div>
     </div>
@@ -24,7 +25,14 @@
             for their respective areas of interest. This guide covers everything you need to know to create 
             and manage a CodaLab competition.
         </p>
-        
+
+        <p><b>Note:</b> CodaLab currently supports the following browsers:</p>
+        <ul>
+            <li>&#149; Internet Explorer</li>
+            <li>&#149; Google Chrome</li>
+            <li>&#149; Mozilla Firefox</li>
+        </ul>
+
         <hr>
         <a id="competition-overview" class="anchor"></a>
         <h2>Competition Overview</h2>
@@ -36,7 +44,7 @@
             they can then submit to the competition.
         </p>
         <p>To create a competition, you need to create and upload a Competition Bundle. A Competition Bundle is a .zip archive which contains a YAML file that describes the competition and its assets. The files that make up a competition bundle are as follows:</p>
-                
+
         <table>
             <tr>
                 <td><b>Item</b></td>
@@ -75,7 +83,7 @@
                 <td>A logo or image for the competition.</td>
             </tr>
         </table>
-        
+
         <hr>
         <a id="create-a-competition-bundle" class="anchor"></a>
         <h2>Create a Competition Bundle</h2>
@@ -106,7 +114,11 @@
 
         <a id="create-yaml-file" class="anchor"></a>
         <h3>Create a YAML File</h3>
-        <p>The manifest file (competition.yaml) defines all aspects of the competition, and is defined using YAML. Here's the example competition.yaml:</p>
+        <p>The manifest file (competition.yaml) defines all aspects of the competition, and is defined using YAML.</p>
+
+        <p><b>IMPORTANT:</b> When setting timestamps, you will need to enter time values in Pacific Standard Time (PST). CodaLab will convert time values to Coordinated Universal Time (UTC).</p> 
+            
+        <p>Here's the example competition.yaml:</p>
         <pre><code># Build an example competition
 ---
 title: Example Competition
@@ -167,41 +179,55 @@ leaderboard:
             rank: 1
             numeric_format: 6
 </code></pre>
-        
+
         <a id="add-folder-contents-to-zip-archives" class="anchor"></a>
         <h3>Add Folder Contents to ZIP Archives</h3>
         <p>To make this example complete it's important to understand how to build and package the program.zip and reference.zip referred to in the competition.yaml.</p>
 
-<p>The program.zip bundle contains the program that compares the users submission with the reference data (in the reference.zip bundle) to score the submission. In this case the reference data contains the value of pi. The program.zip bundle computes the absolute difference of the submitted value from the reference value.</p>
+        <p>The program.zip bundle contains the program that compares the users submission with the reference data (in the reference.zip bundle) to score the submission. In this case the reference data contains the value of pi. The program.zip bundle computes the absolute difference of the submitted value from the reference value.</p>
 
-<p>Here are the contents of the reference.zip file: 
+        <p>
+            Here are the contents of the reference.zip file: 
         <pre><code>reference.zip 
   |- answer.txt (Contains: 3.14159265359)
   |- metadata   (Contains: This is the authoritative result.)
 </code></pre>
-</p>
+        </p>
 
-<p>Here are the contents of the program.zip file</p>
+        <p>Here are the contents of the program.zip file</p>
         <pre><code>program.zip
   |- evaluate.exe (The program that is run)
   |- metadata     (see below for contents)
   |- supporting modules and libraries for evaluate.exe to run in isolation.
 </code></pre>
 
-<p>The program.zip metadata file contains:</p>
+        <p>The program.zip metadata file contains:</p>
         <pre><code>command: $program/evaluate.exe $input $output
 description: Example competition evaluation program.
 </code></pre>
 
-        <p>1. Add the contents of the example program and reference folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, zip the contents of the following folders:
+        <p>
+            1. Add the contents of the example program and reference folders to individual ZIP archives. Using our <a href="#example-project-file-structure">example competition files</a>, zip the contents of the following folders:
         <pre><code>C:\MyCompetition\reference -&gt; reference.zip
 C:\MyCompetition\program -&gt; program.zip
 </code></pre>
-</p>
+        </p>
         <p>2. Create a .zip archive of C:\MyCompetition. This will be known as the "competition bundle".</p>
-        
 
-    <div class="spacer500">&nbsp;</div>
+        <a id="upload-competition-bundle" class="anchor"></a>
+        <h2>Upload a Competition Bundle</h2>
+        <p>Follow these steps to upload the competition bundle to CodaLab.</p>
+
+        <ol>
+            <li>Log in to your CodaLab account.</li>
+            <li>Navigate to the <b>My CodaLab</b> page.</li>
+            <li>Click the <b>Competitions I'm Running</b> tab.</li>
+            <li>Click <b>Create Competition</b>.</li>
+            <li>Click <b>Upload definition...</b>, locate the competition bundle you created, select it and click <b>Open</b>. The file will be uploaded to CodaLab.</li>
+            <li>You can manage the competition from your <a href="https://www.codalab.org/my/#manage">CodaLab Dashboard</a> (the <b>My CodaLab</b> page).</li>
+        </ol>
+
+        <div class="spacer500">&nbsp;</div>
     </div>
 </div>
 {% endblock content %}
