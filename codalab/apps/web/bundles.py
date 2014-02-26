@@ -35,7 +35,20 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.worksheet_info(uuid))
 
         def ls(self, uuid, path):
+            strm = self.read_file(uuid, 'bat.txt')
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
+
+        MAX_BYTES = 1024*1024
+        def read_file(self, uuid, path):
+            fid = self.client.open_target((uuid, path))
+            try:
+                while True:
+                    bytes = self.client.read_file(fid, BundleService.MAX_BYTES)
+                    yield bytes.data
+                    if len(bytes.data) < BundleService.MAX_BYTES:
+                        break
+            finally:
+                self.client.close_file(fid)
 
         def http_status_from_exception(self, ex):
             # This is brittle. See https://github.com/codalab/codalab/issues/345.
