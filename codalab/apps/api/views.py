@@ -450,10 +450,19 @@ class BundleFileContentApi(views.APIView):
     """
     Provides a web API to read the content of a file in a bundle.
     """
+    @staticmethod
+    def _content_type(path):
+        from os.path import splitext
+        _, ext = splitext(path)
+        if ext == '.css':
+            return 'text/css'
+        return 'application/octet-stream'
+
     def get(self, request, uuid, path):
         user_id = self.request.user.id
         service = BundleService()
         try:
-            return StreamingHttpResponse(service.read_file(uuid, path))
+            content_type = BundleFileContentApi._content_type(path)
+            return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
