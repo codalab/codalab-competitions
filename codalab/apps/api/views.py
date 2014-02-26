@@ -456,7 +456,7 @@ class BundleFileContentApi(views.APIView):
         _, ext = splitext(path)
         if ext == '.css':
             return 'text/css'
-        return 'application/octet-stream'
+        return None
 
     def get(self, request, uuid, path):
         user_id = self.request.user.id
