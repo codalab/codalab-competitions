@@ -365,7 +365,7 @@ var WorksheetRenderer = (function () {
                 }
             }
             $('.worksheet-icon').html(title);
-            $('.worksheet-author').html('By Author Name');
+            $('.worksheet-author').html('by codalab');
             var blocks = data.items.forEach(function (item) {
                 if (item[0] === null) {
                     var e = document.createElement('div');
