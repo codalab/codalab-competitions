@@ -410,12 +410,14 @@ class WorksheetListView(TemplateView):
             item = {'uuid': worksheet['uuid'],
                     'details_url': '/worksheets/{0}'.format(worksheet['uuid']),
                     'name': '<name not specified>',
-                    'title': '<title not specified>',
-                    'creator': '<creator not specified>',
-                    'description': '<description not specified>'}
+                    'title': '',
+                    'creator': 'codalab',
+                    'description': ''}
             for key in ['name', 'title', 'creator', 'description']:
                 if key in worksheet:
                     item[key] = worksheet[key]
+            if len(item['title']) == 0:
+                item['title'] = item['name']
             items.append(item)
         context['items'] = items
         context['items_label'] = 'worksheets'
