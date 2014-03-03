@@ -68,13 +68,13 @@ $default-float: left;
 // Colors
 
 // $primary-color: #2ba6cb;
-// $secondary-color: #e9e9e9;
-// $alert-color: #c60f13;
-// $success-color: #5da423;
+$secondary-color: #E9E9E9;
+$alert-color: #c60f13;
+$success-color: #739CB9;
 
 // Make sure border radius matches unless we want it different.
 
-// $global-radius: 3px;
+$global-radius: 3px;
 // $global-rounded: 1000px;
 
 // Inset shadow shiny edges and depressions.
@@ -961,27 +961,27 @@ $default-float: left;
 
 // We use this to se the prog bar height
 
-// $progress-bar-height: emCalc(25);
-// $progress-bar-color: transparent;
+$progress-bar-height: emCalc(25);
+$progress-bar-color: transparent;
 
 // We use these to control the border styles
 
-// $progress-bar-border-color: darken(#fff, 20%);
-// $progress-bar-border-size: 1px;
-// $progress-bar-border-style: solid;
-// $progress-bar-border-radius: $global-radius;
+$progress-bar-border-color: darken(#fff, 20%);
+$progress-bar-border-size: 1px;
+$progress-bar-border-style: solid;
+$progress-bar-border-radius: $global-radius;
 
 // We use these to control the margin & padding
 
-// $progress-bar-pad: emCalc(2);
-// $progress-bar-margin-bottom: emCalc(10);
+$progress-bar-pad: emCalc(2);
+$progress-bar-margin-bottom: emCalc(10);
 
 // We use these to set the meter colors
 
-// $progress-meter-color: $primary-color;
-// $progress-meter-secondary-color: $secondary-color;
-// $progress-meter-success-color: $success-color;
-// $progress-meter-alert-color: $alert-color;
+$progress-meter-color: $primary-color;
+$progress-meter-secondary-color: $secondary-color;
+$progress-meter-success-color: $success-color;
+$progress-meter-alert-color: $alert-color;
 
 //
 // Reveal Variables
