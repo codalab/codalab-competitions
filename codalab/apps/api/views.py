@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.files.base import ContentFile
-from django.http import Http404
+from django.http import Http404, StreamingHttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -402,21 +402,33 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DefaultContentSerial
 
 #
-# Experiments/Worksheets
+# Worksheets
 #
-class ExperimentContentApi(views.APIView):
+class WorksheetContentApi(views.APIView):
     """
     Provides a web API to fetch the content of a worksheet.
     """
     def get(self, request, uuid):
-        """
-        """
         user_id = self.request.user.id
-        logger.debug("ExperimentContent: user_id=%s; uuid=%s.", user_id, uuid)
+        logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService()
         try:
             worksheet = service.worksheet(uuid)
             return Response(worksheet)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleInfoApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
+        try:
+            item = service.item(uuid)
+            return Response(item, content_type="application/json")
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
 
@@ -425,13 +437,32 @@ class BundleContentApi(views.APIView):
     Provides a web API to browse the content of a bundle.
     """
     def get(self, request, uuid, path):
-        """
-        """
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService()
         try:
             items = service.ls(uuid, path)
             return Response(items)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleFileContentApi(views.APIView):
+    """
+    Provides a web API to read the content of a file in a bundle.
+    """
+    @staticmethod
+    def _content_type(path):
+        from os.path import splitext
+        _, ext = splitext(path)
+        if ext == '.css':
+            return 'text/css'
+        return None
+
+    def get(self, request, uuid, path):
+        user_id = self.request.user.id
+        service = BundleService()
+        try:
+            content_type = BundleFileContentApi._content_type(path)
+            return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))

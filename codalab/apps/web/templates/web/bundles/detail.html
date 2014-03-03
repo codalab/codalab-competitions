@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block head_title %}Bundle details{% endblock head_title %}
+{% block page_title %}Bundle details{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="large-12 columns worksheet-name">
+        <!-- COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
+            <a href="#" class="right">
+            <button class="med button">Export</button>
+        </a> -->
+        <h2 class="worksheet-icon"></h2>
+        <label class="worksheet-author"></label>
+    </div>
+</div>
+<div class="row">
+    <div class="large-12 columns">
+        <div id="bundle-message">
+            Loading bundle information...
+        </div>
+        <div id="bundle-content">
+        </div>
+    </div>
+</div>
+
+<div id="bundle-template" style="visibility: hidden;">
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="bundle-tile">
+                <div class="large-12 columns">
+                    <a href="" class="bundle-link"><h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4></a>
+                    <a href="" class="bundle-download" alt="Download Bundle">
+                        <button class="small button secondary"><i class="fi-arrow-down"></i></button>
+                    </a>
+                    <label class="bundle-uuid"></label><hr>
+                </div>
+                <div class="bundle-meta-view-container"></div>
+                <a href="" class="bundle__expand_button">SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a>
+                <div class="bundle-file-view-container large-12-columns"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+$(function () {
+    $(".top-bar-section ul > li").removeClass("active");
+    $("#liBundles").addClass("active");
+});
+{% endblock js %}
+
+{% block jsincludes %}
+<script src="{{ STATIC_URL }}js/markdown.min.js"></script>
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="{{ STATIC_URL }}js/bundle.js"></script>
+<script>
+MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+});
+
+$(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "/api" + document.location.pathname,
+        cache: false,
+        success: function (data) {
+            bundleElement = (new BundleRenderer($("#bundle-template > div").get(0))).render(data);
+            $("#bundle-content").append(bundleElement);
+            $("#bundle-message").hide();
+        },
+        error: function (xhr, status, err) {
+            if (xhr.status == 404) {
+                $("#bundle-message").html("Bundle was not found.");
+            } else {
+                $("#bundle-message").html("An error occurred. Please try refreshing the page.");
+            }
+        }
+    });
+});
+</script>
+{% endblock jsincludes %}

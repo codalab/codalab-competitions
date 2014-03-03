@@ -1,20 +1,13 @@
 {% extends 'base.html' %}
-{% block head_title %}Experiments{% endblock head_title %}
-{% block page_title %}Experiments{% endblock page_title %}
-{% block content %}
-
 {% load static %}
 
+{% block head_title %}Worksheets{% endblock head_title %}
+{% block page_title %}Worksheets{% endblock page_title %}
+
+{% block content %}
 <div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
     <div class="large-9 columns competitions">
         <dl class="sub-nav">
-            <!-- ////////////////  Commented out until we have sorting  /////////////////
-            <dt>Sort by:</dt>
-            <dd class="active"><a href="#">Most Recent</a></dd>
-            <dd><a href="#">Most Active</a></dd> 
-            -->
         </dl>
         {% if not items %}
         <p>There are no {{items_label}}.</p>
@@ -28,7 +21,7 @@
                     <div class="articleImageContainer">
                         <div class="subContainerPadding">
                             {% if not item.image_url %}
-                            <img src="{% static "img/ProfileImageDummy.jpg" %}">
+                            <img src="{% static "img/icon_worksheet.png" %}">
                             {% else %}
                             <img src="{{ item.image_url }}">
                             {% endif %}
@@ -50,22 +43,6 @@
         {% endif %}
     </div>
     <div class="large-3 columns ">
-        <!-- ////////////////  Commented out until we have stats  /////////////////
-        <div class="panel">
-            <input type="text" placeholder="Filter by Keyword"></input>
-            <h5>Show:</h5>
-            <div class="section-container vertical-nav" data-section data-options="deep_linking: false; one_up: true">
-                <ul>
-                    <li>
-                        <input type="checkbox">&nbsp; Medical Imaging</input>
-                    </li>
-                    <li>
-                        <input type="checkbox">&nbsp; Quick Filter #2</input>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        -->
     </div>  
 </div>
 {% endblock content%}
@@ -73,6 +50,7 @@
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
-        $("#liExperiments").addClass("active");
+        $("#liWorksheets").addClass("active");
     });
 {% endblock js %}
+
