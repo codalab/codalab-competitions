@@ -2,7 +2,9 @@ from django.conf.urls import patterns
 from django.conf.urls import url
 from django.views.generic import TemplateView
 
+from .. import views
+
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='web/worksheets/worksheet_list.html'), name='worksheets'),
-    url(r'^(?P<uuid>[A-Za-z0-9]+)$', TemplateView.as_view(template_name='web/worksheets/worksheet_detail.html'), name="worksheet_detail"),
+    url(r'^$', views.WorksheetListView.as_view(), name='list'),
+    url(r'^(?P<uuid>[A-Za-z0-9]+)$', views.WorksheetDetailView.as_view(), name='view'),
 )

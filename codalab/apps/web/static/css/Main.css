@@ -2394,11 +2394,6 @@ ul.leftNavigation li.active a{
 .cl-logo  {
     padding: 9px 100px 0 14px;
 }
-.experiment__date {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
-    color: #777;
-}
 .button a, .button a:hover {
     color: #FFF;
 }
@@ -2716,6 +2711,9 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .bundle__file_view__icon {
     width: 32px;
 }
+.bundle-icon-sm-indent {
+    text-indent: 50px;
+}
 .bundle-icon-sm--program--created, .bundle-icon-sm--program--staged, .bundle-icon-sm--program--running {
     background: url('../img/bundle_icon_program_sm-yellow.png') no-repeat;
 }
@@ -2761,6 +2759,6 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .bundle-icon-sm--run--failed {
     background: url('../img/bundle_icon_run_sm-red.png') no-repeat;
 }
-pre, bundle__meta_pre, bundle__meta_pre pre {
+pre, .bundle__file_pre, .bundle__file_pre pre {
     font-family: Consolas, "Liberation Mono", Courier, monospace;
 }
