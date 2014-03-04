@@ -14,6 +14,7 @@ from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.db.models.signals import post_save
+from django.db import transaction
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -738,6 +739,7 @@ class CompetitionDefBundle(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @transaction.commit_on_success
     def unpack(self):
         """
         This method unpacks a competition bundle and creates a competition from
