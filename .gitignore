@@ -100,3 +100,4 @@ requirements/src/
 *.cache
 wheel_packages/
 codalab/MySQL_DevDB
+*MySQL_DevDB
