@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block head_title %}Worksheet Name Here{% endblock head_title %}
+{% block page_title %}Worksheet Details{% endblock page_title %}
+
+{% block content %}
+<div class="large-12 columns content">
+    <div class="row">
+        <div class="large-12 columns worksheet-name">
+            <!-- COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
+                <a href="#" class="right">
+                <button class="med button">Export</button>
+            </a> -->
+            <h2 class="worksheet-icon">basic_ml</h2>
+            <label>By Author Name</label>
+        </div>
+        <div class="large-12 columns">
+            <p>This worksheet performs the basic machine learning pipeline for evaluating a single learning algorithm on a single dataset. We first split the dataset into two parts, one for training and the other for testing.  We use the learning algorithm to learn a model on the training data, and then use that model to make predictions on the test data.  A separate evaluation module is used to report the error (number of misclassified examples).</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-12 columns">
+            <hr>
+            <p>We first insert <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka</a>, a suite of basic machine learning utilities, which includes many learning algorithms as well as helpers for splitting data, performing evaluation, etc.</p>
+            <div class="bundle-tile">
+                <div class="large-12 columns">
+                    <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm--program--ready"> {{ bundle.metadata.name }} </h4></a>
+                    <a href="#" class="bundle-download" alt="Download Bundle">
+                        <button class="small button secondary"><i class="fi-arrow-down"></i></button>
+                    </a>
+                    <label> {{bundle.uuid}} </label><hr>
+                </div>
+                <div class="large-12 columns bundle-meta">
+                    <table class="bundle__meta_table">
+                        <tr class="row">
+                            <td class="col bundle__meta_type">Name:</td>
+                            <td class="col">base/weka</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__meta_type">Description:</td>
+                            <td class="col">Weka is a collection of machine learning algorithms for data mining tasks. The algorithms can either be applied directly to a dataset or called from your own Java code. Weka contains tools for data pre-processing, classification, regression, clustering, association rules, and visualization. It is also well-suited for developing new machine learning schemes.</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__meta_type">Source:</td>
+                            <td class="col"><a href="http://www.cs.waikato.ac.nz/ml/weka/" target="_blank">http://www.cs.waikato.ac.nz/ml/weka</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__meta_type">Required:</td>
+                            <td class="col">Linux</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__meta_type">Tags:</td>
+                            <td class="col">tag1, tag2, tag3, tag4, tag5, tag6</td>
+                        </tr>
+                    </table>
+                </div>
+                <a href="#" class="bundle__expand_button expanded">LESS<img src="/static/img/expand-arrow.png" alt="More"></a>
+                <div class="large-12 columns">
+                    <table class="bundle__file_view expanded">
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><a href="#"><i class="fi-arrow-left"></a></td>
+                            <td class="col"><a href="#">path</a> / <a href="#">to</a> / <a href="#">folder</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_1</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_2</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-folder"></td>
+                            <td class="col"><a href="#">folder_name_3</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_1</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_2</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_3</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_4</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_5</a></td>
+                        </tr>
+                        <tr class="row">
+                            <td class="col bundle__file_view__icon"><i class="fi-page"></td>
+                            <td class="col"><a href="#">file_name_6</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

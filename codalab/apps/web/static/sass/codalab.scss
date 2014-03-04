@@ -25,10 +25,12 @@ body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
     }
   }
 
+
 // leaderboard customization
 .column-selectable:last-child {
     float: none !important;
 }
+
 
 // _panels customizations
 $panel-bg: darken(#fff, 8%) !default; // changed from 5%
@@ -78,6 +80,12 @@ $section-title-color-active: #676278 !default;  // changed from #333
 // _settings customizations
 $list-style-position: inside; // changed from outside
 
+
+// _settings customizations
+$list-style-position: inside; // changed from outside
+
+
+
 // _side-nav customizations
 li {
     a {
@@ -91,9 +99,11 @@ li {
   }
 
 
+
 // _sub-nav customizations
 $sub-nav-border-radius: 4px !default; // changed from 1000px
 $sub-nav-active-padding: em-calc(8 12) !default;  //  changed from (3 9)
+
 
 
 // _switch customizations
@@ -103,8 +113,10 @@ $sub-nav-active-padding: em-calc(8 12) !default;  //  changed from (3 9)
 }
 
 
+
 // _tables customizations
 $table-even-row-bg: #EEE !default;  // changed from #f9f9f9
+
 
 
 // _top-bar customizations
@@ -140,7 +152,7 @@ $header-font-weight: lighter !default;
 $header-line-height: 1.4em !default;
  /* Default header styles */
   h1, h2, h3 {  // added
-    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-style: $header-font-style;
     color: $header-font-color;
@@ -156,4 +168,5 @@ $header-line-height: 1.4em !default;
     }
   }
 
-$anchor-text-decoration: underline !default;
+$anchor-text-decoration: underline !default; // changed from none
+
