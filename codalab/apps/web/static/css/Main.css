@@ -2681,6 +2681,7 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
     margin: 0;
     font-size: 14px;
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: block;
 }
 .bundle__expand_button {
     float: right;
