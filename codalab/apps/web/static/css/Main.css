@@ -26,7 +26,7 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family: 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:lighter;
     color:#777;
@@ -581,7 +581,7 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 17px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
     font-weight: lighter;
 }
@@ -601,7 +601,7 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font: 20px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 20px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
     font-weight: lighter;
@@ -669,7 +669,7 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 25px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
@@ -2442,7 +2442,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-weight: normal;
 }
 .slider h1 {
-    font-family: 'Segoe UI Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     color: #FFF;
     font-size: 1.1em;
@@ -2484,7 +2484,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 0.9375em;
 }
 #edit_competition label {
-    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
     padding: 0;
