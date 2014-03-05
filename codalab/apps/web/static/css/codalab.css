@@ -2532,7 +2532,7 @@ small {
 code {
   font-family: Consolas, "Liberation Mono", Courier, monospace;
   font-weight: bold;
-  color: #2a4544;
+  color: #7f0a0c;
 }
 
 /* Lists */
@@ -2871,13 +2871,13 @@ button.success:hover, button.success:focus, .button.success:hover, .button.succe
 }
 /* line 179, ../sass/foundation/components/_buttons.scss */
 button.alert, .button.alert {
-  background-color: #477473;
-  border-color: #345454;
+  background-color: #c60f13;
+  border-color: #970b0e;
   color: white;
 }
 /* line 123, ../sass/foundation/components/_buttons.scss */
 button.alert:hover, button.alert:focus, .button.alert:hover, .button.alert:focus {
-  background-color: #5a9492;
+  background-color: #ee1a1f;
 }
 /* line 134, ../sass/foundation/components/_buttons.scss */
 button.alert:hover, button.alert:focus, .button.alert:hover, .button.alert:focus {
@@ -2991,8 +2991,8 @@ button.disabled.success:hover, button.disabled.success:focus, button[disabled].s
 }
 /* line 192, ../sass/foundation/components/_buttons.scss */
 button.disabled.alert, button[disabled].alert, .button.disabled.alert, .button[disabled].alert {
-  background-color: #477473;
-  border-color: #345454;
+  background-color: #c60f13;
+  border-color: #970b0e;
   color: white;
   cursor: default;
   opacity: 0.6;
@@ -3001,7 +3001,7 @@ button.disabled.alert, button[disabled].alert, .button.disabled.alert, .button[d
 }
 /* line 123, ../sass/foundation/components/_buttons.scss */
 button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
-  background-color: #5a9492;
+  background-color: #ee1a1f;
 }
 /* line 134, ../sass/foundation/components/_buttons.scss */
 button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
@@ -3009,7 +3009,7 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
 }
 /* line 147, ../sass/foundation/components/_buttons.scss */
 button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
-  background-color: #477473;
+  background-color: #c60f13;
 }
 
 /* line 197, ../sass/foundation/components/_buttons.scss */
@@ -3425,7 +3425,7 @@ span.error, small.error {
   margin-bottom: 1em;
   font-size: 0.75em;
   font-weight: bold;
-  background: #477473;
+  background: #c60f13;
   color: white;
   display: none;
 }
@@ -3434,8 +3434,8 @@ span.error, small.error {
 .error input,
 .error textarea,
 .error select {
-  border-color: #477473;
-  background-color: rgba(71, 116, 115, 0.1);
+  border-color: #c60f13;
+  background-color: rgba(198, 15, 19, 0.1);
   margin-bottom: 0;
 }
 /* line 230, ../sass/foundation/components/_forms.scss */
@@ -3448,7 +3448,7 @@ span.error, small.error {
 /* line 370, ../sass/foundation/components/_forms.scss */
 .error label,
 .error label.error {
-  color: #477473;
+  color: #c60f13;
 }
 /* line 374, ../sass/foundation/components/_forms.scss */
 .error small.error {
@@ -3458,7 +3458,7 @@ span.error, small.error {
   margin-bottom: 1em;
   font-size: 0.75em;
   font-weight: bold;
-  background: #477473;
+  background: #c60f13;
   color: white;
 }
 /* line 378, ../sass/foundation/components/_forms.scss */
@@ -3469,8 +3469,8 @@ span.error, small.error {
 /* line 384, ../sass/foundation/components/_forms.scss */
 input.error,
 textarea.error {
-  border-color: #477473;
-  background-color: rgba(71, 116, 115, 0.1);
+  border-color: #c60f13;
+  background-color: rgba(198, 15, 19, 0.1);
 }
 /* line 230, ../sass/foundation/components/_forms.scss */
 input.error:focus,
@@ -3481,8 +3481,8 @@ textarea.error:focus {
 
 /* line 388, ../sass/foundation/components/_forms.scss */
 .error select {
-  border-color: #477473;
-  background-color: rgba(71, 116, 115, 0.1);
+  border-color: #c60f13;
+  background-color: rgba(198, 15, 19, 0.1);
 }
 /* line 230, ../sass/foundation/components/_forms.scss */
 .error select:focus {
@@ -3492,7 +3492,7 @@ textarea.error:focus {
 
 /* line 392, ../sass/foundation/components/_forms.scss */
 label.error {
-  color: #477473;
+  color: #c60f13;
 }
 
 /* Button Groups */
@@ -3768,7 +3768,7 @@ label.error {
 }
 /* line 79, ../sass/foundation/components/_split-buttons.scss */
 .split.button.alert span {
-  border-left-color: #2a4544;
+  border-left-color: #7f0a0c;
 }
 /* line 79, ../sass/foundation/components/_split-buttons.scss */
 .split.button.success span {
@@ -5156,11 +5156,11 @@ label.error {
 }
 /* line 272, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.alert {
-  background: #477473;
+  background: #c60f13;
 }
 /* line 274, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li > a.button.alert.hover {
-  background: #345454;
+  background: #970b0e;
 }
 /* line 282, ../sass/foundation/components/_top-bar.scss */
 .top-bar-section ul li.hover > a {
@@ -6347,8 +6347,8 @@ label.error {
 }
 /* line 103, ../sass/foundation/components/_alert-boxes.scss */
 .alert-box.alert {
-  background-color: #477473;
-  border-color: #345454;
+  background-color: #c60f13;
+  border-color: #970b0e;
   color: white;
 }
 /* line 104, ../sass/foundation/components/_alert-boxes.scss */
@@ -6631,9 +6631,9 @@ form.custom .custom.dropdown.open.large ul {
 }
 /* line 216, ../sass/foundation/components/_custom-forms.scss */
 form.custom .error .custom.dropdown {
-  border-color: #477473;
-  background-color: rgba(71, 116, 115, 0.1);
-  background: rgba(71, 116, 115, 0.1);
+  border-color: #c60f13;
+  background-color: rgba(198, 15, 19, 0.1);
+  background: rgba(198, 15, 19, 0.1);
   margin-bottom: 0;
 }
 /* line 230, ../sass/foundation/components/_forms.scss */
@@ -6745,7 +6745,7 @@ kbd {
 }
 /* line 80, ../sass/foundation/components/_labels.scss */
 .label.alert {
-  background-color: #477473;
+  background-color: #c60f13;
   color: white;
 }
 /* line 81, ../sass/foundation/components/_labels.scss */
@@ -7000,7 +7000,7 @@ ul.pagination li {
 }
 /* line 59, ../sass/foundation/components/_progress-bars.scss */
 .progress.alert .meter {
-  background: #477473;
+  background: #c60f13;
   height: 100%;
   display: block;
 }
