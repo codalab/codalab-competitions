@@ -209,7 +209,7 @@ class Base(Settings):
         'allauth',
         'allauth.account',
         'allauth.socialaccount',
-        'tinymce'
+        'tinymce',
         'oauth2_provider',
 
         # Search
