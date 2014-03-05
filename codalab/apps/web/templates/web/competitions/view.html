@@ -11,9 +11,9 @@
             <section class="competitionsDetailHeader">
                 <figure class="competitionsProfileImage">
                     {% if competition.image_url %}
-                    <img id="imgProfileImage" src="{{ competition.image_url }}">
+                        <img id="imgProfileImage" src="{{ competition.image_url }}">
                     {% else %}
-                    <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
+                        <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
                     {% endif %}
                 </figure>
                 <div class="competitionsHeaderTitle">

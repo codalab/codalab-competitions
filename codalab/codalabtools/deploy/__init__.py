@@ -173,6 +173,14 @@ class DeploymentConfig(BaseConfig):
         """Gets the value of the Django secret key."""
         return self._svc['django']['secret-key']
 
+    def getShowPreviewFeatures(self):
+        """
+        Gets a value indicating if some preview features should be turned on.
+        Currently a value of 1 will turn on worksheets, a value > 1 will turn on
+        all preview features and a value < 1 will turn preview off.
+        """
+        return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
+
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -918,6 +926,13 @@ class Deployment(object):
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "",
         ]
+        preview = self.config.getShowPreviewFeatures()
+        if preview >= 1:
+            if preview == 1:
+                lines.append("    PREVIEW_WORKSHEETS = True")
+            if preview > 1:
+                lines.append("    SHOW_BETA_FEATURES = True")
+            lines.append("")
         return '\n'.join(lines)
 
 if __name__ == "__main__":

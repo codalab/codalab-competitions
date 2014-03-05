@@ -82,7 +82,7 @@ Page.objects.get_or_create(
     category=participate_category, container=pc,  codename="get_data",
     defaults=dict(label="Get Data", rank=0, html=open(os.path.join(os.path.dirname(__file__), "brats2012_data.html")).read()))
 Page.objects.get_or_create(category=participate_category, container=pc,
-                           codename="submit_results", html="", defaults=dict(label="Submit Results", rank=1))
+                           codename="submit_results", html="", defaults=dict(label="Submit / View Results", rank=1))
 
 # Logo
 brats2012.image = File(
