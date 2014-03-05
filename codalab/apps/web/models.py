@@ -94,35 +94,6 @@ class PageContainer(models.Model):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
 
-class Page(models.Model):
-    category = TreeForeignKey(ContentCategory)
-    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
-    codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages')
-    title = models.CharField(max_length=100, null=True, blank=True)
-    label = models.CharField(max_length=100)
-    rank = models.IntegerField(default=0)
-    visibility = models.BooleanField(default=True)
-    markup = models.TextField(blank=True)
-    html = models.TextField(blank=True)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        unique_together = (('label','category','container'),)
-        ordering = ['rank']
-
-    def save(self,*args,**kwargs):
-        if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label )
-        if self.defaults:
-            if self.category != self.defaults.category:
-                raise Exception("Defaults category must match Item category")
-            if self.defaults.required and self.visibility is False:
-                raise Exception("Item is required and must be visible")
-        return super(Page,self).save(*args,**kwargs)
-
 # External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -167,15 +138,15 @@ class Competition(models.Model):
     """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True)
+    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
-    has_registration = models.BooleanField(default=False)
-    end_date = models.DateTimeField(null=True,blank=True)
+    has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
+    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
-    published = models.BooleanField(default=False)
+    published = models.BooleanField(default=False, verbose_name="Publicly Available")
 
     @property
     def pagecontent(self):
@@ -218,6 +189,36 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
+
+class Page(models.Model):
+    category = TreeForeignKey(ContentCategory)
+    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    codename = models.SlugField(max_length=100)
+    container = models.ForeignKey(PageContainer, related_name='pages')
+    title = models.CharField(max_length=100, null=True, blank=True)
+    label = models.CharField(max_length=100, verbose_name="Title")
+    rank = models.IntegerField(default=0, verbose_name="Order")
+    visibility = models.BooleanField(default=True, verbose_name="Visible")
+    markup = models.TextField(blank=True)
+    html = models.TextField(blank=True, verbose_name="HTML Content")
+    competition = models.ForeignKey(Competition, related_name='pages', null=True)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        unique_together = (('label','category','container'),)
+        ordering = ['rank']
+
+    def save(self,*args,**kwargs):
+        if not self.title:
+            self.title = "%s - %s" % ( self.container.name,self.label )
+        if self.defaults:
+            if self.category != self.defaults.category:
+                raise Exception("Defaults category must match Item category")
+            if self.defaults.required and self.visibility is False:
+                raise Exception("Item is required and must be visible")
+        return super(Page,self).save(*args,**kwargs)
 
 # Dataset model
 class Dataset(models.Model):
@@ -318,16 +319,16 @@ class CompetitionPhase(models.Model):
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
-    phasenumber = models.PositiveIntegerField()
-    label = models.CharField(max_length=50, blank=True)
-    start_date = models.DateTimeField()
-    max_submissions = models.PositiveIntegerField(default=100)
-    is_scoring_only = models.BooleanField(default=True)
-    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True)
-    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
+    phasenumber = models.PositiveIntegerField(verbose_name="Number")
+    label = models.CharField(max_length=50, blank=True, verbose_name="Name")
+    start_date = models.DateTimeField(verbose_name="Start Date")
+    max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    is_scoring_only = models.BooleanField(default=True, verbose_name="Data Submissions Only")
+    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
+    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT)
+    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
 
     class Meta:
         ordering = ['phasenumber']
@@ -775,14 +776,14 @@ class CompetitionDefBundle(models.Model):
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
         details_category = ContentCategory.objects.get(name="Learn the Details")
-        Page.objects.create(category=details_category, container=pc,  codename="overview",
+        Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
-        Page.objects.create(category=details_category, container=pc,  codename="evaluation",
+        Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
-        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
+        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(category=participate_category, container=pc,  codename="get_data",
+        Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
