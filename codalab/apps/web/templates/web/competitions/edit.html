@@ -37,6 +37,13 @@
             {{ formset.management_form }}
             {% for iform in formset %}
                 <fieldset>
+                    <legend>
+                        {% if iform.instance|get_type == "Page" %}
+                            Page - {{iform.instance.category.name}} / {{iform.instance.label}}
+                        {% else %}
+                            Competition Phase - {{iform.instance.phasenumber}}
+                        {% endif %}
+                    </legend>
                     {% for ifield in iform %}
                         <div class="fieldWrapper">
                             <div class="row">
@@ -71,5 +78,6 @@
   $('document').ready(function() {
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
+    $("input[name*='_date']").datepicker();
   });
 {% endblock js %}
