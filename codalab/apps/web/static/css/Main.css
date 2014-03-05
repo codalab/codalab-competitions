@@ -2495,18 +2495,20 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 #edit_competition .fieldWrapper {
     margin-bottom: 5px;
 }
+
 #edit_competition input, #edit_competition textarea, #edit_competition p {
     color: #666;
     font-size: 1em;
     line-height: 1.4em;
 }
-#edit_competition textarea, #edit_competition select {
-    min-height: 8em;
+
+#edit_competition textarea {
     resize: none;
     padding: 10px;
     margin: 0;
     overflow-y: scroll;
 }
+
 #edit_competition a, #edit_competition a:hover {
     font-size: 1em;
     font-weight: bold;
