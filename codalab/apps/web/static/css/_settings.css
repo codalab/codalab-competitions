@@ -1,0 +1,743 @@
+/* line 82, ../sass/_settings.scss */
+* {
+  font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 100%;
+  font-weight: normal;
+}
+
+/* line 89, ../sass/_settings.scss */
+body.body {
+  position: static;
+}
+
+/* line 93, ../sass/_settings.scss */
+select {
+  color: #333333;
+}
+
+/* line 97, ../sass/_settings.scss */
+form textarea {
+  color: #333333;
+  font-size: 16px;
+}
+
+/* line 102, ../sass/_settings.scss */
+.menu-icon {
+  background: white;
+}
+
+/* line 106, ../sass/_settings.scss */
+.menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
+  border-bottom-style: none;
+  border: 0px;
+  padding: 2px;
+}
+
+/* line 112, ../sass/_settings.scss */
+div.large-12 div.row div.small-12 div.panel p {
+  font-size: .9em;
+}
+
+/* line 116, ../sass/_settings.scss */
+span.has-tip {
+  border-bottom: 0px;
+}
+
+/* line 120, ../sass/_settings.scss */
+html.js body.body div#layout.container div.large-12 div.row div.large-10 div.section-container section.active div.content div.row div.large-3 {
+  padding-top: 13px;
+}
+
+/* line 124, ../sass/_settings.scss */
+div.competition-tile article.subContainer div.articleTextArea div.small-10 button.globalYellowButtonSmall a {
+  color: white;
+}
+
+/* line 128, ../sass/_settings.scss */
+nav.top-bar section.top-bar-section ul.right {
+  color: white;
+  background: white;
+  vertical-align: text-bottom;
+}
+
+/* line 134, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
+  color: #676278;
+}
+
+/* line 138, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
+  background: transparent;
+  margin-left: 20px;
+}
+
+/* line 143, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
+  border: 0px;
+}
+
+/* line 147, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
+  padding: 2px;
+  text-align: left;
+  border: 0px;
+  font-weight: normal;
+}
+
+/* line 154, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
+  border: 0px;
+}
+
+/* line 158, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
+  margin-left: 10px;
+}
+
+/* line 162, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+/* line 167, ../sass/_settings.scss */
+div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content em {
+  font-size: 13px;
+}
+
+/* line 171, ../sass/_settings.scss */
+#layout.container div.large-12 div.row div div.large-3 ul {
+  text-align: right;
+}
+
+/* line 175, ../sass/_settings.scss */
+#layout.container div.large-12 div.row div div.large-3 ul a:hover {
+  color: #676278;
+}
+
+/* line 179, ../sass/_settings.scss */
+#layout.container div.large-12 div.row div.large-9 {
+  font-size: 13px;
+}
+
+/* line 183, ../sass/_settings.scss */
+#layout.container div.large-12 div.row div div.large-3 ul {
+  padding: 0px;
+}
+
+/* line 187, ../sass/_settings.scss */
+td > i, td > a > i {
+  color: #739cb9;
+}
+
+/* line 191, ../sass/_settings.scss */
+a > i {
+  height: 100%;
+  color: white;
+}
+
+/* line 196, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title {
+  font-size: 19px;
+  font-weight: lighter;
+}
+
+/* line 201, ../sass/_settings.scss */
+.competitionsDetailTabArea > section > .title a:hover {
+  color: #676278;
+}
+
+/* line 205, ../sass/_settings.scss */
+.process_participant_request {
+  padding-top: 10px;
+}
+
+/* line 210, ../sass/_settings.scss */
+.competitionUserBlock {
+  border: solid 1px #ccc;
+  margin-bottom: 10px;
+  position: relative;
+  padding: 0;
+}
+
+/* line 217, ../sass/_settings.scss */
+.user_results, .competition_results {
+  padding: 10px 0;
+}
+
+/* line 221, ../sass/_settings.scss */
+.globalBlueButton a, .globalBlueButton a:hover {
+  color: white;
+}
+
+/* line 225, ../sass/_settings.scss */
+.content > h3 {
+  font-size: 1.4em;
+  font-weight: lighter;
+}
+
+/* line 230, ../sass/_settings.scss */
+.content > p {
+  font-size: 13px;
+}
+
+/* line 234, ../sass/_settings.scss */
+.section-container.vertical-tabs > section > .content {
+  border: 0px;
+  color: #3b3b3b;
+}
+
+/* line 239, ../sass/_settings.scss */
+.competitionProcessHeader > ul > li {
+  height: 100%;
+}
+
+/* line 243, ../sass/_settings.scss */
+.competitionProcessHeader > ul > li > a {
+  color: white;
+  font-size: 13px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+/* line 250, ../sass/_settings.scss */
+.competition-preview {
+  border: 1px solid #cccccc;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* line 256, ../sass/_settings.scss */
+.competition-summary {
+  background: #fafafa;
+  height: 100px;
+  overflow: hidden;
+}
+
+/* line 262, ../sass/_settings.scss */
+.competition-preview > .columns > .button.small {
+  vertical-align: middle;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  text-align: center;
+  background: #676278;
+  border-color: #676278;
+}
+
+/* line 271, ../sass/_settings.scss */
+.competition-summary > .columns {
+  margin: 0px;
+  padding: 0px;
+}
+
+/* line 276, ../sass/_settings.scss */
+.competition-label {
+  height: 100px;
+  background: #739cb9;
+  color: white;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+/* line 284, ../sass/_settings.scss */
+.competition-image {
+  padding: 0px;
+  margin: 0px;
+  height: 100px;
+  vertical-align: middle;
+}
+
+/* line 291, ../sass/_settings.scss */
+.competition-info .columns {
+  padding: 0px;
+  margin: 0px;
+}
+
+/* line 296, ../sass/_settings.scss */
+.competition-title {
+  color: #333333;
+  text-align: left;
+  font-size: 15px;
+}
+
+/* line 302, ../sass/_settings.scss */
+.large-12 > .competition-label {
+  margin: 0px;
+  padding: 0px;
+  width: 30px;
+}
+
+/* line 308, ../sass/_settings.scss */
+.competition-description, .competition-owner {
+  font-size: small;
+  color: #999999;
+}
+
+/* line 313, ../sass/_settings.scss */
+.slider {
+  color: white;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-size: 3.5em;
+  font-weight: 100;
+  position: relative;
+  text-align: center;
+  background: #D0D0D0;
+  padding-top: 70px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 200px;
+  vertical-align: middle;
+}
+
+/* line 328, ../sass/_settings.scss */
+.subheader {
+  height: auto;
+  padding-bottom: 10px;
+}
+
+/* line 333, ../sass/_settings.scss */
+#footer, #footer a, #footer a:hover {
+  font-size: small;
+  background: #739cb9;
+  color: white;
+}
+
+/* line 339, ../sass/_settings.scss */
+.topbar-title {
+  font-size: x-large;
+  font-weight: light;
+}
+
+/* line 344, ../sass/_settings.scss */
+.header {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+/* line 352, ../sass/_settings.scss */
+.container {
+  padding-top: 45px;
+  padding-bottom: 20px;
+}
+
+/* line 357, ../sass/_settings.scss */
+p.competition-paragraph {
+  font-size: 1em;
+  color: #666666;
+  line-height: 1.6em;
+  margin-bottom: 0;
+}
+
+/* line 364, ../sass/_settings.scss */
+.competition-info {
+  height: 90px;
+  overflow: hidden;
+  padding-top: 5px;
+}
+
+/* line 370, ../sass/_settings.scss */
+.competition-image > img {
+  height: 90px;
+  margin-top: 5px;
+}
+
+/* line 375, ../sass/_settings.scss */
+.competition-preview.panel {
+  background: #fafafa;
+}
+
+/* line 379, ../sass/_settings.scss */
+.competition-tile {
+  margin-bottom: 20px;
+  border: 1px #CCC solid;
+  border-radius: 3px;
+  background: #FFF;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+/* line 390, ../sass/_settings.scss */
+.competition-tile h3, .bundle-tile h3 {
+  font-size: 16px;
+  color: #333333;
+}
+
+/* line 395, ../sass/_settings.scss */
+.articleHeadingContainer h3 {
+  margin: 0;
+  line-height: 100%;
+}
+
+/* line 400, ../sass/_settings.scss */
+.articleHeadingContainer label {
+  color: #a4a4a4;
+  margin-top: 4px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+/* line 407, ../sass/_settings.scss */
+.signin-centered-container {
+  margin: auto !important;
+  float: none !important;
+  background: #eff2f9;
+  padding: 25px;
+}
+
+/* line 414, ../sass/_settings.scss */
+.small-6.pull-6.columns > .globalBlueButton {
+  float: right;
+}
+
+/* line 418, ../sass/_settings.scss */
+.signin-formfields p:nth-child(3) > input {
+  float: left;
+  position: relative;
+  top: -20px;
+}
+
+/* line 424, ../sass/_settings.scss */
+.signin-formfields p:nth-child(3) > label {
+  padding-left: 20px;
+}
+
+/* line 428, ../sass/_settings.scss */
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
+  box-shadow: none;
+  white-space: nowrap;
+}
+/* line 432, ../sass/_settings.scss */
+.globalBlueButton a:focus, .globalBlueButtonBig a:focus, .globalBlueButtonInput a:focus, .globalBlueButtonAtag > a a:focus, .globalBlueButtonSmallAtag > a a:focus, .globalBlueButtonSmall a:focus, .globalBlueButtonSmallFlexi a:focus, .buttonAccept a:focus {
+  color: white !important;
+}
+
+/* line 436, ../sass/_settings.scss */
+.signin-centered-container > p > a {
+  display: inline-block;
+}
+
+/* line 440, ../sass/_settings.scss */
+ul.side-nav {
+  padding-top: 0;
+}
+/* line 442, ../sass/_settings.scss */
+ul.side-nav li {
+  margin-bottom: 2px;
+}
+/* line 445, ../sass/_settings.scss */
+ul.side-nav li a {
+  color: #676278 !important;
+  font-size: 15px !important;
+}
+/* line 447, ../sass/_settings.scss */
+ul.side-nav li a:hover {
+  color: #676278;
+}
+/* line 448, ../sass/_settings.scss */
+ul.side-nav li a:active {
+  background: none;
+}
+/* line 450, ../sass/_settings.scss */
+ul.side-nav li.active a {
+  color: #666666 !important;
+  border-left: #676278 4px solid;
+  text-indent: 10px;
+}
+
+/* line 458, ../sass/_settings.scss */
+.glossary-page-container h6, competitions-block-Styling h6, .section-container.vertical-tabs .content h6 {
+  font-size: 18px;
+  color: #666666;
+}
+/* line 463, ../sass/_settings.scss */
+.glossary-page-container p, competitions-block-Styling p, .section-container.vertical-tabs .content p {
+  font-size: 14px;
+  color: #666666;
+}
+/* line 468, ../sass/_settings.scss */
+.glossary-page-container ol, competitions-block-Styling ol, .section-container.vertical-tabs .content ol {
+  font-size: 14px;
+  color: #666666;
+}
+/* line 471, ../sass/_settings.scss */
+.glossary-page-container ol li, competitions-block-Styling ol li, .section-container.vertical-tabs .content ol li {
+  padding-bottom: 10px;
+  list-style-type: disc;
+}
+/* line 477, ../sass/_settings.scss */
+.glossary-page-container ul, competitions-block-Styling ul, .section-container.vertical-tabs .content ul {
+  font-size: 14px;
+  color: #666666;
+  margin-left: 20px;
+}
+/* line 482, ../sass/_settings.scss */
+.glossary-page-container ul li, competitions-block-Styling ul li, .section-container.vertical-tabs .content ul li {
+  padding-bottom: 10px;
+  list-style-type: disc;
+}
+/* line 488, ../sass/_settings.scss */
+.glossary-page-container pre, competitions-block-Styling pre, .section-container.vertical-tabs .content pre {
+  padding: 10px;
+  background: whitesmoke;
+  margin-bottom: 15px;
+}
+/* line 494, ../sass/_settings.scss */
+.glossary-page-container p a, competitions-block-Styling p a, .section-container.vertical-tabs .content p a {
+  color: #676278;
+}
+/* line 498, ../sass/_settings.scss */
+.glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
+  color: #666666;
+}
+
+/* line 504, ../sass/_settings.scss */
+div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
+  background: #f8f8f8;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+  font-size: 19px;
+  height: 57px;
+  font-weight: lighter;
+}
+
+/* line 514, ../sass/_settings.scss */
+.auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
+  background: white !important;
+}
+
+/* line 518, ../sass/_settings.scss */
+.auto.section-container > section.active > .title {
+  border-bottom: none;
+}
+/* line 520, ../sass/_settings.scss */
+.auto.section-container > section.active > .title a {
+  background: white;
+}
+
+/* line 526, ../sass/_settings.scss */
+.section-container.vertical-tabs .content {
+  padding-top: 1px !important;
+}
+/* line 529, ../sass/_settings.scss */
+.section-container.vertical-tabs .content p {
+  color: #3b3b3b;
+  font-size: 13px;
+  line-height: 22px;
+}
+/* line 534, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl {
+  margin-bottom: 2px;
+}
+/* line 537, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl p a {
+  color: #676278 !important;
+  font-size: 15px !important;
+}
+/* line 539, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl p a:hover {
+  color: #676278 !important;
+}
+/* line 540, ../sass/_settings.scss */
+.section-container.vertical-tabs .CompetitionsDetailLftUl p a:active {
+  background: none !important;
+}
+/* line 544, ../sass/_settings.scss */
+.section-container.vertical-tabs .active p a {
+  color: #676278 !important;
+  font-weight: bold;
+}
+
+/* line 550, ../sass/_settings.scss */
+.participateInfoBlock p {
+  color: #3b3b3b;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+/* line 554, ../sass/_settings.scss */
+.deny_reason {
+  box-shadow: inset 0 0 8px #ccc;
+  border-radius: 5px;
+}
+
+/* line 558, ../sass/_settings.scss */
+div.pending-approval-select.columns {
+  padding-left: 0.93em;
+}
+
+/* line 562, ../sass/_settings.scss */
+.competitionUserBlock h3 {
+  color: #739cb9;
+  margin-bottom: 2px;
+}
+
+/* line 569, ../sass/_settings.scss */
+.glossary-page-container .fixed {
+  left: auto;
+  top: auto;
+  margin-left: 0;
+}
+/* line 573, ../sass/_settings.scss */
+.glossary-page-container .fixed a {
+  display: inline-block;
+}
+/* line 578, ../sass/_settings.scss */
+.glossary-page-container h6 {
+  font-size: 16px;
+  color: #666666;
+  margin-bottom: 0px;
+}
+/* line 584, ../sass/_settings.scss */
+.glossary-page-container p {
+  font-size: 15px;
+  color: #666666;
+  padding-bottom: 30px;
+}
+/* line 590, ../sass/_settings.scss */
+.glossary-page-container ol {
+  font-size: 13px;
+  color: #666666;
+}
+/* line 593, ../sass/_settings.scss */
+.glossary-page-container ol li {
+  padding-bottom: 10px;
+  list-style-type: disc;
+}
+/* line 599, ../sass/_settings.scss */
+.glossary-page-container ul {
+  font-size: 15px;
+  color: #666666;
+  margin-left: 20px;
+}
+/* line 604, ../sass/_settings.scss */
+.glossary-page-container ul li {
+  padding-bottom: 10px;
+  list-style-type: none;
+}
+/* line 607, ../sass/_settings.scss */
+.glossary-page-container ul li b {
+  color: #666666;
+}
+/* line 613, ../sass/_settings.scss */
+.glossary-page-container pre {
+  padding: 10px;
+  background: whitesmoke;
+  margin-bottom: 15px;
+}
+/* line 619, ../sass/_settings.scss */
+.glossary-page-container p a {
+  color: #676278;
+}
+/* line 623, ../sass/_settings.scss */
+.glossary-page-container b {
+  color: #666666;
+}
+
+/* line 629, ../sass/_settings.scss */
+.hide {
+  display: none !important;
+}
+
+/* line 633, ../sass/_settings.scss */
+.leaderboard-result-table {
+  margin: 0 15px;
+  overflow-x: auto;
+  overflow-y: auto;
+  clear: both;
+  min-height: 400px;
+}
+/* line 639, ../sass/_settings.scss */
+.leaderboard-result-table table {
+  table-layout: auto;
+}
+/* line 642, ../sass/_settings.scss */
+.leaderboard-result-table table tr th {
+  vertical-align: top;
+  border: solid 1px #8eb0c7;
+  text-align: center;
+  background: #dce9f2;
+  color: #648ca8;
+  font-size: 12px;
+}
+/* line 652, ../sass/_settings.scss */
+.leaderboard-result-table table tr.leaderboard-result-table-header th {
+  background: #648ca8;
+  color: #fff;
+}
+/* line 657, ../sass/_settings.scss */
+.leaderboard-result-table table tr th.column-selected {
+  background: #99bece !important;
+  color: #fff !important;
+}
+/* line 663, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(odd) .column-selected {
+  background: #e8e8e8 !important;
+}
+/* line 668, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(2) th:nth-child(1) {
+  background: #648ca8;
+  color: #fff;
+}
+/* line 671, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(2) th:nth-child(2) {
+  background: #648ca8;
+  color: #fff;
+}
+/* line 674, ../sass/_settings.scss */
+.leaderboard-result-table table tr:nth-child(2) th:last-child {
+  background: #648ca8;
+  color: #fff;
+}
+
+/* line 681, ../sass/_settings.scss */
+.leaderboard-result-table .table-title th {
+  font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #FFF;
+  font-weight: lighter;
+  font-size: 1.4em;
+  background-color: #676278;
+  text-transform: none;
+  text-align: left;
+}
+
+/* line 691, ../sass/_settings.scss */
+.preloader-handler {
+  position: relative;
+}
+
+/* line 695, ../sass/_settings.scss */
+.submissions-details-label {
+  margin-bottom: 0 !important;
+}
+
+/* line 699, ../sass/_settings.scss */
+#submissions_phase_buttons .button {
+  margin-left: 10px !important;
+  margin-bottom: 5px !important;
+}
+
+/* line 703, ../sass/_settings.scss */
+#fileUploadButton {
+  margin-bottom: 5px;
+}
+
+/* line 707, ../sass/_settings.scss */
+.challStatusStripSection section {
+  width: auto;
+}
+
+/* line 712, ../sass/_settings.scss */
+.competition-tile .subContainerPadding {
+  max-height: 130px;
+}
+/* line 716, ../sass/_settings.scss */
+.competition-tile .articleImageContainer img {
+  height: 110px;
+  width: auto;
+  overflow: hidden;
+}

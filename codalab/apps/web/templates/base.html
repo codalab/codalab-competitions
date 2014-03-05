@@ -77,16 +77,16 @@
 
               <!-- Right Nav Section -->
               <ul class="right">
-                <!--                 
+                {% if BETA %}
                 <li class="has-form">
                     <form action="/search" method="get">
-                    <input name="query" type="search" placeholder="Search">
+                    <input class="round" name="q" type="search" placeholder="Search">
                     </form>
                 </li> 
-                -->
-                <!-- 
-                <li id="liExperiments"><a href="/experiments" tabindex=2>Experiments</a></li> 
-                -->
+                {% endif %}
+                {%if PREVIEW_WORKSHEETS %}
+                <li id="liWorksheets"><a href="/worksheets" tabindex=2>Worksheets</a></li> 
+                {% endif %}
                 <li id="liCompetitions"><a href="/competitions" tabindex=3>Competitions</a></li>
                 {% if user.is_authenticated %}
                     <li id="liMyCodalab"><a href="/my" tabindex=4>My CodaLab</a></li>

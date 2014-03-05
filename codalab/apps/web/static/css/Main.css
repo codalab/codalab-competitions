@@ -26,7 +26,7 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family: 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:lighter;
     color:#777;
@@ -581,7 +581,7 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 17px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
     font-weight: lighter;
 }
@@ -601,7 +601,7 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font: 20px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 20px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
     font-weight: lighter;
@@ -669,7 +669,7 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 25px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
@@ -2251,6 +2251,7 @@ ul.leftNavigation li.active a{
     padding:10px;
     background:#ebf2fb;
     margin-bottom:15px;
+   font-family: Consolas, "Liberation Mono", Courier, monospace;
 }
 .breadcrumb{
     height:30px;
@@ -2393,11 +2394,6 @@ ul.leftNavigation li.active a{
 .cl-logo  {
     padding: 9px 100px 0 14px;
 }
-.experiment__date {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
-    color: #777;
-}
 .button a, .button a:hover {
     color: #FFF;
 }
@@ -2446,7 +2442,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-weight: normal;
 }
 .slider h1 {
-    font-family: 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     color: #FFF;
     font-size: 1.1em;
@@ -2488,7 +2484,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 0.9375em;
 }
 #edit_competition label {
-    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
     padding: 0;
@@ -2558,7 +2554,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     letter-spacing: 3px;
     text-transform: uppercase;
 }
-.bundle-tile {
+.bundle-tile, .worksheet-tile {
     margin-bottom: 30px;
     padding: 15px;
     border: 1px #CCC solid;
@@ -2570,19 +2566,52 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
     overflow: hidden;
 }
-.bundle-meta {
+.bundle-meta, .bundle-meta a, .bundle span {
     color: #999;
+    font-size: 14px;
 }
 .bundle-meta p {
-    line-height: 16px;
+    line-height: 20px;
+    display: block;
 }
-.bundle-meta p em {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
+.bundle-meta p strong {
+    min-width: 100px;
+    display: inline-block;
 }
-.bundle-name {
+.bundle-meta p em a, .bundle-meta p span a {
+    font-weight: normal;
+}
+.bundle-meta p span {
+    display: inline-block;
+    vertical-align: text-top;
+}
+.bundle-name, .worksheet-name {
     padding:0;
     color:#535353;
+}
+.worksheet-name label, .worksheet-author, .bundle-tile label {
+    color: #a4a4a4;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+.bundle-tile label {
+    cursor: default;
+    display: inline-block;
+    vertical-align: top;
+}
+.worksheet-name button {
+    margin: 20px 0 0 0;
+}
+.worksheet-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
 }
 .bundle-icon-sm {
     text-indent: 50px;
@@ -2597,10 +2626,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .bundle-status--created, .bundle-status--staged, .bundle-status--running, .bundle-status--ready, .bundle-status--failed {
     height: 32px;
     width: 32px;
-    position: absolute;
-    display: block;
-    top: 0;
-    right: 0;
+    display: inline-block;
+    margin: -7px 0 0 0;
 }
 .bundle-status--created, .bundle-status--staged, .bundle-status--running {
     background: url('../img/icon_yellowlight.png') no-repeat;
@@ -2632,18 +2659,108 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
+.bundle-download {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
 .competition-tile a, .competitions a {
     text-decoration: none;
 }
-
-.competition-editor-page-html {
-    height: 20em;
+.bundle__meta__desc {
+    padding: 0 10px;
+    white-space: normal;
 }
-
-.competition-editor-phase-leaderboard-mode {
-    height: 25px;
-    min-height: 25px;
+.bundle__meta_type {
+    font-weight: bold;
+    min-width: 100px;
 }
-.competition-editor-description {
-    height: auto;
+table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table .row, table.bundle__meta_table td {
+    color: #777;
+    border: none;
+    background-color: #FFF;
+    vertical-align: top;
+    margin: 0;
+    font-size: 14px;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.bundle__expand_button {
+    float: right;
+    font-size: 11px;
+}
+.bundle__expand_button.expanded img {
+    -webkit-transform: rotate(180deg);
+     -moz-transform: rotate(180deg);
+     -ms-transform: rotate(180deg);
+     -o-transform: rotate(180deg);
+     transform: rotate(180deg); 
+}
+.bundle__file_view {
+    width: 100%;
+    display: none;
+}
+.bundle__file_view td {
+    padding: 8px;
+    height: 32px;
+}
+.bundle__file_view.expanded {
+    display: inline-table;
+}
+.coda-jax {
+    background: transparent;
+    color: #3b3b3b;
+}
+.bundle__file_view__icon {
+    width: 32px;
+}
+.bundle-icon-sm-indent {
+    text-indent: 50px;
+}
+.bundle-icon-sm--program--created, .bundle-icon-sm--program--staged, .bundle-icon-sm--program--running {
+    background: url('../img/bundle_icon_program_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--program--ready {
+    background: url('../img/bundle_icon_program_sm.png') no-repeat;
+}
+.bundle-icon-sm--program--failed {
+    background: url('../img/bundle_icon_program_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--dataset--created, .bundle-icon-sm--dataset--staged, .bundle-icon-sm--dataset--running {
+    background: url('../img/bundle_icon_dataset_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--dataset--ready {
+    background: url('../img/bundle_icon_dataset_sm.png') no-repeat;
+}
+.bundle-icon-sm--dataset--failed {
+    background: url('../img/bundle_icon_dataset_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--macro--created, .bundle-icon-sm--macro--staged, .bundle-icon-sm--macro--running {
+    background: url('../img/bundle_icon_macro_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--macro--ready {
+    background: url('../img/bundle_icon_macro_sm.png') no-repeat;
+}
+.bundle-icon-sm--macro--failed {
+    background: url('../img/bundle_icon_macro_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--make--created, .bundle-icon-sm--make--staged, .bundle-icon-sm--make--running {
+    background: url('../img/bundle_icon_make_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--make--ready {
+    background: url('../img/bundle_icon_make_sm.png') no-repeat;
+}
+.bundle-icon-sm--make--failed {
+    background: url('../img/bundle_icon_make_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--run--created, .bundle-icon-sm--run--staged, .bundle-icon-sm--run--running {
+    background: url('../img/bundle_icon_run_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--run--ready {
+    background: url('../img/bundle_icon_run_sm.png') no-repeat;
+}
+.bundle-icon-sm--run--failed {
+    background: url('../img/bundle_icon_run_sm-red.png') no-repeat;
+}
+pre, .bundle__file_pre, .bundle__file_pre pre {
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
 }

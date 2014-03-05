@@ -14,6 +14,7 @@ from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.db.models.signals import post_save
+from django.db import transaction
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -739,6 +740,7 @@ class CompetitionDefBundle(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @transaction.commit_on_success
     def unpack(self):
         """
         This method unpacks a competition bundle and creates a competition from
@@ -777,13 +779,13 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
         Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
-                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
+                                   label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
-                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases

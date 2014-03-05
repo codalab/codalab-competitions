@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}Worksheets{% endblock head_title %}
+{% block page_title %}Worksheets{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="large-9 columns competitions">
+        <dl class="sub-nav">
+        </dl>
+        {% if not items %}
+        <p>There are no {{items_label}}.</p>
+        {% else %}
+        {% for item in items %}
+        <a href="{{ item.details_url }}">
+            <div class="competition-tile">
+                <article class="subContainer">
+                    <input id="itemID" type="hidden" value="{{ item.uuid }}" />
+                    <div class="competitionTileLftStrip"></div>
+                    <div class="articleImageContainer">
+                        <div class="subContainerPadding">
+                            {% if not item.image_url %}
+                            <img src="{% static "img/icon_worksheet.png" %}">
+                            {% else %}
+                            <img src="{{ item.image_url }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="articleTextArea">
+                        <div class="subContainerPadding">
+                            <div class="articleHeadingContainer">
+                                <h3>{{ item.title }}</h3>
+                                <label>{{ item.name }} by {{ item.creator }}</label>
+                            </div>
+                            <p class="competition-paragraph">{{ item.description }}</p>
+                        </div>
+                    </div>
+                </article>
+            </div> 
+        </a>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="large-3 columns ">
+    </div>  
+</div>
+{% endblock content%}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liWorksheets").addClass("active");
+    });
+{% endblock js %}
+
