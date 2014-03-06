@@ -21,12 +21,13 @@ from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
-from django.utils.timezone import utc, now
+from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-
 from mptt.models import MPTTModel, TreeForeignKey
+from pytz import utc
 from guardian.shortcuts import assign_perm
 
 logger = logging.getLogger(__name__)
@@ -740,6 +741,21 @@ class CompetitionDefBundle(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def localize_datetime(dt):
+        """
+        Returns the given date or datetime as a datetime with tzinfo.
+        """
+        if type(dt) is str:
+            dt = parse_datetime(dt)
+        if type(dt) is datetime.date:
+            dt = datetime.datetime.combine(dt, datetime.time())            
+        if not type(dt) is datetime.datetime:
+            raise ValueError("Expected a DateTime object but got %s" % dt)
+        if dt.tzinfo is None:
+            dt = utc.localize(dt)
+        return dt
+
     @transaction.commit_on_success
     def unpack(self):
         """
@@ -760,9 +776,13 @@ class CompetitionDefBundle(models.Model):
                 del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
+
         if 'end_date' in comp_base:
-            if type(comp_base['end_date']) is datetime.datetime.date:
-                comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+            if comp_base['end_date'] is None:
+                del comp_base['end_date']
+            else:
+                comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
+        
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -806,8 +826,9 @@ class CompetitionDefBundle(models.Model):
                 del phase_spec['datasets']
             else:
                 datasets = {}
-            if type(phase_spec['start_date']) is datetime.datetime.date:
-                phase_spec['start_date'] = datetime.datetime.combine(phase_spec['start_date'], datetime.time())
+
+            phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
+
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
