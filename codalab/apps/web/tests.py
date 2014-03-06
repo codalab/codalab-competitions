@@ -2,17 +2,23 @@
 """
 Tests for Codalab functionality.
 """
+import datetime
 import json
+import yaml
 
 from django.conf import settings
 from django.core import management
-
 from django.test import TestCase
 from django.test.client import Client
-
 from django.contrib.auth import get_user_model
 
-from apps.web.models import Competition, ParticipantStatus, CompetitionParticipant, CompetitionPhase
+from pytz import utc
+
+from apps.web.models import (Competition, 
+                             CompetitionDefBundle,
+                             CompetitionParticipant, 
+                             CompetitionPhase,
+                             ParticipantStatus)
 
 User = get_user_model()
 
@@ -244,3 +250,36 @@ class CompetitionPhaseTests(TestCase):
         self.assertEqual("0.1", CompetitionPhase.format_value(x, "2fooo"))
         self.assertEqual("0.1", CompetitionPhase.format_value(x, ""))
         self.assertEqual("0.1", CompetitionPhase.format_value(x, None))
+
+class CompetitionDefinitionTests(TestCase):
+
+    @staticmethod
+    def read_date(dt_str):
+        """
+        Simulates reading a date/datetime from a YAML file.
+
+        dt_str: String value representing the date & time in the YAML file.
+        """
+        data = yaml.load("key: {0}".format(dt_str))
+        return CompetitionDefBundle.localize_datetime(data['key'])
+
+    def test_import_date_1(self):
+        dta = CompetitionDefinitionTests.read_date('2014-03-01')
+        dte = utc.localize(datetime.datetime(2014,03,01))
+        self.assertEqual(dte, dta)
+        
+    def test_import_date_2(self):
+        dta = CompetitionDefinitionTests.read_date('2014-03-01 10:00:01')
+        dte = utc.localize(datetime.datetime(2014,03,01,10,00,01))
+        self.assertEqual(dte, dta)
+
+    def test_import_date_3(self):
+        dta = CompetitionDefinitionTests.read_date('2014-03-01 18:15')
+        dte = utc.localize(datetime.datetime(2014,03,01,18,15))
+        self.assertEqual(dte, dta)
+
+    def test_import_date_4(self):
+        self.assertRaises(ValueError, CompetitionDefinitionTests.read_date, 'not a date')
+
+    def test_import_date_5(self):
+        self.assertRaises(ValueError, CompetitionDefinitionTests.read_date, None)
