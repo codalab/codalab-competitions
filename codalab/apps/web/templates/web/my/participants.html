@@ -1,61 +1,66 @@
 ﻿{% extends 'base.html' %}
 {% load staticfiles %}
+
 {% block title %}Participants{% endblock %}
+{% block page_title %}Participants{% endblock page_title %}
+{% block head_title %}Participants{% endblock %}
+
 {% block extra_head %}
 <script src="{% static "js/foundation/vendor/jquery.validate.min.js" %}"></script>
 {% endblock %}
-{% block subheader %}
-<h4>Participants</h4>
-{% endblock subheader %}
+
 {% block content %}
-<div class="large-12 large-centered columns participants content">
-    {% if not object_list %}
-    <p>There are no participants.</p>
-    {% else %}
-    {% for item in object_list %}
-    <div class="row">
-        <div class="competitionUserBlock competitionUserBlock_{{item.id}}">
-            <div class="large-8 push-4 columns process_participant_request">
-                {% if item.status.codename == 'pending' %}
-                <form class="custom process_request" id="process_request_{{item.id}}">
-                    {% csrf_token %}
-                    <input type="hidden" name="participant_id" value="{{item.id}}"/> 
-                    <div class="row">
-                    <div class="small-8 push-4 columns">
-                        <label for="reason">Reason:</label>
-                        <textarea id="reason" name="reason"></textarea>
+
+<div class="row">
+    <div class="large-12 large-centered columns participants content">
+        {% if not object_list %}
+        <p>There are no participants.</p>
+        {% else %}
+        {% for item in object_list %}
+        <div class="row">
+            <div class="competitionUserBlock competitionUserBlock_{{item.id}}">
+                <div class="large-8 push-4 columns process_participant_request">
+                    {% if item.status.codename == 'pending' %}
+                    <form class="custom process_request" id="process_request_{{item.id}}">
+                        {% csrf_token %}
+                        <input type="hidden" name="participant_id" value="{{item.id}}"/> 
+                        <div class="row">
+                        <div class="small-8 push-4 columns">
+                            <label for="reason">Reason:</label>
+                            <textarea id="reason" name="reason"></textarea>
+                        </div>
+                        <div class="small-4 pull-8 columns">
+                            <label for="status">Status:</label>
+                            <select id="status" name="status">
+                                <option value="approved">Approve</option>
+                                <option value="denied">Deny</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="small-4 pull-8 columns">
-                        <label for="status">Status:</label>
-                        <select id="status" name="status">
-                            <option value="approved">Approve</option>
-                            <option value="denied">Deny</option>
-                        </select>
-                    </div>
+                        <input type="submit" class="button" value="Process" />
+                    </form>
+                    {% endif %} 
                 </div>
-                    <input type="submit" class="button" value="Process" />
-                </form>
-                {% endif %} 
+                <div class="large-4 pull-8 columns">
+                    <h3>{{ item.user.username }}</h3>
+		    <p class="participationStatus">
+                    {% if item.status.codename == 'pending' %}
+                    Participation pending approval
+                    {% elif item.status.codename == 'approved' %}
+                    Participation approved
+                    {% elif item.status.codename == 'denied' %}
+                    Participation denied
+                    <p style="color:red;">Reason: {{ item.reason }}</p>
+                    {% else %}
+                    Unknown Status
+                    {% endif %}
+		    </p>
+                </div>
             </div>
-            <div class="large-4 pull-8 columns">
-                <h3>{{ item.user.username }}</h3>
-		<p class="participationStatus">
-                {% if item.status.codename == 'pending' %}
-                Participation pending approval
-                {% elif item.status.codename == 'approved' %}
-                Participation approved
-                {% elif item.status.codename == 'denied' %}
-                Participation denied
-                <p style="color:red;">Reason: {{ item.reason }}</p>
-                {% else %}
-                Unknown Status
-                {% endif %}
-		</p>
-            </div>
-        </div>
-    </div>               
-    {% endfor %}
-    {% endif %}
+        </div>               
+        {% endfor %}
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 
