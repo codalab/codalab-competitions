@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block title %}Submissions{% endblock %}
+{% block page_title %}Submissions{% endblock page_title %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 large-centered columns submissions content">
+        <div class="challStatusStrip">
+            <section class="challStatusStripSection">
+            {% for phase in competition.phases.all %}
+                {% if phase.id == selected_phase_id %}
+                <section class="currentPhase">
+                {% else %}
+                <section>
+                {% endif %}
+                    <a class="phaseLabel" href="/my/competition/1/submissions/?phase={{phase.id}}">{{phase.label}}</a> 
+                    <br>
+                    <span>{{phase.start_date|utc}} UTC</span>
+                </section>
+            {% endfor %}
+            </section>
+        </div>
+        <br>
+        {% if not submission_info_list %}
+        <p>There are no submissions.</p>
+        {% else %}
+        <table class="prevResultSubmission dataTable">
+            <thead>
+                <tr>
+                    <th width="40px"></th>
+                    <th>SUBMITTED BY</th>
+                    <th>FILENAME</th>
+                    <th>SUBMISSION DATE</th>
+                    <th>STATUS</th>
+                    <th>LEADERBOARD</th>
+                    <th width="40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submission_info_list %}
+                <tr id="{{submission.id}}">
+                    <td>{{submission.id}}</td>
+                    <td>{{submission.submitted_by}}</td>
+                    <td>{{submission.filename}}</td>
+                    <td>{{submission.submitted_at}}</td>
+                    <td>{{submission.status_name}}</td>
+                    <td>{{submission.is_in_leaderboard}}</td>
+                    <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% include "web/common/_submission_details_template.html" %} 
+<script type="text/javascript" src="/static/js/Competition.js"></script>
+{% endblock %}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liMyCodalab").addClass("active");
+    });
+{% endblock js %}
