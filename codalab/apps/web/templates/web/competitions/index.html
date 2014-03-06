@@ -6,50 +6,52 @@
 {% load static %}
 
 <div class="row">
-	<!-- Main Content Section -->
-	<!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-	<div class="large-9 columns competitions">
-	    <dl class="sub-nav">
-		    <!-- ////////////////  Commented out until we have sorting  /////////////////
-		    <dt>Sort by:</dt>
-		    <dd class="active"><a href="#">Most Recent</a></dd>
-		    <dd><a href="#">Most Active</a></dd> 
+    <!-- Main Content Section -->
+    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+    <div class="large-9 columns competitions">
+        <dl class="sub-nav">
+            <!-- ////////////////  Commented out until we have sorting  /////////////////
+            <dt>Sort by:</dt>
+            <dd class="active"><a href="#">Most Recent</a></dd>
+            <dd><a href="#">Most Active</a></dd> 
             -->
-	    </dl>
-		{% if not competitions %}
-		<p>There are no competitions.</p>
-		{% else %}
+        </dl>
+        {% if not competitions %}
+        <p>There are no competitions.</p>
+        {% else %}
         {% for item in competitions %}
-		<a href="/competitions/{{item.id}}#learn_the_details">
-		    <div class="competition-tile">
-			    <article class="subContainer">
-				    <input id="competitionID" type="hidden" value="{{ item.id }}" />
-				    <div class="competitionTileLftStrip"></div>
-				    <div class="articleImageContainer">
-					    <div class="subContainerPadding">
+        <a href="/competitions/{{item.id}}#learn_the_details">
+            <div class="competition-tile">
+                <article class="subContainer">
+                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                    <div class="competitionTileLftStrip"></div>
+                    <div class="articleImageContainer">
+                        <div class="subContainerPadding">
                             {% if item.image_url = None %}
-							<img src="{% static "img/ProfileImageDummy.jpg" %}">
+                            <img src="{% static "img/ProfileImageDummy.jpg" %}">
                             {% else %}
-						    <img src="{{ item.image_url }}">
+                            <img src="{{ item.image_url }}">
                             {% endif %}
-					    </div>
-				    </div>
-				    <div class="articleTextArea">
-					    <div class="subContainerPadding">
-						    <div class="articleHeadingContainer">
-							    <h3>{{ item.title }}</h3>
-							    <label>Organized by {{ item.creator }}</label>
-						    </div>
-						    {{ item.description|safe}}
-					    </div>
-				    </div>
-			    </article>
-		    </div> 
-		</a>           	
+                        </div>
+                    </div>
+                    <div class="articleTextArea">
+                        <div class="subContainerPadding">
+                            <div class="articleHeadingContainer">
+                                <h3>{{ item.title }}</h3>
+                                <label>Organized by {{ item.creator }}</label>
+                            </div>
+                            <div class="competition-paragraph">
+                            {{ item.description|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div> 
+        </a>           	
         {% endfor %}
         {% endif %}
-	</div>
-	<div class="large-3 columns ">
+    </div>
+    <div class="large-3 columns ">
         <!-- This is where statistic were in the mockup. -->
     </div>  
 </div>
