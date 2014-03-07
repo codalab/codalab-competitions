@@ -34,11 +34,31 @@
             <thead>
                 <tr>
                     <th width="40px"></th>
-                    <th>SUBMITTED BY</th>
-                    <th>FILENAME</th>
-                    <th>SUBMISSION DATE</th>
-                    <th>STATUS</th>
-                    <th>LEADERBOARD</th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=submitted_by{% if direction == 'asc' and order == 'submitted_by' %}&direction=desc{% endif %}">
+                            SUBMITTED BY <i class="{% if order == 'submitted_by'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=filename{% if direction == 'asc' and order == 'filename' %}&direction=desc{% endif %}">
+                            FILENAME <i class="{% if order == 'filename'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=submitted_at{% if direction == 'asc' and order == 'submitted_at' %}&direction=desc{% endif %}">
+                            SUBMISSION DATE <i class="{% if order == 'submitted_at'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=status_name{% if direction == 'asc' and order == 'status_name' %}&direction=desc{% endif %}">
+                            STATUS <i class="{% if order == 'status_name'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=is_in_leaderboard{% if direction == 'asc' and order == 'is_in_leaderboard' %}&direction=desc{% endif %}">
+                            LEADERBOARD <i class="{% if order == 'is_in_leaderboard'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
                     <th width="40px"></th>
                 </tr>
             </thead>

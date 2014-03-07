@@ -655,16 +655,13 @@ class CompetitionSubmission(models.Model):
         """
         return split(self.file.name)[1]
 
-    def get_file_for_download(self, key, requested_by, requested_by_competition_owner=False):
+    def get_file_for_download(self, key, requested_by):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
            'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
         requested_by: A user object identifying the user making the request to access the file.
-        requested_by_competition_owner: A boolean flag indicating whether the user is making
-           the request as a competition owner (True) or as a competition participant (False).
-           Access rules are affected by the value of this flag.
 
         Raises:
            ValueError exception for improper arguments.
@@ -680,12 +677,8 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-        # Verify access rules
-        if requested_by_competition_owner:
-            # User making request must be in the "competition owner" group.
-            if self.participant.competition.creator.id != requested_by.id:
-                raise PermissionDenied()
-        else:
+        # If the user requesting access is the owner, access granted
+        if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
             # download privilege by the competition owners.
             if self.participant.user.id != requested_by.id:
