@@ -1429,14 +1429,21 @@ font-weight:normal !important;
     width:100%;
     table-layout:fixed;
 }
-.prevResultSubmission th {
+.prevResultSubmission.dataTable th {
     text-transform:uppercase;
     background:#739CB9;
     padding:13px 10px;
     text-align:left;
     font-size:13px;
     color:#fff;
-}  
+    cursor: auto;
+}
+.prevResultSubmission th a {
+    color:#fff;
+}
+.prevResultSubmission th a:hover {
+    text-decoration:underline;
+}
 .prevResultSubmission > tr:nth-child(odd) td {
     background:#EBF2FB;
 }
