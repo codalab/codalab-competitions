@@ -316,7 +316,7 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user, False)
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
@@ -349,6 +349,8 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
+        context['order'] = order = self.request.GET.get('order') if 'order' in self.request.GET else 'id'
+        context['direction'] = direction = self.request.GET.get('direction') if 'direction' in self.request.GET else 'asc'
         if self.request.user.id == competition.creator_id:
             if (phase_id != None):
                 context['selected_phase_id'] = int(phase_id)
@@ -379,6 +381,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard
                 }
                 submission_info_list.append(submission_info)
+            reverse = direction == 'desc'
+            def mysortkey(x):
+                return x[order]
+            submission_info_list.sort(key=mysortkey, reverse=reverse)
             context['submission_info_list'] = submission_info_list
         return context
 
