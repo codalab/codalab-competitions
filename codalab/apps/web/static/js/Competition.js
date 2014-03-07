@@ -319,6 +319,7 @@ var Competition;
             $(obj).removeClass("fi-plus");
             $(obj).addClass("fi-minus");
             var elem = $("#submission_details_template .trDetails").clone();
+            elem.find(".tdDetails").attr('colspan', nTr.cells.length);
             elem.find("a").each(function (i) { $(this).attr("href", $(this).attr("href").replace("_", nTr.id)) });
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
