@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block head_title %}Bundles{% endblock head_title %}
+{% block page_title %}Bundles{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="large-12 columns">
+        {% for bundle in bundles %}
+        <div class="bundle-tile">
+            <div class="large-12 columns">
+                <a href="#" class="bundle-download">
+                    <button class="small button secondary"><i class="fi-download"></i> &nbsp; Download</button>
+                </a>
+                <a href="/bundles/{{bundle.uuid}}"><h4 class="bundle-name bundle-icon-sm"> {{ bundle.metadata.name }} </h4></a>
+                <span class="bundle-status--{{ bundle.state }}"></span>
+                <label> {{bundle.uuid}} </label><hr>
+            </div>
+            <div class="large-6 columns bundle-meta">
+                <p><strong>Status:</strong><span> {{ bundle.state }} </span></p>
+                <p><strong>Created:</strong><span> {{ bundle.metadata.created }} </span></p>
+                <p><strong>Type:</strong><span> {{ bundle.bundle_type }} </span></p>
+                <p><strong>Size:</strong><span> {{ bundle.metadata.data_size }} bytes</span></p>
+                <p><strong>Tags:</strong><span> {{ bundle.metadata.tags }} </span></p>
+            </div>
+            <div class="large-6 columns">
+                <p> {{ bundle.metadata.description }} </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+
+

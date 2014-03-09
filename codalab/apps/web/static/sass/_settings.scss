@@ -711,14 +711,15 @@ div.pending-approval-select.columns {
     }
 }
 .competition-tile{
-    .subContainerPadding{
-        max-height:130px; 
-    }
-    .articleImageContainer{
-        img{
-            height: 110px;
-            width: auto;
-            overflow: hidden;
-        }
-    }
+	.subContainerPadding{
+		max-height:130px; 
+	}
+	.articleImageContainer{
+		img{
+			height: 110px;
+			width: auto;
+			overflow: hidden;
+		}
+	}
 }
+

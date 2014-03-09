@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* line 82, ../sass/_settings.scss */
 * {
   font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -2371,7 +2372,7 @@ p aside {
 /* Default header styles */
 /* line 182, ../sass/foundation/components/_type.scss */
 h1, h2, h3 {
-  font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 100;
   font-style: normal;
   color: #666666;
