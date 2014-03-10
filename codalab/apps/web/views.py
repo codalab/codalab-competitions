@@ -316,7 +316,7 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user, False)
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
@@ -336,6 +336,57 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         except:
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+
+class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
+    # Serves the table of submissions in the submissions competition administration.
+    # Requires an authenticated user who is an administrator of the competition.
+    queryset = models.Competition.objects.all()
+    model = models.Competition
+    template_name = 'web/my/submissions.html'
+
+    def get_context_data(self, **kwargs):
+        phase_id = self.request.GET.get('phase');
+        context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
+        competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
+        context['competition'] = competition
+        context['order'] = order = self.request.GET.get('order') if 'order' in self.request.GET else 'id'
+        context['direction'] = direction = self.request.GET.get('direction') if 'direction' in self.request.GET else 'asc'
+        if self.request.user.id == competition.creator_id:
+            if (phase_id != None):
+                context['selected_phase_id'] = int(phase_id)
+                activePhase = competition.phases.filter(id=phase_id)
+            else:
+                activePhase = competition.phases.all()[0]
+                for phase in competition.phases.all():
+                    if phase.is_active:
+                        context['selected_phase_id'] = phase.id
+                        activePhase = phase
+
+            submissions = models.CompetitionSubmission.objects.filter(phase=activePhase)
+            # find which submission is in the leaderboard, if any and only if phase allows seeing results.
+            id_of_submission_in_leaderboard = -1
+            ids = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all()
+                                if e.result in submissions]
+            if len(ids) > 0: id_of_submission_in_leaderboard = ids[0]
+            # map submissions to view data
+            submission_info_list = []
+            for submission in submissions:
+                submission_info = {
+                    'id': submission.id,
+                    'submitted_by': submission.participant.user.username,
+                    'number': submission.submission_number,
+                    'filename': submission.get_filename(),
+                    'submitted_at': submission.submitted_at,
+                    'status_name': submission.status.name,
+                    'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard
+                }
+                submission_info_list.append(submission_info)
+            reverse = direction == 'desc'
+            def mysortkey(x):
+                return x[order]
+            submission_info_list.sort(key=mysortkey, reverse=reverse)
+            context['submission_info_list'] = submission_info_list
+        return context
 
 class VersionView(TemplateView):
     template_name = 'web/project_version.html'
