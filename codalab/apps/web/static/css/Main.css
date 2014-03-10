@@ -26,7 +26,7 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family: 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:lighter;
     color:#777;
@@ -581,7 +581,7 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 17px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
     font-weight: lighter;
 }
@@ -601,7 +601,7 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font: 20px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 20px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
     font-weight: lighter;
@@ -669,7 +669,7 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px 'Segoe UI Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 25px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
@@ -1429,14 +1429,21 @@ font-weight:normal !important;
     width:100%;
     table-layout:fixed;
 }
-.prevResultSubmission th {
+.prevResultSubmission.dataTable th {
     text-transform:uppercase;
     background:#739CB9;
     padding:13px 10px;
     text-align:left;
     font-size:13px;
     color:#fff;
-}  
+    cursor: auto;
+}
+.prevResultSubmission th a {
+    color:#fff;
+}
+.prevResultSubmission th a:hover {
+    text-decoration:underline;
+}
 .prevResultSubmission > tr:nth-child(odd) td {
     background:#EBF2FB;
 }
@@ -2251,7 +2258,7 @@ ul.leftNavigation li.active a{
     padding:10px;
     background:#ebf2fb;
     margin-bottom:15px;
-   font-family: Consolas, "Liberation Mono", Courier, monospace;
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
 }
 .breadcrumb{
     height:30px;
@@ -2442,7 +2449,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-weight: normal;
 }
 .slider h1 {
-    font-family: 'Segoe UI Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     color: #FFF;
     font-size: 1.1em;
@@ -2484,7 +2491,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 0.9375em;
 }
 #edit_competition label {
-    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
     padding: 0;
@@ -2599,6 +2606,9 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     cursor: default;
     display: inline-block;
     vertical-align: top;
+    float: right;
+    padding: 6px 0 0 0;
+
 }
 .worksheet-name button {
     margin: 20px 0 0 0;
@@ -2660,9 +2670,9 @@ a i {
     cursor: pointer;
 }
 .bundle-download {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    display: inline-block;
+    float: right;
+    padding: 0 0 0 30px;
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
@@ -2683,6 +2693,7 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
     margin: 0;
     font-size: 14px;
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: block;
 }
 .bundle__expand_button {
     float: right;

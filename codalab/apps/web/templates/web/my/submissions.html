@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block title %}Submissions{% endblock %}
+{% block page_title %}Submissions{% endblock page_title %}
+{% block head_title %}Submissions{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 large-centered columns submissions content">
+        <div class="challStatusStrip">
+            <section class="challStatusStripSection">
+            {% for phase in competition.phases.all %}
+                {% if phase.id == selected_phase_id %}
+                <section class="currentPhase">
+                {% else %}
+                <section>
+                {% endif %}
+                    <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a> 
+                    <br>
+                    <span>{{phase.start_date|utc}} UTC</span>
+                </section>
+            {% endfor %}
+            </section>
+        </div>
+        <br>
+        {% if not submission_info_list %}
+        <p>There are no submissions.</p>
+        {% else %}
+        <table class="prevResultSubmission dataTable">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=submitted_at{% if direction == 'asc' and order == 'submitted_at' %}&direction=desc{% endif %}">
+                            SUBMITTED <i class="{% if order == 'submitted_at'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=submitted_by{% if direction == 'asc' and order == 'submitted_by' %}&direction=desc{% endif %}">
+                            SUBMITTED BY <i class="{% if order == 'submitted_by'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=filename{% if direction == 'asc' and order == 'filename' %}&direction=desc{% endif %}">
+                            FILENAME <i class="{% if order == 'filename'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=status_name{% if direction == 'asc' and order == 'status_name' %}&direction=desc{% endif %}">
+                            STATUS <i class="{% if order == 'status_name'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order=is_in_leaderboard{% if direction == 'asc' and order == 'is_in_leaderboard' %}&direction=desc{% endif %}">
+                            LEADERBOARD <i class="{% if order == 'is_in_leaderboard'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    <th width="40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submission_info_list %}
+                <tr id="{{submission.id}}">
+                    <td>{{submission.submitted_at}}</td>
+                    <td>{{submission.submitted_by}}</td>
+                    <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                    <td>{{submission.status_name}}</td>
+                    <td>{{submission.is_in_leaderboard}}</td>
+                    <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% include "web/common/_submission_details_template.html" %} 
+<script type="text/javascript" src="/static/js/Competition.js"></script>
+{% endblock %}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liMyCodalab").addClass("active");
+    });
+{% endblock js %}
