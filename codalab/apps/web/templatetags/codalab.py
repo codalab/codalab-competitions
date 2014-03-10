@@ -23,3 +23,7 @@ def get_type(value):
     else:
         value._type = value.__class__.__name__
     return value._type
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
