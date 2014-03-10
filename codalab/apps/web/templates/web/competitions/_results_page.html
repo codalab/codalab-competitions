@@ -3,11 +3,16 @@
     <div class="columns">
         <p>This phase of the competition has not started yet. Please check back later.</p>
     </div>
-{% elif phase.is_blind %}
+{% elif phase.is_blind and not is_owner %}
     <div class="columns">
         <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
     </div>
 {% else %}
+    {% if phase.is_blind and is_owner %}
+        <div class="columns">
+            <p>Competition organizers have chosen to keep the leaderboard private but as the owner, you can access this page.</p>
+        </div>
+    {% endif %}
     {% if groups|length > 0 %}
     <div class="small-12 columns icon_excel">
         <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
@@ -15,7 +20,7 @@
     {% endif %}
     <div class="leaderboard-result-table">
         {% for group in groups %}
-        <table class="prevResultSubmission dataTable">
+        <table class="resultsTable dataTable">
             <tr class="table-title">
               <th colspan="{{group.total_span}}">{{group.label}}</th>
             </tr>

@@ -38,6 +38,7 @@
                 <!-- <button value="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button" class="secondary button">Unpublish</button> -->
                 <a href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
                 <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}"><button class="secondary button">Submissions</button></a>
+                <a href="/competitions/{{competition.pk}}#results"><button class="secondary button">Leaderboard</button></a>
             </div>
         </div>
     </article>

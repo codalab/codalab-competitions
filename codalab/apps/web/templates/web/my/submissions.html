@@ -30,45 +30,29 @@
         {% if not submission_info_list %}
         <p>There are no submissions.</p>
         {% else %}
-        <table class="prevResultSubmission dataTable">
+        <table class="resultsTable dataTable">
             <thead>
                 <tr>
+                    {% for column in columns %}
                     <th>
-                        <a href="?phase={{selected_phase_id}}&order=submitted_at{% if direction == 'asc' and order == 'submitted_at' %}&direction=desc{% endif %}">
-                            SUBMITTED <i class="{% if order == 'submitted_at'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                            {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
                         </a>
                     </th>
-                    <th>
-                        <a href="?phase={{selected_phase_id}}&order=submitted_by{% if direction == 'asc' and order == 'submitted_by' %}&direction=desc{% endif %}">
-                            SUBMITTED BY <i class="{% if order == 'submitted_by'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?phase={{selected_phase_id}}&order=filename{% if direction == 'asc' and order == 'filename' %}&direction=desc{% endif %}">
-                            FILENAME <i class="{% if order == 'filename'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?phase={{selected_phase_id}}&order=status_name{% if direction == 'asc' and order == 'status_name' %}&direction=desc{% endif %}">
-                            STATUS <i class="{% if order == 'status_name'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a href="?phase={{selected_phase_id}}&order=is_in_leaderboard{% if direction == 'asc' and order == 'is_in_leaderboard' %}&direction=desc{% endif %}">
-                            LEADERBOARD <i class="{% if order == 'is_in_leaderboard'%}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
+                    {% endfor %}
                     <th width="40px"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for submission in submission_info_list %}
                 <tr id="{{submission.id}}">
-                    <td>{{submission.submitted_at}}</td>
-                    <td>{{submission.submitted_by}}</td>
-                    <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
-                    <td>{{submission.status_name}}</td>
-                    <td>{{submission.is_in_leaderboard}}</td>
+                    {% for column in columns %}
+                    {% if column.name == 'filename' %}
+                        <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                    {% else %}
+                        <td>{{submission|get_item:column.name}}</td>
+                    {% endif %}
+                    {% endfor %}
                     <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
                 </tr>
                 {% endfor %}
