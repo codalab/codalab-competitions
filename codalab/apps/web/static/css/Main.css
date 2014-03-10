@@ -1424,12 +1424,12 @@ font-weight:normal !important;
 }
 
 /*result table--------------*/
-.prevResultSubmission {
+.resultsTable {
     margin-top:20px;
     width:100%;
     table-layout:fixed;
 }
-.prevResultSubmission.dataTable th {
+.resultsTable.dataTable th {
     text-transform:uppercase;
     background:#739CB9;
     padding:13px 10px;
@@ -1438,16 +1438,16 @@ font-weight:normal !important;
     color:#fff;
     cursor: auto;
 }
-.prevResultSubmission th a {
+.resultsTable th a {
     color:#fff;
 }
-.prevResultSubmission th a:hover {
+.resultsTable th a:hover {
     text-decoration:underline;
 }
-.prevResultSubmission > tr:nth-child(odd) td {
+.resultsTable > tr:nth-child(odd) td {
     background:#EBF2FB;
 }
-.prevResultSubmission td {
+.resultsTable td {
     padding:8px 10px;
     color:#5c5c5c;
     text-align:left;
