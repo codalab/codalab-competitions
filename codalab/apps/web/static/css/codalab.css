@@ -3397,7 +3397,7 @@ select {
 /* Normalize file input width */
 /* line 345, ../sass/foundation/components/_forms.scss */
 input[type="file"] {
-  width: 100%;
+  width: auto;
 }
 
 /* We add basic fieldset styling */
@@ -3410,7 +3410,6 @@ fieldset {
 /* line 215, ../sass/foundation/components/_forms.scss */
 fieldset legend {
   font-weight: bold;
-  background: white;
   padding: 0 0.1875em;
   margin: 0;
   margin-left: -0.1875em;

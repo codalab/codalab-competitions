@@ -23,10 +23,10 @@ class CompetitionPhaseForm(forms.ModelForm):
 class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
-        fields = ('label', 'rank', 'category', 'html', 'container')
+        fields = ('category', 'rank', 'label', 'html', 'container')
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'}, 
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
-                    'DELETE' : forms.HiddenInput }
+                    'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
