@@ -86,7 +86,12 @@
           </li>
 		{% endfor %}
 		</ul>
-        <button type="button" class="medium blue button add-page">Add Page</button>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <button type="button" class="medium blue button add-page right">Add Page</button>
+            </div>
+        </div>
 
         <ul id="phases">
             {{ Phases.management_form }}
@@ -132,8 +137,11 @@
                 </li>
             {% endfor %}
         </ul>
-        <button type="button" class="medium blue button add-phase">Add Phase</button>
-
+        <div class="row">
+            <div class="large-12 columns">
+                <button type="button" class="medium blue button add-phase right">Add Phase</button>
+            </div>
+        </div>  
 		<div class="row">
 		  <div class="large-12 columns">
 			<button type="submit" class="medium button blue">Submit</button>
@@ -162,6 +170,9 @@
     $('.add-page').click(function() {
         form = pages.addForm();
         form.elem.toggle();
+        wlp = window.location.pathname.split("/");
+        comp_id = wlp[wlp.length-1];
+        form.elem.find('[name$=container]').val(comp_id);
     });
     
     // Dynamic adding/removing of phases
