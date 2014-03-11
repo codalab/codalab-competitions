@@ -194,13 +194,13 @@ class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages')
+    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100, verbose_name="Title")
     rank = models.IntegerField(default=0, verbose_name="Order")
     visibility = models.BooleanField(default=True, verbose_name="Visible")
     markup = models.TextField(blank=True)
-    html = models.TextField(blank=True, verbose_name="HTML Content")
+    html = models.TextField(blank=True, verbose_name="Content")
     competition = models.ForeignKey(Competition, related_name='pages', null=True)
 
     def __unicode__(self):
@@ -208,11 +208,11 @@ class Page(models.Model):
 
     class Meta:
         unique_together = (('label','category','container'),)
-        ordering = ['rank']
+        ordering = ['category', 'rank']
 
     def save(self,*args,**kwargs):
-        if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label )
+        #if not self.title:
+        #    self.title = "%s - %s" % ( self.container.name, self.label )
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
