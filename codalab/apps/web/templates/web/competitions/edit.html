@@ -5,9 +5,9 @@
 {% block head_title %}Edit Competition{% endblock head_title %}
 {% block page_title %}Edit Competition{% endblock page_title %}
 
-{% block extra_head %}
-	  <script src="{{ STATIC_URL }}site/js/FileUpload.js"></script>
-{% endblock extra_head %}
+{% block extra_headers %}
+      <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
+{% endblock extra_headers %}
 
 {% block content %}
 <div class="row">
@@ -122,7 +122,7 @@
 				        <legend>Competition Phase</legend>
 				        {% for field in form %}
 					        <div class="fieldWrapper">
-						        <div class="row">
+						        <div class="row clearfix">
 							        {{ field.errors }}
 							            <div class="large-3 columns">
 								            {% if not field.is_hidden %}
@@ -155,6 +155,7 @@
 
 {% block jsincludes %}
     <script src="{{ STATIC_URL }}js/vendor/django-formset.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.datetimepicker.js"></script>
 {% endblock jsincludes %}
 
 {% block js %}
@@ -162,6 +163,17 @@
 	// This helps make sections appear with Foundation
 	$(this).foundation('section', 'reflow');
     
+    $(document).find("input[name*='_date']").datetimepicker({
+        format:'Y-m-d H:i:s',
+		formatTime:'H:i:s',
+		formatDate:'Y-m-d',
+        value : $(this).val(),
+        inline : true,
+        opened : true,
+        allowBlank : true,
+        defaultSelect : false
+    });
+
     $('#pages').children('.empty-page-form').hide();
     pages = $('#pages').children('li').djangoFormset({
         formTemplateClass: 'empty-page-form'
@@ -188,7 +200,15 @@
     });
   });
 
-  $(document).on('focus',"input[name*='_date']", function(){
-    $(this).datepicker({showAnim: "slideDown"});
-  });
+//  $(document).on('focus',"input[name*='_date']", function(){
+//    $(this).datetimepicker({
+//        value : $(this).val(),
+//        inline : true,
+//        opened : true,
+//        defaultSelect : false,
+//        onChangeDateTime:function(dp, $input){
+//            alert($input.val())
+//        }
+//    });
+//  });
 {% endblock js %}
