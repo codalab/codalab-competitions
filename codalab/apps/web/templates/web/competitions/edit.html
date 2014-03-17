@@ -43,42 +43,36 @@
 			<fieldset class="page">
 				<legend>Web Page</legend>
 				{% for field in Pages.empty_form %}
-					<div class="fieldWrapper">
-						<div class="row">
-							{{ field.errors }}
-							<div class="large-3 columns">
-								{% if not field.is_hidden %}
-									<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-								{% endif %}
-							</div>
-							<div class="large-9 columns">
-								{{ field }}
-							</div>
-						</div>
-					</div>
-				{% endfor %}                
+    				<div class="fieldWrapper">
+	    				<div class="row">
+		    				{{ field.errors }}
+            				{% if not field.is_hidden %}
+			        			<div class="large-3 columns">
+					    			<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+    					    	</div>
+	            			{% endif %}		
+        					<div class="large-9 columns">{{ field }}</div>
+    					</div>
+	    			</div>
+        		{% endfor %}                
 			</fieldset> 
         </li>
 		{% for page in Pages %}
            <li>
 			<fieldset class="page">
-				<legend>
-					Web Page
-				</legend>
+				<legend>Web Page</legend>
 				{% for field in page %}
-					<div class="fieldWrapper">
-						<div class="row">
-							{{ field.errors }}
-							<div class="large-3 columns">
-								{% if not field.is_hidden %}
-									<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-								{% endif %}
-							</div>
-							<div class="large-9 columns">
-								{{ field }}
-							</div>
-						</div>
-					</div>
+    				<div class="fieldWrapper">
+	  					<div class="row">
+	    					{{ field.errors }}
+           					{% if not field.is_hidden %}
+			    				<div class="large-3 columns">
+				   					<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+    							</div>
+           					{% endif %}
+	    					<div class="large-9 columns">{{ field }}</div>
+    					</div>
+	    			</div>
 				{% endfor %}                
 			</fieldset>
           </li>
@@ -98,19 +92,17 @@
                  <fieldset class="phase">
 				    <legend>Phase</legend>
 				    {% for field in Phases.empty_form %}
-					    <div class="fieldWrapper">
-						    <div class="row">
-							    {{ field.errors }}
-							    <div class="large-3 columns">
-								    {% if not field.is_hidden %}
+    				    <div class="fieldWrapper">
+	    				    <div class="row">
+		    				    {{ field.errors }}
+            				    {% if not field.is_hidden %}
+				    			    <div class="large-3 columns">
 									    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-								    {% endif %}
-							    </div>
-							    <div class="large-9 columns">
-								    {{ field }}
-							    </div>
-						    </div>
-					    </div>
+							        </div>
+		        			    {% endif %}
+						        <div class="large-9 columns">{{ field }}</div>
+					        </div>
+				        </div>
 				    {% endfor %}                
 			    </fieldset> 			            
             </li>
@@ -119,17 +111,17 @@
 			        <fieldset class="phase">
 				        <legend>Competition Phase</legend>
 				        {% for field in form %}
-					        <div class="fieldWrapper">
-						        <div class="row clearfix">
-							        {{ field.errors }}
+    					    <div class="fieldWrapper">
+	    					    <div class="row clearfix">
+		    					    {{ field.errors }}
+				                    {% if not field.is_hidden %}
 							            <div class="large-3 columns">
-								            {% if not field.is_hidden %}
-									            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-								            {% endif %}
+								            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
 							            </div>
-							            <div class="large-9 columns">{{ field }}</div>
-						        </div>
-					        </div>
+        				            {% endif %}
+						            <div class="large-9 columns">{{ field }}</div>
+		    			        </div>
+			    	        </div>
 				        {% endfor %}                
 			        </fieldset> 
                 </li>
@@ -173,13 +165,13 @@ $('document').ready(function () {
     // Hide order for everything < 2 
     $('#pages').find("[name*=rank]").each(function (index, value) {
         if (value.value <= 2) {
-            $(value).attr('disabled', true);
+            $(value).parents(".fieldWrapper").hide();
         }
     });
 
     // Hide Category, it's not modifiable
     $('#pages').find("[name*=category]").each(function (index, value) {
-        $(value).attr('disabled', true);
+        $(value).parents(".fieldWrapper").hide();
     });
 
     $('#pages').children('.empty-page-form').hide();
@@ -208,7 +200,6 @@ $('document').ready(function () {
         var rank = form.elem.find("[name*=rank]");
         rank.parents(".fieldWrapper").show();
         rank.val(nextPage);
-        rank.removeAttr("disabled");
         nextPage += 1;
         form.pDelete = form.delete;
         form.delete = function () {
@@ -237,6 +228,14 @@ $('document').ready(function () {
         form = phases.addForm();
         form.elem.toggle();
         form.elem.find('[name$=phasenumber]')[0].value = form.index;
+        form.elem.find("input[name*='_date']").datetimepicker({
+            format: 'Y-m-d H:i:s',
+            formatTime: 'H:i:s',
+            formatDate: 'Y-m-d',
+            value: $(this).val(),
+            allowBlank: true,
+            defaultSelect: false
+        });
         form.pDelete = form.delete;
         form.delete = function () {
             if (confirm("Are you sure you want to delete this page?")) {
