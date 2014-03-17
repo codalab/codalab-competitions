@@ -161,8 +161,6 @@ $('document').ready(function () {
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
 
-    var nextPage = 0;
-
     $(document).find("input[name*='_date']").datetimepicker({
         format: 'Y-m-d H:i:s',
         formatTime: 'H:i:s',
@@ -200,6 +198,10 @@ $('document').ready(function () {
     });
 
     $('.add-page').click(function () {
+        var nextPage = 0;    
+        $('#pages').find("[name*=rank]").each(function (index, value) {
+            nextPage = Math.max(nextPage, parseInt(value.value) + 1);
+        });
         form = pages.addForm();
         form.elem.toggle();
         wlp = window.location.pathname.split("/");
