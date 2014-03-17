@@ -42,7 +42,7 @@
         <li class="empty-page-form">
 			<fieldset class="page">
 				<legend>
-					Competition Web Page
+					Web Page
 				</legend>
 				{% for field in Pages.empty_form %}
 					<div class="fieldWrapper">
@@ -156,59 +156,6 @@
 {% block jsincludes %}
     <script src="{{ STATIC_URL }}js/vendor/django-formset.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/jquery.datetimepicker.js"></script>
+    <script src="{{ STATIC_URL }}js/CompetitionEdit.js"></script>
 {% endblock jsincludes %}
 
-{% block js %}
-  $('document').ready(function() {
-	// This helps make sections appear with Foundation
-	$(this).foundation('section', 'reflow');
-    
-    $(document).find("input[name*='_date']").datetimepicker({
-        format:'Y-m-d H:i:s',
-		formatTime:'H:i:s',
-		formatDate:'Y-m-d',
-        value : $(this).val(),
-        inline : true,
-        opened : true,
-        allowBlank : true,
-        defaultSelect : false
-    });
-
-    $('#pages').children('.empty-page-form').hide();
-    pages = $('#pages').children('li').djangoFormset({
-        formTemplateClass: 'empty-page-form'
-    });
-
-    $('.add-page').click(function() {
-        form = pages.addForm();
-        form.elem.toggle();
-        wlp = window.location.pathname.split("/");
-        comp_id = wlp[wlp.length-1];
-        form.elem.find('[name$=container]').val(comp_id);
-    });
-    
-    // Dynamic adding/removing of phases
-    $('#phases').children('.empty-phase-form').hide();
-    phases = $('#phases').children('li').djangoFormset({
-        formTemplateClass: 'empty-phase-form'
-    });
-
-    $('.add-phase').click(function() {
-        form = phases.addForm();
-        form.elem.toggle();
-        form.elem.find('[name$=phasenumber]')[0].value = form.index;
-    });
-  });
-
-//  $(document).on('focus',"input[name*='_date']", function(){
-//    $(this).datetimepicker({
-//        value : $(this).val(),
-//        inline : true,
-//        opened : true,
-//        defaultSelect : false,
-//        onChangeDateTime:function(dp, $input){
-//            alert($input.val())
-//        }
-//    });
-//  });
-{% endblock js %}
