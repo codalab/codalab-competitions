@@ -173,13 +173,13 @@ $('document').ready(function () {
     // Hide order for everything < 2 
     $('#pages').find("[name*=rank]").each(function (index, value) {
         if (value.value <= 2) {
-            $(value).parents(".fieldWrapper").hide();
+            $(value).attr('disabled', true);
         }
     });
 
     // Hide Category, it's not modifiable
     $('#pages').find("[name*=category]").each(function (index, value) {
-        $(value).parents(".fieldWrapper").hide();
+        $(value).attr('disabled', true);
     });
 
     $('#pages').children('.empty-page-form').hide();
@@ -205,8 +205,10 @@ $('document').ready(function () {
         form.elem.toggle();
         wlp = window.location.pathname.split("/");
         form.elem.find("[name$=container]").val(wlp[wlp.length - 1]);
-        form.elem.find("[name*=rank]").parents(".fieldWrapper").show();
-        form.elem.find("[name*=rank]").val(nextPage);
+        var rank = form.elem.find("[name*=rank]");
+        rank.parents(".fieldWrapper").show();
+        rank.val(nextPage);
+        rank.removeAttr("disabled");
         nextPage += 1;
         form.pDelete = form.delete;
         form.delete = function () {
