@@ -172,7 +172,6 @@ $('document').ready(function () {
 
     // Hide order for everything < 2 
     $('#pages').find("[name*=rank]").each(function (index, value) {
-        nextPage = Math.max(nextPage, parseInt(value.value) + 1);
         if (value.value <= 2) {
             $(value).parents(".fieldWrapper").hide();
         }
