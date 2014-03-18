@@ -150,6 +150,22 @@
 
 {% block js %}
 $('document').ready(function () {
+
+    var tMCE = tinyMCE.init({
+        //General otptions
+        mode : 'none',
+        theme: 'advanced',
+        readonly: 0,
+        cleanup_on_startup: true,
+        plugins : 'autolink,lists,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
+
+        // Theme options
+        theme_advanced_path : false,
+        theme_advanced_toolbar_location : 'top',
+        theme_advanced_toolbar_align : 'left',
+        theme_advanced_statusbar_location : 'bottom',
+    });
+
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
 
@@ -199,6 +215,9 @@ $('document').ready(function () {
         form.elem.find("[name$=container]").val(wlp[wlp.length - 1]);
         var rank = form.elem.find("[name*=rank]");
         rank.parents(".fieldWrapper").show();
+        form.elem.find("textarea").each(function () { 
+            tinyMCE.execCommand('mceAddControl', false, this.id);
+        });        
         rank.val(nextPage);
         nextPage += 1;
         form.pDelete = form.delete;
@@ -219,6 +238,10 @@ $('document').ready(function () {
         phase.pDelete = phase.delete;
         phase.delete = function () {
             if (confirm("Are you sure you want to delete this page?")) {
+                if (tinyMCE.getInstanceById(phase.id)) {
+                    tinyMCE.execCommand('mceFocus', false, phase.id);                    
+                    tinyMCE.execCommand('mceRemoveControl', false, phase.id);
+                }
                 phase.pDelete();
             }
         };
