@@ -4,7 +4,7 @@
 {% block hero_subheader %}
 <!-- First Band (Slider) -->
 <div class="slider">
-  <h1>CodaLab = Experiments + Competitions</h1>
+  <h1>CodaLab = Worksheets + Competitions</h1>
 </div>
 {% endblock hero_subheader %}
 
@@ -17,30 +17,18 @@
         </div>
     </div>
 </div>
-<!-- Three-up Content Blocks -->
-<div class="row homepage_featured">
-  <div class="large-6 columns">
-    <a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"><br>
-    <h2>Worksheets</h2></a><br>
-    <p>CodaLab Worksheets enable collaborative research and computational research to be done in an efficient and reproducible manner. By providing modularity, live execution, and inline annotation of code with rich explanations, CodaLab enables you to quickly sketch ideas and collaborate with fellow community members.</p><br>
-  </div>
-  <div class="large-6 columns">
-    <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"><br>
-    <h2>Competitions</h2></a><br>
-    <p>CodaLab competitions provide an opportunity for researchers, developers and algorithmists to create solutions for problems across a wide range of domains, and advance the state of the art for their respective areas of interest.</p>
-  </div>
-</div>
+
 
 <!-- Call to Action Panel -->
 <div class="row">
     <div class="small-12 columns">
-        <div class="panel">
+        <div class="panel"> 
             <h4>CodaLab</h4>
             <div class="row"></div>
             <div class="row">
                 <div class="small-10 columns">
                     <p>
-                    CodaLab is a platform built using Python, Django, and Foundation that lets communities explore experiments together and propose challenges designed to advance the state of the art. The first two communities helping build CodaLab are the Machine Learning community and the Medical Imaging community.
+                    CodaLab nurtures an environment of scientific rigor by enabling reproducibility and transparency, and opens new avenues for collaboration between researchers, developers, and data scientists, particularly where machine learning and advanced computation are used.
                     </p>
                 </div>
                 <div class="small-2 columns">
@@ -53,4 +41,21 @@
     </div>
 </div>
 
+<div class="large-12 columns">
+    <p><br></p>
+</div>
+
+<!-- Three-up Content Blocks -->
+<div class="row homepage_featured">
+  <div class="large-6 columns">
+    <a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"><br>
+    <h2>Worksheets</h2></a><br>
+    <p>CodaLab worksheets combine code execution, text, mathematics, plots and rich media into a single document, streamlining the research process and lowering the barrier to documenting and publishing detailed advanced computational research.</p><br>
+  </div>
+  <div class="large-6 columns">
+    <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"><br>
+    <h2>Competitions</h2></a><br>
+    <p>CodaLab competitions provide an opportunity for researchers and developers to create solutions that advance the state of the art in machine learning and computer vision research.</p>
+  </div>
+</div>
 {% endblock content %}
