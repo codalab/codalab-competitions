@@ -223,10 +223,12 @@ $('document').ready(function () {
         form.pDelete = form.delete;
         form.delete = function () {
             if (confirm("Are you sure you want to delete this page?")) {
-                if (tinyMCE.getInstanceById(phase.id)) {
-                    tinyMCE.execCommand('mceFocus', false, phase.id);                    
-                    tinyMCE.execCommand('mceRemoveControl', false, phase.id);
-                }
+                form.elem.find("textarea").each(function (idx, val) { 
+                    if (tinyMCE.getInstanceById(val.id)) {
+                        tinyMCE.execCommand('mceFocus', false, val.id);                    
+                        tinyMCE.execCommand('mceRemoveControl', false, val.id);
+                    }                
+                }); 
                 form.pDelete();
             }
         };
