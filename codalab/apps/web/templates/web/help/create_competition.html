@@ -116,7 +116,16 @@
         <h3>Create a YAML File</h3>
         <p>The manifest file (competition.yaml) defines all aspects of the competition, and is defined using YAML.</p>
 
-        <p><b>IMPORTANT:</b> When setting timestamps, you will need to enter time values in Pacific Standard Time (PST). CodaLab will convert time values to Coordinated Universal Time (UTC).</p> 
+        <p><b>IMPORTANT:</b> When setting timestamps, you must enter time values in Coordinated Universal Time (UTC). The following examples show the preferred date/time formats to use:</p> 
+
+        <ul>
+            <li><code>YYYY-MM-DD</code><br />
+                For example: <code>end_date: 2014-03-01</code> specifies a competition end date of March 1st, 2014 at midnight UTC.
+            </li>
+            <li><code>YYYY-MM-DD HH-MM</code><br />
+                For example: <code>start_date: 2014-03-01 18:15</code> specifies a start date of March 1st, 2014 at 6:15 PM UTC.
+            </li>
+        </ul>
             
         <p>Here's the example competition.yaml:</p>
         <pre><code># Build an example competition

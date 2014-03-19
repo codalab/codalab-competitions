@@ -23,6 +23,10 @@ from azure.storage import BlobService
 from azure.servicebus import ServiceBusService
 
 from codalabtools import BaseConfig
+from codalabtools.azure_extensions import (
+    Cors,
+    CorsRule,
+    set_storage_service_cors_properties)
 
 logger = logging.getLogger('codalabtools')
 
@@ -216,6 +220,10 @@ class DeploymentConfig(BaseConfig):
     def getServiceBundleStorageContainer(self):
         """Gets the name of the bundle Blob container for the service."""
         return self._svc['storage']['bundles-container']
+
+    def getServiceStorageCorsAllowedOrigins(self):
+        """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
+        return self._svc['storage']['cors-allowed-origins'] if 'cors-allowed-origins' in self._svc['storage'] else '*'
 
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
@@ -488,6 +496,24 @@ class Deployment(object):
             blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
             access_info = 'private' if access is None else 'public {0}'.format(access)
             logger.info("Blob container %s is ready (access: %s).", name, access_info)
+
+    def ensureStorageHasCorsConfiguration(self):
+        """
+        Ensures Blob storage container for bundles is configured to allow cross-origin resource sharing.
+        """
+        logger.info("Setting CORS rules.")
+        account_name = self.config.getServiceStorageAccountName()
+        account_key = self._getStorageAccountKey(account_name)
+
+        cors_rule = CorsRule()
+        cors_rule.allowed_origins = self.config.getServiceStorageCorsAllowedOrigins()
+        cors_rule.allowed_methods = 'PUT'
+        cors_rule.exposed_headers = '*'
+        cors_rule.allowed_headers = '*'
+        cors_rule.max_age_in_seconds = 1800
+        cors_rules = Cors()
+        cors_rules.cors_rule.append(cors_rule)
+        set_storage_service_cors_properties(account_name, account_key, cors_rules)
 
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
@@ -811,6 +837,7 @@ class Deployment(object):
         if 'web' in assets:
             self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
+            self.ensureStorageHasCorsConfiguration()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
