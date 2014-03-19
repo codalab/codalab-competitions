@@ -5,6 +5,11 @@ This module defines Windows Azure extensions for CodaLab.
 from azure import (
     WindowsAzureData)
 
+from azure.storage import (
+    _sign_storage_blob_request,
+    BlobService,
+    StorageServiceProperties)
+
 from azure.servicebus import (
     ServiceBusService,
     Message)
@@ -62,7 +67,7 @@ class Cors(WindowsAzureData):
     def __init__(self):
         self.cors_rule = []
 
-def set_storage_service_cors_properties(blob_service, cors_rules):
+def set_storage_service_cors_properties(account_name, account_key, cors_rules):
     """
     Assigns the specified CORS rules to the specified Blob service.
 
@@ -75,7 +80,8 @@ def set_storage_service_cors_properties(blob_service, cors_rules):
     setattr(blob_svc_props, 'cors', cors_rules)
 
     def request_filter(request, next_filter):
-        request.headers = [(k,v) for (k,v) in request.headers if k not in ('x-ms-version', 'Authorization')]
+        """ Intercepts request to modify headers."""
+        request.headers = [(k, v) for (k, v) in request.headers if k not in ('x-ms-version', 'Authorization')]
         request.headers.append(('x-ms-version', '2013-08-15'))
         request.headers.append(('Authorization', _sign_storage_blob_request(request, account_name, account_key)))
         response = next_filter(request)

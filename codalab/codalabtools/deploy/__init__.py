@@ -221,6 +221,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the name of the bundle Blob container for the service."""
         return self._svc['storage']['bundles-container']
 
+    def getServiceStorageCorsAllowedOrigins(self):
+        """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
+        return self._svc['storage']['cors-allowed-origins'] if 'cors-allowed-origins' in self._svc['storage'] else '*'
+
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
         name = self._svc['bus']['namespace']
@@ -493,24 +497,23 @@ class Deployment(object):
             access_info = 'private' if access is None else 'public {0}'.format(access)
             logger.info("Blob container %s is ready (access: %s).", name, access_info)
 
-    def _ensureStorageHasCorsConfiguration(self):
+    def ensureStorageHasCorsConfiguration(self):
         """
         Ensures Blob storage container for bundles is configured to allow cross-origin resource sharing.
         """
         logger.info("Setting CORS rules.")
         account_name = self.config.getServiceStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
-        blob_service = BlobService(account_name, account_key)
 
         cors_rule = CorsRule()
-        cors_rule.allowed_origins = '*' #TODO
+        cors_rule.allowed_origins = self.config.getServiceStorageCorsAllowedOrigins()
         cors_rule.allowed_methods = 'PUT'
-        cors_rule.exposed_headers = '*' #TODO
-        cors_rule.allowed_headers = '*' #TODO
+        cors_rule.exposed_headers = '*'
+        cors_rule.allowed_headers = '*'
         cors_rule.max_age_in_seconds = 1800
         cors_rules = Cors()
         cors_rules.cors_rule.append(cors_rule)
-        set_storage_service_cors_properties(blob_service, cors_rules)
+        set_storage_service_cors_properties(account_name, account_key, cors_rules)
 
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
@@ -834,7 +837,7 @@ class Deployment(object):
         if 'web' in assets:
             self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
-            self._ensureStorageHasCorsConfiguration()
+            self.ensureStorageHasCorsConfiguration()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())

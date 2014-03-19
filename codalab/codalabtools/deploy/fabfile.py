@@ -427,4 +427,4 @@ def enable_cors():
     require('configuration')
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     dep = Deployment(cfg)
-    dep._ensureStorageHasCorsConfiguration()
+    dep.ensureStorageHasCorsConfiguration()
