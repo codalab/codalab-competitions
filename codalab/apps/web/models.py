@@ -654,7 +654,15 @@ class CompetitionSubmission(models.Model):
         """
         Returns the short name of the file which was uploaded to create the submission.
         """
-        return split(self.file.name)[1]
+        name = ''
+        try:
+            name = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+        except:
+            pass
+        if len(name) == 0:
+            # For backwards compat, fallback to this method of getting the name.
+            name = split(self.file.name)[1]
+        return name
 
     def get_file_for_download(self, key, requested_by):
         """
