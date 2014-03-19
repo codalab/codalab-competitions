@@ -418,3 +418,13 @@ def fetch_logs():
     require('configuration')
     with cd(env.deploy_dir):
         get('codalab/var/*.log', '~/logs/%(host)s/%(path)s')
+
+@task
+def enable_cors():
+    """
+    Enable cross-origin resource sharing for a Windows Azure storage service.
+    """
+    require('configuration')
+    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+    dep = Deployment(cfg)
+    dep._ensureStorageHasCorsConfiguration()
