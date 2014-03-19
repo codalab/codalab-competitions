@@ -12,9 +12,11 @@ urlpatterns = router.urls
 
 urlpatterns += (
     url(r'^competition/create$', views.CompetitionCreationApi.as_view(), name='api_competition_creation'),
+    url(r'^competition/create/sas$', views.CompetitionCreationSasApi.as_view(), name='api_competition_creation_sas'),
     url(r'^competition/create/(?P<token>\d+)$', views.CompetitionCreationStatusApi.as_view(), name='api_competition_creation_status'),
 
     url(r'^competition/(?P<competition_id>\d+)/submission$',views.competition_submission_create,name='api_competition_submission_post'),
+    url(r'^competition/(?P<competition_id>\d+)/submission/sas$',views.CompetitionSubmissionSasApi.as_view(), name='api_competition_submission_sas'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)$',views.competition_submission_retrieve,name='api_competition_submission_get'),
     url(r'^competition/(?P<competition_id>\d+)/submission/(?P<pk>\d+)/leaderboard$',views.competition_submission_leaderboard,name='api_competition_submission_leaderboard'),
 

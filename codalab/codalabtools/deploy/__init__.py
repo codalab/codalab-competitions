@@ -23,6 +23,10 @@ from azure.storage import BlobService
 from azure.servicebus import ServiceBusService
 
 from codalabtools import BaseConfig
+from codalabtools.azure_extensions import (
+    Cors,
+    CorsRule,
+    set_storage_service_cors_properties)
 
 logger = logging.getLogger('codalabtools')
 
@@ -489,6 +493,25 @@ class Deployment(object):
             access_info = 'private' if access is None else 'public {0}'.format(access)
             logger.info("Blob container %s is ready (access: %s).", name, access_info)
 
+    def _ensureStorageHasCorsConfiguration(self):
+        """
+        Ensures Blob storage container for bundles is configured to allow cross-origin resource sharing.
+        """
+        logger.info("Setting CORS rules.")
+        account_name = self.config.getServiceStorageAccountName()
+        account_key = self._getStorageAccountKey(account_name)
+        blob_service = BlobService(account_name, account_key)
+
+        cors_rule = CorsRule()
+        cors_rule.allowed_origins = '*' #TODO
+        cors_rule.allowed_methods = 'PUT'
+        cors_rule.exposed_headers = '*' #TODO
+        cors_rule.allowed_headers = '*' #TODO
+        cors_rule.max_age_in_seconds = 1800
+        cors_rules = Cors()
+        cors_rules.cors_rule.append(cors_rule)
+        set_storage_service_cors_properties(blob_service, cors_rules)
+
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
         Creates the specified cloud service host if it does not exist.
@@ -811,6 +834,7 @@ class Deployment(object):
         if 'web' in assets:
             self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
+            self._ensureStorageHasCorsConfiguration()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
