@@ -662,6 +662,7 @@ class CompetitionSubmission(models.Model):
         if len(name) == 0:
             # For backwards compat, fallback to this method of getting the name.
             name = split(self.file.name)[1]
+        return name
 
     def get_file_for_download(self, key, requested_by):
         """
