@@ -140,7 +140,7 @@ $header-font-weight: lighter !default;
 $header-line-height: 1.4em !default;
  /* Default header styles */
   h1, h2, h3 {  // added
-    font-family: 'Segoe UI Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-style: $header-font-style;
     color: $header-font-color;
@@ -156,4 +156,4 @@ $header-line-height: 1.4em !default;
     }
   }
 
-$anchor-text-decoration: underline !default;
+$anchor-text-decoration: underline !default; // changed from none

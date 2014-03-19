@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block title %}Submissions{% endblock %}
+{% block page_title %}Submissions{% endblock page_title %}
+{% block head_title %}Submissions{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 large-centered columns submissions content">
+        <div class="challStatusStrip">
+            <section class="challStatusStripSection">
+            {% for phase in competition.phases.all %}
+                {% if phase.id == selected_phase_id %}
+                <section class="currentPhase">
+                {% else %}
+                <section>
+                {% endif %}
+                    <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a> 
+                    <br>
+                    <span>{{phase.start_date|utc}} UTC</span>
+                </section>
+            {% endfor %}
+            </section>
+        </div>
+        <br>
+        {% if not submission_info_list %}
+        <p>There are no submissions.</p>
+        {% else %}
+        <table class="resultsTable dataTable">
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                    <th>
+                        <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                            {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                        </a>
+                    </th>
+                    {% endfor %}
+                    <th width="40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submission_info_list %}
+                <tr id="{{submission.id}}">
+                    {% for column in columns %}
+                    {% if column.name == 'filename' %}
+                        <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                    {% else %}
+                        <td>{{submission|get_item:column.name}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+{% include "web/common/_submission_details_template.html" %} 
+<script type="text/javascript" src="/static/js/Competition.js"></script>
+{% endblock %}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liMyCodalab").addClass("active");
+    });
+{% endblock js %}
