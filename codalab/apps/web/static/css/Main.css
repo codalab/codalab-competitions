@@ -2660,6 +2660,9 @@ li > a, .title a {
 .submission_details {
     padding-top: 17px;
 }
+.submission_upload_details {
+    margin-top: 10px;
+}
 p i {
     color: #739cb9;
 }

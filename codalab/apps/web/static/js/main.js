@@ -168,22 +168,27 @@ var CodaLab;
         };
 
         FileUploader.prototype.beginUpload = function (selection, index) {
+            this.state = {
+                sasUrl: undefined,
+                sasVersion: undefined,
+                trackingId: undefined,
+                reader: undefined,
+                selection: selection,
+                fileIndex: index,
+                blockIds: [],
+                bytesUploaded: 0
+            };
+            var file = this.getCurrentFile();
             var that = this;
             $.ajax({
                 url: that.options.sasEndpoint,
                 type: "POST",
+                data: { 'name': file.name, 'type': file.type, 'size': file.size },
                 success: function (data, status) {
-                    that.state = {
-                        sasUrl: data.url,
-                        sasVersion: data.version,
-                        trackingId: data.id,
-                        reader: that.getFileReader(),
-                        selection: selection,
-                        fileIndex: index,
-                        blockIds: [],
-                        bytesUploaded: 0
-                    };
-                    var file = that.getCurrentFile();
+                    that.state.sasUrl = data.url;
+                    that.state.sasVersion = data.version;
+                    that.state.trackingId = data.id;
+                    that.state.reader = that.getFileReader();
                     that.options.uploadProgress(file, that.state.bytesUploaded, file.size);
                     that.upload();
                 },
@@ -225,7 +230,7 @@ var CodaLab;
                     xhr.setRequestHeader('x-ms-version', that.state.sasVersion);
                     xhr.setRequestHeader('x-ms-blob-content-type', file.type);
                     xhr.setRequestHeader('x-ms-meta-name', file.name);
-                    xhr.setRequestHeader('x-ms-meta-size', file.size);
+                    xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
                 },
                 success: function (data, status) {
                     that.options.uploadSuccess(file, that.state.trackingId);
