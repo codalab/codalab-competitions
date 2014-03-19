@@ -29,16 +29,16 @@ from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERS
 
 logger = logging.getLogger(__name__)
 
-def _generate_blob_sas_url(prefix, request):
+def _generate_blob_sas_url(prefix, extension):
     """
     Helper to generate SAS URL for creating a BLOB.
     """
-    blob_name = '{0}/{1}/{2}'.format(prefix, request.user.id, str(uuid4()))
+    blob_name = '{0}/{1}{2}'.format(prefix, str(uuid4()), extension)
     url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
                             settings.BUNDLE_AZURE_ACCOUNT_KEY,
                             settings.BUNDLE_AZURE_CONTAINER,
                             blob_name)
-    logger.debug("_generate_blob_sas_url: user=%s; sas=%s; name=%s.", request.user.id, url, blob_name)
+    logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
 @permission_classes((permissions.IsAuthenticated,))
@@ -51,8 +51,9 @@ class CompetitionCreationSasApi(views.APIView):
         Provides a Blob SAS that a client can use to upload the competition definition bundle.
         Returns a dictionary of the form: { 'url': <shared-access-url>, 'id': <tracking-id> }
         """
-        data = _generate_blob_sas_url('competition/upload', request)
-        return Response(data, status=status.HTTP_201_CREATED)
+        prefix = 'competition/upload/{0}'.format(request.user.id)
+        response_data = _generate_blob_sas_url(prefix, '.zip')
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationApi(views.APIView):
@@ -341,9 +342,9 @@ class CompetitionSubmissionSasApi(views.APIView):
         """
         if len(competition_id) <= 0:
             raise ParseError(detail='Invalid competition ID.')
-        prefix = 'competition/{0}/submission'.format(competition_id)
-        data = _generate_blob_sas_url(prefix, request)
-        return Response(data, status=status.HTTP_201_CREATED)
+        prefix = 'competition/{0}/submission/{1}'.format(competition_id, request.user.id)
+        response_data = _generate_blob_sas_url(prefix, '.zip')
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
