@@ -199,7 +199,8 @@ PREFERRED_STORAGE_X_MS_VERSION = '2013-08-15'
 def make_blob_sas_url(account_name,
                       account_key,
                       container_name,
-                      blob_name):
+                      blob_name,
+                      duration=16):
     """
     Generate a Blob SAS URL to allow a client to upload a file.
 
@@ -207,6 +208,9 @@ def make_blob_sas_url(account_name,
     account_key: Storage account key.
     container_name: Storage container.
     blob_name: Blob name.
+    duration: A timedelta representing duration until SAS expiration.
+       SAS start date will be utcnow() minus one minute. Expiry date
+       is start date plus duration.
 
     Returns the SAS URL.
     """
@@ -214,7 +218,7 @@ def make_blob_sas_url(account_name,
     resource_path = '%s/%s' % (container_name, blob_name)
     date_format = "%Y-%m-%dT%H:%M:%SZ"
     start = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
-    expiry = start + datetime.timedelta(minutes=15)
+    expiry = start + datetime.timedelta(minutes=duration)
     sap = SharedAccessPolicy(AccessPolicy(
             start.strftime(date_format), 
             expiry.strftime(date_format),
