@@ -5,8 +5,9 @@
 {% block head_title %}Edit Competition{% endblock head_title %}
 {% block page_title %}Edit Competition{% endblock page_title %}
 
-{% block extra_head %}
-{% endblock extra_head %}
+{% block extra_headers %}
+      <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
+{% endblock extra_headers %}
 
 {% block content %}
 <div class="row">
@@ -18,6 +19,8 @@
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+		<fieldset>
+		<legend>General Information</legend>
         {% for field in form %}
             <div class="fieldWrapper">
                 <div class="row">
@@ -31,37 +34,104 @@
                 </div>
             </div>
         {% endfor %}
-        <div class="competition-edit-phase" style="border: 1px">
-        {% for formset in inlines %}
-            {{ formset.management_form }}
-            {% for iform in formset %}
-                <fieldset>
-                    <legend>
-                        {% if iform.instance|get_type == "Page" %}
-                            Page - {{iform.instance.category.name}} / {{iform.instance.label}}
-                        {% else %}
-                            Competition Phase - {{iform.instance.phasenumber}}
+		</fieldset>
+
+		<ul id="pages">
+		{{ Pages.management_form }}
+        {{ Pages.non_form_errors }}
+        <li class="empty-page-form">
+			<fieldset class="page">
+				<legend>Web Page</legend>
+				{% for field in Pages.empty_form %}
+    				<div class="fieldWrapper">
+	    				<div class="row">
+		    				{{ field.errors }}
+            				{% if not field.is_hidden %}
+			        			<div class="large-3 columns">
+					    			<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+    					    	</div>
                         {% endif %}
-                    </legend>
-                    {% for ifield in iform %}
+        					<div class="large-9 columns">{{ field }}</div>
+    					</div>
+	    			</div>
+        		{% endfor %}                
+			</fieldset> 
+        </li>
+		{% for page in Pages %}
+           <li>
+			<fieldset class="page">
+				<legend>Web Page</legend>
+				{% for field in page %}
                         <div class="fieldWrapper">
                             <div class="row">
-                                {{ ifield.errors }}
+	    					{{ field.errors }}
+           					{% if not field.is_hidden %}
                                 <div class="large-3 columns">
-                                    {% if not ifield.is_hidden %}
-                                        <label for="{{ifield.id_for_label}}" class="inline">{{ifield.label}}{{iform.label_suffix}}</label>
+				   					<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+    							</div>
                                     {% endif %}
+	    					<div class="large-9 columns">{{ field }}</div>
                                 </div>
-                                <div class="large-9 columns">
-                                    {{ ifield }}
                                 </div>
+				{% endfor %}                
+			</fieldset>
+          </li>
+		{% endfor %}
+		</ul>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <button type="button" class="medium blue button add-page right">Add Page</button>
                             </div>
                         </div>
+
+        <ul id="phases">
+            {{ Phases.management_form }}
+            {{ Phases.non_form_errors }}
+            <li class="empty-phase-form">
+                 <fieldset class="phase">
+				    <legend>Phase</legend>
+				    {% for field in Phases.empty_form %}
+    				    <div class="fieldWrapper">
+	    				    <div class="row">
+		    				    {{ field.errors }}
+            				    {% if not field.is_hidden %}
+				    			    <div class="large-3 columns">
+									    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+							        </div>
+		        			    {% endif %}
+						        <div class="large-9 columns">{{ field }}</div>
+					        </div>
+				        </div>
                     {% endfor %}                
                 </fieldset> 
+            </li>
+            {% for form in Phases %}
+                <li>
+			        <fieldset class="phase">
+				        <legend>Competition Phase</legend>
+				        {% for field in form %}
+    					    <div class="fieldWrapper">
+	    					    <div class="row clearfix">
+		    					    {{ field.errors }}
+				                    {% if not field.is_hidden %}
+							            <div class="large-3 columns">
+								            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+							            </div>
+        				            {% endif %}
+						            <div class="large-9 columns">{{ field }}</div>
+		    			        </div>
+			    	        </div>
             {% endfor %}
+			        </fieldset> 
+                </li>
         {% endfor %}
+        </ul>
+        <div class="row">
+            <div class="large-12 columns">
+                <button type="button" class="medium blue button add-phase right">Add Phase</button>
         </div>
+        </div>  
         <div class="row">
           <div class="large-12 columns">
             <button type="submit" class="medium button blue">Submit</button>
@@ -73,10 +143,130 @@
 </div>
 {% endblock content %}
 
+{% block jsincludes %}
+    <script src="{{ STATIC_URL }}js/vendor/django-formset.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.datetimepicker.js"></script>
+{% endblock jsincludes %}
+
 {% block js %}
-  $('document').ready(function() {
+$('document').ready(function () {
+
+    var tMCE = tinyMCE.init({
+        //General otptions
+        mode : 'none',
+        theme: 'advanced',
+        readonly: 0,
+        cleanup_on_startup: true,
+        plugins : 'autolink,lists,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
+
+        // Theme options
+        theme_advanced_path : false,
+        theme_advanced_toolbar_location : 'top',
+        theme_advanced_toolbar_align : 'left',
+        theme_advanced_statusbar_location : 'bottom',
+    });
+
     // This helps make sections appear with Foundation
     $(this).foundation('section', 'reflow');
-    $("input[name*='_date']").datepicker();
+
+    $(document).find("input[name*='_date']").datetimepicker({
+        format: 'Y-m-d H:i:s',
+        formatTime: 'H:i:s',
+        formatDate: 'Y-m-d',
+        value: $(this).val(),
+        allowBlank: true,
+        defaultSelect: false
+    });
+
+    // Hide order for everything < 2 
+    $('#pages').find("[name*=rank]").each(function (index, value) {
+        if (value.value <= 2) {
+            $(value).parents(".fieldWrapper").hide();
+        }
+    });
+
+    // Hide Category, it's not modifiable
+    $('#pages').find("[name*=category]").each(function (index, value) {
+        $(value).parents(".fieldWrapper").hide();
+    });
+
+    $('#pages').children('.empty-page-form').hide();
+    pages = $('#pages').children('li').djangoFormset({
+        formTemplateClass: 'empty-page-form'
+    });
+
+    pages.forms.each(function (index, form) {
+        form.pDelete = form.delete;
+        form.delete = function () {
+            if (confirm("Are you sure you want to delete this page?")) {
+                form.pDelete();
+            }
+        };
+    });
+
+    $('.add-page').click(function () {
+        var nextPage = 0;    
+        $('#pages').find("[name*=rank]").each(function (index, value) {
+            nextPage = Math.max(nextPage, parseInt(value.value) + 1);
+        });
+        form = pages.addForm();
+        form.elem.toggle();
+        wlp = window.location.pathname.split("/");
+        form.elem.find("[name$=container]").val(wlp[wlp.length - 1]);
+        var rank = form.elem.find("[name*=rank]");
+        rank.parents(".fieldWrapper").show();
+        form.elem.find("textarea").each(function () { 
+            tinyMCE.execCommand('mceAddControl', false, this.id);
+        });        
+        rank.val(nextPage);
+        nextPage += 1;
+        form.pDelete = form.delete;
+        form.delete = function () {
+            if (confirm("Are you sure you want to delete this page?")) {
+                this.elem.find("textarea").each(function (idx, val) { 
+                    if (tinyMCE.getInstanceById(val.id)) {
+                        tinyMCE.execCommand('mceFocus', false, val.id);                    
+                        tinyMCE.execCommand('mceRemoveControl', false, val.id);
+                    }                
+                }); 
+                this.pDelete();
+            }
+        };
+    });
+
+    // Dynamic adding/removing of phases
+    $('#phases').children('.empty-phase-form').hide();
+    phases = $('#phases').children('li').djangoFormset({
+        formTemplateClass: 'empty-phase-form'
+    });
+
+    phases.forms.each(function (index, phase) {
+        phase.pDelete = phase.delete;
+        phase.delete = function () {
+            if (confirm("Are you sure you want to delete this phase?")) {
+                phase.pDelete();
+            }
+        };
+    });
+
+    $('.add-phase').click(function () {
+        form = phases.addForm();
+        form.elem.toggle();
+        form.elem.find('[name$=phasenumber]')[0].value = form.index;
+        form.elem.find("input[name*='_date']").datetimepicker({
+            format: 'Y-m-d H:i:s',
+            formatTime: 'H:i:s',
+            formatDate: 'Y-m-d',
+            value: $(this).val(),
+            allowBlank: true,
+            defaultSelect: false
+        });
+        form.pDelete = form.delete;
+        form.delete = function () {
+            if (confirm("Are you sure you want to delete this phase?")) {
+                this.pDelete();
+            }
+        };
+    });
   });
 {% endblock js %}
