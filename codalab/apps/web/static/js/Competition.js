@@ -76,60 +76,65 @@ var Competition;
             cache: false,
             success: function (data) {
                 $(".competition_submissions").html("").append(data);
-                new CodaLab.FileUploader({
-                    buttonId: 'fileUploadButton',
-                    sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
-                    allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
-                    maxFileSizeInBytes: 1024 * 1024 * 1024,
-                    beforeSelection: function (info, valid) {
-                        $('#fileUploadButton').addClass('disabled');
-                    },
-                    afterSelection: function (info, valid) {
-                        if (valid === false) {
-                            if (info.files.length > 0) {
-                                if (info.files[0].errors[0].kind === 'type-error') {
-                                    $('#details').html('Please select a valid file. Only ZIP files are accepted.');
-                                } else {
-                                    $('#details').html('The files that you selected is too large. There is a 1GB size limit.');
+                if (CodaLab.FileUploader.isSupported() === false) {
+                    $('#fileUploadButton').addClass('disabled');
+                    $('#details').html('Sorry, your browser does not support the HTML5 File API. Please use a newer browser.');
+                } else {
+                    new CodaLab.FileUploader({
+                        buttonId: 'fileUploadButton',
+                        sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
+                        allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
+                        maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        beforeSelection: function (info, valid) {
+                            $('#fileUploadButton').addClass('disabled');
+                        },
+                        afterSelection: function (info, valid) {
+                            if (valid === false) {
+                                if (info.files.length > 0) {
+                                    if (info.files[0].errors[0].kind === 'type-error') {
+                                        $('#details').html('Please select a valid file. Only ZIP files are accepted.');
+                                    } else {
+                                        $('#details').html('The files that you selected is too large. There is a 1GB size limit.');
+                                    }
                                 }
+                                $('#fileUploadButton').removeClass('disabled');
                             }
+                        },
+                        uploadProgress: function (file, bytesUploaded, bytesTotal) {
+                            var pct = (100 * bytesUploaded) / bytesTotal;
+                            $('#details').html("Uploading file <em>" + file.name + "</em>: " + pct.toFixed(0) + "% complete.");
+                        },
+                        uploadError: function (info) {
+                            $('#details').html('There was an error uploading the file. Please try again.');
                             $('#fileUploadButton').removeClass('disabled');
-                        }
-                    },
-                    uploadProgress: function (file, bytesUploaded, bytesTotal) {
-                        var pct = (100 * bytesUploaded) / bytesTotal;
-                        $('#details').html("Uploading file <em>" + file.name + "</em>: " + pct.toFixed(0) + "% complete.");
-                    },
-                    uploadError: function (info) {
-                        $('#details').html('There was an error uploading the file. Please try again.');
-                        $('#fileUploadButton').removeClass('disabled');
-                    },
-                    uploadSuccess: function (file, trackingId) {
-                        $('#details').html("Creating new submission...");
-                        $.ajax({
-                            url: '/api/competition/' + competitionId + '/submission',
-                            type: 'post',
-                            cache: false,
-                            data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
-                        }).done(function (response) {
-                            $('#details').html("");
-                            $("#user_results tr.noData").remove();
-                            $("#user_results").append(Competition.displayNewSubmission(response));
-                            $('#user_results #' + response.id + ' .fi-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
-                            $('#fileUploadButton').removeClass("disabled");
-                            //$('#fileUploadButton').text("Submit Results...");
-                            $('#user_results #' + response.id + ' .fi-plus').click();
-                        }).fail(function (jqXHR) {
-                            var msg = "An unexpected error occured.";
-                            if (jqXHR.status == 403) {
-                                msg = jqXHR.responseJSON.detail;
-                            }
-                            $('#details').html(msg);
-                            //$('#fileUploadButton').text("Submit Results...");
-                            $('#fileUploadButton').removeClass('disabled');
-                        });
-                    },
-                });
+                        },
+                        uploadSuccess: function (file, trackingId) {
+                            $('#details').html("Creating new submission...");
+                            $.ajax({
+                                url: '/api/competition/' + competitionId + '/submission',
+                                type: 'post',
+                                cache: false,
+                                data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
+                            }).done(function (response) {
+                                $('#details').html("");
+                                $("#user_results tr.noData").remove();
+                                $("#user_results").append(Competition.displayNewSubmission(response));
+                                $('#user_results #' + response.id + ' .fi-plus').on("click", function () { Competition.showOrHideSubmissionDetails(this) });
+                                $('#fileUploadButton').removeClass("disabled");
+                                //$('#fileUploadButton').text("Submit Results...");
+                                $('#user_results #' + response.id + ' .fi-plus').click();
+                            }).fail(function (jqXHR) {
+                                var msg = "An unexpected error occured.";
+                                if (jqXHR.status == 403) {
+                                    msg = jqXHR.responseJSON.detail;
+                                }
+                                $('#details').html(msg);
+                                //$('#fileUploadButton').text("Submit Results...");
+                                $('#fileUploadButton').removeClass('disabled');
+                            });
+                        },
+                    });
+                }
                 $('#user_results .fi-plus').on('click', function () {
                     Competition.showOrHideSubmissionDetails(this);
                 });
