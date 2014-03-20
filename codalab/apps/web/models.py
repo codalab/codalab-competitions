@@ -142,7 +142,7 @@ class Competition(models.Model):
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
-    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date")
+    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
@@ -195,13 +195,13 @@ class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages')
+    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
     title = models.CharField(max_length=100, null=True, blank=True)
     label = models.CharField(max_length=100, verbose_name="Title")
     rank = models.IntegerField(default=0, verbose_name="Order")
     visibility = models.BooleanField(default=True, verbose_name="Visible")
     markup = models.TextField(blank=True)
-    html = models.TextField(blank=True, verbose_name="HTML Content")
+    html = models.TextField(blank=True, verbose_name="Content")
     competition = models.ForeignKey(Competition, related_name='pages', null=True)
 
     def __unicode__(self):
@@ -209,11 +209,11 @@ class Page(models.Model):
 
     class Meta:
         unique_together = (('label','category','container'),)
-        ordering = ['rank']
+        ordering = ['category', 'rank']
 
     def save(self,*args,**kwargs):
-        if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label )
+        #if not self.title:
+        #    self.title = "%s - %s" % ( self.container.name, self.label )
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
@@ -322,7 +322,7 @@ class CompetitionPhase(models.Model):
     competition = models.ForeignKey(Competition,related_name='phases')
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
-    start_date = models.DateTimeField(verbose_name="Start Date")
+    start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Data Submissions Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
