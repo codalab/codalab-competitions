@@ -65,30 +65,43 @@ var CodaLab;
             };
             this.options = $.extend({}, this.defaultOptions, options);
             var button = $('#' + this.options.buttonId);
-            this.fileInput = $(document.createElement('input'));
-            this.fileInput.attr('type', 'file');
-            this.fileInput.attr('style', 'display: none');
+            this.setupFileInput();
             button.after(this.fileInput);
             button.on('click', function (e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
-                    _this.options.beforeSelection();
                     _this.fileInput.click();
-                    var selectionInfo = _this.validate();
-                    var valid = selectionInfo.files.length > 0 && FileUploader.selectionIsValid(selectionInfo) === true;
-                    _this.options.afterSelection(selectionInfo, valid);
-                    if (valid) {
-                        _this.beginUpload(selectionInfo, 0);
-                    }
                 }
             });
         }
+        FileUploader.prototype.setupFileInput = function () {
+            var _this = this;
+            var currentFileInput = this.fileInput;
+            this.fileInput = $(document.createElement('input'));
+            this.fileInput.attr('type', 'file');
+            this.fileInput.attr('style', 'visibility: hidden; width: 1px; height: 1px;');
+            this.fileInput.on('change', function (e) {
+                _this.options.beforeSelection();
+                var selectionInfo = _this.validate();
+                var valid = selectionInfo.files.length > 0 && FileUploader.selectionIsValid(selectionInfo) === true;
+                _this.options.afterSelection(selectionInfo, valid);
+                if (valid) {
+                    _this.beginUpload(selectionInfo, 0);
+                } else {
+                    _this.setupFileInput();
+                }
+            });
+            if (currentFileInput !== undefined) {
+                currentFileInput.replaceWith(this.fileInput);
+            }
+        };
+
         FileUploader.prototype.validate = function () {
             var _this = this;
-            var files = this.fileInput.get(0).files;
-            var allFiles = [];
-            if (files.length > 0) {
-                $.each(files, function (i, file) {
+            var inputFiles = this.fileInput.get(0).files;
+            var validatedFiles = [];
+            if (inputFiles.length > 0) {
+                $.each(inputFiles, function (i, file) {
                     var errors = [];
                     if (_this.options.maxFileSizeInBytes && file.size > _this.options.maxFileSizeInBytes) {
                         errors.push({ kind: 'size-error' });
@@ -96,15 +109,10 @@ var CodaLab;
                     if (_this.options.allowedFileTypes && ($.inArray(file.type, _this.options.allowedFileTypes)) === -1) {
                         errors.push({ kind: 'type-error' });
                     }
-                    allFiles.push({ file: file, errors: errors });
+                    validatedFiles.push({ file: file, errors: errors });
                 });
             }
-            var numErrors = allFiles.map(function (item) {
-                return item['errors'].length;
-            }).reduce(function (s, v, index, array) {
-                return s + v;
-            }, 0);
-            return { files: allFiles };
+            return { files: validatedFiles };
         };
 
         FileUploader.selectionIsValid = function (selection) {
@@ -151,7 +159,6 @@ var CodaLab;
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('x-ms-version', xmsversion);
                         xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
-                        xhr.setRequestHeader('Content-Length', data.length.toString());
                     },
                     success: function (data, status) {
                         onload_success(data, status);
@@ -237,6 +244,8 @@ var CodaLab;
                     var nextFileIndex = 1 + that.state.fileIndex;
                     if (nextFileIndex < that.state.selection.files.length) {
                         that.beginUpload(that.state.selection, nextFileIndex);
+                    } else {
+                        that.setupFileInput();
                     }
                 },
                 error: function (xhr, desc, err) {
@@ -244,19 +253,25 @@ var CodaLab;
                 }
             });
         };
+
+        FileUploader.isSupported = function () {
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                return true;
+            }
+            return false;
+        };
         return FileUploader;
     })();
     CodaLab.FileUploader = FileUploader;
 
     (function (Competitions) {
 
-        function SubmitResultsReady() {
-            //new FileUploader();
-            alert('hi');
-        }
-        Competitions.SubmitResultsReady = SubmitResultsReady;
-
         function CreateReady() {
+            if (FileUploader.isSupported() === false) {
+                $('#uploadButton').addClass('disabled');
+                $('#details').html('Sorry, your browser does not support the HTML5 File API. Please use a newer browser.');
+                return;
+            }
             new FileUploader({
                 buttonId: 'uploadButton',
                 sasEndpoint: '/api/competition/create/sas',
