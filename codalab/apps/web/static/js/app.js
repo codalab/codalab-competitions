@@ -1,23 +1,23 @@
-;(function ($, window, undefined) {
+(function($, window, undefined) {
   'use strict';
 
   var $doc = $(document),
       Modernizr = window.Modernizr;
 
   $(document).ready(function() {
-    $.fn.foundationAlerts           ? $doc.foundationAlerts() : null;
-    $.fn.foundationButtons          ? $doc.foundationButtons() : null;
-    $.fn.foundationAccordion        ? $doc.foundationAccordion() : null;
-    $.fn.foundationNavigation       ? $doc.foundationNavigation() : null;
-    $.fn.foundationTopBar           ? $doc.foundationTopBar() : null;
-    $.fn.foundationCustomForms      ? $doc.foundationCustomForms() : null;
-    $.fn.foundationMediaQueryViewer ? $doc.foundationMediaQueryViewer() : null;
-    $.fn.foundationTabs             ? $doc.foundationTabs({callback : $.foundation.customForms.appendCustomMarkup}) : null;
-    $.fn.foundationTooltips         ? $doc.foundationTooltips() : null;
-    $.fn.foundationMagellan         ? $doc.foundationMagellan() : null;
-    $.fn.foundationClearing         ? $doc.foundationClearing() : null;
+    if ($.fn.foundationAlerts) $doc.foundationAlerts();
+    if ($.fn.foundationButtons) $doc.foundationButtons();
+    if ($.fn.foundationAccordion) $doc.foundationAccordion();
+    if ($.fn.foundationNavigation) $doc.foundationNavigation();
+    if ($.fn.foundationTopBar) $doc.foundationTopBar();
+    if ($.fn.foundationCustomForms) $doc.foundationCustomForms();
+    if ($.fn.foundationMediaQueryViewer) $doc.foundationMediaQueryViewer();
+    if ($.fn.foundationTabs) $doc.foundationTabs({callback: $.foundation.customForms.appendCustomMarkup});
+    if ($.fn.foundationTooltips) $doc.foundationTooltips();
+    if ($.fn.foundationMagellan) $doc.foundationMagellan();
+    if ($.fn.foundationClearing) $doc.foundationClearing();
 
-    $.fn.placeholder                ? $('input, textarea').placeholder() : null;
+    if ($.fn.placeholder) $('input, textarea').placeholder();
   });
 
   // UNCOMMENT THE LINE YOU WANT BELOW IF YOU WANT IE8 SUPPORT AND ARE USING .block-grids
@@ -28,8 +28,8 @@
 
   // Hide address bar on mobile devices (except if #hash present, so we don't mess up deep linking).
   if (Modernizr.touch && !window.location.hash) {
-    $(window).load(function () {
-      setTimeout(function () {
+    $(window).load(function() {
+      setTimeout(function() {
         window.scrollTo(0, 1);
       }, 0);
     });
