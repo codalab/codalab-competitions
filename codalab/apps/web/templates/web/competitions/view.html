@@ -81,7 +81,7 @@
                                                 To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                             </p>
                                             <p id="terms" for="checkbox">
-                                                <input type="checkbox" name="agreed_terms" id="checkbox" required >
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
                                                 <span class="custom checkbox"></span> 
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </p>
@@ -123,7 +123,3 @@
     </div>
 </div>
 {% endblock content %}
-
-{% block jsincludes %}
-<script type="text/javascript" src="{% static "js/Competition.js" %}"></script>
-{% endblock jsincludes %}
