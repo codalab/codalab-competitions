@@ -33,7 +33,7 @@ $(function() {
         // Send the token to same-origin, relative URLs only.
         // Send the token only if the method warrants CSRF protection
         // Using the CSRFToken value acquired earlier
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
             }
     }
     });
@@ -41,23 +41,23 @@ $(function() {
 
 
 var CodaLab;
-(function (CodaLab) {
+(function(CodaLab) {
 
-    var FileUploader = (function () {
+    var FileUploader = (function() {
         function FileUploader(options) {
             var _this = this;
             this.defaultOptions = {
                 buttonId: 'fileUploadButton',
                 disabledClassName: 'disabled',
-                beforeSelection: function () {
+                beforeSelection: function() {
                 },
-                afterSelection: function (info, valid) {
+                afterSelection: function(info, valid) {
                 },
-                uploadProgress: function (file, bytesUploaded, bytesTotal) {
+                uploadProgress: function(file, bytesUploaded, bytesTotal) {
                 },
-                uploadSuccess: function (file) {
+                uploadSuccess: function(file) {
                 },
-                uploadError: function (info) {
+                uploadError: function(info) {
                 },
                 allowedFileTypes: undefined,
                 maxFileSizeInBytes: undefined,
@@ -67,20 +67,20 @@ var CodaLab;
             var button = $('#' + this.options.buttonId);
             this.setupFileInput();
             button.after(this.fileInput);
-            button.on('click', function (e) {
+            button.on('click', function(e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
                     _this.fileInput.click();
                 }
             });
         }
-        FileUploader.prototype.setupFileInput = function () {
+        FileUploader.prototype.setupFileInput = function() {
             var _this = this;
             var currentFileInput = this.fileInput;
             this.fileInput = $(document.createElement('input'));
             this.fileInput.attr('type', 'file');
             this.fileInput.attr('style', 'visibility: hidden; width: 1px; height: 1px;');
-            this.fileInput.on('change', function (e) {
+            this.fileInput.on('change', function(e) {
                 _this.options.beforeSelection();
                 var selectionInfo = _this.validate();
                 var valid = selectionInfo.files.length > 0 && FileUploader.selectionIsValid(selectionInfo) === true;
@@ -96,12 +96,12 @@ var CodaLab;
             }
         };
 
-        FileUploader.prototype.validate = function () {
+        FileUploader.prototype.validate = function() {
             var _this = this;
             var inputFiles = this.fileInput.get(0).files;
             var validatedFiles = [];
             if (inputFiles.length > 0) {
-                $.each(inputFiles, function (i, file) {
+                $.each(inputFiles, function(i, file) {
                     var errors = [];
                     if (_this.options.maxFileSizeInBytes && file.size > _this.options.maxFileSizeInBytes) {
                         errors.push({ kind: 'size-error' });
@@ -115,27 +115,27 @@ var CodaLab;
             return { files: validatedFiles };
         };
 
-        FileUploader.selectionIsValid = function (selection) {
-            var numErrors = selection.files.map(function (item) {
+        FileUploader.selectionIsValid = function(selection) {
+            var numErrors = selection.files.map(function(item) {
                 return item['errors'].length;
-            }).reduce(function (s, v, index, array) {
+            }).reduce(function(s, v, index, array) {
                 return s + v;
             }, 0);
             return numErrors === 0;
         };
 
-        FileUploader.prototype.getCurrentFile = function () {
+        FileUploader.prototype.getCurrentFile = function() {
             if (this.state !== undefined) {
                 return this.state.selection.files[this.state.fileIndex].file;
             }
-            ;
+
             return undefined;
         };
 
-        FileUploader.prototype.getFileReader = function () {
+        FileUploader.prototype.getFileReader = function() {
             var _this = this;
             var reader = new FileReader();
-            var onload_success = function (data, status) {
+            var onload_success = function(data, status) {
                 var file = _this.getCurrentFile();
                 _this.options.uploadProgress(file, _this.state.bytesUploaded, file.size);
                 if (_this.state.bytesUploaded < file.size) {
@@ -144,37 +144,37 @@ var CodaLab;
                     _this.endUpload();
                 }
             };
-            var onload_error = function (xhr, desc, err) {
+            var onload_error = function(xhr, desc, err) {
                 _this.options.uploadError({ kind: 'write-error', jqXHR: xhr, file: _this.getCurrentFile() });
             };
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 var uri = _this.state.sasUrl + '&comp=block&blockid=' + _this.state.blockIds[_this.state.blockIds.length - 1];
                 var data = new Uint8Array(e.target.result);
                 var xmsversion = _this.state.sasVersion;
                 $.ajax({
                     url: uri,
-                    type: "PUT",
+                    type: 'PUT',
                     data: data,
                     processData: false,
-                    beforeSend: function (xhr) {
+                    beforeSend: function(xhr) {
                         xhr.setRequestHeader('x-ms-version', xmsversion);
                         xhr.setRequestHeader('x-ms-blob-type', 'BlockBlob');
                     },
-                    success: function (data, status) {
+                    success: function(data, status) {
                         onload_success(data, status);
                     },
-                    error: function (xhr, desc, err) {
+                    error: function(xhr, desc, err) {
                         onload_error(xhr, desc, err);
                     }
                 });
             };
-            reader.onerror = function (e) {
+            reader.onerror = function(e) {
                 _this.options.uploadError({ kind: 'read-error', message: e.message, file: _this.getCurrentFile() });
             };
             return reader;
         };
 
-        FileUploader.prototype.beginUpload = function (selection, index) {
+        FileUploader.prototype.beginUpload = function(selection, index) {
             this.state = {
                 sasUrl: undefined,
                 sasVersion: undefined,
@@ -189,9 +189,9 @@ var CodaLab;
             var that = this;
             $.ajax({
                 url: that.options.sasEndpoint,
-                type: "POST",
+                type: 'POST',
                 data: { 'name': file.name, 'type': file.type, 'size': file.size },
-                success: function (data, status) {
+                success: function(data, status) {
                     that.state.sasUrl = data.url;
                     that.state.sasVersion = data.version;
                     that.state.trackingId = data.id;
@@ -199,33 +199,33 @@ var CodaLab;
                     that.options.uploadProgress(file, that.state.bytesUploaded, file.size);
                     that.upload();
                 },
-                error: function (xhr, desc, err) {
+                error: function(xhr, desc, err) {
                     that.options.uploadError({ kind: 'sas-error', jqXHR: xhr, file: that.getCurrentFile() });
                 }
             });
         };
 
-        FileUploader.prototype.upload = function () {
+        FileUploader.prototype.upload = function() {
             var file = this.getCurrentFile();
             var sliceStart = this.state.bytesUploaded;
             var sliceEnd = sliceStart + Math.min(file.size - sliceStart, this.options.maxBlockSizeInBytes);
             var slice = file.slice(sliceStart, sliceEnd);
-            var tempId = "000000" + (this.state.blockIds.length + 1);
+            var tempId = '000000' + (this.state.blockIds.length + 1);
             var blockId = btoa(tempId.substring(tempId.length - 6));
             this.state.blockIds.push(blockId);
             this.state.bytesUploaded = sliceEnd;
             this.state.reader.readAsArrayBuffer(slice);
         };
 
-        FileUploader.prototype.endUpload = function () {
+        FileUploader.prototype.endUpload = function() {
             var uri = this.state.sasUrl + '&comp=blocklist';
             var file = this.getCurrentFile();
             var xmlLines = ['<?xml version="1.0" encoding="utf-8"?>'];
-            xmlLines.push("<BlockList>");
+            xmlLines.push('<BlockList>');
             for (var i = 0; i < this.state.blockIds.length; i++) {
-                xmlLines.push("  <Latest>" + this.state.blockIds[i] + "</Latest>");
+                xmlLines.push('  <Latest>' + this.state.blockIds[i] + '</Latest>');
             }
-            xmlLines.push("</BlockList>");
+            xmlLines.push('</BlockList>');
             var that = this;
             $.ajax({
                 url: uri,
@@ -233,13 +233,13 @@ var CodaLab;
                 contentType: 'application/xml',
                 processData: false,
                 data: xmlLines.join('\n'),
-                beforeSend: function (xhr) {
+                beforeSend: function(xhr) {
                     xhr.setRequestHeader('x-ms-version', that.state.sasVersion);
                     xhr.setRequestHeader('x-ms-blob-content-type', file.type);
                     xhr.setRequestHeader('x-ms-meta-name', file.name);
                     xhr.setRequestHeader('x-ms-meta-size', file.size.toString());
                 },
-                success: function (data, status) {
+                success: function(data, status) {
                     that.options.uploadSuccess(file, that.state.trackingId);
                     var nextFileIndex = 1 + that.state.fileIndex;
                     if (nextFileIndex < that.state.selection.files.length) {
@@ -248,13 +248,13 @@ var CodaLab;
                         that.setupFileInput();
                     }
                 },
-                error: function (xhr, desc, err) {
+                error: function(xhr, desc, err) {
                     that.options.uploadError({ kind: 'write-error', jqXHR: xhr, file: that.getCurrentFile() });
                 }
             });
         };
 
-        FileUploader.isSupported = function () {
+        FileUploader.isSupported = function() {
             if (window.File && window.FileReader && window.FileList && window.Blob) {
                 return true;
             }
@@ -264,7 +264,7 @@ var CodaLab;
     })();
     CodaLab.FileUploader = FileUploader;
 
-    (function (Competitions) {
+    (function(Competitions) {
 
         function CreateReady() {
             if (FileUploader.isSupported() === false) {
@@ -277,10 +277,10 @@ var CodaLab;
                 sasEndpoint: '/api/competition/create/sas',
                 allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                 maxFileSizeInBytes: 1024 * 1024 * 1024,
-                beforeSelection: function (info, valid) {
+                beforeSelection: function(info, valid) {
                     $('#uploadButton').addClass('disabled');
                 },
-                afterSelection: function (info, valid) {
+                afterSelection: function(info, valid) {
                     if (valid === false) {
                         if (info.files.length > 0) {
                             if (info.files[0].errors[0].kind === 'type-error') {
@@ -292,31 +292,31 @@ var CodaLab;
                         $('#uploadButton').removeClass('disabled');
                     }
                 },
-                uploadProgress: function (file, bytesUploaded, bytesTotal) {
+                uploadProgress: function(file, bytesUploaded, bytesTotal) {
                     var pct = (100 * bytesUploaded) / bytesTotal;
-                    $('#details').html("Uploading file <em>" + file.name + "</em>: " + pct.toFixed(0) + "% complete.");
+                    $('#details').html('Uploading file <em>' + file.name + '</em>: ' + pct.toFixed(0) + '% complete.');
                 },
-                uploadError: function (info) {
+                uploadError: function(info) {
                     $('#details').html('There was an error uploading the file. Please try again.');
                     $('#uploadButton').removeClass('disabled');
                 },
-                uploadSuccess: function (file, trackingId) {
-                    $('#details').html("Creating competition... This may take a while. Please be patient.");
+                uploadSuccess: function(file, trackingId) {
+                    $('#details').html('Creating competition... This may take a while. Please be patient.');
                     $.ajax({
                         url: '/api/competition/create',
                         type: 'post',
                         cache: false,
                         data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
-                    }).done(function (data) {
-                        var wait_for_competition = function () {
+                    }).done(function(data) {
+                        var wait_for_competition = function() {
                             $.ajax({
-                                url: "/api/competition/create/" + data.token,
+                                url: '/api/competition/create/' + data.token,
                                 type: 'get',
                                 cache: false,
                                 data: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() }
-                            }).done(function (data) {
+                            }).done(function(data) {
                                 if (data.status == 'finished') {
-                                    $('#details').html("Congratulations! " +
+                                    $('#details').html('Congratulations! ' +
                                         "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
                                         "You can also manage it from <a href='/my/#manage'>your CodaLab dashboard.</a>"
                                     );
@@ -327,17 +327,17 @@ var CodaLab;
                                 } else {
                                     setTimeout(wait_for_competition, 1000);
                                 }
-                            }).fail(function () {
-                                $('#details').html("An unexpected error occured.");
+                            }).fail(function() {
+                                $('#details').html('An unexpected error occured.');
                                 $('#uploadButton').removeClass('disabled');
                             });
                         };
                         wait_for_competition();
-                    }).fail(function () {
-                        $('#details').html("An unexpected error occured.");
+                    }).fail(function() {
+                        $('#details').html('An unexpected error occured.');
                         $('#uploadButton').removeClass('disabled');
                     });
-                },
+                }
             });
 
         }
