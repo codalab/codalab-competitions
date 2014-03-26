@@ -448,19 +448,26 @@ class CompetitionPhase(models.Model):
                 if x.parent is not None:
                     columnKey = x.parent.key
                     columnLabel = x.parent.label
-                    columnSubLabels = [{'key': x.key, 'label': x.label}]
+                    columnOrdering = x.parent.ordering
+                    columnSubLabels = [{'key': x.key, 'label': x.label, 'ordering': x.ordering}]
                 else:
                     columnKey = x.key
                     columnLabel = x.label
+                    columnOrdering = x.ordering
                     columnSubLabels = []
                 if columnKey not in columnKeys:
                     columnKeys[columnKey] = len(headers)
-                    headers.append({'key' : columnKey, 'label': columnLabel, 'subs' : columnSubLabels})
+                    headers.append({'key': columnKey, 'label': columnLabel, 'subs': columnSubLabels, 'ordering': columnOrdering})
                 else:
                     headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
-
+            # Sort headers appropiately
+            def sortkey(x):
+                return x['ordering']
+            headers.sort(key=sortkey, reverse=False)
+            for header in headers:
+                header['subs'].sort(key=sortkey, reverse=False)
             # compute total column span
             column_span = 2
             for gHeader in headers:
@@ -730,6 +737,7 @@ class SubmissionScoreDef(models.Model):
     selection_default = models.IntegerField(default=0)
     computed = models.BooleanField(default=False)
     groups = models.ManyToManyField(SubmissionResultGroup,through='SubmissionScoreDefGroup')
+    ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
         unique_together = (('key','competition'),)
@@ -869,9 +877,14 @@ class CompetitionDefBundle(models.Model):
             if 'column_groups' in comp_spec['leaderboard']:
                 groups = {}
                 for key, vals in comp_spec['leaderboard']['column_groups'].items():
+                    index = comp_spec['leaderboard']['column_groups'].keys().index(key) + 1
                     if vals is None:
                         vals = dict()
-                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=vals)
+                    setdefaults = {
+                        'label' : "" if 'label' not in vals else vals['label'].strip(),
+                        'ordering' : index if 'rank' not in vals else vals['rank']
+                    }
+                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=setdefaults)
                     groups[s.label] = s
             logger.debug("CompetitionDefBundle::unpack created score groups (pk=%s)", self.pk)
 
@@ -879,6 +892,7 @@ class CompetitionDefBundle(models.Model):
             if 'columns' in comp_spec['leaderboard']:
                 columns = {}
                 for key, vals in comp_spec['leaderboard']['columns'].items():
+                    index = comp_spec['leaderboard']['columns'].keys().index(key) + 1
                     # Do non-computed columns first
                     if 'computed' in vals:
                         continue
@@ -886,7 +900,8 @@ class CompetitionDefBundle(models.Model):
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : True,
-                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
+                                    'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
                     if 'selection_default' in vals: 
                         sdefaults['selection_default'] = vals['selection_default']
@@ -905,17 +920,18 @@ class CompetitionDefBundle(models.Model):
                                 competition=comp,
                                 parent=gparent,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
 
                 for key, vals in comp_spec['leaderboard']['columns'].items():
+                    index = comp_spec['leaderboard']['columns'].keys().index(key) + 1
                     # Only process the computed columns this time around.
                     if 'computed' not in vals:
                         continue
@@ -925,7 +941,8 @@ class CompetitionDefBundle(models.Model):
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : not is_computed,
-                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
+                                    'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
                     if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
@@ -951,12 +968,12 @@ class CompetitionDefBundle(models.Model):
                                 competition=comp,
                                 parent=gparent,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
@@ -1003,6 +1020,7 @@ class SubmissionScoreSet(MPTTModel):
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+    ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
         unique_together = (('key','competition'),)
