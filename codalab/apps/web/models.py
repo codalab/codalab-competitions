@@ -21,12 +21,13 @@ from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
-from django.utils.timezone import utc, now
+from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-
 from mptt.models import MPTTModel, TreeForeignKey
+from pytz import utc
 from guardian.shortcuts import assign_perm
 
 logger = logging.getLogger(__name__)
@@ -323,7 +324,7 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
-    is_scoring_only = models.BooleanField(default=True, verbose_name="Data Submissions Only")
+    is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
@@ -653,18 +654,23 @@ class CompetitionSubmission(models.Model):
         """
         Returns the short name of the file which was uploaded to create the submission.
         """
-        return split(self.file.name)[1]
+        name = ''
+        try:
+            name = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+        except:
+            pass
+        if len(name) == 0:
+            # For backwards compat, fallback to this method of getting the name.
+            name = split(self.file.name)[1]
+        return name
 
-    def get_file_for_download(self, key, requested_by, requested_by_competition_owner=False):
+    def get_file_for_download(self, key, requested_by):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
            'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
         requested_by: A user object identifying the user making the request to access the file.
-        requested_by_competition_owner: A boolean flag indicating whether the user is making
-           the request as a competition owner (True) or as a competition participant (False).
-           Access rules are affected by the value of this flag.
 
         Raises:
            ValueError exception for improper arguments.
@@ -680,12 +686,8 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-        # Verify access rules
-        if requested_by_competition_owner:
-            # User making request must be in the "competition owner" group.
-            if self.participant.competition.creator.id != requested_by.id:
-                raise PermissionDenied()
-        else:
+        # If the user requesting access is the owner, access granted
+        if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
             # download privilege by the competition owners.
             if self.participant.user.id != requested_by.id:
@@ -740,6 +742,21 @@ class CompetitionDefBundle(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def localize_datetime(dt):
+        """
+        Returns the given date or datetime as a datetime with tzinfo.
+        """
+        if type(dt) is str:
+            dt = parse_datetime(dt)
+        if type(dt) is datetime.date:
+            dt = datetime.datetime.combine(dt, datetime.time())            
+        if not type(dt) is datetime.datetime:
+            raise ValueError("Expected a DateTime object but got %s" % dt)
+        if dt.tzinfo is None:
+            dt = utc.localize(dt)
+        return dt
+
     @transaction.commit_on_success
     def unpack(self):
         """
@@ -760,9 +777,13 @@ class CompetitionDefBundle(models.Model):
                 del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
+
         if 'end_date' in comp_base:
-            if type(comp_base['end_date']) is datetime.datetime.date:
-                comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+            if comp_base['end_date'] is None:
+                del comp_base['end_date']
+            else:
+                comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
+        
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -806,8 +827,9 @@ class CompetitionDefBundle(models.Model):
                 del phase_spec['datasets']
             else:
                 datasets = {}
-            if type(phase_spec['start_date']) is datetime.datetime.date:
-                phase_spec['start_date'] = datetime.datetime.combine(phase_spec['start_date'], datetime.time())
+
+            phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
+
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
