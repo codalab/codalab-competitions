@@ -414,10 +414,9 @@ def maintenance(mode):
     """
     Begin or end maintenance (mode=begin|end).
     """
-    modes = {'begin': 0, 'end' : 1}
+    modes = {'begin': '1', 'end' : '0'}
     if mode in modes:
         require('configuration')
-        run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv venv')
         env.SHELL_ENV = dict(
             DJANGO_SETTINGS_MODULE=env.django_settings_module,
             DJANGO_CONFIGURATION=env.django_configuration,
