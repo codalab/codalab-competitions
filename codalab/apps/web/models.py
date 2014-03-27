@@ -687,7 +687,7 @@ class CompetitionSubmission(models.Model):
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
         # If the user requesting access is the owner, access granted
-            if self.participant.competition.creator.id != requested_by.id:
+        if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
             # download privilege by the competition owners.
             if self.participant.user.id != requested_by.id:
