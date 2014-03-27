@@ -12,28 +12,28 @@
 {% block content %}
 <div class="row">
   <div class="large-12 columns">
-	<a class="helpLinkIcon right" href="{% url 'help' %}#phases" title="Get help with creating a competition" target="_blank"></a>
+    <a class="helpLinkIcon right" href="{% url 'help' %}#phases" title="Get help with creating a competition" target="_blank"></a>
   </div>
 </div>
 
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
-	<form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+    <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
 		<fieldset>
 		<legend>General Information</legend>
-		{% for field in form %}
-			<div class="fieldWrapper">
-				<div class="row">
-					{{ field.errors }}
-					<div class="large-3 columns">
-						<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
-					</div>
-					<div class="large-9 columns">
-						{{ field }}
-					</div>
-				</div>
-			</div>
-		{% endfor %}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                <div class="row">
+                    {{ field.errors }}
+                    <div class="large-3 columns">
+                        <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
+                    </div>
+                    <div class="large-9 columns">
+                        {{ field }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
 		</fieldset>
 
 		<ul id="pages">
@@ -50,7 +50,7 @@
 			        			<div class="large-3 columns">
 					    			<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
     					    	</div>
-	            			{% endif %}		
+                        {% endif %}
         					<div class="large-9 columns">{{ field }}</div>
     					</div>
 	    			</div>
@@ -62,17 +62,17 @@
 			<fieldset class="page">
 				<legend>Web Page</legend>
 				{% for field in page %}
-    				<div class="fieldWrapper">
-	  					<div class="row">
+                        <div class="fieldWrapper">
+                            <div class="row">
 	    					{{ field.errors }}
            					{% if not field.is_hidden %}
-			    				<div class="large-3 columns">
+                                <div class="large-3 columns">
 				   					<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
     							</div>
-           					{% endif %}
+                                    {% endif %}
 	    					<div class="large-9 columns">{{ field }}</div>
-    					</div>
-	    			</div>
+                                </div>
+                                </div>
 				{% endfor %}                
 			</fieldset>
           </li>
@@ -82,8 +82,8 @@
         <div class="row">
             <div class="large-12 columns">
                 <button type="button" class="medium blue button add-page right">Add Page</button>
-            </div>
-        </div>
+                            </div>
+                        </div>
 
         <ul id="phases">
             {{ Phases.management_form }}
@@ -103,8 +103,8 @@
 						        <div class="large-9 columns">{{ field }}</div>
 					        </div>
 				        </div>
-				    {% endfor %}                
-			    </fieldset> 			            
+                    {% endfor %}                
+                </fieldset> 
             </li>
             {% for form in Phases %}
                 <li>
@@ -122,22 +122,22 @@
 						            <div class="large-9 columns">{{ field }}</div>
 		    			        </div>
 			    	        </div>
-				        {% endfor %}                
+            {% endfor %}
 			        </fieldset> 
                 </li>
-            {% endfor %}
+        {% endfor %}
         </ul>
         <div class="row">
             <div class="large-12 columns">
                 <button type="button" class="medium blue button add-phase right">Add Phase</button>
-            </div>
+        </div>
         </div>  
-		<div class="row">
-		  <div class="large-12 columns">
-			<button type="submit" class="medium button blue">Submit</button>
-		  </div>
-		  <div class="spacer500">&nbsp;</div>
-		</div>
+        <div class="row">
+          <div class="large-12 columns">
+            <button type="submit" class="medium button blue">Submit</button>
+          </div>
+          <div class="spacer500">&nbsp;</div>
+        </div>
   </form>
 </div>
 </div>
@@ -268,5 +268,5 @@ $('document').ready(function () {
             }
         };
     });
-});
+  });
 {% endblock js %}
