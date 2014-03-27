@@ -255,6 +255,12 @@ class DeploymentConfig(BaseConfig):
         else:
             return ""
 
+    def getSslRewriteHosts(self):
+        """Gets the list of hosts for which HTTP requests are automatically re-written as HTTPS requests."""
+        if 'ssl' in self._svc and 'rewrite-hosts' in self._svc['ssl']:
+            return self._svc['ssl']['rewrite-hosts']
+        return ''
+
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
         return "{0}build".format(self.getServicePrefix(), self.label)
@@ -875,6 +881,9 @@ class Deployment(object):
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
         allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
+        ssl_allowed_hosts = self.config.getSslRewriteHosts();
+        if len(ssl_allowed_hosts) == 0:
+            ssl_allowed_hosts = allowed_hosts
 
         storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
@@ -898,6 +907,7 @@ class Deployment(object):
             "    SSL_PORT = '443'",
             "    SSL_CERTIFICATE = '{0}'".format(self.config.getSslCertificateInstalledPath()),
             "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
+            "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
