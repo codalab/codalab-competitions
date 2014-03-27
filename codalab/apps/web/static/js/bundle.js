@@ -1,91 +1,91 @@
-﻿var BundleContentNode = (function () {
+﻿var BundleContentNode = (function() {
     function BundleContentNode(url, name, parent, children) {
         this.url = url;
         this.name = name;
         this.parent = parent;
         this.children = children;
     }
-    BundleContentNode.prototype.isRootNode = function () {
+    BundleContentNode.prototype.isRootNode = function() {
         return this.parent === undefined;
     };
-    BundleContentNode.prototype.isLeafNode = function () {
+    BundleContentNode.prototype.isLeafNode = function() {
         return this.children === null;
     };
-    BundleContentNode.prototype.getUrl = function () {
+    BundleContentNode.prototype.getUrl = function() {
         return this.url;
     };
-    BundleContentNode.prototype.getName = function () {
+    BundleContentNode.prototype.getName = function() {
         return this.name;
     };
-    BundleContentNode.prototype.getFullName = function () {
+    BundleContentNode.prototype.getFullName = function() {
         if (this.isRootNode()) {
             return this.name;
         }
         return [this.parent.getFullName(), this.name].join('/');
     };
-    BundleContentNode.prototype.getParent = function () {
+    BundleContentNode.prototype.getParent = function() {
         return this.parent;
     };
-    BundleContentNode.prototype.getChildren = function () {
+    BundleContentNode.prototype.getChildren = function() {
         return this.children;
     };
-    BundleContentNode.prototype.setChildren = function (children) {
+    BundleContentNode.prototype.setChildren = function(children) {
         this.children = children;
     };
-    BundleContentNode.prototype.getData = function () {
+    BundleContentNode.prototype.getData = function() {
         return this.data;
     };
-    BundleContentNode.prototype.setData = function (data) {
+    BundleContentNode.prototype.setData = function(data) {
         this.data = data;
     };
     return BundleContentNode;
 })();
 
-var BundleRenderer = (function () {
+var BundleRenderer = (function() {
     function BundleRenderer(element) {
         this.template = element;
     }
-    BundleRenderer.loadContentAsync = function (container, parent) {
+    BundleRenderer.loadContentAsync = function(container, parent) {
         $.ajax({
-            type: "GET",
+            type: 'GET',
             url: [parent.getUrl(), parent.getFullName()].join('/'),
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 var children = [];
                 if (Array.isArray(data) && data.length == 2) {
-                    var set1 = data[0].map(function (item) {
+                    var set1 = data[0].map(function(item) {
                         return new BundleContentNode(parent.getUrl(), item, parent);
                     });
-                    var set2 = data[1].map(function (item) {
+                    var set2 = data[1].map(function(item) {
                         return new BundleContentNode(parent.getUrl(), item, parent, null);
                     });
-                    children = set1.concat(set2).sort(function (a, b) {
+                    children = set1.concat(set2).sort(function(a, b) {
                         return a.getName().localeCompare(b.getName());
                     });
                 }
                 parent.setChildren(children);
                 BundleRenderer.renderTable(container, BundleRenderer.getContentTableModel(parent, container));
             },
-            error: function (xhr, status, err) {
+            error: function(xhr, status, err) {
             }
         });
     };
 
-    BundleRenderer.loadFileContentAsync = function (container, node) {
+    BundleRenderer.loadFileContentAsync = function(container, node) {
         $.ajax({
-            type: "GET",
+            type: 'GET',
             url: [node.getUrl().replace('api/bundles/content', 'api/bundles/filecontent'), node.getFullName()].join('/'),
             cache: false,
-            success: function (data) {
+            success: function(data) {
                 node.setData(data);
                 BundleRenderer.renderTable(container, BundleRenderer.getContentTableModel(node, container));
             },
-            error: function (xhr, status, err) {
+            error: function(xhr, status, err) {
             }
         });
     };
 
-    BundleRenderer.getContentTableModel = function (node, container) {
+    BundleRenderer.getContentTableModel = function(node, container) {
         var numRows = 0;
         if (node.isRootNode() == false) {
             numRows += 1;
@@ -99,17 +99,17 @@ var BundleRenderer = (function () {
             }
         }
 
-        var renderHeaderKey = function (element) {
+        var renderHeaderKey = function(element) {
             element.setAttribute('class', 'col bundle__file_view__icon');
             var innerElement = document.createElement('i');
             innerElement.setAttribute('class', 'fi-arrow-left');
             element.appendChild(innerElement);
-            innerElement.onclick = function (e) {
+            innerElement.onclick = function(e) {
                 BundleRenderer.loadContentAsync(container, node.getParent());
                 e.preventDefault();
             };
         };
-        var renderHeaderValue = function (element) {
+        var renderHeaderValue = function(element) {
             element.setAttribute('class', 'col bundle-item-type-goup');
 
             var parents = [];
@@ -118,11 +118,11 @@ var BundleRenderer = (function () {
                 parents.push(parent);
                 parent = parent.getParent();
             }
-            parents.reverse().forEach(function (p) {
+            parents.reverse().forEach(function(p) {
                 var link = document.createElement('a');
                 link.textContent = p.getName();
                 link.setAttribute('href', '');
-                link.onclick = function (e) {
+                link.onclick = function(e) {
                     BundleRenderer.loadContentAsync(container, p);
                     e.preventDefault();
                 };
@@ -131,7 +131,7 @@ var BundleRenderer = (function () {
             });
             element.appendChild(document.createTextNode(node.getName()));
         };
-        var renderKey = function (element, child) {
+        var renderKey = function(element, child) {
             element.setAttribute('class', 'col bundle__file_view__icon');
             var e = document.createElement('i');
             if (child !== undefined) {
@@ -139,13 +139,13 @@ var BundleRenderer = (function () {
             }
             element.appendChild(e);
         };
-        var renderValue = function (element, child) {
+        var renderValue = function(element, child) {
             if (child.isLeafNode()) {
                 element.setAttribute('class', 'col');
                 var link = document.createElement('a');
                 link.textContent = child.getName();
                 link.setAttribute('href', '');
-                link.onclick = function (e) {
+                link.onclick = function(e) {
                     BundleRenderer.loadFileContentAsync(container, child);
                     e.preventDefault();
                 };
@@ -155,33 +155,33 @@ var BundleRenderer = (function () {
                 var link = document.createElement('a');
                 link.textContent = child.getName();
                 link.setAttribute('href', '');
-                link.onclick = function (e) {
+                link.onclick = function(e) {
                     BundleRenderer.loadContentAsync(container, child);
                     e.preventDefault();
                 };
                 element.appendChild(link);
             }
         };
-        var renderTextContent = function (element, node) {
+        var renderTextContent = function(element, node) {
             var block = document.createElement('pre');
             block.setAttribute('class', 'bundle__file_pre');
             block.textContent = node.getData();
             return [block];
-        }
-        var renderImageContent = function (element, node) {
+        };
+        var renderImageContent = function(element, node) {
             var img = document.createElement('img');
             var url = [node.getUrl().replace('api/bundles/content', 'api/bundles/filecontent'), node.getFullName()].join('/');
             img.setAttribute('src', url);
             img.setAttribute('style', 'max-width:900px');
             return [img];
-        }
-        var renderHtmlContent = function (element, node) {
+        };
+        var renderHtmlContent = function(element, node) {
             var iframe = document.createElement('iframe');
             var url = [node.getUrl().replace('api/bundles/content', 'api/bundles/filecontent'), node.getFullName()].join('/');
             iframe.setAttribute('src', url);
-            iframe.setAttribute('style', 'width:100%; min-height:' + Math.max(200, Math.min(900, screen.height / 2)) +'px;');
+            iframe.setAttribute('style', 'width:100%; min-height:' + Math.max(200, Math.min(900, screen.height / 2)) + 'px;');
             return [iframe];
-        }
+        };
         var render_methods = {
             'txt': renderTextContent,
             'htm': renderHtmlContent,
@@ -189,7 +189,7 @@ var BundleRenderer = (function () {
             'jpg': renderImageContent,
             'png': renderImageContent
     };
-        var renderContentValue = function (element, node) {
+        var renderContentValue = function(element, node) {
             var fname = node.getName();
             var ext = '';
             if (fname.indexOf('.') > 0) {
@@ -200,7 +200,7 @@ var BundleRenderer = (function () {
                 method = render_methods['txt'];
             }
             element.setAttribute('class', 'col');
-            method(element, node).forEach(function (e) { element.appendChild(e); });
+            method(element, node).forEach(function(e) { element.appendChild(e); });
         };
 
         return {
@@ -208,7 +208,7 @@ var BundleRenderer = (function () {
             rowDecorations: 'row',
             numRows: numRows,
             numCols: 2,
-            render: function (row, col, td) {
+            render: function(row, col, td) {
                 if ((node.isRootNode() === false) && (row <= 0)) {
                     if (col == 0) {
                         renderHeaderKey(td);
@@ -241,19 +241,19 @@ var BundleRenderer = (function () {
         };
     };
 
-    BundleRenderer.getMetadataTableModel = function (data) {
+    BundleRenderer.getMetadataTableModel = function(data) {
         var rows = [];
         for (var k in data.metadata) {
-            if (k !== "name") {
+            if (k !== 'name') {
                 rows.push([k, data.metadata[k]]);
             }
         }
 
-        var renderKey = function (element, row, col) {
+        var renderKey = function(element, row, col) {
             element.setAttribute('class', 'col bundle__meta_type');
             element.textContent = rows[row][col];
         };
-        var renderValue = function (element, row, col) {
+        var renderValue = function(element, row, col) {
             element.setAttribute('class', 'col');
             element.textContent = rows[row][col];
         };
@@ -263,7 +263,7 @@ var BundleRenderer = (function () {
             rowDecorations: 'row',
             numRows: rows.length,
             numCols: 2,
-            render: function (row, col, td) {
+            render: function(row, col, td) {
                 if (col == 0) {
                     renderKey(td, row, col);
                 } else {
@@ -273,14 +273,14 @@ var BundleRenderer = (function () {
         };
     };
 
-    BundleRenderer.getElementType = function (value, defaultValue) {
+    BundleRenderer.getElementType = function(value, defaultValue) {
         if (value !== undefined) {
             return value;
         }
         return defaultValue;
     };
 
-    BundleRenderer.renderTable = function (container, model) {
+    BundleRenderer.renderTable = function(container, model) {
         var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
         var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
         var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
@@ -307,25 +307,25 @@ var BundleRenderer = (function () {
         container.appendChild(table);
     };
 
-    BundleRenderer.prototype.render = function (data) {
+    BundleRenderer.prototype.render = function(data) {
         var clone = $(this.template.cloneNode(true));
 
-        clone.find(".bundle-name").text(data.metadata.name);
-        clone.find(".bundle-icon-sm")
-            .removeClass("bundle-icon-sm")
-            .addClass("bundle-icon-sm--" + data.bundle_type + "--" + data.state);
-        clone.find(".bundle-uuid").text(data.uuid);
-        clone.find(".bundle-link").attr('href', '/bundles/' + data.uuid);
-        clone.find(".bundle-download").on('click', function (e) {
+        clone.find('.bundle-name').text(data.metadata.name);
+        clone.find('.bundle-icon-sm')
+            .removeClass('bundle-icon-sm')
+            .addClass('bundle-icon-sm--' + data.bundle_type + '--' + data.state);
+        clone.find('.bundle-uuid').text(data.uuid);
+        clone.find('.bundle-link').attr('href', '/bundles/' + data.uuid);
+        clone.find('.bundle-download').on('click', function(e) {
             alert('This will allow you to download the bundle');
             e.preventDefault();
         });
-        var metaContainer = clone.find(".bundle-meta-view-container").get(0);
+        var metaContainer = clone.find('.bundle-meta-view-container').get(0);
         BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataTableModel(data));
 
-        var toggle = clone.find(".bundle__expand_button");
-        var container = clone.find(".bundle-file-view-container");
-        toggle.on('click', function (e) {
+        var toggle = clone.find('.bundle__expand_button');
+        var container = clone.find('.bundle-file-view-container');
+        toggle.on('click', function(e) {
             var button = $(e.target);
             if (button.hasClass('expanded')) {
                 container.removeClass('expanded');
@@ -351,7 +351,7 @@ var BundleRenderer = (function () {
     return BundleRenderer;
 })();
 
-var WorksheetRenderer = (function () {
+var WorksheetRenderer = (function() {
     function WorksheetRenderer(element, renderer, data) {
         this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
@@ -366,7 +366,7 @@ var WorksheetRenderer = (function () {
             }
             $('.worksheet-icon').html(title);
             $('.worksheet-author').html('by codalab');
-            var blocks = data.items.forEach(function (item) {
+            var blocks = data.items.forEach(function(item) {
                 if (item[0] === null) {
                     var e = document.createElement('div');
                     e.innerHTML = markdown.toHTML(item[1]);
@@ -376,8 +376,8 @@ var WorksheetRenderer = (function () {
                 }
             });
 
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element.id]);
-            MathJax.Hub.Queue(function () {
+            MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.id]);
+            MathJax.Hub.Queue(function() {
                 var all = MathJax.Hub.getAllJax();
                 for (var i = 0; i < all.length; i += 1) {
                     $(all[i].SourceElement().parentNode).addClass('coda-jax');

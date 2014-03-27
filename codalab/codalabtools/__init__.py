@@ -25,7 +25,7 @@ class BaseConfig(object):
                 raise EnvironmentError(msg)
 
         with open(self._filename, "r") as f:
-            self.info =  yaml.load(f)
+            self.info = yaml.load(f)
 
     def getFilename(self):
         """Returns the full name of the configuration file."""
