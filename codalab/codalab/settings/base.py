@@ -30,6 +30,10 @@ class Base(Settings):
     if 'CONFIG_HTTP_PORT' in os.environ:
         PORT = os.environ.get('CONFIG_HTTP_PORT')
 
+    MAINTENANCE_MODE=0
+    if 'MAINTENANCE_MODE' in os.environ:
+        MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE')
+
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
