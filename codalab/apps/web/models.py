@@ -601,6 +601,7 @@ class CompetitionSubmission(models.Model):
     """
     Represents a submission from a competition participant.
     """
+    name = models.TextField(max_length=40, blank=True, default="")
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)

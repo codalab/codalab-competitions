@@ -27,6 +27,8 @@
              <tr class="leaderboard-result-table-header">
                 <th rowspan="2"></th>
                 <th rowspan="2">User</th>
+                <th rowspan="2">Submission Date</th>
+                <th rowspan="2">Total Submissions</th>
                  {% for head in group.headers %}
                  {% if head.subs %}
                  <th colspan="{{head.subs|length}}">{{head.label}}</th>
@@ -44,16 +46,18 @@
                     {% endif %}
                 {% endfor %}
             </tr>
-            {% if group.scores.items|length_is:"0" %}
+            {% if group.results.items|length_is:"0" %}
             <tr class="noData">
                 <td colspan="{{group.total_span}}">No data available in table</td>
             </tr>  
             {% else %}  
-            {% for pk,scoredata in group.scores %}
+            {% for pk,result in group.results %}
             <tr>
                 <td class="row-position">{{pk}}</td>
-                <td>{{scoredata.username}}</td>
-                {% for v in scoredata.values %}
+                <td>{{result.username}}</td>
+                <td>{{result.submitted_at}}</td>
+                <td>{{result.total_submissions}}</td>
+                {% for v in result.values %}
                     {% if 'rnk' in v %}
                         <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
                     {% else %}

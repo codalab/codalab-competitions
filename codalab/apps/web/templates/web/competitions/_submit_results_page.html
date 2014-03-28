@@ -5,9 +5,12 @@
     {% if phase.is_active %}
     <div class="row">
         <div class="panel">
-            <p>Click the Submit Results button to upload a new submission.</p>
-            <button id="fileUploadButton" class="button">Submit Results...</button>
+            <label>Name</label>
+            <input id="submissionName" type="text" placeholder="An optional name to identify this submission" maxlength="40"></input>
+            <label>Description</label>
+            <textarea id="submissionDescription" rows="4" class="input-medium" placeholder="An optional description for this submission" maxlength="256"></textarea>
             <p id="details" class="submission_upload_details"></p>
+            <button id="fileUploadButton" class="button">Submit Results...</button>
         </div>
         <div>
             <p><br>Here are your submissions to date:</p>
@@ -30,6 +33,7 @@
                 <th width="40px"></th>
                 <th>Filename</th>
                 <th>Submission date</th>
+                <th>Submission name</th>
                 <th>Status</th>
                 <th width="40px"><i class="fi-check"></i></th>
                 <th width="40px"></th>
@@ -42,7 +46,7 @@
                 </tr>  
                 {% else %}  
                 {% for submission_info in submission_info_list %}
-                <tr id="{{submission_info.id}}">
+                <tr id="{{submission_info.id}}" data-description="{{submission_info.description}}">
                     {% if submission_info.is_finished %}
                     <input type="hidden" name="state" value='1' />
                     {% else %}
@@ -51,6 +55,7 @@
                     <td>{{submission_info.number}}</td>
                     <td>{{submission_info.filename}}</td>
                     <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                    <td style="text-overflow: ellipsis; overflow: hidden">{{submission_info.name}}</td>
                     <td class="statusName">{{submission_info.status_name}}</td>
                     {% if submission_info.is_in_leaderboard %}
                     <td class="status submitted"><i class="fi-check"></i></td>

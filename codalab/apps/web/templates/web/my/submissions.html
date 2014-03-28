@@ -10,11 +10,16 @@
 {% block content %}
 
 <div class="row">
+    <input type="hidden" id="competitionId" value="{{competition.id}}" />
+    <input type="hidden" id="cstoken" value="{{csrf_token}}" />
     <div class="large-12 large-centered columns submissions content">
         <div class="challStatusStrip">
             <section class="challStatusStripSection">
             {% for phase in competition.phases.all %}
                 {% if phase.id == selected_phase_id %}
+                {% if phase.is_active %}
+                <input type="hidden" id="phasestate" value="1" />
+                {% endif %}
                 <section class="currentPhase">
                 {% else %}
                 <section>
@@ -45,7 +50,12 @@
             </thead>
             <tbody>
                 {% for submission in submission_info_list %}
-                <tr id="{{submission.id}}">
+                <tr id="{{submission.id}}" data-description="{{submission.description}}">
+                    {% if submission.is_finished %}
+                    <input type="hidden" name="state" value='1' />
+                    {% else %}
+                    <input type="hidden" name="state" value='0' />
+                    {% endif %}
                     {% for column in columns %}
                     {% if column.name == 'filename' %}
                         <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
