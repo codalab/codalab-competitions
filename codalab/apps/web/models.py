@@ -327,7 +327,7 @@ class CompetitionPhase(models.Model):
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
-    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
+    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
 
