@@ -169,6 +169,8 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 for submission in submissions:
                     submission_info = {
                         'id': submission.id,
+                        'name': submission.name,
+                        'description': submission.description,
                         'number': submission.submission_number,
                         'filename': submission.get_filename(),
                         'submitted_at': submission.submitted_at,
@@ -191,7 +193,16 @@ class CompetitionResultsPage(TemplateView):
         is_owner = self.request.user.id == competition.creator_id
         context['is_owner'] = is_owner
         context['phase'] = phase
-        context['groups'] = phase.scores()
+        groups = phase.scores()
+        leaderboard_submissions = models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase).select_related('leaderboard_entry_result')
+        phase_submissions = models.CompetitionSubmission.objects.filter(phase=phase)
+        for group in groups:
+            group['results'] = group['scores']
+            for pk, result in group['results']:
+                submission = [x for x in leaderboard_submissions if x.id == pk][0].result
+                result['submitted_at'] = submission.submitted_at
+                result['total_submissions'] = sum(s.participant_id == submission.participant_id for s in phase_submissions)
+        context['groups'] = groups;
         return context
 
 class CompetitionResultsDownload(View):
@@ -199,7 +210,8 @@ class CompetitionResultsDownload(View):
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         phase = competition.phases.get(pk=self.kwargs['phase'])
-        if phase.is_blind:
+        is_owner = self.request.user.id == competition.creator_id
+        if not is_owner and phase.is_blind:
             return HttpResponse(status=403)
         groups = phase.scores()
 
@@ -423,6 +435,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'name': 'submitted_by'
                 },
                 {
+                    'label': 'NAME',
+                    'name': 'name'
+                },
+                {
                     'label': 'FILENAME',
                     'name': 'filename'
                 },
@@ -447,11 +463,14 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             for submission in submissions:
                 submission_info = {
                     'id': submission.id,
+                    'name': submission.name,
+                    'description': submission.description,
                     'submitted_by': submission.participant.user.username,
                     'number': submission.submission_number,
                     'filename': submission.get_filename(),
                     'submitted_at': submission.submitted_at,
                     'status_name': submission.status.name,
+                    'is_finished': submission.status.codename == 'finished',
                     'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard
                 }
                 # add score groups into data columns

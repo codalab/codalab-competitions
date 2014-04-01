@@ -114,7 +114,14 @@ var Competition;
                                 url: '/api/competition/' + competitionId + '/submission',
                                 type: 'post',
                                 cache: false,
-                                data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
+                                data: {
+                                    'id': trackingId,
+                                    'name': file.name,
+                                    'type': file.type,
+                                    'size': file.size,
+                                    'submission_name': $('#submissionName').val(),
+                                    'submission_description': $('#submissionDescription').val()
+                                }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
@@ -293,7 +300,9 @@ var Competition;
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + ' ' + h + ':' + m + ':' + s);
                     break;
-                case 4: $(this).html(Competition.getSubmissionStatus(response.status)); break;
+                case 4: $(this).html(response.name); break;
+                case 5: $(this).html(Competition.getSubmissionStatus(response.status)); break;
+                case 6: $(this).html(''); break;
             }
         }
       );
@@ -334,7 +343,10 @@ var Competition;
             $(obj).addClass('fi-minus');
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
-            elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+            elem.find('a').each(function() { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+            elem.find('p').each(function() {
+                this.innerText = this.innerText.replace('__description', $(nTr).data('description') ? $(nTr).data('description') : 'No description given.');
+            });
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {

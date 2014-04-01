@@ -372,9 +372,13 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+        submission_name = self.request.DATA['submission_name'] if 'id' in self.request.DATA else ''
+        submission_description = self.request.DATA['submission_description'] if 'id' in self.request.DATA else ''
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
         obj.file.name = blob_name
+        obj.name = submission_name
+        obj.description = submission_description
 
     def post_save(self, obj, created):
         if created:
