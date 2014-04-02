@@ -16,7 +16,7 @@ class CompetitionForm(forms.ModelForm):
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionPhase
-        fields = ('phasenumber', 'label', 'start_date', 'max_submissions', 'scoring_program', 'reference_data', 'leaderboard_management_mode')
+        fields = ('phasenumber', 'label', 'start_date', 'max_submissions', 'is_scoring_only', 'input_data', 'scoring_program', 'reference_data', 'leaderboard_management_mode')
         widgets = { 'leaderboard_management_mode' : forms.Select(attrs={'class': 'competition-editor-phase-leaderboard-mode'}, choices=(('default', 'Default'), ('hide_results', 'Hide Results'))),
                     'DELETE' : forms.HiddenInput, 'phasenumber': forms.HiddenInput }
                 
