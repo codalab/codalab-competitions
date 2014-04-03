@@ -699,7 +699,7 @@ input[type="submit"][value="Delete"]
     display:table;
     table-layout:fixed;
     width:100%;
-    height: 140px;
+    min-height: 140px;
 }
 
 .subContainer .articleTextArea p
@@ -919,7 +919,10 @@ div.articleImageContainer
 .articleTextArea .globalYellowButtonSmallAtag{
     padding:0 10px 10px 10px;
 }
-
+.articleButtonsArea {
+    float: right;
+    margin: 10px;
+}
 /*CompetitionProcess-------------------------------*/
 .ui-tabs-hide
 {
@@ -2623,6 +2626,21 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     background: url('../img/icon_worksheet.png') no-repeat 0 10px;
     line-height: 65px;
 }
+.worksheet-animate:focus .competitionTileLftStrip {
+    background:#08ac33;
+}
+.worksheet-animate, .worksheet-animate .worksheet-animate-child {
+  -webkit-transition:0.3s linear height;
+  transition:0.3s linear height;
+}
+.worksheet-animate.ng-enter .worksheet-animate-child,
+.worksheet-animate.ng-leave.ng-leave-active .worksheet-animate-child {
+  height:0px;
+}
+.worksheet-animate.ng-leave .worksheet-animate-child,
+.worksheet-animate.ng-enter.ng-enter-active .worksheet-animate-child {
+  height:140px;
+}
 .bundle-icon-sm {
     text-indent: 50px;
     background: url('../img/icon_bundle_sm.png') no-repeat 0 10px;
@@ -2777,4 +2795,10 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 }
 pre, .bundle__file_pre, .bundle__file_pre pre {
     font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+.nav-list li {
+    display: inline-block;
 }

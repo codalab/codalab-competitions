@@ -31,6 +31,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())
 
+        def create_worksheet(self, name):
+            return _call_with_retries(lambda: self.client.new_worksheet(name))
+
         def worksheet(self, uuid):
             return _call_with_retries(lambda: self.client.worksheet_info(uuid))
 
