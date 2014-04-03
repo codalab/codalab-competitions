@@ -458,6 +458,61 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
 #
 # Worksheets
 #
+class WorksheetsInfoApi(views.APIView):
+    """
+    Provides a web API to retrieve worksheets information.
+    """
+    def get(self, request):
+        user = self.request.user
+        logger.debug("WorksheetsApi: user_id=%s.", user.id)
+        info = {
+            'config': {
+                'beta' : settings.SHOW_BETA_FEATURES,
+                'preview' : settings.PREVIEW_WORKSHEETS,
+                'loginUrl' : settings.LOGIN_URL,
+                'logoutUrl' : settings.LOGOUT_URL,
+            },
+            'user': {
+                'authenticated': user.id != None,
+                'name': user.username,
+            }
+        }
+        return Response(info, status=status.HTTP_201_CREATED)
+
+class WorksheetsListApi(views.APIView):
+    """
+    Provides a web API for worksheet entries.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        logger.debug("WorksheetsListApi: user_id=%s.", user_id)
+        service = BundleService()
+        try:
+            worksheets = service.worksheets()
+            return Response(worksheets)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+    """
+    Provides a web API to create a worksheet.
+    """
+    def post(self, request):
+        owner = self.request.user
+        if not owner.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        worksheet_name = data['name'] if 'name' in data else ''
+        logger.debug("WorksheetCreation: owner=%s; name=%s", owner.id, worksheet_name)
+        if len(worksheet_name) <= 0:
+            return Response("Invalid name.", status=status.HTTP_400_BAD_REQUEST)
+        service = BundleService()
+        try:
+            data["uuid"] = service.create_worksheet(worksheet_name)
+            logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
+            return Response(data)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
 class WorksheetContentApi(views.APIView):
     """
     Provides a web API to fetch the content of a worksheet.
