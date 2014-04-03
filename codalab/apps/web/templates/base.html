@@ -45,6 +45,7 @@
 
     <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
     <script src="//ajax.aspnetcdn.com/ajax/jquery.ui/1.10.1/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/jquery.scrollTo.min.js"></script>
     <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
 
@@ -113,6 +114,7 @@
                 </section>
             </nav>
         </div>
+        <div class="header-space"></div>
         <!-- End Nav -->
 
         {% block nosubheader %}
@@ -178,10 +180,11 @@
     <script src="{{ STATIC_URL }}js/vendor/foundation.min.js"></script>
 
     <!-- Initialize JS Plugins -->
-    <script src="{{ STATIC_URL }}js/codalab.min.js"></script>
+    <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
     <script>
     $(document).foundation();
+    Competition.initialize();
     {% block js %}
     {% endblock js %}
     </script>

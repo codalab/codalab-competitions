@@ -24,10 +24,11 @@ class Dev(DevBase):
     BUNDLE_AZURE_CONTAINER = 'name_of_your_private_container_for_bundles'
 
     # Bundle service: leave this URL blank to by-pass this functionality
-    BUNDLE_SERVICE_URL = ""
+    BUNDLE_SERVICE_URL = "http://localhost:2800"
+    PREVIEW_WORKSHEETS = True
     # Following config is necessary to use a bundle service
     # CODE_PATH points to local source code for bundles repo. Path is relative to this file.
-    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\bundles"
+    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\codalab-cli\\"
     if len(BUNDLE_SERVICE_CODE_PATH) > 0:
         sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
         codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
