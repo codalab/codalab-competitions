@@ -13,16 +13,18 @@
                     <!-- Include data for each phase if appropriate -->
                     <ul>
                     {% for phase in competition.phases.all %}
-                        {% if phase.is_active or phase.is_past %}
-                            <p>
-                                <li>{{ phase.label }}:
-                                    <ul>
-                                        {% for dataset in phase.datasets.all %}
-                                            <li><a href="{{ dataset.datafile.source_url }}">{{dataset.datafile.name}}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                            </p>
+                        {% if phase.datasets.count > 0 %}
+                            {% if phase.is_active or phase.is_past %}
+                                <p>
+                                    <li>{{ phase.label }}:
+                                        <ul>
+                                            {% for dataset in phase.datasets.all %}
+                                                <li><a href="{{ dataset.datafile.source_url }}">{{dataset.datafile.name}}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                </p>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     </ul>

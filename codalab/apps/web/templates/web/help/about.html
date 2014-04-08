@@ -3,57 +3,33 @@
 {% block page_title %}About{% endblock page_title %}
 {% block content %}
 <div class="row glossary-page-container">
-     <div id="dockable" class="large-3 columns">
-        <div id="dockable_inner">
-            <ul class="side-nav side-nav--fullwidth"> 
-                <li><a href="#codalab" class="scrollTo active" tabindex=7>About CodaLab</a></li>
-                <li><a href="#develop" class="scrollTo" tabindex=8>Develop with Experiments</a></li>
-                <li><a href="#compete" class="scrollTo" tabindex=9>Compete in Challenges</a></li>
-                <li><a href="#yourdata" class="scrollTo" tabindex=10>Your Data in the Cloud</a></li>
+        <!-- Main Content Section -->
+        <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
+        <div class="large-9 columns">
+            <a id="codalab" class="anchor"></a>
+            <h2 class="firstrow">About CodaLab</h2>
+            <p>CodaLab is an open-source web-based platform that enables researchers, developers, and data scientists to collaborate, with the goal of advancing research fields where machine learning and advanced computation is used. CodaLab focuses on:</p>
+
+            <ul class="bullet-list">
+                <li>&#149; Optimizing the time spent by researchers on tasks such as preprocessing datasets, writing evaluation or visualization scripts, and running other people's code.
+                </li>
+                <li>&#149; Reducing duplicated efforts across different groups by facilitating the sharing of code and data.
+                </li>
+                <li>&#149; Enabling the creation of competitions to focus the community on areas needing benchmarking or improved computational methods.
+                </li>
             </ul>
+            <p>CodaLab helps to solve many common problems in the arena of data-oriented research through its online community where people can share worksheets and participate in competitions. CodaLab worksheets combine code execution, text, mathematics, plots and rich media into a single document, streamlining the research process and lowering the barrier to documenting and publishing detailed advanced computational research. CodaLab nurtures an environment of scientific rigor by enabling reproducibility and transparency, and opens new avenues for collaboration.</p> 
+
+
+            <div class="spacer500">&nbsp;</div>
         </div>
+        <!-- Nav Sidebar -->
+        <!-- This is source ordered to be pulled to the left on larger screens -->
+
     </div>
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 columns">
-        <a id="codalab" class="anchor"></a>
-        <h2 class="firstrow">About CodaLab</h2> 
-        <p>
-            CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
-        </p>
-
-        <hr />
-        <a id="develop" class="anchor"></a>
-        <h2>Develop with Experiments</h2>
-        <p>
-        The experimental platform allows you to upload datasets and algorithms, run
-        algorithms on datasets (either yours or existing ones), and download and visualize the results.  The platform keeps
-        track of dependencies, so that experiments are reproducible and easy to
-        share with others.
-        </p>
-
-        <hr />
-        <a id="compete" class="anchor"></a>
-        <h2>Compete in Challenges</h2>
-        <p>
-            Competitions provide an opportunity to pit your algorithms against others with the goal of finding the best way to solve a given problem. Problem sets originate from a variety of fields, although in this release the focus is on advancing computer vision through medical image analysis technology. Each competition features a detailed description of the problem, and a set of data against which solutions can be trained and tested. <a href="{% url 'help' %}">Get help with creating a competition</a>.
-        </p>
-
-        <hr />
-        <a id="yourdata" class="anchor"></a>
-        <h2>Your Data in the Cloud</h2>
-        <p>
-            Datasets form the basis for competitions. CodaLab gives you the ability to upload data to Microsoft Azure&#8482; for use in competitions. Datasets can include CT scans, MRIs, and other types of images. Each dataset represents a problem or set of problems to solve. For example, a competition could be created to find the most efficient way of segmenting mitochondria in a scanned cross-section of a human brain.
-        </p>
-        <div class="spacer500">&nbsp;</div>
-    </div>    
-    <!-- Nav Sidebar -->
-    <!-- This is source ordered to be pulled to the left on larger screens -->
-   
-</div>
-{% endblock content %}
+    {% endblock content %}
 {% block js %}
-<!--  /////  Highlight current link  /////  -->
+    <!--  /////  Highlight current link  /////  -->
     $(function() {
         $(".side-nav > li > a").click(function(){
             $(".side-nav > li > a").removeClass("active");
@@ -63,8 +39,8 @@
         $("#liAbout").addClass("active");
     });
 
-<!--  /////  Dock side-nav to top when scrolling down  /////  -->
-    $('html, body').scroll(function() {
+    <!--  /////  Dock side-nav to top when scrolling down  /////  -->
+$('html, body').scroll(function() {
         $('#dockable_inner').toggleClass('scrolling', $(window).scrollTop() > ($('#dockable').offset().top) - 80);
     });
 {% endblock js %}

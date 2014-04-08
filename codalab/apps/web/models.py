@@ -14,18 +14,20 @@ from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
 from django.db.models.signals import post_save
+from django.db import transaction
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
-from django.utils.timezone import utc, now
+from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-
 from mptt.models import MPTTModel, TreeForeignKey
+from pytz import utc
 from guardian.shortcuts import assign_perm
 
 logger = logging.getLogger(__name__)
@@ -93,35 +95,6 @@ class PageContainer(models.Model):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
         return super(PageContainer,self).save(*args,**kwargs)
 
-class Page(models.Model):
-    category = TreeForeignKey(ContentCategory)
-    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
-    codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages')
-    title = models.CharField(max_length=100, null=True, blank=True)
-    label = models.CharField(max_length=100)
-    rank = models.IntegerField(default=0)
-    visibility = models.BooleanField(default=True)
-    markup = models.TextField(blank=True)
-    html = models.TextField(blank=True)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        unique_together = (('label','category','container'),)
-        ordering = ['rank']
-
-    def save(self,*args,**kwargs):
-        if not self.title:
-            self.title = "%s - %s" % ( self.container.name,self.label )
-        if self.defaults:
-            if self.category != self.defaults.category:
-                raise Exception("Defaults category must match Item category")
-            if self.defaults.required and self.visibility is False:
-                raise Exception("Item is required and must be visible")
-        return super(Page,self).save(*args,**kwargs)
-
 # External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
     name = models.CharField(max_length=20)
@@ -166,15 +139,15 @@ class Competition(models.Model):
     """ This is the base competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True)
+    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
-    has_registration = models.BooleanField(default=False)
-    end_date = models.DateTimeField(null=True,blank=True)
+    has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
+    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
-    published = models.BooleanField(default=False)
+    published = models.BooleanField(default=False, verbose_name="Publicly Available")
 
     @property
     def pagecontent(self):
@@ -217,6 +190,36 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
+
+class Page(models.Model):
+    category = TreeForeignKey(ContentCategory)
+    defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
+    codename = models.SlugField(max_length=100)
+    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
+    title = models.CharField(max_length=100, null=True, blank=True)
+    label = models.CharField(max_length=100, verbose_name="Title")
+    rank = models.IntegerField(default=0, verbose_name="Order")
+    visibility = models.BooleanField(default=True, verbose_name="Visible")
+    markup = models.TextField(blank=True)
+    html = models.TextField(blank=True, verbose_name="Content")
+    competition = models.ForeignKey(Competition, related_name='pages', null=True)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        unique_together = (('label','category','container'),)
+        ordering = ['category', 'rank']
+
+    def save(self,*args,**kwargs):
+        #if not self.title:
+        #    self.title = "%s - %s" % ( self.container.name, self.label )
+        if self.defaults:
+            if self.category != self.defaults.category:
+                raise Exception("Defaults category must match Item category")
+            if self.defaults.required and self.visibility is False:
+                raise Exception("Item is required and must be visible")
+        return super(Page,self).save(*args,**kwargs)
 
 # Dataset model
 class Dataset(models.Model):
@@ -317,16 +320,16 @@ class CompetitionPhase(models.Model):
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
-    phasenumber = models.PositiveIntegerField()
-    label = models.CharField(max_length=50, blank=True)
-    start_date = models.DateTimeField()
-    max_submissions = models.PositiveIntegerField(default=100)
-    is_scoring_only = models.BooleanField(default=True)
-    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True)
-    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True)
-    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True)
+    phasenumber = models.PositiveIntegerField(verbose_name="Number")
+    label = models.CharField(max_length=50, blank=True, verbose_name="Name")
+    start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
+    max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
+    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
+    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
+    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
-    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT)
+    leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
 
     class Meta:
         ordering = ['phasenumber']
@@ -445,19 +448,26 @@ class CompetitionPhase(models.Model):
                 if x.parent is not None:
                     columnKey = x.parent.key
                     columnLabel = x.parent.label
-                    columnSubLabels = [{'key': x.key, 'label': x.label}]
+                    columnOrdering = x.parent.ordering
+                    columnSubLabels = [{'key': x.key, 'label': x.label, 'ordering': x.ordering}]
                 else:
                     columnKey = x.key
                     columnLabel = x.label
+                    columnOrdering = x.ordering
                     columnSubLabels = []
                 if columnKey not in columnKeys:
                     columnKeys[columnKey] = len(headers)
-                    headers.append({'key' : columnKey, 'label': columnLabel, 'subs' : columnSubLabels})
+                    headers.append({'key': columnKey, 'label': columnLabel, 'subs': columnSubLabels, 'ordering': columnOrdering})
                 else:
                     headers[columnKeys[columnKey]]['subs'].extend(columnSubLabels)
 
                 scoreDefs.append(x.scoredef)
-
+            # Sort headers appropiately
+            def sortkey(x):
+                return x['ordering']
+            headers.sort(key=sortkey, reverse=False)
+            for header in headers:
+                header['subs'].sort(key=sortkey, reverse=False)
             # compute total column span
             column_span = 2
             for gHeader in headers:
@@ -651,18 +661,23 @@ class CompetitionSubmission(models.Model):
         """
         Returns the short name of the file which was uploaded to create the submission.
         """
-        return split(self.file.name)[1]
+        name = ''
+        try:
+            name = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+        except:
+            pass
+        if len(name) == 0:
+            # For backwards compat, fallback to this method of getting the name.
+            name = split(self.file.name)[1]
+        return name
 
-    def get_file_for_download(self, key, requested_by, requested_by_competition_owner=False):
+    def get_file_for_download(self, key, requested_by):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
            'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
         requested_by: A user object identifying the user making the request to access the file.
-        requested_by_competition_owner: A boolean flag indicating whether the user is making
-           the request as a competition owner (True) or as a competition participant (False).
-           Access rules are affected by the value of this flag.
 
         Raises:
            ValueError exception for improper arguments.
@@ -678,12 +693,8 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-        # Verify access rules
-        if requested_by_competition_owner:
-            # User making request must be in the "competition owner" group.
-            if self.participant.competition.creator.id != requested_by.id:
-                raise PermissionDenied()
-        else:
+        # If the user requesting access is the owner, access granted
+        if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
             # download privilege by the competition owners.
             if self.participant.user.id != requested_by.id:
@@ -726,6 +737,7 @@ class SubmissionScoreDef(models.Model):
     selection_default = models.IntegerField(default=0)
     computed = models.BooleanField(default=False)
     groups = models.ManyToManyField(SubmissionResultGroup,through='SubmissionScoreDefGroup')
+    ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
         unique_together = (('key','competition'),)
@@ -738,6 +750,22 @@ class CompetitionDefBundle(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def localize_datetime(dt):
+        """
+        Returns the given date or datetime as a datetime with tzinfo.
+        """
+        if type(dt) is str:
+            dt = parse_datetime(dt)
+        if type(dt) is datetime.date:
+            dt = datetime.datetime.combine(dt, datetime.time())            
+        if not type(dt) is datetime.datetime:
+            raise ValueError("Expected a DateTime object but got %s" % dt)
+        if dt.tzinfo is None:
+            dt = utc.localize(dt)
+        return dt
+
+    @transaction.commit_on_success
     def unpack(self):
         """
         This method unpacks a competition bundle and creates a competition from
@@ -757,9 +785,13 @@ class CompetitionDefBundle(models.Model):
                 del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
+
         if 'end_date' in comp_base:
-            if type(comp_base['end_date']) is datetime.datetime.date:
-                comp_base['end_date'] = datetime.datetime.combine(comp_base['end_date'], datetime.time())
+            if comp_base['end_date'] is None:
+                del comp_base['end_date']
+            else:
+                comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
+        
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -773,16 +805,16 @@ class CompetitionDefBundle(models.Model):
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
         details_category = ContentCategory.objects.get(name="Learn the Details")
-        Page.objects.create(category=details_category, container=pc,  codename="overview",
+        Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
-        Page.objects.create(category=details_category, container=pc,  codename="evaluation",
-                                   label="Evaluation", rank=0, html=zf.read(comp_spec['html']['evaluation']))
-        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions",
-                                   label="Terms and Conditions", rank=0, html=zf.read(comp_spec['html']['terms']))
+        Page.objects.create(category=details_category, container=pc,  codename="evaluation", competition=comp,
+                                   label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
+        Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
+                                   label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
         participate_category = ContentCategory.objects.get(name="Participate")
-        Page.objects.create(category=participate_category, container=pc,  codename="get_data",
+        Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
-        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit Results", rank=1, html="")
+        Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
@@ -803,8 +835,9 @@ class CompetitionDefBundle(models.Model):
                 del phase_spec['datasets']
             else:
                 datasets = {}
-            if type(phase_spec['start_date']) is datetime.datetime.date:
-                phase_spec['start_date'] = datetime.datetime.combine(phase_spec['start_date'], datetime.time())
+
+            phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
+
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
@@ -844,9 +877,14 @@ class CompetitionDefBundle(models.Model):
             if 'column_groups' in comp_spec['leaderboard']:
                 groups = {}
                 for key, vals in comp_spec['leaderboard']['column_groups'].items():
+                    index = comp_spec['leaderboard']['column_groups'].keys().index(key) + 1
                     if vals is None:
                         vals = dict()
-                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=vals)
+                    setdefaults = {
+                        'label' : "" if 'label' not in vals else vals['label'].strip(),
+                        'ordering' : index if 'rank' not in vals else vals['rank']
+                    }
+                    s,cr = SubmissionScoreSet.objects.get_or_create(competition=comp, key=key.strip(), defaults=setdefaults)
                     groups[s.label] = s
             logger.debug("CompetitionDefBundle::unpack created score groups (pk=%s)", self.pk)
 
@@ -854,6 +892,7 @@ class CompetitionDefBundle(models.Model):
             if 'columns' in comp_spec['leaderboard']:
                 columns = {}
                 for key, vals in comp_spec['leaderboard']['columns'].items():
+                    index = comp_spec['leaderboard']['columns'].keys().index(key) + 1
                     # Do non-computed columns first
                     if 'computed' in vals:
                         continue
@@ -861,7 +900,8 @@ class CompetitionDefBundle(models.Model):
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : True,
-                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
+                                    'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
                     if 'selection_default' in vals: 
                         sdefaults['selection_default'] = vals['selection_default']
@@ -880,17 +920,18 @@ class CompetitionDefBundle(models.Model):
                                 competition=comp,
                                 parent=gparent,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
 
                 for key, vals in comp_spec['leaderboard']['columns'].items():
+                    index = comp_spec['leaderboard']['columns'].keys().index(key) + 1
                     # Only process the computed columns this time around.
                     if 'computed' not in vals:
                         continue
@@ -900,7 +941,8 @@ class CompetitionDefBundle(models.Model):
                                     'label' : "" if 'label' not in vals else vals['label'].strip(),
                                     'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
                                     'show_rank' : not is_computed,
-                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort']
+                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
+                                    'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
                     if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
@@ -926,12 +968,12 @@ class CompetitionDefBundle(models.Model):
                                 competition=comp,
                                 parent=gparent,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
                     else:
                         g,cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 key=sd.key,
-                                defaults=dict(scoredef=sd, label=sd.label))
+                                defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
 
                     # Associate the score definition with its leaderboard
                     sdg = SubmissionScoreDefGroup.objects.create(scoredef=sd, group=leaderboards[vals['leaderboard']['label']])
@@ -978,6 +1020,7 @@ class SubmissionScoreSet(MPTTModel):
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+    ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
         unique_together = (('key','competition'),)

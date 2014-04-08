@@ -132,9 +132,9 @@ def _send_update(queue, task_id, status):
     id: The task ID.
     status: The new status for the task. One of 'running', 'finished' or 'failed'.
     """
-    body = json.dumps({ 'id': task_id,
-                        'task_type': 'run_update',
-                        'task_args': { 'status': status }})
+    body = json.dumps({'id': task_id,
+                       'task_type': 'run_update',
+                       'task_args': {'status': status}})
     queue.send_message(body)
 
 def _upload(blob_service, container, blob_id, blob_file):
@@ -215,9 +215,9 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
-            logger.debug("Execution directory: %s" % run_dir)
+            logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
-            logger.debug("CMD: %s" % prog_cmd)
+            logger.debug("CMD: %s", prog_cmd)
             prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
                                 .replace("$input", join('.', 'input')) \
                                 .replace("$output", join('.', 'output')) \
@@ -229,7 +229,7 @@ def get_run_func(config):
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
             exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
-            logger.debug("Exit Code: %d" % exitCode)
+            logger.debug("Exit Code: %d", exitCode)
             endTime = time.time()
             elapsedTime = endTime - startTime
             prog_status = {

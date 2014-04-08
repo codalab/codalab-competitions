@@ -1,9 +1,9 @@
 {% load static %}
 
-{% if not experiments %}
-  <p>You have not created any experiments.</p>
+{% if not worksheets %}
+  <p>You have not created any worksheets.</p>
 {% else %}
-  {% for item in experiments %}
+  {% for item in worksheets %}
     <div class="competition-tile">
       <article class="subContainer">
         <input id="competitionID" type="hidden" value="{{ item.pk }}" />

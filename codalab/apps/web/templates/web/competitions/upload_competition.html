@@ -14,7 +14,6 @@
                 </a>
             </p>
             <button id="uploadButton" class="button">Upload definition...</button>
-            <input type="file" name="file" style="display: none" id="fileUpload" class="fileUpload" />
             {% csrf_token %}
             <div id="details">
     </div>
@@ -26,60 +25,6 @@
 
 {% block js %}
 $(document).ready(function () {
-    $('#uploadButton').on('click', function () {
-        var disabled = $('#uploadButton').hasClass('disabled');
-        if (!disabled) {
-            $('#fileUpload').click();
-        }
-    });
-    $('#fileUpload').liteUploader({
-        script: '/api/competition/create',
-        allowedFileTypes: 'application/zip,application/x-zip-compressed',
-        maxSizeInBytes: 256*1024*1024,
-        customParams: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() },
-        before: function () {
-            $('#uploadButton').addClass('disabled');
-            $('#details').html("Uploading file...");
-            return true;
-        },
-        each: function (file, errors) {
-            if (errors.length > 0) {
-                $('#details').html('Please select a valid file. Only ZIP files less than 100 MB are accepted.');
-                $('#uploadButton').removeClass("disabled");
-            }
-        },
-        success: function (response) {
-            $('#details').html("Creating competition...");
-            var wait_for_competition = function() {
-                $.ajax({
-                    url: "/api/competition/create/" + response.token,
-                    type: 'get',
-                    cache: false,
-                    data: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() }
-                }).done(function(data) {
-                    if (data.status == 'finished') {
-                        $('#details').html("Congratulations! " +
-                            "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
-                            "You can also manage it from <a href='/my/#manage'>your CodaLab dashboard.</a>"
-                        );
-                        $('#uploadButton').removeClass('disabled');
-                    } else if (data.status == 'failed') {
-                        $('#details').html('Oops! There was a problem creating the competition.');
-                        $('#uploadButton').removeClass('disabled');
-                    } else {
-                        setTimeout(wait_for_competition, 1000);
-                    }
-                }).fail(function() {
-                    $('#details').html("An unexpected error occured.");
-                    $('#uploadButton').removeClass('disabled');
-                });
-            };
-            wait_for_competition();
-        },
-        fail: function (jqXHR) {
-            $('#details').html("An unexpected error occured.");
-            $('#uploadButton').removeClass('disabled');
-        }
-    });
-  });
+    CodaLab.Competitions.CreateReady();
+});
 {% endblock js %}
