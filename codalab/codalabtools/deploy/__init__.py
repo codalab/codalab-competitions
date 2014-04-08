@@ -23,6 +23,10 @@ from azure.storage import BlobService
 from azure.servicebus import ServiceBusService
 
 from codalabtools import BaseConfig
+from codalabtools.azure_extensions import (
+    Cors,
+    CorsRule,
+    set_storage_service_cors_properties)
 
 logger = logging.getLogger('codalabtools')
 
@@ -173,6 +177,14 @@ class DeploymentConfig(BaseConfig):
         """Gets the value of the Django secret key."""
         return self._svc['django']['secret-key']
 
+    def getShowPreviewFeatures(self):
+        """
+        Gets a value indicating if some preview features should be turned on.
+        Currently a value of 1 will turn on worksheets, a value > 1 will turn on
+        all preview features and a value < 1 will turn preview off.
+        """
+        return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
+
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -209,6 +221,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the name of the bundle Blob container for the service."""
         return self._svc['storage']['bundles-container']
 
+    def getServiceStorageCorsAllowedOrigins(self):
+        """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
+        return self._svc['storage']['cors-allowed-origins'] if 'cors-allowed-origins' in self._svc['storage'] else '*'
+
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
         name = self._svc['bus']['namespace']
@@ -228,16 +244,22 @@ class DeploymentConfig(BaseConfig):
     def getSslCertificateInstalledPath(self):
         """Gets the path of the installed SSL certificate file."""
         if len(self.getSslCertificatePath()) > 0:
-            return os.path.join('/etc', 'ssl', 'certs', os.path.basename(self.getSslCertificatePath()))
+            return "/etc/ssl/certs/%s" % os.path.basename(self.getSslCertificatePath())
         else:
             return ""
 
     def getSslCertificateKeyInstalledPath(self):
         """Gets the path of the installed SSL certificate key file."""
         if len(self.getSslCertificateKeyPath()) > 0:
-            return os.path.join('/etc', 'ssl', 'private', os.path.basename(self.getSslCertificateKeyPath()))
+            return "/etc/ssl/private/%s" % os.path.basename(self.getSslCertificateKeyPath())
         else:
             return ""
+
+    def getSslRewriteHosts(self):
+        """Gets the list of hosts for which HTTP requests are automatically re-written as HTTPS requests."""
+        if 'ssl' in self._svc and 'rewrite-hosts' in self._svc['ssl']:
+            return self._svc['ssl']['rewrite-hosts']
+        return ''
 
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
@@ -480,6 +502,24 @@ class Deployment(object):
             blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
             access_info = 'private' if access is None else 'public {0}'.format(access)
             logger.info("Blob container %s is ready (access: %s).", name, access_info)
+
+    def ensureStorageHasCorsConfiguration(self):
+        """
+        Ensures Blob storage container for bundles is configured to allow cross-origin resource sharing.
+        """
+        logger.info("Setting CORS rules.")
+        account_name = self.config.getServiceStorageAccountName()
+        account_key = self._getStorageAccountKey(account_name)
+
+        cors_rule = CorsRule()
+        cors_rule.allowed_origins = self.config.getServiceStorageCorsAllowedOrigins()
+        cors_rule.allowed_methods = 'PUT'
+        cors_rule.exposed_headers = '*'
+        cors_rule.allowed_headers = '*'
+        cors_rule.max_age_in_seconds = 1800
+        cors_rules = Cors()
+        cors_rules.cors_rule.append(cors_rule)
+        set_storage_service_cors_properties(account_name, account_key, cors_rules)
 
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
@@ -803,6 +843,7 @@ class Deployment(object):
         if 'web' in assets:
             self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
+            self.ensureStorageHasCorsConfiguration()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
@@ -840,6 +881,9 @@ class Deployment(object):
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
         allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
+        ssl_allowed_hosts = self.config.getSslRewriteHosts();
+        if len(ssl_allowed_hosts) == 0:
+            ssl_allowed_hosts = allowed_hosts
 
         storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
@@ -863,6 +907,7 @@ class Deployment(object):
             "    SSL_PORT = '443'",
             "    SSL_CERTIFICATE = '{0}'".format(self.config.getSslCertificateInstalledPath()),
             "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
+            "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
@@ -918,6 +963,13 @@ class Deployment(object):
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "",
         ]
+        preview = self.config.getShowPreviewFeatures()
+        if preview >= 1:
+            if preview == 1:
+                lines.append("    PREVIEW_WORKSHEETS = True")
+            if preview > 1:
+                lines.append("    SHOW_BETA_FEATURES = True")
+            lines.append("")
         return '\n'.join(lines)
 
 if __name__ == "__main__":

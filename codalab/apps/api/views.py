@@ -3,29 +3,63 @@ Defines Django views for 'apps.api' app.
 """
 import json
 import logging
+
 from . import serializers
+from uuid import uuid4
 from rest_framework import (permissions, status, viewsets, views)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
+
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.files.base import ContentFile
-from django.http import Http404
+from django.http import Http404, StreamingHttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from apps.jobs.models import Job
 from apps.web import models as webmodels
+from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
 
+from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
+
 logger = logging.getLogger(__name__)
+
+def _generate_blob_sas_url(prefix, extension):
+    """
+    Helper to generate SAS URL for creating a BLOB.
+    """
+    blob_name = '{0}/{1}{2}'.format(prefix, str(uuid4()), extension)
+    url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
+                            settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                            settings.BUNDLE_AZURE_CONTAINER,
+                            blob_name,
+                            duration=60)
+    logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
+    return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
+
+@permission_classes((permissions.IsAuthenticated,))
+class CompetitionCreationSasApi(views.APIView):
+    """
+    Provides a web API to start the process of creating a competition.
+    """
+    def post(self, request):
+        """
+        Provides a Blob SAS that a client can use to upload the competition definition bundle.
+        Returns a dictionary of the form: { 'url': <shared-access-url>, 'id': <tracking-id> }
+        """
+        prefix = 'competition/upload/{0}'.format(request.user.id)
+        response_data = _generate_blob_sas_url(prefix, '.zip')
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationApi(views.APIView):
     """
-    Provides a web API to start the process of creating a competition.
+    Provides a web API to continue the process of creating a competition.
     """
     def post(self, request):
         """
@@ -37,14 +71,14 @@ class CompetitionCreationApi(views.APIView):
             { 'token': <value> }
         Use the token with CompetitionCreationStatusApi to track the progress of the job.
         """
-        uploaded_file = None
-        if 'file' in request.FILES:
-            uploaded_file = request.FILES['file']
-        if uploaded_file is None:
-            return Response("Invalid or missing file.", status=status.HTTP_400_BAD_REQUEST)
+        blob_name = request.DATA['id'] if 'id' in request.DATA else ''
+        if len(blob_name) <= 0:
+            return Response("Invalid or missing tracking ID.", status=status.HTTP_400_BAD_REQUEST)
         owner = self.request.user
-        logger.debug("CompetitionCreation: owner=%s; filename=%s.", owner.id, uploaded_file.name)
-        cdb = webmodels.CompetitionDefBundle.objects.create(owner=owner, config_bundle=uploaded_file)
+        logger.debug("CompetitionCreation: owner=%s; filename=%s.", owner.id, blob_name)
+        cdb = webmodels.CompetitionDefBundle.objects.create(owner=owner)
+        cdb.config_bundle.name = blob_name
+        cdb.save()
         logger.debug("CompetitionCreation def: owner=%s; def=%s; blob=%s.", owner.id, cdb.pk, cdb.config_bundle.name)
         job = create_competition(cdb.pk)
         logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
@@ -298,6 +332,22 @@ competition_page = CompetitionPageViewSet.as_view({'get':'retrieve', 'put':'upda
 
 
 @permission_classes((permissions.IsAuthenticated,))
+class CompetitionSubmissionSasApi(views.APIView):
+    """
+    Provides a web API to start the process of making a submission to a competition.
+    """
+    def post(self, request, competition_id=''):
+        """
+        Provides a Blob SAS that a client can use to upload a submission.
+        Returns a dictionary of the form: { 'url': <shared-access-url>, 'id': <tracking-id> }
+        """
+        if len(competition_id) <= 0:
+            raise ParseError(detail='Invalid competition ID.')
+        prefix = 'competition/{0}/submission/{1}'.format(competition_id, request.user.id)
+        response_data = _generate_blob_sas_url(prefix, '.zip')
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+@permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     queryset = webmodels.CompetitionSubmission.objects.all()
     serializer_class = serializers.CompetitionSubmissionSerial
@@ -320,6 +370,11 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
         obj.phase = phase
+
+        blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+        if len(blob_name) <= 0:
+            raise ParseError(detail='Invalid or missing tracking ID.')
+        obj.file.name = blob_name
 
     def post_save(self, obj, created):
         if created:
@@ -400,3 +455,68 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
     serializer_class = serializers.DefaultContentSerial
 
+#
+# Worksheets
+#
+class WorksheetContentApi(views.APIView):
+    """
+    Provides a web API to fetch the content of a worksheet.
+    """
+    def get(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
+        try:
+            worksheet = service.worksheet(uuid)
+            return Response(worksheet)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleInfoApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService()
+        try:
+            item = service.item(uuid)
+            return Response(item, content_type="application/json")
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleContentApi(views.APIView):
+    """
+    Provides a web API to browse the content of a bundle.
+    """
+    def get(self, request, uuid, path):
+        user_id = self.request.user.id
+        logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
+        service = BundleService()
+        try:
+            items = service.ls(uuid, path)
+            return Response(items)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleFileContentApi(views.APIView):
+    """
+    Provides a web API to read the content of a file in a bundle.
+    """
+    @staticmethod
+    def _content_type(path):
+        from os.path import splitext
+        _, ext = splitext(path)
+        if ext == '.css':
+            return 'text/css'
+        return None
+
+    def get(self, request, uuid, path):
+        user_id = self.request.user.id
+        service = BundleService()
+        try:
+            content_type = BundleFileContentApi._content_type(path)
+            return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))

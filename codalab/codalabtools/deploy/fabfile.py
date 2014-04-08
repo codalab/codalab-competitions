@@ -408,6 +408,29 @@ def nginx_restart():
 #
 # Maintenance and diagnostics
 #
+@roles('web')
+@task
+def maintenance(mode):
+    """
+    Begin or end maintenance (mode=begin|end).
+    """
+    modes = {'begin': '1', 'end' : '0'}
+    if mode in modes:
+        require('configuration')
+        env.SHELL_ENV = dict(
+            DJANGO_SETTINGS_MODULE=env.django_settings_module,
+            DJANGO_CONFIGURATION=env.django_configuration,
+            CONFIG_HTTP_PORT=env.config_http_port,
+            CONFIG_SERVER_NAME=env.config_server_name,
+            MAINTENANCE_MODE=modes[mode])
+        with cd(env.deploy_dir):
+            with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+                with cd('codalab'):
+                    run('python manage.py config_gen')
+                    sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+                    nginx_restart()
+    else:
+        print "Invalid mode. Valid values are 'begin' or 'end'"
 
 @roles('web')
 @task
@@ -418,3 +441,13 @@ def fetch_logs():
     require('configuration')
     with cd(env.deploy_dir):
         get('codalab/var/*.log', '~/logs/%(host)s/%(path)s')
+
+@task
+def enable_cors():
+    """
+    Enable cross-origin resource sharing for a Windows Azure storage service.
+    """
+    require('configuration')
+    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+    dep = Deployment(cfg)
+    dep.ensureStorageHasCorsConfiguration()
