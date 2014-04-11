@@ -27,3 +27,14 @@ def get_type(value):
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+@register.filter
+def get_by_name(dictionary, key):
+    return filter(lambda x: x['name'] == key, dictionary)
+
+@register.filter
+def get_array_or_attr(elem, attribute):
+    if attribute in elem and len(elem[attribute]) > 0:
+        return elem[attribute]
+    else:
+        return [elem]

@@ -1,3 +1,5 @@
+{% load codalab %}
+
 {% if phase == None %}
 {% elif phase.is_future %}
     <div class="columns">
@@ -53,12 +55,16 @@
             <tr>
                 <td class="row-position">{{pk}}</td>
                 <td>{{scoredata.username}}</td>
-                {% for v in scoredata.values %}
-                    {% if 'rnk' in v %}
-                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
-                    {% else %}
-                        <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
-                    {% endif %}
+                {% for head in group.headers %}
+                    {% for head_or_sub in head|get_array_or_attr:'subs' %}
+                        {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
+                            {% if 'rnk' in v %}
+                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                            {% else %}
+                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
                 {% endfor %}
             </tr>
             {% endfor %}
