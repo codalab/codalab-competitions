@@ -20,7 +20,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     class BundleService():
 
         def __init__(self):
-            self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL)
+            self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
+                                             settings.BUNDLE_SERVICE_URL,
+                                             lambda command: "")
 
         def items(self):
             return _call_with_retries(lambda: self.client.search())
