@@ -316,6 +316,14 @@ class DeploymentConfig(BaseConfig):
         """Gets the password for the database user."""
         return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
 
+    def getBundleServiceAppId(self):
+        """Gets the value of the OAuth client ID assigned to the bundle service."""
+        return self._svc['django']['bundle-app-id']
+
+    def getBundleServiceAppKey(self):
+        """Gets the value of the OAuth client secret assigned to the bundle service."""
+        return self._svc['django']['bundle-app-key']
+
 class Deployment(object):
     """
     Helper class to handle deployment of the web site.
@@ -888,6 +896,16 @@ class Deployment(object):
         storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
+        if len(self.config.getSslCertificateInstalledPath()) > 0:
+            bundle_auth_scheme = "https"  
+        else:
+            bundle_auth_scheme = "http"
+        if len(ssl_allowed_hosts) == 0:
+            bundle_auth_host = '{0}.cloudapp.net'.format(self.config.getServiceName())
+        else:
+            bundle_auth_host = ssl_allowed_hosts[0]
+        bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
+
         lines = [
             "from base import Base",
             "from default import *",
@@ -956,6 +974,9 @@ class Deployment(object):
             "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
             "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
             "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
+            "    BUNDLE_APP_ID = '{0}'".format(self.config.getBundleServiceAppId()),
+            "    BUNDLE_APP_KEY = '{0}'".format(self.config.getBundleServiceAppKey()),
+            "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
             "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
