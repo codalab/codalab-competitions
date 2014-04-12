@@ -21,8 +21,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def __init__(self):
             self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
-                                             settings.BUNDLE_SERVICE_URL,
-                                             lambda command: "")
+                                             lambda command: "") #TODO
 
         def items(self):
             return _call_with_retries(lambda: self.client.search())
