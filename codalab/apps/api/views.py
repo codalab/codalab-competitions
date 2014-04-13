@@ -498,6 +498,8 @@ class WorksheetsListApi(views.APIView):
     """
     def post(self, request):
         owner = self.request.user
+        if not owner.id:
+            return Response(None, status=401)
         data = json.loads(request.body)
         worksheet_name = data['name'] if 'name' in data else ''
         logger.debug("WorksheetCreation: owner=%s; name=%s", owner.id, worksheet_name)

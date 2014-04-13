@@ -1,13 +1,13 @@
 ﻿'use strict';
 
 angular.module('codalab.directives')
-    .directive('shortcut', function () {
+    .directive('shortcut', function() {
         return {
             restrict: 'E',
             replace: true,
             scope: true,
             link: function postLink($scope, iElement, iAttrs) {
-                var keyHandler = function (e) {
+                var keyHandler = function(e) {
                     $scope.$apply($scope.keyPressed(e));
                 };
                 $(document).on('keydown', keyHandler);

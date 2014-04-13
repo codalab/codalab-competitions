@@ -382,9 +382,13 @@ a > i {
   z-index: 1000;
 }
 
+.header-space{
+    padding-top: 45px;
+}
+
 /* line 352, ../sass/_settings.scss */
 .container {
-  padding-top: 45px;
+  padding-top: 0px;
   padding-bottom: 20px;
 }
 

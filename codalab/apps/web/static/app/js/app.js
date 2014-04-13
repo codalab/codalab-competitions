@@ -10,15 +10,15 @@ angular
         'ngAnimate',
         'codalab.controllers',
         'codalab.services',
-        'codalab.directives',
+        'codalab.directives'
     ])
-    .factory('$exceptionHandler', function () {
-        return function (exception) {
+    .factory('$exceptionHandler', function() {
+        return function(exception) {
+            console.error(exception.message);
             error(exception);
-            throw exception;
         };
     })
-    .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
+    .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider) {
         $routeProvider
             .when('/worksheets/app/:uuid/', {
                 templateUrl: '/static/app/partials/worksheet.html',
@@ -29,5 +29,5 @@ angular
                 controller: 'worksheets'
             });
 
-        $locationProvider.html5Mode(true);        
+        $locationProvider.html5Mode(true);
     }]);

@@ -1,37 +1,50 @@
-<div class="row">
-    <div class="large-12 columns worksheet-name">
-        <a href="#" class="right">
-            <button class="med button">Export</button>
-        </a>
-        <h2 class="worksheet-icon"></h2>
-        <label class="worksheet-author"></label>
-    </div>
-</div>
-<div class="row">
+<!-- Add a header marker to enable scrolling to this element and prevent the floating header overlapping content -->
+<div class="header-space" scroll-into="{{ 0==selectionIndex }}"></div>
+<div class="header-title-bg">
     <div class="large-12 columns">
-        <div id="worksheet-message">
-            {{status}}
-        </div>
-        <div id="worksheet-body">
-            <div id="worksheet-content">
+        <div class="row">
+            <div class="large-12 columns">
+                <h1>Worksheets</h1>
             </div>
         </div>
     </div>
 </div>
-<div id="bundle-template" style="visibility: hidden;">
+<div class="large-12 large-centered columns content">
+    <div class="row">
+        <div class="large-12 columns worksheet-name">
+            <a href="#" class="right">
+                <button class="med button">Export</button>
+            </a>
+            <h2 class="worksheet-icon"></h2>
+            <label class="worksheet-author"></label>
+        </div>
+    </div>
     <div class="row">
         <div class="large-12 columns">
-            <div class="bundle-tile">
-                <div class="large-12 columns">
-                    <a href="" class="bundle-download" alt="Download Bundle">
-                        <button class="small button secondary"><i class="fi-arrow-down"></i></button>
-                    </a>
-                    <label class="bundle-uuid"></label>
-                    <a href="" class="bundle-link"><h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4></a>
-                </div><hr>
-                <div class="bundle-meta-view-container"></div>
-                <a href="" class="bundle__expand_button">SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a>
-                <div class="bundle-file-view-container large-12-columns"></div>
+            <div id="worksheet-message">
+                {{status}}
+            </div>
+            <div id="worksheet-body">
+                <div id="worksheet-content">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="bundle-template" style="visibility: hidden;">
+        <div class="row">
+            <div class="large-12 columns">
+                <div class="bundle-tile">
+                    <div class="large-12 columns">
+                        <a href="" class="bundle-download" alt="Download Bundle">
+                            <button class="small button secondary"><i class="fi-arrow-down"></i></button>
+                        </a>
+                        <label class="bundle-uuid"></label>
+                        <a href="" class="bundle-link"><h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4></a>
+                    </div><hr>
+                    <div class="bundle-meta-view-container"></div>
+                    <a href="" class="bundle__expand_button">SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a>
+                    <div class="bundle-file-view-container large-12-columns"></div>
+                </div>
             </div>
         </div>
     </div>
