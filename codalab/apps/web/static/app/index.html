@@ -12,6 +12,7 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js"></script>
         <script src="/static/js/vendor/foundation.min.js"></script>
+        <script src="/static/js/vendor/markdown.min.js"></script>
         <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <!-- Track JS Errors -->
         <script type="text/javascript" src="//dl1d2m8ri9v3j.cloudfront.net/releases/1.2.4/tracker.js" data-customer="9969e023e9ea4abd8e41b486fbfe97e7"></script>
@@ -89,18 +90,7 @@
                     </section>
                 </nav>
             </div>
-            <div class="header-title-bg">
-                <div class="large-12 columns">
-                    <div class="row">
-                        <div class="large-12 columns">
-                            <h1>Worksheets</h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="large-12 large-centered columns content">
-                <ng-view><ng-view>
-            </div>
+            <ng-view><ng-view>
             <div id="layout_footer">
             </div>
         </div>
@@ -132,17 +122,10 @@
                 </ul>
             </div>
         </footer>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-route.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.js"></script>
-        <script src="/static/app/js/app.js"></script>
-        <script src="/static/app/js/services/worksheetsapi.js"></script>
-        <script src="/static/app/js/controllers/root.js"></script>
-        <script src="/static/app/js/controllers/worksheets.js"></script>
-        <script src="/static/app/js/controllers/worksheet.js"></script>
-        <script src="/static/app/js/directives/shortcut.js"></script>
-        <script src="/static/app/js/directives/setfocus.js"></script>
-        <script src="/static/js/vendor/markdown.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-route.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.min.js"></script>
+        <script src="/static/codalab.min.js"></script>
         <script type="text/javascript">
             // Initialize Foundation
             $(document).foundation();

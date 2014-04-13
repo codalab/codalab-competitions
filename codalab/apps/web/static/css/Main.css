@@ -2802,3 +2802,12 @@ pre, .bundle__file_pre, .bundle__file_pre pre {
 .nav-list li {
     display: inline-block;
 }
+.keyboard-shorcut {
+    padding: 2px 4px;
+    color: #d14;
+    background-color: #f7f7f9;
+    border-color: #e1e1e8;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 12px;
+}
