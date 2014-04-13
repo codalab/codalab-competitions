@@ -13,7 +13,7 @@
         "username": "{{BUNDLE_DB_USER}}",
         "password": "{{BUNDLE_DB_PASSWORD}}",
         "address": "localhost",
-        "database": "{{BUNDLE_DB_NAME}}"
+        "database": "{{BUNDLE_DB_NAME}}",
         "auth": {
             "class": "OAuthHandler",
             "address": "{{BUNDLE_AUTH_URL}}",
