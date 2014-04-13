@@ -330,13 +330,13 @@ var CodaLab;
                                     setTimeout(wait_for_competition, 1000);
                                 }
                             }).fail(function() {
-                                $('#details').html('An unexpected error occured.');
+                                $('#details').html('An unexpected error occurred.');
                                 $('#uploadButton').removeClass('disabled');
                             });
                         };
                         wait_for_competition();
                     }).fail(function() {
-                        $('#details').html('An unexpected error occured.');
+                        $('#details').html('An unexpected error occurred.');
                         $('#uploadButton').removeClass('disabled');
                     });
                 }

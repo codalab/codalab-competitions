@@ -536,28 +536,28 @@ class WorksheetListView(TemplateView):
     """
     Displays worksheets as a list.
     """
-    template_name = 'web/worksheets/index.html'
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetListView, self).get_context_data(**kwargs)
-        service = BundleService()
-        worksheets = service.worksheets()
-        items = []
-        for worksheet in worksheets:
-            item = {'uuid': worksheet['uuid'],
-                    'details_url': '/worksheets/{0}'.format(worksheet['uuid']),
-                    'name': '<name not specified>',
-                    'title': '',
-                    'creator': 'codalab',
-                    'description': ''}
-            for key in ['name', 'title', 'creator', 'description']:
-                if key in worksheet:
-                    item[key] = worksheet[key]
-            if len(item['title']) == 0:
-                item['title'] = item['name']
-            items.append(item)
-        context['items'] = items
-        context['items_label'] = 'worksheets'
-        return context
+    template_name = 'web/_index.html'
+    #def get_context_data(self, **kwargs):
+    #    context = super(WorksheetListView, self).get_context_data(**kwargs)
+    #    service = BundleService()
+    #    worksheets = service.worksheets()
+    #    items = []
+    #    for worksheet in worksheets:
+    #        item = {'uuid': worksheet['uuid'],
+    #                'details_url': '/worksheets/{0}'.format(worksheet['uuid']),
+    #                'name': '<name not specified>',
+    #                'title': '',
+    #                'creator': 'codalab',
+    #                'description': ''}
+    #        for key in ['name', 'title', 'creator', 'description']:
+    #            if key in worksheet:
+    #                item[key] = worksheet[key]
+    #        if len(item['title']) == 0:
+    #            item['title'] = item['name']
+    #        items.append(item)
+    #    context['items'] = items
+    #    context['items_label'] = 'worksheets'
+    #    return context
 
 class WorksheetDetailView(TemplateView):
     """
