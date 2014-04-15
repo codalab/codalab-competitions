@@ -68,9 +68,11 @@ angular.module('codalab.controllers')
                 switch (e.keyCode) {
                     case 38:
                     case 40: {
-                        var insertBellow = (e.keyCode === 40);
-                        $scope.addWorksheet($scope.selectionIndex, insertBellow);
-                        e.preventDefault();
+                        if ($scope.user.authenticated) {
+                            var insertBellow = (e.keyCode === 40);
+                            $scope.addWorksheet($scope.selectionIndex, insertBellow);
+                            e.preventDefault();
+                        }
                         break;
                     }
                 }
