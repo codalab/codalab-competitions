@@ -18,7 +18,7 @@ angular
             error(exception);
         };
     })
-    .config(['$routeProvider', '$locationProvider', '$httpProvider', function($routeProvider, $locationProvider, $httpProvider) {
+    .config(['$routeProvider', '$locationProvider', '$httpProvider', '$interpolateProvider', function($routeProvider, $locationProvider, $httpProvider, $interpolateProvider) {
         $routeProvider
             .when('/worksheets/app/:uuid/', {
                 templateUrl: '/static/app/partials/worksheet.html',
@@ -30,4 +30,8 @@ angular
             });
 
         $locationProvider.html5Mode(true);
+
+        // Since HTML static files are served through Django, avoid using their templating arguments
+        $interpolateProvider.startSymbol('{[{');
+        $interpolateProvider.endSymbol('}]}');
     }]);

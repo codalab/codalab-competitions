@@ -1,5 +1,5 @@
 /*css reset--------------------------------------*/
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article { 
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article {
 	margin:0;
 	padding:0;
 }
@@ -10,9 +10,9 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 }
 table {
 	border-collapse:collapse;
-	border-spacing:0; 
+	border-spacing:0;
 }
-fieldset,img { 
+fieldset,img {
 	border:0;
 }
 address,caption,cite,code,dfn,em,strong,th,var {
@@ -82,19 +82,19 @@ label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sa
  } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
 body
 {
-    scrollbar-face-color: #7c7c7c; 
+    scrollbar-face-color: #7c7c7c;
     scrollbar-highlight-color: #7c7c7c;
-    scrollbar-shadow-color: #7c7c7c; 
+    scrollbar-shadow-color: #7c7c7c;
     scrollbar-3dlight-color: #7c7c7c;
-    scrollbar-arrow-color: #f5f5f5; 
+    scrollbar-arrow-color: #f5f5f5;
     scrollbar-track-color: #ccc;
     scrollbar-darkshadow-color: #7c7c7c;
     min-width:1000px;
-    position:relative; 
+    position:relative;
     overflow-y:scroll;
 }
 .preloader, .buttonPreloader, .competitionPreloader {
-    background:url('../img/PreloaderTransp.gif') no-repeat center center; 
+    background:url('../img/PreloaderTransp.gif') no-repeat center center;
     width:30px;
     height:30px;
     margin:30% auto;
@@ -102,7 +102,7 @@ body
     display:none
 }
 .preloaderInput, .buttonPreloaderInput, .buttonPreloaderTxtArea, .preloaderInputImg {
-    background:url('../img/Preloader_Small.gif') no-repeat center center; 
+    background:url('../img/Preloader_Small.gif') no-repeat center center;
     text-align:left;
     width:22px;
     height:22px;
@@ -542,7 +542,7 @@ input[type="submit"][value="Delete"]
 .buttonRegisterCompetition {
     margin-right:10px;
 }
-.grayGradientBtn a,.buttonRegisterCompetition a 
+.grayGradientBtn a,.buttonRegisterCompetition a
 {
     font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#07b4db;
@@ -565,7 +565,7 @@ input[type="submit"][value="Delete"]
     border:0;
 }
 .compBlockRightContainer .competition-tile,.competitionTilePreload
-{   
+{
     border:solid 1px #ccc;
     margin-bottom:10px;
     min-height:110px;
@@ -590,7 +590,7 @@ input[type="submit"][value="Delete"]
 }
 /*Container----------------------------------------*/
 .bodyContainer{
-  
+
     overflow:hidden;
     clear:both;
 }
@@ -726,7 +726,7 @@ figure.userImage {
 .userSocialNetworkBlock .twitIcon,.userSocialNetworkBlock .fBIcon,.userSocialNetworkBlock .linkedIcon {
     background:url('../img/FBIcon.jpg') no-repeat center top;
     width:20px;
-    height:20px; 
+    height:20px;
     float:left;
     margin-right:6px;
     cursor:pointer;
@@ -913,7 +913,7 @@ div.articleImageContainer
     display:table;
     width:100%;
 }
-.articleTextAreaContainer .subContainerPadding{ 
+.articleTextAreaContainer .subContainerPadding{
     vertical-align:top;
 }
 .articleTextArea .globalYellowButtonSmallAtag{
@@ -1232,8 +1232,8 @@ div.articleImageContainer
     text-overflow:ellipsis;
 }
 .challStatusStripSection > section span {
-    font-size: .7em; 
-    white-space:nowrap; 
+    font-size: .7em;
+    white-space:nowrap;
     width:100%;
     text-align:left;
 }
@@ -1276,7 +1276,7 @@ div.articleImageContainer
 .challStatusStripTxt .dataStatusHolder:nth-child(3) {
     left:550px;
 }
-.contentScroll 
+.contentScroll
 {
     height:600px;
     overflow:auto;
@@ -1372,7 +1372,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     cursor:pointer;
     border:solid 1px #ccc;
     border-bottom:0;
-    background:#f8f8f8; 
+    background:#f8f8f8;
     margin-bottom:0 !important;
 }
 .competitionsDetailTabBlock,.myCodalabTabContent {
@@ -1401,8 +1401,8 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
 .unResisted .infoStatusBar {
     background:#8BC7BF;
 }
-.pendingApproval .infoStatusBar { 
-    background:#D1BF90; 
+.pendingApproval .infoStatusBar {
+    background:#D1BF90;
 }
 .rejectedApproval .infoStatusBar {
     background:#477473;
@@ -1414,7 +1414,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     overflow:hidden;
     min-height:45px;
     padding:10px 25px;
-} 
+}
 .CompetitionsDetailContainer .regApprovLabel {
     font:bold 14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
@@ -1604,7 +1604,7 @@ font-weight:normal !important;
 }
 .viewStateOff,.viewStateDisabled {
     opacity:.2;
-    filter: alpha(opacity=20);  
+    filter: alpha(opacity=20);
     cursor:default;
 }
 .viewStateOff label,.viewStateDisabled label{
@@ -1711,7 +1711,7 @@ font-weight:normal !important;
 .CompetitionsDetailRit dd {
     font:italic 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#777777;
-    padding-bottom:15px; 
+    padding-bottom:15px;
     margin-left:40px;
 }
 code {
@@ -1793,8 +1793,8 @@ code {
     vertical-align:top;
     padding:0 10px 10px;
 }
-.preSubmissionToggle .linkBlock a,.preSubmissionToggleView .linkBlock a{ 
-    display:inline-block; 
+.preSubmissionToggle .linkBlock a,.preSubmissionToggleView .linkBlock a{
+    display:inline-block;
     float:left;
     margin:2px 0;
     clear:both;
@@ -1873,7 +1873,7 @@ code {
     position:absolute;
     top:10px;
     right:20px;
-} 
+}
 .phaseLegendContainer {
     position:absolute;
     top:25px;
@@ -1918,7 +1918,7 @@ code {
     filter: alpha(opacity=80);
     cursor:pointer !important;
 }
-/*Callander*/ 
+/*Callander*/
 #ui-datepicker-div.ui-widget-content
 {
     background:#fff;
@@ -2725,7 +2725,7 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
      -moz-transform: rotate(180deg);
      -ms-transform: rotate(180deg);
      -o-transform: rotate(180deg);
-     transform: rotate(180deg); 
+     transform: rotate(180deg);
 }
 .bundle__file_view {
     width: 100%;
@@ -2810,4 +2810,7 @@ pre, .bundle__file_pre, .bundle__file_pre pre {
     border-width: 1px;
     border-style: solid;
     font-size: 12px;
+}
+.keyboard-text {
+		display: inline-block;
 }
