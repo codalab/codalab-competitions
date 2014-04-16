@@ -21,5 +21,15 @@ files = [
 	"app/js/directives/scrollintoview.js",
 	]
 
+# Run JSLint
 call(["gjslint", "--disable", "110"] + files)
+
+# Minify js files
 call(["java", "-jar", sys.argv[1], "--js"] + files + ["--js_output_file", "codalab.min.js", "--create_source_map", "codalab.min.map", "--output_wrapper", "%output%//# sourceMappingURL=/static/codalab.min.map"])
+
+# To allow debugging in browsers that don't support source maps, create a single JS file
+with open('codalab.js', 'w') as outfile:
+    for file in files:
+        with open(file) as infile:
+            for line in infile:
+                outfile.write(line)
