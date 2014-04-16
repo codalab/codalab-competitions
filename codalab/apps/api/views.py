@@ -468,7 +468,7 @@ class WorksheetsInfoApi(views.APIView):
         info = {
             'config': {
                 'beta' : settings.SHOW_BETA_FEATURES,
-                'preview' : settings['PREVIEW_WORKSHEETS'] if hasattr(settings, 'PREVIEW_WORKSHEETS') else '',
+                'preview' : settings.PREVIEW_WORKSHEETS if hasattr(settings, 'PREVIEW_WORKSHEETS') else '',
                 'loginUrl' : settings.LOGIN_URL,
                 'logoutUrl' : settings.LOGOUT_URL,
             },

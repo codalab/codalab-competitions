@@ -536,7 +536,7 @@ class WorksheetListView(TemplateView):
     """
     Displays worksheets as a list.
     """
-    template_name = 'app.html'
+    template_name = 'web/worksheets/index.html'
     def get_context_data(self, **kwargs):
         context = super(WorksheetListView, self).get_context_data(**kwargs)
         return context
