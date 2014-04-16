@@ -10,7 +10,8 @@ angular.module('codalab.services')
         };
         var apiCall = function(url) {
             return function() {
-                return $http.get(url).then(success, failure);
+                // Prevent some browsers from caching requests by adding a preventCache parameter.
+                return $http.get(url + '?preventCache=' + Math.floor(Math.random() * 1000)).then(success, failure);
             }
         };
         var apiPostCall = function(url) {
