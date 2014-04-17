@@ -11,7 +11,7 @@ $dark-gray: #333;
 $light-background-blue:#eff2f9;
 $link-color: #676278;
 $background-gray:#f8f8f8;
-$white:#fff;
+$white:#FFF;
 $text-color-gray:#3b3b3b;
 
 $primary-color: $background;
@@ -34,6 +34,7 @@ $anchor-font-color-hover: $background;
 $anchor-font-color-active: $active;
 
 $inline-list-bottom-margin: 0;
+$list-style-position: outside;
 
 $panel-margin-bottom: 0px;
 $panel-padding-bottom: 0px;
@@ -58,138 +59,138 @@ $side-nav-link-color-hover: $active;
 $side-nav-font-size: 15px;
 
 @mixin linkStyle {
-	color:$link-color !important;
-	font-size:15px !important;
+    color:$link-color !important;
+    font-size:15px !important;
 }
 
 @mixin paragraph-Style {
-	color:$text-color-gray;
-	font-size:13px;
-	line-height:22px;
+    color:$text-color-gray;
+    font-size:13px;
+    line-height:22px;
 }
 
 @mixin textbox-style {
-	box-shadow:inset 0 0 8px #ccc;
-	border-radius:5px;
+    box-shadow:inset 0 0 8px #ccc;
+    border-radius:5px;
 }
 
 @mixin table-header-white {
-	background:#648ca8;  
-	color:#fff;  
+    background:#648ca8;  
+    color:#fff;  
 }  
 
 *{
     font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-size:   100%;
-	font-weight: normal;
+    font-size:   100%;
+    font-weight: normal;
 }
 
 body.body
 {
-	position:static;
+    position:static;
 }
 
 select {
-	color: $dark-gray;
+    color: $dark-gray;
 }
 
 form textarea {
-	color: $dark-gray;
-	font-size: 16px;
+    color: $dark-gray;
+    font-size: 16px;
 }
 
 .menu-icon {
-	background: $foreground;
+    background: $foreground;
 }
 
 .menu-icon > span, .menu-icon > span a, .menu-icon > span a:hover {
-	border-bottom-style: none;
-	border: 0px;
-	padding: 2px;
+    border-bottom-style: none;
+    border: 0px;
+    padding: 2px;
 }
 
 div.large-12 div.row div.small-12 div.panel p {
-	font-size: .9em;
+    font-size: .9em;
 }
 
 span.has-tip {
-	border-bottom: 0px;
+    border-bottom: 0px;
 }
 
 html.js body.body div#layout.container div.large-12 div.row div.large-10 div.section-container section.active div.content div.row div.large-3 {
-	padding-top: 13px;
+    padding-top: 13px;
 }
 
 div.competition-tile article.subContainer div.articleTextArea div.small-10 button.globalYellowButtonSmall a {
-	color: $foreground;
+    color: $foreground;
 }
 
 nav.top-bar section.top-bar-section ul.right {
-	color: $foreground;
-	background: $white;
-	vertical-align: text-bottom;
+    color: $foreground;
+    background: $white;
+    vertical-align: text-bottom;
 }
 
 div.CompetitionsDetailContainer div.section-container section:not(.active) p a:hover {
- 	color: $active;
+    color: $active;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title {
-	background: transparent;
-	margin-left: 20px;
+    background: transparent;
+    margin-left: 20px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content {
-	border: 0px;
+    border: 0px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p.title a {
-	padding: 2px;
-	text-align: left;
-	border: 0px;
-	font-weight: normal;
+    padding: 2px;
+    text-align: left;
+    border: 0px;
+    font-weight: normal;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section p {
-	border: 0px;
+    border: 0px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content {
-	margin-left: 10px;
+    margin-left: 10px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container div.content ul {
-	list-style: disc;
-	margin-left: 20px;
+    list-style: disc;
+    margin-left: 20px;
 }
 
 div.CompetitionsDetailContainer div.section-container section.active div.content div.section-container section.active div.content em {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 #layout.container div.large-12 div.row div div.large-3 ul {
-	text-align: right;
+    text-align: right;
 }
 
 #layout.container div.large-12 div.row div div.large-3 ul a:hover {
-	color: $active;
+    color: $active;
 }
 
 #layout.container div.large-12 div.row div.large-9 {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 #layout.container div.large-12 div.row div div.large-3 ul {
-	padding: 0px;
+    padding: 0px;
 }
 
 td > i, td > a > i {
-	color: $background;
+    color: $background;
 }
 
 a > i {
-	height: 100%;
-	color: $foreground;
+    height: 100%;
+    color: $foreground;
 }
 
 .competitionsDetailTabArea > section > .title {
@@ -198,11 +199,11 @@ a > i {
 }
 
 .competitionsDetailTabArea > section > .title a:hover {
-	color: $active;
+    color: $active;
 }
 
 .process_participant_request {
-	padding-top: 10px;
+    padding-top: 10px;
 }
 
 .competitionUserBlock
@@ -214,114 +215,114 @@ a > i {
 }
 
 .user_results, .competition_results {
-	padding-top: 10px;
+    padding: 10px 0;
 }
 
 .globalBlueButton a, .globalBlueButton a:hover {
-	color: $foreground;
+    color: $foreground;
 }
 
 .content > h3 {
-	font-size: 1.4em;
-	font-weight: lighter;
+    font-size: 1.4em;
+    font-weight: lighter;
 }
 
 .content > p {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 .section-container.vertical-tabs > section > .content {
-	border: 0px;
-	color: #3b3b3b;
+    border: 0px;
+    color: #3b3b3b;
 }
 
 .competitionProcessHeader > ul > li {
-	height: 100%;
+    height: 100%;
 }
 
 .competitionProcessHeader > ul > li > a {
-	color: $foreground;
-	font-size: 13px;
-	padding-left: 40px;
-	padding-right: 40px;
+    color: $foreground;
+    font-size: 13px;
+    padding-left: 40px;
+    padding-right: 40px;
 }
 
 .competition-preview {
-	border: 1px solid $light-gray;
-	margin-top: 5px;
-	margin-bottom: 5px;
+    border: 1px solid $light-gray;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .competition-summary {
-	background: #fafafa;
-	height: 100px;
-	overflow: hidden;
+    background: #fafafa;
+    height: 100px;
+    overflow: hidden;
 }
 
 .competition-preview > .columns > .button.small {
-	vertical-align: middle;
-	margin-bottom: 5px;
-	margin-top: 5px;
-	text-align: center;
-	background: $active;
-	border-color: $active;
+    vertical-align: middle;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    text-align: center;
+    background: $active;
+    border-color: $active;
 }
 
 .competition-summary > .columns {
-	margin: 0px;
-	padding: 0px;
+    margin: 0px;
+    padding: 0px;
 }
 
 .competition-label {
-	height: 100px;
-	background: $background;
-	color: $foreground;
-	padding-right: 0px;
-	padding-left: 0px;
+    height: 100px;
+    background: $background;
+    color: $foreground;
+    padding-right: 0px;
+    padding-left: 0px;
 }
 
 .competition-image {
-	padding: 0px;
-	margin: 0px;
-	height: 100px;
-	vertical-align: middle;
+    padding: 0px;
+    margin: 0px;
+    height: 100px;
+    vertical-align: middle;
 }
 
 .competition-info .columns {
-	padding: 0px;
-	margin: 0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .competition-title {
-	color: $dark-gray;
-	text-align: left;
-	font-size:15px;
+    color: $dark-gray;
+    text-align: left;
+    font-size:15px;
 }
 
 .large-12 > .competition-label {
-	margin: 0px;
-	padding: 0px;
-	width: 30px;
+    margin: 0px;
+    padding: 0px;
+    width: 30px;
 }
 
 .competition-description, .competition-owner {
-	font-size: small;
-	color:$medium-light-gray;
+    font-size: small;
+    color:$medium-light-gray;
 }
 
 .slider {
-	color: $foreground;
-   	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-	font-size: 3.5em;
-	font-weight: 100;
-	position: relative;
-	text-align: center;
-	background: #D0D0D0;
-	padding-top: 70px;
-	margin: 0 auto;
-	width: 100%;
-	min-height: 200px;
-	vertical-align: middle;
+    color: $foreground;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+    font-size: 3.5em;
+    font-weight: 100;
+    position: relative;
+    text-align: center;
+    background: #D0D0D0;
+    padding-top: 70px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 200px;
+    vertical-align: middle;
 }
 
 .subheader {
@@ -330,238 +331,244 @@ a > i {
 }
 
 #footer, #footer a, #footer a:hover {
-	font-size: small;
-	background: $background;
-	color: $foreground;
+    font-size: small;
+    background: $background;
+    color: $foreground;
 }
 
 .topbar-title {
-	font-size: x-large;
-	font-weight: light;
+    font-size: x-large;
+    font-weight: light;
 }
 
 .header{
-	position:fixed;
-	left:0;
-	width:100%;
-	top:0;
-	z-index:1000;
+    position:fixed;
+    left:0;
+    width:100%;
+    top:0;
+    z-index:1000;
+}
+
+.header-space{
+    padding-top: 45px;
 }
 
 .container {
-	padding-top:45px;
-	padding-bottom:20px;
+    padding-top:0px;
+    padding-bottom:20px;
 }
 
-p.competition-paragraph {
-	font-size: 1em;
-	color:$gray;
-	line-height: 1.6em;
-	margin-bottom:0;
+p.competition-paragraph, div.competition-paragraph {
+    font-size: 1em;
+    color:$gray;
+    line-height: 1.6em;
+    margin-bottom:0;
+    font-weight: normal;
 }
 
 .competition-info {
-	height:90px;
-	overflow:hidden;
-	padding-top:5px;
+    height:90px;
+    overflow:hidden;
+    padding-top:5px;
 }
 
 .competition-image > img {
-	height:90px;
-	margin-top:5px;
+    height:90px;
+    margin-top:5px;
 }
 
 .competition-preview.panel {
-	background:#fafafa;
+    background:#fafafa;
 }
 
 .competition-tile {
-	margin-bottom: 20px;
-	border: 1px #CCC solid;
-	border-radius: 3px;
-	background: #FFF;
-	box-shadow: 0 0 5px rgba(0,0,0,0.15);
-	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
-	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    border: 1px #CCC solid;
+    border-radius: 3px;
+    background: #FFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
     overflow: hidden;
+    font-weight: normal;
 }
 
-.competition-tile h3 {
-	font-size:16px;
-	color:$dark-gray;
+.competition-tile h3, .bundle-tile h3 {
+    font-size:16px;
+    color:$dark-gray;
 }
 
 .articleHeadingContainer h3 {
-	margin:0;
-	line-height:100%;
+    margin:0;
+    line-height:100%;
 }
 
 .articleHeadingContainer label {
-	color:$light-medium-gray;
-	margin-top:4px;
-	margin-bottom:14px;
-	font-size:12px;
+    color:$light-medium-gray;
+    margin-top:4px;
+    margin-bottom:14px;
+    font-size:12px;
 }
 
 .signin-centered-container {
-	margin:auto !important;
-	float:none !important;
-	background:$light-background-blue;
-	padding:25px;
+    margin:auto !important;
+    float:none !important;
+    background:$light-background-blue;
+    padding:25px;
 }
 
 .small-6.pull-6.columns > .globalBlueButton {
-	float:right
+    float:right
 }
 
 .signin-formfields p:nth-child(3) > input {
-	float:left;
-	position:relative;
-	top:-20px;
+    float:left;
+    position:relative;
+    top:-20px;
 }
 
 .signin-formfields p:nth-child(3) > label {
-	padding-left:20px;
+    padding-left:20px;
 }
 
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
-	box-shadow:none;
-	white-space:nowrap;
-	a {
-		&:focus{color:$white !important}
-	}
+    box-shadow:none;
+    white-space:nowrap;
+    a {
+        &:focus{color:$white !important}
+    }
 }
 
 .signin-centered-container > p > a {
-	display:inline-block;
+    display:inline-block;
 }
 
 ul.side-nav {
-	 padding-top:0;
-	 li {
-		margin-bottom:2px;
-	 }
-	 li a {
-		@include linkStyle;
-		&:hover{color:$active}
-		&:active{background:none}
-	  }
-	li.active a {
-		color:$gray !important;
-		border-left: #676278 4px solid;
-		text-indent: 10px;
-	}
+     padding-top:0;
+     li {
+        margin-bottom:2px;
+     }
+     li a {
+        @include linkStyle;
+        &:hover{color:$active}
+        &:active{background:none}
+      }
+    li.active a {
+        color:$gray !important;
+        border-left: #676278 4px solid;
+        text-indent: 10px;
+    }
 } 
 
 .glossary-page-container, competitions-block-Styling {
-	h6 { 
-		font-size:18px; 
-		color:$gray;
-		}
+    h6 { 
+        font-size:18px; 
+        color:$gray;
+        }
 
-	p { 
-		font-size:14px; 
-		color:$gray;
-		}
+    p { 
+        font-size:14px; 
+        color:$gray;
+        }
 
-	ol { 
-		font-size:14px; color:$gray;
+    ol { 
+        font-size:14px; color:$gray;
 
-		li {
-			padding-bottom:10px;
-			list-style-type:disc;
-		}
-	}
+        li {
+            padding-bottom:10px;
+            list-style-type:disc;
+        }
+    }
 
-	ul { 
-		font-size:14px; 
-		color:$gray;
-		margin-left:20px;
+    ul { 
+        font-size:14px; 
+        color:$gray;
+        margin-left:20px;
 
-		li{
-			padding-bottom:10px;
-			list-style-type:disc;
-		}
-	}
+        li{
+            padding-bottom:10px;
+            list-style-type:disc;
+        }
+    }
 
-	pre {
-		padding:10px;
-		background:$banner;
-		margin-bottom:15px;
-		}
+    pre {
+        padding:10px;
+        background:$banner;
+        margin-bottom:15px;
+        }
 
-	p a {
-		color:$link-color;
-		}
+    p a {
+        color:$link-color;
+        }
 
-	b {
-		color:$gray;
-	}
+    b {
+        color:$gray;
+    }
 }
 
 div.auto.section-container > section > .title, .auto.section-container > .section > .title{
-		a{
-		background:$background-gray;
-		padding-left:40px !important;
-		padding-right:40px !important;
-		font-size:19px;
-		height:57px;
-		font-weight: lighter;
-		}
+        a{
+        background:$background-gray;
+        padding-left:40px !important;
+        padding-right:40px !important;
+        font-size:19px;
+        height:57px;
+        font-weight: lighter;
+        }
 }
 
 .auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
-	background:$white !important;
+    background:$white !important;
 }
 
 .auto.section-container > section.active > .title {
-	border-bottom: none;
-	a {
-		background:$white;
-	}
+    border-bottom: none;
+    a {
+        background:$white;
+    }
 }
 
 .section-container.vertical-tabs {
-	 .content{
-			padding-top:1px !important;
-			@extend competitions-block-Styling;
-				p {
-					@include paragraph-Style;
-				}
-			}
-	
-	.CompetitionsDetailLftUl {
-		margin-bottom:2px;
+     .content{
+            padding-top:1px !important;
+            @extend competitions-block-Styling;
+                p {
+                    @include paragraph-Style;
+                }
+            }
+    
+    .CompetitionsDetailLftUl {
+        margin-bottom:2px;
 
-		p a {
-			@include linkStyle;
-			&:hover{color:$active !important;}
-			&:active{background:none !important;}
-		}
-	}
+        p a {
+            @include linkStyle;
+            &:hover{color:$active !important;}
+            &:active{background:none !important;}
+        }
+    }
 
-	.active p a {
-			color:$active !important;
-			font-weight:bold;
-	}
+    .active p a {
+            color:$active !important;
+            font-weight:bold;
+    }
 }
 
 .participateInfoBlock p {
-	@include paragraph-Style;
+    @include paragraph-Style;
 }
 
 .deny_reason {
-	@include textbox-style;
+    @include textbox-style;
 }
 
 div.pending-approval-select.columns {
-	padding-left:0.93em;
+    padding-left:0.93em;
 }
 .competitionUserBlock {
-	 h3 {
-		color:$highlight;
-		margin-bottom:2px;
-	 }
+     h3 {
+        color:$highlight;
+        margin-bottom:2px;
+     }
 }
 
 .glossary-page-container {
@@ -626,96 +633,96 @@ div.pending-approval-select.columns {
   
 .hide
 {
-	display:none !important;
+    display:none !important;
 }
 
 .leaderboard-result-table {
-	margin: 0 15px;
-	overflow-x: auto;
-	overflow-y: auto;
-	clear:both;
-	min-height:400px;
-	table {
-		table-layout:auto;
-		tr {
-			th { 
-				vertical-align:top;
-				border:solid 1px #8eb0c7; 
-				text-align:center;
-				background:#dce9f2;
-				color:#648ca8;
-				font-size: 12px;
-			}
-		}
-		tr.leaderboard-result-table-header {
-			th {
-				@include table-header-white;
-			}
-		}
-		tr {
-			th.column-selected {
-				background:#99bece !important;
-				color:#fff !important;
-			}
-		}
-		tr:nth-child(odd) {
-			.column-selected {  
-				background:#e8e8e8 !important;  
-			}  
-		}
-		tr:nth-child(2) {
-			th:nth-child(1) {
-				@include table-header-white;
-			}
-			th:nth-child(2) {
-				@include table-header-white;
-			}
-			th:last-child {
-				@include table-header-white;
-			}
-		}
-	}
+    margin: 0 15px;
+    overflow-x: auto;
+    overflow-y: auto;
+    clear:both;
+    min-height:400px;
+    table {
+        table-layout:auto;
+        tr {
+            th { 
+                vertical-align:top;
+                border:solid 1px #8eb0c7; 
+                text-align:center;
+                background:#dce9f2;
+                color:#648ca8;
+                font-size: 12px;
+            }
+        }
+        tr.leaderboard-result-table-header {
+            th {
+                @include table-header-white;
+            }
+        }
+        tr {
+            th.column-selected {
+                background:#99bece !important;
+                color:#fff !important;
+            }
+        }
+        tr:nth-child(odd) {
+            .column-selected {  
+                background:#e8e8e8 !important;  
+            }  
+        }
+        tr:nth-child(2) {
+            th:nth-child(1) {
+                @include table-header-white;
+            }
+            th:nth-child(2) {
+                @include table-header-white;
+            }
+            th:last-child {
+                @include table-header-white;
+            }
+        }
+    }
 }
 
 .leaderboard-result-table .table-title th {
-	font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	color: #FFF;
-	font-weight: lighter;
-	font-size: 1.4em;
-	background-color: #676278;
-	text-transform: none;
-	text-align: left;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #FFF;
+    font-weight: lighter;
+    font-size: 1.4em;
+    background-color: #676278;
+    text-transform: none;
+    text-align: left;
 }
 
 .preloader-handler {
-	position:relative;
+    position:relative;
 }
 
 .submissions-details-label{
-	margin-bottom:0 !important;
+    margin-bottom:0 !important;
 }
 
 #submissions_phase_buttons .button{
-	margin-left:10px !important;
-	margin-bottom:5px !important;
+    margin-left:10px !important;
+    margin-bottom:5px !important;
 }
 #fileUploadButton{
-	margin-bottom:5px;
+    margin-bottom:5px;
 }
 .challStatusStripSection { 
-	section{
-		width:auto;
-	}
+    section{
+        width:auto;
+    }
 }
 .competition-tile{
-	.subContainerPadding{
-		max-height:130px; 
-	}
-	.articleImageContainer{
-		img{
-			height: 110px;
-			width: auto;
-			overflow: hidden;
-		}
-	}
+    .subContainerPadding{
+        max-height:130px; 
+    }
+    .articleImageContainer{
+        img{
+            height: 110px;
+            width: auto;
+            overflow: hidden;
+        }
+    }
 }

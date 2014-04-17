@@ -1,5 +1,5 @@
 /*css reset--------------------------------------*/
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article { 
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article {
 	margin:0;
 	padding:0;
 }
@@ -10,9 +10,9 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 }
 table {
 	border-collapse:collapse;
-	border-spacing:0; 
+	border-spacing:0;
 }
-fieldset,img { 
+fieldset,img {
 	border:0;
 }
 address,caption,cite,code,dfn,em,strong,th,var {
@@ -26,7 +26,7 @@ caption,th {
 	text-align:left;
 }
 h1,h2,h3,h4,h5,h6 {
-    font-family: 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size:100%;
 	font-weight:lighter;
     color:#777;
@@ -82,19 +82,19 @@ label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sa
  } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
 body
 {
-    scrollbar-face-color: #7c7c7c; 
+    scrollbar-face-color: #7c7c7c;
     scrollbar-highlight-color: #7c7c7c;
-    scrollbar-shadow-color: #7c7c7c; 
+    scrollbar-shadow-color: #7c7c7c;
     scrollbar-3dlight-color: #7c7c7c;
-    scrollbar-arrow-color: #f5f5f5; 
+    scrollbar-arrow-color: #f5f5f5;
     scrollbar-track-color: #ccc;
     scrollbar-darkshadow-color: #7c7c7c;
     min-width:1000px;
-    position:relative; 
+    position:relative;
     overflow-y:scroll;
 }
 .preloader, .buttonPreloader, .competitionPreloader {
-    background:url('../img/PreloaderTransp.gif') no-repeat center center; 
+    background:url('../img/PreloaderTransp.gif') no-repeat center center;
     width:30px;
     height:30px;
     margin:30% auto;
@@ -102,7 +102,7 @@ body
     display:none
 }
 .preloaderInput, .buttonPreloaderInput, .buttonPreloaderTxtArea, .preloaderInputImg {
-    background:url('../img/Preloader_Small.gif') no-repeat center center; 
+    background:url('../img/Preloader_Small.gif') no-repeat center center;
     text-align:left;
     width:22px;
     height:22px;
@@ -542,7 +542,7 @@ input[type="submit"][value="Delete"]
 .buttonRegisterCompetition {
     margin-right:10px;
 }
-.grayGradientBtn a,.buttonRegisterCompetition a 
+.grayGradientBtn a,.buttonRegisterCompetition a
 {
     font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#07b4db;
@@ -565,7 +565,7 @@ input[type="submit"][value="Delete"]
     border:0;
 }
 .compBlockRightContainer .competition-tile,.competitionTilePreload
-{   
+{
     border:solid 1px #ccc;
     margin-bottom:10px;
     min-height:110px;
@@ -581,7 +581,7 @@ input[type="submit"][value="Delete"]
 }
 .competitionUserBlock h3
 {
-    font:normal 17px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 17px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#0b9fc1;
     font-weight: lighter;
 }
@@ -590,7 +590,7 @@ input[type="submit"][value="Delete"]
 }
 /*Container----------------------------------------*/
 .bodyContainer{
-  
+
     overflow:hidden;
     clear:both;
 }
@@ -601,7 +601,7 @@ input[type="submit"][value="Delete"]
 }
 .mainContainer h2
 {
-    font: 20px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 20px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#666;
     padding-bottom:15px;
     font-weight: lighter;
@@ -617,7 +617,7 @@ input[type="submit"][value="Delete"]
     overflow:hidden;
     padding:15px;
 }
-.competitionTileLftStrip{
+.competitionTileLftStrip {
     background:#739CB9;
     display:table-cell;
     width:10px;
@@ -669,7 +669,7 @@ input[type="submit"][value="Delete"]
     padding:25px 40px 0 0;
 }
 .subContainerMain h3 {
-    font:normal 25px 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font:normal 25px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
     padding-bottom:20px;
 }
@@ -699,7 +699,7 @@ input[type="submit"][value="Delete"]
     display:table;
     table-layout:fixed;
     width:100%;
-    height: 140px;
+    min-height: 140px;
 }
 
 .subContainer .articleTextArea p
@@ -726,7 +726,7 @@ figure.userImage {
 .userSocialNetworkBlock .twitIcon,.userSocialNetworkBlock .fBIcon,.userSocialNetworkBlock .linkedIcon {
     background:url('../img/FBIcon.jpg') no-repeat center top;
     width:20px;
-    height:20px; 
+    height:20px;
     float:left;
     margin-right:6px;
     cursor:pointer;
@@ -913,13 +913,16 @@ div.articleImageContainer
     display:table;
     width:100%;
 }
-.articleTextAreaContainer .subContainerPadding{ 
+.articleTextAreaContainer .subContainerPadding{
     vertical-align:top;
 }
 .articleTextArea .globalYellowButtonSmallAtag{
     padding:0 10px 10px 10px;
 }
-
+.articleButtonsArea {
+    float: right;
+    margin: 10px;
+}
 /*CompetitionProcess-------------------------------*/
 .ui-tabs-hide
 {
@@ -1229,8 +1232,8 @@ div.articleImageContainer
     text-overflow:ellipsis;
 }
 .challStatusStripSection > section span {
-    font-size: .7em; 
-    white-space:nowrap; 
+    font-size: .7em;
+    white-space:nowrap;
     width:100%;
     text-align:left;
 }
@@ -1273,7 +1276,7 @@ div.articleImageContainer
 .challStatusStripTxt .dataStatusHolder:nth-child(3) {
     left:550px;
 }
-.contentScroll 
+.contentScroll
 {
     height:600px;
     overflow:auto;
@@ -1369,7 +1372,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     cursor:pointer;
     border:solid 1px #ccc;
     border-bottom:0;
-    background:#f8f8f8; 
+    background:#f8f8f8;
     margin-bottom:0 !important;
 }
 .competitionsDetailTabBlock,.myCodalabTabContent {
@@ -1398,8 +1401,8 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
 .unResisted .infoStatusBar {
     background:#8BC7BF;
 }
-.pendingApproval .infoStatusBar { 
-    background:#D1BF90; 
+.pendingApproval .infoStatusBar {
+    background:#D1BF90;
 }
 .rejectedApproval .infoStatusBar {
     background:#477473;
@@ -1411,7 +1414,7 @@ ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
     overflow:hidden;
     min-height:45px;
     padding:10px 25px;
-} 
+}
 .CompetitionsDetailContainer .regApprovLabel {
     font:bold 14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#535353;
@@ -1424,23 +1427,30 @@ font-weight:normal !important;
 }
 
 /*result table--------------*/
-.prevResultSubmission {
+.resultsTable {
     margin-top:20px;
     width:100%;
     table-layout:fixed;
 }
-.prevResultSubmission th {
+.resultsTable.dataTable th {
     text-transform:uppercase;
     background:#739CB9;
     padding:13px 10px;
     text-align:left;
     font-size:13px;
     color:#fff;
-}  
-.prevResultSubmission > tr:nth-child(odd) td {
+    cursor: auto;
+}
+.resultsTable th a {
+    color:#fff;
+}
+.resultsTable th a:hover {
+    text-decoration:underline;
+}
+.resultsTable > tr:nth-child(odd) td {
     background:#EBF2FB;
 }
-.prevResultSubmission td {
+.resultsTable td {
     padding:8px 10px;
     color:#5c5c5c;
     text-align:left;
@@ -1594,7 +1604,7 @@ font-weight:normal !important;
 }
 .viewStateOff,.viewStateDisabled {
     opacity:.2;
-    filter: alpha(opacity=20);  
+    filter: alpha(opacity=20);
     cursor:default;
 }
 .viewStateOff label,.viewStateDisabled label{
@@ -1701,7 +1711,7 @@ font-weight:normal !important;
 .CompetitionsDetailRit dd {
     font:italic 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color:#777777;
-    padding-bottom:15px; 
+    padding-bottom:15px;
     margin-left:40px;
 }
 code {
@@ -1783,8 +1793,8 @@ code {
     vertical-align:top;
     padding:0 10px 10px;
 }
-.preSubmissionToggle .linkBlock a,.preSubmissionToggleView .linkBlock a{ 
-    display:inline-block; 
+.preSubmissionToggle .linkBlock a,.preSubmissionToggleView .linkBlock a{
+    display:inline-block;
     float:left;
     margin:2px 0;
     clear:both;
@@ -1863,7 +1873,7 @@ code {
     position:absolute;
     top:10px;
     right:20px;
-} 
+}
 .phaseLegendContainer {
     position:absolute;
     top:25px;
@@ -1908,7 +1918,7 @@ code {
     filter: alpha(opacity=80);
     cursor:pointer !important;
 }
-/*Callander*/ 
+/*Callander*/
 #ui-datepicker-div.ui-widget-content
 {
     background:#fff;
@@ -2251,6 +2261,7 @@ ul.leftNavigation li.active a{
     padding:10px;
     background:#ebf2fb;
     margin-bottom:15px;
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
 }
 .breadcrumb{
     height:30px;
@@ -2343,7 +2354,7 @@ ul.leftNavigation li.active a{
     height:18px;
     width:18px;
     display:inline-block;
-    margin-top:5px;
+    margin: 5px 0 5px 0;
 }
 .helpLinkIcon:hover {
     background: url('../img/helpicon.png') no-repeat center center;
@@ -2393,11 +2404,6 @@ ul.leftNavigation li.active a{
 .cl-logo  {
     padding: 9px 100px 0 14px;
 }
-.experiment__date {
-    font-family: Georgia, 'Times New Roman', Times, Garamond, serif;
-    font-style: italic;
-    color: #777;
-}
 .button a, .button a:hover {
     color: #FFF;
 }
@@ -2416,9 +2422,11 @@ ul.leftNavigation li.active a{
 }
 .section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
     height: 65px;
+    text-decoration: none;
 }
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
     height: 65px !important;
+    text-decoration: none;
 }
 .pad15 {
     padding: 15px;
@@ -2444,7 +2452,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     font-weight: normal;
 }
 .slider h1 {
-    font-family: 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 100;
     color: #FFF;
     font-size: 1.1em;
@@ -2486,25 +2494,31 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding-right: 0.9375em;
 }
 #edit_competition label {
-    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-size: 1.3em;
-    padding: 1em 0 .3em 0;
+    padding: 0;
     cursor: default;
     display: inline-block;
 }
+
+#edit_competition .fieldWrapper {
+    margin-bottom: 5px;
+}
+
 #edit_competition input, #edit_competition textarea, #edit_competition p {
     color: #666;
     font-size: 1em;
     line-height: 1.4em;
 }
-#edit_competition textarea, #edit_competition select {
-    min-height: 8em;
+
+#edit_competition textarea {
     resize: none;
     padding: 10px;
     margin: 0;
     overflow-y: scroll;
 }
+
 #edit_competition a, #edit_competition a:hover {
     font-size: 1em;
     font-weight: bold;
@@ -2543,4 +2557,260 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     position: relative;
     margin-top:-81px;
     float:left;
+}
+.h-caps {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.bundle-tile, .worksheet-tile {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px #CCC solid;
+    border-left: 10px #739CB9 solid;
+    border-radius: 3px;
+    background: #FFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+.bundle-meta, .bundle-meta a, .bundle span {
+    color: #999;
+    font-size: 14px;
+}
+.bundle-meta p {
+    line-height: 20px;
+    display: block;
+}
+.bundle-meta p strong {
+    min-width: 100px;
+    display: inline-block;
+}
+.bundle-meta p em a, .bundle-meta p span a {
+    font-weight: normal;
+}
+.bundle-meta p span {
+    display: inline-block;
+    vertical-align: text-top;
+}
+.bundle-name, .worksheet-name {
+    padding:0;
+    color:#535353;
+}
+.worksheet-name label, .worksheet-author, .bundle-tile label {
+    color: #a4a4a4;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+.bundle-tile label {
+    cursor: default;
+    display: inline-block;
+    vertical-align: top;
+    float: right;
+    padding: 6px 0 0 0;
+
+}
+.worksheet-name button {
+    margin: 20px 0 0 0;
+}
+.worksheet-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.worksheet-animate:focus .competitionTileLftStrip {
+    background:#08ac33;
+}
+.worksheet-animate, .worksheet-animate .worksheet-animate-child {
+  -webkit-transition:0.3s linear height;
+  transition:0.3s linear height;
+}
+.worksheet-animate.ng-enter .worksheet-animate-child,
+.worksheet-animate.ng-leave.ng-leave-active .worksheet-animate-child {
+  height:0px;
+}
+.worksheet-animate.ng-leave .worksheet-animate-child,
+.worksheet-animate.ng-enter.ng-enter-active .worksheet-animate-child {
+  height:140px;
+}
+.bundle-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_bundle_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.bundle-icon {
+    text-indent: 75px;
+    background: url('../img/icon_bundle.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running, .bundle-status--ready, .bundle-status--failed {
+    height: 32px;
+    width: 32px;
+    display: inline-block;
+    margin: -7px 0 0 0;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running {
+    background: url('../img/icon_yellowlight.png') no-repeat;
+}
+.bundle-status--ready {
+    background: url('../img/icon_greenlight.png') no-repeat;
+}
+.bundle-status--failed {
+    background: url('../img/icon_redlight.png') no-repeat;
+}
+.med.button {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+li > a, .title a {
+   text-decoration: none;
+}
+.submission_details {
+    padding-top: 17px;
+}
+.submission_upload_details {
+    margin-top: 10px;
+}
+p i {
+    color: #739cb9;
+}
+th > i {
+color: #FFF;
+}
+a i {
+    cursor: pointer;
+}
+.bundle-download {
+    display: inline-block;
+    float: right;
+    padding: 0 0 0 30px;
+}
+.competition-tile a, .competitions a {
+    text-decoration: none;
+}
+.bundle__meta__desc {
+    padding: 0 10px;
+    white-space: normal;
+}
+.bundle__meta_type {
+    font-weight: bold;
+    min-width: 100px;
+}
+table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table .row, table.bundle__meta_table td {
+    color: #777;
+    border: none;
+    background-color: #FFF;
+    vertical-align: top;
+    margin: 0;
+    font-size: 14px;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: block;
+}
+.bundle__expand_button {
+    float: right;
+    font-size: 11px;
+}
+.bundle__expand_button.expanded img {
+    -webkit-transform: rotate(180deg);
+     -moz-transform: rotate(180deg);
+     -ms-transform: rotate(180deg);
+     -o-transform: rotate(180deg);
+     transform: rotate(180deg);
+}
+.bundle__file_view {
+    width: 100%;
+    display: none;
+}
+.bundle__file_view td {
+    padding: 8px;
+    height: 32px;
+}
+.bundle__file_view.expanded {
+    display: inline-table;
+}
+.coda-jax {
+    background: transparent;
+    color: #3b3b3b;
+}
+.bundle__file_view__icon {
+    width: 32px;
+}
+.bundle-icon-sm-indent {
+    text-indent: 50px;
+}
+.bundle-icon-sm--program--created, .bundle-icon-sm--program--staged, .bundle-icon-sm--program--running {
+    background: url('../img/bundle_icon_program_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--program--ready {
+    background: url('../img/bundle_icon_program_sm.png') no-repeat;
+}
+.bundle-icon-sm--program--failed {
+    background: url('../img/bundle_icon_program_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--dataset--created, .bundle-icon-sm--dataset--staged, .bundle-icon-sm--dataset--running {
+    background: url('../img/bundle_icon_dataset_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--dataset--ready {
+    background: url('../img/bundle_icon_dataset_sm.png') no-repeat;
+}
+.bundle-icon-sm--dataset--failed {
+    background: url('../img/bundle_icon_dataset_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--macro--created, .bundle-icon-sm--macro--staged, .bundle-icon-sm--macro--running {
+    background: url('../img/bundle_icon_macro_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--macro--ready {
+    background: url('../img/bundle_icon_macro_sm.png') no-repeat;
+}
+.bundle-icon-sm--macro--failed {
+    background: url('../img/bundle_icon_macro_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--make--created, .bundle-icon-sm--make--staged, .bundle-icon-sm--make--running {
+    background: url('../img/bundle_icon_make_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--make--ready {
+    background: url('../img/bundle_icon_make_sm.png') no-repeat;
+}
+.bundle-icon-sm--make--failed {
+    background: url('../img/bundle_icon_make_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--run--created, .bundle-icon-sm--run--staged, .bundle-icon-sm--run--running {
+    background: url('../img/bundle_icon_run_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--run--ready {
+    background: url('../img/bundle_icon_run_sm.png') no-repeat;
+}
+.bundle-icon-sm--run--failed {
+    background: url('../img/bundle_icon_run_sm-red.png') no-repeat;
+}
+pre, .bundle__file_pre, .bundle__file_pre pre {
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+.nav-list li {
+    display: inline-block;
+}
+.keyboard-shorcut {
+    padding: 2px 4px;
+    color: #d14;
+    background-color: #f7f7f9;
+    border-color: #e1e1e8;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 12px;
+}
+.keyboard-text {
+		display: inline-block;
 }

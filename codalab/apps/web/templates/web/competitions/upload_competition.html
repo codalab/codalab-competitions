@@ -1,24 +1,30 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit{% endblock %}
+{% block head_title %}Create Competition{% endblock head_title %}
+{% block page_title %}Create Competition{% endblock page_title %}
 
 {% block content %}
 <div class="row">
-  <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
-	<div class="row">
-	  {{ form.as_p }}
+    <div class="large-12 columns">
+        <div class="panel">
+            <p>
+                To create a competition, upload a bundle with the definition of the new competition.
+                <a class="helpLinkIcon right" href="{% url 'help' %}#create-competition"
+                   title="Get help with creating a competition" target="_blank">
+                </a>
+            </p>
+            <button id="uploadButton" class="button">Upload definition...</button>
+            {% csrf_token %}
+            <div id="details">
     </div>
-	<div class="row">
-        <button type="submit" class="medium button blue">Submit</button>
 	</div>
-  </form>
   </div>
+
 </div>
-{% endblock content %}
+{% endblock %}
 
 {% block js %}
-  $('document').ready(function() {
-	// This helps make sections appear with Foundation
-	$(this).foundation('section', 'reflow');
-  });
+$(document).ready(function () {
+    CodaLab.Competitions.CreateReady();
+});
 {% endblock js %}

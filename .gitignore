@@ -3,6 +3,7 @@
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**
+**/**/.codalabconfig
 
 # Bundles prototype #
 #####################
@@ -15,6 +16,7 @@ bundles/bundles.fs
 # Virtuelenv files #
 ####################
 **/**/venv
+venv/
 
 # Project Files #
 #################
@@ -29,8 +31,8 @@ bundles/bundles.fs
 
 # Python specific files #
 #########################
-**/**/*.pot
-**/**/*.pyc
+*.pot
+*.pyc
 **/build/**
 **/dist/**
 

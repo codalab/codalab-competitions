@@ -4,7 +4,7 @@ import sys
 
 
 if __name__ == "__main__":
-    
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
     os.environ.setdefault('DJANGO_CONFIGURATION', 'Dev')
 

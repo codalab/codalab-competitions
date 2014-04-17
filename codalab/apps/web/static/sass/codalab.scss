@@ -1,12 +1,5 @@
 @import "compass/reset.scss";
-@import "_settings";
 @import "compass/layout.scss";
-
-@import "../img/icons/general/sass/general_foundicons";
-@import "../img/icons/social/sass/social_foundicons";
-@import "../img/icons/accessibility/sass/accessibility_foundicons";
-@import "../img/icons/enclosed/sass/general_enclosed_foundicons";
-
 @import "foundation";
 
 @include sticky-footer(25px, "#layout", "#layout_footer", "#footer");
@@ -32,6 +25,10 @@ body { font-size: $base-font-size; overflow: auto; }  // added overflow: auto
     }
   }
 
+// leaderboard customization
+.column-selectable:last-child {
+    float: none !important;
+}
 
 // _panels customizations
 $panel-bg: darken(#fff, 8%) !default; // changed from 5%
@@ -78,6 +75,8 @@ $section-title-color-active: #676278 !default;  // changed from #333
   }
 }
 
+// _settings customizations
+$list-style-position: inside; // changed from outside
 
 // _side-nav customizations
 li {
@@ -136,12 +135,12 @@ $topbar-divider-border-top: solid 1px darken($topbar-bg, 10%) !default;  // chan
 
 
 // _type customizations
-$header-font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;  // changed from "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !default;
-$header-font-weight: lighter !default;  // changed from bold
-$header-line-height: 1.4em !default;  // changed from 1.4
+$header-font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$header-font-weight: lighter !default;
+$header-line-height: 1.4em !default;
  /* Default header styles */
   h1, h2, h3 {  // added
-    font-family: 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
     font-style: $header-font-style;
     color: $header-font-color;
@@ -156,3 +155,5 @@ $header-line-height: 1.4em !default;  // changed from 1.4
       line-height: 0;
     }
   }
+
+$anchor-text-decoration: underline !default; // changed from none

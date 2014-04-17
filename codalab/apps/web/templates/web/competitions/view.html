@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load tz %}
 {% block title %}Competition - [{{ competition.title }}]{% endblock title %}
 {% block page_title %}Competition{% endblock page_title %}
 
@@ -10,14 +11,14 @@
             <section class="competitionsDetailHeader">
                 <figure class="competitionsProfileImage">
                     {% if competition.image_url %}
-                    <img id="imgProfileImage" src="{{ competition.image_url }}">
+                        <img id="imgProfileImage" src="{{ competition.image_url }}">
                     {% else %}
-                    <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
+                        <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
                     {% endif %}
                 </figure>
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
-                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified }} </label>
+                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
                     <div class="StatusStripContainer">
@@ -38,13 +39,13 @@
                                 {% endif %}
                                         <span class="phaseLabel">{{phase.label}}</span> 
                                         <br>
-                                        <span>{{phase.start_date}}</span>
+                                        <span>{{phase.start_date|utc}} UTC</span>
                                 </section>
                             {% endfor %}
                                 <section>
                                         <span class="phaseLabel">Competition Ends</span> 
                                         <br>
-                                        <span>{{competition.end_date|default:"Never"}}</span>
+                                        <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
                                 </section>
                             </section>
                         </div>
@@ -80,7 +81,7 @@
                                                 To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
                                             </p>
                                             <p id="terms" for="checkbox">
-                                                <input type="checkbox" name="agreed_terms" id="checkbox" required >
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
                                                 <span class="custom checkbox"></span> 
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </p>
@@ -122,7 +123,3 @@
     </div>
 </div>
 {% endblock content %}
-
-{% block jsincludes %}
-<script type="text/javascript" src="{% static "js/Competition.js" %}"></script>
-{% endblock jsincludes %}

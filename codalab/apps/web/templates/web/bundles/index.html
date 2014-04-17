@@ -1,24 +1,55 @@
-{% extends 'base.html' %}
-{% block title %}Worksheets{% endblock %}
-{% block site %}
+{% extends "base.html" %}
+{% load static %}
 
-<div class="mainContainer">
-  <h1>Bundles</h1>
-    <hr>
-      <p> This is the codalab bundles index</p>
-  
-    ###List Block
-      <ol>
-        {% for bundle in bundles %}
-        <li>
-          <a href="{{ bundle.url }}">
-            <b>{{ bundle.title }}</b>
-          </a>
-        </li>
+{% block head_title %}Bundles{% endblock head_title %}
+{% block page_title %}Bundles{% endblock page_title %}
+
+{% block content %}
+<div class="row">
+    <div class="large-9 columns competitions">
+        <dl class="sub-nav"></dl>
+        {% if not items %}
+        <p>There are no {{items_label}}.</p>
+        {% else %}
+        {% for item in items %}
+        <a href="{{ item.details_url }}">
+            <div class="competition-tile">
+                <article class="subContainer">
+                    <input id="itemID" type="hidden" value="{{ item.uuid }}" />
+                    <div class="competitionTileLftStrip"></div>
+                    <div class="articleImageContainer">
+                        <div class="subContainerPadding">
+                            {% if not item.image_url %}
+                            <img src="{% static "img/icon_bundle.png" %}">
+                            {% else %}
+                            <img src="{{ item.image_url }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="articleTextArea">
+                        <div class="subContainerPadding">
+                            <div class="articleHeadingContainer">
+                                <h3>{{ item.title }}</h3>
+                                <label>{{ item.name }} by {{ item.creator }}</label>
+                            </div>
+                            <p class="competition-paragraph">{{ item.description }}</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </a>
         {% endfor %}
-      </ol>
-    ###END List Block
-
+        {% endif %}
+    </div>
+    <div class="large-3 columns ">
+    </div>
 </div>
+{% endblock content%}
 
-{% endblock site %}
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liBundles").addClass("active");
+    });
+{% endblock js %}
+
