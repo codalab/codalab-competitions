@@ -3,7 +3,7 @@
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 venv=${VENV:-"venv"}
  
-default_requirements="$script_dir/codalab/requirements/dev.txt"
+default_requirements="$script_dir/codalab/requirements/dev_azure_nix.txt"
  
 python=$(which ${PYTHON:-python2.7})
 if [ ! -f $python ]; then
@@ -11,7 +11,7 @@ if [ ! -f $python ]; then
         exit 1
 fi
  
-# Check we're using python3
+# Check we're using Python 2
 python_ver=$($python -c 'import sys; print(sys.version_info[:])')
 echo "Python version: $python_ver"
  
@@ -38,7 +38,6 @@ fi
  
 venv_pip="$venv_dir/bin/pip"
 requirements_file=${REQUIREMENTS:-$default_requirements}
-codalab_requirements_file=${CODALAB_REQUIREMENTS:-"$script_dir/codalab/requirements/dev.txt"}
  
 if [ -f $venv_pip ]; then
         echo "Installing development requirements from: $requirements_file"
@@ -55,22 +54,4 @@ else
         exit 1
 fi
 
-venv_python="$venv_dir/bin/python"
-
-if [ -f $venv_python ]; then
-	echo "Running syncdb for Django"
-	python codalab/manage.py syncdb
-	echo "Inserting initial data"
-    python codalab\scripts\initialize.py
-    echo "Initializing users"
-    python codalab/scripts/users.py
-    echo "Initializing competitions"
-    python codalab/scripts/competitions.py
-else
-	echo "ERROR: Could not locate python in virtualenv: $venv_python"
-	exit 1
-fi
-
-echo "You should now run:"
-echo "  > source $venv_dir/bin/activate"
-echo "  > python codalab/manage.py runserver 0.0.0.0:8000"
+echo "One time setup is complete. You are ready to proceed."
