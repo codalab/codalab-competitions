@@ -1,8 +1,0 @@
-This package contains Weka (with some unnecessary files removed to save
-space).  Currently, all these wrappers require bash.
-
-src/Main.java contains a light wrapper around some of the utilties.
-
-See this page to find more information about invoking Weka:
-
-    http://weka.wikispaces.com/Primer
