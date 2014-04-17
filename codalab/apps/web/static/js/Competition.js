@@ -124,7 +124,7 @@ var Competition;
                                 //$('#fileUploadButton').text("Submit Results...");
                                 $('#user_results #' + response.id + ' .fi-plus').click();
                             }).fail(function(jqXHR) {
-                                var msg = 'An unexpected error occured.';
+                                var msg = 'An unexpected error occurred.';
                                 if (jqXHR.status == 403) {
                                     msg = jqXHR.responseJSON.detail;
                                 }
