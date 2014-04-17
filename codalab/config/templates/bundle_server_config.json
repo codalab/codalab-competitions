@@ -1,16 +1,24 @@
 {
-  "home": "~/.codalab",
-  "client": {
-    "class": "LocalBundleClient"
-  },
-  "model": {
-    "class": "MySQLModel",
-    "username": "{{BUNDLE_DB_USER}}",
-    "password": "{{BUNDLE_DB_PASSWORD}}",
-    "address": "localhost",
-    "database": "{{BUNDLE_DB_NAME}}"
-  },
-  "server": {
-    "address": ["localhost", 2800]
-  }
+    "home": "~/.codalab",
+    "client": {
+        "class": "LocalBundleClient"
+    },
+    "cli": {
+        "verbose": false
+    },
+    "server": {
+        "host": "localhost",
+        "port": 2800,
+        "class": "MySQLModel",
+        "username": "{{BUNDLE_DB_USER}}",
+        "password": "{{BUNDLE_DB_PASSWORD}}",
+        "address": "localhost",
+        "database": "{{BUNDLE_DB_NAME}}",
+        "auth": {
+            "class": "OAuthHandler",
+            "address": "{{BUNDLE_AUTH_URL}}",
+            "app_id": "{{BUNDLE_APP_ID}}",
+            "app_key": "{{BUNDLE_APP_KEY}}"
+        }
+    }
 }
