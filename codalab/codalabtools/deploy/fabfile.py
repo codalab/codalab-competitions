@@ -63,7 +63,6 @@ def provision_packages(packages=None):
     sudo('apt-get update')
     sudo('apt-get -y install %s' % packages)
     sudo('easy_install pip')
-    sudo('pip install -U --force-reinstall pip')
     sudo('pip install -U --force-reinstall setuptools')
     sudo('pip install -U --force-reinstall virtualenvwrapper')
     sudo('pip install -U --force-reinstall wheel')
@@ -294,6 +293,7 @@ def deploy_web():
             run('pip install SQLAlchemy simplejson')
             with cd('codalab'):
                 run('python manage.py config_gen')
+                run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
                 run('python manage.py syncdb --migrate')
                 run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
