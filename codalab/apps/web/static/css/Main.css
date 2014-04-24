@@ -2814,3 +2814,7 @@ pre, .bundle__file_pre, .bundle__file_pre pre {
 .keyboard-text {
 		display: inline-block;
 }
+.bundleImage {
+    display: list-item;
+    padding-bottom: 20px;
+}

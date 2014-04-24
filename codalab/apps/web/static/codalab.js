@@ -389,6 +389,84 @@ var BundleRenderer = (function() {
     return BundleRenderer;
 })();
 
+var WorkshhetDirectiveRenderer = (function() {
+    function WorkshhetDirectiveRenderer() {
+        var _this = this;
+        _this.display = 'inline';
+
+        _this.bundleBlock = null;
+
+        _this.tableDirective = [];
+
+        _this.applyDirective = function(element, item) {
+            switch (item[1].directive) {
+                case 'display': {
+                    _this.display = item[1].display;
+                    _this.applyPendingDirectives(element);
+                    break;
+                }
+                case 'image': {
+                    $(element).append(
+                        $('<img />', {
+                            'src': '/api/bundles/filecontent/' + _this.bundleBlock.uuid + '/' + encodeURI(item[1].path),
+                            'class': 'bundleImage',
+                            'alt': item[1].name
+                        }));
+                    break;
+                }
+                case 'metadata': {
+                    _this.tableDirective.push(item[1]);
+                    break;
+                }
+            }
+        };
+
+        _this.insertRowTable = function(element, data, cell) {
+            var headerRow = $('<tr></tr>');
+            data.forEach(function(datum) {
+                headerRow.append($(cell).text(datum));
+            });
+            element.append(headerRow);
+        };
+
+        _this.getDataFromPath = function(path) {
+            return _this.bundleBlock.metadata[path];
+        };
+
+        _this.applyPendingDirectives = function(element) {
+            if (_this.tableDirective.length > 0) {
+                var table = $('<table></table>');
+
+                if (_this.display === 'table') {
+                    var thead = $('<thead></thead>');
+                    _this.insertRowTable(thead, _this.tableDirective.map(function(e) {
+                        return e.name;
+                    }), '<th></th>');
+                }
+
+                var tbody = $('<tbody></tbody>');
+                if (_this.display === 'table') {
+                    _this.insertRowTable(tbody, _this.tableDirective.map(function(e) {
+                        return _this.getDataFromPath(e.path);
+                    }), '<td></td>');
+                }
+                else {
+                    _this.tableDirective.forEach(function(e) {
+                        _this.insertRowTable(tbody, [e.name, _this.getDataFromPath(e.path)], '<td></td>');
+                    });
+                }
+
+                table.append(thead);
+                table.append(tbody);
+                $(element).append(table);
+
+                _this.tableDirective = [];
+            }
+        };
+    }
+    return WorkshhetDirectiveRenderer;
+})();
+
 var WorksheetRenderer = (function() {
     function WorksheetRenderer(element, renderer, data) {
         this.renderer = renderer;
@@ -404,13 +482,42 @@ var WorksheetRenderer = (function() {
             }
             $('.worksheet-icon').html(title);
             $('.worksheet-author').html('by codalab');
-            var blocks = data.items.forEach(function(item) {
-                if (item[0] === null) {
+            var directiveRenderer = new WorkshhetDirectiveRenderer();
+            var markdownBlock = '';
+            // Add an EOF block to ensure the block transitions always apply within the loop
+            data.items.push([null, 'eof', null]);
+            var blocks = data.items.forEach(function(item, idxItem, items) {
+                // Apply directives when the markdown item type changes
+                if (item[2] != 'directive')
+                    directiveRenderer.applyPendingDirectives(element);
+
+                if (item[2] != 'markup' && markdownBlock.length > 0) {
                     var e = document.createElement('div');
-                    e.innerHTML = markdown.toHTML(item[1]);
+                    e.innerHTML = markdown.toHTML(markdownBlock);
                     element.appendChild(e);
-                } else {
-                    element.appendChild(_this.renderer.render(item[0]));
+                    markdownBlock = '';
+                }
+
+                switch (item[2]) {
+                    case 'markup': {
+                        markdownBlock += item[1] + '\n\r';
+                        break;
+                    }
+                    case 'bundle': {
+                        // Only display bundle if its not empty, this allows ability to hide bundles.
+                        if (item[1]) {
+                            element.appendChild(_this.renderer.render(item[0]));
+                        }
+                        break;
+                    }
+                    case 'directive': {
+                        // Find bundle ID context
+                        items.slice(idxItem + 1).forEach(function(bundleCandidate) {
+                            if (bundleCandidate[2] == 'bundle') directiveRenderer.bundleBlock = bundleCandidate[0];
+                        });
+                        directiveRenderer.applyDirective(element, item);
+                        break;
+                    }
                 }
             });
 
