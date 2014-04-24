@@ -445,7 +445,7 @@ class Deployment(object):
                 break
             if now >= max_time:
                 raise Exception("Operation did not finish within the expected timeout")
-            logger.info('Waiting for namepsace status: expecting Active but got %s (wait_so_far=%s)',
+            logger.info('Waiting for namespace status: expecting Active but got %s (wait_so_far=%s)',
                         status, round(now - start_time, 1))
             time_to_wait = max(0.0, min(max_time - now, wait))
             time.sleep(time_to_wait)
