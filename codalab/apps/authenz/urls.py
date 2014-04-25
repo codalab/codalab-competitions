@@ -10,5 +10,6 @@ def oauth2_include():
 
 urlpatterns = patterns('',
     url(r'^validation', views.ValidationApi.as_view()),
+    url(r'^info', views.InfoApi.as_view()),
     url(r'', oauth2_include()),
 )
