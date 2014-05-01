@@ -114,14 +114,18 @@ class InfoApi(ScopedProtectedResourceView):
             return {'code': 500}
 
     @staticmethod
-    def _translate_ids(uids):
+    def _translate_ids(uids_str):
         """
         Performs translation of list of user IDs to list of user dict.
         """
-        if uids is None or type(uids) is not list or len(uids) == 0:
+        if uids_str is None or type(uids_str) is not list or len(uids_str) == 0:
             return {'code': 400}
-        for uid in uids:
-            if type(uid) not in (int, long):
+        uids= []
+        for uid_str in uids_str:
+            try:
+                uid = int(uid_str)
+                uids.append(uid)
+            except:
                 return {'code': 400}
         try:
             users = ClUser.objects.filter(id__in=uids)
