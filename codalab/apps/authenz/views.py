@@ -113,11 +113,43 @@ class InfoApi(ScopedProtectedResourceView):
         except:
             return {'code': 500}
 
+    @staticmethod
+    def _translate_ids(uids):
+        """
+        Performs translation of list of user IDs to list of user dict.
+        """
+        if uids is None or type(uids) is not list or len(uids) == 0:
+            return {'code': 400}
+        for uid in uids:
+            if type(uid) not in (int, long):
+                return {'code': 400}
+        try:
+            users = ClUser.objects.filter(id__in=uids)
+            user_dict = {}
+            for user in users:
+                user_dict[user.id] = user
+            user_list = []
+            for uid in uids:
+                if uid in user_dict:
+                    user = user_dict[uid]
+                    user_list.append({'name': user.username, 'id': uid, 'active': user.is_active})
+                else:
+                    user_list.append({'id': uid})
+            return {'code': 200, 'users': user_list}
+        except:
+            return {'code': 500}
+
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(InfoApi, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        names = request.POST.getlist('names') if 'names' in request.POST else None
-        response_data = InfoApi._translate_names(names)
+        if 'names' in request.POST:
+            names = request.POST.getlist('names')
+            response_data = InfoApi._translate_names(names)
+        elif 'ids' in request.POST:
+            ids = request.POST.getlist('ids')
+            response_data = InfoApi._translate_ids(ids)
+        else:
+            return HttpResponse(status=400)
         return HttpResponse(json.dumps(response_data), content_type="application/json")
