@@ -62,7 +62,7 @@
           <nav class="top-bar">
             <ul class="title-area">
               <!-- Title Area -->
-              <li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
+              <!-- <li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li> -->
               
               <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
               <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
@@ -89,7 +89,6 @@
                 {% else %}
                     <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>  
                 {% endif %}
-                <li id="liAbout"><a href="http://willum070.github.io/docteam/forum.html" tabindex=5 target="_self">Forum</a></li>
                 <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_self">Help</a></li>
                 {% if user.is_authenticated %}
                     <li class="has-dropdown">
@@ -163,7 +162,7 @@
             <ul class="inline-list right">
                 <!-- <li>CodaLab v.0 ()</li> -->
                 <li><a href="http://willum070.github.io/docteam/forum.html" target="_self">Forum</a></li>
-                <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
+                <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Feedback</a></li>
                 <li><a href="http://willum070.github.io/docteam/notices.html" target="_self">Notices</a></li>
                 <li><a href="http://willum070.github.io/docteam/terms.html" target="_self">Terms of Use</a></li>
             </ul>
