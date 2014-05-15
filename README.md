@@ -1,9 +1,14 @@
 # CodaLab [![Build Status](https://travis-ci.org/codalab/codalab.png?branch=master)](https://travis-ci.org/codalab/codalab)
 
-## What is it?
+## What is CodaLab?
+CodaLab is an open-source web-based platform that enables researchers, developers, and data scientists to collaborate, with the goal of advancing research fields where machine learning and advanced computation is used.  CodaLab helps to solve many common problems in the arena of data-oriented research through its online community where people can share worksheets and participate in competitions.
 
-CodaLab is a unified web-based platform that allows researchers to share and interact with code, data, and experiments, and to participate in online competitions. CodaLab's mission is to facilitate empirical research in fields such as machine learning, medical imaging, and natural language processing.
+To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 
-## Getting started
+## Documentation
+- [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
+- [CodaLab Online Help](http://www.codalab.org/help)
 
-Take a look at the [developing specification](docs/SPECIFICATION.md) and Visit the [CodaLab Wiki](https://github.com/codalab/codalab/wiki) to learn how to start developing and contributing to CodaLab.
+## Community
+The CodaLab community forum is hosted on Google Groups.
+- [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
