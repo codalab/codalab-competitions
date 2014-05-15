@@ -62,6 +62,7 @@ var CodaLab;
                 uploadError: function(info) {
                 },
                 allowedFileTypes: undefined,
+                extensionToFileType: {'zip': 'application/zip'},
                 maxFileSizeInBytes: undefined,
                 maxBlockSizeInBytes: 1024 * 1024
             };
@@ -108,7 +109,15 @@ var CodaLab;
                     if (_this.options.maxFileSizeInBytes && file.size > _this.options.maxFileSizeInBytes) {
                         errors.push({ kind: 'size-error' });
                     }
-                    if (_this.options.allowedFileTypes && ($.inArray(file.type, _this.options.allowedFileTypes)) === -1) {
+
+                    var filetype = file.type;
+                    if (filetype === "") {
+                        var parts = file.name.split(".");
+                        if (parts.length > 1) {
+                            filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
+                        }
+                    }
+                    if (_this.options.allowedFileTypes && ($.inArray(filetype, _this.options.allowedFileTypes)) === -1) {
                         errors.push({ kind: 'type-error' });
                     }
                     validatedFiles.push({ file: file, errors: errors });
