@@ -217,7 +217,7 @@ def make_blob_sas_url(account_name,
     sas = SharedAccessSignature(account_name, account_key)
     resource_path = '%s/%s' % (container_name, blob_name)
     date_format = "%Y-%m-%dT%H:%M:%SZ"
-    start = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+    start = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
     expiry = start + datetime.timedelta(minutes=duration)
     sap = SharedAccessPolicy(AccessPolicy(
             start.strftime(date_format), 
