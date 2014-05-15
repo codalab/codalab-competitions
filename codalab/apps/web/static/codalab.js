@@ -658,7 +658,7 @@ var Competition;
                                 //$('#fileUploadButton').text("Submit Results...");
                                 $('#user_results #' + response.id + ' .fi-plus').click();
                             }).fail(function(jqXHR) {
-                                var msg = 'An unexpected error occured.';
+                                var msg = 'An unexpected error occurred.';
                                 if (jqXHR.status == 403) {
                                     msg = jqXHR.responseJSON.detail;
                                 }
@@ -1120,6 +1120,7 @@ var CodaLab;
                 uploadError: function(info) {
                 },
                 allowedFileTypes: undefined,
+                extensionToFileType: {'zip': 'application/zip'},
                 maxFileSizeInBytes: undefined,
                 maxBlockSizeInBytes: 1024 * 1024
             };
@@ -1166,7 +1167,15 @@ var CodaLab;
                     if (_this.options.maxFileSizeInBytes && file.size > _this.options.maxFileSizeInBytes) {
                         errors.push({ kind: 'size-error' });
                     }
-                    if (_this.options.allowedFileTypes && ($.inArray(file.type, _this.options.allowedFileTypes)) === -1) {
+
+                    var filetype = file.type;
+                    if (filetype === "") {
+                        var parts = file.name.split(".");
+                        if (parts.length > 1) {
+                            filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
+                        }
+                    }
+                    if (_this.options.allowedFileTypes && ($.inArray(filetype, _this.options.allowedFileTypes)) === -1) {
                         errors.push({ kind: 'type-error' });
                     }
                     validatedFiles.push({ file: file, errors: errors });
@@ -1388,13 +1397,13 @@ var CodaLab;
                                     setTimeout(wait_for_competition, 1000);
                                 }
                             }).fail(function() {
-                                $('#details').html('An unexpected error occured.');
+                                $('#details').html('An unexpected error occurred.');
                                 $('#uploadButton').removeClass('disabled');
                             });
                         };
                         wait_for_competition();
                     }).fail(function() {
-                        $('#details').html('An unexpected error occured.');
+                        $('#details').html('An unexpected error occurred.');
                         $('#uploadButton').removeClass('disabled');
                     });
                 }
