@@ -39,7 +39,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.worksheet_info(uuid))
 
         def ls(self, uuid, path):
-            strm = self.read_file(uuid, 'bat.txt')
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
 
         MAX_BYTES = 1024*1024
