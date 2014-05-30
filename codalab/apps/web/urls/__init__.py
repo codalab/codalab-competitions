@@ -10,7 +10,6 @@ urlpatterns = patterns('',
     url(r'^competitions/', include('apps.web.urls.competitions', namespace="competitions")),
     url(r'^worksheets/', include('apps.web.urls.worksheets')),
     url(r'^about/', TemplateView.as_view(template_name='web/help/about.html'), name='about'),
-    url(r'^help/', include('apps.web.urls.help')),
     url(r'^bundles/', include('apps.web.urls.bundles')),
     url(r'^tinymce/', include('tinymce.urls')),
 )
