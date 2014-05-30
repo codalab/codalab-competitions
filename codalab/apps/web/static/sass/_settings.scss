@@ -313,15 +313,15 @@ a > i {
 .slider {
     color: $foreground;
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-    font-size: 3.5em;
+    /*font-size: 3.5em;*/
     font-weight: 100;
     position: relative;
     text-align: center;
-    background: #D0D0D0;
-    padding-top: 70px;
+    background: #F7F7F7;
+    padding-top: 36px;
     margin: 0 auto;
     width: 100%;
-    min-height: 200px;
+    min-height: 100px;
     vertical-align: middle;
 }
 

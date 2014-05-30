@@ -2432,7 +2432,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     padding: 15px;
 }
 .slider {     /* Temporary homepage slider background */
-    background: url('../img/slider_exp_comp.gif') repeat-x top left !important;
+    background: url('../img/slider_exp_comp.gif') /* repeat-x top left */ !important;
 }
 .header-title-bg {
     background: url('../img/tiled-header-bg.gif') repeat-x top left;
