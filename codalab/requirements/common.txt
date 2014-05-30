@@ -31,3 +31,5 @@ django-nose
 django-haystack
 django-tinymce
 closure_linter
+codalab-cli
+fabric
