@@ -277,15 +277,15 @@ a > i {
 .slider {
   color: white;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-  font-size: 3.5em;
+  /*font-size: 3.5em;*/
   font-weight: 100;
   position: relative;
   text-align: center;
-  background: #D0D0D0;
-  padding-top: 70px;
+  background: #F7F7F7;
+  padding-top: 36px;
   margin: 0 auto;
   width: 100%;
-  min-height: 200px;
+  min-height: 100px;
   vertical-align: middle;
 }
 
@@ -318,12 +318,17 @@ a > i {
 }
 
 /* line 352, ../sass/_settings.scss */
-.container {
+.header-space {
   padding-top: 45px;
+}
+
+/* line 356, ../sass/_settings.scss */
+.container {
+  padding-top: 0px;
   padding-bottom: 20px;
 }
 
-/* line 357, ../sass/_settings.scss */
+/* line 361, ../sass/_settings.scss */
 p.competition-paragraph, div.competition-paragraph {
   font-size: 1em;
   color: #666666;
@@ -332,25 +337,25 @@ p.competition-paragraph, div.competition-paragraph {
   font-weight: normal;
 }
 
-/* line 365, ../sass/_settings.scss */
+/* line 369, ../sass/_settings.scss */
 .competition-info {
   height: 90px;
   overflow: hidden;
   padding-top: 5px;
 }
 
-/* line 371, ../sass/_settings.scss */
+/* line 375, ../sass/_settings.scss */
 .competition-image > img {
   height: 90px;
   margin-top: 5px;
 }
 
-/* line 376, ../sass/_settings.scss */
+/* line 380, ../sass/_settings.scss */
 .competition-preview.panel {
   background: #fafafa;
 }
 
-/* line 380, ../sass/_settings.scss */
+/* line 384, ../sass/_settings.scss */
 .competition-tile {
   margin-bottom: 20px;
   border: 1px #CCC solid;
@@ -363,19 +368,19 @@ p.competition-paragraph, div.competition-paragraph {
   font-weight: normal;
 }
 
-/* line 392, ../sass/_settings.scss */
+/* line 396, ../sass/_settings.scss */
 .competition-tile h3, .bundle-tile h3 {
   font-size: 16px;
   color: #333333;
 }
 
-/* line 397, ../sass/_settings.scss */
+/* line 401, ../sass/_settings.scss */
 .articleHeadingContainer h3 {
   margin: 0;
   line-height: 100%;
 }
 
-/* line 402, ../sass/_settings.scss */
+/* line 406, ../sass/_settings.scss */
 .articleHeadingContainer label {
   color: #a4a4a4;
   margin-top: 4px;
@@ -383,7 +388,7 @@ p.competition-paragraph, div.competition-paragraph {
   font-size: 12px;
 }
 
-/* line 409, ../sass/_settings.scss */
+/* line 413, ../sass/_settings.scss */
 .signin-centered-container {
   margin: auto !important;
   float: none !important;
@@ -391,113 +396,113 @@ p.competition-paragraph, div.competition-paragraph {
   padding: 25px;
 }
 
-/* line 416, ../sass/_settings.scss */
+/* line 420, ../sass/_settings.scss */
 .small-6.pull-6.columns > .globalBlueButton {
   float: right;
 }
 
-/* line 420, ../sass/_settings.scss */
+/* line 424, ../sass/_settings.scss */
 .signin-formfields p:nth-child(3) > input {
   float: left;
   position: relative;
   top: -20px;
 }
 
-/* line 426, ../sass/_settings.scss */
+/* line 430, ../sass/_settings.scss */
 .signin-formfields p:nth-child(3) > label {
   padding-left: 20px;
 }
 
-/* line 430, ../sass/_settings.scss */
+/* line 434, ../sass/_settings.scss */
 .globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput, .globalBlueButtonAtag > a, .globalBlueButtonSmallAtag > a, .globalBlueButtonSmall, .globalBlueButtonSmallFlexi, .buttonAccept {
   box-shadow: none;
   white-space: nowrap;
 }
-/* line 434, ../sass/_settings.scss */
+/* line 438, ../sass/_settings.scss */
 .globalBlueButton a:focus, .globalBlueButtonBig a:focus, .globalBlueButtonInput a:focus, .globalBlueButtonAtag > a a:focus, .globalBlueButtonSmallAtag > a a:focus, .globalBlueButtonSmall a:focus, .globalBlueButtonSmallFlexi a:focus, .buttonAccept a:focus {
   color: white !important;
 }
 
-/* line 438, ../sass/_settings.scss */
+/* line 442, ../sass/_settings.scss */
 .signin-centered-container > p > a {
   display: inline-block;
 }
 
-/* line 442, ../sass/_settings.scss */
+/* line 446, ../sass/_settings.scss */
 ul.side-nav {
   padding-top: 0;
 }
-/* line 444, ../sass/_settings.scss */
+/* line 448, ../sass/_settings.scss */
 ul.side-nav li {
   margin-bottom: 2px;
 }
-/* line 447, ../sass/_settings.scss */
+/* line 451, ../sass/_settings.scss */
 ul.side-nav li a {
   color: #676278 !important;
   font-size: 15px !important;
 }
-/* line 449, ../sass/_settings.scss */
+/* line 453, ../sass/_settings.scss */
 ul.side-nav li a:hover {
   color: #676278;
 }
-/* line 450, ../sass/_settings.scss */
+/* line 454, ../sass/_settings.scss */
 ul.side-nav li a:active {
   background: none;
 }
-/* line 452, ../sass/_settings.scss */
+/* line 456, ../sass/_settings.scss */
 ul.side-nav li.active a {
   color: #666666 !important;
   border-left: #676278 4px solid;
   text-indent: 10px;
 }
 
-/* line 460, ../sass/_settings.scss */
+/* line 464, ../sass/_settings.scss */
 .glossary-page-container h6, competitions-block-Styling h6, .section-container.vertical-tabs .content h6 {
   font-size: 18px;
   color: #666666;
 }
-/* line 465, ../sass/_settings.scss */
+/* line 469, ../sass/_settings.scss */
 .glossary-page-container p, competitions-block-Styling p, .section-container.vertical-tabs .content p {
   font-size: 14px;
   color: #666666;
 }
-/* line 470, ../sass/_settings.scss */
+/* line 474, ../sass/_settings.scss */
 .glossary-page-container ol, competitions-block-Styling ol, .section-container.vertical-tabs .content ol {
   font-size: 14px;
   color: #666666;
 }
-/* line 473, ../sass/_settings.scss */
+/* line 477, ../sass/_settings.scss */
 .glossary-page-container ol li, competitions-block-Styling ol li, .section-container.vertical-tabs .content ol li {
   padding-bottom: 10px;
   list-style-type: disc;
 }
-/* line 479, ../sass/_settings.scss */
+/* line 483, ../sass/_settings.scss */
 .glossary-page-container ul, competitions-block-Styling ul, .section-container.vertical-tabs .content ul {
   font-size: 14px;
   color: #666666;
   margin-left: 20px;
 }
-/* line 484, ../sass/_settings.scss */
+/* line 488, ../sass/_settings.scss */
 .glossary-page-container ul li, competitions-block-Styling ul li, .section-container.vertical-tabs .content ul li {
   padding-bottom: 10px;
   list-style-type: disc;
 }
-/* line 490, ../sass/_settings.scss */
+/* line 494, ../sass/_settings.scss */
 .glossary-page-container pre, competitions-block-Styling pre, .section-container.vertical-tabs .content pre {
   padding: 10px;
   background: whitesmoke;
   margin-bottom: 15px;
 }
-/* line 496, ../sass/_settings.scss */
+/* line 500, ../sass/_settings.scss */
 .glossary-page-container p a, competitions-block-Styling p a, .section-container.vertical-tabs .content p a {
   color: #676278;
 }
-/* line 500, ../sass/_settings.scss */
+/* line 504, ../sass/_settings.scss */
 .glossary-page-container b, competitions-block-Styling b, .section-container.vertical-tabs .content b {
   color: #666666;
 }
 
-/* line 506, ../sass/_settings.scss */
+/* line 510, ../sass/_settings.scss */
 div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
   background: #f8f8f8;
   padding-left: 40px !important;
@@ -507,145 +512,145 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
   font-weight: lighter;
 }
 
-/* line 516, ../sass/_settings.scss */
+/* line 520, ../sass/_settings.scss */
 .auto.section-container > section > .content, .auto.section-container > .section > .content, .vertical-tabs.section-container > section > .content, .vertical-tabs.section-container > .section > .content {
   background: white !important;
 }
 
-/* line 520, ../sass/_settings.scss */
+/* line 524, ../sass/_settings.scss */
 .auto.section-container > section.active > .title {
   border-bottom: none;
 }
-/* line 522, ../sass/_settings.scss */
+/* line 526, ../sass/_settings.scss */
 .auto.section-container > section.active > .title a {
   background: white;
 }
 
-/* line 528, ../sass/_settings.scss */
+/* line 532, ../sass/_settings.scss */
 .section-container.vertical-tabs .content {
   padding-top: 1px !important;
 }
-/* line 531, ../sass/_settings.scss */
+/* line 535, ../sass/_settings.scss */
 .section-container.vertical-tabs .content p {
   color: #3b3b3b;
   font-size: 13px;
   line-height: 22px;
 }
-/* line 536, ../sass/_settings.scss */
+/* line 540, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl {
   margin-bottom: 2px;
 }
-/* line 539, ../sass/_settings.scss */
+/* line 543, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl p a {
   color: #676278 !important;
   font-size: 15px !important;
 }
-/* line 541, ../sass/_settings.scss */
+/* line 545, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl p a:hover {
   color: #676278 !important;
 }
-/* line 542, ../sass/_settings.scss */
+/* line 546, ../sass/_settings.scss */
 .section-container.vertical-tabs .CompetitionsDetailLftUl p a:active {
   background: none !important;
 }
-/* line 546, ../sass/_settings.scss */
+/* line 550, ../sass/_settings.scss */
 .section-container.vertical-tabs .active p a {
   color: #676278 !important;
   font-weight: bold;
 }
 
-/* line 552, ../sass/_settings.scss */
+/* line 556, ../sass/_settings.scss */
 .participateInfoBlock p {
   color: #3b3b3b;
   font-size: 13px;
   line-height: 22px;
 }
 
-/* line 556, ../sass/_settings.scss */
+/* line 560, ../sass/_settings.scss */
 .deny_reason {
   box-shadow: inset 0 0 8px #ccc;
   border-radius: 5px;
 }
 
-/* line 560, ../sass/_settings.scss */
+/* line 564, ../sass/_settings.scss */
 div.pending-approval-select.columns {
   padding-left: 0.93em;
 }
 
-/* line 564, ../sass/_settings.scss */
+/* line 568, ../sass/_settings.scss */
 .competitionUserBlock h3 {
   color: #739cb9;
   margin-bottom: 2px;
 }
 
-/* line 571, ../sass/_settings.scss */
+/* line 575, ../sass/_settings.scss */
 .glossary-page-container .fixed {
   left: auto;
   top: auto;
   margin-left: 0;
 }
-/* line 575, ../sass/_settings.scss */
+/* line 579, ../sass/_settings.scss */
 .glossary-page-container .fixed a {
   display: inline-block;
 }
-/* line 580, ../sass/_settings.scss */
+/* line 584, ../sass/_settings.scss */
 .glossary-page-container h6 {
   font-size: 16px;
   color: #666666;
   margin-bottom: 0px;
 }
-/* line 586, ../sass/_settings.scss */
+/* line 590, ../sass/_settings.scss */
 .glossary-page-container p {
   font-size: 15px;
   color: #666666;
   padding-bottom: 30px;
 }
-/* line 592, ../sass/_settings.scss */
+/* line 596, ../sass/_settings.scss */
 .glossary-page-container ol {
   font-size: 13px;
   color: #666666;
 }
-/* line 595, ../sass/_settings.scss */
+/* line 599, ../sass/_settings.scss */
 .glossary-page-container ol li {
   padding-bottom: 10px;
   list-style-type: disc;
 }
-/* line 601, ../sass/_settings.scss */
+/* line 605, ../sass/_settings.scss */
 .glossary-page-container ul {
   font-size: 15px;
   color: #666666;
   margin-left: 20px;
 }
-/* line 606, ../sass/_settings.scss */
+/* line 610, ../sass/_settings.scss */
 .glossary-page-container ul li {
   padding-bottom: 10px;
   list-style-type: none;
 }
-/* line 609, ../sass/_settings.scss */
+/* line 613, ../sass/_settings.scss */
 .glossary-page-container ul li b {
   color: #666666;
 }
-/* line 615, ../sass/_settings.scss */
+/* line 619, ../sass/_settings.scss */
 .glossary-page-container pre {
   padding: 10px;
   background: whitesmoke;
   margin-bottom: 15px;
 }
-/* line 621, ../sass/_settings.scss */
+/* line 625, ../sass/_settings.scss */
 .glossary-page-container p a {
   color: #676278;
 }
-/* line 625, ../sass/_settings.scss */
+/* line 629, ../sass/_settings.scss */
 .glossary-page-container b {
   color: #666666;
 }
 
-/* line 631, ../sass/_settings.scss */
+/* line 635, ../sass/_settings.scss */
 .hide {
   display: none !important;
 }
 
-/* line 635, ../sass/_settings.scss */
+/* line 639, ../sass/_settings.scss */
 .leaderboard-result-table {
   margin: 0 15px;
   overflow-x: auto;
@@ -653,11 +658,11 @@ div.pending-approval-select.columns {
   clear: both;
   min-height: 400px;
 }
-/* line 641, ../sass/_settings.scss */
+/* line 645, ../sass/_settings.scss */
 .leaderboard-result-table table {
   table-layout: auto;
 }
-/* line 644, ../sass/_settings.scss */
+/* line 648, ../sass/_settings.scss */
 .leaderboard-result-table table tr th {
   vertical-align: top;
   border: solid 1px #8eb0c7;
@@ -666,37 +671,37 @@ div.pending-approval-select.columns {
   color: #648ca8;
   font-size: 12px;
 }
-/* line 654, ../sass/_settings.scss */
+/* line 658, ../sass/_settings.scss */
 .leaderboard-result-table table tr.leaderboard-result-table-header th {
   background: #648ca8;
   color: #fff;
 }
-/* line 659, ../sass/_settings.scss */
+/* line 663, ../sass/_settings.scss */
 .leaderboard-result-table table tr th.column-selected {
   background: #99bece !important;
   color: #fff !important;
 }
-/* line 665, ../sass/_settings.scss */
+/* line 669, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(odd) .column-selected {
   background: #e8e8e8 !important;
 }
-/* line 670, ../sass/_settings.scss */
+/* line 674, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:nth-child(1) {
   background: #648ca8;
   color: #fff;
 }
-/* line 673, ../sass/_settings.scss */
+/* line 677, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:nth-child(2) {
   background: #648ca8;
   color: #fff;
 }
-/* line 676, ../sass/_settings.scss */
+/* line 680, ../sass/_settings.scss */
 .leaderboard-result-table table tr:nth-child(2) th:last-child {
   background: #648ca8;
   color: #fff;
 }
 
-/* line 683, ../sass/_settings.scss */
+/* line 687, ../sass/_settings.scss */
 .leaderboard-result-table .table-title th {
   font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #FFF;
@@ -707,37 +712,37 @@ div.pending-approval-select.columns {
   text-align: left;
 }
 
-/* line 693, ../sass/_settings.scss */
+/* line 697, ../sass/_settings.scss */
 .preloader-handler {
   position: relative;
 }
 
-/* line 697, ../sass/_settings.scss */
+/* line 701, ../sass/_settings.scss */
 .submissions-details-label {
   margin-bottom: 0 !important;
 }
 
-/* line 701, ../sass/_settings.scss */
+/* line 705, ../sass/_settings.scss */
 #submissions_phase_buttons .button {
   margin-left: 10px !important;
   margin-bottom: 5px !important;
 }
 
-/* line 705, ../sass/_settings.scss */
+/* line 709, ../sass/_settings.scss */
 #fileUploadButton {
   margin-bottom: 5px;
 }
 
-/* line 709, ../sass/_settings.scss */
+/* line 713, ../sass/_settings.scss */
 .challStatusStripSection section {
   width: auto;
 }
 
-/* line 714, ../sass/_settings.scss */
+/* line 718, ../sass/_settings.scss */
 .competition-tile .subContainerPadding {
   max-height: 130px;
 }
-/* line 718, ../sass/_settings.scss */
+/* line 722, ../sass/_settings.scss */
 .competition-tile .articleImageContainer img {
   height: 110px;
   width: auto;
