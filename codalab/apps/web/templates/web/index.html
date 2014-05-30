@@ -60,3 +60,9 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+    });
+{% endblock js %}
