@@ -507,7 +507,7 @@ class BundleListView(TemplateView):
             if 'metadata' in bundle:
                 metadata = bundle['metadata']
                 for (key1, key2) in [('title', 'name'), ('creator', None), ('description', None)]:
-                    if key2 is None: 
+                    if key2 is None:
                         key2 = key1
                     if key2 in metadata:
                         item[key1] = metadata[key2]
