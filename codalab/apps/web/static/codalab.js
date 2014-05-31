@@ -1169,8 +1169,8 @@ var CodaLab;
                     }
 
                     var filetype = file.type;
-                    if (filetype === "") {
-                        var parts = file.name.split(".");
+                    if (filetype === '') {
+                        var parts = file.name.split('.');
                         if (parts.length > 1) {
                             filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
                         }
@@ -1508,7 +1508,7 @@ angular.module('codalab.controllers')
             var messages = {
                 '': '',
                 'loading': 'Loading worksheets...',
-                'loaderror': 'Couldn\'t retrive worksheets - Try refreshing the page',
+                'loaderror': 'Couldn\'t retrieve worksheets - Try refreshing the page',
                 'empty': 'There are no worksheets.',
                 'saving': 'Saving',
                 'saveerror': 'Couldn\'t save - Try a different name'

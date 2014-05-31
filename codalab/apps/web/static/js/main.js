@@ -111,8 +111,8 @@ var CodaLab;
                     }
 
                     var filetype = file.type;
-                    if (filetype === "") {
-                        var parts = file.name.split(".");
+                    if (filetype === '') {
+                        var parts = file.name.split('.');
                         if (parts.length > 1) {
                             filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
                         }

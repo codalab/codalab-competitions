@@ -10,7 +10,7 @@ angular.module('codalab.controllers')
             var messages = {
                 '': '',
                 'loading': 'Loading worksheets...',
-                'loaderror': 'Couldn\'t retrive worksheets - Try refreshing the page',
+                'loaderror': 'Couldn\'t retrieve worksheets - Try refreshing the page',
                 'empty': 'There are no worksheets.',
                 'saving': 'Saving',
                 'saveerror': 'Couldn\'t save - Try a different name'
