@@ -486,7 +486,7 @@ class WorksheetsListApi(views.APIView):
     def get(self, request):
         user_id = self.request.user.id
         logger.debug("WorksheetsListApi: user_id=%s.", user_id)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             worksheets = service.worksheets()
             return Response(worksheets)
@@ -505,7 +505,7 @@ class WorksheetsListApi(views.APIView):
         logger.debug("WorksheetCreation: owner=%s; name=%s", owner.id, worksheet_name)
         if len(worksheet_name) <= 0:
             return Response("Invalid name.", status=status.HTTP_400_BAD_REQUEST)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             data["uuid"] = service.create_worksheet(worksheet_name)
             logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
@@ -520,7 +520,7 @@ class WorksheetContentApi(views.APIView):
     def get(self, request, uuid):
         user_id = self.request.user.id
         logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid)
             return Response(worksheet)
@@ -534,7 +534,7 @@ class BundleInfoApi(views.APIView):
     def get(self, request, uuid):
         user_id = self.request.user.id
         logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
             return Response(item, content_type="application/json")
@@ -548,7 +548,7 @@ class BundleContentApi(views.APIView):
     def get(self, request, uuid, path):
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             items = service.ls(uuid, path)
             return Response(items)
@@ -569,7 +569,7 @@ class BundleFileContentApi(views.APIView):
 
     def get(self, request, uuid, path):
         user_id = self.request.user.id
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             content_type = BundleFileContentApi._content_type(path)
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)

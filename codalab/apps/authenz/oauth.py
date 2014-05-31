@@ -4,8 +4,15 @@ Implements CodaLab-specific requirements for OAuth.
 
 import logging
 
-from oauth2_provider.models import Application
+from datetime import timedelta
+from django.utils import timezone
+from oauth2_provider.models import (
+    AccessToken,
+    Application,
+)
 from oauth2_provider.oauth2_validators import OAuth2Validator
+from oauth2_provider.settings import oauth2_settings
+from oauthlib.common import generate_token
 
 logger = logging.getLogger(__name__)
 
@@ -62,3 +69,30 @@ def get_or_create_cli_client(user):
         logger.exception("Failed to create CLI client %s.", client_id)
         return None, False
 
+def get_user_token(user):
+    """
+    Returns an access token for the given user. This function facilitates
+    interactions with the bundle service.
+    """
+    if user is None or not user.is_authenticated():
+        return None
+
+    client = Application.objects.get(client_id=cli_client_id(user))
+    tokens = AccessToken.objects.filter(application_id=client.id,
+                                        expires__gt=timezone.now() + timedelta(minutes=5))
+    access_token = None
+    for token in tokens:
+        if token.is_valid([]):
+            access_token = token
+            break
+
+    if access_token is None:
+        access_token = AccessToken(
+            user=user,
+            scope='',
+            expires=timezone.now() + timedelta(seconds=oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS),
+            token=generate_token(),
+            application=client)
+        access_token.save()
+
+    return str(access_token.token)
