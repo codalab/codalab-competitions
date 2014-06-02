@@ -5,9 +5,11 @@ Tests for Codalab functionality.
 import datetime
 import json
 import yaml
+import mock
 
 from django.conf import settings
 from django.core import management
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth import get_user_model
@@ -19,6 +21,7 @@ from apps.web.models import (Competition,
                              CompetitionParticipant, 
                              CompetitionPhase,
                              ParticipantStatus)
+from apps.web.views import CompetitionDetailView
 
 User = get_user_model()
 
@@ -250,6 +253,46 @@ class CompetitionPhaseTests(TestCase):
         self.assertEqual("0.1", CompetitionPhase.format_value(x, "2fooo"))
         self.assertEqual("0.1", CompetitionPhase.format_value(x, ""))
         self.assertEqual("0.1", CompetitionPhase.format_value(x, None))
+
+
+class CompetitionPhaseToPhase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email='test@user.com', username='testuser')
+        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.phase_1 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30)
+        )
+        self.phase_2 = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=2,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=15)
+        )
+        self.client = Client()
+
+    def test_visiting_competition_page_triggers_check(self):
+        CompetitionDetailView.check_trailing_phase_submissions = mock.MagicMock()
+        resp = self.client.get('/competitions/%s' % self.competition.pk)
+        CompetitionDetailView.check_trailing_phase_submissions.assert_called_with(self.competition)
+
+    def test_getting_competition_data_via_api_also_triggers_phase_to_phase_check(self):
+        # Where in the API would this be done? seems like a few places where it could go
+        pass
+
+    def test_visiting_competition_page_when_last_phase_completed_triggers_phase_migration(self):
+        self.assertTrue(False)
+
+    def test_phase_migration_works(self):
+        self.assertTrue(False)
+
+    def test_submission_moves_to_next_phase_when_current_phase_is_completed(self):
+        # does some kind of cron job need to be run every night to execute phase copying
+        #
+
+
+        self.assertTrue(False)
+
 
 class CompetitionDefinitionTests(TestCase):
 
