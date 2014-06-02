@@ -106,6 +106,18 @@ class CompetitionDetailView(DetailView):
     template_name = 'web/competitions/view.html'
 
     @staticmethod
+    def do_phase_migration(competition, current_phase, last_phase):
+
+        # get all items from last_phase
+        #   blob copy replacing only the phase# with phase#++
+        #   create new submission object
+        #   add to current_phase
+        #   call evaluate submission --------------- use API????
+
+        # TODO: ONLY IF SUCCESSFUL
+        competition.last_phase_migration = current_phase.phasenumber
+
+    @staticmethod
     def check_trailing_phase_submissions(competition):
         '''
         Checks that the requested competition has all submissions in the current phase
@@ -113,14 +125,18 @@ class CompetitionDetailView(DetailView):
         competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
         let's take a competition object
         '''
+        last_phase = None
+        current_phase = None
 
-        # Get current phase #
-        # Get competition.last_phase_migration
-        # If current phase > competition.last_phase migration then
-        #    take last submitted ( or select ) bundle from competition.last_phase
-        #    resubmit to competition.current_phase
-        #    set competition.last_phase_migration = competition.current_phase
-        pass
+        for phase in competition.phases.all():
+            if phase.is_active:
+                current_phase = phase
+                break
+
+            last_phase = phase
+
+        if current_phase > competition.last_phase_migration:
+            CompetitionDetailView.do_phase_migration(competition, current_phase, last_phase)
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)

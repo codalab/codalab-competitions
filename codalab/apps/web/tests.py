@@ -286,11 +286,8 @@ class CompetitionPhaseToPhase(TestCase):
     def test_phase_migration_works(self):
         self.assertTrue(False)
 
-    def test_submission_moves_to_next_phase_when_current_phase_is_completed(self):
-        # does some kind of cron job need to be run every night to execute phase copying
-        #
-
-
+    def test_if_phase_to_phase_is_passed_to_view_context(self):
+        # the view should have a "The next phase is currently being processed" notification for the user
         self.assertTrue(False)
 
 

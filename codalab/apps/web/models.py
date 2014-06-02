@@ -148,6 +148,8 @@ class Competition(models.Model):
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
     published = models.BooleanField(default=False, verbose_name="Publicly Available")
+    # Let's assume the first phase never needs "migration"
+    last_phase_migration = models.PositiveIntegerField(default=1)
 
     @property
     def pagecontent(self):
