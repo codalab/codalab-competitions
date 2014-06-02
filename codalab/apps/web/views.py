@@ -105,9 +105,29 @@ class CompetitionDetailView(DetailView):
     model = models.Competition
     template_name = 'web/competitions/view.html'
 
+    @staticmethod
+    def check_trailing_phase_submissions(competition):
+        '''
+        Checks that the requested competition has all submissions in the current phase
+
+        competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
+        let's take a competition object
+        '''
+
+        # Get current phase #
+        # Get competition.last_phase_migration
+        # If current phase > competition.last_phase migration then
+        #    take last submitted ( or select ) bundle from competition.last_phase
+        #    resubmit to competition.current_phase
+        #    set competition.last_phase_migration = competition.current_phase
+        pass
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
+
+        CompetitionDetailView.check_trailing_phase_submissions(competition)
+
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()

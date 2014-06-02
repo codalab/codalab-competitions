@@ -320,6 +320,7 @@ class CompetitionPhase(models.Model):
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
+    # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
@@ -330,6 +331,8 @@ class CompetitionPhase(models.Model):
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
+
+
 
     class Meta:
         ordering = ['phasenumber']
