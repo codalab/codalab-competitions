@@ -27,7 +27,7 @@
                     <div class="competitionTileLftStrip"></div>
                     <div class="articleImageContainer">
                         <div class="subContainerPadding">
-                            {% if item.image_url = None %}
+                            {% if item.image_url == None %}
                             <img src="{% static "img/ProfileImageDummy.jpg" %}">
                             {% else %}
                             <img src="{{ item.image_url }}">
