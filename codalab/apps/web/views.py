@@ -107,10 +107,22 @@ class CompetitionDetailView(DetailView):
 
     @staticmethod
     def do_phase_migration(competition, current_phase, last_phase):
+        '''
+        Does the actual migrating of submissions from last_phase to current_phase
+
+        competition: Competition model object
+        current_phase: The new phase object we are entering
+        last_phase: The phase object to transfer submissions from
+        '''
+        print 'do the thing'
+
+
 
         # get all items from last_phase
-        #   blob copy replacing only the phase# with phase#++
-        #   create new submission object
+
+        #   should only get MOST RECENT submission made by participant
+
+        #   create new submission object, only difference is phase
         #   add to current_phase
         #   call evaluate submission --------------- use API????
 
@@ -120,7 +132,8 @@ class CompetitionDetailView(DetailView):
     @staticmethod
     def check_trailing_phase_submissions(competition):
         '''
-        Checks that the requested competition has all submissions in the current phase
+        Checks that the requested competition has all submissions in the current phase, none trailing in the previous
+        phase
 
         competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
         let's take a competition object
@@ -135,7 +148,7 @@ class CompetitionDetailView(DetailView):
 
             last_phase = phase
 
-        if current_phase > competition.last_phase_migration:
+        if current_phase.phasenumber > competition.last_phase_migration:
             CompetitionDetailView.do_phase_migration(competition, current_phase, last_phase)
 
     def get_context_data(self, **kwargs):
