@@ -201,8 +201,6 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
-        print 'do the thing'
-
         submissions = CompetitionSubmission.objects.filter(phase=last_phase)
         participants = {}
 
