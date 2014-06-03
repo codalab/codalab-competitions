@@ -227,9 +227,6 @@ class Competition(models.Model):
         '''
         Checks that the requested competition has all submissions in the current phase, none trailing in the previous
         phase
-
-        competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
-        let's take a competition object
         '''
         last_phase = None
         current_phase = None
