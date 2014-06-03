@@ -1,34 +1,33 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block head_title %}Home{% endblock %}
 {% block nosubheader %} {% endblock nosubheader %}
 {% block hero_subheader %}
+<!-- GitHub Ribbon -->
+<div class="ribbon">
+    <a href="https://github.com/codalab/codalab">Fork CodaLab on GitHub</a>
+</div>
+
+{% block title %}{% endblock title %}
+
 <!-- First Band (Slider) -->
 <div class="slider">
-  <h1>CodaLab = Worksheets + Competitions</h1>
+    <img src="{{STATIC_URL}}img/codalab-logo-white.png" width="50%" height="50%" alt="CodaLab">
+    <h4 style="color: #6B6B6B;">An experimental platform for collaboration and competition.</h4>
+    <br />
 </div>
 {% endblock hero_subheader %}
 
 {% block content %}
-<!-- Hero block -->
-<div class="row">  
-    <div class="row">
-        <div class="large-12 columns">
-            <p><br></p>
-        </div>
-    </div>
-</div>
-
-
 <!-- Call to Action Panel -->
 <div class="row">
     <div class="small-12 columns">
-        <div class="panel"> 
-            <h4>CodaLab</h4>
+        <div class="signupblock"> 
+            <h4>Welcome to CodaLab</h4>
             <div class="row"></div>
             <div class="row">
-                <div class="small-10 columns">
+                <div class="small-12 columns">
                     <p>
-                    CodaLab nurtures an environment of scientific rigor by enabling reproducibility and transparency, and opens new avenues for collaboration between researchers, developers, and data scientists, particularly where machine learning and advanced computation are used.
+                    CodaLab is an open-source web-based platform that enables researchers, developers, and data scientists to collaborate, with the goal of advancing research fields where machine learning and advanced computation is used.
                     </p>
                 </div>
                 <div class="small-2 columns">
@@ -41,21 +40,29 @@
     </div>
 </div>
 
-<div class="large-12 columns">
-    <p><br></p>
-</div>
-
 <!-- Three-up Content Blocks -->
 <div class="row homepage_featured">
-  <div class="large-6 columns">
-    <a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"><br>
-    <h2>Worksheets</h2></a><br>
-    <p>CodaLab worksheets combine code execution, text, mathematics, plots and rich media into a single document, streamlining the research process and lowering the barrier to documenting and publishing detailed advanced computational research.</p><br>
-  </div>
-  <div class="large-6 columns">
-    <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"><br>
-    <h2>Competitions</h2></a><br>
-    <p>CodaLab competitions provide an opportunity for researchers and developers to create solutions that advance the state of the art in machine learning and computer vision research.</p>
-  </div>
+    <div class="large-6 columns">
+        <a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"></a><br>
+        <p><b>Worksheets</b> combine code execution, text, mathematics, plots and rich media into a single document. Test out new ideas and then share them with your colleagues! Get started with worksheets right now:</p>
+        <ul>
+            <li><a href="http://willum070.github.io/docteam/worksheets_analyze.html"><img src="{{STATIC_URL}}img/bullet.png" /> Analyze your data</a></li>
+            <li><a href="http://willum070.github.io/docteam/worksheets_test.html"><img src="{{STATIC_URL}}img/bullet.png" /> Test your algorithms</a></li>
+        </ul>
+    </div>
+    <div class="large-6 columns">
+        <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"></a><br>
+        <p><b>Competitions</b> unite great minds to solve problems in machine learning, medical imaging, and more. Get started with competitions right now:</p>
+        <ul>
+            <li><a href="http://willum070.github.io/docteam/start_competitions.html"><img src="{{STATIC_URL}}img/bullet.png" /> Participate in a competition</a></li>
+            <li><a href="http://willum070.github.io/docteam/start_host.html"><img src="{{STATIC_URL}}img/bullet.png" /> Host a competition</a></li>
+        </ul>
+    </div>
 </div>
 {% endblock content %}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+    });
+{% endblock js %}
