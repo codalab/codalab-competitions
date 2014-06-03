@@ -105,57 +105,11 @@ class CompetitionDetailView(DetailView):
     model = models.Competition
     template_name = 'web/competitions/view.html'
 
-    @staticmethod
-    def do_phase_migration(competition, current_phase, last_phase):
-        '''
-        Does the actual migrating of submissions from last_phase to current_phase
-
-        competition: Competition model object
-        current_phase: The new phase object we are entering
-        last_phase: The phase object to transfer submissions from
-        '''
-        print 'do the thing'
-
-
-
-        # get all items from last_phase
-
-        #   should only get MOST RECENT submission made by participant
-
-        #   create new submission object, only difference is phase
-        #   add to current_phase
-        #   call evaluate submission --------------- use API????
-
-        # TODO: ONLY IF SUCCESSFUL
-        competition.last_phase_migration = current_phase.phasenumber
-
-    @staticmethod
-    def check_trailing_phase_submissions(competition):
-        '''
-        Checks that the requested competition has all submissions in the current phase, none trailing in the previous
-        phase
-
-        competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
-        let's take a competition object
-        '''
-        last_phase = None
-        current_phase = None
-
-        for phase in competition.phases.all():
-            if phase.is_active:
-                current_phase = phase
-                break
-
-            last_phase = phase
-
-        if current_phase.phasenumber > competition.last_phase_migration:
-            CompetitionDetailView.do_phase_migration(competition, current_phase, last_phase)
-
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
 
-        CompetitionDetailView.check_trailing_phase_submissions(competition)
+        competition.check_trailing_phase_submissions(competition)
 
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory

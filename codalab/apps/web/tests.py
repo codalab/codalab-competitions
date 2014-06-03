@@ -260,9 +260,15 @@ class CompetitionPhaseTests(TestCase):
 class CompetitionPhaseToPhase(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='test@user.com', username='testuser')
+        self.other_user = User.objects.create(email='other@user.com', username='other')
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
-        self.participant = CompetitionParticipant.objects.create(
+        self.participant_1 = CompetitionParticipant.objects.create(
             user=self.user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+        )
+        self.participant_2 = CompetitionParticipant.objects.create(
+            user=self.other_user,
             competition=self.competition,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
@@ -271,38 +277,44 @@ class CompetitionPhaseToPhase(TestCase):
             phasenumber=1,
             start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
-        comp_submit_status = CompetitionSubmissionStatus.objects.create(name="submitted", codename="submitted")
-        import ipdb;ipdb.set_trace()
-        self.submission_1 = CompetitionSubmission.objects.create(
-            participant=self.participant,
-            phase=self.phase_1,
-            status=comp_submit_status,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
-        )
-        self.submission_2 = CompetitionSubmission.objects.create(
-            participant=self.participant,
-            phase=self.phase_1,
-            status=comp_submit_status,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
-        )
         self.phase_2 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=2,
             start_date=datetime.datetime.now() - datetime.timedelta(days=15)
         )
 
-        import ipdb;ipdb.set_trace()
+        comp_submit_status = CompetitionSubmissionStatus.objects.create(name="submitted", codename="submitted")
+
+        self.submission_1 = CompetitionSubmission.objects.create(
+            participant=self.participant_1,
+            phase=self.phase_1,
+            status=comp_submit_status,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+        )
+        self.submission_2 = CompetitionSubmission.objects.create(
+            participant=self.participant_1,
+            phase=self.phase_1,
+            status=comp_submit_status,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
+        )
+
+        self.submission_3 = CompetitionSubmission.objects.create(
+            participant=self.participant_2,
+            phase=self.phase_1,
+            status=comp_submit_status,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
+        )
 
         self.client = Client()
 
     def test_visiting_competition_page_triggers_trailing_phase_check(self):
-        with mock.patch('apps.web.views.CompetitionDetailView.check_trailing_phase_submissions') as check_trailing_mock:
+        with mock.patch('apps.web.models.Competition.check_trailing_phase_submissions') as check_trailing_mock:
             resp = self.client.get('/competitions/%s' % self.competition.pk)
 
         self.assertTrue(check_trailing_mock.called)
 
     def test_check_trailing_phase_submissions_doesnt_trigger_migrations_if_they_are_done(self):
-        with mock.patch('apps.web.views.CompetitionDetailView.do_phase_migration') as do_migration_mock:
+        with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
             competition_doesnt_need_migrated = Competition.objects.create(creator=self.user, modified_by=self.user)
             only_phase = CompetitionPhase.objects.create(
                 competition=competition_doesnt_need_migrated,
@@ -310,13 +322,13 @@ class CompetitionPhaseToPhase(TestCase):
                 start_date=datetime.datetime.now() - datetime.timedelta(days=30)
             )
 
-            CompetitionDetailView.check_trailing_phase_submissions(competition_doesnt_need_migrated)
+            competition_doesnt_need_migrated.check_trailing_phase_submissions()
 
         self.assertFalse(do_migration_mock.called)
 
     def test_check_trailing_phase_submissions_triggered_if_migrations_have_not_been_done(self):
-        with mock.patch('apps.web.views.CompetitionDetailView.do_phase_migration') as do_migration_mock:
-            CompetitionDetailView.check_trailing_phase_submissions(self.competition)
+        with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
+            self.competition.check_trailing_phase_submissions()
 
         self.assertTrue(do_migration_mock.called)
 
@@ -331,17 +343,22 @@ class CompetitionPhaseToPhase(TestCase):
         pass
 
     def test_check_trailing_phase_submissions_migrates_trailing_submissions_properly(self):
-        CompetitionDetailView.check_trailing_phase_submissions(self.competition)
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
 
-        # SHOULD GET THE LAST SUBMISSION A USER MADE
+        self.assertTrue(evaluate_mock.called)
 
-        # should set competition.last_phase_migration to 2
+        self.assertEquals(self.submission_1.phase, self.phase_1)
+        self.assertEquals(self.submission_2.phase, self.phase_1)
+        self.assertEquals(self.submission_3.phase, self.phase_1)
 
-        # SHOULD CALL EVALUATE_SUBMISSION!!
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
 
-        self.assertTrue(False)
+        self.assertEquals(self.competition.last_phase_migration, 2)
 
 
+    '''
     def test_when_phase_marked_completed_previous_phase_migrated(self):
 
 
@@ -351,6 +368,7 @@ class CompetitionPhaseToPhase(TestCase):
 
 
         self.assertTrue(False)
+    '''
 
 
 class CompetitionDefinitionTests(TestCase):

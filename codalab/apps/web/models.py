@@ -193,6 +193,59 @@ class Competition(models.Model):
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
 
+    def do_phase_migration(self, current_phase, last_phase):
+        '''
+        Does the actual migrating of submissions from last_phase to current_phase
+
+        competition: Competition model object
+        current_phase: The new phase object we are entering
+        last_phase: The phase object to transfer submissions from
+        '''
+        print 'do the thing'
+
+        submissions = CompetitionSubmission.objects.filter(phase=last_phase)
+        participants = {}
+
+        for s in submissions:
+            # Since submissions are in least recent -> most recent order, participant dict will always point to latest
+            participants[s.participant] = s
+
+        from tasks import evaluate_submission
+
+        for participant, submission in participants.items():
+            new_submission = CompetitionSubmission.objects.create(
+                participant=participant,
+                file=submission.file,
+                phase=current_phase
+            )
+
+            evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+
+        # TODO: ONLY IF SUCCESSFUL
+        self.last_phase_migration = current_phase.phasenumber
+        self.save()
+
+    def check_trailing_phase_submissions(self):
+        '''
+        Checks that the requested competition has all submissions in the current phase, none trailing in the previous
+        phase
+
+        competition: Normally we'd just get the object from context but just in case we want to use this from API as well,
+        let's take a competition object
+        '''
+        last_phase = None
+        current_phase = None
+
+        for phase in self.phases.all():
+            if phase.is_active:
+                current_phase = phase
+                break
+
+            last_phase = phase
+
+        if current_phase.phasenumber > self.last_phase_migration:
+            self.do_phase_migration(current_phase, last_phase)
+
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
@@ -651,7 +704,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            self.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.SUBMITTING)
+            self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
