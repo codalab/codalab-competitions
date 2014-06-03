@@ -286,8 +286,15 @@ class CompetitionPhaseToPhase(TestCase):
     def test_phase_migration_works(self):
         self.assertTrue(False)
 
-    def test_if_phase_to_phase_is_passed_to_view_context(self):
-        # the view should have a "The next phase is currently being processed" notification for the user
+    def test_when_phase_marked_completed_previous_phase_migrated(self):
+
+
+
+
+        # FIND WHERE THE PHASES ARE MARKED AS COMPLETE, EXECUTE THIS THEN!!!!
+
+
+
         self.assertTrue(False)
 
 

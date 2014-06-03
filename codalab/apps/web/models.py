@@ -334,8 +334,6 @@ class CompetitionPhase(models.Model):
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
 
-
-
     class Meta:
         ordering = ['phasenumber']
 
