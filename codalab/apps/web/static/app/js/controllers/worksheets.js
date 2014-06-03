@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 angular.module('codalab.controllers')
-    .controller('worksheets', ['$scope', 'worksheetsApi', function($scope, worksheetsApi) {
+    .controller('worksheets', ['$scope', '$location', 'worksheetsApi', function($scope, $location, worksheetsApi) {
         $scope.status = 'loading';
         $scope.selectionIndex = 0;
         $scope.worksheets = [];
@@ -28,6 +28,9 @@ angular.module('codalab.controllers')
 
         worksheetsApi.worksheets().then(function(worksheets) {
             $scope.status = 'loaded';
+            if ($location.path().indexOf('/my') === 0) {
+                worksheets = worksheets.filter(function(w) { return w.owner === $scope.user.name; });
+            }
             angular.forEach(worksheets, function(worksheet) {
                 worksheet.url = '/worksheets/' + worksheet.uuid;
                 worksheet.target = '_self';
