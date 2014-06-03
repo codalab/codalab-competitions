@@ -20,6 +20,8 @@ from apps.web.models import (Competition,
                              CompetitionDefBundle,
                              CompetitionParticipant, 
                              CompetitionPhase,
+                             CompetitionSubmission,
+                             CompetitionSubmissionStatus,
                              ParticipantStatus)
 from apps.web.views import CompetitionDetailView
 
@@ -259,35 +261,88 @@ class CompetitionPhaseToPhase(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='test@user.com', username='testuser')
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.participant = CompetitionParticipant.objects.create(
+            user=self.user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+        )
         self.phase_1 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=1,
-            start_date=datetime.datetime.now() - datetime.timedelta(days=30)
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+        )
+        comp_submit_status = CompetitionSubmissionStatus.objects.create(name="submitted", codename="submitted")
+        import ipdb;ipdb.set_trace()
+        self.submission_1 = CompetitionSubmission.objects.create(
+            participant=self.participant,
+            phase=self.phase_1,
+            status=comp_submit_status,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+        )
+        self.submission_2 = CompetitionSubmission.objects.create(
+            participant=self.participant,
+            phase=self.phase_1,
+            status=comp_submit_status,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
         )
         self.phase_2 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=2,
             start_date=datetime.datetime.now() - datetime.timedelta(days=15)
         )
+
+        import ipdb;ipdb.set_trace()
+
         self.client = Client()
 
-    def test_visiting_competition_page_triggers_check(self):
-        CompetitionDetailView.check_trailing_phase_submissions = mock.MagicMock()
-        resp = self.client.get('/competitions/%s' % self.competition.pk)
-        CompetitionDetailView.check_trailing_phase_submissions.assert_called_with(self.competition)
+    def test_visiting_competition_page_triggers_trailing_phase_check(self):
+        with mock.patch('apps.web.views.CompetitionDetailView.check_trailing_phase_submissions') as check_trailing_mock:
+            resp = self.client.get('/competitions/%s' % self.competition.pk)
 
-    def test_getting_competition_data_via_api_also_triggers_phase_to_phase_check(self):
+        self.assertTrue(check_trailing_mock.called)
+
+    def test_check_trailing_phase_submissions_doesnt_trigger_migrations_if_they_are_done(self):
+        with mock.patch('apps.web.views.CompetitionDetailView.do_phase_migration') as do_migration_mock:
+            competition_doesnt_need_migrated = Competition.objects.create(creator=self.user, modified_by=self.user)
+            only_phase = CompetitionPhase.objects.create(
+                competition=competition_doesnt_need_migrated,
+                phasenumber=1,
+                start_date=datetime.datetime.now() - datetime.timedelta(days=30)
+            )
+
+            CompetitionDetailView.check_trailing_phase_submissions(competition_doesnt_need_migrated)
+
+        self.assertFalse(do_migration_mock.called)
+
+    def test_check_trailing_phase_submissions_triggered_if_migrations_have_not_been_done(self):
+        with mock.patch('apps.web.views.CompetitionDetailView.do_phase_migration') as do_migration_mock:
+            CompetitionDetailView.check_trailing_phase_submissions(self.competition)
+
+        self.assertTrue(do_migration_mock.called)
+
+    def test_getting_competition_data_via_api_also_triggers_trailing_phase_check(self):
+
+
+
         # Where in the API would this be done? seems like a few places where it could go
+
+
+
         pass
 
-    def test_visiting_competition_page_when_last_phase_completed_triggers_phase_migration(self):
+    def test_check_trailing_phase_submissions_migrates_trailing_submissions_properly(self):
+        CompetitionDetailView.check_trailing_phase_submissions(self.competition)
+
+        # SHOULD GET THE LAST SUBMISSION A USER MADE
+
+        # should set competition.last_phase_migration to 2
+
+        # SHOULD CALL EVALUATE_SUBMISSION!!
+
         self.assertTrue(False)
 
-    def test_phase_migration_works(self):
-        self.assertTrue(False)
 
     def test_when_phase_marked_completed_previous_phase_migrated(self):
-
 
 
 
