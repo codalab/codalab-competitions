@@ -56,7 +56,10 @@ angular.module('codalab.controllers')
         $scope.saveWorksheet = function(worksheet) {
             worksheet.status = 'saving';
             worksheetsApi.createWorksheet(worksheet).then(function(createdWorksheet) {
+                worksheet.name = createdWorksheet.name;
+                worksheet.title = createdWorksheet.name;
                 worksheet.uuid = createdWorksheet.uuid;
+                worksheet.owner = createdWorksheet.owner;
                 worksheet.url = '/worksheets/' + worksheet.uuid;
                 worksheet.editable = false;
                 worksheet.target = '_self';
@@ -74,7 +77,8 @@ angular.module('codalab.controllers')
             $scope.worksheets.splice($scope.selectionIndex, 0, {
                 'name': '',
                 'editable': true,
-                'url': '#'
+                'url': '#',
+                'owner': $scope.user.name
             });
         };
 
