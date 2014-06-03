@@ -20,6 +20,7 @@ from django.http import Http404, StreamingHttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.web.bundles import BundleService
@@ -489,6 +490,20 @@ class WorksheetsListApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheets = service.worksheets()
+            user_ids = []
+            user_id_to_worksheets = {}
+            for worksheet in worksheets:
+                owner_id = worksheet['owner_id']
+                if owner_id in user_id_to_worksheets:
+                    user_id_to_worksheets[owner_id].append(worksheet)
+                else:
+                    user_id_to_worksheets[owner_id] = [worksheet]
+                    user_ids.append(owner_id)
+            if len(user_ids) > 0:
+                users = ClUser.objects.filter(id__in=user_ids)
+                for user in users:
+                    for worksheet in user_id_to_worksheets[user.id]:
+                        worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
@@ -523,6 +538,8 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid)
+            owner = ClUser.objects.filter(id=worksheet['owner_id'])[0]
+            worksheet['owner'] = owner.username
             return Response(worksheet)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
