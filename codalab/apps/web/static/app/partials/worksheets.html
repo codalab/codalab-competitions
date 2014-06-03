@@ -35,7 +35,8 @@
                             <div class="subContainerPadding" ng-switch-when="false">
                                 <div class="articleHeadingContainer">
                                     <h3>{[{ worksheet.title }]}</h3>
-                                    <label>{[{ worksheet.name }]} by {[{ worksheet.owner }]}</label>
+                                    <label ng-if="worksheet.permission == 1">{[{ worksheet.name }]} by {[{ worksheet.owner }]} (read-only)</label>
+                                    <label ng-if="worksheet.permission == 2">{[{ worksheet.name }]} by {[{ worksheet.owner }]}</label>
                                 </div>
                                 <p class="competition-paragraph">{[{ worksheet.description }]}</p>
                             </div>
