@@ -34,8 +34,8 @@
                         <div class="articleTextArea" ng-switch on="worksheet.editable">
                             <div class="subContainerPadding" ng-switch-when="false">
                                 <div class="articleHeadingContainer">
-                                    <h3>{[{ worksheet.name }]}</h3>
-                                    <label>{[{ worksheet.name }]} by codalab</label>
+                                    <h3>{[{ worksheet.title }]}</h3>
+                                    <label>{[{ worksheet.name }]} by {[{ worksheet.owner }]}</label>
                                 </div>
                                 <p class="competition-paragraph">{[{ worksheet.description }]}</p>
                             </div>

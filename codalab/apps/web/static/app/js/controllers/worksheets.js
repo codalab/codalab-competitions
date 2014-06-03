@@ -32,6 +32,18 @@ angular.module('codalab.controllers')
                 worksheet.url = '/worksheets/' + worksheet.uuid;
                 worksheet.target = '_self';
                 worksheet.editable = false;
+                var items = worksheet.items.filter(function(item) { return item.type == 'title' });
+                if (items.length > 0) {
+                    worksheet.title = items[0].value;
+                } else {
+                    worksheet.title = worksheet.name;
+                }
+                items = worksheet.items.filter(function(item) { return item.type == 'overview' });
+                if (items.length > 0) {
+                    items.forEach(function(item) {
+                        worksheet.description = item.value + '\n';
+                    });
+                }
                 $scope.worksheets.push(worksheet);
             });
         }, function() {
