@@ -325,6 +325,8 @@ def install_mysql(choice='all'):
         choices = {'bundles_db'}
     elif choice == 'all':
         choices = {'mysql', 'site_db', 'bundles_db'}
+    elif choice == 'bundles_db_recreate':
+        choices = {'bundles_db_recreate'}
     else:
         raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
 
@@ -350,6 +352,15 @@ def install_mysql(choice='all'):
         db_password = configuration.getBundleServiceDatabasePassword()
         cmds = ["create database {0};".format(db_name),
                 "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
+                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+
+    if 'bundles_db_recreate' in choices:
+        db_name = configuration.getBundleServiceDatabaseName()
+        db_user = configuration.getBundleServiceDatabaseUser()
+        db_password = configuration.getBundleServiceDatabasePassword()
+        cmds = ["drop database {0};".format(db_name),
+                "create database {0};".format(db_name),
                 "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
         run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
