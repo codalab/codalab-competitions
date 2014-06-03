@@ -23,7 +23,6 @@ from apps.web.models import (Competition,
                              CompetitionSubmission,
                              CompetitionSubmissionStatus,
                              ParticipantStatus)
-from apps.web.views import CompetitionDetailView
 
 User = get_user_model()
 
