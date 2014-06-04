@@ -1,25 +1,44 @@
-<!doctype html>
+ <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="windows-1252">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>CodaLab by codalab</title>
-
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>CodaLab</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-      <!--[if lt IE 9]>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
   <body>
-    <div class="wrapper">
+  <div id="header">
+    <nav>
       <header>
-        <h1>CodaLab</h1>
+          <a href="http://www.codalab.org/"><img src="images/codalab-logo-dinky.png" /></a>
+        <span class="navhead">
+            <a class="nav-small" href="http://www.codalab.org/worksheets">Worksheets</a> | 
+            <a class="nav-small" href="http://www.codalab.org/competitions">Competitions</a> | 
+            <a class="nav-small" href="http://www.codalab.org/my/">My CodaLab</a> | 
+            <a class="nav-small" href="https://github.com/codalab/codalab/wiki">Help</a>
+        </span>
       </header>
-      <section>
-<H3><strong>Terms and conditions – </strong></H3>
-<H3><strong>Terms of Use</strong></H3>
+    </nav>
+    </div>
+    <div class="wrapper">
+    <section>
+    <div id="title"><br /></div><!-- leave this here to preserve layout. -->
+    
+    <!-- BEGIN CONTENT -->
+<H3>Terms and conditions</H3>
+<H3>Terms of Use</H3>
 <p>
   <strong>Legal Notices.</strong> The Outercurve Foundation (Outercurve) Web site codalab.org (the "Web site") is provided by Outercurve as a public service to our users. Please carefully review the following basic rules that govern your use of the Web site. Please note that your use of the Web site constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you ("User") do not agree to them, do not use the Web site, provide any materials to the site or download any materials from it. Outercurve reserves the right to update or modify these Terms and Conditions at any time without prior notice to User. Your use of the site following any such change constitutes your unconditional agreement to follow and be bound by these Terms and Conditions as changed. For this reason, we encourage you to review these Terms and Conditions of Use whenever you use this Web site. These Terms and Conditions of Use apply to the use of the Outercurve site and do not extend to any linked third party sites. These Terms and Conditions and our <a href="http://codalab.github.io/codalab/notices.html">Privacy Policy</a>, which are hereby incorporated by reference, contain the entire agreement (the "Agreement") between Outercurve and User with respect to this site. Any rights not expressly granted herein are reserved.
 </p>
@@ -70,17 +89,18 @@
 <p>
   <strong>Notification Of Possible Copyright Infringement.</strong> In the event you believe that material or content published on the site may infringe on your copyright or that of another, please provide detailed written notice of such possible infringement to <a href="mailto:phunter@outercurve.org">Paula Hunter, Outercurve Foundation</a>, 781-876-6227 (office), 781-224-1239 (fax).
 </p>
-      </section>
-      <footer>
-        <p>
-          This project is maintained by <a href="https://github.com/codalab">codalab</a>
-        </p>
-        <p>
-          <small>
-            Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a>
-          </small>
-        </p>
-      </footer>
+    
+    <!-- END CONTENT -->
+    </section>
+    <div class="footer">
+        <a href="http://www.windowsazure.com/" target="_blank"><img src="images/Azure_Footer_Logo.png" border="0"></a>
+        <span class="footerlinks">
+           <a href="forum.html" target="_self">Forum</a>
+           <a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a>
+           <a href="notices.html" target="_self">Notices</a>
+           <a href="terms.html" target="_self">Terms of Use</a>
+        </span>
+    </div>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <script type="text/javascript">
@@ -93,6 +113,6 @@
         pageTracker._trackPageview();
       } catch(err) {}
     </script>
-
+<!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
   </body>
 </html>
