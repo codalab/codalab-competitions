@@ -318,9 +318,9 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.client = Client()
 
-    def test_visiting_competition_page_triggers_trailing_phase_check(self):
+    def test_scheduler_url_calls_competition_phase_migration_check(self):
         with mock.patch('apps.web.models.Competition.check_trailing_phase_submissions') as check_trailing_mock:
-            resp = self.client.get('/competitions/%s' % self.competition.pk)
+            resp = self.client.get('/competitions/check_phase_migrations')
 
         self.assertTrue(check_trailing_mock.called)
 
@@ -342,16 +342,6 @@ class CompetitionPhaseToPhase(TestCase):
             self.competition.check_trailing_phase_submissions()
 
         self.assertTrue(do_migration_mock.called)
-
-    def test_getting_competition_data_via_api_also_triggers_trailing_phase_check(self):
-
-
-
-        # Where in the API would this be done? seems like a few places where it could go
-
-
-
-        pass
 
     def test_check_trailing_phase_submissions_migrates_trailing_submissions_properly(self):
         with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
