@@ -202,31 +202,34 @@ class Competition(models.Model):
         last_phase: The phase object to transfer submissions from
         '''
         submissions = []
-        leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
+        try:
+            leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
 
-        leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
-        for submission in leader_board_entries:
-            submissions.append(submission.result)
+            leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
+            for submission in leader_board_entries:
+                submissions.append(submission.result)
 
-        participants = {}
+            participants = {}
 
-        for s in submissions:
-            participants[s.participant] = s
+            for s in submissions:
+                participants[s.participant] = s
 
-        from tasks import evaluate_submission
+            from tasks import evaluate_submission
 
-        for participant, submission in participants.items():
-            new_submission = CompetitionSubmission.objects.create(
-                participant=participant,
-                file=submission.file,
-                phase=current_phase
-            )
+            for participant, submission in participants.items():
+                new_submission = CompetitionSubmission.objects.create(
+                    participant=participant,
+                    file=submission.file,
+                    phase=current_phase
+                )
 
-            evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
 
-        # TODO: ONLY IF SUCCESSFUL
-        self.last_phase_migration = current_phase.phasenumber
-        self.save()
+            # TODO: ONLY IF SUCCESSFUL
+            self.last_phase_migration = current_phase.phasenumber
+            self.save()
+        except PhaseLeaderBoard.DoesNotExist:
+            pass
 
     def check_trailing_phase_submissions(self):
         '''
@@ -242,6 +245,9 @@ class Competition(models.Model):
                 break
 
             last_phase = phase
+
+        if current_phase is None:
+            return
 
         if current_phase.phasenumber > self.last_phase_migration:
             self.do_phase_migration(current_phase, last_phase)
