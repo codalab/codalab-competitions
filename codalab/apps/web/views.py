@@ -197,6 +197,15 @@ class CompetitionResultsPage(TemplateView):
         context['groups'] = phase.scores()
         return context
 
+class CompetitionCheckMigrations(View):
+    def get(self, request, *args, **kwargs):
+        competitions = models.Competition.objects.all()
+
+        for c in competitions:
+            c.check_trailing_phase_submissions()
+
+        return HttpResponse()
+
 class CompetitionResultsDownload(View):
 
     def get(self, request, *args, **kwargs):

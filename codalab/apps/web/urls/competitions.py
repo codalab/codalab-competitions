@@ -12,5 +12,6 @@ urlpatterns = patterns(
     url(r'^delete_competition/(?P<pk>\d+)$', views.CompetitionDelete.as_view(), name='delete'),
     url(r'^(?P<id>\d+)/submissions/(?P<phase>\d+)$', views.CompetitionSubmissionsPage.as_view(), name='competition_submissions_page'),
     url(r'^(?P<id>\d+)/results/(?P<phase>\d+)$', views.CompetitionResultsPage.as_view(), name='competition_results_page'),
-    url(r'^(?P<id>\d+)/results/(?P<phase>\d+)/data$', views.CompetitionResultsDownload.as_view(), name='competition_results_download')
+    url(r'^(?P<id>\d+)/results/(?P<phase>\d+)/data$', views.CompetitionResultsDownload.as_view(), name='competition_results_download'),
+    url(r'^check_phase_migrations/', views.CompetitionCheckMigrations.as_view(), name="competition_check_phase_migrations")
 )
