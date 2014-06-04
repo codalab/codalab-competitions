@@ -22,7 +22,9 @@ from apps.web.models import (Competition,
                              CompetitionPhase,
                              CompetitionSubmission,
                              CompetitionSubmissionStatus,
-                             ParticipantStatus)
+                             ParticipantStatus,
+                             PhaseLeaderBoard,
+                             PhaseLeaderBoardEntry)
 
 User = get_user_model()
 
@@ -302,6 +304,16 @@ class CompetitionPhaseToPhase(TestCase):
             phase=self.phase_1,
             status=comp_submit_status,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
+        )
+
+        self.leader_board = PhaseLeaderBoard.objects.create(phase=self.phase_1)
+        self.leader_board_entry_1 = PhaseLeaderBoardEntry.objects.create(
+            board=self.leader_board,
+            result=self.submission_2
+        )
+        self.leader_board_entry_2 = PhaseLeaderBoardEntry.objects.create(
+            board=self.leader_board,
+            result=self.submission_3
         )
 
         self.client = Client()
