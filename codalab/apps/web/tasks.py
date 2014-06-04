@@ -210,12 +210,15 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({"id" : job_id,
-                       "task_type": "run",
-                       "task_args": {
-                           "bundle_id" : submission.runfile.name,
-                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
+    body = json.dumps({
+        "id" : job_id,
+        "task_type": "run",
+        "task_args": {
+            "bundle_id" : submission.runfile.name,
+            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to" : settings.SBS_RESPONSE_QUEUE
+        }
+    })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)

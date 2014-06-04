@@ -201,11 +201,16 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
-        submissions = CompetitionSubmission.objects.filter(phase=last_phase)
+        submissions = []
+        leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
+
+        leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
+        for submission in leader_board_entries:
+            submissions.append(submission.result)
+
         participants = {}
 
         for s in submissions:
-            # Since submissions are in least recent -> most recent order, participant dict will always point to latest
             participants[s.participant] = s
 
         from tasks import evaluate_submission
