@@ -1,3 +1,15 @@
+# CodaLab Files #
+#################
+codalab/config/generated
+codalab/static/**/**
+codalab/media/**/**
+**/**/.codalabconfig
+
+# Virtuelenv files #
+####################
+**/**/venv
+venv/
+
 #################
 ## Eclipse
 #################
