@@ -32,7 +32,7 @@ class Command(BaseCommand):
                     ),
         make_option('--delete', '-d',
                     dest='delete',
-                    action="store_true",
+                    action="store_false",
                     default=True,
                     help="Don't delete the temp files"
                     )
