@@ -42,6 +42,7 @@ venv/
 \#*\#
 .\#*
 *.swp
+.idea/
 
 # Compiled source #
 ###################

@@ -1,2 +1,0 @@
-command: $program/evaluate.exe $input $output
-description: Example competition evaluation program.
