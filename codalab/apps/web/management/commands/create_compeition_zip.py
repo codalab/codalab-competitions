@@ -6,16 +6,11 @@ import shutil
 import string
 import tempfile
 import yaml
-import zipfile
 
 from optparse import make_option
 
 from django.contrib.auth import get_user_model
-from django.core.files import File
 from django.core.management.base import BaseCommand
-from django.utils.timezone import utc
-
-import codalab
 
 User = get_user_model()
 
@@ -23,10 +18,6 @@ class Command(BaseCommand):
     help = """Creates a fake competition zip file for easy uploading and testing. \n Please see create_compeition_zip.py for more options"""
 
     option_list = BaseCommand.option_list + (
-        make_option('--creator', '-c',
-                    dest='creator',
-                    help="Email address of creator"),
-
         make_option('--numphases', '-p',
                     dest='numphases',
                     default=5,
@@ -69,8 +60,6 @@ class Command(BaseCommand):
         overview_html = "<H3>Welcome!</H3> <p> This is an example competition. </p>"
         terms_and_conditions_html = "<H3>Terms and Conditions</H3> <p> This page enumerated the terms and conditions of the competition. </p>"
 
-
-        creator_email = options['creator']
         numphases = options['numphases']
         phaselength = options['phaselength']
         delete = options['delete']
@@ -78,11 +67,6 @@ class Command(BaseCommand):
         if numphases < 1:
             print "you must have at lest one phase "
             return
-
-        try:
-            creator = User.objects.get(email=creator_email)
-        except User.DoesNotExist as e:
-            creator = User.objects.all()[0] #just get the first user
 
         phasedates = []
         now = datetime.datetime.utcnow()
@@ -117,16 +101,13 @@ class Command(BaseCommand):
             comp_yaml_obj['phases'].update(phase)
 
 
-
-
-        #write files and create zip and clean up.
         PROJECT_ROOT = os.path.abspath(os.path.split(os.path.split(__file__)[1])[0])
 
         # let's further isolate this by creating a temp dir with a name we control
         temp_dir = os.path.join(PROJECT_ROOT, 'tmp_comp')
         if os.path.exists(temp_dir) == False:
             os.mkdir(temp_dir)
-        #now lets create a realy temp dir.
+        #now lets create a real temp dir.
         root_dir = tempfile.mkdtemp(dir=temp_dir)
 
         #setup up some sub folders
@@ -139,7 +120,6 @@ class Command(BaseCommand):
             os.mkdir(reference_data_dir)
 
         #write the files we need
-
         # yaml for the competition
         with open(os.path.join(root_dir, 'competition.yaml'), 'w') as f:
                 f.write(yaml.dump(comp_yaml_obj, default_flow_style=False))
@@ -155,7 +135,7 @@ class Command(BaseCommand):
                 f.write(overview_html)
         with open(os.path.join(root_dir, 'terms_and_conditions.html'), 'w') as f:
                 f.write(terms_and_conditions_html)
-
+        # logo
         r = requests.get(logo_url, stream=True)
         if r.status_code == 200:
             with open(os.path.join(root_dir, 'logo.jpg'), 'wb') as f:
@@ -176,7 +156,7 @@ class Command(BaseCommand):
                 f.write(scoring_program_metdata)
 
 
-        # reference data files
+        #reference data files
         truth_txt = requests.get(reference_data_truth_url)
         truth_txt = truth_txt.content
 
@@ -184,7 +164,7 @@ class Command(BaseCommand):
                 f.write(truth_txt)
 
 
-        #zip everying up
+        #zip everything up
         shutil.make_archive(
             base_name=scoring_program_dir,  #folder and file name are the same
             format='zip',
@@ -203,7 +183,7 @@ class Command(BaseCommand):
             root_dir=root_dir,
         )
 
-        print "sample_competition complete"
+        print "sample competition complete"
         print output_file
 
         if temp_dir is not None and delete:
@@ -214,7 +194,3 @@ class Command(BaseCommand):
             except:
                 print "there was a problem cleaning up the temp folder."
                 print temp_dir
-
-
-
-
