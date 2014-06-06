@@ -7770,13 +7770,13 @@ h1 small, h2 small, h3 small {
 /* for main index page signup block */
 /* line 163, ../sass/codalab.scss */
 .signupblock {
-  border-style: solid;
+  /*  border-style: solid; */
   border-width: 1px;
   border-color: #d1d1d1;
   margin-bottom: 30px;
-  padding-left: 30px;
-  padding-right: 30px;
-  background: #ebebeb;
+  /* padding-left: 30px; */
+  /* padding-right: 30px; */
+  /* background: #ebebeb; */
   margin-top: 15px;
 }
 
@@ -7790,7 +7790,7 @@ h1 small, h2 small, h3 small {
   /* top left corner */
   position: absolute;
   left: -50px;
-  top: 100px;
+  top: 60px;
   /* 45 deg ccw rotation */
   -webkit-transform: rotate(-45deg) translate3d(0, 0, 0);
   -moz-transform: rotate(-45deg);
@@ -7814,4 +7814,14 @@ h1 small, h2 small, h3 small {
   text-decoration: none;
   /* shadow */
   text-shadow: 0 0 5px #444;
+}
+
+/* line 209, ../sass/codalab.scss */
+.padbottom {
+  padding-bottom: 20px;
+}
+
+/* line 213, ../sass/codalab.scss */
+.indent {
+  padding-left: 20px;
 }
