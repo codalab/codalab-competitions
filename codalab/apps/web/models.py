@@ -197,7 +197,6 @@ class Competition(models.Model):
         '''
         Does the actual migrating of submissions from last_phase to current_phase
 
-        competition: Competition model object
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
@@ -403,6 +402,7 @@ class CompetitionPhase(models.Model):
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
+    auto_migration = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['phasenumber']
@@ -920,6 +920,7 @@ class CompetitionDefBundle(models.Model):
             # Evaluation Program
             phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.auto_migration = int(phase_spec.get('auto_migration', 0)) > 0
             if 'input_data' in phase_spec:
                 phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
