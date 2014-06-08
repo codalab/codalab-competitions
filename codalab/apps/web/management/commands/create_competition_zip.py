@@ -131,8 +131,6 @@ class Command(BaseCommand):
             f.write(evaluation_html)
         with open(os.path.join(root_dir, 'overview.html'), 'w') as f:
             f.write(overview_html)
-        with open(os.path.join(root_dir, 'overview.html'), 'w') as f:
-            f.write(overview_html)
         with open(os.path.join(root_dir, 'terms_and_conditions.html'), 'w') as f:
             f.write(terms_and_conditions_html)
         # logo
