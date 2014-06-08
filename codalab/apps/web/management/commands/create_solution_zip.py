@@ -56,10 +56,10 @@ class Command(BaseCommand):
         answer_txt = answer_txt.content
 
         with open(os.path.join(root_dir, 'answer.txt'), 'w') as f:
-                if wrong:
-                    f.write("This is wrong. Sorry :(")
-                else:
-                    f.write(answer_txt)
+            if wrong:
+                f.write("This is wrong. Sorry :(")
+            else:
+                f.write(answer_txt)
 
         file_name = 'sample_solution'
         if wrong:
