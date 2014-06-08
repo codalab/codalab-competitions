@@ -281,7 +281,8 @@ class CompetitionPhaseToPhase(TestCase):
         self.phase_2 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=2,
-            start_date=datetime.datetime.now() - datetime.timedelta(days=15)
+            start_date=datetime.datetime.now() - datetime.timedelta(days=15),
+            auto_migration=True
         )
 
         comp_submit_status = CompetitionSubmissionStatus.objects.create(name="submitted", codename="submitted")
@@ -358,18 +359,24 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.assertEquals(self.competition.last_phase_migration, 2)
 
+    def test_phase_to_phase_migrations_only_when_auto_migration_flag_is_true(self):
+        with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
+            competition_doesnt_need_migrated = Competition.objects.create(creator=self.user, modified_by=self.user)
+            first_phase = CompetitionPhase.objects.create(
+                competition=competition_doesnt_need_migrated,
+                phasenumber=1,
+                start_date=datetime.datetime.now() - datetime.timedelta(days=30)
+            )
+            second_phase = CompetitionPhase.objects.create(
+                competition=competition_doesnt_need_migrated,
+                phasenumber=2,
+                start_date=datetime.datetime.now() - datetime.timedelta(days=20),
+                auto_migration=False
+            )
 
-    '''
-    def test_when_phase_marked_completed_previous_phase_migrated(self):
+            competition_doesnt_need_migrated.check_trailing_phase_submissions()
 
-
-
-        # FIND WHERE THE PHASES ARE MARKED AS COMPLETE, EXECUTE THIS THEN!!!!
-
-
-
-        self.assertTrue(False)
-    '''
+        self.assertFalse(do_migration_mock.called)
 
 
 class CompetitionDefinitionTests(TestCase):

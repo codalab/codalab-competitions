@@ -258,8 +258,8 @@ class Competition(models.Model):
         print "last phase: %s, current phase: %s" % (last_phase.phasenumber, current_phase.phasenumber)
 
         if current_phase.phasenumber > self.last_phase_migration:
-            print 'why god'
-            self.do_phase_migration(current_phase, last_phase)
+            if current_phase.auto_migration:
+                self.do_phase_migration(current_phase, last_phase)
 
 
 class Page(models.Model):
