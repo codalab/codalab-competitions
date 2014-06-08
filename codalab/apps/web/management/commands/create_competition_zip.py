@@ -15,7 +15,7 @@ from django.core.management.base import BaseCommand
 User = get_user_model()
 
 class Command(BaseCommand):
-    help = """Creates a fake competition zip file for easy uploading and testing. \n Please see create_compeition_zip.py for more options"""
+    help = """Creates a fake competition zip file for easy uploading and testing. \n Please see create_competition_zip.py for more options"""
 
     option_list = BaseCommand.option_list + (
         make_option('--numphases', '-p',
@@ -72,7 +72,7 @@ class Command(BaseCommand):
         now = datetime.datetime.utcnow()
         delta = datetime.timedelta(minutes=phaselength)
         next = now
-        for i in xrange(0,numphases):
+        for i in xrange(0, numphases):
             phasedates.append(next)
             next = next + delta
 
@@ -85,7 +85,7 @@ class Command(BaseCommand):
         comp_yaml_obj['title'] = "%s %s" %(comp_yaml_obj['title'], tz_now.strftime("%m-%d %d:%M"))
 
         comp_yaml_obj['phases'] = {}
-        for i in xrange(0,numphases):
+        for i in xrange(0, numphases):
             random_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(6))
             phase_name = "Phase %s %s" % (i, random_name)
             phase = {
