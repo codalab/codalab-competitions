@@ -201,13 +201,18 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
-        submissions = []
+        print 'doing phase migration'
+
         try:
+            submissions = []
             leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
 
             leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
             for submission in leader_board_entries:
                 submissions.append(submission.result)
+
+            # OLD WAY
+            #submissions = CompetitionSubmission.objects.filter(phase=last_phase)
 
             participants = {}
 
@@ -217,6 +222,8 @@ class Competition(models.Model):
             from tasks import evaluate_submission
 
             for participant, submission in participants.items():
+                print 'Moving submission %s over' % submission
+
                 new_submission = CompetitionSubmission.objects.create(
                     participant=participant,
                     file=submission.file,
@@ -246,11 +253,15 @@ class Competition(models.Model):
 
             last_phase = phase
 
-        if current_phase is None:
+        if current_phase is None or last_phase is None:
             return
 
+        print "last phase: %s, current phase: %s" % (last_phase.phasenumber, current_phase.phasenumber)
+
         if current_phase.phasenumber > self.last_phase_migration:
+            print 'why god'
             self.do_phase_migration(current_phase, last_phase)
+
 
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
@@ -487,6 +498,8 @@ class CompetitionPhase(models.Model):
     def scores(self,**kwargs):
         score_filters = kwargs.pop('score_filters',{})
 
+        print 'scores() called'
+
         # Get the list of submissions in this leaderboard
         submissions = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
@@ -494,6 +507,8 @@ class CompetitionPhase(models.Model):
             qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
+
+        print "leaderboard: %s" % lb
 
         results = []
         for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
@@ -1135,7 +1150,12 @@ def add_submission_to_leaderboard(submission):
     Adds the given submission to its leaderboard. It is the caller responsiblity to make
     sure the submission is ready to be added (e.g. it's in the finished state).
     """
+    print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+    print 'ADDING SUBMISSION TO LEADERBOARD!'
+
+
     lb,_ = PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+
     # Currently we only allow one submission into the leaderboard although the leaderboard
     # is setup to accept multiple submissions from the same participant.
     entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=submission.participant)

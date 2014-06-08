@@ -109,7 +109,7 @@ class CompetitionDetailView(DetailView):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
 
-        competition.check_trailing_phase_submissions()
+        #competition.check_trailing_phase_submissions()
 
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
@@ -202,6 +202,7 @@ class CompetitionCheckMigrations(View):
         competitions = models.Competition.objects.all()
 
         for c in competitions:
+            print c
             c.check_trailing_phase_submissions()
 
         return HttpResponse()
