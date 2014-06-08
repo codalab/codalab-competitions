@@ -65,7 +65,7 @@ class Command(BaseCommand):
         delete = options['delete']
 
         if numphases < 1:
-            print "you must have at lest one phase "
+            print "you must have at least one phase "
             return
 
         phasedates = []
@@ -122,19 +122,19 @@ class Command(BaseCommand):
         #write the files we need
         # yaml for the competition
         with open(os.path.join(root_dir, 'competition.yaml'), 'w') as f:
-                f.write(yaml.dump(comp_yaml_obj, default_flow_style=False))
+            f.write(yaml.dump(comp_yaml_obj, default_flow_style=False))
 
         #misc files
         with open(os.path.join(root_dir, 'data.html'), 'w') as f:
-                f.write(data_html)
+            f.write(data_html)
         with open(os.path.join(root_dir, 'evaluation.html'), 'w') as f:
-                f.write(evaluation_html)
+            f.write(evaluation_html)
         with open(os.path.join(root_dir, 'overview.html'), 'w') as f:
-                f.write(overview_html)
+            f.write(overview_html)
         with open(os.path.join(root_dir, 'overview.html'), 'w') as f:
-                f.write(overview_html)
+            f.write(overview_html)
         with open(os.path.join(root_dir, 'terms_and_conditions.html'), 'w') as f:
-                f.write(terms_and_conditions_html)
+            f.write(terms_and_conditions_html)
         # logo
         r = requests.get(logo_url, stream=True)
         if r.status_code == 200:
@@ -151,9 +151,9 @@ class Command(BaseCommand):
         scoring_program_metdata = scoring_program_metdata.content
 
         with open(os.path.join(scoring_program_dir, 'evaluate.py'), 'w') as f:
-                f.write(evaluate_py)
+            f.write(evaluate_py)
         with open(os.path.join(scoring_program_dir, 'metadata'), 'w') as f:
-                f.write(scoring_program_metdata)
+            f.write(scoring_program_metdata)
 
 
         #reference data files
@@ -161,7 +161,7 @@ class Command(BaseCommand):
         truth_txt = truth_txt.content
 
         with open(os.path.join(reference_data_dir, 'truth.txt'), 'w') as f:
-                f.write(truth_txt)
+            f.write(truth_txt)
 
 
         #zip everything up
