@@ -210,13 +210,17 @@ class Competition(models.Model):
             for submission in leader_board_entries:
                 submissions.append(submission.result)
 
-            # OLD WAY
-            #submissions = CompetitionSubmission.objects.filter(phase=last_phase)
-
             participants = {}
 
             for s in submissions:
                 participants[s.participant] = s
+
+            # If participants didn't submit an entry to leaderboard, just grab their last one
+            participants_with_submissions = CompetitionSubmission.objects.filter(phase=last_phase, phase__competition=self)
+
+            for submission in participants_with_submissions:
+                if submission.participant not in participants:
+                    participants[submission.participant] = submission
 
             from tasks import evaluate_submission
 
