@@ -361,22 +361,31 @@ class CompetitionPhaseToPhase(TestCase):
 
     def test_phase_to_phase_migrations_only_when_auto_migration_flag_is_true(self):
         with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
-            competition_doesnt_need_migrated = Competition.objects.create(creator=self.user, modified_by=self.user)
+            competition = Competition.objects.create(creator=self.user, modified_by=self.user)
             first_phase = CompetitionPhase.objects.create(
-                competition=competition_doesnt_need_migrated,
+                competition=competition,
                 phasenumber=1,
                 start_date=datetime.datetime.now() - datetime.timedelta(days=30)
             )
             second_phase = CompetitionPhase.objects.create(
-                competition=competition_doesnt_need_migrated,
+                competition=competition,
                 phasenumber=2,
                 start_date=datetime.datetime.now() - datetime.timedelta(days=20),
                 auto_migration=False
             )
 
-            competition_doesnt_need_migrated.check_trailing_phase_submissions()
+            competition.check_trailing_phase_submissions()
 
         self.assertFalse(do_migration_mock.called)
+
+    def test_phase_to_phase_migration_where_participant_has_no_leaderboard_entries_selects_last_submission(self):
+        self.leader_board_entry_1.delete()
+        self.leader_board_entry_2.delete()
+
+        self.competition.check_trailing_phase_submissions()
+
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
 
 
 class CompetitionDefinitionTests(TestCase):
