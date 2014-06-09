@@ -1,23 +1,42 @@
-<!doctype html>
+ <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="windows-1252">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>CodaLab by codalab</title>
-
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>CodaLab</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-      <!--[if lt IE 9]>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
   <body>
-    <div class="wrapper">
+  <div id="header">
+    <nav>
       <header>
-        <h1>CodaLab</h1>
+          <a href="http://www.codalab.org/"><img src="images/codalab-logo-dinky.png" /></a>
+        <span class="navhead">
+            <a class="nav-small" href="http://www.codalab.org/worksheets">Worksheets</a> | 
+            <a class="nav-small" href="http://www.codalab.org/competitions">Competitions</a> | 
+            <a class="nav-small" href="http://www.codalab.org/my/">My CodaLab</a> | 
+            <a class="nav-small" href="https://github.com/codalab/codalab/wiki">Help</a>
+        </span>
       </header>
-      <section>
+    </nav>
+    </div>
+    <div class="wrapper">
+    <section>
+    <div id="title"><br /></div><!-- leave this here to preserve layout. -->
+    
+    <!-- BEGIN CONTENT -->
 <H3><strong>Privacy Policy</strong></H3>
 <H4><strong>Outercurve Foundation Online Privacy Statement</strong></H4>
 <p>
@@ -98,17 +117,18 @@
 <p>
   Questions about this Privacy Statement can be directed to <a href="mailto:info@outercurve.org">info@outercurve.org</a>.
 </p>
-      </section>
-      <footer>
-        <p>
-          This project is maintained by <a href="https://github.com/codalab">codalab</a>
-        </p>
-        <p>
-          <small>
-            Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a>
-          </small>
-        </p>
-      </footer>
+    
+    <!-- END CONTENT -->
+    </section>
+    <div class="footer">
+        <a href="http://www.windowsazure.com/" target="_blank"><img src="images/Azure_Footer_Logo.png" border="0"></a>
+        <span class="footerlinks">
+           <a href="forum.html" target="_self">Forum</a>
+           <a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a>
+           <a href="notices.html" target="_self">Notices</a>
+           <a href="terms.html" target="_self">Terms of Use</a>
+        </span>
+    </div>
     </div>
     <script src="javascripts/scale.fix.js"></script>
     <script type="text/javascript">
@@ -121,6 +141,6 @@
         pageTracker._trackPageview();
       } catch(err) {}
     </script>
-
+<!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
   </body>
 </html>
