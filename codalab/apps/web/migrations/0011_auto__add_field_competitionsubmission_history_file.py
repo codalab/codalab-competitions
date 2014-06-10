@@ -66,7 +66,6 @@ class Migration(SchemaMigration):
             'image': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'image_url_base': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'last_phase_migration': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'modified_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_modified_by'", 'to': u"orm['authenz.ClUser']"}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
@@ -88,7 +87,6 @@ class Migration(SchemaMigration):
         },
         u'web.competitionphase': {
             'Meta': {'ordering': "['phasenumber']", 'object_name': 'CompetitionPhase'},
-            'auto_migration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
