@@ -4,6 +4,8 @@ Defines background tasks needed by the web site.
 import io
 import json
 import logging
+import yaml
+
 from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
@@ -21,6 +23,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_output_filename,
                              submission_stdout_filename,
                              submission_stderr_filename,
+                             submission_history_file_name,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -198,7 +201,33 @@ def score(submission, job_id):
     lines.append("input: %s" % submission.inputfile.name)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
     lines.append("stderr: %s" % submission_stderr_filename(submission))
+    lines.append("history: %s" % submission_history_file_name)
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
+
+    last_submission = CompetitionSubmission.objects.filter(
+        participant=submission.participant,
+        phase=submission.phase,
+    )
+    last_submission = last_submission.exclude(history_file__exact='')
+    last_submission = last_submission.order_by('-submitted_at')[:1]
+
+    #import ipdb; ipdb.set_trace()
+
+    if len(last_submission) > 0:
+        history = yaml.load(open(last_submission[0].history_file).read())
+    else:
+        history = {
+            "submissions": []
+        }
+
+    history["submissions"].append({
+        "date": submission.submitted_at,
+        "participant": submission.participant.user.username
+    })
+
+    history_text = yaml.dump(history)
+
+    submission.history_file.save('history.txt', ContentFile(history_text))
 
     # Create stdout.txt & stderr.txt
     if has_generated_predictions == False:
