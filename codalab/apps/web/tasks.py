@@ -29,8 +29,8 @@ from apps.web.models import (add_submission_to_leaderboard,
 
 logger = logging.getLogger(__name__)
 
-# Echo
 
+# Echo
 def echo_task(job_id, args):
     """
     A simple task to echo a message provided as args['message']. The associated job will
@@ -175,6 +175,35 @@ def score(submission, job_id):
         state = json.loads(submission.execution_key)
     has_generated_predictions = 'predict' in state
 
+    #generate metadata-only bundle describing the history of submissions and phases
+    last_submissions = CompetitionSubmission.objects.filter(
+        participant=submission.participant,
+        status__codename=CompetitionSubmissionStatus.FINISHED
+
+    ).order_by('-submitted_at')
+
+
+    lines = []
+    lines.append("description: history of all previous runs output files")
+    #TODO add more meta data here
+
+    if last_submissions:
+        for past_submission in last_submissions:
+            if past_submission.pk != submission.pk:
+                #pad folder numbers for sorting os side, 001, 002, 003,... 010, etc...
+                past_submission_phasenumber = '%03d' % past_submission.phase.phasenumber
+                past_submission_number = '%03d' % past_submission.submission_number
+                lines.append('%s/%s/output/: %s' % (
+                        past_submission_phasenumber,
+                        past_submission_number,
+                        submission_output_filename(past_submission),
+                    )
+                )
+    else:
+        pass
+
+    submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
+
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
@@ -188,9 +217,13 @@ def score(submission, job_id):
         lines.append("res: %s" % res_value)
     else:
         raise ValueError("Results are missing.")
+
+    lines.append("history: %s" % submission_history_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
+
+
     # Generate metadata-only bundle describing the computation.
     lines = []
     program_value = submission.phase.scoring_program.name
@@ -201,33 +234,7 @@ def score(submission, job_id):
     lines.append("input: %s" % submission.inputfile.name)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
     lines.append("stderr: %s" % submission_stderr_filename(submission))
-    lines.append("history: %s" % submission_history_file_name)
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
-
-    last_submission = CompetitionSubmission.objects.filter(
-        participant=submission.participant,
-        phase=submission.phase,
-    )
-    last_submission = last_submission.exclude(history_file__exact='')
-    last_submission = last_submission.order_by('-submitted_at')[:1]
-
-    #import ipdb; ipdb.set_trace()
-
-    if len(last_submission) > 0:
-        history = yaml.load(open(last_submission[0].history_file).read())
-    else:
-        history = {
-            "submissions": []
-        }
-
-    history["submissions"].append({
-        "date": submission.submitted_at,
-        "participant": submission.participant.user.username
-    })
-
-    history_text = yaml.dump(history)
-
-    submission.history_file.save('history.txt', ContentFile(history_text))
 
     # Create stdout.txt & stderr.txt
     if has_generated_predictions == False:
