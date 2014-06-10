@@ -94,14 +94,23 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
     def getThem(bundle_id, bundle_rel_path, bundles, depth):
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
-        blob = blob_service.get_blob(container, bundle_id)
+        try:
+            blob = blob_service.get_blob(container, bundle_id)
+        except Exception:
+            #file not found lets None this bundle
+            bundles[bundle_rel_path] = None
+            return bundles
+
         bundle_ext = os.path.splitext(bundle_id)[1]
         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+
+        #take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
             f.write(blob)
         # stage the bundle directory
         bundle_path = join(root_path, bundle_rel_path)
         metadata_path = join(bundle_path, 'metadata')
+
         if bundle_ext == '.zip':
             with ZipFile(bundle_file.file, 'r') as z:
                 z.extractall(bundle_path)
@@ -115,11 +124,13 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
                 bundle_info = yaml.load(mf)
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
+
         if (bundle_info is not None) and (depth < max_depth):
             for (k, v) in bundle_info.items():
                 if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
                     if isinstance(v, str):
                         getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
+
         return bundles
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
@@ -175,9 +186,9 @@ def get_run_func(config):
                                      reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
+
         try:
             _send_update(queue, task_id, 'running')
-
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             # Fetch and stage the bundles
@@ -243,6 +254,7 @@ def get_run_func(config):
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
+
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
             output_file = join(root_dir, 'run', 'output.zip')
@@ -255,6 +267,7 @@ def get_run_func(config):
             logger.exception("Run task failed (task_id=%s).", task_id)
             _send_update(queue, task_id, 'failed')
 
+        # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
             # Try cleaning-up temporary directory
             try:
