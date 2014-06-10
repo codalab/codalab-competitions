@@ -261,8 +261,15 @@ def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_root(instance):
-    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk),
-                        "submissions", str(instance.participant.user.pk), str(instance.submission_number))
+    # will generate /competition/1/1/submissions/1/1/
+    return os.path.join(
+        "competition",
+        str(instance.phase.competition.pk),
+        str(instance.phase.pk),
+        "submissions",
+        str(instance.participant.user.pk),
+        str(instance.submission_number)
+    )
 
 def submission_file_name(instance, filename="predictions.zip"):
     return os.path.join(submission_root(instance), filename)
@@ -680,7 +687,7 @@ class CompetitionSubmission(models.Model):
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
-           'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
+           'prediction-output.zip', 'stdout.txt', 'stderr.txt' or 'history.txt'.
         requested_by: A user object identifying the user making the request to access the file.
 
         Raises:
@@ -692,7 +699,7 @@ class CompetitionSubmission(models.Model):
             'output.zip': ('output_file', 'zip', True),
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
-            'stderr.txt': ('stderr_file', 'txt', False)
+            'stderr.txt': ('stderr_file', 'txt', False),
         }
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
@@ -762,7 +769,7 @@ class CompetitionDefBundle(models.Model):
         if type(dt) is str:
             dt = parse_datetime(dt)
         if type(dt) is datetime.date:
-            dt = datetime.datetime.combine(dt, datetime.time())            
+            dt = datetime.datetime.combine(dt, datetime.time())
         if not type(dt) is datetime.datetime:
             raise ValueError("Expected a DateTime object but got %s" % dt)
         if dt.tzinfo is None:
@@ -795,7 +802,7 @@ class CompetitionDefBundle(models.Model):
                 del comp_base['end_date']
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
-        
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -907,7 +914,7 @@ class CompetitionDefBundle(models.Model):
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
                                     'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
-                    if 'selection_default' in vals: 
+                    if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
