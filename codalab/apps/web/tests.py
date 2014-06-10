@@ -382,7 +382,10 @@ class CompetitionPhaseToPhase(TestCase):
         self.leader_board_entry_1.delete()
         self.leader_board_entry_2.delete()
 
-        self.competition.check_trailing_phase_submissions()
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+
+        self.assertTrue(evaluate_mock.called)
 
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
