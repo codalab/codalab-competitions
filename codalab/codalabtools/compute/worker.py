@@ -272,7 +272,6 @@ def get_run_func(config):
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
                 _upload(blob_service, container, private_output_id, private_output_file)
-                import pdb; pdb.set_trace()
                 shutil.rmtree(private_dir)
 
 
