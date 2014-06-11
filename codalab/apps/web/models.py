@@ -216,18 +216,6 @@ class Competition(models.Model):
             for s in submissions:
                 participants[s.participant] = s
 
-            # If participants didn't submit an entry to leaderboard, just grab their last one
-            participants_with_submissions = CompetitionSubmission.objects.filter(
-                phase=last_phase,
-                phase__competition=self,
-                #status__codename=CompetitionSubmissionStatus.FINISHED
-            )
-
-            for submission in participants_with_submissions:
-                # this participant doesn't have a submission on the leaderboard
-                if submission.participant not in participants:
-                    participants[submission.participant] = submission
-
             from tasks import evaluate_submission
 
             for participant, submission in participants.items():
