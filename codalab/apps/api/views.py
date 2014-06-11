@@ -24,7 +24,6 @@ from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
-from apps.web.views import CompetitionDetailView
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
