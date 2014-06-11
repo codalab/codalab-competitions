@@ -378,18 +378,6 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.assertFalse(do_migration_mock.called)
 
-    def test_phase_to_phase_migration_where_participant_has_no_leaderboard_entries_selects_last_submission(self):
-        self.leader_board_entry_1.delete()
-        self.leader_board_entry_2.delete()
-
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
-            self.competition.check_trailing_phase_submissions()
-
-        self.assertTrue(evaluate_mock.called)
-
-        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
-        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
-
 
 class CompetitionDefinitionTests(TestCase):
 
