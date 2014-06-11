@@ -285,25 +285,25 @@ class CompetitionPhaseToPhase(TestCase):
             auto_migration=True
         )
 
-        comp_submit_status = CompetitionSubmissionStatus.objects.create(name="submitted", codename="submitted")
+        submission_finished = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
 
         self.submission_1 = CompetitionSubmission.objects.create(
             participant=self.participant_1,
             phase=self.phase_1,
-            status=comp_submit_status,
+            status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
         )
         self.submission_2 = CompetitionSubmission.objects.create(
             participant=self.participant_1,
             phase=self.phase_1,
-            status=comp_submit_status,
+            status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
         )
 
         self.submission_3 = CompetitionSubmission.objects.create(
             participant=self.participant_2,
             phase=self.phase_1,
-            status=comp_submit_status,
+            status=submission_finished,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
         )
 
