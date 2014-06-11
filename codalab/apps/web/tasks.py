@@ -21,6 +21,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
                              submission_output_filename,
+                             submission_private_output_filename,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
@@ -196,7 +197,7 @@ def score(submission, job_id):
                 lines.append('%s/%s/output/: %s' % (
                         past_submission_phasenumber,
                         past_submission_number,
-                        submission_output_filename(past_submission),
+                        submission_private_output_filename(past_submission),
                     )
                 )
     else:

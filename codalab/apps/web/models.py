@@ -286,6 +286,9 @@ def submission_runfile_name(instance, filename="run.txt"):
 def submission_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
+def submission_private_output_filename(instance, filename="private_output.zip"):
+    return os.path.join(submission_root(instance), "run", filename)
+
 def submission_stdout_filename(instance, filename="stdout.txt"):
     return os.path.join(submission_root(instance), "run", filename)
 
@@ -624,6 +627,7 @@ class CompetitionSubmission(models.Model):
     status_details = models.CharField(max_length=100, null=True, blank=True)
     submission_number = models.PositiveIntegerField(default=0)
     output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
+    private_output_file = models.FileField(upload_to=submission_private_output_filename, storage=BundleStorage, null=True, blank=True)
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
@@ -697,6 +701,7 @@ class CompetitionSubmission(models.Model):
         downloadable_files = {
             'input.zip': ('file', 'zip', False),
             'output.zip': ('output_file', 'zip', True),
+            'private_output.zip': ('private_output', 'zip', True),
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
