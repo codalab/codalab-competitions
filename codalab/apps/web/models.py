@@ -924,7 +924,7 @@ class CompetitionDefBundle(models.Model):
             # Evaluation Program
             phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
-            phase.auto_migration = int(phase_spec.get('auto_migration', 0)) > 0
+            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             if 'input_data' in phase_spec:
                 phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
