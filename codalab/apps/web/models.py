@@ -691,7 +691,7 @@ class CompetitionSubmission(models.Model):
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
-           'prediction-output.zip', 'stdout.txt', 'stderr.txt' or 'history.txt'.
+           'prediction-output.zip', 'stdout.txt', 'stderr.txt', 'history.txt' or 'private_output.zip'
         requested_by: A user object identifying the user making the request to access the file.
 
         Raises:
@@ -701,7 +701,7 @@ class CompetitionSubmission(models.Model):
         downloadable_files = {
             'input.zip': ('file', 'zip', False),
             'output.zip': ('output_file', 'zip', True),
-            'private_output.zip': ('private_output', 'zip', True),
+            'private_output.zip': ('private_output_file', 'zip', True),
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
@@ -717,8 +717,19 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied()
             if file_has_restricted_access and self.phase.is_blind:
                 raise PermissionDenied()
+
+        print "attempting to download %s" % key
+
+        if key == 'private_output.zip':
+            if self.participant.competition.creator.id != requested_by.id:
+                raise PermissionDenied()
+
         file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+
+        print "file name -> %s" % file_name
+        print "returned %s, %s, %s" % (getattr(self, file_attr), file_type, file_name)
+
         return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):
