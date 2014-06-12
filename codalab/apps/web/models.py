@@ -200,8 +200,8 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
-        logger.info('Doing phase migration on competition %s from %s phase to %s phase' %
-                    (self, last_phase, current_phase))
+        logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
+                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
 
         try:
             submissions = []
@@ -228,12 +228,15 @@ class Competition(models.Model):
                 )
 
                 evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
-
-            # TODO: ONLY IF SUCCESSFUL
-            self.last_phase_migration = current_phase.phasenumber
-            self.save()
         except PhaseLeaderBoard.DoesNotExist:
             pass
+
+        current_phase.is_migrated = True
+        current_phase.save()
+
+        # TODO: ONLY IF SUCCESSFUL
+        self.last_phase_migration = current_phase.phasenumber
+        self.save()
 
     def check_trailing_phase_submissions(self):
         '''
@@ -253,8 +256,8 @@ class Competition(models.Model):
         if current_phase is None or last_phase is None:
             return
 
-        logger.info("Checking for needed migrations on competition: %s, last phase: %s, current phase: %s" %
-                    (self, last_phase.phasenumber, current_phase.phasenumber))
+        logger.info("Checking for needed migrations on competition pk=%s, last phase: %s, current phase: %s" %
+                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
 
         if current_phase.phasenumber > self.last_phase_migration:
             if current_phase.auto_migration:
@@ -402,6 +405,7 @@ class CompetitionPhase(models.Model):
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
+    is_migrated = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['phasenumber']
@@ -830,7 +834,7 @@ class CompetitionDefBundle(models.Model):
         if type(dt) is str:
             dt = parse_datetime(dt)
         if type(dt) is datetime.date:
-            dt = datetime.datetime.combine(dt, datetime.time())            
+            dt = datetime.datetime.combine(dt, datetime.time())
         if not type(dt) is datetime.datetime:
             raise ValueError("Expected a DateTime object but got %s" % dt)
         if dt.tzinfo is None:
@@ -863,7 +867,7 @@ class CompetitionDefBundle(models.Model):
                 del comp_base['end_date']
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
-        
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -976,7 +980,7 @@ class CompetitionDefBundle(models.Model):
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
                                     'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
-                    if 'selection_default' in vals: 
+                    if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
