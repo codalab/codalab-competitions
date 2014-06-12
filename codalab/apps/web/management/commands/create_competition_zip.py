@@ -89,13 +89,14 @@ class Command(BaseCommand):
             random_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(6))
             phase_name = "Phase %s %s" % (i, random_name)
             phase = {
-                   i:{
-                      'scoring_program':'scoring_program.zip',
-                      'phasenumber':i,
-                      'max_submissions':100,
-                      'reference_data':'reference_data.zip',
+                   i: {
+                      'scoring_program': 'scoring_program.zip',
+                      'phasenumber': i,
+                      'max_submissions': 100,
+                      'reference_data': 'reference_data.zip',
                       'start_date': phasedates[i],
-                      'label':phase_name,
+                      'label': phase_name,
+                      'auto_migration': True
                    }
                 }
             comp_yaml_obj['phases'].update(phase)

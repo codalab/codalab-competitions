@@ -894,7 +894,7 @@ class CompetitionDefBundle(models.Model):
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
-        for p_num in comp_spec['phases']:
+        for index, p_num in enumerate(comp_spec['phases']):
             phase_spec = comp_spec['phases'][p_num].copy()
             phase_spec['competition'] = comp
 
@@ -913,6 +913,13 @@ class CompetitionDefBundle(models.Model):
                 datasets = {}
 
             phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
+
+            # First phase can't have auto_migration=True, remove that here
+            if index == 0:
+                phase_spec['auto_migration'] = False
+                comp.last_phase_migration = phase_spec['phasenumber']
+                logger.debug('Set last_phase_migration to #%s' % phase_spec['phasenumber'])
+                comp.save()
 
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
