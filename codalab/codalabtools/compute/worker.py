@@ -2,6 +2,7 @@
 """
 Defines the worker process which handles computations.
 """
+import azure
 import json
 import logging
 import logging.config
@@ -13,6 +14,7 @@ import time
 import yaml
 from os.path import dirname, abspath, join
 from zipfile import ZipFile
+
 
 # Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
@@ -96,7 +98,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         # download the bundle and save it to a temporary location
         try:
             blob = blob_service.get_blob(container, bundle_id)
-        except Exception:
+        except azure.WindowsAzureMissingResourceError:
             #file not found lets None this bundle
             bundles[bundle_rel_path] = None
             return bundles
@@ -255,17 +257,8 @@ def get_run_func(config):
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
 
-            # # for testing private output files
-            # private_dir = join(output_dir, 'private')
-            # if os.path.exists(private_dir) == False:
-            #     os.mkdir(private_dir)
-            #     misc_file = os.path.join(private_dir, 'misc.txt')
-            #     with open(misc_file, 'a') as f:
-            #         f.write("testing")
-            #         os.utime(misc_file, None)
 
             private_dir = join(output_dir, 'private')
-
             if os.path.exists(private_dir):
                 logger.debug("Packing private results...")
                 private_output_file = join(root_dir, 'run', 'private_output.zip')

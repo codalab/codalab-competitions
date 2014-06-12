@@ -185,8 +185,7 @@ def score(submission, job_id):
 
 
     lines = []
-    lines.append("description: history of all previous runs output files")
-    #TODO add more meta data here
+    lines.append("description: history of all previous successful runs output files")
 
     if last_submissions:
         for past_submission in last_submissions:
