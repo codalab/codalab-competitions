@@ -255,14 +255,14 @@ def get_run_func(config):
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
 
-            # # for testing private output files
-            # private_dir = join(output_dir, 'private')
-            # if os.path.exists(private_dir) == False:
-            #     os.mkdir(private_dir)
-            #     misc_file = os.path.join(private_dir, 'misc.txt')
-            #     with open(misc_file, 'a') as f:
-            #         f.write("testing")
-            #         os.utime(misc_file, None)
+            # for testing private output files
+            private_dir = join(output_dir, 'private')
+            if os.path.exists(private_dir) == False:
+                os.mkdir(private_dir)
+                misc_file = os.path.join(private_dir, 'misc.txt')
+                with open(misc_file, 'a') as f:
+                    f.write("testing")
+                    os.utime(misc_file, None)
 
             private_dir = join(output_dir, 'private')
 
@@ -272,8 +272,7 @@ def get_run_func(config):
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
                 _upload(blob_service, container, private_output_id, private_output_file)
-                shutil.rmtree(private_dir)
-
+                #shutil.rmtree(private_dir)
 
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
@@ -288,15 +287,13 @@ def get_run_func(config):
             _send_update(queue, task_id, 'failed')
 
         # comment out for dev and viewing of raw folder outputs.
-        if root_dir is not None:
-            # Try cleaning-up temporary directory
-            try:
-                os.chdir(current_dir)
-                shutil.rmtree(root_dir)
-            except:
-                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
-
-
+        #if root_dir is not None:
+        #    # Try cleaning-up temporary directory
+        #    try:
+        #        os.chdir(current_dir)
+        #        shutil.rmtree(root_dir)
+        #    except:
+        #        logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():
