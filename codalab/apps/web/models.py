@@ -709,6 +709,7 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
+
         # If the user requesting access is the owner, access granted
         if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
@@ -718,17 +719,12 @@ class CompetitionSubmission(models.Model):
             if file_has_restricted_access and self.phase.is_blind:
                 raise PermissionDenied()
 
-        print "attempting to download %s" % key
-
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:
                 raise PermissionDenied()
 
         file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
-
-        print "file name -> %s" % file_name
-        print "returned %s, %s, %s" % (getattr(self, file_attr), file_type, file_name)
 
         return getattr(self, file_attr), file_type, file_name
 

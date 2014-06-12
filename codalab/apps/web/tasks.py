@@ -295,6 +295,7 @@ def update_submission_task(job_id, args):
             if 'score' in state:
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
+                submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
                 submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
