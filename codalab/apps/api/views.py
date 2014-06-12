@@ -369,6 +369,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 break
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
+        if phase.auto_migration and not phase.is_migrated:
+            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
