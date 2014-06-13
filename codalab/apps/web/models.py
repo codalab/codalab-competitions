@@ -261,8 +261,15 @@ def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
 def submission_root(instance):
-    return os.path.join("competition", str(instance.phase.competition.pk), str(instance.phase.pk),
-                        "submissions", str(instance.participant.user.pk), str(instance.submission_number))
+    # will generate /competition/1/1/submissions/1/1/
+    return os.path.join(
+        "competition",
+        str(instance.phase.competition.pk),
+        str(instance.phase.pk),
+        "submissions",
+        str(instance.participant.user.pk),
+        str(instance.submission_number)
+    )
 
 def submission_file_name(instance, filename="predictions.zip"):
     return os.path.join(submission_root(instance), filename)
@@ -270,10 +277,16 @@ def submission_file_name(instance, filename="predictions.zip"):
 def submission_inputfile_name(instance, filename="input.txt"):
     return os.path.join(submission_root(instance), filename)
 
+def submission_history_file_name(instance, filename="history.txt"):
+    return os.path.join(submission_root(instance), filename)
+
 def submission_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_output_filename(instance, filename="output.zip"):
+    return os.path.join(submission_root(instance), "run", filename)
+
+def submission_private_output_filename(instance, filename="private_output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
 def submission_stdout_filename(instance, filename="stdout.txt"):
@@ -614,8 +627,10 @@ class CompetitionSubmission(models.Model):
     status_details = models.CharField(max_length=100, null=True, blank=True)
     submission_number = models.PositiveIntegerField(default=0)
     output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
+    private_output_file = models.FileField(upload_to=submission_private_output_filename, storage=BundleStorage, null=True, blank=True)
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+    history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
@@ -676,7 +691,7 @@ class CompetitionSubmission(models.Model):
         Returns the FileField object for the file that is to be downloaded by the given user.
 
         key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
-           'prediction-output.zip', 'stdout.txt' or 'stderr.txt'.
+           'prediction-output.zip', 'stdout.txt', 'stderr.txt', 'history.txt' or 'private_output.zip'
         requested_by: A user object identifying the user making the request to access the file.
 
         Raises:
@@ -686,13 +701,15 @@ class CompetitionSubmission(models.Model):
         downloadable_files = {
             'input.zip': ('file', 'zip', False),
             'output.zip': ('output_file', 'zip', True),
+            'private_output.zip': ('private_output_file', 'zip', True),
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
-            'stderr.txt': ('stderr_file', 'txt', False)
+            'stderr.txt': ('stderr_file', 'txt', False),
         }
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
+
         # If the user requesting access is the owner, access granted
         if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
@@ -701,8 +718,14 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied()
             if file_has_restricted_access and self.phase.is_blind:
                 raise PermissionDenied()
+
+        if key == 'private_output.zip':
+            if self.participant.competition.creator.id != requested_by.id:
+                raise PermissionDenied()
+
         file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+
         return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):
@@ -758,7 +781,7 @@ class CompetitionDefBundle(models.Model):
         if type(dt) is str:
             dt = parse_datetime(dt)
         if type(dt) is datetime.date:
-            dt = datetime.datetime.combine(dt, datetime.time())            
+            dt = datetime.datetime.combine(dt, datetime.time())
         if not type(dt) is datetime.datetime:
             raise ValueError("Expected a DateTime object but got %s" % dt)
         if dt.tzinfo is None:
@@ -791,7 +814,7 @@ class CompetitionDefBundle(models.Model):
                 del comp_base['end_date']
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
-        
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
@@ -903,7 +926,7 @@ class CompetitionDefBundle(models.Model):
                                     'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
                                     'ordering' : index if 'rank' not in vals else vals['rank']
                                     }
-                    if 'selection_default' in vals: 
+                    if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 
                     sd,cr = SubmissionScoreDef.objects.get_or_create(
