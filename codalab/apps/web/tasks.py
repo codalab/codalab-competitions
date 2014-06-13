@@ -187,6 +187,8 @@ def score(submission, job_id):
         raise ValueError("Results are missing.")
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
+    lines.append("competition-submission: %s" % submission.submission_number)
+    lines.append("competition-phase: %s" % submission.phase.phasenumber)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
     # Generate metadata-only bundle describing the computation.
     lines = []
