@@ -4,6 +4,8 @@ Defines background tasks needed by the web site.
 import io
 import json
 import logging
+import yaml
+
 from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
@@ -19,15 +21,17 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
                              submission_output_filename,
+                             submission_private_output_filename,
                              submission_stdout_filename,
                              submission_stderr_filename,
+                             submission_history_file_name,
                              SubmissionScore,
                              SubmissionScoreDef)
 
 logger = logging.getLogger(__name__)
 
-# Echo
 
+# Echo
 def echo_task(job_id, args):
     """
     A simple task to echo a message provided as args['message']. The associated job will
@@ -172,6 +176,34 @@ def score(submission, job_id):
         state = json.loads(submission.execution_key)
     has_generated_predictions = 'predict' in state
 
+    #generate metadata-only bundle describing the history of submissions and phases
+    last_submissions = CompetitionSubmission.objects.filter(
+        participant=submission.participant,
+        status__codename=CompetitionSubmissionStatus.FINISHED
+
+    ).order_by('-submitted_at')
+
+
+    lines = []
+    lines.append("description: history of all previous successful runs output files")
+
+    if last_submissions:
+        for past_submission in last_submissions:
+            if past_submission.pk != submission.pk:
+                #pad folder numbers for sorting os side, 001, 002, 003,... 010, etc...
+                past_submission_phasenumber = '%03d' % past_submission.phase.phasenumber
+                past_submission_number = '%03d' % past_submission.submission_number
+                lines.append('%s/%s/output/: %s' % (
+                        past_submission_phasenumber,
+                        past_submission_number,
+                        submission_private_output_filename(past_submission),
+                    )
+                )
+    else:
+        pass
+
+    submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
+
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
@@ -185,11 +217,15 @@ def score(submission, job_id):
         lines.append("res: %s" % res_value)
     else:
         raise ValueError("Results are missing.")
+
+    lines.append("history: %s" % submission_history_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
+
+
     # Generate metadata-only bundle describing the computation.
     lines = []
     program_value = submission.phase.scoring_program.name
@@ -264,6 +300,7 @@ def update_submission_task(job_id, args):
             if 'score' in state:
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
+                submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
                 submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
