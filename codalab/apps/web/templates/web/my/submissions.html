@@ -3,7 +3,9 @@
 {% load codalab %}
 {% load tz %}
 
-{% block title %}Submissions{% endblock %}
+{% block title %}
+<li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
+{% endblock title %}
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
 
