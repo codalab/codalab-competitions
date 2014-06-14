@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load tz %}
-{% block title %}Competition - [{{ competition.title }}]{% endblock title %}
+{% block title %}
+<li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
+{% endblock title %}
 {% block page_title %}Competition{% endblock page_title %}
 
 {% block content %}
