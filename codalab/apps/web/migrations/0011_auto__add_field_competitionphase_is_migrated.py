@@ -13,8 +13,16 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
+        # Adding field 'CompetitionSubmission.history_file'
+        db.add_column(u'web_competitionsubmission', 'history_file',
+                      self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
+        # Deleting field 'CompetitionSubmission.history_file'
+        db.delete_column(u'web_competitionsubmission', 'history_file')
+
         # Deleting field 'CompetitionPhase.is_migrated'
         db.delete_column(u'web_competitionphase', 'is_migrated')
 
@@ -110,6 +118,7 @@ class Migration(SchemaMigration):
             'file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'file_url_base': ('django.db.models.fields.CharField', [], {'max_length': '2000', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'history_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'inputfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'output_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'participant': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'submissions'", 'to': u"orm['web.CompetitionParticipant']"}),
