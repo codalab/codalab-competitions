@@ -204,6 +204,13 @@ class Competition(models.Model):
         logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
                     (self.pk, last_phase.phasenumber, current_phase.phasenumber))
 
+        if self.is_migrating:
+            logger.info('Trying to migrate competition pk=%s, but it is already being migrated!' % self.pk)
+            return
+
+        self.is_migrating = True
+        self.save()
+
         try:
             submissions = []
             leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
@@ -236,6 +243,7 @@ class Competition(models.Model):
         current_phase.save()
 
         # TODO: ONLY IF SUCCESSFUL
+        self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
         self.last_phase_migration = current_phase.phasenumber
         self.save()
 
@@ -244,6 +252,10 @@ class Competition(models.Model):
         Checks that the requested competition has all submissions in the current phase, none trailing in the previous
         phase
         '''
+        if self.is_migrating:
+            logger.info('Trying to check migrations on competition pk=%s, but it is already being migrated!' % self.pk)
+            return
+
         last_phase = None
         current_phase = None
 

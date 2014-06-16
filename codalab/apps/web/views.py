@@ -197,7 +197,7 @@ class CompetitionResultsPage(TemplateView):
 
 class CompetitionCheckMigrations(View):
     def get(self, request, *args, **kwargs):
-        competitions = models.Competition.objects.filter()
+        competitions = models.Competition.objects.filter(is_migrating=False)
 
         for c in competitions:
             c.check_trailing_phase_submissions()

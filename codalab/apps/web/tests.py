@@ -16,9 +16,9 @@ from django.contrib.auth import get_user_model
 
 from pytz import utc
 
-from apps.web.models import (Competition, 
+from apps.web.models import (Competition,
                              CompetitionDefBundle,
-                             CompetitionParticipant, 
+                             CompetitionParticipant,
                              CompetitionPhase,
                              CompetitionSubmission,
                              CompetitionSubmissionStatus,
@@ -378,6 +378,16 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.assertFalse(do_migration_mock.called)
 
+    def test_phase_migrations_not_ran_concurrently_while_is_migrating_is_true(self):
+        with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
+            # While is_migrating is true, do_migration should never be called
+            self.competition.is_migrating = True
+            self.competition.save()
+
+            self.competition.check_trailing_phase_submissions()
+
+        self.assertFalse(do_migration_mock.called)
+
 
 class CompetitionDefinitionTests(TestCase):
 
@@ -395,7 +405,7 @@ class CompetitionDefinitionTests(TestCase):
         dta = CompetitionDefinitionTests.read_date('2014-03-01')
         dte = utc.localize(datetime.datetime(2014,03,01))
         self.assertEqual(dte, dta)
-        
+
     def test_import_date_2(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 10:00:01')
         dte = utc.localize(datetime.datetime(2014,03,01,10,00,01))
