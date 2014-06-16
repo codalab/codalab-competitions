@@ -150,6 +150,7 @@ class Competition(models.Model):
     published = models.BooleanField(default=False, verbose_name="Publicly Available")
     # Let's assume the first phase never needs "migration"
     last_phase_migration = models.PositiveIntegerField(default=1)
+    is_migrating = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
