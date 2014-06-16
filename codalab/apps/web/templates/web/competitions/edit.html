@@ -6,8 +6,11 @@
 {% block page_title %}Edit Competition{% endblock page_title %}
 
 {% block extra_headers %}
-      <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.datetimepicker.css">
 {% endblock extra_headers %}
+{% block extra_scripts %}
+    <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+{% endblock extra_scripts %}
 
 {% block content %}
 <div class="row">
@@ -19,8 +22,8 @@
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
-		<fieldset>
-		<legend>General Information</legend>
+        <fieldset>
+        <legend>General Information</legend>
         {% for field in form %}
             <div class="fieldWrapper">
                 <div class="row">
@@ -34,50 +37,50 @@
                 </div>
             </div>
         {% endfor %}
-		</fieldset>
+        </fieldset>
 
-		<ul id="pages">
-		{{ Pages.management_form }}
+        <ul id="pages">
+        {{ Pages.management_form }}
         {{ Pages.non_form_errors }}
         <li class="empty-page-form">
-			<fieldset class="page">
-				<legend>Web Page</legend>
-				{% for field in Pages.empty_form %}
-    				<div class="fieldWrapper">
-	    				<div class="row">
-		    				{{ field.errors }}
-            				{% if not field.is_hidden %}
-			        			<div class="large-3 columns">
-					    			<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-    					    	</div>
+            <fieldset class="page">
+                <legend>Web Page</legend>
+                {% for field in Pages.empty_form %}
+                    <div class="fieldWrapper">
+                        <div class="row">
+                            {{ field.errors }}
+                            {% if not field.is_hidden %}
+                                <div class="large-3 columns">
+                                    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+                                </div>
                         {% endif %}
-        					<div class="large-9 columns">{{ field }}</div>
-    					</div>
-	    			</div>
-        		{% endfor %}                
-			</fieldset> 
+                            <div class="large-9 columns">{{ field }}</div>
+                        </div>
+                    </div>
+                {% endfor %}                
+            </fieldset> 
         </li>
-		{% for page in Pages %}
+        {% for page in Pages %}
            <li>
-			<fieldset class="page">
-				<legend>Web Page</legend>
-				{% for field in page %}
+            <fieldset class="page">
+                <legend>Web Page</legend>
+                {% for field in page %}
                         <div class="fieldWrapper">
                             <div class="row">
-	    					{{ field.errors }}
-           					{% if not field.is_hidden %}
+                            {{ field.errors }}
+                            {% if not field.is_hidden %}
                                 <div class="large-3 columns">
-				   					<label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-    							</div>
+                                    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+                                </div>
                                     {% endif %}
-	    					<div class="large-9 columns">{{ field }}</div>
+                            <div class="large-9 columns">{{ field }}</div>
                                 </div>
                                 </div>
-				{% endfor %}                
-			</fieldset>
+                {% endfor %}                
+            </fieldset>
           </li>
-		{% endfor %}
-		</ul>
+        {% endfor %}
+        </ul>
 
         <div class="row">
             <div class="large-12 columns">
@@ -90,40 +93,40 @@
             {{ Phases.non_form_errors }}
             <li class="empty-phase-form">
                  <fieldset class="phase">
-				    <legend>Phase</legend>
-				    {% for field in Phases.empty_form %}
-    				    <div class="fieldWrapper">
-	    				    <div class="row">
-		    				    {{ field.errors }}
-            				    {% if not field.is_hidden %}
-				    			    <div class="large-3 columns">
-									    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-							        </div>
-		        			    {% endif %}
-						        <div class="large-9 columns">{{ field }}</div>
-					        </div>
-				        </div>
+                    <legend>Phase</legend>
+                    {% for field in Phases.empty_form %}
+                        <div class="fieldWrapper">
+                            <div class="row">
+                                {{ field.errors }}
+                                {% if not field.is_hidden %}
+                                    <div class="large-3 columns">
+                                        <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+                                    </div>
+                                {% endif %}
+                                <div class="large-9 columns">{{ field }}</div>
+                            </div>
+                        </div>
                     {% endfor %}                
                 </fieldset> 
             </li>
             {% for form in Phases %}
                 <li>
-			        <fieldset class="phase">
-				        <legend>Competition Phase</legend>
-				        {% for field in form %}
-    					    <div class="fieldWrapper">
-	    					    <div class="row clearfix">
-		    					    {{ field.errors }}
-				                    {% if not field.is_hidden %}
-							            <div class="large-3 columns">
-								            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-							            </div>
-        				            {% endif %}
-						            <div class="large-9 columns">{{ field }}</div>
-		    			        </div>
-			    	        </div>
+                    <fieldset class="phase">
+                        <legend>Competition Phase</legend>
+                        {% for field in form %}
+                            <div class="fieldWrapper">
+                                <div class="row clearfix">
+                                    {{ field.errors }}
+                                    {% if not field.is_hidden %}
+                                        <div class="large-3 columns">
+                                            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+                                        </div>
+                                    {% endif %}
+                                    <div class="large-9 columns">{{ field }}</div>
+                                </div>
+                            </div>
             {% endfor %}
-			        </fieldset> 
+                    </fieldset> 
                 </li>
         {% endfor %}
         </ul>
