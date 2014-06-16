@@ -12,12 +12,13 @@ from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.core.files.base import ContentFile
+from django.core.mail import send_mail
 from django.http import Http404, StreamingHttpResponse
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from apps.jobs.models import Job
@@ -185,6 +186,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             'id' : p.id
         }
 
+        # TODO: Send email here?
+
         return Response(json.dumps(response_data), content_type="application/json")
 
     def _get_userstatus(self, request, pk=None, participant_id=None):
@@ -221,6 +224,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 'participantId': part,
                 'reason': reason
                 }
+
+            # TODO: Send email here?
         except ObjectDoesNotExist as e:
             resp = {
                 'status' : 400
