@@ -106,3 +106,25 @@ class CompetitionsPhase(TestCase):
 # Publish the new one
 # The new one should be in the list and have the published flag set to true
 # Check turning off works
+
+class ParticipationStatusEmails(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username="organizer")
+        self.other_user = User.objects.create(username="participant")
+        self.competition = Competition.objects.create(creator=self.user)
+
+    def test_attempting_to_join_competition_emails(self):
+        # try to join competition
+        # was an email sent?
+
+        self.client.get()
+        pass
+
+    def test_participation_status_update_sends_email(self):
+        # make participant with status = pending
+        # approve status
+        # is email sent?
+        pass
+
+    pass
