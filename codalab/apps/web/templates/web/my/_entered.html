@@ -5,7 +5,7 @@
 {% else %}
 {% for participation in participations %}
 <div class="competition-tile">
-    <a href="/competitions/{{participation.competition.pk}}">
+    <a target="_self" href="/competitions/{{participation.competition.pk}}">
         <article class="subContainer">
             <input id="competitionID" type="hidden" value="{{ participation.competition.pk }}" />
             <div class="competitionTileLftStrip"></div>

@@ -19,7 +19,7 @@
                             <div class="my_participating"> {% include "web/my/_entered.html" with participations=competitions_im_in %} </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="/competitions"><button class="small button">View Competitions</button></a>
+                            <a target="_self" href="/competitions"><button class="small button">View Competitions</button></a>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
+                            <a  target="_self" href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
                         </div>
                     </div>
                 </div>
