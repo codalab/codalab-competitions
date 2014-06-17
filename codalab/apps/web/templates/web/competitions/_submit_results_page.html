@@ -3,14 +3,6 @@
     <p>This phase of the competition has not started yet. Please check back later.</p>
 {% else %}
     {% if phase.is_active %}
-
-    {# Hide "add to leaderboard" button if force_Submission_to_leaderboard is enabled #}
-    {% if phase.competition.force_submission_to_leaderboard %}
-        <script type="application/javascript">
-            window.force_submission_to_leaderboard = true;
-        </script>
-    {% endif %}
-
     <div class="row">
         <div class="panel">
             <p>Click the Submit Results button to upload a new submission.</p>

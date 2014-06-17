@@ -276,12 +276,12 @@ class CompetitionPhaseToPhase(TestCase):
         self.phase_1 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=1,
-            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+            start_date=datetime.datetime.utcnow() - datetime.timedelta(days=30),
         )
         self.phase_2 = CompetitionPhase.objects.create(
             competition=self.competition,
             phasenumber=2,
-            start_date=datetime.datetime.now() - datetime.timedelta(days=15),
+            start_date=datetime.datetime.utcnow() - datetime.timedelta(days=15),
             auto_migration=True
         )
 
@@ -291,20 +291,20 @@ class CompetitionPhaseToPhase(TestCase):
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+            submitted_at=datetime.datetime.utcnow() - datetime.timedelta(days=29)
         )
         self.submission_2 = CompetitionSubmission.objects.create(
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
+            submitted_at=datetime.datetime.utcnow() - datetime.timedelta(days=28)
         )
 
         self.submission_3 = CompetitionSubmission.objects.create(
             participant=self.participant_2,
             phase=self.phase_1,
             status=submission_finished,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=28)
+            submitted_at=datetime.datetime.utcnow() - datetime.timedelta(days=28)
         )
 
         self.leader_board = PhaseLeaderBoard.objects.create(phase=self.phase_1)
@@ -331,7 +331,7 @@ class CompetitionPhaseToPhase(TestCase):
             only_phase = CompetitionPhase.objects.create(
                 competition=competition_doesnt_need_migrated,
                 phasenumber=1,
-                start_date=datetime.datetime.now() - datetime.timedelta(days=30)
+                start_date=datetime.datetime.utcnow() - datetime.timedelta(days=30)
             )
 
             competition_doesnt_need_migrated.check_trailing_phase_submissions()
@@ -357,6 +357,19 @@ class CompetitionPhaseToPhase(TestCase):
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
 
+        self.competition.mark_migrations_complete(self.phase_2.phasenumber)
+
+        self.assertEquals(self.competition.last_phase_migration, 2)
+
+    def test_phase_to_phase_migration_works_when_previous_phase_empty(self):
+        self.submission_1.delete()
+        self.submission_2.delete()
+        self.submission_3.delete()
+
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+
+        self.assertFalse(evaluate_mock.called)
         self.assertEquals(self.competition.last_phase_migration, 2)
 
     def test_phase_to_phase_migrations_only_when_auto_migration_flag_is_true(self):

@@ -195,6 +195,16 @@ class Competition(models.Model):
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
 
+    def mark_migrations_complete(self, migrated_phase):
+        logger.info('Phase migrations completed pk=%s to phase: %s' % (self.pk, migrated_phase.phasenumber))
+
+        self.is_migrating = False
+        self.last_phase_migration = migrated_phase
+        self.save()
+
+        migrated_phase.is_migrated = True
+        migrated_phase.save()
+
     def do_phase_migration(self, current_phase, last_phase):
         '''
         Does the actual migrating of submissions from last_phase to current_phase
@@ -225,28 +235,28 @@ class Competition(models.Model):
             for s in submissions:
                 participants[s.participant] = s
 
-            from tasks import evaluate_submission
+            logger.debug("Migrating %s submissions for competition pk=%s" % (len(participants.items()), self.pk))
 
-            for participant, submission in participants.items():
-                logger.info('Moving submission %s over' % submission)
+            if len(participants.items()) > 0:
+                from tasks import evaluate_submission
 
-                new_submission = CompetitionSubmission.objects.create(
-                    participant=participant,
-                    file=submission.file,
-                    phase=current_phase
-                )
+                for participant, submission in participants.items():
+                    logger.info('Moving submission %s over' % submission)
 
-                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+                    new_submission = CompetitionSubmission.objects.create(
+                        participant=participant,
+                        file=submission.file,
+                        phase=current_phase
+                    )
+
+                    evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+            else:
+                # no submissions will be ran, so no evaluations will finish and trigger migration completion status, so
+                # do it manually here
+                self.mark_migrations_complete(current_phase)
+
         except PhaseLeaderBoard.DoesNotExist:
-            pass
-
-        current_phase.is_migrated = True
-        current_phase.save()
-
-        # TODO: ONLY IF SUCCESSFUL
-        self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
-        self.last_phase_migration = current_phase.phasenumber
-        self.save()
+            self.mark_migrations_complete(current_phase)
 
     def check_trailing_phase_submissions(self):
         '''
