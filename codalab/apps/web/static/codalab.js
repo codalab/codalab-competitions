@@ -473,15 +473,12 @@ var WorksheetRenderer = (function() {
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
             var title = data.name;
-            if (data.items.length > 0) {
-                var item = data.items[0];
-                if ((item[0] === null) && (item[1].indexOf('#') == 0)) {
-                    title = markdown.toHTML(item[1]).replace(/^<h1>/, '').replace(/<\/h1>$/, '');
-                    data.items = data.items.slice(1);
-                }
+            var title_items = data.items.filter(function(item) { return item[2] === 'title' });
+            if (title_items.length > 0) {
+                title = markdown.toHTML('#' + title_items[0][1]).replace(/^<h1>/, '').replace(/<\/h1>$/, '');
             }
             $('.worksheet-icon').html(title);
-            $('.worksheet-author').html('by codalab');
+            $('.worksheet-author').html('by ' + data.owner);
             var directiveRenderer = new WorkshhetDirectiveRenderer();
             var markdownBlock = '';
             // Add an EOF block to ensure the block transitions always apply within the loop
@@ -1169,8 +1166,8 @@ var CodaLab;
                     }
 
                     var filetype = file.type;
-                    if (filetype === "") {
-                        var parts = file.name.split(".");
+                    if (filetype === '') {
+                        var parts = file.name.split('.');
                         if (parts.length > 1) {
                             filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
                         }
@@ -1442,6 +1439,10 @@ angular
                 templateUrl: '/static/app/partials/worksheet.html',
                 controller: 'worksheet'
             })
+            .when('/my', {
+                templateUrl: '/static/app/partials/myworksheets.html',
+                controller: 'worksheets'
+            })
             .otherwise({
                 templateUrl: '/static/app/partials/worksheets.html',
                 controller: 'worksheets'
@@ -1499,7 +1500,7 @@ angular.module('codalab.controllers')
 ﻿'use strict';
 
 angular.module('codalab.controllers')
-    .controller('worksheets', ['$scope', 'worksheetsApi', function($scope, worksheetsApi) {
+    .controller('worksheets', ['$scope', '$location', 'worksheetsApi', function($scope, $location, worksheetsApi) {
         $scope.status = 'loading';
         $scope.selectionIndex = 0;
         $scope.worksheets = [];
@@ -1508,7 +1509,7 @@ angular.module('codalab.controllers')
             var messages = {
                 '': '',
                 'loading': 'Loading worksheets...',
-                'loaderror': 'Couldn\'t retrive worksheets - Try refreshing the page',
+                'loaderror': 'Couldn\'t retrieve worksheets - Try refreshing the page',
                 'empty': 'There are no worksheets.',
                 'saving': 'Saving',
                 'saveerror': 'Couldn\'t save - Try a different name'
@@ -1526,10 +1527,25 @@ angular.module('codalab.controllers')
 
         worksheetsApi.worksheets().then(function(worksheets) {
             $scope.status = 'loaded';
+            if ($location.path().indexOf('/my') === 0) {
+                worksheets = worksheets.filter(function(w) { return w.owner === $scope.user.name; });
+            }
             angular.forEach(worksheets, function(worksheet) {
                 worksheet.url = '/worksheets/' + worksheet.uuid;
                 worksheet.target = '_self';
                 worksheet.editable = false;
+                var items = worksheet.items.filter(function(item) { return item.type == 'title' });
+                if (items.length > 0) {
+                    worksheet.title = items[0].value;
+                } else {
+                    worksheet.title = worksheet.name;
+                }
+                items = worksheet.items.filter(function(item) { return item.type == 'overview' });
+                if (items.length > 0) {
+                    items.forEach(function(item) {
+                        worksheet.description = item.value + '\n';
+                    });
+                }
                 $scope.worksheets.push(worksheet);
             });
         }, function() {
@@ -1539,7 +1555,10 @@ angular.module('codalab.controllers')
         $scope.saveWorksheet = function(worksheet) {
             worksheet.status = 'saving';
             worksheetsApi.createWorksheet(worksheet).then(function(createdWorksheet) {
+                worksheet.name = createdWorksheet.name;
+                worksheet.title = createdWorksheet.name;
                 worksheet.uuid = createdWorksheet.uuid;
+                worksheet.owner = createdWorksheet.owner;
                 worksheet.url = '/worksheets/' + worksheet.uuid;
                 worksheet.editable = false;
                 worksheet.target = '_self';
@@ -1557,7 +1576,8 @@ angular.module('codalab.controllers')
             $scope.worksheets.splice($scope.selectionIndex, 0, {
                 'name': '',
                 'editable': true,
-                'url': '#'
+                'url': '#',
+                'owner': $scope.user.name
             });
         };
 
