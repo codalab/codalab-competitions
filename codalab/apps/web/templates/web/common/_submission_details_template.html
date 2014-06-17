@@ -25,7 +25,10 @@
                         </div>
                         <div class="small-2 large-4 columns preloader-handler"></div>
                         <div class="small-2 large-4 columns">
-                            <button class="button rFloat hide"></button>
+                            {# Hide "add to leaderboard" button if force_Submission_to_leaderboard is enabled #}
+                            {% if not phase.competition.force_submission_to_leaderboard %}
+                                <button class="button rFloat hide"></button>
+                            {% endif %}
                         </div>
                     </div>
                 </td>

@@ -322,6 +322,11 @@ def update_submission_task(job_id, args):
                     logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
                     add_submission_to_leaderboard(submission)
                     logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
+
+                if submission.phase.competition.force_submission_to_leaderboard:
+                    add_submission_to_leaderboard(submission)
+                    logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
+
                 result = Job.FINISHED
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
