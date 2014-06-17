@@ -151,6 +151,7 @@ class Competition(models.Model):
     # Let's assume the first phase never needs "migration"
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
+    force_submission_to_leaderboard = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
