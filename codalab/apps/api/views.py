@@ -187,6 +187,14 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         }
 
         # TODO: Send email here?
+        body = "Status for competition %s changed to %s" % (comp, status)
+        send_mail(
+            'Codalab Participation Status Update',
+            body,
+            "no-reply@codalab.org",
+            [self.request.user.email],
+            fail_silently=False
+        )
 
         return Response(json.dumps(response_data), content_type="application/json")
 
@@ -226,6 +234,14 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 }
 
             # TODO: Send email here?
+            body = "Status for competition %s changed to %s" % (comp, status)
+            send_mail(
+                'Codalab Participation Status Update',
+                body,
+                "no-reply@codalab.org",
+                [self.request.user.email],
+                fail_silently=False
+            )
         except ObjectDoesNotExist as e:
             resp = {
                 'status' : 400
