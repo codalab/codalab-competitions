@@ -3,6 +3,14 @@
     <p>This phase of the competition has not started yet. Please check back later.</p>
 {% else %}
     {% if phase.is_active %}
+
+    {# Hide "add to leaderboard" button if force_Submission_to_leaderboard is enabled #}
+    {% if phase.competition.force_submission_to_leaderboard %}
+        <script type="application/javascript">
+            window.force_submission_to_leaderboard = true;
+        </script>
+    {% endif %}
+
     <div class="row">
         <div class="panel">
             <p>Click the Submit Results button to upload a new submission.</p>
@@ -39,8 +47,8 @@
                 {% if submission_info_list|length_is:"0" %}
                 <tr class="noData">
                     <td class="tdDetails" colspan="6">No data available in table</td>
-                </tr>  
-                {% else %}  
+                </tr>
+                {% else %}
                 {% for submission_info in submission_info_list %}
                 <tr id="{{submission_info.id}}">
                     {% if submission_info.is_finished %}
@@ -65,5 +73,5 @@
         </table>
       </div>
     </div>
-    {% include "web/common/_submission_details_template.html" %} 
+    {% include "web/common/_submission_details_template.html" %}
 {% endif %}

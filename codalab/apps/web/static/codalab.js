@@ -547,6 +547,12 @@ var Competition;
     };
 
     function decorateLeaderboardButton(btn, submitted) {
+        console.log("force submissions: " + window.force_submission_to_leaderboard);
+        if(window.force_submission_to_leaderboard) {
+            btn.remove();
+            return;
+        }
+
         if (submitted) {
             btn.removeClass('leaderBoardSubmit');
             btn.addClass('leaderBoardRemove');
