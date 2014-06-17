@@ -258,14 +258,6 @@ class CompetitionPhaseTests(TestCase):
         self.assertEqual("0.1", CompetitionPhase.format_value(x, None))
 
 
-class CompetitionForceSubmission(TestCase):
-    def test_force_submission(self):
-        user = User.objects.create(email="test@user.com", username="testuser")
-        competition = Competition.object.create(creator=user, modified_by=user)
-
-
-
-
 class CompetitionPhaseToPhase(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='test@user.com', username='testuser')
