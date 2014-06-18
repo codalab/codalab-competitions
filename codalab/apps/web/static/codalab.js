@@ -930,7 +930,6 @@ var Competition;
                             });
                         } else {
                             $(obj).text("Automatically submitted to leaderboard").attr("disabled", "disabled");
-
                         }
                     } else {
                         $(obj).addClass('hide');
