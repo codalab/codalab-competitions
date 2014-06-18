@@ -83,10 +83,10 @@ class Job(models.Model):
     FAILED = 3
     # Status friendly code and display text
     STATUS_BY_CODE = {
-        PENDING: { 'code_name':'pending', 'display_text': 'Pending' },
-        RUNNING: { 'code_name':'running', 'display_text': 'Running' },
-        FINISHED: { 'code_name':'finished', 'display_text': 'Finished' },
-        FAILED: { 'code_name':'failed', 'display_text': 'Failed' }
+        PENDING: { 'code_name': 'pending', 'display_text': 'Pending' },
+        RUNNING: { 'code_name': 'running', 'display_text': 'Running' },
+        FINISHED: { 'code_name': 'finished', 'display_text': 'Finished' },
+        FAILED: { 'code_name': 'failed', 'display_text': 'Failed' }
     }
     # Reverse map to get integer code from friendly code name
     STATUS_BY_CODE_NAME = { v['code_name']: k  for (k, v) in STATUS_BY_CODE.items() }

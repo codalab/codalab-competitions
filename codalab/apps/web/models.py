@@ -148,6 +148,10 @@ class Competition(models.Model):
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
     published = models.BooleanField(default=False, verbose_name="Publicly Available")
+    # Let's assume the first phase never needs "migration"
+    last_phase_migration = models.PositiveIntegerField(default=1)
+    is_migrating = models.BooleanField(default=False)
+    force_submission_to_leaderboard = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -190,6 +194,89 @@ class Competition(models.Model):
             return True if self.end_date is None else self.end_date > now().date()
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
+
+    def do_phase_migration(self, current_phase, last_phase):
+        '''
+        Does the actual migrating of submissions from last_phase to current_phase
+
+        current_phase: The new phase object we are entering
+        last_phase: The phase object to transfer submissions from
+        '''
+        logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
+                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
+
+        if self.is_migrating:
+            logger.info('Trying to migrate competition pk=%s, but it is already being migrated!' % self.pk)
+            return
+
+        self.is_migrating = True
+        self.save()
+
+        try:
+            submissions = []
+            leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
+
+            leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
+            for submission in leader_board_entries:
+                submissions.append(submission.result)
+
+            participants = {}
+
+            for s in submissions:
+                participants[s.participant] = s
+
+            from tasks import evaluate_submission
+
+            for participant, submission in participants.items():
+                logger.info('Moving submission %s over' % submission)
+
+                new_submission = CompetitionSubmission.objects.create(
+                    participant=participant,
+                    file=submission.file,
+                    phase=current_phase
+                )
+
+                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+        except PhaseLeaderBoard.DoesNotExist:
+            pass
+
+        current_phase.is_migrated = True
+        current_phase.save()
+
+        # TODO: ONLY IF SUCCESSFUL
+        self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
+        self.last_phase_migration = current_phase.phasenumber
+        self.save()
+
+    def check_trailing_phase_submissions(self):
+        '''
+        Checks that the requested competition has all submissions in the current phase, none trailing in the previous
+        phase
+        '''
+        if self.is_migrating:
+            logger.info('Trying to check migrations on competition pk=%s, but it is already being migrated!' % self.pk)
+            return
+
+        last_phase = None
+        current_phase = None
+
+        for phase in self.phases.all():
+            if phase.is_active:
+                current_phase = phase
+                break
+
+            last_phase = phase
+
+        if current_phase is None or last_phase is None:
+            return
+
+        logger.info("Checking for needed migrations on competition pk=%s, last phase: %s, current phase: %s" %
+                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
+
+        if current_phase.phasenumber > self.last_phase_migration:
+            if current_phase.auto_migration:
+                self.do_phase_migration(current_phase, last_phase)
+
 
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
@@ -333,6 +420,7 @@ class CompetitionPhase(models.Model):
         A phase of a competition.
     """
     competition = models.ForeignKey(Competition,related_name='phases')
+    # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
@@ -343,6 +431,8 @@ class CompetitionPhase(models.Model):
     input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
+    auto_migration = models.BooleanField(default=False)
+    is_migrated = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['phasenumber']
@@ -663,7 +753,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            self.status = CompetitionSubmissionStatus.objects.get(codename=CompetitionSubmissionStatus.SUBMITTING)
+            self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
         print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
@@ -841,7 +931,7 @@ class CompetitionDefBundle(models.Model):
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
-        for p_num in comp_spec['phases']:
+        for index, p_num in enumerate(comp_spec['phases']):
             phase_spec = comp_spec['phases'][p_num].copy()
             phase_spec['competition'] = comp
 
@@ -861,11 +951,19 @@ class CompetitionDefBundle(models.Model):
 
             phase_spec['start_date'] = CompetitionDefBundle.localize_datetime(phase_spec['start_date'])
 
+            # First phase can't have auto_migration=True, remove that here
+            if index == 0:
+                phase_spec['auto_migration'] = False
+                comp.last_phase_migration = phase_spec['phasenumber']
+                logger.debug('Set last_phase_migration to #%s' % phase_spec['phasenumber'])
+                comp.save()
+
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
             phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             if 'input_data' in phase_spec:
                 phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
@@ -1096,7 +1194,10 @@ def add_submission_to_leaderboard(submission):
     Adds the given submission to its leaderboard. It is the caller responsiblity to make
     sure the submission is ready to be added (e.g. it's in the finished state).
     """
-    lb,_ = PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+    lb, _ = PhaseLeaderBoard.objects.get_or_create(phase=submission.phase)
+
+    logger.info('Adding submission %s to leaderboard %s' % (submission, lb))
+
     # Currently we only allow one submission into the leaderboard although the leaderboard
     # is setup to accept multiple submissions from the same participant.
     entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=submission.participant)
