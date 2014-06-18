@@ -250,12 +250,15 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({"id" : job_id,
-                       "task_type": "run",
-                       "task_args": {
-                           "bundle_id" : submission.runfile.name,
-                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
+    body = json.dumps({
+        "id" : job_id,
+        "task_type": "run",
+        "task_args": {
+            "bundle_id" : submission.runfile.name,
+            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to" : settings.SBS_RESPONSE_QUEUE
+        }
+    })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -319,6 +322,11 @@ def update_submission_task(job_id, args):
                     logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
                     add_submission_to_leaderboard(submission)
                     logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
+
+                if submission.phase.competition.force_submission_to_leaderboard:
+                    add_submission_to_leaderboard(submission)
+                    logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
+
                 result = Job.FINISHED
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
