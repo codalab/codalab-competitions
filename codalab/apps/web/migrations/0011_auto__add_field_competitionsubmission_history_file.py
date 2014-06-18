@@ -8,11 +8,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CompetitionPhase.is_migrated'
-        db.add_column(u'web_competitionphase', 'is_migrated',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
         # Adding field 'CompetitionSubmission.history_file'
         db.add_column(u'web_competitionsubmission', 'history_file',
                       self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True),
@@ -22,9 +17,6 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         # Deleting field 'CompetitionSubmission.history_file'
         db.delete_column(u'web_competitionsubmission', 'history_file')
-
-        # Deleting field 'CompetitionPhase.is_migrated'
-        db.delete_column(u'web_competitionphase', 'is_migrated')
 
 
     models = {
@@ -101,7 +93,6 @@ class Migration(SchemaMigration):
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'input_data': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'is_migrated': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_scoring_only': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'leaderboard_management_mode': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '50'}),
@@ -117,8 +108,8 @@ class Migration(SchemaMigration):
             'execution_key': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             'file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'file_url_base': ('django.db.models.fields.CharField', [], {'max_length': '2000', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'history_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'inputfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'output_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'participant': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'submissions'", 'to': u"orm['web.CompetitionParticipant']"}),

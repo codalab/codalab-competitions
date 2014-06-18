@@ -8,6 +8,26 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'CompetitionPhase.auto_migration'
+        db.add_column(u'web_competitionphase', 'auto_migration',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'CompetitionPhase.is_migrated'
+        db.add_column(u'web_competitionphase', 'is_migrated',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'Competition.last_phase_migration'
+        db.add_column(u'web_competition', 'last_phase_migration',
+                      self.gf('django.db.models.fields.PositiveIntegerField')(default=1),
+                      keep_default=False)
+
+        # Adding field 'Competition.is_migrating'
+        db.add_column(u'web_competition', 'is_migrating',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
         # Adding field 'Competition.force_submission_to_leaderboard'
         db.add_column(u'web_competition', 'force_submission_to_leaderboard',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -15,6 +35,18 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting field 'CompetitionPhase.auto_migration'
+        db.delete_column(u'web_competitionphase', 'auto_migration')
+
+        # Deleting field 'CompetitionPhase.is_migrated'
+        db.delete_column(u'web_competitionphase', 'is_migrated')
+
+        # Deleting field 'Competition.last_phase_migration'
+        db.delete_column(u'web_competition', 'last_phase_migration')
+
+        # Deleting field 'Competition.is_migrating'
+        db.delete_column(u'web_competition', 'is_migrating')
+
         # Deleting field 'Competition.force_submission_to_leaderboard'
         db.delete_column(u'web_competition', 'force_submission_to_leaderboard')
 
