@@ -41,7 +41,7 @@ angular.module('codalab.controllers')
                 } else {
                     worksheet.title = worksheet.name;
                 }
-                items = worksheet.items.filter(function(item) { return item.type == 'overview' });
+                items = worksheet.items.filter(function(item) { return item.type == 'description' });
                 if (items.length > 0) {
                     items.forEach(function(item) {
                         worksheet.description = item.value + '\n';
