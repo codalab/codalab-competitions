@@ -15,9 +15,9 @@ var Competition;
     function decorateLeaderboardButton(btn, submitted) {
         var force_submission_to_leaderboard = btn.attr('force_submission_to_leaderboard');
 
-        if(force_submission_to_leaderboard) {
-            if(submitted) {
-                btn.text("Automatically submitted to leaderboard").attr("disabled", "disabled");
+        if (force_submission_to_leaderboard) {
+            if (submitted) {
+                btn.text('Automatically submitted to leaderboard').attr('disabled', 'disabled');
             }
         } else {
             if (submitted) {
@@ -388,14 +388,14 @@ var Competition;
                     if (phasestate == 1) {
                         var force_submission_to_leaderboard = $(obj).attr('force_submission_to_leaderboard');
 
-                        if(!force_submission_to_leaderboard) {
+                        if (!force_submission_to_leaderboard) {
                             $(obj).addClass('leaderBoardSubmit');
                             $(obj).text('Submit to Leaderboard');
-                            $(obj).on('click', function () {
+                            $(obj).on('click', function() {
                                 updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
                             });
                         } else {
-                            $(obj).text("Automatically submitted to leaderboard").attr("disabled", "disabled");
+                            $(obj).text('Automatically submitted to leaderboard').attr('disabled', 'disabled');
                         }
                     } else {
                         $(obj).addClass('hide');
