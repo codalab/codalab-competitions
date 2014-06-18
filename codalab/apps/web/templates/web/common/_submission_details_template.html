@@ -27,9 +27,14 @@
                         <div class="small-2 large-4 columns">
                             {# Hide "add to leaderboard" button if force_Submission_to_leaderboard is enabled #}
                             {# (has unwanted side-effect of also hiding "refresh status" button) #}
-                            {% if not phase.competition.force_submission_to_leaderboard %}
-                                <button class="button rFloat hide"></button>
+                            {% if phase.competition.force_submission_to_leaderboard %}
+
                             {% endif %}
+
+                            <button
+                                    class="button rFloat hide"
+                                    {% if phase.competition.force_submission_to_leaderboard %}force_submission_to_leaderboard="true"{% endif %}></button>
+
                         </div>
                     </div>
                 </td>
