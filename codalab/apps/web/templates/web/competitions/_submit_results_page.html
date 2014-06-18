@@ -39,8 +39,8 @@
                 {% if submission_info_list|length_is:"0" %}
                 <tr class="noData">
                     <td class="tdDetails" colspan="6">No data available in table</td>
-                </tr>  
-                {% else %}  
+                </tr>
+                {% else %}
                 {% for submission_info in submission_info_list %}
                 <tr id="{{submission_info.id}}">
                     {% if submission_info.is_finished %}
@@ -65,5 +65,5 @@
         </table>
       </div>
     </div>
-    {% include "web/common/_submission_details_template.html" %} 
+    {% include "web/common/_submission_details_template.html" %}
 {% endif %}
