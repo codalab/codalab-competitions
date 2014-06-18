@@ -24,6 +24,10 @@ angular
                 templateUrl: '/static/app/partials/worksheet.html',
                 controller: 'worksheet'
             })
+            .when('/my', {
+                templateUrl: '/static/app/partials/myworksheets.html',
+                controller: 'worksheets'
+            })
             .otherwise({
                 templateUrl: '/static/app/partials/worksheets.html',
                 controller: 'worksheets'

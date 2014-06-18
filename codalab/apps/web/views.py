@@ -501,7 +501,7 @@ class BundleListView(TemplateView):
     template_name = 'web/bundles/index.html'
     def get_context_data(self, **kwargs):
         context = super(BundleListView, self).get_context_data(**kwargs)
-        service = BundleService()
+        service = BundleService(self.request.user)
         results = service.items()
         context['bundles'] = results
 
@@ -535,7 +535,7 @@ class BundleDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         uuid = kwargs.get('uuid')
-        service = BundleService()
+        service = BundleService(self.request.user)
         results = service.item(uuid)
         context['bundle'] = results
         return context
