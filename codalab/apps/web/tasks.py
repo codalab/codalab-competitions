@@ -294,16 +294,6 @@ def update_submission_task(job_id, args):
         if status == 'finished':
             result = Job.FAILED
             state = {}
-
-            competition = submission.phase.competition
-
-            if submission.phase.auto_migration and competition.is_migrating:
-                remaining_submissions = CompetitionSubmission.objects.filter(phase=submission.phase)
-                remaining_submissions = remaining_submissions.exclude(status__codename=CompetitionSubmissionStatus.FINISHED)
-
-                if len(remaining_submissions) == 0:
-                    competition.mark_migrations_complete(submission.phase)
-
             if len(submission.execution_key) > 0:
                 logger.debug("update_submission_task loading state: %s", submission.execution_key)
                 state = json.loads(submission.execution_key)
@@ -333,7 +323,7 @@ def update_submission_task(job_id, args):
                     add_submission_to_leaderboard(submission)
                     logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
 
-                if competition.force_submission_to_leaderboard:
+                if submission.phase.competition.force_submission_to_leaderboard:
                     add_submission_to_leaderboard(submission)
                     logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
