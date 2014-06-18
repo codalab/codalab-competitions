@@ -108,6 +108,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
+
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
@@ -193,6 +194,15 @@ class CompetitionResultsPage(TemplateView):
         context['phase'] = phase
         context['groups'] = phase.scores()
         return context
+
+class CompetitionCheckMigrations(View):
+    def get(self, request, *args, **kwargs):
+        competitions = models.Competition.objects.filter(is_migrating=False)
+
+        for c in competitions:
+            c.check_trailing_phase_submissions()
+
+        return HttpResponse()
 
 class CompetitionResultsDownload(View):
 

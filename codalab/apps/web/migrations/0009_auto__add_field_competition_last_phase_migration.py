@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CompetitionSubmission.private_output_file'
-        db.add_column(u'web_competitionsubmission', 'private_output_file',
-                      self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True),
+        # Adding field 'Competition.last_phase_migration'
+        db.add_column(u'web_competition', 'last_phase_migration',
+                      self.gf('django.db.models.fields.PositiveIntegerField')(default=1),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'CompetitionSubmission.private_output_file'
-        db.delete_column(u'web_competitionsubmission', 'private_output_file')
+        # Deleting field 'Competition.last_phase_migration'
+        db.delete_column(u'web_competition', 'last_phase_migration')
 
 
     models = {
@@ -88,12 +88,10 @@ class Migration(SchemaMigration):
         },
         u'web.competitionphase': {
             'Meta': {'ordering': "['phasenumber']", 'object_name': 'CompetitionPhase'},
-            'auto_migration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'input_data': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'is_migrated': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_scoring_only': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'leaderboard_management_mode': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '50'}),
@@ -110,12 +108,10 @@ class Migration(SchemaMigration):
             'file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'file_url_base': ('django.db.models.fields.CharField', [], {'max_length': '2000', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'history_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'inputfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'output_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'participant': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'submissions'", 'to': u"orm['web.CompetitionParticipant']"}),
             'phase': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'submissions'", 'to': u"orm['web.CompetitionPhase']"}),
-            'private_output_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'prediction_output_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'prediction_runfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'runfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
