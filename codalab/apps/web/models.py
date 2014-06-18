@@ -241,7 +241,7 @@ class Competition(models.Model):
                 from tasks import evaluate_submission
 
                 for participant, submission in participants.items():
-                    logger.info('Moving submission %s over' % submission)
+                    logger.info('Moving submission %s' % submission)
 
                     new_submission = CompetitionSubmission.objects.create(
                         participant=participant,
