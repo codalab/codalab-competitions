@@ -357,7 +357,7 @@ class CompetitionPhaseToPhase(TestCase):
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
         CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
 
-        self.competition.mark_migrations_complete(self.phase_2.phasenumber)
+        self.competition.mark_migrations_complete(self.phase_2)
 
         self.assertEquals(self.competition.last_phase_migration, 2)
 

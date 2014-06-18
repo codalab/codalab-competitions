@@ -83,6 +83,7 @@ class Command(BaseCommand):
         #put our date changed phases and with random name
         tz_now = datetime.datetime.now()
         comp_yaml_obj['title'] = "%s %s" %(comp_yaml_obj['title'], tz_now.strftime("%m-%d %d:%M"))
+        comp_yaml_obj['force_submission_to_leaderboard'] = True
 
         comp_yaml_obj['phases'] = {}
         for i in xrange(0, numphases):

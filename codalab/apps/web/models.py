@@ -199,7 +199,7 @@ class Competition(models.Model):
         logger.info('Phase migrations completed pk=%s to phase: %s' % (self.pk, migrated_phase.phasenumber))
 
         self.is_migrating = False
-        self.last_phase_migration = migrated_phase
+        self.last_phase_migration = migrated_phase.phasenumber
         self.save()
 
         migrated_phase.is_migrated = True
