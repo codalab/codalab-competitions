@@ -1,9 +1,13 @@
 """
 This module defines Windows Azure extensions for CodaLab.
 """
+import logging
+from time import sleep
 
 from azure import (
-    WindowsAzureData)
+    WindowsAzureData,
+    WindowsAzureError
+)
 
 from azure.storage import (
     _sign_storage_blob_request,
@@ -17,6 +21,8 @@ from azure.servicebus import (
 from codalabtools import (
     Queue,
     QueueMessage)
+
+logger = logging.getLogger('codalabtools')
 
 class AzureServiceBusQueueMessage(QueueMessage):
     """
@@ -42,13 +48,37 @@ class AzureServiceBusQueue(Queue):
     def __init__(self, namespace, key, issuer, name):
         self.service = ServiceBusService(service_namespace=namespace, account_key=key, issuer=issuer)
         self.name = name
+        self.max_retries = 3
+        self.wait = lambda count: 1.0*(2**count)
+
+    def _try_request(self, fn, retry_count=0, fail=None):
+        '''Helper to retry request for sending and receiving messages.'''
+        try:
+            return fn()
+        except (WindowsAzureError) as e:
+            if retry_count < self.max_retries:
+                logger.error("Retrying request after error occurred. Attempt %s of %s.",
+                             retry_count+1, self.max_retries)
+                wait_interval = self.wait(retry_count)
+                if wait_interval > 0.0:
+                    sleep(wait_interval)
+                return self._try_request(fn, retry_count=retry_count+1, fail=fail)
+            else:
+                if fail is not None:
+                    fail()
+                raise e
 
     def receive_message(self):
-        msg = self.service.receive_queue_message(self.name, peek_lock=False, timeout=self.polling_timeout)
+        op = lambda: self.service.receive_queue_message(self.name,
+                                                        peek_lock=False,
+                                                        timeout=self.polling_timeout)
+        msg = self._try_request(op)
         return None if msg.body is None else AzureServiceBusQueueMessage(self, msg)
 
     def send_message(self, body):
-        self.service.send_queue_message(self.name, Message(body))
+        op = lambda: self.service.send_queue_message(self.name, Message(body))
+        fail = lambda: logger.error("Failed to send message. Message body is:\n%s", body)
+        self._try_request(op, fail=fail)
 
 
 class CorsRule(WindowsAzureData):
