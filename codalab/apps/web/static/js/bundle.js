@@ -435,15 +435,12 @@ var WorksheetRenderer = (function() {
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
             var title = data.name;
-            if (data.items.length > 0) {
-                var item = data.items[0];
-                if ((item[0] === null) && (item[1].indexOf('#') == 0)) {
-                    title = markdown.toHTML(item[1]).replace(/^<h1>/, '').replace(/<\/h1>$/, '');
-                    data.items = data.items.slice(1);
-                }
+            var title_items = data.items.filter(function(item) { return item[2] === 'title' });
+            if (title_items.length > 0) {
+                title = markdown.toHTML('#' + title_items[0][1]).replace(/^<h1>/, '').replace(/<\/h1>$/, '');
             }
             $('.worksheet-icon').html(title);
-            $('.worksheet-author').html('by codalab');
+            $('.worksheet-author').html('by ' + data.owner);
             var directiveRenderer = new WorkshhetDirectiveRenderer();
             var markdownBlock = '';
             // Add an EOF block to ensure the block transitions always apply within the loop
