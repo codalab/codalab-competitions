@@ -2,6 +2,9 @@
 {% block head_title %}My CodaLab{% endblock head_title %}
 {% block page_title %}My CodaLab{% endblock page_title %}
 
+{% block custom_html_attributes %} ng-app="codalab" {% endblock custom_html_attributes %}
+{% block custom_body_attributes %} ng-controller="root" {% endblock custom_body_attributes %}
+
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
@@ -16,7 +19,7 @@
                             <div class="my_participating"> {% include "web/my/_entered.html" with participations=competitions_im_in %} </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="/competitions"><button class="small button">View Competitions</button></a>
+                            <a target="_self" href="/competitions"><button class="small button">View Competitions</button></a>
                         </div>
                     </div>
                 </div>
@@ -33,7 +36,7 @@
                             </div>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
+                            <a  target="_self" href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
                         </div>
                     </div>
                 </div>
@@ -46,12 +49,9 @@
                 <div class="content" data-section-content data-slug="worksheets">
                     <div class="row">
                         <div class="large-9 push-3 columns ">
-                            <div class="my_managing">
-                                {% include "web/my/_worksheets.html" %}
-                            </div>
+                            <ng-view></ng-view>
                         </div>
                         <div class="large-3 pull-9 columns">
-                            <a href="#"><button class="small button">Create Worksheet</button></a>
                         </div>
                     </div>
                 </div>

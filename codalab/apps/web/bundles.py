@@ -7,6 +7,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
     from codalab.common import UsageError
     from codalab.client.remote_bundle_client import RemoteBundleClient
+    from apps.authenz.oauth import get_user_token
 
     def _call_with_retries(f, retry_count=0):
         try:
@@ -19,9 +20,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
     class BundleService():
 
-        def __init__(self):
+        def __init__(self, user=None):
             self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
-                                             lambda command: "") #TODO
+                                             lambda command: get_user_token(user))
 
         def items(self):
             return _call_with_retries(lambda: self.client.search())
