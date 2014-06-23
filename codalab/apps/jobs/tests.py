@@ -136,6 +136,10 @@ class JobsTests(TestCase):
         # pending -> running
         job = single_run(job.id, { 'status': 'running' })
         self.assertEqual(job.status, Job.RUNNING)
+
+        # Remove seconds/ms, fixes problem with mac running this test
+        last_updated = last_updated.replace(second=0, microsecond=0)
+
         self.assertGreaterEqual(job.updated, last_updated)
         last_updated = last_update_of(job)
         # running -> finished
