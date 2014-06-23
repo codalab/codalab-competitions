@@ -9,7 +9,7 @@
         <input id="competitionID" type="hidden" value="{{ competition.pk }}" />
         <div class="competitionTileLftStrip"></div>
         <div class="articleTextArea">
-            <a href="/competitions/{{competition.pk}}">
+            <a target="_self" href="/competitions/{{competition.pk}}">
                 <div class="articleTextAreaContainer">
                     <div class="articleImageContainer">
                         <div class="subContainerPadding">
@@ -32,13 +32,13 @@
                 </div>
             </a>
             <div id="competition-actions" published="{{competition.published}}" class="columns cursor-default myCompetitionButtons">
-                <a id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
-                <a href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
+                <a target="_self" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
+                <a target="_self" href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
                 <button value="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button" class="secondary button">Publish</button>
                 <!-- <button value="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button" class="secondary button">Unpublish</button> -->
-                <a href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
-                <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}"><button class="secondary button">Submissions</button></a>
-                <a href="/competitions/{{competition.pk}}#results"><button class="secondary button">Leaderboard</button></a>
+                <a target="_self" href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
+                <a target="_self" href="{% url 'my_competition_submissions' competition_id=competition.pk %}"><button class="secondary button">Submissions</button></a>
+                <a target="_self" href="/competitions/{{competition.pk}}#results"><button class="secondary button">Leaderboard</button></a>
             </div>
         </div>
     </article>
