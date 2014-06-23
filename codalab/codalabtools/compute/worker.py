@@ -242,23 +242,28 @@ def get_run_func(config):
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
+            exit_code = None
 
+            with open(stdout_file, "wb") as out, open(stderr_file, "wb") as err:
+                evaluator_process = Popen(prog_cmd.split(' '), stdout=out, stderr=err)
 
+                while exit_code is None:
+                    exit_code = evaluator_process.poll()
 
+                    # time in seconds
+                    if time.time() - startTime > 10:
+                        evaluator_process.kill()
+                        exit_code = -1
+                        logger.info("Killed process for running too long!")
+                        break
+                    else:
+                        time.sleep(.1)
 
-            # This is blocked until the os system call returns?
-            exit_code = Popen([prog_cmd, ' >', stdout_file, ' 2>', stderr_file])
-
-
-
-
-            #exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
-
-            logger.debug("Exit Code: %d", exitCode)
+            logger.debug("Exit Code: %d", exit_code)
             endTime = time.time()
             elapsedTime = endTime - startTime
             prog_status = {
-                'exitCode': exitCode,
+                'exitCode': exit_code,
                 'elapsedTime': elapsedTime
             }
             with open(join(output_dir, 'metadata'), 'w') as f:
