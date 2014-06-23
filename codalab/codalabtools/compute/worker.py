@@ -243,6 +243,7 @@ def get_run_func(config):
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
             exit_code = None
+            timed_out = False
 
             with open(stdout_file, "wb") as out, open(stderr_file, "wb") as err:
                 evaluator_process = Popen(prog_cmd.split(' '), stdout=out, stderr=err)
@@ -255,6 +256,8 @@ def get_run_func(config):
                         evaluator_process.kill()
                         exit_code = -1
                         logger.info("Killed process for running too long!")
+                        err.write("Execution time limit exceeded!")
+                        timed_out = True
                         break
                     else:
                         time.sleep(.1)
@@ -273,6 +276,10 @@ def get_run_func(config):
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
+
+            # check if timed out AFTER output files are written! If we exit sooner, no output is written
+            if timed_out:
+                raise Exception("Execution time limit exceeded!")
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
