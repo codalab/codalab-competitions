@@ -13,6 +13,7 @@ import tempfile
 import time
 import yaml
 from os.path import dirname, abspath, join
+from subprocess import Popen, PIPE
 from zipfile import ZipFile
 
 
@@ -241,7 +242,18 @@ def get_run_func(config):
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
-            exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
+
+
+
+
+            # This is blocked until the os system call returns?
+            exit_code = Popen([prog_cmd, ' >', stdout_file, ' 2>', stderr_file])
+
+
+
+
+            #exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
+
             logger.debug("Exit Code: %d", exitCode)
             endTime = time.time()
             elapsedTime = endTime - startTime
