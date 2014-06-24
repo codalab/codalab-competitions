@@ -167,6 +167,14 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
+    def _send_mail(self, from_email="no-reply@codalab.org", body=None, subject=None, to_email=None):
+        send_mail(
+            subject,
+            body,
+            from_email,
+            [to_email]
+        )
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self, request, pk=None):
         comp = self.get_object()
@@ -187,14 +195,36 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             'id' : p.id
         }
 
-        body = "Status for competition %s changed to %s" % (comp, status)
-        send_mail(
-            'Codalab Participation Status Update',
-            body,
-            "no-reply@codalab.org",
-            [self.request.user.email],
-            fail_silently=False
-        )
+        status_text = str(status)
+
+        if status_text == webmodels.ParticipantStatus.PENDING:
+            body = "Successfully applied to competition %s, your application is pending." % (comp)
+            self._send_mail(
+                subject='Application to %s sent' % comp,
+                body=body,
+                to_email=self.request.user.email
+            )
+
+            body = "Participant %s attempting to join competition %s." % (p, comp)
+            self._send_mail(
+                subject='Participant applied to your competition',
+                body=body,
+                to_email=comp.creator.email
+            )
+        else:
+            body = "You have been accepted into the %s competition!" % (comp)
+            self._send_mail(
+                subject='Accepted into %s!' % comp,
+                body=body,
+                to_email=self.request.user.email
+            )
+
+            body = "Participant %s joined your competition %s!" % (p, comp)
+            self._send_mail(
+                subject='Participant accepted into your competition!',
+                body=body,
+                to_email=comp.creator.email
+            )
 
         return Response(json.dumps(response_data), content_type="application/json")
 
@@ -233,13 +263,20 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 'reason': reason
                 }
 
-            body = "Status for competition %s changed to %s" % (comp, status)
+            body = "Status updated for competition %s, your new status is %s" % (comp, status)
             send_mail(
-                'Codalab Participation Status Update',
+                'Application to %s' % comp,
                 body,
                 "no-reply@codalab.org",
-                [self.request.user.email],
-                fail_silently=False
+                [self.request.user.email]
+            )
+
+            body = "Participant %s status changed to %s" % (p, status)
+            send_mail(
+                'Successfully updated participant in %s' % comp,
+                body,
+                "no-reply@codalab.org",
+                [comp.creator.email]
             )
         except ObjectDoesNotExist as e:
             resp = {

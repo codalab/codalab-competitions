@@ -24,6 +24,7 @@ from configurations import importer
 importer.install()
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 
 from apps.web.models import *
@@ -109,31 +110,77 @@ class CompetitionsPhase(TestCase):
 
 class ParticipationStatusEmails(TestCase):
 
+    def _participant_join_competition(self, cleanup_email=False):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+        self.client.logout()
+
+        if cleanup_email:
+            mail.outbox = []
+
+        return resp
+
     def setUp(self):
         statuses = ['unknown', 'denied', 'approved', 'pending']
         for s in statuses:
-            ParticipantStatus.objects.get_or_create(name='approved', codename=s)
+            ParticipantStatus.objects.get_or_create(name=s, codename=s)
 
-        self.organizer = User.objects.create_user(username="organizer", password="pass")
-        self.participant = User.objects.create_user(username="participant", password="pass")
-        self.competition = Competition.objects.create(creator=self.organizer, modified_by=self.organizer)
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
 
     def test_attempting_to_join_competition_sends_emails(self):
-        # try to join competition
-        # was an email sent?
+        # Require approval
+        self.competition.has_registration = True
+        self.competition.save()
 
-        #POST /api/competition/4/participate/
+        resp = self._participant_join_competition()
 
-        self.client.login(username="participant", password="pass")
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Application to Test Competition sent', subjects)
+        self.assertIn('Participant applied to your competition', subjects)
+
+    def test_attempting_to_join_competition_auto_approved_sends_emails(self):
+        resp = self._participant_join_competition()
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Accepted into Test Competition!', subjects)
+        self.assertIn('Participant accepted into your competition!', subjects)
+
+    def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
         resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
 
-        self.assertTrue(resp.status_code, 304)
+        self.assertEquals(resp.status_code, 403)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_participation_status_update_approved_sends_email(self):
-        # make participant with status = pending
-        # approve status
-        # is email sent?
-        pass
+        self._participant_join_competition(cleanup_email=True)
+
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": "approved",
+                "participant_id": participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Application to Test Competition', subjects)
+        self.assertIn('Successfully updated participant in Test Competition', subjects)
 
     def test_participation_status_update_revoked_sends_email(self):
         # participation revoked
@@ -143,9 +190,6 @@ class ParticipationStatusEmails(TestCase):
         pass
 
     def test_competition_organizer_email_not_sent_when_participant_disables_organizer_emails(self):
-        pass
-
-    def test_organizer_notified_participant_joining_competition(self):
         pass
 
     def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
