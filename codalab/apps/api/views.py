@@ -187,7 +187,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             'id' : p.id
         }
 
-        # TODO: Send email here?
         body = "Status for competition %s changed to %s" % (comp, status)
         send_mail(
             'Codalab Participation Status Update',
@@ -234,7 +233,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 'reason': reason
                 }
 
-            # TODO: Send email here?
             body = "Status for competition %s changed to %s" % (comp, status)
             send_mail(
                 'Codalab Participation Status Update',
