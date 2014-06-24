@@ -110,16 +110,24 @@ class CompetitionsPhase(TestCase):
 class ParticipationStatusEmails(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(username="organizer")
-        self.other_user = User.objects.create(username="participant")
-        self.competition = Competition.objects.create(creator=self.user)
+        statuses = ['unknown', 'denied', 'approved', 'pending']
+        for s in statuses:
+            ParticipantStatus.objects.get_or_create(name='approved', codename=s)
+
+        self.organizer = User.objects.create_user(username="organizer", password="pass")
+        self.participant = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(creator=self.organizer, modified_by=self.organizer)
 
     def test_attempting_to_join_competition_sends_emails(self):
         # try to join competition
         # was an email sent?
 
-        self.client.get()
-        pass
+        #POST /api/competition/4/participate/
+
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+
+        self.assertTrue(resp.status_code, 304)
 
     def test_participation_status_update_approved_sends_email(self):
         # make participant with status = pending
