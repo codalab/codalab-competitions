@@ -389,6 +389,24 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertFalse(do_migration_mock.called)
 
 
+class AccountSettingsTests(TestCase):
+
+    def test_account_settings_view_returns_200(self):
+        pass
+
+    def test_account_settings_view_returns_200_on_valid_POST(self):
+        pass
+
+    def test_account_settings_view_returns_400_on_no_data(self):
+        pass
+
+    def test_account_settings_view_returns_400_on_bad_data(self):
+        pass
+
+    def test_account_settings_view_returns_403_when_not_logged_in(self):
+        pass
+
+
 class CompetitionDefinitionTests(TestCase):
 
     @staticmethod

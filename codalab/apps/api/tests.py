@@ -114,17 +114,40 @@ class ParticipationStatusEmails(TestCase):
         self.other_user = User.objects.create(username="participant")
         self.competition = Competition.objects.create(creator=self.user)
 
-    def test_attempting_to_join_competition_emails(self):
+    def test_attempting_to_join_competition_sends_emails(self):
         # try to join competition
         # was an email sent?
 
         self.client.get()
         pass
 
-    def test_participation_status_update_sends_email(self):
+    def test_participation_status_update_approved_sends_email(self):
         # make participant with status = pending
         # approve status
         # is email sent?
         pass
 
-    pass
+    def test_participation_status_update_revoked_sends_email(self):
+        # participation revoked
+        pass
+
+    def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
+        pass
+
+    def test_competition_organizer_email_not_sent_when_participant_disables_organizer_emails(self):
+        pass
+
+    def test_organizer_notified_participant_joining_competition(self):
+        pass
+
+    def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
+        pass
+
+    def test_organizer_can_email_all_participants_in_competition(self):
+        pass
+
+    def test_organizer_email_contains_needed_elements(self):
+        # unsubscribe link
+        # privacy policy
+        pass
+
