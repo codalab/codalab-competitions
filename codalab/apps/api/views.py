@@ -264,19 +264,17 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 }
 
             body = "Status updated for competition %s, your new status is %s" % (comp, status)
-            send_mail(
-                'Application to %s' % comp,
-                body,
-                "no-reply@codalab.org",
-                [self.request.user.email]
+            self._send_mail(
+                subject='Application to %s %s' % (comp, status),
+                body=body,
+                to_email=self.request.user.email
             )
 
             body = "Participant %s status changed to %s" % (p, status)
-            send_mail(
-                'Successfully updated participant in %s' % comp,
-                body,
-                "no-reply@codalab.org",
-                [comp.creator.email]
+            self._send_mail(
+                subject='Successfully updated participant in %s' % comp,
+                body=body,
+                to_email=comp.creator.email
             )
         except ObjectDoesNotExist as e:
             resp = {

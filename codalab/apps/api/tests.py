@@ -179,12 +179,29 @@ class ParticipationStatusEmails(TestCase):
         self.assertEquals(resp.status_code, 200)
 
         subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Application to Test Competition', subjects)
+        self.assertIn('Application to Test Competition approved', subjects)
         self.assertIn('Successfully updated participant in Test Competition', subjects)
 
     def test_participation_status_update_revoked_sends_email(self):
-        # participation revoked
-        pass
+        self._participant_join_competition(cleanup_email=True)
+
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": "denied",
+                "participant_id": participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Application to Test Competition denied', subjects)
+        self.assertIn('Successfully updated participant in Test Competition', subjects)
 
     def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
         pass
