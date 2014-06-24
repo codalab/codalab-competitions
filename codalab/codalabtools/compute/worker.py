@@ -181,6 +181,7 @@ def get_run_func(config):
         task_args: The input arguments for this task:
         """
         run_id = task_args['bundle_id']
+        execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
@@ -252,7 +253,7 @@ def get_run_func(config):
                     exit_code = evaluator_process.poll()
 
                     # time in seconds
-                    if time.time() - startTime > 10:
+                    if time.time() - startTime > execution_time_limit:
                         evaluator_process.kill()
                         exit_code = -1
                         logger.info("Killed process for running too long!")
