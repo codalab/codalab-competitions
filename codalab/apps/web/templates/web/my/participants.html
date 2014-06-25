@@ -23,7 +23,7 @@
                 <div class="large-8 push-4 columns process_participant_request">
                     <form class="custom process_request" id="process_request_{{item.id}}">
                         {% csrf_token %}
-                        <input type="hidden" name="participant_id" value="{{item.id}}"/> 
+                        <input type="hidden" name="participant_id" value="{{item.id}}"/>
                         <div class="row">
                         <div class="small-8 push-4 columns">
                             <label for="reason">Reason:</label>
@@ -56,7 +56,25 @@
 		            </p>
                 </div>
             </div>
-        </div>               
+
+            <div class="large-12">
+                <a href="#" data-reveal-id="myModal" class="button">Send message to all participants?</a>
+
+                <div id="myModal" class="reveal-modal" data-reveal>
+                    <h2>Email Participants</h2>
+                    <a class="close-reveal-modal">&#215;</a>
+
+                    <form>
+                        <input type="text" placeholder="Subject">
+
+                        <textarea placeholder="Message"></textarea>
+                    </form>
+
+                    <a class="button">Save</a>
+                    <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
+                </div>
+            </div>
+        </div>
         {% endfor %}
         <table class="resultsTable dataTable">
             <thead>
@@ -117,18 +135,18 @@ $("form").submit(function(event) {
         success: function(response, textStatus, jqXHR) {
             $('#'+fid).remove();
             var data = $.parseJSON(response);
-         
+
             var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
-           
-           
+
+
             pid.text(ParticipateStatusText[data.status]);
-          
+
             if(data.reason) {
                var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
-             
+
                pid.append(reasontext);
            }
-             
+
         },
         error: function(jsXHR, textStatus, errorThrown) {
             alert("There was a problem processing this request for this competition.");;
