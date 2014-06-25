@@ -253,7 +253,7 @@ def get_run_func(config):
                     exit_code = evaluator_process.poll()
 
                     # time in seconds
-                    if time.time() - startTime > execution_time_limit:
+                    if exit_code is None and time.time() - startTime > execution_time_limit:
                         evaluator_process.kill()
                         exit_code = -1
                         logger.info("Killed process for running too long!")
