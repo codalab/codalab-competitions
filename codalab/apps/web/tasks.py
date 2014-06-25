@@ -431,3 +431,17 @@ def evaluate_submission(submission_id, is_scoring_only):
     """
     task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
     return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
+
+
+def send_mass_email_task(job_id, task_args):
+
+
+def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
+    task_args = {
+        body: body,
+        subject: subject,
+        from_email: from_email,
+        to_emails: to_emails
+    }
+    return Job.objects.create_and_dispatch_job('send_mass_email', task_args)
+
