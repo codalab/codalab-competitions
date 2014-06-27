@@ -1,6 +1,7 @@
 import datetime
 import StringIO
 import csv
+import json
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -15,7 +16,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 
 from apps.web import models
 from apps.web import forms
@@ -99,6 +100,44 @@ class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
     success_url = '/my/#manage'
+
+
+@login_required
+def competition_message_participants(request, competition_id):
+    if request.method != "POST":
+        return HttpResponse(status=400)
+
+    try:
+        competition = models.Competition.objects.get(pk=competition_id)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+
+    if competition.creator != request.user:
+        return HttpResponse(status=403)
+
+    print request.POST
+
+    if "subject" not in request.POST and "body" not in request.POST:
+        return HttpResponse(
+            json.dumps({
+                "error": "Missing subject or body of message!"
+            }),
+            status=400
+        )
+
+    emails = [p.user.email for p in models.CompetitionParticipant.objects.filter(competition=competition)]
+
+    print emails
+
+    tasks.send_mass_email(
+        subject="",
+        body="",
+        from_email="",
+        to_emails=emails
+    )
+
+    return HttpResponse(status=200)
+
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()

@@ -434,14 +434,19 @@ def evaluate_submission(submission_id, is_scoring_only):
 
 
 def send_mass_email_task(job_id, task_args):
+    emails = []
+    print "sendin da emailz"
+
+    # turn emails into tuples (all same subj/body/from email, different to_email)
+    # call send_mass_email with all the tuples
 
 
 def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
     task_args = {
-        body: body,
-        subject: subject,
-        from_email: from_email,
-        to_emails: to_emails
+        "body": body,
+        "subject": subject,
+        "from_email": from_email,
+        "to_emails": to_emails
     }
     return Job.objects.create_and_dispatch_job('send_mass_email', task_args)
 
