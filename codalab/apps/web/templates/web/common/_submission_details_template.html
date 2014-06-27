@@ -16,12 +16,20 @@
                                 {% if not phase.is_scoring_only %}
                                 <a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></br>
                                 {% endif %}
-                                <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br><br>
+                                <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br>
+                                {% if user.id == competition.creator.id %}
+                                    <a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a><br>
+                                {% endif %}
+                                <br>
                             {% endif %}
                         </div>
                         <div class="small-2 large-4 columns preloader-handler"></div>
                         <div class="small-2 large-4 columns">
-                            <button class="button rFloat hide"></button>
+                            <button class="button rFloat hide"
+                                    {% if phase.competition.force_submission_to_leaderboard %}
+                                    force_submission_to_leaderboard="true"
+                                    {% endif %}></button>
+
                         </div>
                     </div>
                 </td>

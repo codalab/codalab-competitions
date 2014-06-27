@@ -95,10 +95,46 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        return super(CompetitionEdit, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        return super(CompetitionEdit, self).post(request, *args, **kwargs)
+
 class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
     success_url = '/my/#manage'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        success_url = self.get_success_url()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
+
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
@@ -108,6 +144,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
+
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
         side_tabs = dict()
@@ -193,6 +230,15 @@ class CompetitionResultsPage(TemplateView):
         context['phase'] = phase
         context['groups'] = phase.scores()
         return context
+
+class CompetitionCheckMigrations(View):
+    def get(self, request, *args, **kwargs):
+        competitions = models.Competition.objects.filter(is_migrating=False)
+
+        for c in competitions:
+            c.check_trailing_phase_submissions()
+
+        return HttpResponse()
 
 class CompetitionResultsDownload(View):
 
@@ -491,7 +537,7 @@ class BundleListView(TemplateView):
     template_name = 'web/bundles/index.html'
     def get_context_data(self, **kwargs):
         context = super(BundleListView, self).get_context_data(**kwargs)
-        service = BundleService()
+        service = BundleService(self.request.user)
         results = service.items()
         context['bundles'] = results
 
@@ -507,7 +553,7 @@ class BundleListView(TemplateView):
             if 'metadata' in bundle:
                 metadata = bundle['metadata']
                 for (key1, key2) in [('title', 'name'), ('creator', None), ('description', None)]:
-                    if key2 is None: 
+                    if key2 is None:
                         key2 = key1
                     if key2 in metadata:
                         item[key1] = metadata[key2]
@@ -525,7 +571,7 @@ class BundleDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         uuid = kwargs.get('uuid')
-        service = BundleService()
+        service = BundleService(self.request.user)
         results = service.item(uuid)
         context['bundle'] = results
         return context
@@ -539,24 +585,6 @@ class WorksheetListView(TemplateView):
     template_name = 'web/worksheets/index.html'
     def get_context_data(self, **kwargs):
         context = super(WorksheetListView, self).get_context_data(**kwargs)
-        service = BundleService()
-        worksheets = service.worksheets()
-        items = []
-        for worksheet in worksheets:
-            item = {'uuid': worksheet['uuid'],
-                    'details_url': '/worksheets/{0}'.format(worksheet['uuid']),
-                    'name': '<name not specified>',
-                    'title': '',
-                    'creator': 'codalab',
-                    'description': ''}
-            for key in ['name', 'title', 'creator', 'description']:
-                if key in worksheet:
-                    item[key] = worksheet[key]
-            if len(item['title']) == 0:
-                item['title'] = item['name']
-            items.append(item)
-        context['items'] = items
-        context['items_label'] = 'worksheets'
         return context
 
 class WorksheetDetailView(TemplateView):

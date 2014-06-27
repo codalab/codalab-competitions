@@ -7,6 +7,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
     from codalab.common import UsageError
     from codalab.client.remote_bundle_client import RemoteBundleClient
+    from apps.authenz.oauth import get_user_token
 
     def _call_with_retries(f, retry_count=0):
         try:
@@ -19,8 +20,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
     class BundleService():
 
-        def __init__(self):
-            self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL)
+        def __init__(self, user=None):
+            self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
+                                             lambda command: get_user_token(user))
 
         def items(self):
             return _call_with_retries(lambda: self.client.search())
@@ -31,11 +33,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())
 
+        def create_worksheet(self, name):
+            return _call_with_retries(lambda: self.client.new_worksheet(name))
+
         def worksheet(self, uuid):
             return _call_with_retries(lambda: self.client.worksheet_info(uuid))
 
         def ls(self, uuid, path):
-            strm = self.read_file(uuid, 'bat.txt')
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
 
         MAX_BYTES = 1024*1024

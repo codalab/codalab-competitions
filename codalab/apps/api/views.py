@@ -20,6 +20,7 @@ from django.http import Http404, StreamingHttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
 from apps.web.bundles import BundleService
@@ -211,6 +212,9 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
 
+        if comp.creator != request.user:
+            raise PermissionDenied()
+
         try:
             p = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=part)
             p.status = webmodels.ParticipantStatus.objects.get(codename=status)
@@ -369,6 +373,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
                 break
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
+        if phase.auto_migration and not phase.is_migrated:
+            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
@@ -458,6 +464,75 @@ class DefaultContentViewSet(viewsets.ModelViewSet):
 #
 # Worksheets
 #
+class WorksheetsInfoApi(views.APIView):
+    """
+    Provides a web API to retrieve worksheets information.
+    """
+    def get(self, request):
+        user = self.request.user
+        logger.debug("WorksheetsApi: user_id=%s.", user.id)
+        info = {
+            'config': {
+                'beta' : settings.SHOW_BETA_FEATURES,
+                'preview' : getattr(settings, 'PREVIEW_WORKSHEETS', False),
+                'loginUrl' : settings.LOGIN_URL,
+                'logoutUrl' : settings.LOGOUT_URL,
+            },
+            'user': {
+                'authenticated': user.id != None,
+                'name': user.username,
+            }
+        }
+        return Response(info, status=status.HTTP_201_CREATED)
+
+class WorksheetsListApi(views.APIView):
+    """
+    Provides a web API for worksheet entries.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        logger.debug("WorksheetsListApi: user_id=%s.", user_id)
+        service = BundleService(self.request.user)
+        try:
+            worksheets = service.worksheets()
+            user_ids = []
+            user_id_to_worksheets = {}
+            for worksheet in worksheets:
+                owner_id = worksheet['owner_id']
+                if owner_id in user_id_to_worksheets:
+                    user_id_to_worksheets[owner_id].append(worksheet)
+                else:
+                    user_id_to_worksheets[owner_id] = [worksheet]
+                    user_ids.append(owner_id)
+            if len(user_ids) > 0:
+                users = ClUser.objects.filter(id__in=user_ids)
+                for user in users:
+                    for worksheet in user_id_to_worksheets[user.id]:
+                        worksheet['owner'] = user.username
+            return Response(worksheets)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
+    """
+    Provides a web API to create a worksheet.
+    """
+    def post(self, request):
+        owner = self.request.user
+        if not owner.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        worksheet_name = data['name'] if 'name' in data else ''
+        logger.debug("WorksheetCreation: owner=%s; name=%s", owner.id, worksheet_name)
+        if len(worksheet_name) <= 0:
+            return Response("Invalid name.", status=status.HTTP_400_BAD_REQUEST)
+        service = BundleService(self.request.user)
+        try:
+            data["uuid"] = service.create_worksheet(worksheet_name)
+            logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
+            return Response(data)
+        except Exception as e:
+            return Response(status=service.http_status_from_exception(e))
+
 class WorksheetContentApi(views.APIView):
     """
     Provides a web API to fetch the content of a worksheet.
@@ -465,9 +540,11 @@ class WorksheetContentApi(views.APIView):
     def get(self, request, uuid):
         user_id = self.request.user.id
         logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid)
+            owner = ClUser.objects.filter(id=worksheet['owner_id'])[0]
+            worksheet['owner'] = owner.username
             return Response(worksheet)
         except Exception as e:
             return Response(status=service.http_status_from_exception(e))
@@ -479,7 +556,7 @@ class BundleInfoApi(views.APIView):
     def get(self, request, uuid):
         user_id = self.request.user.id
         logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
             return Response(item, content_type="application/json")
@@ -493,7 +570,7 @@ class BundleContentApi(views.APIView):
     def get(self, request, uuid, path):
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             items = service.ls(uuid, path)
             return Response(items)
@@ -514,7 +591,7 @@ class BundleFileContentApi(views.APIView):
 
     def get(self, request, uuid, path):
         user_id = self.request.user.id
-        service = BundleService()
+        service = BundleService(self.request.user)
         try:
             content_type = BundleFileContentApi._content_type(path)
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
