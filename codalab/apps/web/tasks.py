@@ -10,6 +10,7 @@ from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.mail import send_mass_mail
 from django.db import transaction
 from apps.jobs.models import (Job,
                               run_job_task,
@@ -434,11 +435,14 @@ def evaluate_submission(submission_id, is_scoring_only):
 
 
 def send_mass_email_task(job_id, task_args):
-    emails = []
-    print "sendin da emailz"
+    body = task_args["body"]
+    subject = task_args["subject"]
+    from_email = task_args["from_email"]
+    to_emails = task_args["to_emails"]
 
-    # turn emails into tuples (all same subj/body/from email, different to_email)
-    # call send_mass_email with all the tuples
+    mail_tuples = ((subject, body, from_email, [e]) for e in to_emails)
+
+    send_mass_mail(mail_tuples)
 
 
 def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
@@ -449,4 +453,3 @@ def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
         "to_emails": to_emails
     }
     return Job.objects.create_and_dispatch_job('send_mass_email', task_args)
-
