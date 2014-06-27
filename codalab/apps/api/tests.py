@@ -106,3 +106,54 @@ class CompetitionsPhase(TestCase):
 # Publish the new one
 # The new one should be in the list and have the published flag set to true
 # Check turning off works
+
+
+class ParticipationStatusTests(TestCase):
+
+    def setUp(self):
+        statuses = ['unknown', 'denied', 'approved', 'pending']
+        for s in statuses:
+            ParticipantStatus.objects.get_or_create(name=s, codename=s)
+
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
+        self.participant = CompetitionParticipant.objects.create(
+            user=self.participant_user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get(codename=ParticipantStatus.PENDING)
+        )
+
+    def test_updating_participant_status_denied_without_competition_ownership(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": ParticipantStatus.APPROVED,
+                "participant_id": self.participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_updating_participant_status_works_as_owner(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": ParticipantStatus.APPROVED,
+                "participant_id": self.participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+
+        participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
+
+        self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
