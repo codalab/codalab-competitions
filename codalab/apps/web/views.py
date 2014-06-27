@@ -14,6 +14,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, render
@@ -115,8 +116,6 @@ def competition_message_participants(request, competition_id):
     if competition.creator != request.user:
         return HttpResponse(status=403)
 
-    print request.POST
-
     if "subject" not in request.POST and "body" not in request.POST:
         return HttpResponse(
             json.dumps({
@@ -126,13 +125,13 @@ def competition_message_participants(request, competition_id):
         )
 
     emails = [p.user.email for p in models.CompetitionParticipant.objects.filter(competition=competition)]
-
-    print emails
+    subject = request.POST.get('subject')
+    body = strip_tags(request.POST.get('body'))
 
     tasks.send_mass_email(
-        subject="",
-        body="",
-        from_email="",
+        subject=subject,
+        body=body,
+        from_email=request.user.email,
         to_emails=emails
     )
 

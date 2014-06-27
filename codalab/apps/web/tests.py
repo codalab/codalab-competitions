@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core import management
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.core import mail
 from django.test.client import Client
 from django.contrib.auth import get_user_model
 
@@ -25,6 +26,7 @@ from apps.web.models import (Competition,
                              ParticipantStatus,
                              PhaseLeaderBoard,
                              PhaseLeaderBoardEntry)
+from apps.web import tasks
 
 User = get_user_model()
 
@@ -392,7 +394,7 @@ class CompetitionPhaseToPhase(TestCase):
 class CompetitionMessageParticipantsTests(TestCase):
 
     def setUp(self):
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass", email="organizer@test.com")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
@@ -457,6 +459,22 @@ class CompetitionMessageParticipantsTests(TestCase):
         )
         self.assertEquals(resp.status_code, 302)
 
+    def test_msg_participants_task_called_with_proper_args(self):
+        self.client.login(username="organizer", password="pass")
+        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+            resp = self.client.post(
+                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                data={"subject": "test", "body": 'Injected!<script src="http://code_injection/bad_code.js"></script>'}
+            )
+            self.assertEquals(resp.status_code, 200)
+
+        send_mass_email_mock.assert_called_with(
+            body=u'Injected!', # <script> tag was removed!
+            subject=u'test',
+            to_emails=[],
+            from_email=u'organizer@test.com'
+        )
+
 
 class AccountSettingsTests(TestCase):
 
@@ -478,8 +496,16 @@ class AccountSettingsTests(TestCase):
 
 class SendMassEmailTests(TestCase):
 
-    def test_something(self):
-        self.assertTrue(False)
+    def test_send_mass_email_works(self):
+        task_args = {
+            "body": "Body",
+            "subject": "Subject",
+            "from_email": "no-reply@test.com",
+            "to_emails": ["%s@test.com" % i for i in range(0, 10)]
+        }
+        tasks.send_mass_email_task(1, task_args)
+
+        self.assertEquals(len(mail.outbox), 10)
 
 
 
