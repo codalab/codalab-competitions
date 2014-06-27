@@ -329,6 +329,10 @@ class Base(Settings):
                 'handlers': ['console'],
                 'level': 'INFO'
             },
+            'codalabtools': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            },
             'apps': {
                 'handlers': ['console'],
                 'level': 'INFO'

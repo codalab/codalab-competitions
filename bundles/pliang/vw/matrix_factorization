@@ -1,4 +1,0 @@
-awk -F"\t" '{printf "%d |u %d |i %d\n", $3,$1,$2}' < $1/ua.base | \
-  vw /dev/stdin -b 18 -q ui --rank 10 --l2 0.001 \
-  --learning_rate 0.025 --passes 20 --decay_learning_rate 0.97 --power_t 0 \
-  -f movielens.reg --cache_file $2/movielens.cache

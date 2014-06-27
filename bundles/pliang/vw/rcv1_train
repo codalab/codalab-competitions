@@ -1,3 +1,0 @@
-
-gzcat $1/rcv1.train.vw.gz | vw --cache_file $2/cache_train -f $2/r_temp &&
-gzcat $1/rcv1.test.vw.gz | vw -t --cache_file $2/cache_test -i r_temp -p $2/p_out && gzcat $1/rcv1.test.vw.gz | cut -d ' ' -f 1 | sed -e 's/^-1/0/' > $2/labels && perf -ACC -files $2/labels $2/p_out -t 0.5

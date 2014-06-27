@@ -3,18 +3,13 @@
 
 // CSRF Token needs to be sent with API requests.
 var csrftoken;
-$(function() {
-    // Some of this copied from Django docs:
-    // https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
 
-    csrftoken = $.cookie('csrftoken');
-
-    function csrfSafeMethod(method) {
+function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
+}
 
-    function sameOrigin(url) {
+function sameOrigin(url) {
     // test that a given url is a same-origin URL
     // url could be relative or scheme relative or absolute
     var host = document.location.host; // host + port
@@ -26,7 +21,14 @@ $(function() {
             (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
             // or any other URL that isn't scheme relative or absolute i.e relative.
             !(/^(\/\/|http:|https:).*/.test(url));
-    }
+}
+
+$(function() {
+    // Some of this copied from Django docs:
+    // https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
+
+    csrftoken = $.cookie('csrftoken');
+
     $.ajaxSetup({
     beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
@@ -60,6 +62,7 @@ var CodaLab;
                 uploadError: function(info) {
                 },
                 allowedFileTypes: undefined,
+                extensionToFileType: {'zip': 'application/zip'},
                 maxFileSizeInBytes: undefined,
                 maxBlockSizeInBytes: 1024 * 1024
             };
@@ -106,7 +109,15 @@ var CodaLab;
                     if (_this.options.maxFileSizeInBytes && file.size > _this.options.maxFileSizeInBytes) {
                         errors.push({ kind: 'size-error' });
                     }
-                    if (_this.options.allowedFileTypes && ($.inArray(file.type, _this.options.allowedFileTypes)) === -1) {
+
+                    var filetype = file.type;
+                    if (filetype === '') {
+                        var parts = file.name.split('.');
+                        if (parts.length > 1) {
+                            filetype = _this.options.extensionToFileType[parts.pop().toLowerCase()];
+                        }
+                    }
+                    if (_this.options.allowedFileTypes && ($.inArray(filetype, _this.options.allowedFileTypes)) === -1) {
                         errors.push({ kind: 'type-error' });
                     }
                     validatedFiles.push({ file: file, errors: errors });
@@ -328,13 +339,13 @@ var CodaLab;
                                     setTimeout(wait_for_competition, 1000);
                                 }
                             }).fail(function() {
-                                $('#details').html('An unexpected error occured.');
+                                $('#details').html('An unexpected error occurred.');
                                 $('#uploadButton').removeClass('disabled');
                             });
                         };
                         wait_for_competition();
                     }).fail(function() {
-                        $('#details').html('An unexpected error occured.');
+                        $('#details').html('An unexpected error occurred.');
                         $('#uploadButton').removeClass('disabled');
                     });
                 }
