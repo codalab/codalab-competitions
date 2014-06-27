@@ -389,6 +389,77 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertFalse(do_migration_mock.called)
 
 
+class CompetitionTest(TestCase):
+
+    def setUp(self):
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
+
+
+class CompetitionDeleteTests(CompetitionTest):
+
+    def test_cant_view_delete_competition_template_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.get(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_view_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_cant_delete_competition_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.delete(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_delete_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.delete(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertEquals(len(Competition.objects.filter(pk=self.competition.pk)), 0)
+
+
+class CompetitionEditTests(CompetitionTest):
+
+    def test_cant_view_edit_competition_template_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.get(reverse("competitions:edit", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_view_edit_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("competitions:edit", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 200)
+
+    def test_cant_edit_competition_if_you_dont_own_it(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(reverse("competitions:edit", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+
+    def test_can_edit_competition_with_ownership(self):
+        self.client.login(username="organizer", password="pass")
+        with mock.patch('apps.web.views.CompetitionEdit.construct_inlines') as construct_inlines_mock:
+            resp = self.client.post(
+                reverse("competitions:edit", kwargs={"pk": self.competition.pk}),
+                data={}
+            )
+
+        self.assertTrue(construct_inlines_mock.called)
+
+
 class CompetitionDefinitionTests(TestCase):
 
     @staticmethod

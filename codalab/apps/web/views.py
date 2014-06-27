@@ -95,10 +95,46 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        return super(CompetitionEdit, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        return super(CompetitionEdit, self).post(request, *args, **kwargs)
+
 class CompetitionDelete(LoginRequiredMixin, DeleteView):
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
     success_url = '/my/#manage'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.creator != request.user:
+            return HttpResponse(status=403)
+
+        success_url = self.get_success_url()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
+
 
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
