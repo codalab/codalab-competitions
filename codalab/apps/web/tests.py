@@ -389,6 +389,75 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertFalse(do_migration_mock.called)
 
 
+class CompetitionMessageParticipantsTests(TestCase):
+
+    def setUp(self):
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
+
+    def test_msg_participants_view_returns_400_on_get(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk})
+        )
+        self.assertEquals(resp.status_code, 400)
+
+    def test_msg_participants_view_returns_200_on_valid_POST_and_works(self):
+        self.client.login(username="organizer", password="pass")
+        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+            resp = self.client.post(
+                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                data={"subject": "test", "body": "message body"}
+            )
+            self.assertEquals(resp.status_code, 200)
+        self.assertTrue(send_mass_email_mock.called)
+
+    def test_msg_participants_view_returns_400_on_no_data(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk})
+        )
+
+        self.assertEquals(resp.status_code, 400)
+        self.assertIn("Missing subject or body of message!", str(resp))
+
+    def test_msg_participants_view_returns_400_on_bad_data(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+            data={"not_right": "bad data"}
+        )
+
+        self.assertEquals(resp.status_code, 400)
+        self.assertIn("Missing subject or body of message!", str(resp))
+
+    def test_msg_participants_view_returns_403_when_not_competition_owner(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk})
+        )
+        self.assertEquals(resp.status_code, 403)
+
+    def test_msg_participants_view_returns_404_when_competition_doesnt_exist(self):
+        self.client.login(username="organizer", password="pass")
+        non_existant_competition_id = 2398234
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": non_existant_competition_id})
+        )
+        self.assertEquals(resp.status_code, 404)
+
+    def test_msg_participants_view_returns_302_when_not_logged_in(self):
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk})
+        )
+        self.assertEquals(resp.status_code, 302)
+
+
 class AccountSettingsTests(TestCase):
 
     def test_account_settings_view_returns_200(self):
@@ -405,6 +474,13 @@ class AccountSettingsTests(TestCase):
 
     def test_account_settings_view_returns_403_when_not_logged_in(self):
         pass
+
+
+class SendMassEmailTests(TestCase):
+
+    def test_something(self):
+        self.assertTrue(False)
+
 
 
 class CompetitionDefinitionTests(TestCase):
