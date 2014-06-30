@@ -10,7 +10,7 @@ from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.mail import send_mass_mail
+from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
 from apps.jobs.models import (Job,
                               run_job_task,
@@ -434,15 +434,48 @@ def evaluate_submission(submission_id, is_scoring_only):
     return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
 
 
+def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
+                        connection=None):
+    """
+    Given a datatuple of (subject, text_content, html_content, from_email,
+    recipient_list), sends each message to each recipient list. Returns the
+    number of emails sent.
+
+    If from_email is None, the DEFAULT_FROM_EMAIL setting is used.
+    If auth_user and auth_password are set, they're used to log in.
+    If auth_user is None, the EMAIL_HOST_USER setting is used.
+    If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
+
+    Thanks to semente @ StackOverflow:
+    http://stackoverflow.com/questions/7583801/send-mass-emails-with-emailmultialternatives
+    """
+    connection = connection or get_connection(
+        username=user, password=password, fail_silently=fail_silently
+    )
+
+    messages = []
+    for subject, text, html, from_email, recipient in datatuple:
+        message = EmailMultiAlternatives(subject, text, from_email, recipient)
+        message.attach_alternative(html, 'text/html')
+        messages.append(message)
+
+    return connection.send_messages(messages)
+
+
 def send_mass_email_task(job_id, task_args):
     body = task_args["body"]
     subject = task_args["subject"]
     from_email = task_args["from_email"]
     to_emails = task_args["to_emails"]
 
-    mail_tuples = ((subject, body, from_email, [e]) for e in to_emails)
 
-    send_mass_mail(mail_tuples)
+    # generate html
+    # generate text (strip html tags????)
+
+
+    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+
+    _send_mass_html_mail(mail_tuples)
 
 
 def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
