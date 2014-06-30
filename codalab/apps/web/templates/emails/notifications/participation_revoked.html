@@ -1,1 +1,8 @@
-email to a participant about their status being revoked from a competition
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <p>This is a message updating your access to the competition:</p>
+    <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+
+    <p>Your status has been revoked.</p>
+{% endblock %}

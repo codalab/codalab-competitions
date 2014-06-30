@@ -164,6 +164,7 @@ class Base(Settings):
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
         "apps.web.context_processors.beta",
+        'django.core.context_processors.request',
     )
 
     AUTHENTICATION_BACKENDS = (

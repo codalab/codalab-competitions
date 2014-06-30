@@ -56,26 +56,27 @@
 		            </p>
                 </div>
             </div>
-
-            <div class="large-12">
-                <a href="#" data-reveal-id="myModal" class="button">Send message to all participants?</a>
-
-                <div id="myModal" class="reveal-modal" data-reveal>
-                    <h2>Email Participants</h2>
-                    <a class="close-reveal-modal">&#215;</a>
-
-                    <form>
-                        <input type="text" placeholder="Subject">
-
-                        <textarea placeholder="Message"></textarea>
-                    </form>
-
-                    <a class="button">Save</a>
-                    <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
-                </div>
-            </div>
         </div>
         {% endfor %}
+
+        <div class="large-12">
+            <a href="#" data-reveal-id="myModal" class="button">Send message to all participants?</a>
+
+            <div id="myModal" class="reveal-modal" data-reveal>
+                <h2>Email Participants</h2>
+                <a class="close-reveal-modal">&#215;</a>
+
+                <form>
+                    <input type="text" placeholder="Subject">
+
+                    <textarea placeholder="Message"></textarea>
+                </form>
+
+                <a class="button">Save</a>
+                <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
+            </div>
+        </div>
+
         <table class="resultsTable dataTable">
             <thead>
                 <tr>

@@ -1,1 +1,8 @@
-email sent to participant about their request to join a competition
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <p>This is a message confirming you have requested access to the competition:</p>
+    <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+
+    <p>You will be notified if your participation status is approved or denied.</p>
+{% endblock %}
