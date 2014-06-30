@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
+
 from apps.web import views
 
 partials_patterns = patterns(

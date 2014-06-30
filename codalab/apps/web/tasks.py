@@ -469,7 +469,8 @@ def send_mass_email_task(job_id, task_args):
     to_emails = task_args["to_emails"]
 
 
-    # generate html
+    # generate html pass body as context body!!!
+
     # generate text (strip html tags????)
 
 
