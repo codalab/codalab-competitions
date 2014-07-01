@@ -29,4 +29,5 @@ urlpatterns = patterns(
         views.MyCompetitionSubmisisonOutput.as_view(),
         name='my_competition_output'),
     url(r'^_partials/', include(partials_patterns)),
+    url(r'^settings/', views.settings, name='settings')
 )
