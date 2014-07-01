@@ -276,6 +276,9 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
 
+        if comp.creator != request.user:
+            raise PermissionDenied()
+
         try:
             p = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=part)
             p.status = webmodels.ParticipantStatus.objects.get(codename=status)
