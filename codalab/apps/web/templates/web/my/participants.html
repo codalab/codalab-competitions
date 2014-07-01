@@ -162,15 +162,19 @@
         var body = $("#message_textarea").val();
 
         if(subject && body) {
+            $('#direct_message_participants_button').text('Sending...').addClass('disabled')
+
             $.post(
                 "{% url 'competitions:competition_message_participants' competition_id=competition_id %}",
                 {subject: subject, body: body}
             )
             .error(function() {
                 alert("Error sending email");
+                $('#direct_message_participants_button').text('Send').removeClass('disabled');
             })
             .success(function() {
                 $('a.close-reveal-modal').trigger('click');
+                $('#direct_message_participants_button').text('Send').removeClass('disabled');
             });
         } else {
             alert("Please enter a subject and a message!");
