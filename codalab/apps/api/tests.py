@@ -144,7 +144,7 @@ class ParticipationStatusEmails(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Application to Test Competition sent', subjects)
-        self.assertIn('Participant applied to your competition', subjects)
+        self.assertIn('%s applied to your competition' % self.participant_user, subjects)
 
     def test_attempting_to_join_competition_auto_approved_sends_emails(self):
         resp = self._participant_join_competition()
@@ -153,7 +153,7 @@ class ParticipationStatusEmails(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Accepted into Test Competition!', subjects)
-        self.assertIn('Participant accepted into your competition!', subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
 
     def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
         resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
@@ -179,8 +179,8 @@ class ParticipationStatusEmails(TestCase):
         self.assertEquals(resp.status_code, 200)
 
         subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Application to Test Competition approved', subjects)
-        self.assertIn('Successfully updated participant in Test Competition', subjects)
+        self.assertIn('Accepted into %s!' % self.competition, subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
 
     def test_participation_status_update_revoked_sends_email(self):
         self._participant_join_competition(cleanup_email=True)
@@ -200,8 +200,8 @@ class ParticipationStatusEmails(TestCase):
         self.assertEquals(resp.status_code, 200)
 
         subjects = [m.subject for m in mail.outbox]
-        self.assertIn('Application to Test Competition denied', subjects)
-        self.assertIn('Successfully updated participant in Test Competition', subjects)
+        self.assertIn('Permission revoked from Test Competition!', subjects)
+        self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
 
     def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
         pass

@@ -472,7 +472,7 @@ class CompetitionMessageParticipantsTests(TestCase):
             body=u'Injected!', # <script> tag was removed!
             subject=u'test',
             to_emails=[],
-            from_email=u'organizer@test.com'
+            from_email=settings.DEFAULT_FROM_EMAIL
         )
 
 
@@ -483,17 +483,17 @@ class AccountSettingsTests(TestCase):
         self.client.login(username="user", password="pass")
 
     def test_account_settings_view_returns_200(self):
-        resp = self.client.get(reverse("settings"))
+        resp = self.client.get(reverse("user_settings"))
         self.assertEquals(resp.status_code, 200)
 
     def test_account_settings_view_returns_403_when_not_logged_in(self):
         self.client.logout()
-        resp = self.client.get(reverse("settings"))
+        resp = self.client.get(reverse("user_settings"))
         self.assertEquals(resp.status_code, 302)
 
     def test_account_settings_view_returns_200_on_valid_POST(self):
         resp = self.client.post(
-            reverse("settings"),
+            reverse("user_settings"),
             {
                 'participation_status_updates': True,
                 'organizer_status_updates': False,
@@ -507,13 +507,13 @@ class AccountSettingsTests(TestCase):
 
     def test_account_settings_view_returns_400_on_no_data(self):
         resp = self.client.post(
-            reverse("settings"),
+            reverse("user_settings"),
         )
         self.assertEquals(resp.status_code, 400)
 
     def test_account_settings_view_returns_400_on_bad_data(self):
         resp = self.client.post(
-            reverse("settings"),
+            reverse("user_settings"),
             {
                 "test": "test"
             }

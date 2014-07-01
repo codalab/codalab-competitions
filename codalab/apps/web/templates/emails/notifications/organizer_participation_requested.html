@@ -1,1 +1,8 @@
-email to organizer about a participant who requested access to their competition
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <p>The user {{ participant.user }}requested access into your competition:</p>
+    <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+
+    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}">Manage participants</a>
+{% endblock %}

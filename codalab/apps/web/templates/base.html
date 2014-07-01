@@ -96,7 +96,7 @@
                       <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
                       <ul class="dropdown">
                           <!-- <li><a href="#">My Profile</a></li> -->
-                          <li><a href="{% url "settings" %}">Settings</a></li>
+                          <li><a href="{% url "user_settings" %}">Settings</a></li>
                           <li class="divider"></li>
                           <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
                       </ul>

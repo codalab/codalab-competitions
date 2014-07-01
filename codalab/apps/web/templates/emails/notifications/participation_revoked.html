@@ -5,4 +5,8 @@
     <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
 
     <p>Your status has been revoked.</p>
+
+    {% if reason %}
+    <p><strong>Reason:</strong>{{ reason }}</p>
+    {% endif %}
 {% endblock %}

@@ -5,4 +5,8 @@
     {{ competition }} -> {{ competition.get_absolute_url }}
 
     Your status has been accepted!
+
+    {% if reason %}
+    Reason: {{ reason }}
+    {% endif %}
 {% endblock %}

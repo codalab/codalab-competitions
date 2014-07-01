@@ -1,1 +1,10 @@
-email to organizer about participation status being revoked from a competition.
+{% extends 'emails/base_email.txt' %}
+
+{% block content %}
+    The user {{ participant.user }} was revoked permission from your competition:
+    {{ competition }} -> {{ competition.get_absolute_url }}
+
+    Manage participants -> {% url 'my_competition_participants' competition_id=competition.pk %}
+{% endblock %}
+
+
