@@ -597,3 +597,8 @@ class WorksheetDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
+
+
+def settings(request):
+
+    return render(request, "web/my/settings.html")
