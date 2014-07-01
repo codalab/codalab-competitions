@@ -170,7 +170,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
-    def _send_mail(self, context_data, from_email="no-reply@codalab.org", html_file=None, text_file=None, subject=None, to_email=None):
+    def _send_mail(self, context_data, from_email=None, html_file=None, text_file=None, subject=None, to_email=None):
         from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
 
         context = Context(context_data)
