@@ -131,7 +131,7 @@ def competition_message_participants(request, competition_id):
     tasks.send_mass_email(
         subject=subject,
         body=body,
-        from_email=request.user.email,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         to_emails=emails
     )
 

@@ -1,0 +1,17 @@
+Hello {{ user.username }},
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+
+Thanks,
+
+CodaLab Team
+
+
+Unsubscribe or manage notification settings -> http://{{ site.domain }}/{% url 'settings' %}/
+
+Privacy policy -> http://codalab.github.io/codalab/notices.html

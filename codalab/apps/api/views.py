@@ -20,6 +20,7 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.http import Http404, StreamingHttpResponse
 from django.utils.decorators import method_decorator
+from django.core.mail import EmailMultiAlternatives
 
 from apps.authenz.models import ClUser
 from apps.jobs.models import Job
@@ -167,13 +168,12 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             response['status'] = 403
         return Response(json.dumps(response), content_type="application/json")
 
-    def _send_mail(self, from_email="no-reply@codalab.org", body=None, subject=None, to_email=None):
-        send_mail(
-            subject,
-            body,
-            from_email,
-            [to_email]
-        )
+    def _send_mail(self, from_email="no-reply@codalab.org", html_file=None, text_file=None, subject=None, to_email=None):
+        from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
+
+        message = EmailMultiAlternatives(subject, text, from_email, [to_email])
+        message.attach_alternative(html, 'text/html')
+        message.send()
 
     @action(permission_classes=[permissions.IsAuthenticated])
     def participate(self, request, pk=None):
