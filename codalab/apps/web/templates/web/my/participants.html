@@ -67,12 +67,12 @@
                 <a class="close-reveal-modal">&#215;</a>
 
                 <form>
-                    <input type="text" placeholder="Subject">
+                    <input id="subject_input" type="text" placeholder="Subject">
 
-                    <textarea placeholder="Message"></textarea>
+                    <textarea id="message_textarea" placeholder="Message"></textarea>
                 </form>
 
-                <a class="button">Save</a>
+                <a id="direct_message_participants_button" class="button">Send</a>
                 <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
             </div>
         </div>
@@ -105,53 +105,78 @@
 {% endblock %}
 
 {% block js %}
-/* $("#process_request").validate(); */
+    /* $("#process_request").validate(); */
 
-var ParticipateStatusText = { 'approved': 'Participation Approved',
-                              'denied': 'Participation Denied',
-                              'pending': 'Participation Pending',
-                              'unknown': 'Unknown' };
-var ParticipationReasonStyle = {'denied': 'color:red',
-                                'unknown': '',
-                                'pending': '',
-                                'approved': '' };
+    var ParticipateStatusText = { 'approved': 'Participation Approved',
+                                  'denied': 'Participation Denied',
+                                  'pending': 'Participation Pending',
+                                  'unknown': 'Unknown' };
+    var ParticipationReasonStyle = {'denied': 'color:red',
+                                    'unknown': '',
+                                    'pending': '',
+                                    'approved': '' };
 
-/* attach a submit handler to the form */
-$("form").submit(function(event) {
+    /* attach a submit handler to the form */
+    $("form").submit(function(event) {
 
-    /* stop form from submitting normally */
-    event.preventDefault();
+        /* stop form from submitting normally */
+        event.preventDefault();
 
-    /* get some values from elements on the page: */
-    var values = $(this).serialize();
-    var fid = $(this).attr('id');
+        /* get some values from elements on the page: */
+        var values = $(this).serialize();
+        var fid = $(this).attr('id');
 
-    /* Send the data using post and put the results in a div */
-    request = $.ajax({
-        url: "/api/competition/{{competition_id}}/participation_status/",
-        type: "post",
-        dataType: "json",
-        accept: {'json': "application/json" },
-        data: values,
-        success: function(response, textStatus, jqXHR) {
-            $('#'+fid).remove();
-            var data = $.parseJSON(response);
+        /* Send the data using post and put the results in a div */
+        request = $.ajax({
+            url: "/api/competition/{{competition_id}}/participation_status/",
+            type: "post",
+            dataType: "json",
+            accept: {'json': "application/json" },
+            data: values,
+            success: function(response, textStatus, jqXHR) {
+                $('#'+fid).remove();
+                var data = $.parseJSON(response);
 
-            var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+                var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
 
 
-            pid.text(ParticipateStatusText[data.status]);
+                pid.text(ParticipateStatusText[data.status]);
 
-            if(data.reason) {
-               var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
+                if(data.reason) {
+                   var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
 
-               pid.append(reasontext);
-           }
+                   pid.append(reasontext);
+               }
 
-        },
-        error: function(jsXHR, textStatus, errorThrown) {
-            alert("There was a problem processing this request for this competition.");;
+            },
+            error: function(jsXHR, textStatus, errorThrown) {
+                alert("There was a problem processing this request for this competition.");;
+            }
+        });
+    });
+
+
+    // Send email to participants
+    $('#direct_message_participants_button').click(function() {
+        var subject = $("#subject_input").val();
+        var body = $("#message_textarea").val();
+
+        if(subject && body) {
+            $.post(
+                "{% url 'competitions:competition_message_participants' competition_id=competition_id %}",
+                {subject: subject, body: body}
+            )
+            .error(function() {
+                alert("Error sending email");
+            })
+            .success(function() {
+                alert("Success!");
+                // close modal
+                $('a.close-reveal-modal').trigger('click');
+            });
+        } else {
+            alert("Please enter a subject and a message!");
         }
     });
-});
+
 {% endblock js %}
