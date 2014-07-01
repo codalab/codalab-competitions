@@ -478,20 +478,50 @@ class CompetitionMessageParticipantsTests(TestCase):
 
 class AccountSettingsTests(TestCase):
 
+    def setUp(self):
+        self.user = User.objects.create_user(username="user", password="pass", email="user@test.com")
+        self.client.login(username="user", password="pass")
+
     def test_account_settings_view_returns_200(self):
-        pass
-
-    def test_account_settings_view_returns_200_on_valid_POST(self):
-        pass
-
-    def test_account_settings_view_returns_400_on_no_data(self):
-        pass
-
-    def test_account_settings_view_returns_400_on_bad_data(self):
-        pass
+        resp = self.client.get(reverse("settings"))
+        self.assertEquals(resp.status_code, 200)
 
     def test_account_settings_view_returns_403_when_not_logged_in(self):
-        pass
+        self.client.logout()
+        resp = self.client.get(reverse("settings"))
+        self.assertEquals(resp.status_code, 302)
+
+    def test_account_settings_view_returns_200_on_valid_POST(self):
+        resp = self.client.post(
+            reverse("settings"),
+            {
+                'participation_status_updates': True,
+                'organizer_status_updates': True,
+                'organizer_direct_message_updates': True
+            }
+        )
+        self.assertEquals(resp.status_code, 200)
+
+
+
+
+        # also check that user is actually updated
+
+    def test_account_settings_view_returns_400_on_no_data(self):
+        resp = self.client.post(
+            reverse("settings"),
+        )
+        self.assertEquals(resp.status_code, 400)
+
+    def test_account_settings_view_returns_400_on_bad_data(self):
+        resp = self.client.post(
+            reverse("settings"),
+            {
+                "test": "test"
+            }
+        )
+        self.assertEquals(resp.status_code, 400)
+
 
 
 class SendMassEmailTests(TestCase):

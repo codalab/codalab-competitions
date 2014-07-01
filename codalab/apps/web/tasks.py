@@ -474,9 +474,9 @@ def send_mass_email_task(job_id, task_args):
     # generate text (strip html tags????)
 
 
-    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+    #mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
-    _send_mass_html_mail(mail_tuples)
+    #_send_mass_html_mail(mail_tuples)
 
 
 def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):

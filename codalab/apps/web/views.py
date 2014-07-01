@@ -599,6 +599,29 @@ class WorksheetDetailView(TemplateView):
         return context
 
 
+@login_required
 def settings(request):
+    if request.method == "POST":
+        fields = [
+            'participation_status_updates',
+            'organizer_status_updates',
+            'organizer_direct_message_updates'
+        ]
+
+        for f in fields:
+            if f not in request.POST:
+                return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        for f in fields:
+            value = request.POST.get(f)
+
+            bool_value = True if value == "true" else False
+            #try:
+            setattr(request.user, f, bool_value)
+            #except:
+            #    return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        request.user.save()
+        return render(request, "web/my/settings.html", {"saved_successfully": True})
 
     return render(request, "web/my/settings.html")
