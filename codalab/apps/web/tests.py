@@ -496,16 +496,14 @@ class AccountSettingsTests(TestCase):
             reverse("settings"),
             {
                 'participation_status_updates': True,
-                'organizer_status_updates': True,
+                'organizer_status_updates': False,
                 'organizer_direct_message_updates': True
             }
         )
         self.assertEquals(resp.status_code, 200)
 
-
-
-
-        # also check that user is actually updated
+        updated_user = User.objects.get(pk=self.user.pk)
+        self.assertFalse(updated_user.organizer_status_updates)
 
     def test_account_settings_view_returns_400_on_no_data(self):
         resp = self.client.post(
