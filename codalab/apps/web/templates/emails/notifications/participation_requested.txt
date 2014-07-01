@@ -1,8 +1,8 @@
 {% extends 'emails/base_email.txt' %}
 
 {% block content %}
-    This is a message confirming you have requested access to the competition:
-    {{ competition }} -> {{ competition.get_absolute_url }}
+This is a message confirming you have requested access to the competition:
+{{ competition }} -> {{ competition.get_absolute_url }}
 
-    <p>You will be notified if your participation status is approved or denied.</p>
+You will be notified if your participation status is approved or denied.
 {% endblock %}
