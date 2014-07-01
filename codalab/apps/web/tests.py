@@ -395,11 +395,16 @@ class CompetitionMessageParticipantsTests(TestCase):
 
     def setUp(self):
         self.organizer_user = User.objects.create_user(username="organizer", password="pass", email="organizer@test.com")
-        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass", email="participant@test.com")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
             modified_by=self.organizer_user
+        )
+        self.participant = CompetitionParticipant.objects.create(
+            user=self.participant_user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.PENDING)[0]
         )
 
     def test_msg_participants_view_returns_400_on_get(self):
@@ -471,9 +476,25 @@ class CompetitionMessageParticipantsTests(TestCase):
         send_mass_email_mock.assert_called_with(
             body=u'Injected!', # <script> tag was removed!
             subject=u'test',
-            to_emails=[],
+            to_emails=[self.participant_user.email],
             from_email=settings.DEFAULT_FROM_EMAIL
         )
+
+    def test_msg_participants_email_not_sent_when_participant_disables_organizer_emails(self):
+        self.participant_user.organizer_direct_message_updates = False
+        self.participant_user.save()
+
+        self.client.login(username="organizer", password="pass")
+
+        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+            resp = self.client.post(
+                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                data={"subject": "test", "body": 'Test body'}
+            )
+            self.assertEquals(resp.status_code, 200)
+
+        self.assertFalse(send_mass_email_mock.called)
+
 
 
 class AccountSettingsTests(TestCase):

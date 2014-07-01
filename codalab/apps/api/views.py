@@ -204,47 +204,51 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         status_text = str(status)
 
         if status_text == webmodels.ParticipantStatus.PENDING:
-            self._send_mail(
-                {
-                    'competition': comp
-                },
-                subject='Application to %s sent' % comp,
-                html_file="emails/notifications/participation_requested.html",
-                text_file="emails/notifications/participation_requested.txt",
-                to_email=self.request.user.email
-            )
+            if self.request.user.participation_status_updates:
+                self._send_mail(
+                    {
+                        'competition': comp
+                    },
+                    subject='Application to %s sent' % comp,
+                    html_file="emails/notifications/participation_requested.html",
+                    text_file="emails/notifications/participation_requested.txt",
+                    to_email=self.request.user.email
+                )
 
-            self._send_mail(
-                {
-                    'competition': comp,
-                    'participant': p
-                },
-                subject='%s applied to your competition' % p.user,
-                html_file="emails/notifications/organizer_participation_requested.html",
-                text_file="emails/notifications/organizer_participation_requested.txt",
-                to_email=comp.creator.email
-            )
+            if comp.creator.organizer_status_updates:
+                self._send_mail(
+                    {
+                        'competition': comp,
+                        'participant': p
+                    },
+                    subject='%s applied to your competition' % p.user,
+                    html_file="emails/notifications/organizer_participation_requested.html",
+                    text_file="emails/notifications/organizer_participation_requested.txt",
+                    to_email=comp.creator.email
+                )
         else:
-            self._send_mail(
-                {
-                    'competition': comp
-                },
-                subject='Accepted into %s!' % comp,
-                html_file="emails/notifications/participation_accepted.html",
-                text_file="emails/notifications/participation_accepted.txt",
-                to_email=self.request.user.email
-            )
+            if self.request.user.participation_status_updates:
+                self._send_mail(
+                    {
+                        'competition': comp
+                    },
+                    subject='Accepted into %s!' % comp,
+                    html_file="emails/notifications/participation_accepted.html",
+                    text_file="emails/notifications/participation_accepted.txt",
+                    to_email=self.request.user.email
+                )
 
-            self._send_mail(
-                {
-                    'competition': comp,
-                    'participant': p
-                },
-                subject='%s accepted into your competition!' % p.user,
-                html_file="emails/notifications/organizer_participation_accepted.html",
-                text_file="emails/notifications/organizer_participation_accepted.txt",
-                to_email=comp.creator.email
-            )
+            if comp.creator.organizer_status_updates:
+                self._send_mail(
+                    {
+                        'competition': comp,
+                        'participant': p
+                    },
+                    subject='%s accepted into your competition!' % p.user,
+                    html_file="emails/notifications/organizer_participation_accepted.html",
+                    text_file="emails/notifications/organizer_participation_accepted.txt",
+                    to_email=comp.creator.email
+                )
 
         return Response(json.dumps(response_data), content_type="application/json")
 
@@ -286,47 +290,51 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
             if status == webmodels.ParticipantStatus.PENDING:
                 pass
             elif status == webmodels.ParticipantStatus.APPROVED:
-                self._send_mail(
-                    {
-                        'competition': comp
-                    },
-                    subject='Accepted into %s!' % comp,
-                    html_file="emails/notifications/participation_accepted.html",
-                    text_file="emails/notifications/participation_accepted.txt",
-                    to_email=self.request.user.email
-                )
+                if self.request.user.participation_status_updates:
+                    self._send_mail(
+                        {
+                            'competition': comp
+                        },
+                        subject='Accepted into %s!' % comp,
+                        html_file="emails/notifications/participation_accepted.html",
+                        text_file="emails/notifications/participation_accepted.txt",
+                        to_email=self.request.user.email
+                    )
 
-                self._send_mail(
-                    {
-                        'competition': comp,
-                        'participant': p
-                    },
-                    subject='%s accepted into your competition!' % p.user,
-                    html_file="emails/notifications/organizer_participation_accepted.html",
-                    text_file="emails/notifications/organizer_participation_accepted.txt",
-                    to_email=comp.creator.email
-                )
+                if comp.creator.organizer_status_updates:
+                    self._send_mail(
+                        {
+                            'competition': comp,
+                            'participant': p
+                        },
+                        subject='%s accepted into your competition!' % p.user,
+                        html_file="emails/notifications/organizer_participation_accepted.html",
+                        text_file="emails/notifications/organizer_participation_accepted.txt",
+                        to_email=comp.creator.email
+                    )
             elif status == webmodels.ParticipantStatus.DENIED:
-                self._send_mail(
-                    {
-                        'competition': comp
-                    },
-                    subject='Permission revoked from %s!' % comp,
-                    html_file="emails/notifications/participation_revoked.html",
-                    text_file="emails/notifications/participation_revoked.txt",
-                    to_email=self.request.user.email
-                )
+                if self.request.user.participation_status_updates:
+                    self._send_mail(
+                        {
+                            'competition': comp
+                        },
+                        subject='Permission revoked from %s!' % comp,
+                        html_file="emails/notifications/participation_revoked.html",
+                        text_file="emails/notifications/participation_revoked.txt",
+                        to_email=self.request.user.email
+                    )
 
-                self._send_mail(
-                    {
-                        'competition': comp,
-                        'participant': p
-                    },
-                    subject="%s's permission revoked from your competition!" % p.user,
-                    html_file="emails/notifications/organizer_participation_revoked.html",
-                    text_file="emails/notifications/organizer_participation_revoked.txt",
-                    to_email=comp.creator.email
-                )
+                if comp.creator.organizer_status_updates:
+                    self._send_mail(
+                        {
+                            'competition': comp,
+                            'participant': p
+                        },
+                        subject="%s's permission revoked from your competition!" % p.user,
+                        html_file="emails/notifications/organizer_participation_revoked.html",
+                        text_file="emails/notifications/organizer_participation_revoked.txt",
+                        to_email=comp.creator.email
+                    )
 
         except ObjectDoesNotExist as e:
             resp = {

@@ -12,6 +12,8 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
+from django.template import Context
+from django.template.loader import render_to_string
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -436,19 +438,6 @@ def evaluate_submission(submission_id, is_scoring_only):
 
 def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
                         connection=None):
-    """
-    Given a datatuple of (subject, text_content, html_content, from_email,
-    recipient_list), sends each message to each recipient list. Returns the
-    number of emails sent.
-
-    If from_email is None, the DEFAULT_FROM_EMAIL setting is used.
-    If auth_user and auth_password are set, they're used to log in.
-    If auth_user is None, the EMAIL_HOST_USER setting is used.
-    If auth_password is None, the EMAIL_HOST_PASSWORD setting is used.
-
-    Thanks to semente @ StackOverflow:
-    http://stackoverflow.com/questions/7583801/send-mass-emails-with-emailmultialternatives
-    """
     connection = connection or get_connection(
         username=user, password=password, fail_silently=fail_silently
     )
@@ -469,14 +458,13 @@ def send_mass_email_task(job_id, task_args):
     to_emails = task_args["to_emails"]
 
 
-    # generate html pass body as context body!!!
+    context = Context({"body": body})
+    text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
+    html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
-    # generate text (strip html tags????)
+    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
-
-    #mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
-
-    #_send_mass_html_mail(mail_tuples)
+    _send_mass_html_mail(mail_tuples)
 
 
 def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
