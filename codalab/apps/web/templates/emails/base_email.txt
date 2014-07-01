@@ -15,3 +15,6 @@ CodaLab Team
 Unsubscribe or manage notification settings -> http://{{ site.domain }}/{% url 'user_settings' %}/
 
 Privacy policy -> http://codalab.github.io/codalab/notices.html
+
+The Outercurve Foundation
+401 Edgewater Place, Suite 600, Wakefield, MA 01880
