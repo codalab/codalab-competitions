@@ -125,16 +125,21 @@ def competition_message_participants(request, competition_id):
             status=400
         )
 
-    emails = [p.user.email for p in models.CompetitionParticipant.objects.filter(competition=competition)]
+    participants = models.CompetitionParticipant.objects.filter(
+        competition=competition,
+        user__organizer_direct_message_updates=True
+    )
+    emails = [p.user.email for p in participants]
     subject = request.POST.get('subject')
     body = strip_tags(request.POST.get('body'))
 
-    tasks.send_mass_email(
-        subject=subject,
-        body=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to_emails=emails
-    )
+    if len(emails) > 0:
+        tasks.send_mass_email(
+            subject=subject,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to_emails=emails
+        )
 
     return HttpResponse(status=200)
 

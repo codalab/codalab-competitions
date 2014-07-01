@@ -204,19 +204,17 @@ class ParticipationStatusEmails(TestCase):
         self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
 
     def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
-        pass
+        self.participant_user.participation_status_updates = False
+        self.participant_user.save()
 
-    def test_competition_organizer_email_not_sent_when_participant_disables_organizer_emails(self):
-        pass
+        self._participant_join_competition()
+
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
-        pass
+        self.organizer_user.organizer_status_updates = False
+        self.organizer_user.save()
 
-    def test_organizer_can_email_all_participants_in_competition(self):
-        pass
+        self._participant_join_competition()
 
-    def test_organizer_email_contains_needed_elements(self):
-        # unsubscribe link
-        # privacy policy
-        pass
-
+        self.assertEqual(len(mail.outbox), 1)
