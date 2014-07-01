@@ -1,11 +1,11 @@
 {% extends 'emails/base_email.txt' %}
 
 {% block title %}
-    This is a message from the organizer for the competition:
-    {{ competition }} -> {{ competition.get_absolute_url }}
+This is a message from the organizer for the competition:
+{{ competition }} -> {{ competition.get_absolute_url }}
 {% endblock %}
 
 {% block content %}
-    Message:
-    {{ body }}
+Message:
+{{ body }}
 {% endblock %}
