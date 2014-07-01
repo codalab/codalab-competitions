@@ -5,6 +5,7 @@ import json
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -600,7 +601,7 @@ class WorksheetDetailView(TemplateView):
 
 
 @login_required
-def settings(request):
+def user_settings(request):
     if request.method == "POST":
         fields = [
             'participation_status_updates',

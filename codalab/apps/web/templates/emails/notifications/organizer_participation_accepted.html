@@ -1,7 +1,7 @@
 {% extends 'emails/base_email.html' %}
 
 {% block content %}
-    <p>The user {{ participant.user }} was revoked permission from your competition:</p>
+    <p>The user {{ participant.user }} was accepted into your competition:</p>
     <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
 
     <a href="{% url 'my_competition_participants' competition_id=competition.pk %}">Manage participants</a>

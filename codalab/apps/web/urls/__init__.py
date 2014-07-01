@@ -51,4 +51,25 @@ if settings.DEBUG:
                 "site": Site.objects.get_current()
             }
         )),
+        (r'^email_view/participation_revoked/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/participation_revoked.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/organizer_participation_requested/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/organizer_participation_requested.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/organizer_participation_revoked/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/organizer_participation_revoked.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
     )
