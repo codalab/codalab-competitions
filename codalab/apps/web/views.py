@@ -328,6 +328,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for participant in competition_participants:
             participant_entry = {
+                'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
                 'status': participant.status.codename,
