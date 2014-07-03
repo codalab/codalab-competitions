@@ -23,7 +23,7 @@
                 <div class="large-8 push-4 columns process_participant_request">
                     <form class="custom process_request" id="process_request_{{item.id}}">
                         {% csrf_token %}
-                        <input type="hidden" name="participant_id" value="{{item.id}}"/> 
+                        <input type="hidden" name="participant_id" value="{{item.id}}"/>
                         <div class="row">
                         <div class="small-8 push-4 columns">
                             <label for="reason">Reason:</label>
@@ -56,7 +56,7 @@
 		            </p>
                 </div>
             </div>
-        </div>               
+        </div>
         {% endfor %}
         <table class="resultsTable dataTable">
             <thead>
@@ -74,7 +74,13 @@
                 {% for participant in participant_list %}
                 <tr>
                     {% for column in columns %}
-                    <td>{{participant|get_item:column.name}}</td>
+                    <td>
+                        {{ participant|get_item:column.name }}
+
+                        {% if column.label == "STATUS" and participant.status == "approved" %}
+                            <div class="revoke_button button" participant_id="{{ participant.pk }}">Revoke</div>
+                        {% endif %}
+                    </td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -86,6 +92,30 @@
 {% endblock %}
 
 {% block js %}
+$(".revoke_button").click(function() {
+    if(confirm("Really revoke privileges?")) {
+        var status = "denied";
+        var reason = "";
+        var participant_id = $(this).attr('participant_id');
+
+        $.post(
+            "{% url "competition-participation-status" pk=competition_id %}",
+            {
+                status: status,
+                reason: reason,
+                participant_id: participant_id
+            })
+        .error(function() {
+            alert("Error revoking privileges");
+        })
+        .success(function() {
+            var button = $(".revoke_button[participant_id='" + participant_id + "']");
+            button.hide();
+            button.parent().html('denied')
+        });
+    }
+});
+
 /* $("#process_request").validate(); */
 
 var ParticipateStatusText = { 'approved': 'Participation Approved',
@@ -117,18 +147,18 @@ $("form").submit(function(event) {
         success: function(response, textStatus, jqXHR) {
             $('#'+fid).remove();
             var data = $.parseJSON(response);
-         
+
             var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
-           
-           
+
+
             pid.text(ParticipateStatusText[data.status]);
-          
+
             if(data.reason) {
                var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
-             
+
                pid.append(reasontext);
            }
-             
+
         },
         error: function(jsXHR, textStatus, errorThrown) {
             alert("There was a problem processing this request for this competition.");;
