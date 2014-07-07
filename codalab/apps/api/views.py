@@ -23,6 +23,7 @@ from django.utils.decorators import method_decorator
 from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 
 from apps.authenz.models import ClUser
 from apps.jobs.models import Job
@@ -172,6 +173,11 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
     def _send_mail(self, context_data, from_email=None, html_file=None, text_file=None, subject=None, to_email=None):
         from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
+
+        context_data["site"] = Site.objects.get_current()
+
+        print context_data
+        print "site in there"
 
         context = Context(context_data)
         text = render_to_string(text_file, context)

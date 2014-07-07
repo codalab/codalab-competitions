@@ -12,7 +12,7 @@ Thanks,
 CodaLab Team
 
 
-Unsubscribe or manage notification settings -> http://{{ site.domain }}/{% url 'user_settings' %}/
+Unsubscribe or manage notification settings -> http://{{ site.domain }}{% url 'user_settings' %}
 
 Privacy policy -> http://codalab.github.io/codalab/notices.html
 

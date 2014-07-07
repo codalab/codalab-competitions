@@ -14,6 +14,7 @@ from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
 from django.template import Context
 from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
@@ -452,13 +453,13 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
 
 
 def send_mass_email_task(job_id, task_args):
+    competition = task_args["competition"]
     body = task_args["body"]
     subject = task_args["subject"]
     from_email = task_args["from_email"]
     to_emails = task_args["to_emails"]
 
-
-    context = Context({"body": body})
+    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
 
@@ -467,8 +468,9 @@ def send_mass_email_task(job_id, task_args):
     _send_mass_html_mail(mail_tuples)
 
 
-def send_mass_email(body=None, subject=None, from_email=None, to_emails=None):
+def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
     task_args = {
+        "competition": competition,
         "body": body,
         "subject": subject,
         "from_email": from_email,

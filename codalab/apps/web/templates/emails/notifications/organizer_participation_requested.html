@@ -2,7 +2,7 @@
 
 {% block content %}
     <p>The user {{ participant.user }}requested access into your competition:</p>
-    <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+    <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
-    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}">Manage participants</a>
+    <a href="http://{{ site.domain }}{% url 'my_competition_participants' competition_id=competition.pk %}">Manage participants</a>
 {% endblock %}

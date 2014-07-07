@@ -2,7 +2,7 @@
 
 {% block content %}
 This is a message updating your access to the competition:
-{{ competition }} -> {{ competition.get_absolute_url }}
+{{ competition }} -> http://{{ site.domain }}{{ competition.get_absolute_url }}
 
 Your status has been revoked.
 

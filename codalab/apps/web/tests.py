@@ -477,6 +477,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             self.assertEquals(resp.status_code, 200)
 
         send_mass_email_mock.assert_called_with(
+            self.competition,
             body=u'Injected!', # <script> tag was removed!
             subject=u'test',
             to_emails=[self.participant_user.email],
@@ -546,8 +547,13 @@ class AccountSettingsTests(TestCase):
 
 class SendMassEmailTests(TestCase):
 
+    def setUp(self):
+        self.user = User.objects.create_user(username="user", password="pass", email="user@test.com")
+        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+
     def test_send_mass_email_works(self):
         task_args = {
+            "competition": self.competition,
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
@@ -556,6 +562,21 @@ class SendMassEmailTests(TestCase):
         tasks.send_mass_email_task(1, task_args)
 
         self.assertEquals(len(mail.outbox), 10)
+
+    def test_send_mass_email_has_valid_links(self):
+
+        task_args = {
+            "competition": self.competition,
+            "body": "Body",
+            "subject": "Subject",
+            "from_email": "no-reply@test.com",
+            "to_emails": ["test@test.com"]
+        }
+        tasks.send_mass_email_task(1, task_args)
+
+        m = mail.outbox[0]
+        self.assertIn("http://example.com/my/settings", m.body)
+        self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
 
 
 class CompetitionDeleteTests(CompetitionTest):

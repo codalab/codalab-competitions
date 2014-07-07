@@ -146,6 +146,13 @@ class ParticipationStatusEmailTests(TestCase):
         self.assertIn('Application to Test Competition sent', subjects)
         self.assertIn('%s applied to your competition' % self.participant_user, subjects)
 
+    def test_participation_update_emails_contain_valid_links(self):
+        self._participant_join_competition()
+
+        for m in mail.outbox:
+            self.assertIn("http://example.com/my/settings", m.body)
+            self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+
     def test_attempting_to_join_competition_auto_approved_sends_emails(self):
         resp = self._participant_join_competition()
 
