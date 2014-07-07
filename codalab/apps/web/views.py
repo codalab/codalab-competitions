@@ -170,6 +170,7 @@ def competition_message_participants(request, competition_id):
 
     if len(emails) > 0:
         tasks.send_mass_email(
+            competition,
             subject=subject,
             body=body,
             from_email=settings.DEFAULT_FROM_EMAIL,

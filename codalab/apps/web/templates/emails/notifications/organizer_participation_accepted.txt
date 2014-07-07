@@ -2,7 +2,7 @@
 
 {% block content %}
 The user {{ participant.user }} was accepted into your competition:
-{{ competition }} -> {{ competition.get_absolute_url }}
+{{ competition }} -> http://{{ site.domain }}{{ competition.get_absolute_url }}
 
 Manage participants -> {% url 'my_competition_participants' competition_id=competition.pk %}
 {% endblock %}

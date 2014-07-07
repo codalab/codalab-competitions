@@ -2,7 +2,7 @@
 
 {% block content %}
     <p>This is a message updating your access to the competition:</p>
-    <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+    <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
 
     <p>Your status has been accepted!</p>
 

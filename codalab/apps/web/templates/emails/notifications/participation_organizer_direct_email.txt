@@ -2,7 +2,7 @@
 
 {% block title %}
 This is a message from the organizer for the competition:
-{{ competition }} -> {{ competition.get_absolute_url }}
+{{ competition }} -> http://{{ site.domain }}{{ competition.get_absolute_url }}
 {% endblock %}
 
 {% block content %}
