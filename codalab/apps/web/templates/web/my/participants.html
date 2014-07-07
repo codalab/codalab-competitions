@@ -116,8 +116,7 @@
         if(confirm("Really revoke privileges?")) {
             var status = "denied";
             var reason = "";
-            var participant_id = 'test ';
-            $(this).attr('participant_id');
+            var participant_id = $(this).attr('participant_id');
 
             $.post(
                 "{% url "competition-participation-status" pk=competition_id %}",
