@@ -93,7 +93,13 @@
                 {% for participant in participant_list %}
                 <tr>
                     {% for column in columns %}
-                    <td>{{participant|get_item:column.name}}</td>
+                    <td>
+                        {{ participant|get_item:column.name }}
+
+                        {% if column.label == "STATUS" and participant.status == "approved" %}
+                            <div class="revoke_button button" participant_id="{{ participant.pk }}">Revoke</div>
+                        {% endif %}
+                    </td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
@@ -105,6 +111,33 @@
 {% endblock %}
 
 {% block js %}
+
+    $(".revoke_button").click(function() {
+        if(confirm("Really revoke privileges?")) {
+            var status = "denied";
+            var reason = "";
+            var participant_id = 'test ';
+            $(this).attr('participant_id');
+
+            $.post(
+                "{% url "competition-participation-status" pk=competition_id %}",
+                {
+                    status: status,
+                    reason: reason,
+                    participant_id: participant_id
+                })
+            .error(function() {
+                alert("Error revoking privileges");
+            })
+            .success(function() {
+                var button = $(".revoke_button[participant_id='" + participant_id + "']");
+                button.hide();
+                button.parent().html('denied')
+            });
+        }
+    });
+
+
     /* $("#process_request").validate(); */
 
     var ParticipateStatusText = { 'approved': 'Participation Approved',
