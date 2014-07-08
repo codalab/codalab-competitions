@@ -58,6 +58,25 @@
             </div>
         </div>
         {% endfor %}
+
+        <div class="large-12">
+            <a href="#" data-reveal-id="myModal" class="button">Send message to all participants?</a>
+
+            <div id="myModal" class="reveal-modal" data-reveal>
+                <h2>Email Participants</h2>
+                <a class="close-reveal-modal">&#215;</a>
+
+                <form>
+                    <input id="subject_input" type="text" placeholder="Subject">
+
+                    <textarea id="message_textarea" placeholder="Message"></textarea>
+                </form>
+
+                <a id="direct_message_participants_button" class="button">Send</a>
+                <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
+            </div>
+        </div>
+
         <table class="resultsTable dataTable">
             <thead>
                 <tr>
@@ -92,77 +111,106 @@
 {% endblock %}
 
 {% block js %}
-$(".revoke_button").click(function() {
-    if(confirm("Really revoke privileges?")) {
-        var status = "denied";
-        var reason = "";
-        var participant_id = $(this).attr('participant_id');
 
-        $.post(
-            "{% url "competition-participation-status" pk=competition_id %}",
-            {
-                status: status,
-                reason: reason,
-                participant_id: participant_id
+    $(".revoke_button").click(function() {
+        if(confirm("Really revoke privileges?")) {
+            var status = "denied";
+            var reason = "";
+            var participant_id = $(this).attr('participant_id');
+
+            $.post(
+                "{% url "competition-participation-status" pk=competition_id %}",
+                {
+                    status: status,
+                    reason: reason,
+                    participant_id: participant_id
+                })
+            .error(function() {
+                alert("Error revoking privileges");
             })
-        .error(function() {
-            alert("Error revoking privileges");
-        })
-        .success(function() {
-            var button = $(".revoke_button[participant_id='" + participant_id + "']");
-            button.hide();
-            button.parent().html('denied')
-        });
-    }
-});
-
-/* $("#process_request").validate(); */
-
-var ParticipateStatusText = { 'approved': 'Participation Approved',
-                              'denied': 'Participation Denied',
-                              'pending': 'Participation Pending',
-                              'unknown': 'Unknown' };
-var ParticipationReasonStyle = {'denied': 'color:red',
-                                'unknown': '',
-                                'pending': '',
-                                'approved': '' };
-
-/* attach a submit handler to the form */
-$("form").submit(function(event) {
-
-    /* stop form from submitting normally */
-    event.preventDefault();
-
-    /* get some values from elements on the page: */
-    var values = $(this).serialize();
-    var fid = $(this).attr('id');
-
-    /* Send the data using post and put the results in a div */
-    request = $.ajax({
-        url: "/api/competition/{{competition_id}}/participation_status/",
-        type: "post",
-        dataType: "json",
-        accept: {'json': "application/json" },
-        data: values,
-        success: function(response, textStatus, jqXHR) {
-            $('#'+fid).remove();
-            var data = $.parseJSON(response);
-
-            var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
-
-
-            pid.text(ParticipateStatusText[data.status]);
-
-            if(data.reason) {
-               var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
-
-               pid.append(reasontext);
-           }
-
-        },
-        error: function(jsXHR, textStatus, errorThrown) {
-            alert("There was a problem processing this request for this competition.");;
+            .success(function() {
+                var button = $(".revoke_button[participant_id='" + participant_id + "']");
+                button.hide();
+                button.parent().html('denied')
+            });
         }
     });
-});
+
+
+    /* $("#process_request").validate(); */
+
+    var ParticipateStatusText = { 'approved': 'Participation Approved',
+                                  'denied': 'Participation Denied',
+                                  'pending': 'Participation Pending',
+                                  'unknown': 'Unknown' };
+    var ParticipationReasonStyle = {'denied': 'color:red',
+                                    'unknown': '',
+                                    'pending': '',
+                                    'approved': '' };
+
+    /* attach a submit handler to the form */
+    $("form").submit(function(event) {
+
+        /* stop form from submitting normally */
+        event.preventDefault();
+
+        /* get some values from elements on the page: */
+        var values = $(this).serialize();
+        var fid = $(this).attr('id');
+
+        /* Send the data using post and put the results in a div */
+        request = $.ajax({
+            url: "/api/competition/{{competition_id}}/participation_status/",
+            type: "post",
+            dataType: "json",
+            accept: {'json': "application/json" },
+            data: values,
+            success: function(response, textStatus, jqXHR) {
+                $('#'+fid).remove();
+                var data = $.parseJSON(response);
+
+                var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+
+
+                pid.text(ParticipateStatusText[data.status]);
+
+                if(data.reason) {
+                   var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
+
+                   pid.append(reasontext);
+               }
+
+            },
+            error: function(jsXHR, textStatus, errorThrown) {
+                alert("There was a problem processing this request for this competition.");;
+            }
+        });
+    });
+
+
+    // Send email to participants
+    $('#direct_message_participants_button').click(function() {
+        var subject = $("#subject_input").val();
+        var body = $("#message_textarea").val();
+
+        if(subject && body) {
+            $('#direct_message_participants_button').text('Sending...').addClass('disabled')
+
+            $.post(
+                "{% url 'competitions:competition_message_participants' competition_id=competition_id %}",
+                {subject: subject, body: body}
+            )
+            .error(function() {
+                alert("Error sending email");
+                $('#direct_message_participants_button').text('Send').removeClass('disabled');
+            })
+            .success(function() {
+                $('a.close-reveal-modal').trigger('click');
+                $('#direct_message_participants_button').text('Send').removeClass('disabled');
+            });
+        } else {
+            alert("Please enter a subject and a message!");
+        }
+    });
+
 {% endblock js %}

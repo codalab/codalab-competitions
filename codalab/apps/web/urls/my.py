@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
+
 from apps.web import views
 
 partials_patterns = patterns(
@@ -28,4 +29,5 @@ urlpatterns = patterns(
         views.MyCompetitionSubmisisonOutput.as_view(),
         name='my_competition_output'),
     url(r'^_partials/', include(partials_patterns)),
+    url(r'^settings/', views.user_settings, name='user_settings')
 )

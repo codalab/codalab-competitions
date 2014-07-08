@@ -24,6 +24,7 @@ from configurations import importer
 importer.install()
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 
 from apps.web.models import *
@@ -107,8 +108,126 @@ class CompetitionsPhase(TestCase):
 # The new one should be in the list and have the published flag set to true
 # Check turning off works
 
+class ParticipationStatusEmailTests(TestCase):
 
-class ParticipationStatusTests(TestCase):
+    def _participant_join_competition(self, cleanup_email=False):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+        self.client.logout()
+
+        if cleanup_email:
+            mail.outbox = []
+
+        return resp
+
+    def setUp(self):
+        statuses = ['unknown', 'denied', 'approved', 'pending']
+        for s in statuses:
+            ParticipantStatus.objects.get_or_create(name=s, codename=s)
+
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
+
+    def test_attempting_to_join_competition_sends_emails(self):
+        # Require approval
+        self.competition.has_registration = True
+        self.competition.save()
+
+        resp = self._participant_join_competition()
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Application to Test Competition sent', subjects)
+        self.assertIn('%s applied to your competition' % self.participant_user, subjects)
+
+    def test_participation_update_emails_contain_valid_links(self):
+        self._participant_join_competition()
+
+        for m in mail.outbox:
+            self.assertIn("http://example.com/my/settings", m.body)
+            self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+
+    def test_attempting_to_join_competition_auto_approved_sends_emails(self):
+        resp = self._participant_join_competition()
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Accepted into Test Competition!', subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+
+    def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
+        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 403)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_participation_status_update_approved_sends_email(self):
+        self._participant_join_competition(cleanup_email=True)
+
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": "approved",
+                "participant_id": participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Accepted into %s!' % self.competition, subjects)
+        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+
+    def test_participation_status_update_revoked_sends_email(self):
+        self._participant_join_competition(cleanup_email=True)
+
+        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": "denied",
+                "participant_id": participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+
+        subjects = [m.subject for m in mail.outbox]
+        self.assertIn('Permission revoked from Test Competition!', subjects)
+        self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
+
+    def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
+        self.participant_user.participation_status_updates = False
+        self.participant_user.save()
+
+        self._participant_join_competition()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
+        self.organizer_user.organizer_status_updates = False
+        self.organizer_user.save()
+
+        self._participant_join_competition()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+
+class ParticipationStatusPermissionsTests(TestCase):
 
     def setUp(self):
         statuses = ['unknown', 'denied', 'approved', 'pending']
