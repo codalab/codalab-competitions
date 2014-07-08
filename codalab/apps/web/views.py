@@ -15,7 +15,7 @@ from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 
 from apps.web import models
 from apps.web import forms
@@ -595,3 +595,7 @@ class WorksheetDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
+
+
+def my_datasets(request):
+    return render(request, "web/my/datasets.html")
