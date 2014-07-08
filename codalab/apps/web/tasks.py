@@ -454,7 +454,7 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
 
 
 def send_mass_email_task(job_id, task_args):
-    competition = Competition.object.get(pk=task_args["competition_pk"])
+    competition = Competition.objects.get(pk=task_args["competition_pk"])
     body = task_args["body"]
     subject = task_args["subject"]
     from_email = task_args["from_email"]
