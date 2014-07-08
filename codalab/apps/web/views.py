@@ -1,9 +1,11 @@
 import datetime
 import StringIO
 import csv
+import json
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -13,6 +15,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, render
@@ -134,6 +137,47 @@ class CompetitionDelete(LoginRequiredMixin, DeleteView):
         success_url = self.get_success_url()
         self.object.delete()
         return HttpResponseRedirect(success_url)
+
+
+@login_required
+def competition_message_participants(request, competition_id):
+    if request.method != "POST":
+        return HttpResponse(status=400)
+
+    try:
+        competition = models.Competition.objects.get(pk=competition_id)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+
+    if competition.creator != request.user:
+        return HttpResponse(status=403)
+
+    if "subject" not in request.POST and "body" not in request.POST:
+        return HttpResponse(
+            json.dumps({
+                "error": "Missing subject or body of message!"
+            }),
+            status=400
+        )
+
+    participants = models.CompetitionParticipant.objects.filter(
+        competition=competition,
+        user__organizer_direct_message_updates=True
+    )
+    emails = [p.user.email for p in participants]
+    subject = request.POST.get('subject')
+    body = strip_tags(request.POST.get('body'))
+
+    if len(emails) > 0:
+        tasks.send_mass_email(
+            competition,
+            subject=subject,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to_emails=emails
+        )
+
+    return HttpResponse(status=200)
 
 
 class CompetitionDetailView(DetailView):
@@ -328,6 +372,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for participant in competition_participants:
             participant_entry = {
+                'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
                 'status': participant.status.codename,
@@ -596,6 +641,34 @@ class WorksheetDetailView(TemplateView):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
 
-
+@login_required
 def my_datasets(request):
     return render(request, "web/my/datasets.html")
+
+
+@login_required
+def user_settings(request):
+    if request.method == "POST":
+        fields = [
+            'participation_status_updates',
+            'organizer_status_updates',
+            'organizer_direct_message_updates'
+        ]
+
+        for f in fields:
+            if f not in request.POST:
+                return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        for f in fields:
+            value = request.POST.get(f)
+
+            bool_value = True if value == "true" else False
+            #try:
+            setattr(request.user, f, bool_value)
+            #except:
+            #    return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        request.user.save()
+        return render(request, "web/my/settings.html", {"saved_successfully": True})
+
+    return render(request, "web/my/settings.html")
