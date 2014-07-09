@@ -1190,6 +1190,31 @@ class PhaseLeaderBoardEntry(models.Model):
     class Meta:
         unique_together = (('board', 'result'),)
 
+
+def dataset_data_file(dataset, filename="data.zip"):
+    return os.path.join("datasets", dataset.pk, filename)
+
+
+class OrganizerDataSet(models.Model):
+    TYPES = (
+        ("Reference Data", "Reference Data"),
+        ("Scoring Program", "Scoring Program",),
+        ("Input Data", "Input Data"),
+        ("None", "None")
+    )
+
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=64, choices=TYPES, default="None")
+    description = models.TextField(null=True, blank=True)
+    data_file = reference_data = models.FileField(
+        upload_to=dataset_data_file,
+        storage=BundleStorage,
+        verbose_name="Data File"
+    )
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+
+
 def add_submission_to_leaderboard(submission):
     """
     Adds the given submission to its leaderboard. It is the caller responsiblity to make

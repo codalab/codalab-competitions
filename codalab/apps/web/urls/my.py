@@ -29,7 +29,9 @@ urlpatterns = patterns(
         views.MyCompetitionSubmisisonOutput.as_view(),
         name='my_competition_output'),
     url(r'^_partials/', include(partials_patterns)),
-    url(r'^datasets/$', views.my_datasets, name='my_datasets'),
-    url(r'^datasets/create', views.my_datasets_create, name='my_datasets_create'),
+    url(r'^datasets/$', views.OrganizerDataSetListView.as_view(), name='my_datasets'),
+    url(r'^datasets/create', views.OrganizerDataSetCreate.as_view(), name='my_datasets_create'),
+    #url(r'^datasets/$', views.my_datasets, name='my_datasets'),
+    #url(r'^datasets/create', views.my_datasets_create, name='my_datasets_create'),
     url(r'^settings/', views.user_settings, name='user_settings')
 )
