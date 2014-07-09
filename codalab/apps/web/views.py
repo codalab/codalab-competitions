@@ -666,15 +666,36 @@ class OrganizerDataSetListView(ListView):
         return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
 
 
-class OrganizerDataSetCreate(CreateView):
+class OrganizerDataSetBaseMixin(object):
     model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
     template_name = "web/my/datasets_create.html"
-    #success_url = reverse("my_datasets")
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetBaseMixin, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetCreate(OrganizerDataSetBaseMixin, CreateView):
+    model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
+    template_name = "web/my/datasets_create.html"
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
-        #kwargs['user'] = self.request.user
+        kwargs['user'] = self.request.user
         return kwargs
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetUpdate(OrganizerDataSetBaseMixin, UpdateView):
+    pass
 
 
 @login_required

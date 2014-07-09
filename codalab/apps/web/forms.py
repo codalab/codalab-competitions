@@ -44,14 +44,14 @@ class OrganizerDataSetModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
-
-        print 'afhwehawhefh'
-
         super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         instance = super(OrganizerDataSetModelForm, self).save(commit=False)
         instance.uploaded_by = self._user
+
+        #import ipdb;ipdb.set_trace()
+
         if commit:
             instance.save()
             self.save_m2m()
