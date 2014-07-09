@@ -553,7 +553,7 @@ class SendMassEmailTests(TestCase):
 
     def test_send_mass_email_works(self):
         task_args = {
-            "competition": self.competition,
+            "competition_pk": self.competition.pk,
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
@@ -566,7 +566,7 @@ class SendMassEmailTests(TestCase):
     def test_send_mass_email_has_valid_links(self):
 
         task_args = {
-            "competition": self.competition,
+            "competition_pk": self.competition.pk,
             "body": "Body",
             "subject": "Subject",
             "from_email": "no-reply@test.com",
