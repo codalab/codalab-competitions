@@ -654,7 +654,7 @@ def my_datasets_create(request):
     if form:
         print 'weee'
 
-    return render(request, "web/my/datasets_create.html", {"form": form})
+    return render(request, "web/my/datasets_form.html", {"form": form})
 '''
 
 
@@ -666,13 +666,13 @@ class OrganizerDataSetListView(ListView):
         return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
 
 
-class OrganizerDataSetBaseMixin(object):
+class OrganizerDataSetFormMixin(object):
     model = models.OrganizerDataSet
     form_class = forms.OrganizerDataSetModelForm
-    template_name = "web/my/datasets_create.html"
+    template_name = "web/my/datasets_form.html"
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(OrganizerDataSetBaseMixin, self).get_form_kwargs(**kwargs)
+        kwargs = super(OrganizerDataSetFormMixin, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -680,10 +680,10 @@ class OrganizerDataSetBaseMixin(object):
         return reverse("my_datasets")
 
 
-class OrganizerDataSetCreate(OrganizerDataSetBaseMixin, CreateView):
+class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
     model = models.OrganizerDataSet
     form_class = forms.OrganizerDataSetModelForm
-    template_name = "web/my/datasets_create.html"
+    template_name = "web/my/datasets_form.html"
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
@@ -694,8 +694,9 @@ class OrganizerDataSetCreate(OrganizerDataSetBaseMixin, CreateView):
         return reverse("my_datasets")
 
 
-class OrganizerDataSetUpdate(OrganizerDataSetBaseMixin, UpdateView):
+class OrganizerDataSetUpdate(OrganizerDataSetFormMixin, UpdateView):
     pass
+    #form_class = forms.OrganizerDataSetModelUpdateForm
 
 
 @login_required
