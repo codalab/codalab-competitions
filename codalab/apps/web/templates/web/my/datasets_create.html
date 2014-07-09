@@ -13,6 +13,12 @@
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
+        <style>
+            .error {
+                color: red;
+            }
+        </style>
+
         <!--
         <form action="." method="POST">
             <input type="text" placeholder="Name">
@@ -22,7 +28,7 @@
             <input type="submit" value="Upload" class="button">
         </form>
         -->
-        <form action="." method="POST" enctype="multipart/form-data">
+        <form action="{% url "my_datasets_create" %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <fieldset>
@@ -31,9 +37,11 @@
                 {% for field in form %}
                     <div class="fieldWrapper">
                         <div class="row">
-                            {{ field.errors }}
-                            <div class="large-3 columns">
+
+                            <div class="large-3 columns {% if field.errors %}error{% endif %}">
+
                                 <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
+                                {{ field.errors }}
                             </div>
                             <div class="large-9 columns">
                                 {{ field }}

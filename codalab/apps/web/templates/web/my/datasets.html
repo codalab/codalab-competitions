@@ -18,6 +18,7 @@
         <table width="100%">
             <thead>
                 <tr>
+                    <th width="100">Actions</th>
                     <th>Name</th>
                     <th>Description</th>
                     <th>Type</th>
@@ -25,12 +26,15 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Example</td>
-                    <td>An example dataset</td>
-                    <td>Reference Data</td>
-                    <td>file-name-2313123122-32j4</td>
-                </tr>
+                {% for dataset in object_list %}
+                    <tr>
+                        <td><a href="">DEL</a> / <a href="{% url "my_datasets_update" pk=dataset.pk %}">EDIT</a>?</td>
+                        <td>{{ dataset.name }}</td>
+                        <td>{{ dataset.description }}</td>
+                        <td>{{ dataset.type }}</td>
+                        <td>{{ dataset.uuid }}</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

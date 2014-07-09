@@ -10,6 +10,7 @@ import tempfile
 import datetime
 import django.dispatch
 import time
+import uuid
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
@@ -1192,7 +1193,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", dataset.pk, filename)
+    return os.path.join("datasets", str(uuid.uuid4()), filename)
 
 
 class OrganizerDataSet(models.Model):
@@ -1202,11 +1203,10 @@ class OrganizerDataSet(models.Model):
         ("Input Data", "Input Data"),
         ("None", "None")
     )
-
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=64, choices=TYPES, default="None")
     description = models.TextField(null=True, blank=True)
-    data_file = reference_data = models.FileField(
+    data_file = models.FileField(
         upload_to=dataset_data_file,
         storage=BundleStorage,
         verbose_name="Data File"
