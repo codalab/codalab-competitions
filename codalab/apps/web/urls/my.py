@@ -32,7 +32,5 @@ urlpatterns = patterns(
     url(r'^datasets/$', views.OrganizerDataSetListView.as_view(), name='my_datasets'),
     url(r'^datasets/create', views.OrganizerDataSetCreate.as_view(), name='my_datasets_create'),
     url(r'^datasets/update/(?P<pk>\d+)', views.OrganizerDataSetUpdate.as_view(), name='my_datasets_update'),
-    #url(r'^datasets/$', views.my_datasets, name='my_datasets'),
-    #url(r'^datasets/create', views.my_datasets_create, name='my_datasets_create'),
     url(r'^settings/', views.user_settings, name='user_settings')
 )
