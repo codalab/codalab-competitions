@@ -28,7 +28,7 @@
             <tbody>
                 {% for dataset in object_list %}
                     <tr>
-                        <td><a href="">DEL</a> / <a href="{% url "my_datasets_update" pk=dataset.pk %}">EDIT</a>?</td>
+                        <td><a href="">DEL</a> / <a href="{% url "my_datasets_update" pk=dataset.pk %}">EDIT</a></td>
                         <td>{{ dataset.name }}</td>
                         <td>{{ dataset.description }}</td>
                         <td>{{ dataset.type }}</td>
