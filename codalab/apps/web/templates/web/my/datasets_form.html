@@ -51,7 +51,7 @@
                 {% endfor %}
             </fieldset>
 
-            <input type="submit" value="Upload" class="button">
+            <input type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button">
         </form>
     </div>
 </div>
