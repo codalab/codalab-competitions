@@ -35,3 +35,22 @@ class CompetitionDatasetForm(forms.ModelForm):
 class CompetitionParticipantForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionParticipant
+
+
+class OrganizerDataSetModelForm(forms.ModelForm):
+    class Meta:
+        model = models.OrganizerDataSet
+        fields = ["name", "description", "type", "data_file"]
+
+    def __init__(self, user=None, *args, **kwargs):
+        self._user = kwargs.pop('user')
+
+        super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super(OrganizerDataSetModelForm, self).save(commit=False)
+        instance.uploaded_by = self._user
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance

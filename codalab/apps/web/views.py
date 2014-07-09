@@ -641,6 +641,7 @@ class WorksheetDetailView(TemplateView):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
 
+'''
 @login_required
 def my_datasets(request):
     return render(request, "web/my/datasets.html")
@@ -648,7 +649,32 @@ def my_datasets(request):
 
 @login_required
 def my_datasets_create(request):
-    return render(request, "web/my/datasets_create.html")
+    form = forms.OrganizerDataSetModelForm(request.POST)
+
+    if form:
+        print 'weee'
+
+    return render(request, "web/my/datasets_create.html", {"form": form})
+'''
+
+
+class OrganizerDataSetListView(ListView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets.html"
+
+    def get_queryset(self):
+        return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
+
+
+class OrganizerDataSetCreate(CreateView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets_create.html"
+    #success_url = reverse("my_datasets")
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 @login_required
