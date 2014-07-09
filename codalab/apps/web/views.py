@@ -673,7 +673,7 @@ class OrganizerDataSetCreate(CreateView):
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
-        kwargs['user'] = self.request.user
+        #kwargs['user'] = self.request.user
         return kwargs
 
 

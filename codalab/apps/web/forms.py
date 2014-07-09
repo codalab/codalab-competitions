@@ -42,8 +42,10 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         model = models.OrganizerDataSet
         fields = ["name", "description", "type", "data_file"]
 
-    def __init__(self, user=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
+
+        print 'afhwehawhefh'
 
         super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
 
