@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block page_title %}Dataset Creation{% endblock page_title %}
+{% block head_title %}Dataset Creation{% endblock %}
+
+{% block extra_head %}
+{# include extra JS stuff here #}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="large-12 columns">
+        <form action="." method="POST">
+            <input type="text" placeholder="Name">
+            <textarea placeholder="Description"></textarea>
+            <input type="file">
+
+            <input type="submit" value="Upload" class="button">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock js %}
