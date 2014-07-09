@@ -647,6 +647,11 @@ def my_datasets(request):
 
 
 @login_required
+def my_datasets_create(request):
+    return render(request, "web/my/datasets_create.html")
+
+
+@login_required
 def user_settings(request):
     if request.method == "POST":
         fields = [
