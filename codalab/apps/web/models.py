@@ -640,6 +640,10 @@ class CompetitionPhase(models.Model):
 
             #format values
             for result in results:
+                print result
+                print result['scoredefs']
+                print dir(result['scoredefs'])
+
                 scores = result['scores']
                 for sdef in result['scoredefs']:
                     knownValues = {}
@@ -1213,6 +1217,8 @@ class OrganizerDataSet(models.Model):
     )
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 
+    def __unicode__(self):
+        return "%s uploaded by %s" % (self.name, self.uploaded_by)
 
 
 def add_submission_to_leaderboard(submission):

@@ -641,24 +641,8 @@ class WorksheetDetailView(TemplateView):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
 
-'''
-@login_required
-def my_datasets(request):
-    return render(request, "web/my/datasets.html")
 
-
-@login_required
-def my_datasets_create(request):
-    form = forms.OrganizerDataSetModelForm(request.POST)
-
-    if form:
-        print 'weee'
-
-    return render(request, "web/my/datasets_form.html", {"form": form})
-'''
-
-
-class OrganizerDataSetListView(ListView):
+class OrganizerDataSetListView(LoginRequiredMixin, ListView):
     model = models.OrganizerDataSet
     template_name = "web/my/datasets.html"
 
@@ -666,7 +650,7 @@ class OrganizerDataSetListView(ListView):
         return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
 
 
-class OrganizerDataSetFormMixin(object):
+class OrganizerDataSetFormMixin(LoginRequiredMixin):
     model = models.OrganizerDataSet
     form_class = forms.OrganizerDataSetModelForm
     template_name = "web/my/datasets_form.html"
@@ -697,6 +681,10 @@ class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
 class OrganizerDataSetUpdate(OrganizerDataSetFormMixin, UpdateView):
     pass
     #form_class = forms.OrganizerDataSetModelUpdateForm
+
+
+class OrganizerDataSetDelete(DeleteView):
+    pass
 
 
 @login_required
