@@ -283,7 +283,7 @@ def get_run_func(config):
            # Try cleaning-up temporary directory
            try:
                os.chdir(current_dir)
-               #shutil.rmtree(root_dir)
+               shutil.rmtree(root_dir)
            except:
                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
