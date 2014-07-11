@@ -11,7 +11,7 @@ from apps.web import models
 User = get_user_model()
 
 
-class OrganizerDataSetTest(TestCase):
+class OrganizerDataSetTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="organizer", password="pass")
         self.other_user = User.objects.create_user(username="potentially_malicious", password="pass")
@@ -23,13 +23,36 @@ class OrganizerDataSetTest(TestCase):
         )
 
 
-class OrganizerDataSetCreateTests(OrganizerDataSetTest):
+class OrganizerDataSetModelTestsCase(OrganizerDataSetTestCase):
+    def test_save_generates_key_with_file_name_and_uuid(self):
+        # self.dataset was already saved above
+        file_name = "something.txt"
+        uuid4_length = 36
+        self.assertEquals(self.dataset.key[:len(file_name)], file_name)
+        self.assertEquals(len(self.dataset.key), len(file_name) + uuid4_length)
+
+    def test_save_generates_key_with_filename_greather_than_64_chars(self):
+        file_name = "something.txt"*10
+        file_name = file_name[:60] # it's too long, crashes database
+        self.dataset = models.OrganizerDataSet.objects.create(
+            name="Test",
+            type="None",
+            data_file=SimpleUploadedFile(file_name, "contents of file"),
+            uploaded_by=self.user
+        )
+        max_file_name_length = 64
+        uuid4_length = 36
+        self.assertEquals(self.dataset.key[:max_file_name_length], file_name[:max_file_name_length])
+        self.assertEquals(len(self.dataset.key), max_file_name_length + uuid4_length)
+
+
+class OrganizerDataSetCreateTestsCase(OrganizerDataSetTestCase):
     def test_dataset_creation_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_create"))
         self.assertEquals(resp.status_code, 302)
 
 
-class OrganizerDataSetUpdateTests(OrganizerDataSetTest):
+class OrganizerDataSetUpdateTestsCase(OrganizerDataSetTestCase):
     def test_dataset_update_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_update", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 302)
@@ -39,8 +62,13 @@ class OrganizerDataSetUpdateTests(OrganizerDataSetTest):
         resp = self.client.get(reverse("my_datasets_update", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 404)
 
+    def test_dataset_update_returns_200_when_owner(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("my_datasets_update", kwargs={"pk": self.dataset.pk}))
+        self.assertEquals(resp.status_code, 200)
 
-class OrganizerDataSetDeleteTests(OrganizerDataSetTest):
+
+class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
     def test_dataset_delete_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 302)
@@ -50,8 +78,13 @@ class OrganizerDataSetDeleteTests(OrganizerDataSetTest):
         resp = self.client.get(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 404)
 
+    def test_dataset_delete_returns_200_when_owner(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
+        self.assertEquals(resp.status_code, 200)
 
-class OrganizerDataSetListViewTests(OrganizerDataSetTest):
+
+class OrganizerDataSetListViewTestsCase(OrganizerDataSetTestCase):
     def test_dataset_list_view_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets"))
         self.assertEquals(resp.status_code, 302)

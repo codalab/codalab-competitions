@@ -683,7 +683,7 @@ class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
     def get_object(self, queryset=None):
         dataset = super(OrganizerDataSetCheckOwnershipMixin, self).get_object(queryset)
 
-        if dataset.uploaded_by is not self.request.user:
+        if dataset.uploaded_by != self.request.user:
             raise Http404()
 
         return dataset
@@ -691,7 +691,6 @@ class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
 
 class OrganizerDataSetUpdate(OrganizerDataSetCheckOwnershipMixin, OrganizerDataSetFormMixin, UpdateView):
     pass
-    #form_class = forms.OrganizerDataSetModelUpdateForm
 
 
 class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
