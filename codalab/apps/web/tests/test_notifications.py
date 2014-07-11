@@ -1,24 +1,14 @@
 import mock
 
 from django.conf import settings
-from django.core import management
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.core import mail
-from django.test.client import Client
 from django.contrib.auth import get_user_model
 
-from pytz import utc
-
 from apps.web.models import (Competition,
-                             CompetitionDefBundle,
                              CompetitionParticipant,
-                             CompetitionPhase,
-                             CompetitionSubmission,
-                             CompetitionSubmissionStatus,
-                             ParticipantStatus,
-                             PhaseLeaderBoard,
-                             PhaseLeaderBoardEntry)
+                             ParticipantStatus,)
 from apps.web import tasks
 
 User = get_user_model()

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.edit import FormMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -678,12 +679,22 @@ class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
         return reverse("my_datasets")
 
 
-class OrganizerDataSetUpdate(OrganizerDataSetFormMixin, UpdateView):
+class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
+    def get_object(self, queryset=None):
+        dataset = super(OrganizerDataSetCheckOwnershipMixin, self).get_object(queryset)
+
+        if dataset.uploaded_by is not self.request.user:
+            raise Http404()
+
+        return dataset
+
+
+class OrganizerDataSetUpdate(OrganizerDataSetCheckOwnershipMixin, OrganizerDataSetFormMixin, UpdateView):
     pass
     #form_class = forms.OrganizerDataSetModelUpdateForm
 
 
-class OrganizerDataSetDelete(DeleteView):
+class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
     model = models.OrganizerDataSet
     template_name = "web/my/datasets_delete.html"
 
