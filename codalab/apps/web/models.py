@@ -640,10 +640,6 @@ class CompetitionPhase(models.Model):
 
             #format values
             for result in results:
-                print result
-                print result['scoredefs']
-                print dir(result['scoredefs'])
-
                 scores = result['scores']
                 for sdef in result['scoredefs']:
                     knownValues = {}

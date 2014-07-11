@@ -684,7 +684,11 @@ class OrganizerDataSetUpdate(OrganizerDataSetFormMixin, UpdateView):
 
 
 class OrganizerDataSetDelete(DeleteView):
-    pass
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets_delete.html"
+
+    def get_success_url(self):
+        return reverse("my_datasets")
 
 
 @login_required
