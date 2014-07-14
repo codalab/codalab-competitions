@@ -23,27 +23,27 @@ class OrganizerDataSetTestCase(TestCase):
         )
 
 
-class OrganizerDataSetModelTestsCase(OrganizerDataSetTestCase):
-    def test_save_generates_key_with_file_name_and_uuid(self):
-        # self.dataset was already saved above
-        file_name = "something.txt"
-        uuid4_length = 36
-        self.assertEquals(self.dataset.key[:len(file_name)], file_name)
-        self.assertEquals(len(self.dataset.key), len(file_name) + uuid4_length)
-
-    def test_save_generates_key_with_filename_greather_than_64_chars(self):
-        file_name = "something.txt"*10
-        file_name = file_name[:60] # it's too long, crashes database
-        self.dataset = models.OrganizerDataSet.objects.create(
-            name="Test",
-            type="None",
-            data_file=SimpleUploadedFile(file_name, "contents of file"),
-            uploaded_by=self.user
-        )
-        max_file_name_length = 64
-        uuid4_length = 36
-        self.assertEquals(self.dataset.key[:max_file_name_length], file_name[:max_file_name_length])
-        self.assertEquals(len(self.dataset.key), max_file_name_length + uuid4_length)
+#class OrganizerDataSetModelTestsCase(OrganizerDataSetTestCase):
+#    def test_save_generates_key_with_file_name_and_uuid(self):
+#        # self.dataset was already saved above
+#        file_name = "something.txt"
+#        uuid4_length = 36
+#        self.assertEquals(self.dataset.key[:len(file_name)], file_name)
+#        self.assertEquals(len(self.dataset.key), len(file_name) + uuid4_length)
+#
+#    def test_save_generates_key_with_filename_greather_than_64_chars(self):
+#        file_name = "something.txt"*10
+#        file_name = file_name[:60] # it's too long, crashes database
+#        self.dataset = models.OrganizerDataSet.objects.create(
+#            name="Test",
+#            type="None",
+#            data_file=SimpleUploadedFile(file_name, "contents of file"),
+#            uploaded_by=self.user
+#        )
+#        max_file_name_length = 64
+#        uuid4_length = 36
+#        self.assertEquals(self.dataset.key[:max_file_name_length], file_name[:max_file_name_length])
+#        self.assertEquals(len(self.dataset.key), max_file_name_length + uuid4_length)
 
 
 class OrganizerDataSetCreateTestsCase(OrganizerDataSetTestCase):

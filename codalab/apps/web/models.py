@@ -10,6 +10,7 @@ import tempfile
 import datetime
 import django.dispatch
 import time
+import string
 import uuid
 from django.db import models
 from django.db import IntegrityError
@@ -27,10 +28,10 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django_extensions.db.fields import UUIDField
 from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
+from django_extensions.db.fields import UUIDField
 
 logger = logging.getLogger(__name__)
 
@@ -435,6 +436,10 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
+
+    input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data")
+    reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data")
+    scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program")
 
     class Meta:
         ordering = ['phasenumber']
@@ -1200,7 +1205,7 @@ def dataset_data_file(dataset, filename="data.zip"):
 class OrganizerDataSet(models.Model):
     TYPES = (
         ("Reference Data", "Reference Data"),
-        ("Scoring Program", "Scoring Program",),
+        ("Scoring Program", "Scoring Program"),
         ("Input Data", "Input Data"),
         ("None", "None")
     )
@@ -1213,15 +1218,20 @@ class OrganizerDataSet(models.Model):
         verbose_name="Data File"
     )
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
-    key = models.CharField(max_length=36 + 64, blank=True, null=True) # uuid length + 64 chars of filename
+    key = UUIDField(version=4)
+    competitions = models.ManyToManyField(Competition, null=True, blank=True, related_name="competitions")
 
-    def save(self, **kwargs):
-        if self.key is None:
-            file_name = os.path.basename(self.data_file.file.name)
-            file_name_truncated = (file_name[:64]) if len(file_name) > 64 else file_name
-            self.key = "%s%s" % (file_name, uuid.uuid4())
-
-        super(OrganizerDataSet, self).save(**kwargs)
+    #def _key_generator(self, size=6, chars=string.ascii_uppercase + string.digits):
+    #    return ''.join(random.choice(chars) for _ in range(size))
+    #
+    #def save(self, **kwargs):
+    #    #if self.key is None:
+    #        #file_name = os.path.basename(self.data_file.file.name)
+    #        #file_name_truncated = (file_name[:64]) if len(file_name) > 64 else file_name
+    #        #self.key = "%s%s" % (file_name, uuid.uuid4())
+    #    #    self.key = "%s-%s-%s" % (self.uploaded_by.username, self._key_generator(), self.pk)
+    #
+    #    super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)

@@ -34,6 +34,12 @@
                         <td>{{ dataset.type }}</td>
                         <td>{{ dataset.uuid }}</td>
                     </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            <i>No datasets added yet!</i>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
