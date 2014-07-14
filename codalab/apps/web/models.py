@@ -974,7 +974,7 @@ class CompetitionDefBundle(models.Model):
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
-                    phase.scoring_program.file = data_set.data_file.file.name
+                    phase.scoring_program = data_set.data_file.file.name
 
             if hasattr(phase, 'reference_data') and phase.reference_data:
                 if phase_spec["reference_data"].endswith(".zip"):
@@ -982,7 +982,7 @@ class CompetitionDefBundle(models.Model):
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
-                    phase.reference_data.file = data_set.data_file.file.name
+                    phase.reference_data = data_set.data_file.file.name
 
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
@@ -990,7 +990,7 @@ class CompetitionDefBundle(models.Model):
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
-                    phase.input_data.file = data_set.data_file.file.name
+                    phase.input_data = data_set.data_file.file.name
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
@@ -1238,24 +1238,10 @@ class OrganizerDataSet(models.Model):
     )
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = UUIDField(version=4)
-    #competitions = models.ManyToManyField(Competition, null=True, blank=True, related_name="competitions")
 
-    #def _key_generator(self, size=6, chars=string.ascii_uppercase + string.digits):
-    #    return ''.join(random.choice(chars) for _ in range(size))
-    #
-    #def save(self, **kwargs):
-    #    #if self.key is None:
-    #        #file_name = os.path.basename(self.data_file.file.name)
-    #        #file_name_truncated = (file_name[:64]) if len(file_name) > 64 else file_name
-    #        #self.key = "%s%s" % (file_name, uuid.uuid4())
-    #    #    self.key = "%s-%s-%s" % (self.uploaded_by.username, self._key_generator(), self.pk)
-    #
-    #    super(OrganizerDataSet, self).save(**kwargs)
     def save(self, **kwargs):
         if self.key is None or self.key == '':
             self.key = "%s" % (uuid.uuid4())
-            print 'key not found'
-        print "key == %s" % self.key
         super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
