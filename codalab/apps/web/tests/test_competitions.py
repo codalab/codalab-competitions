@@ -287,7 +287,7 @@ class CompetitionDeleteTests(CompetitionTest):
         self.assertEquals(len(Competition.objects.filter(pk=self.competition.pk)), 0)
 
 
-class CompetitionEditTests(CompetitionTest):
+class CompetitionEditPermissionsTests(CompetitionTest):
 
     def test_cant_view_edit_competition_template_if_you_dont_own_it(self):
         self.client.login(username="participant", password="pass")

@@ -34,7 +34,7 @@ class CompetitionEditTests(TestCase):
 
 
 
-    def test_edit_competition_adding_organizer_dataset_reference_adds_to_model(self):
+    def test_edit_competition_adding_input_dataset_adds_to_model(self):
         # edit competition
         # add reference to Organizer data Set
         # save
@@ -42,4 +42,10 @@ class CompetitionEditTests(TestCase):
             # phase reference_data should point to the right thing
             # phase reference_data_organizer_dataset should point to the right thing
             # dataset.competitions contains this competition now
+        self.assertTrue(False)
+
+    def test_edit_competition_adding_reference_dataset_adds_to_model(self):
+        self.assertTrue(False)
+
+    def test_edit_competition_adding_scoring_program_dataset_adds_to_model(self):
         self.assertTrue(False)
