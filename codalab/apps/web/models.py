@@ -1219,7 +1219,7 @@ class OrganizerDataSet(models.Model):
     )
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = UUIDField(version=4)
-    competitions = models.ManyToManyField(Competition, null=True, blank=True, related_name="competitions")
+    #competitions = models.ManyToManyField(Competition, null=True, blank=True, related_name="competitions")
 
     #def _key_generator(self, size=6, chars=string.ascii_uppercase + string.digits):
     #    return ''.join(random.choice(chars) for _ in range(size))
@@ -1232,6 +1232,12 @@ class OrganizerDataSet(models.Model):
     #    #    self.key = "%s-%s-%s" % (self.uploaded_by.username, self._key_generator(), self.pk)
     #
     #    super(OrganizerDataSet, self).save(**kwargs)
+    def save(self, **kwargs):
+        if self.key is None or self.key == '':
+            self.key = "%s" % (uuid.uuid4())
+            print 'key not found'
+        print "key == %s" % self.key
+        super(OrganizerDataSet, self).save(**kwargs)
 
     def __unicode__(self):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)
