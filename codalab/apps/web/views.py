@@ -102,13 +102,13 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         for phase_form in inlines[1]:
             if phase_form.instance.input_data_organizer_dataset:
-                phase_form.instance.input_data.file = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+                phase_form.instance.input_data = phase_form.instance.input_data_organizer_dataset.data_file.file.name
 
             if phase_form.instance.reference_data_organizer_dataset:
                 phase_form.instance.reference_data = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
 
             if phase_form.instance.scoring_program_organizer_dataset:
-                phase_form.instance.scoring_program.file = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
+                phase_form.instance.scoring_program = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
 
             phase_form.instance.save()
 

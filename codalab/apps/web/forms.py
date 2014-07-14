@@ -38,11 +38,6 @@ class CompetitionPhaseForm(forms.ModelForm):
             'phasenumber': forms.HiddenInput
         }
 
-    #def __init__(self, *args, **kwargs):
-    #    #self._user = kwargs.pop('user')
-    #    super(CompetitionPhaseForm, self).__init__(*args, **kwargs)
-    #    self.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user, type='Input Data')
-
 
 class PageForm(forms.ModelForm):
     class Meta:
