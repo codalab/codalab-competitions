@@ -968,12 +968,31 @@ class CompetitionDefBundle(models.Model):
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
-            phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+            if hasattr(phase, 'scoring_program') and phase.scoring_program:
+                if phase_spec["scoring_program"].endswith(".zip"):
+                    phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
+                    phase.scoring_program.file = data_set.data_file.file.name
+
             if hasattr(phase, 'reference_data') and phase.reference_data:
-                phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
-            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
+                if phase_spec["reference_data"].endswith(".zip"):
+                    phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
+                    phase.reference_data.file = data_set.data_file.file.name
+
             if 'input_data' in phase_spec:
-                phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
+                if phase_spec["input_data"].endswith(".zip"):
+                    phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
+                    phase.input_data.file = data_set.data_file.file.name
+
+            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
