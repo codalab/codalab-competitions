@@ -91,13 +91,67 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     inlines_names = ['Pages', 'Phases']
     template_name = 'web/competitions/edit.html'
 
-    def form_valid(self, form):
+    def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
-        return super(CompetitionEdit, self).form_valid(form)
+
+        # save up here, before checks for new phase data
+        save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
+
+        # inlines[0] = pages
+        # inlines[1] = phases
+
+        for phase_form in inlines[1]:
+            if phase_form.instance.input_data_organizer_dataset:
+                phase_form.instance.input_data.file.name = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+                phase_form.instance.save()
+                print 'new input data'
+            if phase_form.instance.reference_data_organizer_dataset:
+                phase_form.instance.reference_data.file.name = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+                phase_form.instance.save()
+                print 'new reference_data'
+                print 'was %s' % phase_form.instance.reference_data.file.name
+                print 'is now %s' % phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+                #import ipdb; ipdb.set_trace()
+            if phase_form.instance.scoring_program_organizer_dataset:
+                phase_form.instance.scoring_program.file.name = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
+                phase_form.instance.save()
+                print 'new scoring program'
+
+
+
+
+
+        return save_result
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
+
+    #def get_form_kwargs(self, **kwargs):
+    #    kwargs = super(CompetitionEdit, self).get_form_kwargs(**kwargs)
+    #    self.kwargs['user'] = self.request.user
+    #    return kwargs
+    def construct_inlines(self):
+        '''I need to overwrite this method in order to change
+        the queryset for the "keywords" field'''
+        inline_formsets = super(CompetitionEdit, self).construct_inlines()
+
+        # inline_formsets[0] == web pages
+        # inline_formsets[1] == phases
+        for inline_form in inline_formsets[1].forms:
+            inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Input Data"
+            )
+            inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Reference Data"
+            )
+            inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Scoring Program"
+            )
+        return inline_formsets
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

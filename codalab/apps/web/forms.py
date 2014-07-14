@@ -16,9 +16,33 @@ class CompetitionForm(forms.ModelForm):
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionPhase
-        fields = ('phasenumber', 'label', 'start_date', 'max_submissions', 'is_scoring_only', 'input_data', 'auto_migration', 'scoring_program', 'reference_data', 'leaderboard_management_mode')
-        widgets = { 'leaderboard_management_mode' : forms.Select(attrs={'class': 'competition-editor-phase-leaderboard-mode'}, choices=(('default', 'Default'), ('hide_results', 'Hide Results'))),
-                    'DELETE' : forms.HiddenInput, 'phasenumber': forms.HiddenInput }
+        # removed 'scoring_program', 'reference_data', 'input_data'
+        fields = (
+            'phasenumber',
+            'label',
+            'start_date',
+            'max_submissions',
+            'is_scoring_only',
+            'auto_migration',
+            'leaderboard_management_mode',
+            'input_data_organizer_dataset',
+            'reference_data_organizer_dataset',
+            'scoring_program_organizer_dataset',
+        )
+        widgets = {
+            'leaderboard_management_mode' : forms.Select(
+                attrs={'class': 'competition-editor-phase-leaderboard-mode'},
+                choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
+            ),
+            'DELETE' : forms.HiddenInput,
+            'phasenumber': forms.HiddenInput
+        }
+
+    #def __init__(self, *args, **kwargs):
+    #    #self._user = kwargs.pop('user')
+    #    super(CompetitionPhaseForm, self).__init__(*args, **kwargs)
+    #    self.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user, type='Input Data')
+
 
 class PageForm(forms.ModelForm):
     class Meta:
