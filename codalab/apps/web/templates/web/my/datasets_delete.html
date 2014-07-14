@@ -14,8 +14,24 @@
 <div class="row">
     <div class="large-12 columns">
         <form action="" method="post">{% csrf_token %}
-            <p>Are you sure you want to delete "{{ object }}"?</p>
-            <input type="submit" value="Confirm" class="button alert" />
+            {% if competitions_in_use %}
+                <div class="row" style="padding: 30px 0;">
+                    <div class="large-12 columns">
+                        <h2 class="alert">WARNING DataSet currently in use by:</h2>
+                        {% for competition in competitions_in_use %}
+                            <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+                        {% endfor %}
+
+                        <br><br>
+
+                        <input type="checkbox" id="are-you-sure" style="float: left; margin-right: 5px;"><label for="are-you-sure">Yes I am absolutely sure, even though competitions are using this, I want to delete it.</label>
+                    </div>
+                </div>
+            {% else %}
+                <p>Are you sure you want to delete "{{ object }}"?</p>
+            {% endif %}
+
+            <input type="submit" value="Confirm" class="button alert disabled" disabled/>
             <a href="{% url "my_datasets" %}" class="button">Cancel</a>
         </form>
     </div>
@@ -23,5 +39,17 @@
 {% endblock %}
 
 {% block js %}
+{% if competitions_in_use %}
+    $(".button.alert").addClass("disabled").attr('disabled','disabled');
 
+    $("#are-you-sure").change(function() {
+        if($(this).is(':checked')){
+            $(".button.alert").removeClass("disabled").removeAttr('disabled');
+        } else {
+            $(".button.alert").addClass("disabled").attr('disabled','disabled');
+        }
+    });
+{% else %}
+    $(".button.alert").removeClass("disabled").removeAttr('disabled');
+{% endif %}
 {% endblock js %}

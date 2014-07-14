@@ -102,24 +102,15 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         for phase_form in inlines[1]:
             if phase_form.instance.input_data_organizer_dataset:
-                phase_form.instance.input_data.file.name = phase_form.instance.input_data_organizer_dataset.data_file.file.name
-                phase_form.instance.save()
-                print 'new input data'
+                phase_form.instance.input_data.file = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+
             if phase_form.instance.reference_data_organizer_dataset:
-                phase_form.instance.reference_data.file.name = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
-                phase_form.instance.save()
-                print 'new reference_data'
-                print 'was %s' % phase_form.instance.reference_data.file.name
-                print 'is now %s' % phase_form.instance.reference_data_organizer_dataset.data_file.file.name
-                #import ipdb; ipdb.set_trace()
+                phase_form.instance.reference_data = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+
             if phase_form.instance.scoring_program_organizer_dataset:
-                phase_form.instance.scoring_program.file.name = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
-                phase_form.instance.save()
-                print 'new scoring program'
+                phase_form.instance.scoring_program.file = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
 
-
-
-
+            phase_form.instance.save()
 
         return save_result
 
@@ -753,6 +744,21 @@ class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("my_datasets")
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizerDataSetDelete, self).get_context_data(**kwargs)
+
+        usage = models.CompetitionPhase.objects.all()
+
+        if self.object.type == "Input Data":
+            usage = usage.filter(input_data_organizer_dataset=self.object)
+        if self.object.type == "Reference Data":
+            usage = usage.filter(reference_data_organizer_dataset=self.object)
+        if self.object.type == "Scoring Program":
+            usage = usage.filter(scoring_program_organizer_dataset=self.object)
+
+        context["competitions_in_use"] = usage
+        return context
 
 
 @login_required
