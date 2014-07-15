@@ -11,6 +11,12 @@
 {% endblock %}
 
 {% block content %}
+<style>
+.confirm-button.disabled {
+    opacity: 0.1 !important;
+}
+</style>
+
 <div class="row">
     <div class="large-12 columns">
         <form action="" method="post">{% csrf_token %}
@@ -31,7 +37,7 @@
                 <p>Are you sure you want to delete "{{ object }}"?</p>
             {% endif %}
 
-            <input type="submit" value="Confirm" class="button alert disabled" disabled/>
+            <input type="submit" value="Confirm" class="button alert disabled confirm-button" disabled/>
             <a href="{% url "my_datasets" %}" class="button">Cancel</a>
         </form>
     </div>
