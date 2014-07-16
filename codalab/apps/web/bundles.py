@@ -3,6 +3,7 @@ from django.conf import settings
 from time import sleep
 from xmlrpclib import Fault, ProtocolError
 
+
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
     from codalab.common import UsageError
@@ -10,6 +11,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from apps.authenz.oauth import get_user_token
 
     def _call_with_retries(f, retry_count=0):
+
         try:
             return f()
         except (Fault, ProtocolError) as e:
@@ -18,17 +20,18 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 return _call_with_retries(f, retry_count=retry_count+1)
             raise e
 
+
     class BundleService():
 
         def __init__(self, user=None):
             self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
-                                             lambda command: get_user_token(user))
+                                             lambda command: get_user_token(user), verbose=1)
 
         def items(self):
             return _call_with_retries(lambda: self.client.search())
 
         def item(self, uuid):
-            return _call_with_retries(lambda: self.client.info(uuid))
+            return _call_with_retries(lambda: self.client.get_bundle_info(uuid))
 
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())
@@ -37,7 +40,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.new_worksheet(name))
 
         def worksheet(self, uuid):
-            return _call_with_retries(lambda: self.client.worksheet_info(uuid))
+            return _call_with_retries(lambda: self.client.get_worksheet_info(uuid))
 
         def ls(self, uuid, path):
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
