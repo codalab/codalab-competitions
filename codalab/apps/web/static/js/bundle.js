@@ -250,9 +250,13 @@ var BundleRenderer = (function() {
     BundleRenderer.getMetadataTableModel = function(data) {
         var rows = [];
         for (var k in data.metadata) {
-            if (k !== 'name') {
+            console.log(k);
+            if(k == "description"){
                 rows.push([k, data.metadata[k]]);
             }
+            // if (k !== 'name') {
+            //     rows.push([k, data.metadata[k]]);
+            // }
         }
 
         var renderKey = function(element, row, col) {
@@ -287,30 +291,30 @@ var BundleRenderer = (function() {
     };
 
     BundleRenderer.renderTable = function(container, model) {
-        // var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
-        // var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
-        // var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
-        // var table = document.createElement(tableElementType);
-        // if (model.tableDecorations !== undefined) {
-        //     table.setAttribute('class', model.tableDecorations);
-        // }
-        // for (var ir = 0; ir < model.numRows; ir++) {
-        //     var tr = document.createElement(rowElementType);
-        //     if (model.numCols > 0) {
-        //         for (var ic = 0; ic < model.numCols; ic++) {
-        //             var td = document.createElement(columnElementType);
-        //             model.render(ir, ic, td);
-        //             tr.appendChild(td);
-        //         }
-        //     } else {
-        //         model.render(ir, tr);
-        //     }
-        //     table.appendChild(tr);
-        // }
-        // if (container.firstChild != undefined) {
-        //     container.removeChild(container.firstChild);
-        // }
-        // container.appendChild(table);
+        var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
+        var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
+        var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
+        var table = document.createElement(tableElementType);
+        if (model.tableDecorations !== undefined) {
+            table.setAttribute('class', model.tableDecorations);
+        }
+        for (var ir = 0; ir < model.numRows; ir++) {
+            var tr = document.createElement(rowElementType);
+            if (model.numCols > 0) {
+                for (var ic = 0; ic < model.numCols; ic++) {
+                    var td = document.createElement(columnElementType);
+                    model.render(ir, ic, td);
+                    tr.appendChild(td);
+                }
+            } else {
+                model.render(ir, tr);
+            }
+            table.appendChild(tr);
+        }
+        if (container.firstChild != undefined) {
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(table);
     };
 
     BundleRenderer.prototype.render = function(data) {
@@ -337,26 +341,26 @@ var BundleRenderer = (function() {
 
         var toggle = clone.find('.bundle__expand_button');
         var container = clone.find('.bundle-file-view-container');
-        // toggle.on('click', function(e) {
-        //     var button = $(e.target);
-        //     if (button.hasClass('expanded')) {
-        //         container.removeClass('expanded');
-        //         container.children().removeClass('expanded');
-        //         button.removeClass('expanded');
-        //         button.html('SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More">');
-        //     } else {
-        //         if (container.get(0).firstChild == undefined) {
-        //             var root = new BundleContentNode('/api/bundles/content', data.uuid);
-        //             BundleRenderer.loadContentAsync(container.get(0), root);
-        //         } else {
-        //             container.children().addClass('expanded');
-        //         }
-        //         container.addClass('expanded');
-        //         button.addClass('expanded');
-        //         button.html('HIDE BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="Less">');
-        //     }
-        //     e.preventDefault();
-        // });
+        toggle.on('click', function(e) {
+            var button = $(e.target);
+            if (button.hasClass('expanded')) {
+                container.removeClass('expanded');
+                container.children().removeClass('expanded');
+                button.removeClass('expanded');
+                button.html('SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More">');
+            } else {
+                if (container.get(0).firstChild == undefined) {
+                    var root = new BundleContentNode('/api/bundles/content', data.uuid);
+                    BundleRenderer.loadContentAsync(container.get(0), root);
+                } else {
+                    container.children().addClass('expanded');
+                }
+                container.addClass('expanded');
+                button.addClass('expanded');
+                button.html('HIDE BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="Less">');
+            }
+            e.preventDefault();
+        });
 
         return clone.get(0);
     };
