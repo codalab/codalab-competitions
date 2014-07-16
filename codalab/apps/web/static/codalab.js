@@ -84,11 +84,14 @@ var BundleRenderer = (function() {
         this.template = element;
     }
     BundleRenderer.loadContentAsync = function(container, parent) {
+        console.log('loadContentAsync');
         $.ajax({
             type: 'GET',
             url: [parent.getUrl(), parent.getFullName()].join('/'),
             cache: false,
             success: function(data) {
+                console.log(data);
+                console.log('');
                 var children = [];
                 if (Array.isArray(data) && data.length == 2) {
                     var set1 = data[0].map(function(item) {
@@ -110,11 +113,14 @@ var BundleRenderer = (function() {
     };
 
     BundleRenderer.loadFileContentAsync = function(container, node) {
+        console.log('loadFileContentAsync');
         $.ajax({
             type: 'GET',
             url: [node.getUrl().replace('api/bundles/content', 'api/bundles/filecontent'), node.getFullName()].join('/'),
             cache: false,
             success: function(data) {
+                console.log(data);
+                console.log('');
                 node.setData(data);
                 BundleRenderer.renderTable(container, BundleRenderer.getContentTableModel(node, container));
             },
@@ -125,7 +131,7 @@ var BundleRenderer = (function() {
 
     BundleRenderer.getContentTableModel = function(node, container) {
         var numRows = 0;
-        if (node.isRootNode() == false) {
+        if (node.isRootNode() === false) {
             numRows += 1;
         }
         if (node.isLeafNode()) {
@@ -319,30 +325,30 @@ var BundleRenderer = (function() {
     };
 
     BundleRenderer.renderTable = function(container, model) {
-        var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
-        var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
-        var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
-        var table = document.createElement(tableElementType);
-        if (model.tableDecorations !== undefined) {
-            table.setAttribute('class', model.tableDecorations);
-        }
-        for (var ir = 0; ir < model.numRows; ir++) {
-            var tr = document.createElement(rowElementType);
-            if (model.numCols > 0) {
-                for (var ic = 0; ic < model.numCols; ic++) {
-                    var td = document.createElement(columnElementType);
-                    model.render(ir, ic, td);
-                    tr.appendChild(td);
-                }
-            } else {
-                model.render(ir, tr);
-            }
-            table.appendChild(tr);
-        }
-        if (container.firstChild != undefined) {
-            container.removeChild(container.firstChild);
-        }
-        container.appendChild(table);
+        // var tableElementType = BundleRenderer.getElementType(model.tableElementType, 'table');
+        // var rowElementType = BundleRenderer.getElementType(model.rowElementType, 'tr');
+        // var columnElementType = BundleRenderer.getElementType(model.columnElementType, 'td');
+        // var table = document.createElement(tableElementType);
+        // if (model.tableDecorations !== undefined) {
+        //     table.setAttribute('class', model.tableDecorations);
+        // }
+        // for (var ir = 0; ir < model.numRows; ir++) {
+        //     var tr = document.createElement(rowElementType);
+        //     if (model.numCols > 0) {
+        //         for (var ic = 0; ic < model.numCols; ic++) {
+        //             var td = document.createElement(columnElementType);
+        //             model.render(ir, ic, td);
+        //             tr.appendChild(td);
+        //         }
+        //     } else {
+        //         model.render(ir, tr);
+        //     }
+        //     table.appendChild(tr);
+        // }
+        // if (container.firstChild != undefined) {
+        //     container.removeChild(container.firstChild);
+        // }
+        // container.appendChild(table);
     };
 
     BundleRenderer.prototype.render = function(data) {
@@ -355,34 +361,40 @@ var BundleRenderer = (function() {
         clone.find('.bundle-uuid').text(data.uuid);
         clone.find('.bundle-link').attr('href', '/bundles/' + data.uuid);
         clone.find('.bundle-download').on('click', function(e) {
-            alert('This will allow you to download the bundle');
+            // alert('This will allow you to download the bundle TODO');
             e.preventDefault();
+            console.log(e);
+            console.log(container.get(0));
+            root = new BundleContentNode('/api/bundles/content', data.uuid);
+            console.log(root);
+
+
         });
         var metaContainer = clone.find('.bundle-meta-view-container').get(0);
         BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataTableModel(data));
 
         var toggle = clone.find('.bundle__expand_button');
         var container = clone.find('.bundle-file-view-container');
-        toggle.on('click', function(e) {
-            var button = $(e.target);
-            if (button.hasClass('expanded')) {
-                container.removeClass('expanded');
-                container.children().removeClass('expanded');
-                button.removeClass('expanded');
-                button.html('SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More">');
-            } else {
-                if (container.get(0).firstChild == undefined) {
-                    var root = new BundleContentNode('/api/bundles/content', data.uuid);
-                    BundleRenderer.loadContentAsync(container.get(0), root);
-                } else {
-                    container.children().addClass('expanded');
-                }
-                container.addClass('expanded');
-                button.addClass('expanded');
-                button.html('HIDE BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="Less">');
-            }
-            e.preventDefault();
-        });
+        // toggle.on('click', function(e) {
+        //     var button = $(e.target);
+        //     if (button.hasClass('expanded')) {
+        //         container.removeClass('expanded');
+        //         container.children().removeClass('expanded');
+        //         button.removeClass('expanded');
+        //         button.html('SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More">');
+        //     } else {
+        //         if (container.get(0).firstChild == undefined) {
+        //             var root = new BundleContentNode('/api/bundles/content', data.uuid);
+        //             BundleRenderer.loadContentAsync(container.get(0), root);
+        //         } else {
+        //             container.children().addClass('expanded');
+        //         }
+        //         container.addClass('expanded');
+        //         button.addClass('expanded');
+        //         button.html('HIDE BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="Less">');
+        //     }
+        //     e.preventDefault();
+        // });
 
         return clone.get(0);
     };
@@ -494,17 +506,17 @@ var WorksheetRenderer = (function() {
                     element.appendChild(e);
                     markdownBlock = '';
                 }
-
                 switch (item[2]) {
                     case 'markup': {
                         markdownBlock += item[1] + '\n\r';
                         break;
                     }
                     case 'bundle': {
+
                         // Only display bundle if its not empty, this allows ability to hide bundles.
-                        if (item[1]) {
+                        // if (item[1]) {
                             element.appendChild(_this.renderer.render(item[0]));
-                        }
+                        // }
                         break;
                     }
                     case 'directive': {
