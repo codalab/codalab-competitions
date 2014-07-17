@@ -113,6 +113,10 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
             phase_form.instance.save()
 
+            print 'this far'
+            print phase_form.instance.input_data
+            print phase_form.instance.input_data_organizer_dataset.data_file.file.name
+
         return save_result
 
     def get_context_data(self, **kwargs):
