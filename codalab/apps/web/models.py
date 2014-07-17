@@ -955,7 +955,7 @@ class CompetitionDefBundle(models.Model):
 
                 for dataset_index, dataset in datasets.items():
                     if "key" in dataset:
-                        dataset["url"] = "some generated URL from the key"
+                        dataset["url"] = reverse("datasets_download", kwargs={"dataset_key": dataset["key"]})
 
                 del phase_spec['datasets']
             else:
