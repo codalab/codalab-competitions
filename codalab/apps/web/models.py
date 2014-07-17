@@ -952,6 +952,11 @@ class CompetitionDefBundle(models.Model):
 
             if 'datasets' in phase_spec:
                 datasets = phase_spec['datasets']
+
+                for dataset_index, dataset in datasets.items():
+                    if "key" in dataset:
+                        dataset["url"] = "some generated URL from the key"
+
                 del phase_spec['datasets']
             else:
                 datasets = {}
