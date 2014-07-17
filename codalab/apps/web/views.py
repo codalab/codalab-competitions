@@ -20,6 +20,7 @@ from django.utils.html import strip_tags
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, render
+from mimetypes import MimeTypes
 
 from apps.web import models
 from apps.web import forms
@@ -787,3 +788,25 @@ def user_settings(request):
         return render(request, "web/my/settings.html", {"saved_successfully": True})
 
     return render(request, "web/my/settings.html")
+
+
+def download_dataset(request, dataset_key):
+    try:
+        dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
+    except ObjectDoesNotExist:
+        return Http404()
+
+    mime = MimeTypes()
+    file_type = mime.guess_type(dataset.data_file.file.name)
+
+    print file_type
+
+    try:
+        response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+        if file_type != 'text/plain':
+            #response['Content-Type'] = 'application/zip'
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
+        return response
+    except:
+        msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+        return HttpResponse(msg % file_type, status=200, content_type='text/plain')
