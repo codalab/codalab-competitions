@@ -980,6 +980,7 @@ class CompetitionDefBundle(models.Model):
                     logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
                     phase.scoring_program = data_set.data_file.file.name
+                    phase.scoring_program_organizer_dataset = data_set
 
             if hasattr(phase, 'reference_data') and phase.reference_data:
                 if phase_spec["reference_data"].endswith(".zip"):
@@ -988,6 +989,7 @@ class CompetitionDefBundle(models.Model):
                     logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
                     phase.reference_data = data_set.data_file.file.name
+                    phase.reference_data_organizer_dataset = data_set
 
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
@@ -996,6 +998,7 @@ class CompetitionDefBundle(models.Model):
                     logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
                     phase.input_data = data_set.data_file.file.name
+                    phase.input_data_organizer_dataset = data_set
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
