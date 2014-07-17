@@ -42,6 +42,7 @@
                         <td>{{ dataset.description }}</td>
                         <td>{{ dataset.type }}</td>
                         <td>
+                            <a href="{% url "datasets_download" dataset_key=dataset.key %}" class="button">Download</a>
                             <a href="{% url "my_datasets_update" pk=dataset.pk %}" class="button">EDIT</a>
                             <a href="{% url "my_datasets_delete" pk=dataset.pk %}" class="button secondary delete">DEL</a>
                         </td>
