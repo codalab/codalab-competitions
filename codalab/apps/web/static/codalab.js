@@ -1034,7 +1034,14 @@ var Competition;
                             $(competition_actions).children('#competition-unpublish-button').show();
                         },
                         error: function(jsXHR, textStatus, errorThrown) {
+                            var data = $.parseJSON(jsXHR.responseJSON);
+                            if(data.error) {
+                                alert(data.error);
+                            }
                             console.log('Error publishing competition!');
+                            console.log(jsXHR)
+                            console.log(textStatus)
+                            console.log(errorThrown)
                         }
                     });
                 });
