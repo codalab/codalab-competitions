@@ -2565,8 +2565,8 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
     text-transform: uppercase;
 }
 .bundle-tile, .worksheet-tile {
-    margin-bottom: 30px;
-    padding: 15px;
+    margin-bottom: 20px;
+    padding: 10px;
     border: 1px #CCC solid;
     border-left: 10px #739CB9 solid;
     border-radius: 3px;
@@ -2598,6 +2598,9 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .bundle-name, .worksheet-name {
     padding:0;
     color:#535353;
+}
+.bundle-name {
+    font-size: 20px;
 }
 .worksheet-name label, .worksheet-author, .bundle-tile label {
     color: #a4a4a4;
