@@ -1039,9 +1039,6 @@ var Competition;
                                 alert(data.error);
                             }
                             console.log('Error publishing competition!');
-                            console.log(jsXHR)
-                            console.log(textStatus)
-                            console.log(errorThrown)
                         }
                     });
                 });
