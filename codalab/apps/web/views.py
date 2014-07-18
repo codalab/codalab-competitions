@@ -113,20 +113,12 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
             phase_form.instance.save()
 
-            print 'this far'
-            print phase_form.instance.input_data
-            print phase_form.instance.input_data_organizer_dataset.data_file.file.name
-
         return save_result
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
 
-    #def get_form_kwargs(self, **kwargs):
-    #    kwargs = super(CompetitionEdit, self).get_form_kwargs(**kwargs)
-    #    self.kwargs['user'] = self.request.user
-    #    return kwargs
     def construct_inlines(self):
         '''I need to overwrite this method in order to change
         the queryset for the "keywords" field'''
@@ -803,8 +795,6 @@ def download_dataset(request, dataset_key):
     mime = MimeTypes()
     file_type = mime.guess_type(dataset.data_file.file.name)
 
-    print file_type
-
     try:
         response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
         if file_type != 'text/plain':
@@ -813,4 +803,4 @@ def download_dataset(request, dataset_key):
         return response
     except:
         msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-        return HttpResponse(msg % file_type, status=200, content_type='text/plain')
+        return HttpResponse(msg % file_type, status=400, content_type='text/plain')
