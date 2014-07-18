@@ -20,6 +20,7 @@ from apps.jobs.models import (Job,
                               JobTaskResult,
                               getQueue)
 from apps.web.models import (add_submission_to_leaderboard,
+                             Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
@@ -453,7 +454,7 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
 
 
 def send_mass_email_task(job_id, task_args):
-    competition = task_args["competition"]
+    competition = Competition.objects.get(pk=task_args["competition_pk"])
     body = task_args["body"]
     subject = task_args["subject"]
     from_email = task_args["from_email"]
@@ -470,7 +471,7 @@ def send_mass_email_task(job_id, task_args):
 
 def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
     task_args = {
-        "competition": competition,
+        "competition_pk": competition.pk,
         "body": body,
         "subject": subject,
         "from_email": from_email,
