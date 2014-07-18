@@ -16,7 +16,6 @@ class CompetitionForm(forms.ModelForm):
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
         model = models.CompetitionPhase
-        # removed 'scoring_program', 'reference_data', 'input_data'
         fields = (
             'phasenumber',
             'label',
