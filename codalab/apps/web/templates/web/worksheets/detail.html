@@ -35,11 +35,14 @@
                         <button class="small button secondary"><i class="fi-arrow-down"></i></button>
                     </a>
                     <label class="bundle-uuid"></label>
-                    <a href="" class="bundle-link"><h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4></a>
-                </div><hr>
-                <div class="bundle-meta-view-container"></div>
-                <a href="" class="bundle__expand_button">SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a>
-                <div class="bundle-file-view-container large-12-columns"></div>
+                    <a href="" class="bundle-link">
+                        <h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4>
+                    </a>
+                </div>
+                {# <hr > #}
+                {# <div class="bundle-meta-view-container"></div> #}
+                {# <a href="" class="bundle__expand_button" >SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a> #}
+                {# <div class="bundle-file-view-container large-12-columns" ></div> #}
             </div>
         </div>
     </div>
@@ -63,13 +66,23 @@ MathJax.Hub.Config({
     }
 });
 
+console.log("/api" + document.location.pathname)
 $(document).ready(function() {
     $.ajax({
         type: "GET",
+        //  /api/worksheets/0x706<.....>d5b66e
         url: "/api" + document.location.pathname,
         cache: false,
         success: function (data) {
-            new WorksheetRenderer($("#worksheet-content").get(0), new BundleRenderer($("#bundle-template > div").get(0)), data);
+            console.log("$(document).ready")
+            console.log(data);
+            console.log();
+
+            new WorksheetRenderer( //element, renderer, data
+                $("#worksheet-content").get(0),
+                new BundleRenderer($("#bundle-template > div").get(0)),
+                data
+            );
             $("#worksheet-message").hide();
         },
         error: function (xhr, status, err) {
