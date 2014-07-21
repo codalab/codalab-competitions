@@ -35,14 +35,14 @@
                                 <section class="currentPhase">
                                 {% else %}
                                 <section>
-                                {% endif %}
-                                        <span class="phaseLabel">{{phase.label}}</span> 
+                                {% endif %} 
+                                        <span class="phaseLabel">{{phase.label}}</span>
                                         <br>
                                         <span>{{phase.start_date|utc}} UTC</span>
                                 </section>
                             {% endfor %}
                                 <section>
-                                        <span class="phaseLabel">Competition Ends</span> 
+                                        <span class="phaseLabel">Competition Ends</span>
                                         <br>
                                         <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
                                 </section>
@@ -81,7 +81,7 @@
                                             </p>
                                             <p id="terms" for="checkbox">
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
-                                                <span class="custom checkbox"></span> 
+                                                <span class="custom checkbox"></span>
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </p>
                                             <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
@@ -105,8 +105,8 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if my_status == "approved" %} 
-                                    {% include "web/competitions/_innertabs.html" %}      
+                                {% if my_status == "approved" %}
+                                    {% include "web/competitions/_innertabs.html" %}
                                 {% endif %}
                             {% endif %}
                         {% elif tab.codename == 'results' %}
