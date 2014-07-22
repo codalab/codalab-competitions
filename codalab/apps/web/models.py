@@ -926,14 +926,24 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
 
+        default_pages = ('overview', 'evaluation', 'terms', 'data')
+
+        for page_name, page_data in comp_spec['html'].items():
+            if page_name not in default_pages:
+                Page.objects.create(
+                    category=details_category,
+                    container=pc,
+                    codename=page_name,
+                    competition=comp,
+                    label=page_name,
+                    rank=2,
+                    html=zf.read(page_data)
+                )
+
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
-
-
-
-
 
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
