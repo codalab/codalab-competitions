@@ -30,21 +30,58 @@
                             <div class="challStatusStripLevel">
                             </div>
                             <section class="challStatusStripSection">
-                            {% for phase in competition.phases.all %}
-                                {% if phase.is_active %}
-                                <section class="currentPhase">
-                                {% else %}
-                                <section>
-                                {% endif %} 
-                                        <span class="phaseLabel">{{phase.label}}</span>
-                                        <br>
-                                        <span>{{phase.start_date|utc}} UTC</span>
+                                <!--
+                                {% for phase in competition.phases.all %}
+                                    {% if phase.is_active %}
+                                    <section class="currentPhase">
+                                    {% else %}
+                                    <section>
+                                    {% endif %}
+                                            <span class="phaseLabel">{{phase.label}}</span>
+                                            <br>
+                                            <span>{{phase.start_date|utc}} UTC</span>
+                                    </section>
+                                {% endfor %}
+                                    <section>
+                                            <span class="phaseLabel">Competition Ends</span>
+                                            <br>
+                                            <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
+                                    </section>
                                 </section>
-                            {% endfor %}
+                                -->
+
+                                {% if previous_phase %}
                                 <section>
-                                        <span class="phaseLabel">Competition Ends</span>
-                                        <br>
-                                        <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
+                                    <h3>Previous</h3>
+                                    <span class="phaseLabel">{{previous_phase.label}}</span>
+                                    <br>
+                                    <span>{{previous_phase.start_date|utc}} UTC</span>
+                                </section>
+                                {% endif %}
+
+                                {% if active_phase %}
+                                <section class="currentPhase">
+                                    <h3>Current</h3>
+                                    <span class="phaseLabel">{{active_phase.label}}</span>
+                                    <br>
+                                    <span>{{active_phase.start_date|utc}} UTC</span>
+                                </section>
+                                {% endif %}
+
+                                {% if next_phase %}
+                                <section>
+                                    <h3>Next</h3>
+                                    <span class="phaseLabel">{{next_phase.label}}</span>
+                                    <br>
+                                    <span>{{next_phase.start_date|utc}} UTC</span>
+                                </section>
+                                {% endif %}
+
+                                <section>
+                                    <h3>End</h3>
+                                    <span class="phaseLabel">Competition Ends</span>
+                                    <br>
+                                    <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
                                 </section>
                             </section>
                         </div>
