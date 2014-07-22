@@ -1243,7 +1243,7 @@ div.articleImageContainer
 .currentPhase {
     color: #739cb9 !important;
     text-indent: 12px;
-    background: url('../img/triangle_phase.png') no-repeat 10px 8px;
+    background: url('../img/triangle_phase.png') no-repeat 10px 20px;
 }
 .testingStarts {
     float:right;
