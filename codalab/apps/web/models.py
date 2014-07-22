@@ -433,6 +433,7 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
+    color = models.CharField(max_length=7, default="676278", blank=True, null=True)
 
     class Meta:
         ordering = ['phasenumber']
@@ -964,6 +965,7 @@ class CompetitionDefBundle(models.Model):
             phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
+            phase.color = phase_spec.get('color', "676278")
             if 'input_data' in phase_spec:
                 phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
             phase.save()
