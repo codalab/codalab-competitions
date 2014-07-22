@@ -433,7 +433,7 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
-    color = models.CharField(max_length=7, default="676278", blank=True, null=True)
+    color = models.CharField(max_length=7, default="676278", blank=True, null=True, verbose_name="Color (ex, 'ff00ee' or blank for default)")
 
     class Meta:
         ordering = ['phasenumber']
