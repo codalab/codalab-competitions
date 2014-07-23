@@ -1239,12 +1239,40 @@ div.articleImageContainer
 }
 .phaseLabel {
     font-weight: bold;
+    padding: 3px;
+    border-radius: 6px !important;
 }
 .currentPhase {
     color: #739cb9 !important;
     text-indent: 12px;
     background: url('../img/triangle_phase.png') no-repeat 10px 20px;
 }
+
+/* Configurable button colors for phases */
+.phaseList {
+    margin-top: 50px;
+    display: table;
+    padding: 6px;
+    border-radius: 6px;
+}
+.phaseList.white, .phaseLabel.white { background-color: #FAFAFA !important; color: #615555 !important; }
+.button.white { background-color: #FAFAFA !important; color: #615555 !important; }
+
+.phaseList.orange, .phaseLabel.orange { background-color: #fa963f !important; color: #615555 !important; }
+.button.orange { background-color: #fa963f !important; color: #615555 !important; }
+
+.phaseList.yellow, .phaseLabel.yellow { background-color: #faf64e !important; color: #615555 !important; }
+.button.yellow { background-color: #faf64e !important; color: #615555 !important; }
+
+.phaseList.green, .phaseLabel.green { background-color: #58fa62 !important; color: #615555 !important; }
+.button.green { background-color: #58fa62 !important; color: #615555 !important; }
+
+.phaseList.blue, .phaseLabel.blue { background-color: #7ba4fa !important; color: #615555 !important; }
+.button.blue { background-color: #7ba4fa !important; color: #615555 !important; }
+
+.phaseList.purple, .phaseLabel.purple { background-color: #e06cfa !important; color: #615555 !important; }
+.button.purple { background-color: #e06cfa !important; color: #615555 !important; }
+
 .testingStarts {
     float:right;
     position:absolute;
