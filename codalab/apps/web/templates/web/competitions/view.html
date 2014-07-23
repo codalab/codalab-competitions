@@ -20,6 +20,7 @@
                     <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
+
                     <div class="StatusStripContainer">
                         <div class="challStatusStripTxt">
                             <div class="dataStatusHolder">
@@ -87,6 +88,8 @@
 
                             </section>
                         </div>
+
+                        <a href="#phases" style="font-size: 12px;">View all phases</a>
                     </div>
                 </div>
             </section>
