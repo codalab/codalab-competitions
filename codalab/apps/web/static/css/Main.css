@@ -1371,6 +1371,7 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
+    text-align: center;
 }
 .competitionsDetailTab {
     display:table;
