@@ -53,7 +53,7 @@
                                 {% if previous_phase %}
                                 <section>
                                     <h3>Previous</h3>
-                                    <span class="phaseLabel">{{previous_phase.label}}</span>
+                                    <span class="phaseLabel {{ previous_phase.color }}">{{previous_phase.label}}</span>
                                     <br>
                                     <span>{{previous_phase.start_date|utc}} UTC</span>
                                 </section>
@@ -62,7 +62,7 @@
                                 {% if active_phase %}
                                 <section class="currentPhase">
                                     <h3>Current</h3>
-                                    <span class="phaseLabel">{{active_phase.label}}</span>
+                                    <span class="phaseLabel {{ active_phase.color }}">{{active_phase.label}}</span>
                                     <br>
                                     <span>{{active_phase.start_date|utc}} UTC</span>
                                 </section>
@@ -71,11 +71,11 @@
                                 {% if next_phase %}
                                 <section>
                                     <h3>Next</h3>
-                                    <span class="phaseLabel">{{next_phase.label}}</span>
+                                    <span class="phaseLabel {{ next_phase.color }}">{{next_phase.label}}</span>
                                     <br>
                                     <span>{{next_phase.start_date|utc}} UTC</span>
                                 </section>
-                                {% endif %}
+                                {% else %}
 
                                 <section>
                                     <h3>End</h3>
@@ -83,6 +83,8 @@
                                     <br>
                                     <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
                                 </section>
+                                {% endif %}
+
                             </section>
                         </div>
                     </div>
@@ -90,6 +92,22 @@
             </section>
             <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true" id="sections">
                 {% for tab, contents in tabs.items %}
+
+                {# Let's insert the "phases" tab just before participate #}
+                {% if tab.codename == "participate" %}
+                    <section id="phases-section">
+                        <p class="title" data-section-title width="100%" height="100%">
+                            <a href="#phases">Phases</a>
+                        </p>
+                        <div class="content" data-slug="phases" data-section-content>
+                            {% for phase in competition.phases.all %}
+                                <h3 class="phaseList {{ phase.color }}">#{{ phase.phasenumber }} {{ phase }}</h3>
+                                <b>Start: </b> {{ phase.start_date }}
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+
                 <section id="{{tab.name}}-section">
                     <p class="title" id="{{tab.name}}" data-section-title width="100%" height="100%">
                         <a href="#{{tab.codename}}">{{tab.name}}</a>
