@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'CompetitionPhase.color'
         db.add_column(u'web_competitionphase', 'color',
-                      self.gf('django.db.models.fields.CharField')(default='676278', max_length=7, null=True, blank=True),
+                      self.gf('django.db.models.fields.CharField')(max_length=24, null=True, blank=True),
                       keep_default=False)
 
 
@@ -94,7 +94,7 @@ class Migration(SchemaMigration):
         u'web.competitionphase': {
             'Meta': {'ordering': "['phasenumber']", 'object_name': 'CompetitionPhase'},
             'auto_migration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'color': ('django.db.models.fields.CharField', [], {'default': "'676278'", 'max_length': '7', 'null': 'True', 'blank': 'True'}),
+            'color': ('django.db.models.fields.CharField', [], {'max_length': '24', 'null': 'True', 'blank': 'True'}),
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
