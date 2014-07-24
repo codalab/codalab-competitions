@@ -295,7 +295,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = $.datepicker.formatDate('mm/dd/yy', dt).toString();
+                    var d = dt.getDate().toString() + "/" + dt.getMonth().toString() + "/" + dt.getFullYear();
                     var h = dt.getHours().toString();
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
@@ -487,6 +487,10 @@ var Competition;
                             $(competition_actions).children('#competition-unpublish-button').show();
                         },
                         error: function(jsXHR, textStatus, errorThrown) {
+                            var data = $.parseJSON(jsXHR.responseJSON);
+                            if(data.error) {
+                                alert(data.error);
+                            }
                             console.log('Error publishing competition!');
                         }
                     });

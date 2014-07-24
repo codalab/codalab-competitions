@@ -3,9 +3,8 @@
 test for competition creation via api
 """
 import sys
-import os.path
 import os
-import datetime
+import json
 from django.utils import timezone
 
 # This is a really, really long way around saying that if the script is in
@@ -276,3 +275,36 @@ class ParticipationStatusPermissionsTests(TestCase):
         participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
 
         self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
+
+
+class CompetitionPublishTests(TestCase):
+
+    def setUp(self):
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.competition = Competition.objects.create(
+            title="Test Competition",
+            creator=self.organizer_user,
+            modified_by=self.organizer_user
+        )
+        self.phase = CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+        )
+        self.client.login(username="organizer", password="pass")
+
+    def test_publish_competition_without_reference_data_returns_400(self):
+        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 400)
+        self.assertDictEqual(json.loads(resp.data), {
+            "error": "Not all phases have reference data, it is required for each phase before publishing."
+        })
+
+    def test_publish_competition_works_with_all_phases_having_reference_data(self):
+        self.phase.reference_data = 'test/path'
+        self.phase.save()
+
+        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 200)
