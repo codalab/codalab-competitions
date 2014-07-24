@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.sites.models import Site
 from django.views.generic import TemplateView
+from django.contrib import admin
 
 from apps.web.models import Competition
 
@@ -20,6 +21,9 @@ urlpatterns = patterns('',
 
 
 if settings.DEBUG:
+    '''
+    Debugging email templates
+    '''
     class ExtraContextTemplateView(TemplateView):
         extra_context = None
 
@@ -72,4 +76,11 @@ if settings.DEBUG:
                 "site": Site.objects.get_current()
             }
         )),
+    )
+
+    '''
+    Admin
+    '''
+    urlpatterns += patterns('',
+        url(r'^admin/', include(admin.site.urls)),
     )

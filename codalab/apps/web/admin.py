@@ -15,10 +15,10 @@ class ParticipantInlineAdmin(admin.TabularInline):
     model = models.CompetitionParticipant
 
 class CompetitionAdmin(admin.ModelAdmin):
-    inlines = [ 
+    inlines = [
                PhaseInlineAdmin,
                ParticipantInlineAdmin
-               ]               
+               ]
 admin.site.register(models.Competition, CompetitionAdmin)
 
 
@@ -72,8 +72,10 @@ class PageContainerAdmin(admin.ModelAdmin):
     inlines = [
         PageGenAdmin,
         ]
-admin.site.register(models.PageContainer, PageContainerAdmin)     
-  
+admin.site.register(models.PageContainer, PageContainerAdmin)
+
 class PageAdmin(admin.ModelAdmin):
     pass
 admin.site.register(models.Page, PageAdmin)
+
+admin.site.register(models.OrganizerDataSet)

@@ -228,6 +228,11 @@ def score(submission, job_id):
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
+    if submission.phase.auto_migration:
+        # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
+        submissions_this_phase = CompetitionSubmission.objects.filter(phase=submission.phase).count()
+        is_automatic_submission = submissions_this_phase == 1
+        lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
 
 

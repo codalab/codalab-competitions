@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.edit import FormMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -19,6 +20,7 @@ from django.utils.html import strip_tags
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, render
+from mimetypes import MimeTypes
 
 from apps.web import models
 from apps.web import forms
@@ -90,13 +92,54 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     inlines_names = ['Pages', 'Phases']
     template_name = 'web/competitions/edit.html'
 
-    def form_valid(self, form):
+    def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
-        return super(CompetitionEdit, self).form_valid(form)
+
+        # save up here, before checks for new phase data
+        save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
+
+        # inlines[0] = pages
+        # inlines[1] = phases
+
+        for phase_form in inlines[1]:
+            if phase_form.instance.input_data_organizer_dataset:
+                phase_form.instance.input_data = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+
+            if phase_form.instance.reference_data_organizer_dataset:
+                phase_form.instance.reference_data = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+
+            if phase_form.instance.scoring_program_organizer_dataset:
+                phase_form.instance.scoring_program = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
+
+            phase_form.instance.save()
+
+        return save_result
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
+
+    def construct_inlines(self):
+        '''I need to overwrite this method in order to change
+        the queryset for the "keywords" field'''
+        inline_formsets = super(CompetitionEdit, self).construct_inlines()
+
+        # inline_formsets[0] == web pages
+        # inline_formsets[1] == phases
+        for inline_form in inline_formsets[1].forms:
+            inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Input Data"
+            )
+            inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Reference Data"
+            )
+            inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Scoring Program"
+            )
+        return inline_formsets
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -657,6 +700,79 @@ class WorksheetDetailView(TemplateView):
         return context
 
 
+class OrganizerDataSetListView(LoginRequiredMixin, ListView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets.html"
+
+    def get_queryset(self):
+        return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
+
+
+class OrganizerDataSetFormMixin(LoginRequiredMixin):
+    model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
+    template_name = "web/my/datasets_form.html"
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetFormMixin, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
+    model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
+    template_name = "web/my/datasets_form.html"
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
+    def get_object(self, queryset=None):
+        dataset = super(OrganizerDataSetCheckOwnershipMixin, self).get_object(queryset)
+
+        if dataset.uploaded_by != self.request.user:
+            raise Http404()
+
+        return dataset
+
+
+class OrganizerDataSetUpdate(OrganizerDataSetCheckOwnershipMixin, OrganizerDataSetFormMixin, UpdateView):
+    pass
+
+
+class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets_delete.html"
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizerDataSetDelete, self).get_context_data(**kwargs)
+
+        usage = models.CompetitionPhase.objects.all()
+
+        if self.object.type == "Input Data":
+            usage = usage.filter(input_data_organizer_dataset=self.object)
+        if self.object.type == "Reference Data":
+            usage = usage.filter(reference_data_organizer_dataset=self.object)
+        if self.object.type == "Scoring Program":
+            usage = usage.filter(scoring_program_organizer_dataset=self.object)
+
+        context["competitions_in_use"] = usage
+        return context
+
+
 @login_required
 def user_settings(request):
     if request.method == "POST":
@@ -683,3 +799,23 @@ def user_settings(request):
         return render(request, "web/my/settings.html", {"saved_successfully": True})
 
     return render(request, "web/my/settings.html")
+
+
+def download_dataset(request, dataset_key):
+    try:
+        dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
+    except ObjectDoesNotExist:
+        return Http404()
+
+    mime = MimeTypes()
+    file_type = mime.guess_type(dataset.data_file.file.name)
+
+    try:
+        response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+        if file_type != 'text/plain':
+            #response['Content-Type'] = 'application/zip'
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
+        return response
+    except:
+        msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+        return HttpResponse(msg % file_type, status=400, content_type='text/plain')
