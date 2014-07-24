@@ -19,7 +19,7 @@
 
   </head>
   <body>
-  <div id="header">
+    <div id="header">
     <nav>
       <header>
           <a href="http://www.codalab.org/"><img src="images/codalab-logo-dinky.png" /></a>
@@ -47,29 +47,26 @@
       </header>
     </nav>
     </div>
+    
     <div class="wrapper">
     <section>
     <div id="title"><br /></div><!-- leave this here to preserve layout. -->
-    <h2>Host a Competition</h2>
+<h2>Get Started with Codalab Worksheets</h2>
+    
+<p>CodaLab worksheets combine code execution, text, mathematics, plots and rich media into a single document, streamlining the research process and lowering the barrier to documenting and publishing detailed advanced computational research.</p>
 
-<p>Have a problem related to machine learning, medical imaging, or other field involving advanced computation? Organize a competition and call forth the talents of community members from far and wide!</p>
-
-<p>Competitions are composed of a set of files called a 'bundle' which is stored on the CodaLab server, and competition data which is stored remotely. The bundle contains:</p>
-<ul>
-    <li>A configuration file (<code>competition.yaml</code>) that defines the competition and links to competition data.</li>
-    <li>A set of HTML files that contain information and instructions for participants.</li>
-    <li>An <a href="help_build_scoring_program.html">evaluation program</a> that is used to score submissions.</li>
-</ul>
-
-        <h3>To Host a Competition</h3>
-        <ol>
-            <li>Create a competition bundle. For more details, see <a href="https://github.com/codalab/codalab/wiki/User_Building-a-Competition-Bundle" target="_blank">Building a Competition Bundle</a>.</li>
-            <li>Open a web browser and go to <a href="http://www.codalab.org/my/">My CodaLab</a>. If you do not have an account you will be prompted to create one.</li>
-            <li>Click the <b>Competitions I'm Running</b> tab.</li>
-            <li>Click <b>Create Competition</b>. You will be prompted to upload the bundle you created.</li>
-            <li>See <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" target="_blank">Competition Roadmap</a> for a complete walkthrough.</li>
-        </ol>
-        </section>
+    <p>Using CodaLab worksheets is fun and easy. In this tutorial, you will use the CodaLab command-line client to run some experimental code against a simple dataset.</p>
+    <ol>
+        <li>Fork and clone the <a href="https://github.com/codalab/codalab">CodaLab</a> repo.</li>
+        <li>Install the command-line client:
+            <pre><code>pip install codalab-cli</code></pre>
+        </li>
+        <li>Evaluate your own data:</li> 
+<pre><code>cl work bundles.codalab.org:2800
+cl upload &lt;your dataset&gt;
+cl run boosted-decision-trees &lt;your dataset&gt;</code></pre> 
+    </ol>
+    </section>
 <!-- END CONTENT -->
     <div class="footer">
         <a href="http://research.microsoft.com/" target="_blank"><img src="images/msr_footer.png" border="0"></a>
