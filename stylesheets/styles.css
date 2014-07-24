@@ -1,4 +1,3 @@
-/*
 @font-face {
   font-family: 'OpenSansLight';
   src: url("../fonts/OpenSans-Light-webfont.eot");
@@ -68,7 +67,6 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
 }
-*/
 
 /* normalize.css 2012-02-07T12:37 UTC - http://github.com/necolas/normalize.css */
 /* =============================================================================
@@ -543,7 +541,7 @@ table {
 body {
   padding: 0px 0 20px 0px;
   margin: 0px;
-  font: 14px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 14px/1.5 "OpenSansRegular", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #434343;
   font-weight: normal;
   background: #252525;
@@ -558,7 +556,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   color: #434343;
   margin: 0 0 10px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
 }
 
@@ -585,7 +583,7 @@ h4, h5, h6 {
 h3 {
   font-size: 18px;
   line-height: 24px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-weight: normal;
   color: #434343;
 }
@@ -611,7 +609,7 @@ ul {
 }
 
 strong {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: 'OpenSansBold', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-weight: normal;
 }
 
@@ -673,14 +671,14 @@ th {
   text-align: left;
   padding: 5px 10px;
   color: #434343;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: 'OpenSansSemibold', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-weight: normal;
   border: 1px solid black;
 }
 
 td {
   text-align: left;
-  padding: 5px 10px;
+  /* padding: 5px 10px; */
   border: 1px solid black;
 }
 
@@ -694,7 +692,7 @@ hr {
 
 dt {
   color: #434343;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: 'OpenSansSemibold', "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-weight: normal;
 }
 
@@ -717,7 +715,7 @@ dt {
   margin: 6px auto;
 }
 #header nav li {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   list-style: none;
   display: inline;
@@ -797,21 +795,21 @@ section #title {
   padding: 0 0 5px 0;
 }
 section #title h1 {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-size: 40px;
   text-align: center;
 }
 section #title p {
   color: #52697A;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-size: 18px;
   text-align: center;
 }
 section #title .credits {
   font-size: 11px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   color: #52697A;
   margin-top: -10px;
@@ -924,6 +922,13 @@ section #title .credits.right {
     border-right: 0px solid white;
     border-top: 0px solid white;
     border-bottom: 0px solid white;
+}
+
+.idxtd {
+    border: 0px solid white;
+    vertical-align: top;
+    padding-left: 0px;
+    padding-top: 0px;
 }
 
 /* Footer */
