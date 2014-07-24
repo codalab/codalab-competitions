@@ -53,7 +53,7 @@
 
                                 {% if previous_phase %}
                                 <section>
-                                    <h3>Previous</h3>
+                                    <h4>Previous</h4>
                                     <span class="phaseLabel {{ previous_phase.color }}">{{previous_phase.label}}</span>
                                     <br>
                                     <span>{{previous_phase.start_date|utc}} UTC</span>
@@ -62,7 +62,7 @@
 
                                 {% if active_phase %}
                                 <section class="currentPhase">
-                                    <h3>Current</h3>
+                                    <h4>Current</h4>
                                     <span class="phaseLabel {{ active_phase.color }}">{{active_phase.label}}</span>
                                     <br>
                                     <span>{{active_phase.start_date|utc}} UTC</span>
@@ -71,7 +71,7 @@
 
                                 {% if next_phase %}
                                 <section>
-                                    <h3>Next</h3>
+                                    <h4>Next</h4>
                                     <span class="phaseLabel {{ next_phase.color }}">{{next_phase.label}}</span>
                                     <br>
                                     <span>{{next_phase.start_date|utc}} UTC</span>
@@ -79,7 +79,7 @@
                                 {% else %}
 
                                 <section>
-                                    <h3>End</h3>
+                                    <h4>End</h4>
                                     <span class="phaseLabel">Competition Ends</span>
                                     <br>
                                     <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
@@ -104,8 +104,10 @@
                         </p>
                         <div class="content" data-slug="phases" data-section-content>
                             {% for phase in competition.phases.all %}
-                                <h3 class="phaseList {{ phase.color }}">#{{ phase.phasenumber }} {{ phase }}</h3>
-                                <b>Start: </b> {{ phase.start_date }}
+                                <div class="phaseListContainer {{ phase.color }}">
+                                    <h3 class="phaseList">#{{ phase.phasenumber }} {{ phase }}</h3>
+                                    <b>Start: </b> {{ phase.start_date }}
+                                </div>
                             {% endfor %}
                         </div>
                     </section>
