@@ -1,4 +1,4 @@
-{% load url from future %}
+﻿{% load url from future %}
 {% load account %}
 {% load analytical %}
 
@@ -87,6 +87,7 @@
                 <li id="liCompetitions"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
                 {% if user.is_authenticated %}
                     <li id="liMyCodalab"><a href="/my" tabindex=4 target="_self">My CodaLab</a></li>
+                    <li id="liMyCodalab"><a href="{% url "my_datasets" %}" tabindex=4 target="_self">My Datasets</a></li>
                 {% else %}
                     <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
                 {% endif %}
@@ -103,6 +104,7 @@
                     </li>
                     {% else %}
                         <li class="menu-icon">
+
                     <a href="{% url "account_login" %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>
                 {% endif %}
                     </ul>

@@ -5,8 +5,16 @@
     {% if phase.is_active %}
     <div class="row">
         <div class="panel">
-            <p>Click the Submit Results button to upload a new submission.</p>
-            <button id="fileUploadButton" class="button">Submit Results...</button>
+            <p>Click the Submit button to upload a new submission.</p>
+            <button
+                    id="fileUploadButton"
+                    class="button {% if not phase.reference_data %}disabled{% endif %}"
+                    {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
+
+            {% if not phase.reference_data %}
+                <br><i style="color: #a30000;">This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</i>
+            {% endif %}
+
             <p id="details" class="submission_upload_details"></p>
         </div>
         <div>
