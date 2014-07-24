@@ -31,26 +31,6 @@
                             <div class="challStatusStripLevel">
                             </div>
                             <section class="challStatusStripSection">
-                                <!--
-                                {% for phase in competition.phases.all %}
-                                    {% if phase.is_active %}
-                                    <section class="currentPhase">
-                                    {% else %}
-                                    <section>
-                                    {% endif %}
-                                            <span class="phaseLabel">{{phase.label}}</span>
-                                            <br>
-                                            <span>{{phase.start_date|utc}} UTC</span>
-                                    </section>
-                                {% endfor %}
-                                    <section>
-                                            <span class="phaseLabel">Competition Ends</span>
-                                            <br>
-                                            <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
-                                    </section>
-                                </section>
-                                -->
-
                                 {% if previous_phase %}
                                 <section>
                                     <h4>Previous</h4>
