@@ -38,7 +38,7 @@ def _generate_blob_sas_url(prefix, extension):
     url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
                             settings.BUNDLE_AZURE_ACCOUNT_KEY,
                             settings.BUNDLE_AZURE_CONTAINER,
-                            blob_name,
+                            blob_name,permission='w',
                             duration=60)
     logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}

@@ -152,6 +152,7 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    enable_medical_image_viewer = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -391,7 +392,7 @@ def submission_prediction_output_filename(instance, filename="output.zip"):
 class _LeaderboardManagementMode(object):
     """
     Provides a set of constants which define when results become visible to participants
-    and how successful submisstion are added to the leaderboard.
+    and how successful submmisions are added to the leaderboard.
     """
     @property
     def DEFAULT(self):
@@ -470,6 +471,11 @@ class CompetitionPhase(models.Model):
         """
         return self.leaderboard_management_mode == LeaderboardManagementMode.HIDE_RESULTS
 
+    @property
+    def get_input_data(self):
+        #return os.path.join(self.input_data.storage.url(''), self.input_data.name)   
+        return self.input_data.name
+
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
         """ Given a set of identifiers (ids) and a set of (id, value)-pairs
@@ -530,18 +536,26 @@ class CompetitionPhase(models.Model):
 
         # Get the list of submissions in this leaderboard
         submissions = []
+        resLocation = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+            for entry in qs:
+                resLocation.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
-
+                       
         results = []
         for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
             label = g.label
             headers = []
             scores = {}
-            for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
+            count = 0
+            # add the location of the results on the blob storage to the scores 
+            for (pk,name) in submissions: 
+                scores[pk] = {'username': name, 'values': [], 'resultLocation': resLocation[count]}
+                count = count+1
+            
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
@@ -1152,7 +1166,7 @@ class SubmissionScoreSet(MPTTModel):
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)
-    value = models.DecimalField(max_digits=20, decimal_places=10)
+    value = models.DecimalField(max_digits=20, decimal_places=10)   
 
     class Meta:
         unique_together = (('result','scoredef'),)
