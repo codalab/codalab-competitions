@@ -1226,7 +1226,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", str(uuid.uuid4()), filename)
+    return os.path.join("datasets", dataset.pk, str(uuid.uuid4()), filename)
 
 
 class OrganizerDataSet(models.Model):
