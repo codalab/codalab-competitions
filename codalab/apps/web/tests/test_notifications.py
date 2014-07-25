@@ -17,8 +17,12 @@ User = get_user_model()
 class CompetitionTest(TestCase):
 
     def setUp(self):
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
-        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        statuses = ['unknown', 'denied', 'approved', 'pending']
+        for s in statuses:
+            ParticipantStatus.objects.get_or_create(name=s, codename=s)
+
+        self.organizer_user = User.objects.create_user(username="organizer", password="pass", email="org@anizer.com")
+        self.participant_user = User.objects.create_user(username="participant", password="pass", email="participant@comp.com")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
@@ -27,7 +31,7 @@ class CompetitionTest(TestCase):
         self.participant = CompetitionParticipant.objects.create(
             user=self.participant_user,
             competition=self.competition,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.PENDING)[0]
+            status=ParticipantStatus.objects.get_or_create(name='pending', codename=ParticipantStatus.PENDING)[0]
         )
 
 
@@ -41,6 +45,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.assertEquals(resp.status_code, 400)
 
     def test_msg_participants_view_returns_200_on_valid_POST_and_works(self):
+        self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        self.participant.save()
         self.client.login(username="organizer", password="pass")
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             resp = self.client.post(
@@ -91,6 +97,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.assertEquals(resp.status_code, 302)
 
     def test_msg_participants_task_called_with_proper_args(self):
+        self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        self.participant.save()
         self.client.login(username="organizer", password="pass")
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             resp = self.client.post(
@@ -121,6 +129,33 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             self.assertEquals(resp.status_code, 200)
 
         self.assertFalse(send_mass_email_mock.called)
+
+    def test_msg_participants_email_not_sent_to_denied_participants(self):
+        self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+        self.participant.save()
+
+        denied_participant_user = User.objects.create_user(username="denied_participant", password="pass")
+        denied_participant = CompetitionParticipant.objects.create(
+            user=denied_participant_user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='denied', codename=ParticipantStatus.DENIED)[0]
+        )
+
+        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+            self.client.login(username="organizer", password="pass")
+            resp = self.client.post(
+                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                data={"subject": "test", "body": "message body"}
+            )
+            self.assertEquals(resp.status_code, 200)
+
+        send_mass_email_mock.assert_called_with(
+            self.competition,
+            body=u"message body",
+            subject=u'test',
+            to_emails=[self.participant_user.email], # denied participant, although a member of this competition, was not emailed
+            from_email=settings.DEFAULT_FROM_EMAIL
+        )
 
 
 class AccountSettingsTests(TestCase):
