@@ -391,4 +391,4 @@ class DevBase(Base):
     }
 
     # Send e-mails to the console during development
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
