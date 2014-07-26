@@ -20,6 +20,9 @@
         <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
     </div>
     {% endif %}
+
+
+
     <div class="leaderboard-result-table">
         {% for group in groups %}
         <table class="resultsTable dataTable">
@@ -32,10 +35,10 @@
                  {% for head in group.headers %}
                  {% if head.subs %}
                  <th colspan="{{head.subs|length}}">{{head.label}}</th>
-                 {% else %}                 
+                 {% else %}
                  <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
                  {% endif %}
-                 {% endfor %}  
+                 {% endfor %}
              </tr>
              <tr>
                 {% for head in group.headers %}
@@ -49,8 +52,8 @@
             {% if group.scores.items|length_is:"0" %}
             <tr class="noData">
                 <td colspan="{{group.total_span}}">No data available in table</td>
-            </tr>  
-            {% else %}  
+            </tr>
+            {% else %}
             {% for pk,scoredata in group.scores %}
             <tr>
                 <td class="row-position">{{pk}}</td>
@@ -71,6 +74,6 @@
             {% endif %}
         </table>
         </br>
-        {% endfor %}        
+        {% endfor %}
     </div>
 {% endif %}
