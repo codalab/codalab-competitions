@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block page_title %}My Datasets{% endblock page_title %}
+{% block head_title %}My Datasets{% endblock %}
+
+{% block extra_head %}
+{# include extra JS stuff here #}
+{% endblock %}
+
+{% block content %}
+<STYLE>
+/* TODO move to appropriate place */
+.button.secondary:hover {
+    background-color: #ee1a1f;
+    color: #efefef;
+}
+</STYLE>
+
+
+<div class="row">
+    <div class="large-12 columns">
+        <a href="{% url "my_datasets_create" %}" class="button">Create Dataset</a>
+
+        <table width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dataset in object_list %}
+                    <tr>
+                        <td>{{ dataset.name }}</td>
+                        <td>{{ dataset.key }}</td>
+                        <td>{{ dataset.description }}</td>
+                        <td>{{ dataset.type }}</td>
+                        <td>
+                            <a href="{% url "datasets_download" dataset_key=dataset.key %}" class="button">Download</a>
+                            <a href="{% url "my_datasets_update" pk=dataset.pk %}" class="button">EDIT</a>
+                            <a href="{% url "my_datasets_delete" pk=dataset.pk %}" class="button secondary delete">DEL</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">
+                            <i>No datasets added yet!</i>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock js %}

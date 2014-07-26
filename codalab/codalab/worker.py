@@ -24,7 +24,8 @@ from apps.jobs.models import (update_job_status_task,
 from apps.web.tasks import (echo_task,
                             create_competition_task,
                             evaluate_submission_task,
-                            update_submission_task)
+                            update_submission_task,
+                            send_mass_email_task)
 
 logger = logging.getLogger('codalab')
 
@@ -38,7 +39,8 @@ def start_worker():
         'echo': echo_task,
         'create_competition': create_competition_task,
         'evaluate_submission': evaluate_submission_task,
-        'run_update': update_submission_task
+        'run_update': update_submission_task,
+        'send_mass_email': send_mass_email_task
     }
     worker = BaseWorker(queue, vtable, logger)
     logger.info("Starting site worker.")
