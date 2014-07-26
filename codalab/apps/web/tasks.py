@@ -10,12 +10,17 @@ from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
+from django.template import Context
+from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
                               getQueue)
 from apps.web.models import (add_submission_to_leaderboard,
+                             Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
@@ -223,6 +228,14 @@ def score(submission, job_id):
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
+    if submission.phase.auto_migration:
+        # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
+        submissions_this_phase = CompetitionSubmission.objects.filter(
+            phase=submission.phase,
+            participant=submission.participant
+        ).count()
+        is_automatic_submission = submissions_this_phase == 1
+        lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
 
 
@@ -431,3 +444,45 @@ def evaluate_submission(submission_id, is_scoring_only):
     """
     task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
     return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
+
+
+def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
+                        connection=None):
+    connection = connection or get_connection(
+        username=user, password=password, fail_silently=fail_silently
+    )
+
+    messages = []
+    for subject, text, html, from_email, recipient in datatuple:
+        message = EmailMultiAlternatives(subject, text, from_email, recipient)
+        message.attach_alternative(html, 'text/html')
+        messages.append(message)
+
+    return connection.send_messages(messages)
+
+
+def send_mass_email_task(job_id, task_args):
+    competition = Competition.objects.get(pk=task_args["competition_pk"])
+    body = task_args["body"]
+    subject = task_args["subject"]
+    from_email = task_args["from_email"]
+    to_emails = task_args["to_emails"]
+
+    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
+    text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
+    html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
+
+    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+
+    _send_mass_html_mail(mail_tuples)
+
+
+def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
+    task_args = {
+        "competition_pk": competition.pk,
+        "body": body,
+        "subject": subject,
+        "from_email": from_email,
+        "to_emails": to_emails
+    }
+    return Job.objects.create_and_dispatch_job('send_mass_email', task_args)

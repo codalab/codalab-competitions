@@ -6,7 +6,7 @@
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
 
 <head>
-    <meta charset="utf-8" /> 
+    <meta charset="utf-8" />
 
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width" />
@@ -79,16 +79,17 @@
                     <form action="/search" method="get">
                     <input class="round" name="q" type="search" placeholder="Search">
                     </form>
-                </li> 
+                </li>
                 {% endif %}
                 {%if PREVIEW_WORKSHEETS %}
-                <li id="liWorksheets"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li> 
+                <li id="liWorksheets"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
                 {% endif %}
                 <li id="liCompetitions"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
                 {% if user.is_authenticated %}
                     <li id="liMyCodalab"><a href="/my" tabindex=4 target="_self">My CodaLab</a></li>
+                    <li id="liMyCodalab"><a href="{% url "my_datasets" %}" tabindex=4 target="_self">My Datasets</a></li>
                 {% else %}
-                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>  
+                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
                 {% endif %}
                 <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                 {% if user.is_authenticated %}
@@ -96,14 +97,16 @@
                       <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
                       <ul class="dropdown">
                           <!-- <li><a href="#">My Profile</a></li> -->
+                          <li><a href="{% url "user_settings" %}">Settings</a></li>
                           <li class="divider"></li>
                           <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
                       </ul>
                     </li>
                     {% else %}
                         <li class="menu-icon">
-                    <a href="{% url 'account_login' %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>  
-                {% endif %}      
+
+                    <a href="{% url "account_login" %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>
+                {% endif %}
                     </ul>
                 {% endblock top_bar_right_menus %}
                 </section>
@@ -115,7 +118,7 @@
         <!-- End Nav -->
 
         {% block nosubheader %}
-        {% block subheader %} 
+        {% block subheader %}
         <div class="header-title-bg">
             <div class="large-12 columns">
                 <div class="row">
@@ -146,13 +149,13 @@
     <!-- Footer -->
     <footer id="footer">
         <div class="small-6 columns">
-            <ul class="inline-list left">            
-            <li>   
+            <ul class="inline-list left">
+            <li>
                 <span>
-                  <a href="http://www.windowsazure.com/" target="_blank" target="_self"><img src="{{ STATIC_URL }}img/Azure_Footer_Logo.png" border="0"/></a>
+                  <a href="http://research.microsoft.com/" target="_blank" target="_self"><img src="{{ STATIC_URL }}img/msr_footer.png" border="0"/></a>
                 </span>
             </li>
-            <li>   
+            <li>
                 <span>
                   <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
                 </span>
@@ -162,6 +165,7 @@
         <div class="small-6 columns">
             <ul class="inline-list right">
                 <!-- <li>CodaLab v.0 ()</li> -->
+                <li><a href="http://codalab.github.io/codalab/about.html" target="_self">About</a></li>
                 <li><a href="http://codalab.github.io/codalab/forum.html" target="_self">Forum</a></li>
                 <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
                 <li><a href="http://codalab.github.io/codalab/notices.html" target="_self">Notices</a></li>
