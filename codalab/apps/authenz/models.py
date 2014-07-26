@@ -1,6 +1,6 @@
 
 from django.contrib.auth import models as auth_models
-
+from django.db import models
 
 class ClUser(auth_models.AbstractUser):
 
