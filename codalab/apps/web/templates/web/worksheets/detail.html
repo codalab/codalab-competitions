@@ -58,12 +58,10 @@ $(function () {
 
 {% block jsincludes %}
 <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default">
 MathJax.Hub.Config({
-    tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-    }
+    extensions: ["tex2jax.js", "TeX/AMSmath.js", "TeX/AMSsymbols.js"],
+    tex2jax: {inlineMath: [["$", "$"]]},
 });
 
 console.log("/api" + document.location.pathname)
@@ -94,4 +92,6 @@ $(document).ready(function() {
     });
 });
 </script>
+
+Hello $x^2$
 {% endblock jsincludes %}

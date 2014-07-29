@@ -464,7 +464,7 @@ var WorksheetRenderer = (function() {
             var markdownBlock = '';
             // Add an EOF block to ensure the block transitions always apply within the loop
             data.items.push([null, 'eof', null]);
-            var blocks = data.items.forEach(function(item, idxItem, items) {
+            data.items.forEach(function(item, idxItem, items) {
                 // Apply directives when the markdown item type changes
                 if (item[2] != 'directive')
                     directiveRenderer.applyPendingDirectives(element);
@@ -474,7 +474,9 @@ var WorksheetRenderer = (function() {
                     e.innerHTML = markdown.toHTML(markdownBlock);
                     element.appendChild(e);
                     markdownBlock = '';
+                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, e]);
                 }
+
                 switch (item[2]) {
                     case 'markup': {
                         if (item[1] != '')
@@ -496,13 +498,13 @@ var WorksheetRenderer = (function() {
                 }
             });
 
-            MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.id]);
-            MathJax.Hub.Queue(function() {
+            //MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+            /*MathJax.Hub.Queue(function() {
                 var all = MathJax.Hub.getAllJax();
                 for (var i = 0; i < all.length; i += 1) {
                     $(all[i].SourceElement().parentNode).addClass('coda-jax');
                 }
-            });
+            });*/
         }
     }
     return WorksheetRenderer;
