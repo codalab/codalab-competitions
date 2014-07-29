@@ -506,23 +506,23 @@ var WorksheetRenderer = (function() {
                 if (item[2] != 'directive')
                     directiveRenderer.applyPendingDirectives(element);
 
-                if (item[2] != 'markup' && markdownBlock.length > 0) {
+                if ((item[2] != 'markup' || (item[2] == 'markup' && item[1] == '')) && markdownBlock.length > 0) {
                     var e = document.createElement('div');
+                    console.log(markdownBlock);
                     e.innerHTML = markdown.toHTML(markdownBlock);
                     element.appendChild(e);
                     markdownBlock = '';
                 }
                 switch (item[2]) {
                     case 'markup': {
-                        markdownBlock += item[1] + '\n\r';
+                        if (item[1] != '')
+                            markdownBlock += item[1] + ' ';
                         break;
                     }
                     case 'bundle': {
 
                         // Only display bundle if its not empty, this allows ability to hide bundles.
-                        // if (item[1]) {
-                            element.appendChild(_this.renderer.render(item[0]));
-                        // }
+                        element.appendChild(_this.renderer.render(item[0]));
                         break;
                     }
                     case 'directive': {
