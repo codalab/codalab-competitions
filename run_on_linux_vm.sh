@@ -18,7 +18,7 @@ fi
 STARTUP="codalab/config/generated/startup_env.sh"
 # Check for settings
 if [ -e $STARTUP ]; then
-	echo "Sourcing django configuratoin setup."
+	echo "Sourcing django configuration setup."
 	source $STARTUP
 else
 	echo "Startup configuration not present. Did you run 'python manage.py config_gen' yet?"
