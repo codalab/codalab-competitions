@@ -674,10 +674,11 @@ class WorksheetContentApi(views.APIView):
             worksheet = service.worksheet(uuid)
             #logger.debug('Got worksheet: %s' % worksheet)
             owners = ClUser.objects.filter(id=int(worksheet['owner_id']))
+            logger.debug('owners: %s' % owners)
             if len(owners) == 0:
                 logger.debug("WorksheetContent: can't find owner with ID '%s'" % worksheet['owner_id'])
             else:
-                worksheet['owner'] = owners.get(0).username
+                worksheet['owner'] = owners[0].username
             return Response(worksheet)
         except Exception as e:
             logger.debug('WorksheetContent: %s' % traceback.format_exc())
