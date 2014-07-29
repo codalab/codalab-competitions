@@ -449,6 +449,7 @@ var WorkshhetDirectiveRenderer = (function() {
 var WorksheetRenderer = (function() {
     function WorksheetRenderer(element, renderer, data) {
         console.log('WorksheetRenderer');
+        // TODO: replace all of this with the results of worksheet_util.interpret_items
         this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
@@ -470,7 +471,6 @@ var WorksheetRenderer = (function() {
 
                 if ((item[2] != 'markup' || (item[2] == 'markup' && item[1] == '')) && markdownBlock.length > 0) {
                     var e = document.createElement('div');
-                    console.log(markdownBlock);
                     e.innerHTML = markdown.toHTML(markdownBlock);
                     element.appendChild(e);
                     markdownBlock = '';
@@ -482,8 +482,6 @@ var WorksheetRenderer = (function() {
                         break;
                     }
                     case 'bundle': {
-
-                        // Only display bundle if its not empty, this allows ability to hide bundles.
                         element.appendChild(_this.renderer.render(item[0]));
                         break;
                     }
