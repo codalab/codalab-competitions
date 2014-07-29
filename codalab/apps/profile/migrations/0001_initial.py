@@ -8,47 +8,22 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'ClUser.affiliation'
-        db.add_column(u'authenz_cluser', 'affiliation',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=200, blank=True),
-                      keep_default=False)
-
-        # Adding field 'ClUser.location'
-        db.add_column(u'authenz_cluser', 'location',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=200, blank=True),
-                      keep_default=False)
-
-        # Adding field 'ClUser.picture'
-        db.add_column(u'authenz_cluser', 'picture',
-                      self.gf('django.db.models.fields.files.ImageField')(default='', max_length=100, blank=True),
-                      keep_default=False)
-
-        # Adding field 'ClUser.biography'
-        db.add_column(u'authenz_cluser', 'biography',
-                      self.gf('django.db.models.fields.TextField')(default='', blank=True),
-                      keep_default=False)
-
-        # Adding field 'ClUser.website'
-        db.add_column(u'authenz_cluser', 'website',
-                      self.gf('django.db.models.fields.URLField')(default='', max_length=200, blank=True),
-                      keep_default=False)
+        # Adding model 'UserProfile'
+        db.create_table(u'profile_userprofile', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['authenz.ClUser'], unique=True)),
+            ('affiliation', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('location', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('picture', self.gf('django.db.models.fields.files.ImageField')(default='', max_length=100, blank=True)),
+            ('biography', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('website', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
+        ))
+        db.send_create_signal(u'profile', ['UserProfile'])
 
 
     def backwards(self, orm):
-        # Deleting field 'ClUser.affiliation'
-        db.delete_column(u'authenz_cluser', 'affiliation')
-
-        # Deleting field 'ClUser.location'
-        db.delete_column(u'authenz_cluser', 'location')
-
-        # Deleting field 'ClUser.picture'
-        db.delete_column(u'authenz_cluser', 'picture')
-
-        # Deleting field 'ClUser.biography'
-        db.delete_column(u'authenz_cluser', 'biography')
-
-        # Deleting field 'ClUser.website'
-        db.delete_column(u'authenz_cluser', 'website')
+        # Deleting model 'UserProfile'
+        db.delete_table(u'profile_userprofile')
 
 
     models = {
@@ -80,6 +55,9 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'location': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'organizer_direct_message_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'organizer_status_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'participation_status_updates': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'picture': ('django.db.models.fields.files.ImageField', [], {'default': "''", 'max_length': '100', 'blank': 'True'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
@@ -92,7 +70,17 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        u'profile.userprofile': {
+            'Meta': {'object_name': 'UserProfile'},
+            'affiliation': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'location': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'picture': ('django.db.models.fields.files.ImageField', [], {'default': "''", 'max_length': '100', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['authenz.ClUser']", 'unique': 'True'}),
+            'website': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         }
     }
 
-    complete_apps = ['authenz']
+    complete_apps = ['profile']

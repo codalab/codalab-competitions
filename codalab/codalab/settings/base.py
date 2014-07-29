@@ -210,6 +210,7 @@ class Base(Settings):
         'apps.jobs',
         'apps.api',
         'apps.web',
+        'apps.profile',
 
         # Authentication app, enables social authentication
         'allauth',
