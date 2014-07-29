@@ -3,6 +3,7 @@ Defines Django views for 'apps.api' app.
 """
 import json
 import logging
+import traceback
 
 from . import serializers
 from uuid import uuid4
@@ -671,11 +672,14 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid)
-            owner = ClUser.objects.filter(id=worksheet['owner_id'])[0]
-            worksheet['owner'] = owner.username
+            #logger.debug('Got worksheet: %s' % worksheet)
+            #owners = ClUser.objects.filter(id=worksheet['owner_id'])
+            #logger.debug('owner %s' % owner)
+            #worksheet['owner'] = owner.username
             return Response(worksheet)
         except Exception as e:
-            return Response(status=service.http_status_from_exception(e))
+            logger.debug('WorksheetContent: %s' % traceback.format_exc())
+            return Response(traceback.format_exc(), status=service.http_status_from_exception(e))
 
 class BundleInfoApi(views.APIView):
     """
@@ -689,7 +693,7 @@ class BundleInfoApi(views.APIView):
             item = service.item(uuid)
             return Response(item, content_type="application/json")
         except Exception as e:
-            return Response(status=service.http_status_from_exception(e))
+            return Response(e, status=service.http_status_from_exception(e))
 
 class BundleContentApi(views.APIView):
     """
@@ -703,7 +707,7 @@ class BundleContentApi(views.APIView):
             items = service.ls(uuid, path)
             return Response(items)
         except Exception as e:
-            return Response(status=service.http_status_from_exception(e))
+            return Response(e, status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
     """

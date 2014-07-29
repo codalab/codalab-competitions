@@ -250,13 +250,14 @@ var BundleRenderer = (function() {
     BundleRenderer.getMetadataTableModel = function(data) {
         var rows = [];
         for (var k in data.metadata) {
-            console.log(k);
-            if(k == "description"){
-                rows.push([k, data.metadata[k]]);
+            if (k == 'description' || k == 'data_size') {
+                if (data.metadata[k])
+                    rows.push([k, data.metadata[k]]);
             }
-            // if (k !== 'name') {
-            //     rows.push([k, data.metadata[k]]);
-            // }
+        }
+        if (data.bundle_type == 'run') {
+            rows.push(['command', data.command]);
+            rows.push(['state', data.state]);
         }
 
         var renderKey = function(element, row, col) {
@@ -447,6 +448,7 @@ var WorkshhetDirectiveRenderer = (function() {
 
 var WorksheetRenderer = (function() {
     function WorksheetRenderer(element, renderer, data) {
+        console.log('WorksheetRenderer');
         this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;

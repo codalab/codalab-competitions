@@ -39,8 +39,8 @@
                         <h4 class="bundle-name bundle-icon-sm bundle-icon-sm-indent"></h4>
                     </a>
                 </div>
-                {# <hr > #}
-                {# <div class="bundle-meta-view-container"></div> #}
+                <hr >
+                <div class="bundle-meta-view-container"></div>
                 {# <a href="" class="bundle__expand_button" >SHOW BUNDLE CONTENT<img src="/static/img/expand-arrow.png" alt="More"></a> #}
                 {# <div class="bundle-file-view-container large-12-columns" ></div> #}
             </div>
@@ -74,9 +74,8 @@ $(document).ready(function() {
         url: "/api" + document.location.pathname,
         cache: false,
         success: function (data) {
-            console.log("$(document).ready")
+            console.log("$(document).ready()")
             console.log(data);
-            console.log();
 
             new WorksheetRenderer( //element, renderer, data
                 $("#worksheet-content").get(0),
