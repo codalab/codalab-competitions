@@ -277,7 +277,19 @@ var Competition;
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
         $(elemTr).children().each(function(index) {
             switch (index) {
-                case 0: if (response.status === 'finished') { $(this).val('1'); } break;
+                case 0:
+                    if (response.status === 'finished') {
+                        $(this).val('1');
+
+                        // Add the check box if auto submitted to leaderboard
+                        if($("#forced_to_leaderboard").length > 0) {
+                            // Remove previous checkmarks
+                            $(".fi-check").remove();
+
+                            $($(elemTr).children("td")[4]).html('<i class="fi-check"></i>');
+                        }
+                    }
+                    break;
                 case 1: $(this).html(response.submission_number.toString()); break;
                 case 2: $(this).html(response.filename); break;
                 case 3:
@@ -380,11 +392,21 @@ var Competition;
                     $('#user_results #' + submissionId + 'input:hidden').val('1');
                     var phasestate = $('#phasestate').val();
                     if (phasestate == 1) {
-                        $(obj).addClass('leaderBoardSubmit');
-                        $(obj).text('Submit to Leaderboard');
-                        $(obj).on('click', function() {
-                            updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
-                        });
+                        if($("#forced_to_leaderboard").length == 0) {
+                            $(obj).addClass('leaderBoardSubmit');
+                            $(obj).text('Submit to Leaderboard');
+                            $(obj).on('click', function() {
+                                updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
+                            });
+                        } else {
+                            $(".fi-check").remove();
+                            $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+
+                            $(obj).removeClass('leaderBoardSubmit');
+                            $(obj).addClass('leaderBoardRemove');
+                            $(obj).text('Remove from Leaderboard');
+                        }
+
                     } else {
                         $(obj).addClass('hide');
                     }
