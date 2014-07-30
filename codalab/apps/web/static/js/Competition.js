@@ -13,22 +13,16 @@ var Competition;
     };
 
     function decorateLeaderboardButton(btn, submitted) {
-        var force_submission_to_leaderboard = btn.attr('force_submission_to_leaderboard');
+        //var force_submission_to_leaderboard = btn.attr('force_submission_to_leaderboard');
 
-        if (force_submission_to_leaderboard) {
-            if (submitted) {
-                btn.text('Automatically submitted to leaderboard').attr('disabled', 'disabled');
-            }
+        if (submitted) {
+            btn.removeClass('leaderBoardSubmit');
+            btn.addClass('leaderBoardRemove');
+            btn.text('Remove from Leaderboard');
         } else {
-            if (submitted) {
-                btn.removeClass('leaderBoardSubmit');
-                btn.addClass('leaderBoardRemove');
-                btn.text('Remove from Leaderboard');
-            } else {
-                btn.removeClass('leaderBoardRemove');
-                btn.addClass('leaderBoardSubmit');
-                btn.text('Submit to Leaderboard');
-            }
+            btn.removeClass('leaderBoardRemove');
+            btn.addClass('leaderBoardSubmit');
+            btn.text('Submit to Leaderboard');
         }
     }
 
@@ -386,17 +380,11 @@ var Competition;
                     $('#user_results #' + submissionId + 'input:hidden').val('1');
                     var phasestate = $('#phasestate').val();
                     if (phasestate == 1) {
-                        var force_submission_to_leaderboard = $(obj).attr('force_submission_to_leaderboard');
-
-                        if (!force_submission_to_leaderboard) {
-                            $(obj).addClass('leaderBoardSubmit');
-                            $(obj).text('Submit to Leaderboard');
-                            $(obj).on('click', function() {
-                                updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
-                            });
-                        } else {
-                            $(obj).text('Automatically submitted to leaderboard').attr('disabled', 'disabled');
-                        }
+                        $(obj).addClass('leaderBoardSubmit');
+                        $(obj).text('Submit to Leaderboard');
+                        $(obj).on('click', function() {
+                            updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
+                        });
                     } else {
                         $(obj).addClass('hide');
                     }
