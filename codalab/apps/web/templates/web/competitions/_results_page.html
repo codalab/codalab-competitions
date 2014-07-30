@@ -79,7 +79,7 @@
                 {% if phase.competition.enable_medical_image_viewer %}
                     {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}                        
                     <td>
-                        <a href="{{viewerlink}}&imageData={{phase.get_input_data|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.get_input_data|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
+                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.get_input_data|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
                             View results
                         </a>
                     </td>                                                                      
