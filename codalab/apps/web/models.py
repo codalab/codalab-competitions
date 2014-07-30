@@ -478,11 +478,6 @@ class CompetitionPhase(models.Model):
         """
         return self.leaderboard_management_mode == LeaderboardManagementMode.HIDE_RESULTS
 
-    @property
-    def get_input_data(self):
-        #return os.path.join(self.input_data.storage.url(''), self.input_data.name)   
-        return self.input_data.name
-
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):
         """ Given a set of identifiers (ids) and a set of (id, value)-pairs
