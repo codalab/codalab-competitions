@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab %}
+{% load tz %}
+
+{% block page_title %}Delete Submission{% endblock page_title %}
+{% block head_title %}Delete Submission{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="large-12 columns">
+        <form action="" method="post">
+            {% csrf_token %}
+            <p>Are you sure you want to delete "{{ object }}"?</p>
+
+            <input type="submit" value="Confirm" class="button alert confirm-button"/>
+            <a href="{% url "my_datasets" %}" class="button">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
