@@ -553,17 +553,13 @@ class CompetitionPhase(models.Model):
                 submissions.append((rid,  name))
                        
         results = []
-        for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
+        for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
             label = g.label
             headers = []
             scores = {}
-            count = 0
             # add the location of the results on the blob storage to the scores 
             for (pk,name) in submissions: 
                 scores[pk] = {'username': name, 'values': [], 'resultLocation': resLocation[count]}
-                count = count+1
-            
-
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
