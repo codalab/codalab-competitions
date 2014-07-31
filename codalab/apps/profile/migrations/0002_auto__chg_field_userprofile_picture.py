@@ -8,22 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'UserProfile'
-        db.create_table(u'profile_userprofile', (
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['authenz.ClUser'], unique=True, primary_key=True)),
-            ('affiliation', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('location', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('picture', self.gf('django.db.models.fields.files.ImageField')(default='', max_length=100, blank=True)),
-            ('biography', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('website', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
-        ))
-        db.send_create_signal(u'profile', ['UserProfile'])
 
+        # Changing field 'UserProfile.picture'
+        db.alter_column(u'profile_userprofile', 'picture', self.gf('sorl.thumbnail.fields.ImageField')(max_length=100))
 
     def backwards(self, orm):
-        # Deleting model 'UserProfile'
-        db.delete_table(u'profile_userprofile')
 
+        # Changing field 'UserProfile.picture'
+        db.alter_column(u'profile_userprofile', 'picture', self.gf('django.db.models.fields.files.ImageField')(max_length=100))
 
     models = {
         u'auth.group': {
@@ -70,7 +62,7 @@ class Migration(SchemaMigration):
             'affiliation': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
             'biography': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'location': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'picture': ('django.db.models.fields.files.ImageField', [], {'default': "''", 'max_length': '100', 'blank': 'True'}),
+            'picture': ('sorl.thumbnail.fields.ImageField', [], {'default': "''", 'max_length': '100', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['authenz.ClUser']", 'unique': 'True', 'primary_key': 'True'}),
             'website': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         }

@@ -25,6 +25,7 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
+    THUMBNAIL_DEBUG = DEBUG
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -220,7 +221,10 @@ class Base(Settings):
         'oauth2_provider',
 
         # Search
-        'haystack'
+        'haystack',
+
+        # Thumbnail generator
+        'sorl.thumbnail'
     )
 
     OPTIONAL_APPS = []
@@ -280,6 +284,14 @@ class Base(Settings):
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': os.path.join(MEDIA_ROOT, 'cache'),
+        }
+    }
+
 
     BUNDLE_SERVICE_URL = ""
 

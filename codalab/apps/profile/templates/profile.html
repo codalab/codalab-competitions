@@ -3,6 +3,7 @@
 {% load codalab %}
 {% load tz %}
 {% load i18n %}
+{% load thumbnail %}
 {% block page_title %}Profile{% endblock page_title %}
 {% block head_title %}Profile{% endblock %}
 
@@ -21,6 +22,9 @@
             {% for hidden in profile_form.hidden_fields %}
                 {{ hidden }}
             {% endfor %}
+            {% thumbnail user.userprofile.picture "100x100" crop="center" as im %}
+                <img src="{{ im.url }}">
+            {% endthumbnail %}
             {{ user_form.as_p }}
             {{ profile_form.as_p }}
 		    <button class="button" type="submit">{% trans "Save" %} </button>

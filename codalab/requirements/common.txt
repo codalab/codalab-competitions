@@ -32,3 +32,5 @@ django-haystack
 django-tinymce
 closure_linter
 mock==1.0.1
+sorl-thumbnail==11.12
+PIL==1.1.7
