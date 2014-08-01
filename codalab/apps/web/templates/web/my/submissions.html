@@ -54,7 +54,7 @@
                     {% endif %}
                     {% endfor %}
                     <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
-                    <td>DEL</td>
+                    <td><a href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

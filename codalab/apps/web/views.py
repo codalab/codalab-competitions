@@ -759,17 +759,18 @@ class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
         return context
 
 
-class SubmissionDelete(DeleteView):
+class SubmissionDelete(LoginRequiredMixin, DeleteView):
     model = models.CompetitionSubmission
     template_name = "web/my/submission_delete.html"
 
     def get_success_url(self):
-        return reverse("my_datasets")
+        print "success url -> %s" % self.get_object().pk
+        return reverse("competitions:view", kwargs={"pk": self.get_object().pk})
 
     def get_object(self, queryset=None):
         obj = super(SubmissionDelete, self).get_object(queryset)
 
-        if obj.phase.competition.uploaded_by != self.request.user:
+        if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
             raise Http404()
 
         return obj
