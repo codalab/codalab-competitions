@@ -1,9 +1,8 @@
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
-
-from apps.profile.models import UserProfile,ClUser
 from apps.profile import forms
+import time,datetime
 
 @login_required
 def profile(request):
@@ -26,6 +25,9 @@ def profile(request):
             user_profile = profile_form.save(commit=False)
             user_profile.user = user
             user_profile.picture = profile_form.cleaned_data['picture']
+            if request.FILES.has_key('picture'):
+                ts = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d%H%M%S')
+                request.FILES['picture'].name = user.username + '_' + ts + '.jpg'
 
             # Now we save the UserProfile model instance.
             user_profile.save()
