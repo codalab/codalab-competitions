@@ -12,7 +12,7 @@
     <div class="large-12 columns">
         <form action="" method="post">
             {% csrf_token %}
-            <p>Are you sure you want to delete "{{ object }}"?</p>
+            <p>Are you sure you want to delete this submission?</p>
 
             <input type="submit" value="Confirm" class="button alert confirm-button"/>
             <a href="{% url "my_datasets" %}" class="button">Cancel</a>
