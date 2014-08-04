@@ -144,8 +144,6 @@ def predict(submission, job_id):
         raise ValueError("Program is missing.")
     input_value = submission.phase.input_data.name
 
-    print "%%%%%%%% Input_data -> %s" % input_value
-
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
