@@ -1,4 +1,5 @@
 import mock
+import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -59,6 +60,29 @@ class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
         self.client.login(username="organizer", password="pass")
         resp = self.client.get(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 200)
+
+    def test_dataset_delete_actually_deletes(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
+        self.assertEquals(0, len(models.OrganizerDataSet.objects.filter(pk=self.dataset.pk)))
+
+    def test_dataset_delete_doesnt_delete_phases_using_dataset(self):
+        self.competition = models.Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.participant = models.CompetitionParticipant.objects.create(
+            user=self.user,
+            competition=self.competition,
+            status=models.ParticipantStatus.objects.get_or_create(codename=models.ParticipantStatus.APPROVED)[0]
+        )
+        self.phase = models.CompetitionPhase.objects.create(
+            competition=self.competition,
+            phasenumber=1,
+            start_date=datetime.datetime.now() - datetime.timedelta(days=30),
+            input_data_organizer_dataset=self.dataset
+        )
+
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
+        self.assertEquals(1, len(models.CompetitionPhase.objects.filter(pk=self.phase.pk)))
 
 
 class OrganizerDataSetListViewTestsCase(OrganizerDataSetTestCase):
