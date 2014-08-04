@@ -224,10 +224,3 @@ class CompetitionEditPermissionsTests(CompetitionTest):
             )
 
         self.assertTrue(construct_inlines_mock.called)
-
-
-class CompetitionEditOrganizerDataSets(CompetitionTest):
-
-    def test_saves_input_data_and_scoring_program_and_reference_data(self):
-
-        pass
