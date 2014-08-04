@@ -21,6 +21,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             raise e
 
 
+    # TODO: these methods are out of date.
+    # TODO: change BundleService names to match BundleClient.
     class BundleService():
 
         def __init__(self, user=None):

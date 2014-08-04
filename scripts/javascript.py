@@ -1,15 +1,16 @@
 import sys, getopt
 from subprocess import call
+import os
 
 if len(sys.argv) != 2:
-	print '\n  Usage: python build.py <closure compiler jar>'
-	print '\n  Download and extract the compiler from http:/dl.google.com/closure-compiler/compiler-latest.zip'
+	print '\n  Usage: python scripts/javascript.py <closure compiler jar>'
+	print '\n  Download and extract the compiler from http://dl.google.com/closure-compiler/compiler-latest.zip'
 	sys.exit(2)
 
 files = [
 	"js/app.js",
 	"js/bundle.js",
-	"js/competition.js",
+	"js/Competition.js",
 	"js/main.js",
 	"app/js/app.js",
 	"app/js/services/worksheetsapi.js",
@@ -21,14 +22,18 @@ files = [
 	"app/js/directives/scrollintoview.js",
 	]
 
+dest = 'codalab/apps/web/static'
+
+files = [os.path.join(dest, f) for f in files]
+
 # Run JSLint
-call(["gjslint", "--disable", "110"] + files)
+call(["venv/bin/gjslint", "--disable", "110"] + files)
 
 # Minify js files
-call(["java", "-jar", sys.argv[1], "--js"] + files + ["--js_output_file", "codalab.min.js", "--create_source_map", "codalab.min.map", "--output_wrapper", "%output%//# sourceMappingURL=/static/codalab.min.map"])
+call(["java", "-jar", sys.argv[1], "--js"] + files + ["--js_output_file", os.path.join(dest, "codalab.min.js"), "--create_source_map", os.path.join(dest, "codalab.min.map"), "--output_wrapper", "%output%//# sourceMappingURL=/static/codalab.min.map"])
 
 # To allow debugging in browsers that don't support source maps, create a single JS file
-with open('codalab.js', 'w') as outfile:
+with open(os.path.join(dest, 'codalab.js'), 'w') as outfile:
     for file in files:
         with open(file) as infile:
             for line in infile:

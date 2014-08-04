@@ -288,13 +288,14 @@ var BundleRenderer = (function() {
     BundleRenderer.getMetadataTableModel = function(data) {
         var rows = [];
         for (var k in data.metadata) {
-            console.log(k);
-            if(k == "description"){
-                rows.push([k, data.metadata[k]]);
+            if (k == 'description' || k == 'data_size') {
+                if (data.metadata[k])
+                    rows.push([k, data.metadata[k]]);
             }
-            // if (k !== 'name') {
-            //     rows.push([k, data.metadata[k]]);
-            // }
+        }
+        if (data.bundle_type == 'run') {
+            rows.push(['command', data.command]);
+            rows.push(['state', data.state]);
         }
 
         var renderKey = function(element, row, col) {
@@ -485,6 +486,8 @@ var WorkshhetDirectiveRenderer = (function() {
 
 var WorksheetRenderer = (function() {
     function WorksheetRenderer(element, renderer, data) {
+        console.log('WorksheetRenderer');
+        // TODO: replace all of this with the results of worksheet_util.interpret_items
         this.renderer = renderer;
         if (data && data.items && Array.isArray(data.items)) {
             var _this = this;
@@ -499,28 +502,27 @@ var WorksheetRenderer = (function() {
             var markdownBlock = '';
             // Add an EOF block to ensure the block transitions always apply within the loop
             data.items.push([null, 'eof', null]);
-            var blocks = data.items.forEach(function(item, idxItem, items) {
+            data.items.forEach(function(item, idxItem, items) {
                 // Apply directives when the markdown item type changes
                 if (item[2] != 'directive')
                     directiveRenderer.applyPendingDirectives(element);
 
-                if (item[2] != 'markup' && markdownBlock.length > 0) {
+                if ((item[2] != 'markup' || (item[2] == 'markup' && item[1] == '')) && markdownBlock.length > 0) {
                     var e = document.createElement('div');
                     e.innerHTML = markdown.toHTML(markdownBlock);
                     element.appendChild(e);
                     markdownBlock = '';
+                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, e]);
                 }
+
                 switch (item[2]) {
                     case 'markup': {
-                        markdownBlock += item[1] + '\n\r';
+                        if (item[1] != '')
+                            markdownBlock += item[1] + ' ';
                         break;
                     }
                     case 'bundle': {
-
-                        // Only display bundle if its not empty, this allows ability to hide bundles.
-                        // if (item[1]) {
-                            element.appendChild(_this.renderer.render(item[0]));
-                        // }
+                        element.appendChild(_this.renderer.render(item[0]));
                         break;
                     }
                     case 'directive': {
@@ -534,13 +536,13 @@ var WorksheetRenderer = (function() {
                 }
             });
 
-            MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.id]);
-            MathJax.Hub.Queue(function() {
+            //MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+            /*MathJax.Hub.Queue(function() {
                 var all = MathJax.Hub.getAllJax();
                 for (var i = 0; i < all.length; i += 1) {
                     $(all[i].SourceElement().parentNode).addClass('coda-jax');
                 }
-            });
+            });*/
         }
     }
     return WorksheetRenderer;
@@ -842,7 +844,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = dt.getDate().toString() + "/" + dt.getMonth().toString() + "/" + dt.getFullYear();
+                    var d = dt.getDate().toString() + '/' + dt.getMonth().toString() + '/' + dt.getFullYear();
                     var h = dt.getHours().toString();
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
@@ -1035,7 +1037,7 @@ var Competition;
                         },
                         error: function(jsXHR, textStatus, errorThrown) {
                             var data = $.parseJSON(jsXHR.responseJSON);
-                            if(data.error) {
+                            if (data.error) {
                                 alert(data.error);
                             }
                             console.log('Error publishing competition!');
