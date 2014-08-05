@@ -159,12 +159,17 @@ def predict(submission, job_id):
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({"id" : job_id,
-                       "task_type": "run",
-                       "task_args": {
-                           "bundle_id" : submission.prediction_runfile.name,
-                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
+    body = json.dumps({
+        "id" : job_id,
+        "task_type": "run",
+        "task_args": {
+            "bundle_id" : submission.prediction_runfile.name,
+            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
+        }
+    })
+
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -270,7 +275,8 @@ def score(submission, job_id):
         "task_args": {
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE
+            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
