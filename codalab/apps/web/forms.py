@@ -38,6 +38,28 @@ class CompetitionPhaseForm(forms.ModelForm):
             'phasenumber': forms.HiddenInput
         }
 
+    def clean_reference_data_organizer_dataset(self):
+        # If no reference_data
+        if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+
+        # If we were using org dataset but do not select a new one
+        if self.instance.reference_data_organizer_dataset and not self.cleaned_data["reference_data_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+
+        return self.cleaned_data["reference_data_organizer_dataset"]
+
+    def clean_scoring_program_organizer_dataset(self):
+        # If no scoring_data
+        if not self.instance.scoring_program and not self.cleaned_data["scoring_program_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+
+        # If we were using org dataset but do not select a new one
+        if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+
+        return self.cleaned_data["scoring_program_organizer_dataset"]
+
 
 class PageForm(forms.ModelForm):
     class Meta:

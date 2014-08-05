@@ -447,9 +447,9 @@ class CompetitionPhase(models.Model):
     is_migrated = models.BooleanField(default=False)
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
-    input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data")
-    reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data")
-    scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program")
+    input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
+    reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
+    scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['phasenumber']
@@ -1242,7 +1242,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", dataset.pk, str(uuid.uuid4()), filename)
+    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
 
 
 class OrganizerDataSet(models.Model):
