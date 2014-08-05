@@ -100,16 +100,15 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         # inlines[0] = pages
         # inlines[1] = phases
-
         for phase_form in inlines[1]:
-            if phase_form.instance.input_data_organizer_dataset:
-                phase_form.instance.input_data = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+                phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.instance.reference_data_organizer_dataset:
-                phase_form.instance.reference_data = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+                phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.instance.scoring_program_organizer_dataset:
-                phase_form.instance.scoring_program = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+                phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
             phase_form.instance.save()
 
@@ -205,6 +204,7 @@ def competition_message_participants(request, competition_id):
 
     participants = models.CompetitionParticipant.objects.filter(
         competition=competition,
+        status=models.ParticipantStatus.objects.get(codename="approved"),
         user__organizer_direct_message_updates=True
     )
     emails = [p.user.email for p in participants]

@@ -143,6 +143,7 @@ def predict(submission, job_id):
     else:
         raise ValueError("Program is missing.")
     input_value = submission.phase.input_data.name
+
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
@@ -230,7 +231,10 @@ def score(submission, job_id):
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
     if submission.phase.auto_migration:
         # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
-        submissions_this_phase = CompetitionSubmission.objects.filter(phase=submission.phase).count()
+        submissions_this_phase = CompetitionSubmission.objects.filter(
+            phase=submission.phase,
+            participant=submission.participant
+        ).count()
         is_automatic_submission = submissions_this_phase == 1
         lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
