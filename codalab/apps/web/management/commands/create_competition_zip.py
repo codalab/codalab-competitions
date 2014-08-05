@@ -35,6 +35,12 @@ class Command(BaseCommand):
                     action="store_false",
                     default=True,
                     help="Don't delete the temp files"
+                    ),
+        make_option('--automigrate', '-a',
+                    dest='auto_migrate',
+                    action="store_true",
+                    default=False,
+                    help="Enable auto migration between phases"
                     )
     )
 
@@ -63,6 +69,7 @@ class Command(BaseCommand):
         numphases = options['numphases']
         phaselength = options['phaselength']
         delete = options['delete']
+        auto_migrate = options['auto_migrate']
 
         if numphases < 1:
             print "you must have at least one phase "
@@ -97,7 +104,7 @@ class Command(BaseCommand):
                       'reference_data': 'reference_data.zip',
                       'start_date': phasedates[i],
                       'label': phase_name,
-                      'auto_migration': True
+                      'auto_migration': auto_migrate
                    }
                 }
             comp_yaml_obj['phases'].update(phase)
