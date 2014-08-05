@@ -84,11 +84,14 @@ var BundleRenderer = (function() {
         this.template = element;
     }
     BundleRenderer.loadContentAsync = function(container, parent) {
+        console.log('loadContentAsync');
         $.ajax({
             type: 'GET',
             url: [parent.getUrl(), parent.getFullName()].join('/'),
             cache: false,
             success: function(data) {
+                console.log(data);
+                console.log('');
                 var children = [];
                 if (Array.isArray(data) && data.length == 2) {
                     var set1 = data[0].map(function(item) {
@@ -110,11 +113,14 @@ var BundleRenderer = (function() {
     };
 
     BundleRenderer.loadFileContentAsync = function(container, node) {
+        console.log('loadFileContentAsync');
         $.ajax({
             type: 'GET',
             url: [node.getUrl().replace('api/bundles/content', 'api/bundles/filecontent'), node.getFullName()].join('/'),
             cache: false,
             success: function(data) {
+                console.log(data);
+                console.log('');
                 node.setData(data);
                 BundleRenderer.renderTable(container, BundleRenderer.getContentTableModel(node, container));
             },
@@ -125,7 +131,7 @@ var BundleRenderer = (function() {
 
     BundleRenderer.getContentTableModel = function(node, container) {
         var numRows = 0;
-        if (node.isRootNode() == false) {
+        if (node.isRootNode() === false) {
             numRows += 1;
         }
         if (node.isLeafNode()) {
@@ -282,9 +288,13 @@ var BundleRenderer = (function() {
     BundleRenderer.getMetadataTableModel = function(data) {
         var rows = [];
         for (var k in data.metadata) {
-            if (k !== 'name') {
+            console.log(k);
+            if(k == "description"){
                 rows.push([k, data.metadata[k]]);
             }
+            // if (k !== 'name') {
+            //     rows.push([k, data.metadata[k]]);
+            // }
         }
 
         var renderKey = function(element, row, col) {
@@ -355,8 +365,14 @@ var BundleRenderer = (function() {
         clone.find('.bundle-uuid').text(data.uuid);
         clone.find('.bundle-link').attr('href', '/bundles/' + data.uuid);
         clone.find('.bundle-download').on('click', function(e) {
-            alert('This will allow you to download the bundle');
+            // alert('This will allow you to download the bundle TODO');
             e.preventDefault();
+            console.log(e);
+            console.log(container.get(0));
+            root = new BundleContentNode('/api/bundles/content', data.uuid);
+            console.log(root);
+
+
         });
         var metaContainer = clone.find('.bundle-meta-view-container').get(0);
         BundleRenderer.renderTable(metaContainer, BundleRenderer.getMetadataTableModel(data));
@@ -494,17 +510,17 @@ var WorksheetRenderer = (function() {
                     element.appendChild(e);
                     markdownBlock = '';
                 }
-
                 switch (item[2]) {
                     case 'markup': {
                         markdownBlock += item[1] + '\n\r';
                         break;
                     }
                     case 'bundle': {
+
                         // Only display bundle if its not empty, this allows ability to hide bundles.
-                        if (item[1]) {
+                        // if (item[1]) {
                             element.appendChild(_this.renderer.render(item[0]));
-                        }
+                        // }
                         break;
                     }
                     case 'directive': {
@@ -826,7 +842,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = $.datepicker.formatDate('mm/dd/yy', dt).toString();
+                    var d = dt.getDate().toString() + "/" + dt.getMonth().toString() + "/" + dt.getFullYear();
                     var h = dt.getHours().toString();
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
@@ -1018,6 +1034,10 @@ var Competition;
                             $(competition_actions).children('#competition-unpublish-button').show();
                         },
                         error: function(jsXHR, textStatus, errorThrown) {
+                            var data = $.parseJSON(jsXHR.responseJSON);
+                            if(data.error) {
+                                alert(data.error);
+                            }
                             console.log('Error publishing competition!');
                         }
                     });

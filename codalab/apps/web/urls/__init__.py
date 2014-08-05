@@ -1,5 +1,10 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
+from django.contrib.sites.models import Site
 from django.views.generic import TemplateView
+from django.contrib import admin
+
+from apps.web.models import Competition
 
 from .. import views
 
@@ -13,3 +18,69 @@ urlpatterns = patterns('',
     url(r'^bundles/', include('apps.web.urls.bundles')),
     url(r'^tinymce/', include('tinymce.urls')),
 )
+
+
+if settings.DEBUG:
+    '''
+    Debugging email templates
+    '''
+    class ExtraContextTemplateView(TemplateView):
+        extra_context = None
+
+        def get(self, request, *args, **kwargs):
+            if request.GET.get('text', None) is not None:
+                # Allow text emails with ?text=1 in the request
+                self.template_name = self.template_name.replace('.html', '.txt')
+            return super(ExtraContextTemplateView, self).get(request, *args, **kwargs)
+
+        def get_context_data(self, *args, **kwargs):
+            context = super(ExtraContextTemplateView, self).get_context_data(**kwargs)
+            if self.extra_context:
+                context.update(self.extra_context)
+            return context
+
+    urlpatterns += patterns('',
+        (r'^email_view/organizer_to_participant/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/participation_organizer_direct_email.html',
+            extra_context={
+                "body": "test",
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/participation_requested/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/participation_requested.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/participation_revoked/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/participation_revoked.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/organizer_participation_requested/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/organizer_participation_requested.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+        (r'^email_view/organizer_participation_revoked/$', ExtraContextTemplateView.as_view(
+            template_name='emails/notifications/organizer_participation_revoked.html',
+            extra_context={
+                "competition": Competition.objects.all()[0] if len(Competition.objects.all()) > 0 else None,
+                "site": Site.objects.get_current()
+            }
+        )),
+    )
+
+    '''
+    Admin
+    '''
+    urlpatterns += patterns('',
+        url(r'^admin/', include(admin.site.urls)),
+    )
