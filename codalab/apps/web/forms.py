@@ -21,6 +21,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'label',
             'start_date',
             'max_submissions',
+            'color',
             'is_scoring_only',
             'auto_migration',
             'leaderboard_management_mode',

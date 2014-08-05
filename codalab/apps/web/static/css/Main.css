@@ -1239,12 +1239,53 @@ div.articleImageContainer
 }
 .phaseLabel {
     font-weight: bold;
+    padding: 3px;
+    border-radius: 6px !important;
 }
 .currentPhase {
     color: #739cb9 !important;
     text-indent: 12px;
-    background: url('../img/triangle_phase.png') no-repeat 10px 8px;
+    background: url('../img/triangle_phase.png') no-repeat 10px 15px;
 }
+
+/* Configurable button colors for phases */
+.phaseListContainer {
+    margin-top: 5px;
+    margin-bottom: 45px;
+    padding-left: 5px;
+    border-radius: 4px;
+}
+.phaseList {
+    margin-top: 5px;
+    display: table;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.phaseListContainer.white { border-left: 5px solid #FAFAFA; }
+.phaseLabel.white { background-color: #FAFAFA !important; color: #615555 !important; }
+.button.white { background-color: #FAFAFA !important; color: #615555 !important; }
+
+.phaseListContainer.orange { border-left: 5px solid #fa963f; }
+.phaseLabel.orange { background-color: #fa963f !important; color: #615555 !important; }
+.button.orange { background-color: #fa963f !important; color: #615555 !important; }
+
+.phaseListContainer.yellow { border-left: 5px solid #F0F575; }
+.phaseLabel.yellow { background-color: #F0F575 !important; color: #615555 !important; }
+.button.yellow { background-color: #F0F575 !important; color: #615555 !important; }
+
+.phaseListContainer.green { border-left: 5px solid #92D053; }
+.phaseLabel.green { background-color: #92D053 !important; color: #615555 !important; }
+.button.green { background-color: #92D053 !important; color: #615555 !important; }
+
+.phaseListContainer.blue { border-left: 5px solid #88D0E9; }
+.phaseLabel.blue { background-color: #88D0E9 !important; color: #615555 !important; }
+.button.blue { background-color: #88D0E9 !important; color: #615555 !important; }
+
+.phaseListContainer.purple { border-left: 5px solid #D496D9; }
+.phaseLabel.purple { background-color: #D496D9 !important; color: #615555 !important; }
+.button.purple { background-color: #D496D9 !important; color: #615555 !important; }
+
 .testingStarts {
     float:right;
     position:absolute;
@@ -1343,7 +1384,12 @@ ul.myCodalabTabContent li.tab1 {
 }
 .StatusStripContainer {
     overflow:hidden;
+    text-align: center;
 }
+.StatusStripContainer h4 {
+    line-height: .9em;
+}
+
 .competitionsDetailTab {
     display:table;
     width:100%;
