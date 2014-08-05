@@ -777,12 +777,10 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
     model = models.CompetitionSubmission
     template_name = "web/my/submission_delete.html"
 
-    def get_success_url(self):
-        print "success url -> %s" % self.get_object().pk
-        return reverse("competitions:view", kwargs={"pk": self.get_object().pk})
-
     def get_object(self, queryset=None):
         obj = super(SubmissionDelete, self).get_object(queryset)
+
+        self.success_url = reverse("competitions:view", kwargs={"pk": obj.pk})
 
         if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
             raise Http404()
