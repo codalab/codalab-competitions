@@ -17,6 +17,9 @@
                 </figure>
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
+                    {% if not competition.published %}
+                    <label>Secret url: <a href="{% url "competitions:view" pk=competition.pk %}">{{ request.build_absolute_uri }}{% url "competitions:view" pk=competition.pk %}</a></label>
+                    {% endif %}
                     <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
