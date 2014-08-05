@@ -780,7 +780,7 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
     def get_object(self, queryset=None):
         obj = super(SubmissionDelete, self).get_object(queryset)
 
-        self.success_url = reverse("competitions:view", kwargs={"pk": obj.pk})
+        self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
 
         if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
             raise Http404()
