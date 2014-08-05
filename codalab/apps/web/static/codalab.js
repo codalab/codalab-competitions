@@ -575,9 +575,11 @@ var Competition;
 
     function updateLeaderboard(competition, submission, cstoken, btn) {
         var url = '/api/competition/' + competition + '/submission/' + submission + '/leaderboard';
-        var op = 'delete';
+        var op = '';
         if (btn.hasClass('leaderBoardSubmit')) {
             op = 'post';
+        } else if (btn.hasClass('leaderBoardRemove')) {
+            op = 'delete';
         }
         request = $.ajax({
             url: url,
@@ -914,6 +916,7 @@ var Competition;
                 if (status === 'Submitting' || status === 'Submitted' || status === 'Running') {
                     btn.removeClass('hide');
                     btn.text('Refresh status');
+                    console.log('----> ' + nTr.id);
                     btn.on('click', function() {
                         Competition.updateSubmissionStatus($('#competitionId').val(), nTr.id, this);
                     });
@@ -942,11 +945,10 @@ var Competition;
                         if($("#forced_to_leaderboard").length == 0) {
                             $(obj).addClass('leaderBoardSubmit');
                             $(obj).text('Submit to Leaderboard');
-                            $(obj).on('click', function() {
-                                updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
-                            });
                         } else {
+                            // Remove all checkmarks
                             $(".fi-check").remove();
+                            // Get the 4th table item and put a checkmark there
                             $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
 
                             $(obj).removeClass('leaderBoardSubmit');
@@ -954,6 +956,9 @@ var Competition;
                             $(obj).text('Remove from Leaderboard');
                         }
 
+                        $(obj).unbind( "click" ).off('click').on('click', function() {
+                            updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
+                        });
                     } else {
                         $(obj).addClass('hide');
                     }
