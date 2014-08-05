@@ -987,7 +987,7 @@ class CompetitionDefBundle(models.Model):
             phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
             phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
-            phase.color = phase_spec.get('color', None)
+            phase.color = phase_spec.get('color', '').lower().strip()
 
             if hasattr(phase, 'scoring_program') and phase.scoring_program:
                 if phase_spec["scoring_program"].endswith(".zip"):

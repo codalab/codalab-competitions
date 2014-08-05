@@ -1242,6 +1242,9 @@ div.articleImageContainer
     padding: 3px;
     border-radius: 6px !important;
 }
+.phaseLabel.competition-end, .phase-label-None {
+    padding: 0;
+}
 .currentPhase {
     color: #739cb9 !important;
     text-indent: 12px;
@@ -1262,29 +1265,41 @@ div.articleImageContainer
     border-radius: 6px;
 }
 
-.phaseListContainer.white { border-left: 5px solid #FAFAFA; }
-.phaseLabel.white { background-color: #FAFAFA !important; color: #615555 !important; }
-.button.white { background-color: #FAFAFA !important; color: #615555 !important; }
+.phase-list-item-None { border-left: 5px solid #ddd; }
 
-.phaseListContainer.orange { border-left: 5px solid #fa963f; }
-.phaseLabel.orange { background-color: #fa963f !important; color: #615555 !important; }
-.button.orange { background-color: #fa963f !important; color: #615555 !important; }
+.phase-list-item-white { border-left: 5px solid #FAFAFA; }
+.phase-label-white { background-color: #FAFAFA !important; color: #615555 !important; }
+.phase-btn-white { background-color: #FAFAFA !important; color: #615555 !important; }
 
-.phaseListContainer.yellow { border-left: 5px solid #F0F575; }
-.phaseLabel.yellow { background-color: #F0F575 !important; color: #615555 !important; }
-.button.yellow { background-color: #F0F575 !important; color: #615555 !important; }
+.phase-list-item-orange { border-left: 5px solid #fa963f; }
+.phase-label-orange { background-color: #fa963f !important; color: #615555 !important; }
+.phase-btn-orange { background-color: #fa963f !important; color: #615555 !important; }
 
-.phaseListContainer.green { border-left: 5px solid #92D053; }
-.phaseLabel.green { background-color: #92D053 !important; color: #615555 !important; }
-.button.green { background-color: #92D053 !important; color: #615555 !important; }
+.phase-list-item-yellow { border-left: 5px solid #F0F575; }
+.phase-label-yellow { background-color: #F0F575 !important; color: #615555 !important; }
+.phase-btn-yellow { background-color: #F0F575 !important; color: #615555 !important; }
 
-.phaseListContainer.blue { border-left: 5px solid #88D0E9; }
-.phaseLabel.blue { background-color: #88D0E9 !important; color: #615555 !important; }
-.button.blue { background-color: #88D0E9 !important; color: #615555 !important; }
+.phase-list-item-green { border-left: 5px solid #92D053; }
+.phase-label-green { background-color: #92D053 !important; color: #615555 !important; }
+.phase-btn-green { background-color: #92D053 !important; color: #615555 !important; }
 
-.phaseListContainer.purple { border-left: 5px solid #D496D9; }
-.phaseLabel.purple { background-color: #D496D9 !important; color: #615555 !important; }
-.button.purple { background-color: #D496D9 !important; color: #615555 !important; }
+.phase-list-item-blue { border-left: 5px solid #88D0E9; }
+.phase-label-blue { background-color: #88D0E9 !important; color: #615555 !important; }
+.phase-btn-blue { background-color: #88D0E9 !important; color: #615555 !important; }
+
+.phase-list-item-purple { border-left: 5px solid #D496D9; }
+.phase-label-purple { background-color: #D496D9 !important; color: #615555 !important; }
+.phase-btn-purple { background-color: #D496D9 !important; color: #615555 !important; }
+
+.active.phase-btn-white,
+.active.phase-btn-orange,
+.active.phase-btn-yellow,
+.active.phase-btn-green,
+.active.phase-btn-blue,
+.active.phase-btn-purple
+{
+    border: 3px solid rgb(83, 132, 166);
+}
 
 .testingStarts {
     float:right;
