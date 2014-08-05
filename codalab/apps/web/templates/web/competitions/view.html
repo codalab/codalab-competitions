@@ -20,6 +20,7 @@
                     <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
+
                     <div class="StatusStripContainer">
                         <div class="challStatusStripTxt">
                             <div class="dataStatusHolder">
@@ -30,29 +31,68 @@
                             <div class="challStatusStripLevel">
                             </div>
                             <section class="challStatusStripSection">
-                            {% for phase in competition.phases.all %}
-                                {% if phase.is_active %}
-                                <section class="currentPhase">
-                                {% else %}
+                                {% if previous_phase %}
                                 <section>
+                                    <h4>Previous</h4>
+                                    <span class="phaseLabel {{ previous_phase.color }}">{{previous_phase.label}}</span>
+                                    <br>
+                                    <span>{{previous_phase.start_date|utc}} UTC</span>
+                                </section>
                                 {% endif %}
-                                        <span class="phaseLabel">{{phase.label}}</span> 
-                                        <br>
-                                        <span>{{phase.start_date|utc}} UTC</span>
+
+                                {% if active_phase %}
+                                <section class="currentPhase">
+                                    <h4>Current</h4>
+                                    <span class="phaseLabel {{ active_phase.color }}">{{active_phase.label}}</span>
+                                    <br>
+                                    <span>{{active_phase.start_date|utc}} UTC</span>
                                 </section>
-                            {% endfor %}
+                                {% endif %}
+
+                                {% if next_phase %}
                                 <section>
-                                        <span class="phaseLabel">Competition Ends</span> 
-                                        <br>
-                                        <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
+                                    <h4>Next</h4>
+                                    <span class="phaseLabel {{ next_phase.color }}">{{next_phase.label}}</span>
+                                    <br>
+                                    <span>{{next_phase.start_date|utc}} UTC</span>
                                 </section>
+                                {% else %}
+
+                                <section>
+                                    <h4>End</h4>
+                                    <span class="phaseLabel">Competition Ends</span>
+                                    <br>
+                                    <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
+                                </section>
+                                {% endif %}
+
                             </section>
                         </div>
+
+                        <a href="#phases" style="font-size: 12px;">View all phases</a>
                     </div>
                 </div>
             </section>
             <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true" id="sections">
                 {% for tab, contents in tabs.items %}
+
+                {# Let's insert the "phases" tab just before participate #}
+                {% if tab.codename == "participate" %}
+                    <section id="phases-section">
+                        <p class="title" data-section-title width="100%" height="100%">
+                            <a href="#phases">Phases</a>
+                        </p>
+                        <div class="content" data-slug="phases" data-section-content>
+                            {% for phase in competition.phases.all %}
+                                <div class="phaseListContainer {{ phase.color }}">
+                                    <h3 class="phaseList">#{{ phase.phasenumber }} {{ phase }}</h3>
+                                    <b>Start: </b> {{ phase.start_date }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+
                 <section id="{{tab.name}}-section">
                     <p class="title" id="{{tab.name}}" data-section-title width="100%" height="100%">
                         <a href="#{{tab.codename}}">{{tab.name}}</a>
@@ -81,7 +121,7 @@
                                             </p>
                                             <p id="terms" for="checkbox">
                                                 <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
-                                                <span class="custom checkbox"></span> 
+                                                <span class="custom checkbox"></span>
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </p>
                                             <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
@@ -105,8 +145,8 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if my_status == "approved" %} 
-                                    {% include "web/competitions/_innertabs.html" %}      
+                                {% if my_status == "approved" %}
+                                    {% include "web/competitions/_innertabs.html" %}
                                 {% endif %}
                             {% endif %}
                         {% elif tab.codename == 'results' %}
