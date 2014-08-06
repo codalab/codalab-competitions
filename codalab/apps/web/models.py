@@ -155,6 +155,7 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    secret_key = UUIDField(version=4)
 
     @property
     def pagecontent(self):
