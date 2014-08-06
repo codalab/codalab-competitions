@@ -2,6 +2,10 @@
 {% elif phase.is_future %}
     <p>This phase of the competition has not started yet. Please check back later.</p>
 {% else %}
+    {% if phase.competition.force_submission_to_leaderboard %}
+        <div id="forced_to_leaderboard"></div>
+    {% endif %}
+
     {% if phase.is_active %}
     <div class="row">
         <div class="panel">
