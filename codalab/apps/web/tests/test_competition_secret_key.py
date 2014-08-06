@@ -20,11 +20,6 @@ class CompetitionSecretKey(TestCase):
             modified_by=self.organizer_user,
             published=False
         )
-        self.participant = CompetitionParticipant.objects.create(
-            user=self.participant_user,
-            competition=self.competition,
-            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.PENDING)[0]
-        )
 
     def test_competition_view_unpublished_returns_404_for_non_creator(self):
         resp = self.client.get(reverse("competitions:view", kwargs={"pk": self.competition.pk}))
