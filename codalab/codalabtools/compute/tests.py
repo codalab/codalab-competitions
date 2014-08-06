@@ -28,7 +28,7 @@ class ComputeConfigTests(TestCase):
         self.assertEqual("name of queue", cfg.getAzureServiceBusQueue())
         self.assertEqual("your account key", cfg.getAzureStorageAccountKey())
         self.assertEqual("your account name", cfg.getAzureStorageAccountName())
-        self.assertEqual("D:\\Temp", cfg.getLocalRoot())
+        self.assertEqual("C:\\Temp", cfg.getLocalRoot())
         log_cfg_expected = {
             'version': 1,
             'formatters': {
