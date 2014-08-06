@@ -156,8 +156,7 @@ class Competition(models.Model):
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
     enable_medical_image_viewer = models.BooleanField(default=False)
-    enable_detailed_results = models.BooleanField(default=False)
-
+   
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -424,6 +423,15 @@ class CompetitionPhase(models.Model):
     """
         A phase of a competition.
     """
+    COLOR_CHOICES = (
+        ('white', 'White'),
+        ('orange', 'Orange'),
+        ('yellow', 'Yellow'),
+        ('green', 'Green'),
+        ('blue', 'Blue'),
+        ('purple', 'Purple'),
+    )
+
     competition = models.ForeignKey(Competition,related_name='phases')
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
@@ -438,11 +446,8 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
-<<<<<<< HEAD
-=======
     execution_time_limit = models.PositiveIntegerField(default=(5 * 60))
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
->>>>>>> upstream/master
 
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data")
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data")
@@ -544,12 +549,12 @@ class CompetitionPhase(models.Model):
 
         # Get the list of submissions in this leaderboard
         submissions = []
-        resLocation = []
+        result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
             for entry in qs:
-                resLocation.append(entry.result.file.name)
+                result_location.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
                        
@@ -560,7 +565,7 @@ class CompetitionPhase(models.Model):
             scores = {}
             # add the location of the results on the blob storage to the scores 
             for (pk,name) in submissions: 
-                scores[pk] = {'username': name, 'values': [], 'resultLocation': resLocation[count]}
+                scores[pk] = {'username': name, 'values': [], 'resultLocation': result_location[count]}
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
