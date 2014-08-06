@@ -228,6 +228,7 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
             logger.debug("CMD: %s", prog_cmd)
@@ -279,13 +280,13 @@ def get_run_func(config):
             _send_update(queue, task_id, 'failed')
 
         # comment out for dev and viewing of raw folder outputs.
-        if root_dir is not None:
+        #if root_dir is not None:
            # Try cleaning-up temporary directory
-           try:
-               os.chdir(current_dir)
-               shutil.rmtree(root_dir)
-           except:
-               logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+        #   try:
+        #       os.chdir(current_dir)
+        #       shutil.rmtree(root_dir)
+        #   except:
+        #       logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():

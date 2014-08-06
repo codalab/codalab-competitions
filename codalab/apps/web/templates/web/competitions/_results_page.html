@@ -38,10 +38,13 @@
                  {% else %}
                  <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
                  {% endif %}
-                 {% endfor %}                  
+                 {% endfor %}
+                 {% if phase.competition.enable_detailed_results %}
+                 <th>Detailed Results</th>
+                 {% endif %}                  
                  {% if phase.competition.enable_medical_image_viewer %}
                  <th>Image Viewer</th>
-                 {% endif %}  
+                 {% endif %}                    
              </tr>
              <tr>
                 {% for head in group.headers %}
@@ -54,7 +57,9 @@
             </tr>
             {% if group.scores.items|length_is:"0" %}
             <tr class="noData">
-                {% if phase.competition.enable_medical_image_viewer %}
+                {% if phase.competition.enable_detailed_results and phase.competition.enable_medical_image_viewer %}
+                    <td colspan="{{group.total_span|add:2}}">No data available in table</td>
+                {% elif phase.competition.enable_detailed_results or phase.competition.enable_medical_image_viewer %}
                  <td colspan="{{group.total_span|add:1}}">No data available in table</td>
                 {% else %}
                  <td colspan="{{group.total_span}}">No data available in table</td>
