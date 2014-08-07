@@ -946,7 +946,9 @@ class CompetitionDefBundle(models.Model):
 
         default_pages = ('overview', 'evaluation', 'terms', 'data')
 
-        for page_name, page_data in comp_spec['html'].items():
+        for (page_number, (page_name, page_data)) in enumerate(comp_spec['html'].items()):
+            print 'page number -> %s' % page_number
+            print 'page_name -> %s' % page_name
             if page_name not in default_pages:
                 Page.objects.create(
                     category=details_category,
@@ -954,7 +956,7 @@ class CompetitionDefBundle(models.Model):
                     codename=page_name,
                     competition=comp,
                     label=page_name,
-                    rank=2,
+                    rank=3 + page_number,
                     html=zf.read(page_data)
                 )
 
