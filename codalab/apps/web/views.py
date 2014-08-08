@@ -100,16 +100,15 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         # inlines[0] = pages
         # inlines[1] = phases
-
         for phase_form in inlines[1]:
-            if phase_form.instance.input_data_organizer_dataset:
-                phase_form.instance.input_data = phase_form.instance.input_data_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+                phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.instance.reference_data_organizer_dataset:
-                phase_form.instance.reference_data = phase_form.instance.reference_data_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+                phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
 
-            if phase_form.instance.scoring_program_organizer_dataset:
-                phase_form.instance.scoring_program = phase_form.instance.scoring_program_organizer_dataset.data_file.file.name
+            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+                phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
 
             phase_form.instance.save()
 
@@ -250,11 +249,26 @@ class CompetitionDetailView(DetailView):
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
                 context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
-                for phase in competition.phases.all():
+
+                context["previous_phase"] = None
+                context["next_phase"] = None
+
+                phase_iterator = iter(competition.phases.all())
+                for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
                         context['my_active_phase_submissions'] = submissions[phase]
+
+                        # Set next phase if available
+                        try:
+                            context["next_phase"] = next(phase_iterator)
+                        except StopIteration:
+                            pass
+                    else:
+                        # Set trailing phase
+                        context["previous_phase"] = phase
+
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
@@ -757,6 +771,21 @@ class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
 
         context["competitions_in_use"] = usage
         return context
+
+
+class SubmissionDelete(LoginRequiredMixin, DeleteView):
+    model = models.CompetitionSubmission
+    template_name = "web/my/submission_delete.html"
+
+    def get_object(self, queryset=None):
+        obj = super(SubmissionDelete, self).get_object(queryset)
+
+        self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
+
+        if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
+            raise Http404()
+
+        return obj
 
 
 @login_required
