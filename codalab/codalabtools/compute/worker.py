@@ -298,6 +298,7 @@ def get_run_func(config):
             _upload(blob_service, container, output_id, output_file)
 
             # Check if the output folder contain a folder "html"
+
             html_output_dir = os.path.join(output_dir,"html")
             if os.path.exists(html_output_dir):
                 #copy the folder contents one by one
@@ -313,6 +314,7 @@ def get_run_func(config):
                             html_file_id = "%s/html/%s/%s" % (os.path.splitext(run_id)[0],os.path.basename(root),file)
                         print "file_to_upload:%s" % file_to_upload
                         _upload(blob_service, container, html_file_id, file_to_upload)
+
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
