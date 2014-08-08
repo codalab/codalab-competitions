@@ -46,8 +46,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                                     worksheet_util.get_default_schemas(),
                                     worksheet_info['items']
                                 )
-                interpreted['owner_id'] = worksheet_info['owner_id']
-                return interpreted
+                worksheet_info['items'] = interpreted['items']
+                return worksheet_info
             else:
                 return worksheet_info
 
