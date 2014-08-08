@@ -432,6 +432,7 @@ class CompetitionPhase(models.Model):
     )
 
     competition = models.ForeignKey(Competition,related_name='phases')
+    description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")

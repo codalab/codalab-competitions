@@ -86,7 +86,10 @@
                             {% for phase in competition.phases.all %}
                                 <div class="phaseListContainer phase-list-item-{{ phase.color }}">
                                     <h3 class="phaseList">{{ phase.label }}</h3>
-                                    <b>Start: </b> {{ phase.start_date }}
+                                    <p><b>Start: </b> {{ phase.start_date }}</p>
+                                    {% if phase.description %}
+                                    <p><b>Description: </b> {{ phase.description }}</p>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
