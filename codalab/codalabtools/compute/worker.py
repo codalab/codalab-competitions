@@ -71,8 +71,6 @@ class WorkerConfig(BaseConfig):
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
-    Gets a bundle and its dependent bundles from Azure storage and stage them on the local
-    system to prepare for execution. The function is recursive but depth of recursion can
     be controlled with the max_depth parameter.
 
     root_path: Path of the local directory under which all files are staged for execution.
@@ -299,6 +297,22 @@ def get_run_func(config):
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
 
+            # Check if the output folder contain a folder "html"
+            html_output_dir = os.path.join(output_dir,"html")
+            if os.path.exists(html_output_dir):
+                #copy the folder contents one by one
+                # traverse root directory, and list directories as dirs and files as files
+                for root, dirs, files in os.walk(html_output_dir):
+                    path = root.split('/')                      
+                    for file in files:
+                        print len(path)*'---', file
+                        file_to_upload = os.path.join(root,file)
+                        if os.path.basename(root)=="html":
+                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],file)
+                        else:
+                            html_file_id = "%s/html/%s/%s" % (os.path.splitext(run_id)[0],os.path.basename(root),file)
+                        print "file_to_upload:%s" % file_to_upload
+                        _upload(blob_service, container, html_file_id, file_to_upload)
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
