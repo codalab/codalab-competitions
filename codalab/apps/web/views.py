@@ -506,7 +506,7 @@ class MySubmissionResultsPartial(TemplateView):
 
         return ctx
 
-class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     This view serves the files associated with a submission.
     """
@@ -514,7 +514,7 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)            
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
@@ -523,9 +523,13 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
             return HttpResponse(status=500)
         try:
             response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type != 'text/plain':
+            if file_type == 'application/zip':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+            elif file_type == 'text/html':
+                response['Content-Type'] = 'text/html'
+            elif 'image' in file_type:
+                response['Content-Type'] = file_type
             return response
         except azure.WindowsAzureMissingResourceError:
             # for stderr.txt which does not exist when no errors have occurred
