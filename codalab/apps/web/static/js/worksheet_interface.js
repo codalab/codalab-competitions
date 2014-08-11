@@ -122,12 +122,20 @@ var WorksheetItem = React.createClass({
 
 
 var MarkdownBundle = React.createClass({
+    componentDidMount: function() {
+        MathJax.Hub.Queue([
+            'Typeset',
+            MathJax.Hub,
+            this.getDOMNode()
+        ]);
+    },
     render: function() {
         //create a string of html for innerHTML rendering
         var text = markdown.toHTML(this.props.interpreted);
         if(text.length == 0){
             text = "<br>"
         }
+        //
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
