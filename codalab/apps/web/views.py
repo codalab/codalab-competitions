@@ -539,6 +539,19 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
+class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
+    """
+    This view serves the files associated with a submission.
+    """
+    model = models.CompetitionSubmission
+    template_name = 'web/my/detailed_results.html'
+    def get(self, request, *args, **kwargs):
+        print "inside MyCompetitionSubmissionDetailedResults"
+        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        filetype = kwargs.get('filetype')
+        context_dict = {'id': kwargs.get('submission_id')}
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))            
+ 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
     # Requires an authenticated user who is an administrator of the competition.
