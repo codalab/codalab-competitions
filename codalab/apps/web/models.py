@@ -1262,6 +1262,7 @@ class OrganizerDataSet(models.Model):
         storage=BundleStorage,
         verbose_name="Data File"
     )
+    sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = UUIDField(version=4)
 
