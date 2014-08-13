@@ -21,7 +21,7 @@ class HealthStatusTriggerTests(TestCase):
         with mock.patch('apps.health.views.get_health_metrics') as get_health_metrics_mock:
             get_health_metrics_mock.return_value = {
                 "jobs_pending_count": 110,
-                "jobs_lasting_longer_than_10_minutes": None,
+                "jobs_lasting_longer_than_10_minutes": [_ for _ in range(0, 5)],
                 "alert_emails": self.health_settings.emails,
             }
 
@@ -36,7 +36,7 @@ class HealthStatusTriggerTests(TestCase):
         with mock.patch('apps.health.views.get_health_metrics') as get_health_metrics_mock:
             get_health_metrics_mock.return_value = {
                 "jobs_pending_count": 5,
-                "jobs_lasting_longer_than_10_minutes": 20,
+                "jobs_lasting_longer_than_10_minutes": [_ for _ in range(0, 15)],
                 "alert_emails": self.health_settings.emails,
             }
 
