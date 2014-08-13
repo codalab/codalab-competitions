@@ -3,6 +3,8 @@ import os
 from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -38,8 +40,8 @@ def get_health_metrics():
 
     return {
         "jobs_pending": jobs_pending,
-        "jobs_pending_count": 87,
-        "jobs_finished_in_last_2_days_avg": 576,
+        "jobs_pending_count": jobs_pending_count,
+        "jobs_finished_in_last_2_days_avg": jobs_finished_in_last_2_days_avg,
         "jobs_lasting_longer_than_10_minutes": jobs_lasting_longer_than_10_minutes,
         "jobs_failed": jobs_failed,
         "jobs_failed_count": len(jobs_failed),
@@ -66,12 +68,15 @@ def email_settings(request):
 
 def check_thresholds(request):
     metrics = get_health_metrics()
+    email_string = HealthSettings.objects.get_or_create(pk=1)[0].emails
+    emails = [s.strip() for s in email_string.split(",")]
 
-    # if jobs pending > 100
+    print emails
 
-    # if jobs average > 600s
+    if metrics["jobs_pending_count"] > 100:
+        send_mail("Codalab Warning: Jobs pending > 100!", "There are > 100 jobs pending for processing right now", settings.DEFAULT_FROM_EMAIL, emails)
 
-    # if
+    if metrics["jobs_lasting_longer_than_10_minutes"] > 10:
+        send_mail("Codalab Warning: Many jobs taking > 10 minutes!", "There are many jobs taking longer than 10 minutes to process", settings.DEFAULT_FROM_EMAIL, emails)
 
-    # strip(",") and then trim() each email!
-    pass
+    return HttpResponse()
