@@ -71,8 +71,6 @@ class WorkerConfig(BaseConfig):
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
-    Gets a bundle and its dependent bundles from Azure storage and stage them on the local
-    system to prepare for execution. The function is recursive but depth of recursion can
     be controlled with the max_depth parameter.
 
     root_path: Path of the local directory under which all files are staged for execution.
@@ -230,6 +228,7 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
             logger.debug("CMD: %s", prog_cmd)
@@ -297,7 +296,6 @@ def get_run_func(config):
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
-
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
