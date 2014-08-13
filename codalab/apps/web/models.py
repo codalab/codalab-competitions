@@ -155,9 +155,10 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    secret_key = UUIDField(version=4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
-   
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -437,6 +438,7 @@ class CompetitionPhase(models.Model):
     )
 
     competition = models.ForeignKey(Competition,related_name='phases')
+    description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
@@ -561,15 +563,17 @@ class CompetitionPhase(models.Model):
                 result_location.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
-                       
+
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
             label = g.label
             headers = []
             scores = {}
+
             # add the location of the results on the blob storage to the scores 
             for (pk,name) in submissions: 
                 scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
+
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
@@ -1210,7 +1214,7 @@ class SubmissionScoreSet(MPTTModel):
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)
-    value = models.DecimalField(max_digits=20, decimal_places=10)   
+    value = models.DecimalField(max_digits=20, decimal_places=10)
 
     class Meta:
         unique_together = (('result','scoredef'),)
