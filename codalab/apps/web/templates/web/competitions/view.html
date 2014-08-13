@@ -88,8 +88,11 @@
                         <div class="content" data-slug="phases" data-section-content>
                             {% for phase in competition.phases.all %}
                                 <div class="phaseListContainer phase-list-item-{{ phase.color }}">
-                                    <h3 class="phaseList">#{{ phase.phasenumber }} {{ phase }}</h3>
-                                    <b>Start: </b> {{ phase.start_date }}
+                                    <h3 class="phaseList">{{ phase.label }}</h3>
+                                    <p><b>Start: </b> {{ phase.start_date }}</p>
+                                    {% if phase.description %}
+                                    <p><b>Description: </b> {{ phase.description }}</p>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
