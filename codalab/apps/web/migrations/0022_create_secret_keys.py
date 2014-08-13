@@ -64,6 +64,8 @@ class Migration(DataMigration):
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'force_submission_to_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'has_registration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

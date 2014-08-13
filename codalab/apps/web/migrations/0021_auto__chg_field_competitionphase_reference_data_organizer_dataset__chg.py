@@ -8,6 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+
+        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
+
+        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
+
+        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
         # Adding field 'Competition.secret_key'
         db.add_column(u'web_competition', 'secret_key',
                       self.gf('django.db.models.fields.CharField')(default='', max_length=36, blank=True),
@@ -15,6 +24,15 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+
+        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
+
+        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
+
+        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
+        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
         # Deleting field 'Competition.secret_key'
         db.delete_column(u'web_competition', 'secret_key')
 
@@ -63,6 +81,8 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'force_submission_to_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'has_registration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
