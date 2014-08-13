@@ -79,7 +79,6 @@
         $("#liMyCodalab").addClass("active");
 
         $("#phase_selector").change(function(){
-            console.log($(this).val());
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
         });
     });
