@@ -297,37 +297,33 @@ def get_run_func(config):
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
 
-            # Check if the output folder contain a folder "html"
-
-            html_output_dir = os.path.join(output_dir,"html")
-            if os.path.exists(html_output_dir):
-                #copy the folder contents one by one
-                # traverse root directory, and list directories as dirs and files as files
-                for root, dirs, files in os.walk(html_output_dir):
+            # Check if the output folder contain an "html file" and copy the html file as detailed_results.html
+            # traverse root directory, and list directories as dirs and files as files
+            html_found = False
+            for root, dirs, files in os.walk(output_dir):
+                if not (html_found):
                     path = root.split('/')                      
                     for file in files:
-                        print len(path)*'---', file
                         file_to_upload = os.path.join(root,file)
-                        if os.path.basename(root)=="html":
-                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],file)
-                        else:
-                            html_file_id = "%s/html/%s/%s" % (os.path.splitext(run_id)[0],os.path.basename(root),file)
-                        print "file_to_upload:%s" % file_to_upload
-                        _upload(blob_service, container, html_file_id, file_to_upload)
-
+                        file_ext = os.path.splitext(file_to_upload)[1]
+                        if file_ext.lower() ==".html":
+                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
+                            print "file_to_upload:%s" % file_to_upload  
+                            _upload(blob_service, container, html_file_id, file_to_upload)
+                            html_found = True                            
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
             _send_update(queue, task_id, 'failed')
 
         # comment out for dev and viewing of raw folder outputs.
-        #if root_dir is not None:
+        if root_dir is not None:
            # Try cleaning-up temporary directory
-        #   try:
-        #       os.chdir(current_dir)
-        #       shutil.rmtree(root_dir)
-        #   except:
-        #       logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+           try:
+               os.chdir(current_dir)
+               shutil.rmtree(root_dir)
+           except:
+               logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():
