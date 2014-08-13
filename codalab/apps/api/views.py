@@ -213,7 +213,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         response_data = {
             'result' : 201 if cr else 200,
-            'id' : p.id 
+            'id' : p.id
         }
 
         status_text = str(status)
