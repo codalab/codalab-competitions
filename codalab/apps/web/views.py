@@ -725,6 +725,11 @@ class OrganizerDataSetFormMixin(LoginRequiredMixin):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_form(self, form_class):
+        form = super(OrganizerDataSetFormMixin, self).get_form(form_class)
+        form.fields["sub_data_files"].queryset = models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
+        return form
+
     def get_success_url(self):
         return reverse("my_datasets")
 
