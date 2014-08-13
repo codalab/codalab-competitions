@@ -228,6 +228,13 @@ class CompetitionDetailView(DetailView):
     model = models.Competition
     template_name = 'web/competitions/view.html'
 
+    def get(self, request, *args, **kwargs):
+        competition = self.get_object()
+        secret_key = request.GET.get("secret_key", None)
+        if not competition.published and competition.secret_key != secret_key and competition.creator != request.user:
+            return HttpResponse(status=404)
+        return super(CompetitionDetailView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
