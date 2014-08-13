@@ -272,8 +272,8 @@ class CompetitionDetailView(DetailView):
                             context["next_phase"] = next(phase_iterator)
                         except StopIteration:
                             pass
-                    else:
-                        # Set trailing phase
+                    elif "active_phase" not in context:
+                        # Set trailing phase since active one hasn't been found yet
                         context["previous_phase"] = phase
 
                 context['my_submissions'] = submissions
