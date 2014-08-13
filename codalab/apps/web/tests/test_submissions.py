@@ -23,7 +23,7 @@ class CompetitionSubmissionTests(TestCase):
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
-        self.competition = Competition.objects.create(creator=self.organizer, modified_by=self.organizer)
+        self.competition = Competition.objects.create(creator=self.organizer, modified_by=self.organizer, published=True)
         self.participant_1 = CompetitionParticipant.objects.create(
             user=self.participant_user,
             competition=self.competition,

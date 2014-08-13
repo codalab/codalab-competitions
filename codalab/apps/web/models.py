@@ -155,9 +155,10 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    secret_key = UUIDField(version=4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
-   
+
     @property
     def pagecontent(self):
         items = list(self.pagecontainers.all())
@@ -557,14 +558,14 @@ class CompetitionPhase(models.Model):
                 result_location.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
-                       
+
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
             label = g.label
             headers = []
             scores = {}
-            # add the location of the results on the blob storage to the scores 
-            for (pk,name) in submissions: 
+            # add the location of the results on the blob storage to the scores
+            for (pk,name) in submissions:
                 scores[pk] = {'username': name, 'values': [], 'resultLocation': result_location[count]}
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
@@ -1203,7 +1204,7 @@ class SubmissionScoreSet(MPTTModel):
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
     scoredef = models.ForeignKey(SubmissionScoreDef)
-    value = models.DecimalField(max_digits=20, decimal_places=10)   
+    value = models.DecimalField(max_digits=20, decimal_places=10)
 
     class Meta:
         unique_together = (('result','scoredef'),)
