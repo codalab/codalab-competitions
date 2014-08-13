@@ -526,9 +526,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             if file_type == 'application/zip':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
-            elif file_type == 'text/html':
-                response['Content-Type'] = 'text/html'
-            elif 'image' in file_type:
+            else:
                 response['Content-Type'] = file_type
             return response
         except azure.WindowsAzureMissingResourceError:
@@ -546,10 +544,8 @@ class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
     model = models.CompetitionSubmission
     template_name = 'web/my/detailed_results.html'
     def get(self, request, *args, **kwargs):
-        print "inside MyCompetitionSubmissionDetailedResults"
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-        filetype = kwargs.get('filetype')
-        context_dict = {'id': kwargs.get('submission_id')}
+        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username}
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))            
  
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):

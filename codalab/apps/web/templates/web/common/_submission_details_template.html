@@ -16,7 +16,9 @@
                                 {% if not phase.is_scoring_only %}
                                 <a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></br>
                                 {% endif %}
-                                <a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a><br>                                                    
+                                {% if phase.competition.enable_detailed_results %}
+                                    <a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a><br>                                                    
+                                {% endif %}
                                 <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br>
                                 {% if user.id == competition.creator.id %}
                                     <a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a><br>
