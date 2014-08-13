@@ -27,13 +27,11 @@
                 {% for field in form %}
                     <div class="fieldWrapper">
                         <div class="row">
-
                             <div class="large-3 columns {% if field.errors %}error{% endif %}">
-
                                 <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
                                 {{ field.errors }}
                             </div>
-                            <div class="large-9 columns">
+                            <div class="large-9 columns"> 
                                 {{ field }}
                             </div>
                         </div>
