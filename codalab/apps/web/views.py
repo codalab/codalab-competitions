@@ -841,3 +841,7 @@ def download_dataset(request, dataset_key):
     except:
         msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
         return HttpResponse(msg % file_type, status=400, content_type='text/plain')
+
+
+def system_monitoring(request):
+    pass

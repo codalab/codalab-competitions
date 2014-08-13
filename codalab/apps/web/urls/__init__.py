@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^about/', TemplateView.as_view(template_name='web/help/about.html'), name='about'),
     url(r'^bundles/', include('apps.web.urls.bundles')),
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^health/', include('apps.health.urls')),
 )
 
 
