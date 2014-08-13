@@ -34,7 +34,7 @@ def get_health_metrics():
         if (job.updated - job.created) > timedelta(minutes=10):
             jobs_lasting_longer_than_10_minutes.append(job)
 
-    jobs_failed = Job.objects.filter(status=Job.FAILED).order_by("-updated")
+    jobs_failed = Job.objects.filter(status=Job.FAILED).order_by("-updated")[:10]
 
     health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
 
