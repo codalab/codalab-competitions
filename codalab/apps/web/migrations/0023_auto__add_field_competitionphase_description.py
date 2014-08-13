@@ -63,6 +63,8 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'force_submission_to_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'has_registration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -74,6 +76,7 @@ class Migration(SchemaMigration):
             'last_phase_migration': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'modified_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_modified_by'", 'to': u"orm['authenz.ClUser']"}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'secret_key': ('django.db.models.fields.CharField', [], {'max_length': '36', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'web.competitiondefbundle': {
