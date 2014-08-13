@@ -296,6 +296,21 @@ def get_run_func(config):
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
+
+            # Check if the output folder contain an "html file" and copy the html file as detailed_results.html
+            # traverse root directory, and list directories as dirs and files as files
+            html_found = False
+            for root, dirs, files in os.walk(output_dir):
+                if not (html_found):
+                    path = root.split('/')                      
+                    for file in files:
+                        file_to_upload = os.path.join(root,file)
+                        file_ext = os.path.splitext(file_to_upload)[1]
+                        if file_ext.lower() ==".html":
+                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
+                            print "file_to_upload:%s" % file_to_upload  
+                            _upload(blob_service, container, html_file_id, file_to_upload)
+                            html_found = True                            
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
