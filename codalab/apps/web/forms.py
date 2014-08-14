@@ -87,7 +87,6 @@ class OrganizerDataSetModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request_user = kwargs.pop('user')
         super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
-        #self.fields["data_file"].widget = forms.ClearableFileInput()
         self.fields["sub_data_files"].widget.attrs["style"] = "width: 100%;"
 
     def clean_data_file(self):
