@@ -85,12 +85,24 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         fields = ["name", "description", "type", "data_file", "sub_data_files"]
 
     def __init__(self, *args, **kwargs):
-        self._user = kwargs.pop('user')
+        self.request_user = kwargs.pop('user')
         super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
+        #self.fields["data_file"].widget = forms.ClearableFileInput()
+        self.fields["sub_data_files"].widget.attrs["style"] = "width: 100%;"
+
+    def clean_data_file(self):
+        data = self.cleaned_data.get('data_file')
+
+        if data != None and self.data.get("sub_data_files") != None:
+            raise forms.ValidationError("Cannot submit both single data file and multiple sub files!")
+        elif data == None and  self.data.get("sub_data_files") == None:
+            raise forms.ValidationError("This field is required.")
+
+        return data
 
     def save(self, commit=True):
         instance = super(OrganizerDataSetModelForm, self).save(commit=False)
-        instance.uploaded_by = self._user
+        instance.uploaded_by = self.request_user
         if commit:
             instance.save()
             self.save_m2m()
