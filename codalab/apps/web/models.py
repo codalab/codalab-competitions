@@ -1260,7 +1260,9 @@ class OrganizerDataSet(models.Model):
     data_file = models.FileField(
         upload_to=dataset_data_file,
         storage=BundleStorage,
-        verbose_name="Data file"
+        verbose_name="Data file",
+        blank=True,
+        null=True,
     )
     sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
