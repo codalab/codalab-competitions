@@ -18,6 +18,7 @@ class CompetitionPhaseForm(forms.ModelForm):
         model = models.CompetitionPhase
         fields = (
             'phasenumber',
+            'description',
             'label',
             'start_date',
             'max_submissions',

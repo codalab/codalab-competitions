@@ -1,41 +1,24 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
+        "Write your forwards methods here."
+        # Note: Don't use "from appname.models import ModelName".
+        # Use orm.ModelName to refer to models in this application,
+        # and orm['appname.ModelName'] for models in other applications.
 
-        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-        # Adding field 'Competition.secret_key'
-        db.add_column(u'web_competition', 'secret_key',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=36, blank=True),
-                      keep_default=False)
-
+        import uuid
+        for competition in orm.Competition.objects.all():
+            competition.secret_key = uuid.uuid4()
+            competition.save()
 
     def backwards(self, orm):
-
-        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-        # Deleting field 'Competition.secret_key'
-        db.delete_column(u'web_competition', 'secret_key')
-
+        "Write your backwards methods here."
 
     models = {
         u'auth.group': {
@@ -346,3 +329,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['web']
+    symmetrical = True

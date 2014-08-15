@@ -3,9 +3,9 @@
     <div class="right">
     {% for phase in competition.phases.all %}
       {% if phase.is_active %}
-        <button class="button active" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
       {% else %}
-        <button class="button" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="button phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
       {% endif %}
     {% endfor %}
     </div>
