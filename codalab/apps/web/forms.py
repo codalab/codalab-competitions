@@ -1,3 +1,5 @@
+import os
+
 from django import forms
 from django.forms.formsets import formset_factory
 from django.core.files.base import ContentFile
@@ -111,10 +113,14 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         instance.uploaded_by = self.request_user
 
         # Write sub bundle metadata, replaces old data_file!
-        if hasattr(instance, 'sub_data_files') and instance.sub_data_files.count() > 0:
-            pass
-            #lines = ""
-            #self.instance.data_file.save("test.txt", ContentFile(lines.join("\n")))
+        if len(self.cleaned_data.get("sub_data_files")) > 0:
+            lines = []
+
+            for dataset in self.cleaned_data.get("sub_data_files"):
+                file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
+                lines.append("%s: %s" % (file_name, dataset.data_file.file.name))
+
+            self.instance.data_file.save("metadata", ContentFile("\n".join(lines)))
 
         if commit:
             instance.save()

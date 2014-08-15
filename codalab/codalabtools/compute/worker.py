@@ -96,6 +96,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
         try:
+            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
             blob = blob_service.get_blob(container, bundle_id)
         except azure.WindowsAzureMissingResourceError:
             #file not found lets None this bundle
@@ -104,6 +105,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
         bundle_ext = os.path.splitext(bundle_id)[1]
         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+
+        logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
 
         #take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
@@ -303,27 +306,12 @@ def get_run_func(config):
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
-           # Try cleaning-up temporary directory
-           try:
-               os.chdir(current_dir)
-
-
-
-
-
-
-
-
-
-
-               # UNCOMMENT ME BEFORE MERGE!!!!
-
-
-
-
-               #shutil.rmtree(root_dir)
-           except:
-               logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+            # Try cleaning-up temporary directory
+            try:
+                os.chdir(current_dir)
+                shutil.rmtree(root_dir)
+            except:
+                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():
