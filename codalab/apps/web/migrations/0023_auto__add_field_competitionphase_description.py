@@ -8,33 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-
-        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['web.OrganizerDataSet']))
-        # Adding field 'Competition.secret_key'
-        db.add_column(u'web_competition', 'secret_key',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=36, blank=True),
+        # Adding field 'CompetitionPhase.description'
+        db.add_column(u'web_competitionphase', 'description',
+                      self.gf('django.db.models.fields.CharField')(max_length=1000, null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-
-        # Changing field 'CompetitionPhase.reference_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'reference_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.input_data_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'input_data_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-
-        # Changing field 'CompetitionPhase.scoring_program_organizer_dataset'
-        db.alter_column(u'web_competitionphase', 'scoring_program_organizer_dataset_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['web.OrganizerDataSet']))
-        # Deleting field 'Competition.secret_key'
-        db.delete_column(u'web_competition', 'secret_key')
+        # Deleting field 'CompetitionPhase.description'
+        db.delete_column(u'web_competitionphase', 'description')
 
 
     models = {
@@ -118,6 +100,7 @@ class Migration(SchemaMigration):
             'color': ('django.db.models.fields.CharField', [], {'max_length': '24', 'null': 'True', 'blank': 'True'}),
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'blank': 'True'}),
             'execution_time_limit': ('django.db.models.fields.PositiveIntegerField', [], {'default': '300'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'input_data': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
