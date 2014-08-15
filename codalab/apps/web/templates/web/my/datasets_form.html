@@ -43,6 +43,10 @@
                                 {{ field.errors }}
                             </div>
                             <div class="large-9 columns">
+                                <!--{% if field.name == "data_file" and form.instance.sub_data_files.all %}
+                                <p>INFO: This data_file is a helper containing all of the sub-bundles, replacing it replaces all of the sub-bundles!</p>
+                                {% endif %}-->
+
                                 {{ field }}
                             </div>
                         </div>
@@ -61,13 +65,11 @@ $(function () {
     $("#single_dataset_button").click(function() {
         $("#data_file-field-container").removeClass("hide");
         $("#sub_data_files-field-container").addClass("hide");
-        localStorage.setItem("dataset_form_single_or_many", "#single_dataset_button");
     });
 
     $("#multiple_dataset_button").click(function() {
         $("#data_file-field-container").addClass("hide");
         $("#sub_data_files-field-container").removeClass("hide");
-        localStorage.setItem("dataset_form_single_or_many", "#multiple_dataset_button");
     });
 
     // Setup multiselect datasets
@@ -118,10 +120,13 @@ $(function () {
     });
 
     // Init form single or many selection
+    var instance_already_many = {% if form.instance.sub_data_files.all %}true{% else %}false{% endif %};
     var dataset_form_single_or_many = localStorage.getItem("dataset_form_single_or_many");
 
-    if(dataset_form_single_or_many) {
-        $(dataset_form_single_or_many).click();
+    if(instance_already_many) {
+        $('#multiple_dataset_button').click();
+    } else {
+        $('#single_dataset_button').click();
     }
 });
 {% endblock js %}
