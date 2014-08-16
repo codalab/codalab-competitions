@@ -95,16 +95,8 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
 
-        print 'never called'
-
         # save up here, before checks for new phase data
         save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
-
-        # inline_formsets[0] == web pages
-        #for p in inlines[0]:
-        #    print p
-            #print p.instance
-        #    import ipdb;ipdb.set_trace()
 
         # inlines[0] = pages
         # inlines[1] = phases
