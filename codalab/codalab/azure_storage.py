@@ -200,6 +200,7 @@ def make_blob_sas_url(account_name,
                       account_key,
                       container_name,
                       blob_name,
+                      permission='w',
                       duration=16):
     """
     Generate a Blob SAS URL to allow a client to upload a file.
@@ -222,13 +223,13 @@ def make_blob_sas_url(account_name,
     sap = SharedAccessPolicy(AccessPolicy(
             start.strftime(date_format), 
             expiry.strftime(date_format),
-            'w'))
+            permission))
     signed_query = sas.generate_signed_query_string(resource_path, RESOURCE_BLOB, sap)
     sas.permission_set = [Permission('/' + resource_path, signed_query)]
 
     res = WebResource()
     res.properties[SIGNED_RESOURCE_TYPE] = RESOURCE_BLOB
-    res.properties[SHARED_ACCESS_PERMISSION] = 'w'
+    res.properties[SHARED_ACCESS_PERMISSION] = permission
     res.path = '/{0}'.format(resource_path)
     res.request_url = 'https://{0}.blob.core.windows.net/{1}/{2}'.format(account_name, container_name, blob_name)
     res = sas.sign_request(res)

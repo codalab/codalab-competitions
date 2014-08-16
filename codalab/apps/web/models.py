@@ -155,6 +155,9 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    secret_key = UUIDField(version=4)
+    enable_medical_image_viewer = models.BooleanField(default=False)
+    enable_detailed_results = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -394,7 +397,7 @@ def submission_prediction_output_filename(instance, filename="output.zip"):
 class _LeaderboardManagementMode(object):
     """
     Provides a set of constants which define when results become visible to participants
-    and how successful submisstion are added to the leaderboard.
+    and how successful submmisions are added to the leaderboard.
     """
     @property
     def DEFAULT(self):
@@ -432,6 +435,7 @@ class CompetitionPhase(models.Model):
     )
 
     competition = models.ForeignKey(Competition,related_name='phases')
+    description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
@@ -451,7 +455,6 @@ class CompetitionPhase(models.Model):
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
     scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
-
     class Meta:
         ordering = ['phasenumber']
 
@@ -548,19 +551,23 @@ class CompetitionPhase(models.Model):
 
         # Get the list of submissions in this leaderboard
         submissions = []
+        result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+            for entry in qs:
+                result_location.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
 
         results = []
-        for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
+        for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
             label = g.label
             headers = []
             scores = {}
-            for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
-
+            # add the location of the results on the blob storage to the scores
+            for (pk,name) in submissions:
+                scores[pk] = {'username': name, 'values': [], 'resultLocation': result_location[count]}
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
@@ -935,7 +942,6 @@ class CompetitionDefBundle(models.Model):
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
-
         details_category = ContentCategory.objects.get(name="Learn the Details")
         Page.objects.create(category=details_category, container=pc,  codename="overview", competition=comp,
                                    label="Overview", rank=0, html=zf.read(comp_spec['html']['overview']))
@@ -964,7 +970,6 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
-
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
         # Create phases
@@ -1003,12 +1008,6 @@ class CompetitionDefBundle(models.Model):
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
             # Evaluation Program
-
-            phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
-            phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
-            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
-            phase.color = phase_spec.get('color', '').lower().strip()
-
             if hasattr(phase, 'scoring_program') and phase.scoring_program:
                 if phase_spec["scoring_program"].endswith(".zip"):
                     phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))

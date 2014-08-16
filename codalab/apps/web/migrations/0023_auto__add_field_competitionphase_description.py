@@ -8,27 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing M2M table for field competitions on 'OrganizerDataSet'
-        db.delete_table(db.shorten_name(u'web_organizerdataset_competitions'))
-
-        # Adding field 'CompetitionPhase.color'
-        db.add_column(u'web_competitionphase', 'color',
-                      self.gf('django.db.models.fields.CharField')(max_length=24, null=True, blank=True),
+        # Adding field 'CompetitionPhase.description'
+        db.add_column(u'web_competitionphase', 'description',
+                      self.gf('django.db.models.fields.CharField')(max_length=1000, null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding M2M table for field competitions on 'OrganizerDataSet'
-        m2m_table_name = db.shorten_name(u'web_organizerdataset_competitions')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('organizerdataset', models.ForeignKey(orm[u'web.organizerdataset'], null=False)),
-            ('competition', models.ForeignKey(orm[u'web.competition'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['organizerdataset_id', 'competition_id'])
-
-        # Deleting field 'CompetitionPhase.color'
-        db.delete_column(u'web_competitionphase', 'color')
+        # Deleting field 'CompetitionPhase.description'
+        db.delete_column(u'web_competitionphase', 'description')
 
 
     models = {
@@ -75,6 +63,8 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'force_submission_to_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'has_registration': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -86,6 +76,7 @@ class Migration(SchemaMigration):
             'last_phase_migration': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'modified_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_modified_by'", 'to': u"orm['authenz.ClUser']"}),
             'published': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'secret_key': ('django.db.models.fields.CharField', [], {'max_length': '36', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'web.competitiondefbundle': {
@@ -109,9 +100,11 @@ class Migration(SchemaMigration):
             'color': ('django.db.models.fields.CharField', [], {'max_length': '24', 'null': 'True', 'blank': 'True'}),
             'competition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'phases'", 'to': u"orm['web.Competition']"}),
             'datasets': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'phase'", 'blank': 'True', 'to': u"orm['web.Dataset']"}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'blank': 'True'}),
+            'execution_time_limit': ('django.db.models.fields.PositiveIntegerField', [], {'default': '300'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'input_data': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'input_data_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'input_data_organizer_dataset'", 'null': 'True', 'to': u"orm['web.OrganizerDataSet']"}),
+            'input_data_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'input_data_organizer_dataset'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['web.OrganizerDataSet']"}),
             'is_migrated': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_scoring_only': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'label': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
@@ -119,9 +112,9 @@ class Migration(SchemaMigration):
             'max_submissions': ('django.db.models.fields.PositiveIntegerField', [], {'default': '100'}),
             'phasenumber': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'reference_data': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'reference_data_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'reference_data_organizer_dataset'", 'null': 'True', 'to': u"orm['web.OrganizerDataSet']"}),
+            'reference_data_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'reference_data_organizer_dataset'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['web.OrganizerDataSet']"}),
             'scoring_program': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'scoring_program_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'scoring_program_organizer_dataset'", 'null': 'True', 'to': u"orm['web.OrganizerDataSet']"}),
+            'scoring_program_organizer_dataset': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'scoring_program_organizer_dataset'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['web.OrganizerDataSet']"}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {})
         },
         u'web.competitionsubmission': {
