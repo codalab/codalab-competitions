@@ -9,7 +9,7 @@ User =  get_user_model()
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
-        fields = ('title', 'description', 'force_submission_to_leaderboard', 'image', 'has_registration', 'end_date', 'published')
+        fields = ('title', 'description', 'force_submission_to_leaderboard', 'image', 'has_registration', 'end_date', 'published', 'enable_medical_image_viewer', 'enable_detailed_results')
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
 
@@ -18,9 +18,11 @@ class CompetitionPhaseForm(forms.ModelForm):
         model = models.CompetitionPhase
         fields = (
             'phasenumber',
+            'description',
             'label',
             'start_date',
             'max_submissions',
+            'color',
             'is_scoring_only',
             'auto_migration',
             'leaderboard_management_mode',
@@ -36,6 +38,28 @@ class CompetitionPhaseForm(forms.ModelForm):
             'DELETE' : forms.HiddenInput,
             'phasenumber': forms.HiddenInput
         }
+
+    def clean_reference_data_organizer_dataset(self):
+        # If no reference_data
+        if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+
+        # If we were using org dataset but do not select a new one
+        if self.instance.reference_data_organizer_dataset and not self.cleaned_data["reference_data_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+
+        return self.cleaned_data["reference_data_organizer_dataset"]
+
+    def clean_scoring_program_organizer_dataset(self):
+        # If no scoring_data
+        if not self.instance.scoring_program and not self.cleaned_data["scoring_program_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+
+        # If we were using org dataset but do not select a new one
+        if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
+            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+
+        return self.cleaned_data["scoring_program_organizer_dataset"]
 
 
 class PageForm(forms.ModelForm):

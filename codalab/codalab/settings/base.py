@@ -212,6 +212,8 @@ class Base(Settings):
         'apps.api',
         'apps.web',
         'apps.profile',
+        'apps.health',
+
 
         # Authentication app, enables social authentication
         'allauth',

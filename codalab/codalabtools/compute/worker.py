@@ -13,6 +13,7 @@ import tempfile
 import time
 import yaml
 from os.path import dirname, abspath, join
+from subprocess import Popen, PIPE
 from zipfile import ZipFile
 
 
@@ -70,8 +71,6 @@ class WorkerConfig(BaseConfig):
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
-    Gets a bundle and its dependent bundles from Azure storage and stage them on the local
-    system to prepare for execution. The function is recursive but depth of recursion can
     be controlled with the max_depth parameter.
 
     root_path: Path of the local directory under which all files are staged for execution.
@@ -180,6 +179,7 @@ def get_run_func(config):
         task_args: The input arguments for this task:
         """
         run_id = task_args['bundle_id']
+        execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
@@ -228,6 +228,7 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
             logger.debug("CMD: %s", prog_cmd)
@@ -241,12 +242,31 @@ def get_run_func(config):
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
-            exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
-            logger.debug("Exit Code: %d", exitCode)
+            exit_code = None
+            timed_out = False
+
+            with open(stdout_file, "wb") as out, open(stderr_file, "wb") as err:
+                evaluator_process = Popen(prog_cmd.split(' '), stdout=out, stderr=err)
+
+                while exit_code is None:
+                    exit_code = evaluator_process.poll()
+
+                    # time in seconds
+                    if exit_code is None and time.time() - startTime > execution_time_limit:
+                        evaluator_process.kill()
+                        exit_code = -1
+                        logger.info("Killed process for running too long!")
+                        err.write("Execution time limit exceeded!")
+                        timed_out = True
+                        break
+                    else:
+                        time.sleep(.1)
+
+            logger.debug("Exit Code: %d", exit_code)
             endTime = time.time()
             elapsedTime = endTime - startTime
             prog_status = {
-                'exitCode': exitCode,
+                'exitCode': exit_code,
                 'elapsedTime': elapsedTime
             }
             with open(join(output_dir, 'metadata'), 'w') as f:
@@ -256,6 +276,10 @@ def get_run_func(config):
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
+
+            # check if timed out AFTER output files are written! If we exit sooner, no output is written
+            if timed_out:
+                raise Exception("Execution time limit exceeded!")
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
@@ -272,7 +296,6 @@ def get_run_func(config):
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
-
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)

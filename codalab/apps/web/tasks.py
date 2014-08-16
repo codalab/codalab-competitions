@@ -143,6 +143,7 @@ def predict(submission, job_id):
     else:
         raise ValueError("Program is missing.")
     input_value = submission.phase.input_data.name
+
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
@@ -158,12 +159,17 @@ def predict(submission, job_id):
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({"id" : job_id,
-                       "task_type": "run",
-                       "task_args": {
-                           "bundle_id" : submission.prediction_runfile.name,
-                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
+    body = json.dumps({
+        "id" : job_id,
+        "task_type": "run",
+        "task_args": {
+            "bundle_id" : submission.prediction_runfile.name,
+            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
+        }
+    })
+
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -228,6 +234,7 @@ def score(submission, job_id):
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
+    is_automatic_submission = False
     if submission.phase.auto_migration:
         # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
         submissions_this_phase = CompetitionSubmission.objects.filter(
@@ -235,7 +242,8 @@ def score(submission, job_id):
             participant=submission.participant
         ).count()
         is_automatic_submission = submissions_this_phase == 1
-        lines.append("automatic-submission: %s" % is_automatic_submission)
+
+    lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
 
 
@@ -269,7 +277,8 @@ def score(submission, job_id):
         "task_args": {
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE
+            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
