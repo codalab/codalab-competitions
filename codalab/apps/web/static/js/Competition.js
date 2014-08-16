@@ -398,6 +398,13 @@ var Competition;
                     if (phasestate == 1) {
                         if($("#disallow_leaderboard_modifying").length > 0) {
                             $(obj).text('Leaderboard modifying disallowed').attr('disabled', 'disabled');
+
+                            if($("#forced_to_leaderboard").length > 0) {
+                                // Remove all checkmarks
+                                $(".fi-check").remove();
+                                // Get the 4th table item and put a checkmark there
+                                $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+                            }
                         } else {
                             if ($("#forced_to_leaderboard").length == 0) {
                                 $(obj).addClass('leaderBoardSubmit');
