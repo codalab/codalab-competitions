@@ -9,7 +9,7 @@ User =  get_user_model()
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
-        fields = ('title', 'description', 'force_submission_to_leaderboard', 'image', 'has_registration', 'end_date', 'published')
+        fields = ('title', 'description', 'force_submission_to_leaderboard', 'image', 'has_registration', 'end_date', 'published', 'enable_medical_image_viewer', 'enable_detailed_results')
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
 
@@ -18,6 +18,7 @@ class CompetitionPhaseForm(forms.ModelForm):
         model = models.CompetitionPhase
         fields = (
             'phasenumber',
+            'description',
             'label',
             'start_date',
             'max_submissions',

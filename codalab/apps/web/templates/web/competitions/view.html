@@ -17,6 +17,9 @@
                 </figure>
                 <div class="competitionsHeaderTitle">
                     <h2>{{ competition.title }}</h2>
+                    {% if not competition.published %}
+                    <label>Secret url: <a href="{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}">{{ request.build_absolute_uri }}{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}</a></label>
+                    {% endif %}
                     <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
@@ -85,8 +88,11 @@
                         <div class="content" data-slug="phases" data-section-content>
                             {% for phase in competition.phases.all %}
                                 <div class="phaseListContainer phase-list-item-{{ phase.color }}">
-                                    <h3 class="phaseList">#{{ phase.phasenumber }} {{ phase }}</h3>
-                                    <b>Start: </b> {{ phase.start_date }}
+                                    <h3 class="phaseList">{{ phase.label }}</h3>
+                                    <p><b>Start: </b> {{ phase.start_date }}</p>
+                                    {% if phase.description %}
+                                    <p><b>Description: </b> {{ phase.description }}</p>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
