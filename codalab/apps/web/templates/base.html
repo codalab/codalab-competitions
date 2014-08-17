@@ -1,6 +1,7 @@
-{% load url from future %}
+﻿{% load url from future %}
 {% load account %}
 {% load analytical %}
+{% load thumbnail %}
 
 <!DOCTYPE html>
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
@@ -94,7 +95,15 @@
                 <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                 {% if user.is_authenticated %}
                     <li class="has-dropdown">
-                      <a href="/profile/"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
+                      <a href="/profile/" target="_self">
+                          {% thumbnail user.userprofile.picture "100x100" crop="center" as im %}
+                              <img src="{{ im.url }}" class="mini_avatar" alt="{{user.username}}">
+                          {% empty %}
+                            <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}">
+                          {% endthumbnail %}
+                      {{user.username}}</a>
+
+
                       <ul class="dropdown">
                           <!-- <li><a href="#">My Profile</a></li> -->
                           <li><a href="{% url "user_settings" %}">Settings</a></li>
