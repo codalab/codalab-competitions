@@ -31,7 +31,7 @@
 
                 {% for field in form %}
                     {% if field.name == "data_file" %}
-                    <br><br>Please select your dataset style, single or many:<br><br>
+                    <br><br>
                         <span id="single_dataset_button" class="button">Single new dataset</span>
                         <span id="multiple_dataset_button" class="button">Many existing datasets bundled into one new dataset</span>
                     {% endif %}
@@ -64,11 +64,15 @@
 $(function () {
     $("#single_dataset_button").click(function() {
         $("#data_file-field-container").removeClass("hide");
+        $("#multiple_dataset_button").removeClass("disabled");
+        $("#single_dataset_button").addClass("disabled");
         $("#sub_data_files-field-container").addClass("hide");
     });
 
     $("#multiple_dataset_button").click(function() {
         $("#data_file-field-container").addClass("hide");
+        $("#multiple_dataset_button").addClass("disabled");
+        $("#single_dataset_button").removeClass("disabled");
         $("#sub_data_files-field-container").removeClass("hide");
     });
 
