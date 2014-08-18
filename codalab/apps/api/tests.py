@@ -135,7 +135,7 @@ class ParticipationStatusEmailTests(TestCase):
     def test_attempting_to_join_competition_sends_emails(self):
         # Require approval
         self.competition.has_registration = True
-        self.competition.save() 
+        self.competition.save()
 
         resp = self._participant_join_competition()
 
