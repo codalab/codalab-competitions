@@ -8,11 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding M2M table for field sub_data_files on 'OrganizerDataSet'
+        m2m_table_name = db.shorten_name(u'web_organizerdataset_sub_data_files')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('from_organizerdataset', models.ForeignKey(orm[u'web.organizerdataset'], null=False)),
+            ('to_organizerdataset', models.ForeignKey(orm[u'web.organizerdataset'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['from_organizerdataset_id', 'to_organizerdataset_id'])
+
 
         # Changing field 'OrganizerDataSet.data_file'
         db.alter_column(u'web_organizerdataset', 'data_file', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True))
 
     def backwards(self, orm):
+        # Removing M2M table for field sub_data_files on 'OrganizerDataSet'
+        db.delete_table(db.shorten_name(u'web_organizerdataset_sub_data_files'))
+
 
         # Changing field 'OrganizerDataSet.data_file'
         db.alter_column(u'web_organizerdataset', 'data_file', self.gf('django.db.models.fields.files.FileField')(default=None, max_length=100))
@@ -61,6 +73,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'disallow_leaderboard_modifying': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
