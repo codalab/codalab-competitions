@@ -950,6 +950,21 @@ class CompetitionDefBundle(models.Model):
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+
+        default_pages = ('overview', 'evaluation', 'terms', 'data')
+
+        for (page_number, (page_name, page_data)) in enumerate(comp_spec['html'].items()):
+            if page_name not in default_pages:
+                Page.objects.create(
+                    category=details_category,
+                    container=pc,
+                    codename=page_name,
+                    competition=comp,
+                    label=page_name,
+                    rank=3 + page_number,     # Start at 3 (Overview, Evaluation and Terms and Conditions first)
+                    html=zf.read(page_data)
+                )
+
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))

@@ -123,7 +123,6 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         the queryset for the "keywords" field'''
         inline_formsets = super(CompetitionEdit, self).construct_inlines()
 
-        # inline_formsets[0] == web pages
         # inline_formsets[1] == phases
         for inline_form in inline_formsets[1].forms:
             inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
