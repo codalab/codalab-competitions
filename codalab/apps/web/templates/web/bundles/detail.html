@@ -45,21 +45,30 @@
 {% endblock %}
 
 {% block js %}
-$(function () {
-    $(".top-bar-section ul > li").removeClass("active");
-    $("#liBundles").addClass("active");
-});
+    {# moved below because the script tag is in base making this block not color code in editors #}
 {% endblock js %}
 
 {% block jsincludes %}
-<script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
+
+    {# TODO: remove JSX and move to deploy processing of JSX #}
+    <script src="http://fb.me/react-0.11.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
+    <script  type="text/jsx" src="{{ STATIC_URL }}js/worksheet_interface.js"></script>
 <script>
 MathJax.Hub.Config({
     tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
     }
 });
+
+
+$(function () {
+    $(".top-bar-section ul > li").removeClass("active");
+    $("#liBundles").addClass("active");
+});
+
 
 $(document).ready(function() {
     $.ajax({
