@@ -47,23 +47,16 @@ def competition_index(request):
     is_finished = request.GET.get('is_finished', False)
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
-    print query
-
     competitions = models.Competition.objects.filter(published=True)
 
     if query:
         competitions = competitions.filter(title__iregex=".*%s" % query)
-
     if medical_image_viewer:
         competitions = competitions.filter(enable_medical_image_viewer=True)
-
     if is_active:
         competitions = [c for c in competitions if c.is_active]
-
     if is_finished:
         competitions = [c for c in competitions if not c.is_active]
-
-    print competitions
 
     return render(request, "web/competitions/index.html", {
         'competitions': competitions,
