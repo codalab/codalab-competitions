@@ -68,10 +68,12 @@ var Worksheet = React.createClass({
 var WorksheetItem = React.createClass({
     render: function() {
         var item = this.props.item;
+        console.log('');
+        console.log('WorksheetItem');
         console.log(item);
         var mode          = item['mode'];
         var interpreted   = item['interpreted'];
-        var data          = item['bundle_info'];
+        var info          = item['bundle_info'];
         var rendered_bundle = (
                 <div> </div>
             );
@@ -80,25 +82,25 @@ var WorksheetItem = React.createClass({
         switch (mode) {
             case 'markup':
                 rendered_bundle = (
-                    <MarkdownBundle data={data} interpreted={interpreted} type={mode} />
+                    <MarkdownBundle info={info} interpreted={interpreted} type={mode} />
                 );
                 break;
 
             case 'bundle':
                 rendered_bundle = (
-                    <Rawbundle data={data} interpreted={interpreted} mode={mode} />
+                    <Rawbundle info={info} interpreted={interpreted} mode={mode} />
                 );
                 break;
 
             case 'inline':
                 rendered_bundle = (
-                    <InlineBundle data={data} interpreted={interpreted} mode={mode} />
+                    <InlineBundle info={info} interpreted={interpreted} mode={mode} />
                 );
                 break;
 
             case 'table':
                 rendered_bundle = (
-                    <TableBundle data={data} interpreted={interpreted} mode={mode} />
+                    <TableBundle info={info} interpreted={interpreted} mode={mode} />
                 );
                 break;
 
@@ -110,7 +112,6 @@ var WorksheetItem = React.createClass({
                 )
                 break;
         }
-
         return(
             <div>
                 {rendered_bundle}
@@ -140,7 +141,7 @@ var MarkdownBundle = React.createClass({
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <span dangerouslySetInnerHTML={{__html: text}} />
+            <span  dangerouslySetInnerHTML={{__html: text}} />
         );
     } // end of render function
 }); //end of  MarkdownBundle
@@ -148,14 +149,14 @@ var MarkdownBundle = React.createClass({
 
 var Rawbundle = React.createClass({
     render: function() {
-        var data = this.props.data;
+        var info = this.props.info;
         var bundle_icon_classes = "";
         bundle_icon_classes += ' bundle-name';
         bundle_icon_classes += ' bundle-icon-sm-indent';
-        bundle_icon_classes += ' bundle-icon-sm--' + data.bundle_type + '--' + data.state;
+        bundle_icon_classes += ' bundle-icon-sm--' + info.bundle_type + '--' + info.state;
         // notice we use className
         // http://facebook.github.io/react/docs/jsx-in-depth.html
-        bundle_url = "/bundles/" + data.uuid + "/"
+        bundle_url = "/bundles/" + info.uuid + "/"
         return(
            <div id="bundle-template">
                <div className="row">
@@ -194,17 +195,30 @@ var InlineBundle = React.createClass({
 var TableBundle = React.createClass({
 
     render: function() {
+        var info = this.props.info;  //shortcut naming
+        var bundle_url = "/bundles/" + info.uuid + "/"
+
         var header_items = this.props.interpreted[0]
         var header_html = header_items.map(function(item) {
                 return <th> {item} </th>;
             });
+        header_html.push(<th>Bundle Info</th>)
 
         var row_items = this.props.interpreted[1];
         var body_rows_html = row_items.map(function(row_item) {
                 var row_cells = header_items.map(function(header_key){
                     return <td> { row_item[header_key] }</td>
                 });
-                return <tr> {row_cells} </tr>;
+                return (
+                    <tr>
+                        {row_cells}
+                        <td>
+                            <a href={bundle_url} className="bundle-link">
+                                {info.uuid}
+                            </a>
+                        </td>
+                    </tr>
+                );
             });
 
         return(
@@ -220,4 +234,5 @@ var TableBundle = React.createClass({
     } // end of render function
 }); //end of  InlineBundle
 
-React.renderComponent(<Worksheet /> , document.getElementById('worksheet-body'));
+var worksheet_react = <Worksheet />
+React.renderComponent(worksheet_react, document.getElementById('worksheet-body'));
