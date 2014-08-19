@@ -155,6 +155,7 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    disallow_leaderboard_modifying = models.BooleanField(default=False)
     secret_key = UUIDField(version=4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
