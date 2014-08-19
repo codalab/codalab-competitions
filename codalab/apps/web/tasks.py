@@ -325,12 +325,14 @@ def update_submission_task(job_id, args):
                 submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
                 submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
+                logger.debug("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
                 scores = open(ozip.extract('scores.txt'), 'r').read()
                 logger.debug("Processing scores... (submission_id=%s)", submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
                         label, value = line.split(":")
+                        logger.debug("Attempting to submit score %s:%s" % (label, value))
                         try:
                             scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
                                                                       key=label.strip())
