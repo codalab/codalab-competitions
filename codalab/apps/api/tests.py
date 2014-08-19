@@ -129,14 +129,11 @@ class ParticipationStatusEmailTests(TestCase):
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
-            modified_by=self.organizer_user
+            modified_by=self.organizer_user,
+            has_registration=True
         )
 
     def test_attempting_to_join_competition_sends_emails(self):
-        # Require approval
-        self.competition.has_registration = True
-        self.competition.save()
-
         resp = self._participant_join_competition()
 
         self.assertEquals(resp.status_code, 200)
@@ -153,6 +150,8 @@ class ParticipationStatusEmailTests(TestCase):
             self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
 
     def test_attempting_to_join_competition_auto_approved_sends_emails(self):
+        self.competition.has_registration = False
+        self.competition.save()
         resp = self._participant_join_competition()
 
         self.assertEquals(resp.status_code, 200)
@@ -271,9 +270,7 @@ class ParticipationStatusPermissionsTests(TestCase):
         )
 
         self.assertEquals(resp.status_code, 200)
-
         participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
-
         self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
 
 
