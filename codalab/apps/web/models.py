@@ -155,6 +155,7 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    disallow_leaderboard_modifying = models.BooleanField(default=False)
     secret_key = UUIDField(version=4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
@@ -444,6 +445,7 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    max_submissions_per_day = models.PositiveIntegerField(default=0, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
@@ -785,6 +787,20 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
+            if self.phase.max_submissions_per_day > 0:
+                print 'Checking submissions per day count'
+
+                submissions_from_today_count = len(CompetitionSubmission.objects.filter(
+                    phase__competition=self.phase.competition,
+                    participant=self.participant,
+                    submitted_at__gte=datetime.date.today()
+                ))
+
+                print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
+
+                if submissions_from_today_count > self.phase.max_submissions_per_day:
+                    raise PermissionDenied("The maximum number of submissions this day have been reached.")
+
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
         print "Setting the file url base."
@@ -958,6 +974,21 @@ class CompetitionDefBundle(models.Model):
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+
+        default_pages = ('overview', 'evaluation', 'terms', 'data')
+
+        for (page_number, (page_name, page_data)) in enumerate(comp_spec['html'].items()):
+            if page_name not in default_pages:
+                Page.objects.create(
+                    category=details_category,
+                    container=pc,
+                    codename=page_name,
+                    competition=comp,
+                    label=page_name,
+                    rank=3 + page_number,     # Start at 3 (Overview, Evaluation and Terms and Conditions first)
+                    html=zf.read(page_data)
+                )
+
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
@@ -1269,8 +1300,11 @@ class OrganizerDataSet(models.Model):
     data_file = models.FileField(
         upload_to=dataset_data_file,
         storage=BundleStorage,
-        verbose_name="Data File"
+        verbose_name="Data file",
+        blank=True,
+        null=True,
     )
+    sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     key = UUIDField(version=4)
 
