@@ -442,6 +442,7 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    max_submissions_per_day = models.PositiveIntegerField(default=0, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
@@ -456,6 +457,7 @@ class CompetitionPhase(models.Model):
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
     scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
+
     class Meta:
         ordering = ['phasenumber']
 
@@ -778,6 +780,20 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied("The maximum number of submissions has been reached.")
             else:
                 print "Submission number below maximum."
+
+            if self.phase.max_submissions_per_day > 0:
+                print 'Checking submissions per day count'
+
+                submissions_from_today_count = len(CompetitionSubmission.objects.filter(
+                    phase__competition=self.phase.competition,
+                    participant=self.participant,
+                    submitted_at__gte=datetime.date.today()
+                ))
+
+                print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
+
+                if submissions_from_today_count > self.phase.max_submissions_per_day:
+                    raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
