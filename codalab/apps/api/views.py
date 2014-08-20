@@ -505,9 +505,6 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied()
         if not obj.participant.is_approved:
             raise PermissionDenied()
-
-
-
         for phase in webmodels.CompetitionPhase.objects.filter(competition=self.kwargs['competition_id']):
             if phase.is_active is True:
                 break
