@@ -46,8 +46,8 @@ var Worksheet = React.createClass({
          // listBundles is now a list of react components that each el is
         return (
             <div id="worksheet-content">
-                <div className="large-12 columns worksheet-name">
-                    <h2 className="worksheet-icon">{this.state.name}</h2>
+                <div className="worksheet-name">
+                    <h1 className="worksheet-icon">{this.state.name}</h1>
                     <label className="worksheet-author">{this.state.owner}</label>
                     {
                         /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
@@ -57,7 +57,6 @@ var Worksheet = React.createClass({
                         */
                     }
                 </div>
-                <hr />
                 <div>{listBundles}</div>
             </div>
         );
@@ -74,6 +73,7 @@ var WorksheetItem = React.createClass({
         var mode          = item['mode'];
         var interpreted   = item['interpreted'];
         var info          = item['bundle_info'];
+        var typeclass     = 'type-' + mode;
         var rendered_bundle = (
                 <div> </div>
             );
@@ -113,7 +113,7 @@ var WorksheetItem = React.createClass({
                 break;
         }
         return(
-            <div>
+            <div className={typeclass}>
                 {rendered_bundle}
             </div>
 
@@ -133,15 +133,16 @@ var MarkdownBundle = React.createClass({
     render: function() {
         //create a string of html for innerHTML rendering
         var text = markdown.toHTML(this.props.interpreted);
-        if(text.length == 0){
-            text = "<br>"
-        }
+        console.log(this.props.interpreted)
+        // if(text.length == 0){
+        //     text = "<br>"
+        // }
         //
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <span  dangerouslySetInnerHTML={{__html: text}} />
+            <span dangerouslySetInnerHTML={{__html: text}} />
         );
     } // end of render function
 }); //end of  MarkdownBundle
