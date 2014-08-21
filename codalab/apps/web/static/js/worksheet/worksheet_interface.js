@@ -1,33 +1,15 @@
 /** @jsx React.DOM */
-
-
 var Worksheet = React.createClass({
     getInitialState: function(){
-        return {
-            "last_item_id": 0,
-            "name": "",
-            "owner": null,
-            "owner_id": 0,
-            "uuid": 0,
-            "items": [ ]
-        };
+        return ws_obj.state
     },
     componentDidMount: function() {  // once on the page lets get the ws info
         console.log('componentDidMount');
-        $.ajax({
-            type: "GET",
-            //  /api/worksheets/0x706<...>d5b66e
-            url: "/api" + document.location.pathname,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                console.log("setting worksheet state");
-                console.log(data);
-                console.log('');
-
-                this.setState(data);
-
+        ws_obj.fetch({
+            success: function(data){
                 $("#worksheet-message").hide();
+                // as successful fetch will update our state data on the ws_obj.
+                this.setState(ws_obj.state);
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -38,6 +20,7 @@ var Worksheet = React.createClass({
                 }
             }.bind(this)
         });
+
     },
     render: function() {
          var listBundles = this.state.items.map(function(item) {
@@ -47,7 +30,7 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet-content">
                 <div className="worksheet-name">
-                    <h1 className="worksheet-icon">{this.state.name}</h1>
+                    <h2 className="worksheet-icon">{this.state.name}</h2>
                     <label className="worksheet-author">{this.state.owner}</label>
                     {
                         /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
@@ -62,6 +45,7 @@ var Worksheet = React.createClass({
         );
     }
 });
+
 
 
 var WorksheetItem = React.createClass({
@@ -83,12 +67,6 @@ var WorksheetItem = React.createClass({
             case 'markup':
                 rendered_bundle = (
                     <MarkdownBundle info={info} interpreted={interpreted} type={mode} />
-                );
-                break;
-
-            case 'bundle':
-                rendered_bundle = (
-                    <Rawbundle info={info} interpreted={interpreted} mode={mode} />
                 );
                 break;
 
@@ -133,10 +111,9 @@ var MarkdownBundle = React.createClass({
     render: function() {
         //create a string of html for innerHTML rendering
         var text = markdown.toHTML(this.props.interpreted);
-        console.log(this.props.interpreted)
-        // if(text.length == 0){
-        //     text = "<br>"
-        // }
+        if(text.length == 0){
+            text = "<br>"
+        }
         //
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
@@ -144,41 +121,6 @@ var MarkdownBundle = React.createClass({
         return(
             <span dangerouslySetInnerHTML={{__html: text}} />
         );
-    } // end of render function
-}); //end of  MarkdownBundle
-
-
-var Rawbundle = React.createClass({
-    render: function() {
-        var info = this.props.info;
-        var bundle_icon_classes = "";
-        bundle_icon_classes += ' bundle-name';
-        bundle_icon_classes += ' bundle-icon-sm-indent';
-        bundle_icon_classes += ' bundle-icon-sm--' + info.bundle_type + '--' + info.state;
-        // notice we use className
-        // http://facebook.github.io/react/docs/jsx-in-depth.html
-        bundle_url = "/bundles/" + info.uuid + "/"
-        return(
-           <div id="bundle-template">
-               <div className="row">
-                   <div className="large-12 columns">
-                       <div className="bundle-tile">
-                           <div className="large-12 columns">
-                               <a  className="bundle-download" alt="Download Bundle">
-                                   <button className="small button secondary"><i className="fi-arrow-down"></i></button>
-                               </a>
-                               <label className="bundle-uuid">{data.uuid}</label>
-                               <a href={bundle_url} className="bundle-link">
-                                   <h4 className={bundle_icon_classes}>
-                                        {data.metadata.name}
-                                   </h4>
-                               </a>
-                           </div> {/* end of bundle-tile */}
-                       </div>
-                   </div>
-               </div>
-           </div>
-        ); // return
     } // end of render function
 }); //end of  MarkdownBundle
 
