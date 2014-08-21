@@ -40,15 +40,11 @@ var Bundle = React.createClass({
         var metadata = this.state.metadata;
         var bundleAttrList = []
         Object.keys(metadata).forEach(function(key){
-            var val = metadata[key];
-            var attr = {};
-            attr['key'] = key;
-            attr['val'] = val;
-            bundleAttrList.push(attr);
+            bundleAttrList.push({'key': key, 'val': metadata[key]});
         });
         bundleAttrs = bundleAttrList.map(function(item){
             return <BundleAttr item={item} />
-        })
+        });
         return (
             <div className="row">
                 <div className="large-12 columns">
