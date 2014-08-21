@@ -46,20 +46,21 @@ var Bundle = React.createClass({
             <div className="row">
                 <div className="large-12 columns">
                     <div className="bundle-tile">
-                        <div className="large-6 columns">
-                            <h4 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
-                                <a href="" className="bundle-link">{this.state.metadata.name}</a>
-                            </h4>
+                        <div className="bundle-header">
+                            <div className="large-6 columns">
+                                <h4 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
+                                    <a href="" className="bundle-link">{this.state.metadata.name}</a>
+                                </h4>
+                            </div>
+                            <div className="large-6 columns">
+                                <a href="" className="bundle-download" alt="Download Bundle">
+                                    <button className="small button secondary">
+                                        <i className="fi-arrow-down"></i>
+                                    </button>
+                                </a>
+                                <div className="bundle-uuid">{this.state.uuid}</div>
+                            </div>
                         </div>
-                        <div className="large-6 columns">
-                            <a href="" className="bundle-download" alt="Download Bundle">
-                                <button className="small button secondary">
-                                    <i className="fi-arrow-down"></i>
-                                </button>
-                            </a>
-                            <label className="bundle-uuid">{this.state.uuid}</label>
-                        </div>
-                        <hr />
                         <p>
                             {this.state.metadata.description}
                         </p>

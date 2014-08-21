@@ -2625,7 +2625,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .bundle-tile, .worksheet-tile {
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 10px 15px;
     border: 1px #CCC solid;
     border-left: 10px #739CB9 solid;
     border-radius: 3px;
@@ -2660,20 +2660,18 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .bundle-name {
     font-size: 20px;
+    margin:0;
 }
-.worksheet-name label, .worksheet-author, .bundle-tile label {
+.worksheet-name label, .worksheet-author, .bundle-tile .bundle-uuid {
     color: #a4a4a4;
     margin-top: 4px;
     margin-bottom: 14px;
     font-size: 12px;
 }
-.bundle-tile label {
-    cursor: default;
-    display: inline-block;
-    vertical-align: top;
+.bundle-tile .bundle-uuid {
     float: right;
-    padding: 6px 0 0 0;
-
+    margin:0;
+    line-height:50px;
 }
 .worksheet-name button {
     margin: 20px 0 0 0;
@@ -2752,10 +2750,20 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
+.bundle-header {
+    border-bottom:1px solid #ddd;
+    padding-bottom:10px;
+    margin-bottom:20px;
+    overflow:hidden;
+}
 .bundle-download {
-    display: inline-block;
+    display:block;
     float: right;
-    padding: 0 0 0 30px;
+    line-height:50px;
+    padding: 0 0 0 20px;
+}
+.bundle-download .button {
+    margin-bottom:0;
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
