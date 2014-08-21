@@ -223,7 +223,7 @@ var TableBundle = React.createClass({
             });
 
         return(
-            <table>
+            <table className="table table-responsive">
                 <thead>
                     <tr>{ header_html }</tr>
                 </thead>

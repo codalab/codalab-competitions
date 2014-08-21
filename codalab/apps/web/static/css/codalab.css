@@ -7862,15 +7862,23 @@ h1 small, h2 small, h3 small {
 #worksheet-content h3 {
   font-size:1.25em;
 }
-#worksheet-content table {
+table.table {
   border-collapse: separate;
   border-spacing: 2px;
+}
+table.table th {
+  font-weight:bold;
+}
+table.table tr th, table.table tr td {
+  color:#555;
+}
+table.table-responsive {
   width:100%;
   max-width:100%;
   border:none;
   margin-bottom:0;
 }
-#worksheet-content .type-table {
+.type-table, .table-wrapper {
   width: 100%;
   margin-bottom: 1.75em;
   overflow-x: auto;
@@ -7879,19 +7887,13 @@ h1 small, h2 small, h3 small {
   -ms-overflow-style: -ms-autohiding-scrollbar;
   border: 1px solid #ddd;
 }
-#worksheet-content .table-wrapper > table > thead > tr > th, 
-#worksheet-content .table-wrapper > table > tbody > tr > th, 
-#worksheet-content .table-wrapper > table > tfoot > tr > th, 
-#worksheet-content .table-wrapper > table > thead > tr > td, 
-#worksheet-content .table-wrapper > table > tbody > tr > td, 
-#worksheet-content .table-wrapper > table > tfoot > tr > td {
+table.table-responsive > thead > tr > th, 
+table.table-responsive > tbody > tr > th, 
+table.table-responsive > tfoot > tr > th, 
+table.table-responsive > thead > tr > td, 
+table.table-responsive > tbody > tr > td, 
+table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
-}
-#worksheet-content table th {
-  font-weight:bold;
-}
-#worksheet-content table tr th, #worksheet-content table tr td {
-  color:#555;
 }
 #worksheet-content hr {
   margin:1em 0;
