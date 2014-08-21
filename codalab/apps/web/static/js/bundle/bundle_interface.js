@@ -67,7 +67,7 @@ var Bundle = React.createClass({
                         <h4>
                             metadata
                         </h4>
-                        <table className="bundle-meta-view-container">
+                        <table className="table">
                             <tbody>
                                 {bundleAttrs}
                             </tbody>
@@ -85,7 +85,7 @@ var Bundle = React.createClass({
 
 var BundleAttr = React.createClass({
     render: function(){
-        if(this.props.key !== 'description'){
+        if(this.props.key !== 'description' && this.props.val !== ''){
             return (
                 <tr>
                     <th>
