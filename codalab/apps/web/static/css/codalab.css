@@ -7837,6 +7837,9 @@ h1 small, h2 small, h3 small {
 #worksheet-message {
   padding-top:30px;
 }
+#bundle-message {
+  padding:20px 0;
+}
 #worksheet-content {
   line-height:1.2em;
 }
