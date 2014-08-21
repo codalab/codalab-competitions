@@ -22,7 +22,7 @@
                 ng-focus="gotFocus($index)"
                 ng-blur="lostFocus($index)"
             >
-                <div class="worksheet-animate-child competition-tile" scroll-into-view="{[{ $index==selectionIndex - 1 }]}">
+                <div class="worksheet-animate-child competition-tile" >
                     <article class="subContainer">
                         <input id="itemID" type="hidden" ng-value="worksheet.uuid" />
                         <div class="competitionTileLftStrip"></div>
@@ -60,8 +60,7 @@
                 </div>
             </a>
         </div>
-        <div class="large-3 columns ">
-        </div>
+
     </div>
     <div class="row">
         <div class="large-9 columns competitions">

@@ -7677,6 +7677,7 @@ html, body {
   clear: both;
   position: relative;
   height: 25px;
+  padding-top:2px;
 }
 
 /* line 13, ../sass/codalab.scss */
@@ -7824,4 +7825,82 @@ h1 small, h2 small, h3 small {
 /* line 213, ../sass/codalab.scss */
 .indent {
   padding-left: 20px;
+}
+
+
+
+
+/* new styles start here */
+.header-space {
+  padding-top:49px;
+}
+#worksheet-message {
+  padding-top:30px;
+}
+#bundle-message {
+  padding:20px 0;
+}
+#worksheet-content {
+  line-height:1.2em;
+}
+#worksheet-content .worksheet-name {
+  border-bottom:1px solid #ddd;
+  margin-bottom:1.875em;
+}
+#worksheet-content .worksheet-name h1 {
+  text-indent:65px;
+  margin-top:.75em;
+  font-size:2.75em
+}
+#worksheet-content h1, #worksheet-content h3, #worksheet-content h3 {
+  margin:.85em 0 .5em 0;
+  font-weight:200;
+}
+#worksheet-content h1 {
+  font-size:2.25em;
+}
+#worksheet-content h2 {
+  font-size:1.75em;
+}
+#worksheet-content h3 {
+  font-size:1.25em;
+}
+table.table {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+table.table th {
+  font-weight:bold;
+}
+table.table tr th, table.table tr td {
+  color:#555;
+}
+table.table-responsive {
+  width:100%;
+  max-width:100%;
+  border:none;
+  margin-bottom:0;
+}
+.type-table, .table-wrapper {
+  width: 100%;
+  margin-bottom: 1.75em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  border: 1px solid #ddd;
+}
+table.table-responsive > thead > tr > th, 
+table.table-responsive > tbody > tr > th, 
+table.table-responsive > tfoot > tr > th, 
+table.table-responsive > thead > tr > td, 
+table.table-responsive > tbody > tr > td, 
+table.table-responsive > tfoot > tr > td {
+  white-space: nowrap;
+}
+#worksheet-content hr {
+  margin:1em 0;
+}
+#worksheet-content p {
+  margin-bottom:1em;
 }
