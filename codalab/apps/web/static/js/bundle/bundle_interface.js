@@ -38,13 +38,10 @@ var Bundle = React.createClass({
     },
     render: function() {
         var metadata = this.state.metadata;
-        var bundleAttrList = []
-        Object.keys(metadata).forEach(function(key){
-            bundleAttrList.push({'key': key, 'val': metadata[key]});
-        });
-        bundleAttrs = bundleAttrList.map(function(item){
-            return <BundleAttr item={item} />
-        });
+        var bundleAttrs = []
+        for(var k in metadata) {
+            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} />);
+        };
         return (
             <div className="row">
                 <div className="large-12 columns">
@@ -87,14 +84,14 @@ var Bundle = React.createClass({
 
 var BundleAttr = React.createClass({
     render: function(){
-        if(this.props.item.key !== 'description'){
+        if(this.props.key !== 'description'){
             return (
                 <tr>
                     <th>
-                        {this.props.item.key}
+                        {this.props.key}
                     </th>
                     <td>
-                        {this.props.item.val}
+                        {this.props.val}
                     </td>
                 </tr>
             );
