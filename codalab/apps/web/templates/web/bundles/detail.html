@@ -4,8 +4,10 @@
 {% block page_title %}Bundle details{% endblock page_title %}
 
 {% block content %}
-<div id="bundle-message">
-    Loading bundle information...
+<div id="bundle-message" class="row">
+    <div class="large-12 columns">
+        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle information...
+    </div>
 </div>
 <div id="bundle-content">
 </div>
