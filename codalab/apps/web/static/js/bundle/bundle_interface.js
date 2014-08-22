@@ -13,7 +13,7 @@ var Bundle = React.createClass({
             "metadata": {}
         };
     },
-    componentWillMount: function() {  // once on the page lets get the ws info
+    componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
             type: "GET",
             //  /api/bundles/0x706<...>d5b66e
@@ -42,6 +42,7 @@ var Bundle = React.createClass({
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} />);
         };
+        bundle_download_url = "/bundles/" + this.state.uuid + "/download"
         return (
             <div className="row">
                 <div className="large-12 columns">
@@ -53,9 +54,9 @@ var Bundle = React.createClass({
                                 </h4>
                             </div>
                             <div className="large-6 columns">
-                                <a href="" className="bundle-download" alt="Download Bundle">
+                                <a href={bundle_download_url} className="bundle-download" alt="Download Bundle">
                                     <button className="small button secondary">
-                                        <i className="fi-arrow-down"></i>
+                                            <i className="fi-arrow-down"></i>
                                     </button>
                                 </a>
                                 <div className="bundle-uuid">{this.state.uuid}</div>

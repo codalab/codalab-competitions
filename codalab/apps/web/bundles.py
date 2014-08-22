@@ -66,6 +66,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             finally:
                 self.client.close_file(fid)
 
+        def download_target(self, uuid):
+            target = (uuid, '')
+            result_path, container_path = self.client.download_target(target=target, follow_symlinks=True)
+            return (result_path, container_path)
+
         def http_status_from_exception(self, ex):
             # This is brittle. See https://github.com/codalab/codalab/issues/345.
             if type(ex) == UsageError:
