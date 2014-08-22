@@ -1,7 +1,37 @@
 /** @jsx React.DOM */
+var keyMap = {
+    74: "j",
+    75: "k"
+};
+
 var Worksheet = React.createClass({
     getInitialState: function(){
-        return ws_obj.state
+        ws_obj.state.focusIndex = 0;
+        return ws_obj.state;
+    },
+    bindEvents: function(){
+        window.addEventListener('keydown', this.move);
+    },
+    unbindEvents: function(){
+        window.removeEventListener('keydown', this.move);
+    },
+    move: function(event) {
+        var key = keyMap[event.keyCode];
+        if(typeof key !== 'undefined'){
+            switch (key) {
+                case 'k':
+                    var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                    break;
+                case 'j':
+                    var index = Math.max(this.state.focusIndex - 1, 0);
+                    break;
+                default:
+                    var index = this.state.focusIndex;
+            }
+            this.setState({focusIndex: index});
+        } else {
+            return false;
+        }
     },
     componentDidMount: function() {  // once on the page lets get the ws info
         console.log('componentDidMount');
@@ -20,18 +50,23 @@ var Worksheet = React.createClass({
                 }
             }.bind(this)
         });
-
+        this.bindEvents();
+    },
+    componentWillUnmount: function(){
+        this.unbindEvents();
     },
     render: function() {
-         var listBundles = this.state.items.map(function(item) {
-            return <WorksheetItem item={item} />;
+        var focusIndex = this.state.focusIndex;
+        var listBundles = this.state.items.map(function(item, index) {
+            var focused = focusIndex === index;
+            return <WorksheetItem item={item} focused={focused} />;
         });
          // listBundles is now a list of react components that each el is
         return (
             <div id="worksheet-content">
                 <div className="worksheet-name">
-                    <h2 className="worksheet-icon">{this.state.name}</h2>
-                    <label className="worksheet-author">{this.state.owner}</label>
+                    <h1 className="worksheet-icon">{this.state.name}</h1>
+                    <div className="worksheet-author">{this.state.owner}</div>
                     {
                         /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
                             <a href="#" className="right">
@@ -43,21 +78,21 @@ var Worksheet = React.createClass({
                 <div>{listBundles}</div>
             </div>
         );
-    }
+    },
 });
-
 
 
 var WorksheetItem = React.createClass({
     render: function() {
         var item = this.props.item;
+        var focused = this.props.focused ? ' focused' : '';
         console.log('');
         console.log('WorksheetItem');
         console.log(item);
         var mode          = item['mode'];
         var interpreted   = item['interpreted'];
         var info          = item['bundle_info'];
-        var typeclass     = 'type-' + mode;
+        var classString   = 'type-' + mode + focused;
         var rendered_bundle = (
                 <div> </div>
             );
@@ -91,7 +126,7 @@ var WorksheetItem = React.createClass({
                 break;
         }
         return(
-            <div className={typeclass}>
+            <div className={classString}>
                 {rendered_bundle}
             </div>
 
@@ -177,5 +212,6 @@ var TableBundle = React.createClass({
     } // end of render function
 }); //end of  InlineBundle
 
-var worksheet_react = <Worksheet />
+var worksheet_react = <Worksheet />;
 React.renderComponent(worksheet_react, document.getElementById('worksheet-body'));
+
