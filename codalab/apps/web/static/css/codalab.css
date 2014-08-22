@@ -7865,6 +7865,10 @@ h1 small, h2 small, h3 small {
 #worksheet-content h3 {
   font-size:1.25em;
 }
+#worksheet-content .focused {
+  background:#FFFEF4;
+  box-shadow:0 0 3px #739cb9;
+}
 table.table {
   border-collapse: separate;
   border-spacing: 2px;
