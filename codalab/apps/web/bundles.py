@@ -66,9 +66,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             finally:
                 self.client.close_file(fid)
 
-        def download_target(self, uuid):
+        def download_target(self, uuid, return_zip=False):
             target = (uuid, '')
-            result_path, container_path = self.client.download_target(target=target, follow_symlinks=True)
+            result_path, container_path = self.client.download_target(target=target, follow_symlinks=True, return_zip=return_zip)
             return (result_path, container_path)
 
         def http_status_from_exception(self, ex):
