@@ -18,7 +18,6 @@ var Worksheet = React.createClass({
     },
     move: function(event) {
         if(this.state.keyboardShortcuts){
-            console.log(event.keyCode);
             var key = keyMap[event.keyCode];
             if(typeof key !== 'undefined'){
                 switch (key) {
