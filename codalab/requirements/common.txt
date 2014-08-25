@@ -1,4 +1,4 @@
-Django==1.5.4
+Django==1.5.9
 pytz==2013b
 argparse
 django-configurations
