@@ -710,7 +710,8 @@ class BundleDetailView(TemplateView):
 def BundleDownload(request, uuid):
     service = BundleService(request.user)
 
-    local_path, temp_path = service.download_target(uuid)
+    local_path, temp_path = service.download_target(uuid, return_zip=True)
+
     return StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
 
 

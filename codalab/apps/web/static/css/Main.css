@@ -64,22 +64,22 @@ label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sa
 {
     vertical-align:top !important;
 }
-::-webkit-scrollbar
+/*::-webkit-scrollbar
 {
     width: 15px;
 }
  ::-webkit-scrollbar-track {
     background-color: #ccc;
- } /* the new scrollbar will have a flat appearance with the set background color */
+ }
  ::-webkit-scrollbar-thumb {
     background-color: #606060
- } /* this will style the thumb, ignoring the track */
+ }
  ::-webkit-scrollbar-button {
     background-color: #7c7c7c;
- } /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+ }
  ::-webkit-scrollbar-corner {
      background-color: black;
- } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
+ }*/
 body
 {
     scrollbar-face-color: #7c7c7c;

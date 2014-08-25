@@ -7,6 +7,7 @@ var keyMap = {
 var Worksheet = React.createClass({
     getInitialState: function(){
         ws_obj.state.focusIndex = 0;
+        ws_obj.state.keyboardShortcuts = true;
         return ws_obj.state;
     },
     bindEvents: function(){
@@ -16,22 +17,30 @@ var Worksheet = React.createClass({
         window.removeEventListener('keydown', this.move);
     },
     move: function(event) {
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'k':
-                    var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
-                    break;
-                case 'j':
-                    var index = Math.max(this.state.focusIndex - 1, 0);
-                    break;
-                default:
-                    var index = this.state.focusIndex;
+        if(this.state.keyboardShortcuts){
+            console.log(event.keyCode);
+            var key = keyMap[event.keyCode];
+            if(typeof key !== 'undefined'){
+                switch (key) {
+                    case 'k':
+                        var index = Math.max(this.state.focusIndex - 1, 0);
+                        break;
+                    case 'j':
+                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        break;
+                    default:
+                        var index = this.state.focusIndex;
+                }
+                this.setState({focusIndex: index});
+            } else {
+                return false;
             }
-            this.setState({focusIndex: index});
         } else {
             return false;
         }
+    },
+    toggleKeyboardShortcuts: function(){
+        this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
     },
     componentDidMount: function() {  // once on the page lets get the ws info
         console.log('componentDidMount');
@@ -52,21 +61,33 @@ var Worksheet = React.createClass({
         });
         this.bindEvents();
     },
+    componentDidUpdate: function(){
+        var itemNode = this.refs['item' + this.state.focusIndex].getDOMNode();
+        if(itemNode.offsetTop > window.innerHeight / 2){
+            window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+        }
+    },
     componentWillUnmount: function(){
         this.unbindEvents();
     },
     render: function() {
         var focusIndex = this.state.focusIndex;
+        var keyboardShortcutsClass = this.state.keyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
         var listBundles = this.state.items.map(function(item, index) {
             var focused = focusIndex === index;
-            return <WorksheetItem item={item} focused={focused} />;
+            var itemID = 'item' + index;
+            return <WorksheetItem item={item} focused={focused} ref={itemID} />;
         });
          // listBundles is now a list of react components that each el is
         return (
-            <div id="worksheet-content">
+            <div id="worksheet-content" className={keyboardShortcutsClass}>
                 <div className="worksheet-name">
                     <h1 className="worksheet-icon">{this.state.name}</h1>
                     <div className="worksheet-author">{this.state.owner}</div>
+                    <label>
+                        <input type="checkbox" onChange={this.toggleKeyboardShortcuts} checked={this.state.keyboardShortcuts} />
+                            Keyboard Shortcuts <small> for example on/off </small>
+                    </label>
                     {
                         /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
                             <a href="#" className="right">
@@ -86,6 +107,7 @@ var WorksheetItem = React.createClass({
     render: function() {
         var item = this.props.item;
         var focused = this.props.focused ? ' focused' : '';
+        var itemIndex = this.props.index;
         console.log('');
         console.log('WorksheetItem');
         console.log(item);
@@ -126,7 +148,7 @@ var WorksheetItem = React.createClass({
                 break;
         }
         return(
-            <div className={classString}>
+            <div className={classString} key={this.props.itemId}>
                 {rendered_bundle}
             </div>
 
@@ -214,4 +236,3 @@ var TableBundle = React.createClass({
 
 var worksheet_react = <Worksheet />;
 React.renderComponent(worksheet_react, document.getElementById('worksheet-body'));
-
