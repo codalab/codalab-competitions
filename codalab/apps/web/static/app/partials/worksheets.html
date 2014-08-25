@@ -14,6 +14,7 @@
         <div class="large-9 columns competitions">
             <dl class="sub-nav"></dl>
             <p ng-show="hasStatus(status)">{[{ statusMessage(status) }]}</p>
+            <div id="general_search"></div>
             <a class="worksheet-animate"
                 ng-repeat="worksheet in worksheets"
                 ng-href="{[{ worksheet.url }]}"
