@@ -30,29 +30,24 @@ var Search = React.createClass({
         console.log('Searching for ' + searchInput);
         this.setState({results: fakedata});
     },
-    doSearchAction: function(i){
-        console.log('do the search action for ' + this.state.results[i].term);
-        alert(this.state.results[i].action.toString());
-        console.log('now cleanup');
+    cleanupSearch: function(){
         this.setState({
-            value: '',
-            results: []
+            value:'',
+            results:[]
         });
     },
     render: function(){
         var openClass = this.state.results.length ? 'open' : 'closed';
+        var parentCallback = this.cleanupSearch;
+        var resultList = this.state.results.map(function(result, index){
+            return <SearchResult result={result} key={index} callback={parentCallback} />
+        });
         return (
             <div className="row">
                 <div className="large-12 columns general-search-container">
                     <input type="text" value={this.state.value} placeholder='General search box' onChange={this.handleChange} />
                     <ul id="search_results" className={openClass}>
-                       {this.state.results.map(function(result, i){
-                            return(
-                                 <li onClick={this.doSearchAction.bind(this, i)} key={i}>
-                                    {result.term}
-                                </li>
-                            );
-                       }, this)}
+                       {resultList}
                     </ul>
                 </div>
             </div>
@@ -60,5 +55,19 @@ var Search = React.createClass({
     }
 });
 
+var SearchResult = React.createClass({
+    doSearchAction: function(){
+        console.log('do the search action for ' + this.props.term);
+        alert(this.props.result.action.toString());
+        this.props.callback();
+    },
+    render: function(){
+        return(
+            <li onClick={this.doSearchAction} key={this.props.key}>
+                {this.props.result.term}
+            </li>
+        )
+    }
+})
 var general_search = <Search />;
 React.renderComponent(general_search, document.getElementById('general_search'));

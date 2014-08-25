@@ -79,8 +79,11 @@ table.table-responsive > tfoot > tr > td {
 .general-search-container {
   position:relative;
 }
-#general_search {
+#general_search.ws-detail {
   padding-top:2.25em;
+}
+#general_search.bundle-detail {
+  padding-bottom:1em;
 }
 #general_search input {
   height:32px;
@@ -105,6 +108,7 @@ table.table-responsive > tfoot > tr > td {
   padding-bottom:5px;
   font-size:14px;
   overflow:auto;
+  z-index:2;
 }
 #search_results li {
   padding:3px 10px 2px;
