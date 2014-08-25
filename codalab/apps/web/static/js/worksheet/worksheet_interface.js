@@ -23,10 +23,10 @@ var Worksheet = React.createClass({
             if(typeof key !== 'undefined'){
                 switch (key) {
                     case 'k':
-                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        var index = Math.max(this.state.focusIndex - 1, 0);
                         break;
                     case 'j':
-                        var index = Math.max(this.state.focusIndex - 1, 0);
+                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
                         break;
                     default:
                         var index = this.state.focusIndex;
@@ -84,7 +84,10 @@ var Worksheet = React.createClass({
                 <div className="worksheet-name">
                     <h1 className="worksheet-icon">{this.state.name}</h1>
                     <div className="worksheet-author">{this.state.owner}</div>
-                    <label><input type="checkbox" onChange={this.toggleKeyboardShortcuts} checked={this.state.keyboardShortcuts} /> Keyboard Shortcuts</label>
+                    <label>
+                        <input type="checkbox" onChange={this.toggleKeyboardShortcuts} checked={this.state.keyboardShortcuts} />
+                            Keyboard Shortcuts <small> for example on/off </small>
+                    </label>
                     {
                         /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
                             <a href="#" className="right">
