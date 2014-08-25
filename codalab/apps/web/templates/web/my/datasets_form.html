@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% load codalab %}
+{% load codalab_tags %}
 {% load tz %}
 
-{% block page_title %}Dataset Creation{% endblock page_title %}
-{% block head_title %}Dataset Creation{% endblock %}
+{% block page_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock page_title %}
+{% block head_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock %}
 
-{% block extra_head %}
-{# include extra JS stuff here #}
+{% block extra_scripts %}
+<script src="{% static "js/vendor/select2/select2.min.js" %}"></script>
+<link rel="stylesheet" href="{% static "js/vendor/select2/select2.css" %}" />
 {% endblock %}
 
 {% block content %}
@@ -17,23 +18,35 @@
             .error {
                 color: red;
             }
+
+            #data_file-clear_id, label[for="data_file-clear_id"] {
+                opacity: 0;
+            }
         </style>
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form id="dataset_form" action="#" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <fieldset>
-                <legend>Create Dataset</legend>
+                <legend>{% if "update" not in request.path %}Create{% else %}Update{% endif %} Dataset</legend>
 
                 {% for field in form %}
-                    <div class="fieldWrapper">
+                    {% if field.name == "data_file" %}
+                    <br><br>
+                        <span id="single_dataset_button" class="button">Single new dataset</span>
+                        <span id="multiple_dataset_button" class="button">Many existing datasets bundled into one new dataset</span>
+                    {% endif %}
+
+                    <div class="fieldWrapper {% if field.name == "data_file" or field.name == "sub_data_files" %}hide{% endif %}" id="{{field.name}}-field-container">
                         <div class="row">
-
                             <div class="large-3 columns {% if field.errors %}error{% endif %}">
-
                                 <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
                                 {{ field.errors }}
                             </div>
                             <div class="large-9 columns">
+                                <!--{% if field.name == "data_file" and form.instance.sub_data_files.all %}
+                                <p>INFO: This data_file is a helper containing all of the sub-bundles, replacing it replaces all of the sub-bundles!</p>
+                                {% endif %}-->
+
                                 {{ field }}
                             </div>
                         </div>
@@ -41,12 +54,83 @@
                 {% endfor %}
             </fieldset>
 
-            <input type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button">
+            <input id="dataset_submit_button" type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button">
         </form>
     </div>
 </div>
 {% endblock %}
 
 {% block js %}
+$(function () {
+    $("#single_dataset_button").click(function() {
+        $("#data_file-field-container").removeClass("hide");
+        $("#multiple_dataset_button").removeClass("disabled");
+        $("#single_dataset_button").addClass("disabled");
+        $("#sub_data_files-field-container").addClass("hide");
+    });
 
+    $("#multiple_dataset_button").click(function() {
+        $("#data_file-field-container").addClass("hide");
+        $("#multiple_dataset_button").addClass("disabled");
+        $("#single_dataset_button").removeClass("disabled");
+        $("#sub_data_files-field-container").removeClass("hide");
+    });
+
+    // Setup multiselect datasets
+    $("#id_sub_data_files").select2();
+
+    // Remove single dataset reference if
+    $("#dataset_submit_button").click(function(e){
+        e.preventDefault();
+
+        var is_multiple_bundle_showing = $("#data_file-field-container").hasClass("hide");
+
+        if(is_multiple_bundle_showing) {
+            // Verify that we actually have some data selected
+            if(!$('#id_sub_data_files').val()) {
+                alert("No existing datasets selected, please select at least one");
+                return;
+            }
+
+            // confirm we want to delete data file if one was selected or already has been uploaded
+            var data_file_to_upload_path = $('#id_data_file').val();
+            if(data_file_to_upload_path != "" || $('#data_file-clear_id').length > 0) {
+                var delete_confirm = confirm("Are you sure you want to submit as a multiple bundle and delete the single data file?");
+
+                if(delete_confirm) {
+                    $('#data_file-clear_id').attr('checked', 'checked');
+                } else {
+                    return;
+                }
+            }
+        } else {
+            // uncheck delete dataset single file
+            $('#data_file-clear_id').attr('checked', null);
+
+            var multi_files = $('#id_sub_data_files').val();
+
+            if(multi_files !== null && multi_files.length > 0) {
+                var confirm_clear_multi = confirm("Are you sure you want to make this a single file dataset? All selected files in the multi section will be cleared.");
+
+                if(confirm_clear_multi) {
+                    $('#id_sub_data_files').select2('val', '');
+                } else {
+                    return;
+                }
+            }
+        }
+
+        $("#dataset_form").submit();
+    });
+
+    // Init form single or many selection
+    var instance_already_many = {% if form.instance.sub_data_files.all %}true{% else %}false{% endif %};
+    var dataset_form_single_or_many = localStorage.getItem("dataset_form_single_or_many");
+
+    if(instance_already_many) {
+        $('#multiple_dataset_button').click();
+    } else {
+        $('#single_dataset_button').click();
+    }
+});
 {% endblock js %}

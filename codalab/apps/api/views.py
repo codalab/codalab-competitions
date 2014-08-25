@@ -45,6 +45,7 @@ def _generate_blob_sas_url(prefix, extension):
                             settings.BUNDLE_AZURE_ACCOUNT_KEY,
                             settings.BUNDLE_AZURE_CONTAINER,
                             blob_name,
+                            permission='w',
                             duration=60)
     logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
@@ -218,11 +219,12 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         status_text = str(status)
 
-        if status_text == webmodels.ParticipantStatus.PENDING:
+        if status_text.lower() == webmodels.ParticipantStatus.PENDING.lower():
             if self.request.user.participation_status_updates:
                 self._send_mail(
                     {
-                        'competition': comp
+                        'competition': comp,
+                        'user': self.request.user,
                     },
                     subject='Application to %s sent' % comp,
                     html_file="emails/notifications/participation_requested.html",
@@ -234,18 +236,20 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 self._send_mail(
                     {
                         'competition': comp,
-                        'participant': p
+                        'participant': p,
+                        'user': comp.creator,
                     },
                     subject='%s applied to your competition' % p.user,
                     html_file="emails/notifications/organizer_participation_requested.html",
                     text_file="emails/notifications/organizer_participation_requested.txt",
                     to_email=comp.creator.email
                 )
-        else:
+        elif status_text == webmodels.ParticipantStatus.APPROVED:
             if self.request.user.participation_status_updates:
                 self._send_mail(
                     {
-                        'competition': comp
+                        'competition': comp,
+                        'user': self.request.user,
                     },
                     subject='Accepted into %s!' % comp,
                     html_file="emails/notifications/participation_accepted.html",
@@ -257,7 +261,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 self._send_mail(
                     {
                         'competition': comp,
-                        'participant': p
+                        'participant': p,
+                        'user': comp.creator
                     },
                     subject='%s accepted into your competition!' % p.user,
                     html_file="emails/notifications/organizer_participation_accepted.html",
@@ -311,7 +316,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 if self.request.user.participation_status_updates:
                     self._send_mail(
                         {
-                            'competition': comp
+                            'competition': comp,
+                            'user': self.request.user,
                         },
                         subject='Accepted into %s!' % comp,
                         html_file="emails/notifications/participation_accepted.html",
@@ -323,7 +329,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                     self._send_mail(
                         {
                             'competition': comp,
-                            'participant': p
+                            'participant': p,
+                            'user': comp.creator,
                         },
                         subject='%s accepted into your competition!' % p.user,
                         html_file="emails/notifications/organizer_participation_accepted.html",
@@ -334,7 +341,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 if self.request.user.participation_status_updates:
                     self._send_mail(
                         {
-                            'competition': comp
+                            'competition': comp,
+                            'user': self.request.user,
                         },
                         subject='Permission revoked from %s!' % comp,
                         html_file="emails/notifications/participation_revoked.html",
@@ -346,7 +354,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                     self._send_mail(
                         {
                             'competition': comp,
-                            'participant': p
+                            'participant': p,
+                            'user': comp.creator,
                         },
                         subject="%s's permission revoked from your competition!" % p.user,
                         html_file="emails/notifications/organizer_participation_revoked.html",

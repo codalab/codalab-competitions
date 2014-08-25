@@ -71,8 +71,6 @@ class WorkerConfig(BaseConfig):
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
-    Gets a bundle and its dependent bundles from Azure storage and stage them on the local
-    system to prepare for execution. The function is recursive but depth of recursion can
     be controlled with the max_depth parameter.
 
     root_path: Path of the local directory under which all files are staged for execution.
@@ -98,6 +96,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
         try:
+            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
             blob = blob_service.get_blob(container, bundle_id)
         except azure.WindowsAzureMissingResourceError:
             #file not found lets None this bundle
@@ -106,6 +105,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
         bundle_ext = os.path.splitext(bundle_id)[1]
         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+
+        logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
 
         #take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
@@ -230,6 +231,7 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
             logger.debug("CMD: %s", prog_cmd)
@@ -297,7 +299,6 @@ def get_run_func(config):
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
-
             _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
@@ -305,12 +306,12 @@ def get_run_func(config):
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
-           # Try cleaning-up temporary directory
-           try:
-               os.chdir(current_dir)
-               shutil.rmtree(root_dir)
-           except:
-               logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+            # Try cleaning-up temporary directory
+            try:
+                os.chdir(current_dir)
+                shutil.rmtree(root_dir)
+            except:
+                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():
