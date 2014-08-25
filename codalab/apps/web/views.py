@@ -2,6 +2,10 @@ import datetime
 import StringIO
 import csv
 import json
+import zipfile
+import os
+import sys
+import traceback
 
 from os.path import splitext
 
@@ -42,11 +46,25 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 def competition_index(request):
-    template = loader.get_template("web/competitions/index.html")
-    context = RequestContext(request, {
-        'competitions' : models.Competition.objects.filter(published=True),
-        })
-    return HttpResponse(template.render(context))
+    query = request.GET.get('q')
+    is_active = request.GET.get('is_active', False)
+    is_finished = request.GET.get('is_finished', False)
+    medical_image_viewer = request.GET.get('medical_image_viewer', False)
+
+    competitions = models.Competition.objects.filter(published=True)
+
+    if query:
+        competitions = competitions.filter(title__iregex=".*%s" % query)
+    if medical_image_viewer:
+        competitions = competitions.filter(enable_medical_image_viewer=True)
+    if is_active:
+        competitions = [c for c in competitions if c.is_active]
+    if is_finished:
+        competitions = [c for c in competitions if not c.is_active]
+
+    return render(request, "web/competitions/index.html", {
+        'competitions': competitions,
+    })
 
 @login_required
 def my_index(request):
@@ -127,7 +145,6 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         the queryset for the "keywords" field'''
         inline_formsets = super(CompetitionEdit, self).construct_inlines()
 
-        # inline_formsets[0] == web pages
         # inline_formsets[1] == phases
         for inline_form in inline_formsets[1].forms:
             inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
@@ -232,6 +249,13 @@ class CompetitionDetailView(DetailView):
     model = models.Competition
     template_name = 'web/competitions/view.html'
 
+    def get(self, request, *args, **kwargs):
+        competition = self.get_object()
+        secret_key = request.GET.get("secret_key", None)
+        if not competition.published and competition.secret_key != secret_key and competition.creator != request.user:
+            return HttpResponse(status=404)
+        return super(CompetitionDetailView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
@@ -269,8 +293,8 @@ class CompetitionDetailView(DetailView):
                             context["next_phase"] = next(phase_iterator)
                         except StopIteration:
                             pass
-                    else:
-                        # Set trailing phase
+                    elif "active_phase" not in context:
+                        # Set trailing phase since active one hasn't been found yet
                         context["previous_phase"] = phase
 
                 context['my_submissions'] = submissions
@@ -731,6 +755,14 @@ class OrganizerDataSetFormMixin(LoginRequiredMixin):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_form(self, form_class):
+        form = super(OrganizerDataSetFormMixin, self).get_form(form_class)
+        form.fields["sub_data_files"].queryset = models.OrganizerDataSet.objects.filter(
+            uploaded_by=self.request.user,
+            sub_data_files__isnull=True, # ignore datasets that are multi
+        )
+        return form
+
     def get_success_url(self):
         return reverse("my_datasets")
 
@@ -835,15 +867,43 @@ def download_dataset(request, dataset_key):
     except ObjectDoesNotExist:
         return Http404()
 
-    mime = MimeTypes()
-    file_type = mime.guess_type(dataset.data_file.file.name)
-
     try:
-        response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
-        if file_type != 'text/plain':
-            #response['Content-Type'] = 'application/zip'
-            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
-        return response
+        if dataset.sub_data_files.count() > 0:
+            zip_buffer = StringIO.StringIO()
+
+            zip_file = zipfile.ZipFile(zip_buffer, "w")
+            file_name = ""
+
+            for sub_dataset in dataset.sub_data_files.all():
+                file_dir, file_name = os.path.split(sub_dataset.data_file.file.name)
+                zip_file.writestr(file_name, sub_dataset.data_file.read())
+
+            zip_file.close()
+
+            resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+            resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
+            return resp
+        else:
+            mime = MimeTypes()
+            file_type = mime.guess_type(dataset.data_file.file.name)
+            response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+            if file_type != 'text/plain':
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
+            return response
     except:
-        msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-        return HttpResponse(msg % file_type, status=400, content_type='text/plain')
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+def system_monitoring(request):
+    pass
