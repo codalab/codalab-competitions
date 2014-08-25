@@ -1,0 +1,115 @@
+/* new styles start here */
+.header-space {
+  padding-top:49px;
+}
+#worksheet-message {
+  padding-top:30px;
+}
+#bundle-message {
+  padding:20px 0;
+}
+#worksheet-content {
+  line-height:1.2em;
+}
+#worksheet-content .worksheet-name {
+  border-bottom:1px solid #ddd;
+  margin-bottom:1.875em;
+}
+#worksheet-content .worksheet-name h1 {
+  text-indent:65px;
+  margin-top:.25em;
+  font-size:2.75em
+}
+#worksheet-content h1, #worksheet-content h3, #worksheet-content h3 {
+  margin:.85em 0 .5em 0;
+  font-weight:200;
+}
+#worksheet-content h1 {
+  font-size:2.25em;
+}
+#worksheet-content h2 {
+  font-size:1.75em;
+}
+#worksheet-content h3 {
+  font-size:1.25em;
+}
+#worksheet-content .focused {
+  background:#FFFEF4;
+  box-shadow:0 0 3px #739cb9;
+}
+table.table {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+table.table th {
+  font-weight:bold;
+}
+table.table tr th, table.table tr td {
+  color:#555;
+}
+table.table-responsive {
+  width:100%;
+  max-width:100%;
+  border:none;
+  margin-bottom:0;
+}
+.type-table, .table-wrapper {
+  width: 100%;
+  margin-bottom: 1.75em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  border: 1px solid #ddd;
+}
+table.table-responsive > thead > tr > th, 
+table.table-responsive > tbody > tr > th, 
+table.table-responsive > tfoot > tr > th, 
+table.table-responsive > thead > tr > td, 
+table.table-responsive > tbody > tr > td, 
+table.table-responsive > tfoot > tr > td {
+  white-space: nowrap;
+}
+#worksheet-content hr {
+  margin:1em 0;
+}
+#worksheet-content p {
+  margin-bottom:1em;
+}
+.general-search-container {
+  position:relative;
+}
+#general_search {
+  padding-top:2.25em;
+}
+#general_search input {
+  height:32px;
+}
+.general-search-container #search_results.closed {
+  display:none;
+}
+.general-search-container #search_results.open {
+  display:block;
+}
+.general-search-container #search_results {
+  background-color:rgba(255,255,255,.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  position:absolute;
+  left: 15px;
+  right: 15px;
+  top:32px;
+  border:1px solid #ccc;
+  border-top:none;
+  max-height:200px;
+  padding-top:5px;
+  padding-bottom:5px;
+  font-size:14px;
+  overflow:auto;
+}
+#search_results li {
+  padding:3px 10px 2px;
+}
+#search_results li:hover {
+  background-color:rgba(115, 156, 185, 0.5);
+  cursor:pointer;
+}
