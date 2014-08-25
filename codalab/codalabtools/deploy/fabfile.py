@@ -62,10 +62,13 @@ def provision_packages(packages=None):
     """
     sudo('apt-get update')
     sudo('apt-get -y install %s' % packages)
+    sudo('apt-get install python-tk')
     sudo('easy_install pip')
     sudo('pip install -U --force-reinstall setuptools')
     sudo('pip install -U --force-reinstall virtualenvwrapper')
     sudo('pip install -U --force-reinstall wheel')
+    sudo('pip install numpy')
+    sudo('pip install matplotlib')
 
 #
 # Tasks for reading configuration information.

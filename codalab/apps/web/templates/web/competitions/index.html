@@ -13,9 +13,18 @@
             <!-- ////////////////  Commented out until we have sorting  /////////////////
             <dt>Sort by:</dt>
             <dd class="active"><a href="#">Most Recent</a></dd>
-            <dd><a href="#">Most Active</a></dd> 
+            <dd><a href="#">Most Active</a></dd>
             -->
         </dl>
+        <form id="search_form" action="." method="GET">
+            <input id="search_query_input" name="q" placeholder="Search..." style="margin-bottom: 10px; padding: 3px;">
+            <input type="submit" value="Search">
+            <br>
+            <input name="is_active" type="checkbox"> Is active
+            <input name="is_finished" type="checkbox" style="margin-left: 10px;"> Is finished
+            <input name="medical_image_viewer" type="checkbox" style="margin-left: 10px;"> Medical image viewer
+        </form>
+
         {% if not competitions %}
         <p>There are no competitions.</p>
         {% else %}
@@ -46,14 +55,14 @@
                         </div>
                     </div>
                 </article>
-            </div> 
-        </a>           	
+            </div>
+        </a>
         {% endfor %}
         {% endif %}
     </div>
     <div class="large-3 columns ">
         <!-- This is where statistic were in the mockup. -->
-    </div>  
+    </div>
 </div>
 {% endblock content%}
 
@@ -62,4 +71,32 @@
         $(".top-bar-section ul > li").removeClass("active");
         $("#liCompetitions").addClass("active");
     });
+
+    function populate(frm, data) {
+        $.each(data, function(key, value){
+            var $ctrl = $('[name='+key+']', frm);
+            switch($ctrl.attr("type"))
+            {
+                case "text":
+                case "hidden":
+                    $ctrl.val(value);
+                    break;
+                case "radio":
+                case "checkbox":
+                    $ctrl.each(function(){
+                        if(value=='on') {
+                            $(this).attr("checked",value);
+                        }
+                    });
+                    break;
+                default:
+                    $ctrl.val(value);
+            }
+        });
+    }
+
+    var params = {}
+    location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
+
+    populate('#search_form', params);
 {% endblock js %}

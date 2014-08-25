@@ -5,6 +5,9 @@
     {% if phase.competition.force_submission_to_leaderboard %}
         <div id="forced_to_leaderboard"></div>
     {% endif %}
+    {% if phase.competition.disallow_leaderboard_modifying %}
+        <div id="disallow_leaderboard_modifying"></div>
+    {% endif %}
 
     {% if phase.is_active %}
     <div class="row">
