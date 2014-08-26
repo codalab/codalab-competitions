@@ -82,7 +82,7 @@ table.table-responsive > tfoot > tr > td {
 #general_search.ws-detail {
   padding-top:2.25em;
 }
-#general_search.bundle-detail {
+#general_search.bundle-detail, #general_search.ws-list {
   padding-bottom:1em;
 }
 #general_search input {
@@ -116,4 +116,33 @@ table.table-responsive > tfoot > tr > td {
 #search_results li:hover {
   background-color:rgba(115, 156, 185, 0.5);
   cursor:pointer;
+}
+
+#worksheet-list .worksheet-tile {
+  border-left:1px solid #ccc;
+  padding:0;
+}
+#worksheet-list .worksheet-tile:hover {
+  cursor:pointer;
+}
+#worksheet-list .worksheet-tile:hover h3 {
+  color:#739CB9;
+}
+#worksheet-list .worksheet-tile .worksheet-inner {
+  border-left: 10px solid #739CB9;
+  padding:10px 15px 10px 58px;
+  background:url('../img/icon_worksheet.png') no-repeat 5px 10px;
+  min-height:48px;
+}
+#worksheet-list .worksheet-tile.focused {
+  -moz-box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+  -webkit-box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+}
+#worksheet-list .worksheet-tile.focused .worksheet-inner {
+  border-left-color:#08ac33;
+}
+#worksheet-list .worksheet-tile .worksheet-inner h3 {
+  margin:0;
+  padding-bottom: 0.5em;
 }
