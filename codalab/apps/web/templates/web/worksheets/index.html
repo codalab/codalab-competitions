@@ -30,6 +30,11 @@
         $(function () {
             $(".top-bar-section ul > li").removeClass("active");
             $("#liWorksheets").addClass("active");
+            {% if request.user.is_authenticated %}
+                user_id = {{ request.user }};
+            {% else %}
+                user_id = 0;
+            {% endif %}
         });
     </script>
 {% endblock jsincludes %}
