@@ -64,22 +64,22 @@ label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sa
 {
     vertical-align:top !important;
 }
-::-webkit-scrollbar
+/*::-webkit-scrollbar
 {
     width: 15px;
 }
  ::-webkit-scrollbar-track {
     background-color: #ccc;
- } /* the new scrollbar will have a flat appearance with the set background color */
+ }
  ::-webkit-scrollbar-thumb {
     background-color: #606060
- } /* this will style the thumb, ignoring the track */
+ }
  ::-webkit-scrollbar-button {
     background-color: #7c7c7c;
- } /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+ }
  ::-webkit-scrollbar-corner {
      background-color: black;
- } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner also needs to be styled */
+ }*/
 body
 {
     scrollbar-face-color: #7c7c7c;
@@ -2498,16 +2498,14 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 .header-title-bg {
     background: url('../img/tiled-header-bg.gif') repeat-x top left;
     height: 80px;
-    width: 100%
-    position: absolute;
-    top:0;
-    padding:0;
     margin: 0 0 30px 0;
     display: block;
 }
 .header-title-bg h1 {
     color: #FFF;
     font-size: 44px;
+    line-height:80px;
+    margin:0;
 }
 .side-nav a {
     font-weight: normal;
@@ -2627,7 +2625,7 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .bundle-tile, .worksheet-tile {
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 10px 15px;
     border: 1px #CCC solid;
     border-left: 10px #739CB9 solid;
     border-radius: 3px;
@@ -2662,20 +2660,18 @@ div.auto.section-container > section > .title a, .auto.section-container > .sect
 }
 .bundle-name {
     font-size: 20px;
+    margin:0;
 }
-.worksheet-name label, .worksheet-author, .bundle-tile label {
+.worksheet-name label, .worksheet-author, .bundle-tile .bundle-uuid {
     color: #a4a4a4;
     margin-top: 4px;
     margin-bottom: 14px;
     font-size: 12px;
 }
-.bundle-tile label {
-    cursor: default;
-    display: inline-block;
-    vertical-align: top;
+.bundle-tile .bundle-uuid {
     float: right;
-    padding: 6px 0 0 0;
-
+    margin:0;
+    line-height:50px;
 }
 .worksheet-name button {
     margin: 20px 0 0 0;
@@ -2754,13 +2750,24 @@ color: #FFF;
 a i {
     cursor: pointer;
 }
+.bundle-header {
+    border-bottom:1px solid #ddd;
+    padding-bottom:10px;
+    margin-bottom:20px;
+    overflow:hidden;
+}
 .bundle-download {
-    display: inline-block;
+    display:block;
     float: right;
-    padding: 0 0 0 30px;
+    line-height:50px;
+    padding: 0 0 0 20px;
+}
+.bundle-download .button {
+    margin-bottom:0;
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
+    display:block;
 }
 .bundle__meta__desc {
     padding: 0 10px;

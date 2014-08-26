@@ -7,27 +7,31 @@ import os
 import sys
 import traceback
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse, reverse_lazy
+from os.path import splitext
+
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.views.generic.edit import FormMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.template import RequestContext, loader
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
+from django.http import Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import StreamingHttpResponse
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, render
+from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
+
 from mimetypes import MimeTypes
 
-from apps.web import models
 from apps.web import forms
+from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
 
@@ -702,6 +706,16 @@ class BundleDetailView(TemplateView):
         results = service.item(uuid)
         context['bundle'] = results
         return context
+
+def BundleDownload(request, uuid):
+    service = BundleService(request.user)
+
+    local_path, temp_path = service.download_target(uuid, return_zip=True)
+
+    return StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
+
+
+    # return StreamingHttpResponse(service.read_file(uuid, local_path), content_type=content_type)
 
 # Worksheets
 
