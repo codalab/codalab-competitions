@@ -1,4 +1,12 @@
-﻿var BundleContentNode = (function() {
+﻿/ *
+
+
+legacy
+
+
+*/
+
+var BundleContentNode = (function() {
     function BundleContentNode(url, name, parent, children) {
         this.url = url;
         this.name = name;
