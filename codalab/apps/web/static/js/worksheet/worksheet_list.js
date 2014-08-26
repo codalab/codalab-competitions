@@ -11,7 +11,8 @@ var WorksheetList = React.createClass({
     getInitialState: function(){
         return {
             worksheets: [],
-            focusIndex: 0
+            focusIndex: 0,
+            myWorksheets: false
         };
     },
     bindEvents: function(){
@@ -51,6 +52,9 @@ var WorksheetList = React.createClass({
     goToFocusedWorksheet: function(){
         window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
     },
+    toggleMyWorksheets: function(){
+        this.setState({myWorksheets: !this.state.myWorksheets});
+    },
     move: function(event) {
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
@@ -68,13 +72,21 @@ var WorksheetList = React.createClass({
     },
     render: function() {
         var focusIndex = this.state.focusIndex;
-        var worksheetList = this.state.worksheets.map(function(worksheet, index){
+        var worksheets = this.state.worksheets;
+        if(this.state.myWorksheets){
+            worksheets = worksheets.filter(function(w){ return w.owner_id === user_id; });
+        }
+        var worksheetList = worksheets.map(function(worksheet, index){
             var wsID = 'ws' + index;
             var focused = focusIndex === index;
             return <Worksheet details={worksheet} focused={focused} ref={wsID} key={index} />
         });
         return (
             <div id="worksheet-list">
+                <label className="my-worksheets-toggle">
+                    <input type="checkbox" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
+                    Show my worksheets only
+                </label>
                 {worksheetList}
             </div>
         );
