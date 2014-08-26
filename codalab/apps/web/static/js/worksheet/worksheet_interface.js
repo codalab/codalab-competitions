@@ -1,7 +1,11 @@
 /** @jsx React.DOM */
 var keyMap = {
+    13: "enter",
+    38: "up",
+    40: "down",
     74: "j",
-    75: "k"
+    75: "k",
+    88: "x"
 };
 
 var Worksheet = React.createClass({
@@ -19,16 +23,20 @@ var Worksheet = React.createClass({
     move: function(event) {
         if(this.state.keyboardShortcuts){
             var key = keyMap[event.keyCode];
+            var index = this.state.focusIndex;
             if(typeof key !== 'undefined'){
+                event.preventDefault();
                 switch (key) {
+                    case 'up':
                     case 'k':
-                        var index = Math.max(this.state.focusIndex - 1, 0);
+                        index = Math.max(this.state.focusIndex - 1, 0);
                         break;
+                    case 'down':
                     case 'j':
-                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
                         break;
                     default:
-                        var index = this.state.focusIndex;
+                        break;
                 }
                 this.setState({focusIndex: index});
             } else {
