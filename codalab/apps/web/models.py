@@ -845,6 +845,8 @@ class CompetitionSubmission(models.Model):
             'stderr.txt': ('stderr_file', 'txt', False),
             'detailed_results.html': ('detailed_results_file', 'html', True),
         }
+        if key not in downloadable_files:
+            raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
         # If the user requesting access is the owner, access granted
         if self.participant.competition.creator.id != requested_by.id:
