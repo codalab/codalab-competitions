@@ -27,7 +27,7 @@
         {% for group in groups %}
         <table class="resultsTable dataTable">
              <tr class="table-title">
-              <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer}}">{{group.label}}</th>
+              <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
              </tr>
              <tr class="leaderboard-result-table-header">
                 <th rowspan="2"></th>
@@ -57,13 +57,7 @@
             </tr>
             {% if group.scores.items|length_is:"0" %}
             <tr class="noData">
-                {% if phase.competition.enable_detailed_results and phase.competition.enable_medical_image_viewer %}
-                    <td colspan="{{group.total_span|add:2}}">No data available in table</td>
-                {% elif phase.competition.enable_detailed_results or phase.competition.enable_medical_image_viewer %}
-                 <td colspan="{{group.total_span|add:1}}">No data available in table</td>
-                {% else %}
-                 <td colspan="{{group.total_span}}">No data available in table</td>
-                {% endif %}                          
+                <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>                
             </tr>  
             {% else %}  
             {% for pk,scoredata in group.scores %}
@@ -81,6 +75,11 @@
                         {% endwith %}
                     {% endfor %}
                 {% endfor %}
+                {% if phase.competition.enable_detailed_results %}
+                    <td>
+                        <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">HTML report</a></br>
+                    </td>
+                {% endif %}
                 {% if phase.competition.enable_medical_image_viewer %}
                     {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}                        
                     <td>
