@@ -12,3 +12,16 @@ To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 ## Community
 The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
+
+## Quickstart
+Run the following commands once to set everything up in Linux:
+
+		./dev_setup.sh
+		cd codalab
+		cp codalab/settings/local_sample.py codalab/settings/local.py
+		./manage syncdb --migrate
+		./manage config_gen
+
+After that, run the following to start the server:
+
+		./runserver 0.0.0.0:8000
