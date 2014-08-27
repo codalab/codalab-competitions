@@ -23,7 +23,7 @@ class Base(Settings):
     PORT = '8000'
     DOMAIN_NAME='localhost'
     SERVER_NAME='localhost'
-    DEBUG = False
+    DEBUG = True
     TEMPLATE_DEBUG = DEBUG
 
     if 'CONFIG_SERVER_NAME' in os.environ:
