@@ -377,6 +377,9 @@ def submission_history_file_name(instance, filename="history.txt"):
 def submission_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), filename)
 
+def submission_detailed_results_filename(instance, filename="detailed_results.html"):
+    return os.path.join(submission_root(instance), "run", "html", filename)
+
 def submission_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
@@ -568,9 +571,11 @@ class CompetitionPhase(models.Model):
             label = g.label
             headers = []
             scores = {}
-            # add the location of the results on the blob storage to the scores
-            for (pk,name) in submissions:
-                scores[pk] = {'username': name, 'values': [], 'resultLocation': result_location[count]}
+
+            # add the location of the results on the blob storage to the scores 
+            for (pk,name) in submissions: 
+                scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
+
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
             for x in SubmissionScoreSet.objects.order_by('tree_id','lft').filter(scoredef__isnull=False,
@@ -749,6 +754,7 @@ class CompetitionSubmission(models.Model):
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
+    detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
@@ -837,11 +843,11 @@ class CompetitionSubmission(models.Model):
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
+            'detailed_results.html': ('detailed_results_file', 'html', True),
         }
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-
         # If the user requesting access is the owner, access granted
         if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
@@ -855,9 +861,13 @@ class CompetitionSubmission(models.Model):
             if self.participant.competition.creator.id != requested_by.id:
                 raise PermissionDenied()
 
-        file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
+        if file_ext == 'txt':
+            file_type = 'text/plain'
+        elif file_ext == 'html':
+            file_type = 'text/html'
+        else:
+            file_type = 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
-
         return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):

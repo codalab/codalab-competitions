@@ -1,0 +1,8 @@
+{% extends 'base_account.html' %}
+
+{% block head_title %}Detailed results of the participant {{user}}{% endblock head_title %}
+{% block page_title %}Detailed results of the participant {{user}}{% endblock page_title %}
+
+{% block content %}     
+    <iframe src="/my/competition/submission/{{id}}/detailed_results.html" style="width:100%;min-height:100%;"></iframe>     
+{% endblock %}
