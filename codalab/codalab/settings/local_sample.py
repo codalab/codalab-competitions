@@ -28,7 +28,7 @@ class Dev(DevBase):
     PREVIEW_WORKSHEETS = True
     # Following config is necessary to use a bundle service
     # CODE_PATH points to local source code for bundles repo. Path is relative to this file.
-    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\codalab-cli\\"
+    BUNDLE_SERVICE_CODE_PATH = "../../../../codalab-cli/"
     if len(BUNDLE_SERVICE_CODE_PATH) > 0:
         sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
         codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
