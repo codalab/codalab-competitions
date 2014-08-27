@@ -32,3 +32,4 @@ django-haystack
 django-tinymce
 closure_linter
 mock==1.0.1
+psutil==2.1.1
