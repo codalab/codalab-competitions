@@ -918,7 +918,7 @@ class Deployment(object):
             "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
-            "    DEBUG=True",
+            "    DEBUG=False",
             "",
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
