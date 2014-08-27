@@ -11,6 +11,7 @@ from os.path import splitext
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -271,6 +272,7 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+        context['site'] = Site.objects.get_current()
         submissions = dict()
         all_submissions = dict()
         try:
@@ -542,7 +544,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)            
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
@@ -574,8 +576,8 @@ class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username}
-        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))            
- 
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
+
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
     # Requires an authenticated user who is an administrator of the competition.
