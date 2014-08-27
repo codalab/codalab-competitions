@@ -2767,7 +2767,7 @@ a i {
 }
 .competition-tile a, .competitions a {
     text-decoration: none;
-    display:block;
+    display:inline-block;
 }
 .bundle__meta__desc {
     padding: 0 10px;
