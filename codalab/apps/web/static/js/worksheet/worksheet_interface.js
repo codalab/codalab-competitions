@@ -19,16 +19,17 @@ var Worksheet = React.createClass({
     move: function(event) {
         if(this.state.keyboardShortcuts){
             var key = keyMap[event.keyCode];
+            var index;
             if(typeof key !== 'undefined'){
                 switch (key) {
                     case 'k':
-                        var index = Math.max(this.state.focusIndex - 1, 0);
+                        index = Math.max(this.state.focusIndex - 1, 0);
                         break;
                     case 'j':
-                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
                         break;
                     default:
-                        var index = this.state.focusIndex;
+                        index = this.state.focusIndex;
                 }
                 this.setState({focusIndex: index});
             } else {
@@ -41,13 +42,42 @@ var Worksheet = React.createClass({
     toggleKeyboardShortcuts: function(){
         this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
     },
+    consolidateMarkdownBundles: function(ws){
+        var consolidatedWorksheet = [];
+        var markdownChunk         = '';
+        ws.items.map(function(item){
+            var mode        = item['mode'];
+            var interpreted = item['interpreted'];
+            switch(mode) {
+                case 'markup':
+                    var content = interpreted.length ? interpreted : '\n\n';
+                    markdownChunk += content;
+                    break;
+                default:
+                    if(markdownChunk.length){
+                        consolidatedWorksheet.push({
+                            mode: 'markup', 
+                            interpreted: markdownChunk,
+                            bundle_info: null
+                        });
+                        markdownChunk = '';
+                    }
+                    consolidatedWorksheet.push(item);
+                    break;
+            }
+        });
+        ws.items = consolidatedWorksheet;
+        return ws;
+    },
     componentDidMount: function() {  // once on the page lets get the ws info
         console.log('componentDidMount');
         ws_obj.fetch({
             success: function(data){
+                console.log(data);
                 $("#worksheet-message").hide();
                 // as successful fetch will update our state data on the ws_obj.
-                this.setState(ws_obj.state);
+                var consolidatedWorksheet = this.consolidateMarkdownBundles(ws_obj.state);
+                this.setState(consolidatedWorksheet);
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -107,9 +137,9 @@ var WorksheetItem = React.createClass({
         var item = this.props.item;
         var focused = this.props.focused ? ' focused' : '';
         var itemIndex = this.props.index;
-        console.log('');
-        console.log('WorksheetItem');
-        console.log(item);
+        // console.log('');
+        // console.log('WorksheetItem');
+        // console.log(item);
         var mode          = item['mode'];
         var interpreted   = item['interpreted'];
         var info          = item['bundle_info'];
@@ -166,11 +196,7 @@ var MarkdownBundle = React.createClass({
     },
     render: function() {
         //create a string of html for innerHTML rendering
-        var text = markdown.toHTML(this.props.interpreted);
-        if(text.length == 0){
-            text = "<br>"
-        }
-        //
+        var text = marked(this.props.interpreted);
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
