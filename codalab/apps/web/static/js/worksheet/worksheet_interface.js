@@ -201,24 +201,28 @@ var TableBundle = React.createClass({
         var header_html = header_items.map(function(item) {
                 return <th> {item} </th>;
             });
-        header_html.push(<th>Bundle Info</th>)
 
         var row_items = this.props.interpreted[1];
         var body_rows_html = row_items.map(function(row_item) {
-                var row_cells = header_items.map(function(header_key){
-                    return <td> { row_item[header_key] }</td>
-                });
-                return (
-                    <tr>
-                        {row_cells}
+            var row_cells = header_items.map(function(header_key){
+                if(header_key == 'name'){
+                    return (
                         <td>
                             <a href={bundle_url} className="bundle-link">
-                                {info.uuid}
+                                { row_item[header_key] }
                             </a>
                         </td>
-                    </tr>
-                );
+                    )
+                } else {
+                    return <td> { row_item[header_key] }</td>
+                }
             });
+            return (
+                <tr>
+                    {row_cells}
+                </tr>
+            );
+        });
 
         return(
             <table className="table table-responsive">
