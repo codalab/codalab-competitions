@@ -26,6 +26,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
                              submission_output_filename,
+                             submission_detailed_results_filename,
                              submission_private_output_filename,
                              submission_stdout_filename,
                              submission_stderr_filename,
@@ -155,6 +156,8 @@ def predict(submission, job_id):
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+    submission.save('stderr.txt', ContentFile('\n'.join(lines)))
+
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
@@ -323,6 +326,7 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
                 submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
+                submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
                 submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 logger.debug("Output.zip location=%s" % submission.output_file.file.name)
