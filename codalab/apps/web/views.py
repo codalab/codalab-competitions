@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -55,7 +56,7 @@ def competition_index(request):
     competitions = models.Competition.objects.filter(published=True)
 
     if query:
-        competitions = competitions.filter(title__iregex=".*%s" % query)
+        competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
     if medical_image_viewer:
         competitions = competitions.filter(enable_medical_image_viewer=True)
     if is_active:
