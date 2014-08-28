@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% block head_title %}User Details{% endblock head_title %}
+{% block page_title %}User Details{% endblock page_title %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <style>
+        .user-info {
+            background: #FAFAFA;
+            border: 1px solid #bbbbbb;
+
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+            box-shadow: 0px 0px 12px 2px rgba(119, 119, 119, 0.67);
+            -moz-box-shadow: 0px 0px 12px 2px rgba(119, 119, 119, 0.67);
+            -webkit-box-shadow: 0px 0px 12px 2px rgba(119, 119, 119, 0.67);
+
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+
+            display: -moz-box;
+            -moz-box-orient: vertical;
+
+            display: box;
+            box-orient: horizontal;
+        }
+
+        .user-info div {
+            -moz-transition: width 0.7s ease-out;
+            -o-transition: width 0.7s ease-out;
+            -webkit-transition: width 0.7s ease-out;
+            transition: width 0.7s ease-out;
+
+            display: -webkit-box;
+            -webkit-box-orient: horizontal;
+
+            display: -moz-box;
+            -moz-box-orient: horizontal;
+
+            display: box;
+            box-orient: horizontal;
+
+        }
+
+        .user-info > .summary {
+            margin: 15px;
+            text-align: left;
+        }
+        .user-info > .details {
+            margin: 15px;
+        }
+
+        .medium_avatar {
+            margin: -6px 6px 0 6px;
+            padding: 0;
+            height: 100px;
+            width: 100px;
+            -webkit-border-radius: 18px;
+            -moz-border-radius: 18px;
+            border-radius: 18px;
+            border: 1px #CCC solid;
+            /*display: inline-block;*/
+            float: none;
+            overflow: hidden;
+        }
+
+        .toggle-box {
+            display: none;
+        }
+
+        .toggle-box + label {
+            cursor: pointer;
+            display: block;
+            font-weight: bold;
+            line-height: 21px;
+            margin-bottom: 5px;
+            margin-left: 15px;
+        }
+
+        .toggle-box + label + div {
+            display: none;
+            float: left;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border: 1px #CCC solid;
+        }
+
+        .toggle-box:checked + label + div {
+            display: block;
+            float: left;
+        }
+
+        .toggle-box + label:before {
+            background-color: #4F5150;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+            color: #FFFFFF;
+            content: "+";
+            display: block;
+            float: left;
+            font-weight: bold;
+            height: 20px;
+            line-height: 20px;
+            margin-right: 5px;
+            text-align: center;
+            width: 20px;
+        }
+
+        .toggle-box:checked + label:before {
+            content: "\2212";
+        }
+
+    </style>
+{% endblock extra_headers %}
+{% block content %}
+
+{% load static %}
+{% load thumbnail %}
+
+<div>
+    <!-- User profile information (Create a class on css for this section -->
+    <div class="user-info">
+        <div class="summary">
+            <div>
+            {% thumbnail target_user.userprofile.picture "100x100" crop="center" as im %}
+                <img src="{{ im.url }}" class="medium_avatar" alt="{{target_user.username}}">
+            {% empty %}
+                <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="medium_avatar" alt="{{target_user.username}}">
+            {% endthumbnail %}
+            </div>
+            <div style="margin-left: 15px; margin-right: 15px;">
+                <h5><strong>{{target_user.first_name}} {{target_user.last_name}}</strong></h5>
+                <h5>{{target_user.userprofile.affiliation}}</h5>
+                <i>{{ target_user.userprofile.location }}</i>
+            </div>
+            <div>
+                    {% if target_user.userprofile.website %}
+                    <p style="margin-right: 15px;">
+                        <a href="{{ target_user.userprofile.website }}" class="ui-btn ui-icon-home ui-btn-icon-left">Webpage</a>
+                    </p>
+                    {% endif %}
+                    {% if target_user.email %}
+                    <p>
+                        <a href="mailto:{{ target_user.email }}" class="ui-btn ui-icon-info ui-btn-icon-left">Contact me</a>
+                    </p>
+                    {% endif %}
+            </div>
+       </div>
+       <div class="details">
+           {% if target_user.userprofile.biography %}
+           <div>
+                <input class="toggle-box" id="biography" type="checkbox" >
+                <label for="biography">Biography</label>
+                <div>{{ target_user.userprofile.biography|safe }}</div>
+           </div>
+           {% endif %}
+           {% if showCompetitions %}
+                <div>
+                    <input class="toggle-box" id="competitions" type="checkbox" >
+                    <label for="competitions">Competitions</label>
+                    <div>
+                        {% if not competitions %}
+                            <p>There are no competitions.</p>
+                        {% else %}
+                            {% for item in competitions %}
+                                <a href="/competitions/{{item.id}}#learn_the_details">
+                                    <div class="competition-tile">
+                                        <article class="subContainer">
+                                            <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                                            <div class="competitionTileLftStrip"></div>
+                                            <div class="articleImageContainer">
+                                                <div class="subContainerPadding">
+                                                    {% if item.image_url == None %}
+                                                    <img src="{% static "img/ProfileImageDummy.jpg" %}">
+                                                    {% else %}
+                                                    <img src="{{ item.image_url }}">
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="articleTextArea">
+                                                <div class="subContainerPadding">
+                                                    <div class="articleHeadingContainer">
+                                                        <h3>{{ item.title }}</h3>
+                                                        <label>Organized by {{ item.creator }}</label>
+                                                    </div>
+                                                    <div class="competition-paragraph">
+                                                    {{ item.description|safe }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+               </div>
+           {% endif %}
+       </div>
+    </div>
+    <div class="large-3 columns ">
+        <!-- This is where statistic were in the mockup. -->
+    </div>
+</div>
+{% endblock content%}
+
+{% block js %}
+    $(function () {
+        $(".top-bar-section ul > li").removeClass("active");
+        $("#liCompetitions").addClass("active");
+    });
+{% endblock js %}

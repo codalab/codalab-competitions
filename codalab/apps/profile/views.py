@@ -1,7 +1,10 @@
-from django.template import RequestContext
+from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
+from django.http import HttpResponse
+from apps.authenz.models import ClUser
 from apps.profile import forms
+from apps.web import models as webModels
 import time,datetime
 
 @login_required
@@ -29,7 +32,6 @@ def profile(request):
                 ts = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d%H%M%S')
                 request.FILES['picture'].name = user.username + '_' + ts + '.jpg'
 
-            # Now we save the UserProfile model instance.
             user_profile.save()
 
             # Update the profile form to see the picture
@@ -45,6 +47,22 @@ def profile(request):
         else:
             profile_form = forms.UserProfileForm()
 
-    # Bad form (or form details), no form supplied...
-    # Render the form with error messages (if any).
     return render_to_response('profile.html', {'user_form': user_form, 'profile_form': profile_form, 'user': request.user}, context)
+
+@login_required
+def user_details(request, username):
+    template = loader.get_template("user_details.html")
+    if username=="":
+        targetUser=request.user;
+    else:
+        targetUser=ClUser.objects.get(username=username);
+
+    denied = webModels.ParticipantStatus.objects.get(codename=webModels.ParticipantStatus.DENIED)
+    context = RequestContext(request, {
+        'user': request.user,
+        'target_user' : targetUser,
+        'my_competitions' : webModels.Competition.objects.filter(creator=targetUser),
+        'competitions_im_in' : targetUser.participation.all().exclude(status=denied),
+        'showCompetitions' : True
+    })
+    return HttpResponse(template.render(context))

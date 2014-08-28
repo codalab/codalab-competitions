@@ -95,7 +95,7 @@
                 <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                 {% if user.is_authenticated %}
                     <li class="has-dropdown">
-                      <a href="/profile/" target="_self">
+                      <a href="/profile/my" target="_self">
                           {% thumbnail user.userprofile.picture "100x100" crop="center" as im %}
                               <img src="{{ im.url }}" class="mini_avatar" alt="{{user.username}}">
                           {% empty %}
