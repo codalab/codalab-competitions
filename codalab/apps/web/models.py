@@ -787,18 +787,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-
-
-
-
-            print 'ABOUT TO CHECK%%%%%%%%%%%%%%%'
-            print self.phase.max_submissions_per_day
-
-
-
-
-
-            if self.phase.max_submissions_per_day:
+            if hasattr(self.phase, 'max_submissions_per_day'):
                 print 'Checking submissions per day count'
 
                 submissions_from_today_count = len(CompetitionSubmission.objects.filter(
@@ -809,7 +798,8 @@ class CompetitionSubmission(models.Model):
 
                 print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                if submissions_from_today_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    print 'PERMISSION DENIED'
                     raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
@@ -1043,6 +1033,11 @@ class CompetitionDefBundle(models.Model):
 
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
+
+            # Set default for max submissions per day
+            if not hasattr(phase, 'max_submissions_per_day'):
+                phase.max_submissions_per_day = 999
+
             # Evaluation Program
             if hasattr(phase, 'scoring_program') and phase.scoring_program:
                 if phase_spec["scoring_program"].endswith(".zip"):
