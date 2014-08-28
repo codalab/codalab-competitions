@@ -50,7 +50,7 @@ var Worksheet = React.createClass({
             var interpreted = item['interpreted'];
             switch(mode) {
                 case 'markup':
-                    var content = interpreted.length ? interpreted : '\n\n';
+                    var content = interpreted + '\n';
                     markdownChunk += content;
                     break;
                 default:
