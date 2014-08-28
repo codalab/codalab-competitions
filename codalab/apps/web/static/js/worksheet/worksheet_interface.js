@@ -1,37 +1,50 @@
 /** @jsx React.DOM */
+var isMac = window.navigator.platform.toString().indexOf('Mac') >= 0;
+
 var keyMap = {
+    13: "enter",
+    27: "esc",
+    69: "e",
     74: "j",
     75: "k"
 };
+var rawWorksheet = {};
 
 var Worksheet = React.createClass({
     getInitialState: function(){
         ws_obj.state.focusIndex = 0;
+        ws_obj.state.editingIndex = -1;
         ws_obj.state.keyboardShortcuts = true;
         return ws_obj.state;
     },
     bindEvents: function(){
-        window.addEventListener('keydown', this.move);
+        window.addEventListener('keydown', this.handleKeyboardShortcuts);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.move);
+        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
-    move: function(event) {
-        if(this.state.keyboardShortcuts){
+    handleKeyboardShortcuts: function(event) {
+         if(this.state.keyboardShortcuts){
             var key = keyMap[event.keyCode];
-            var index;
+            var index = this.state.focusIndex;
             if(typeof key !== 'undefined'){
+                event.preventDefault();
                 switch (key) {
                     case 'k':
                         index = Math.max(this.state.focusIndex - 1, 0);
+                        this.setState({focusIndex: index});
                         break;
                     case 'j':
                         index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        this.setState({focusIndex: index});
+                        break;
+                    case 'e':
+                        this.setState({editingIndex: index});
+                        this.toggleKeyboardShortcuts(false);
                         break;
                     default:
-                        index = this.state.focusIndex;
+                        return;
                 }
-                this.setState({focusIndex: index});
             } else {
                 return false;
             }
@@ -39,8 +52,13 @@ var Worksheet = React.createClass({
             return false;
         }
     },
-    toggleKeyboardShortcuts: function(){
-        this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
+    toggleKeyboardShortcuts: function(event, direction){
+        if(typeof direction == 'undefined'){
+            this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
+        }else {
+            this.setState({keyboardShortcuts: direction});
+        }
+        console.log('keyboard shortuts: ' + this.state.keyboardShortcuts);
     },
     consolidateMarkdownBundles: function(ws){
         var consolidatedWorksheet = [];
@@ -56,7 +74,7 @@ var Worksheet = React.createClass({
                 default:
                     if(markdownChunk.length){
                         consolidatedWorksheet.push({
-                            mode: 'markup', 
+                            mode: 'markup',
                             interpreted: markdownChunk,
                             bundle_info: null
                         });
@@ -69,12 +87,17 @@ var Worksheet = React.createClass({
         ws.items = consolidatedWorksheet;
         return ws;
     },
+    saveEditedItem: function(){
+        var itemNode = this.refs['item' + this.state.focusIndex].getDOMNode();
+        var newContent = itemNode.children[0].value;
+        alert('Save this content: ' + newContent);
+    },
     componentDidMount: function() {  // once on the page lets get the ws info
         console.log('componentDidMount');
         ws_obj.fetch({
-            success: function(data){
-                console.log(data);
+            success: function(){
                 $("#worksheet-message").hide();
+                rawWorksheet = ws_obj.state;
                 // as successful fetch will update our state data on the ws_obj.
                 var consolidatedWorksheet = this.consolidateMarkdownBundles(ws_obj.state);
                 this.setState(consolidatedWorksheet);
@@ -101,11 +124,13 @@ var Worksheet = React.createClass({
     },
     render: function() {
         var focusIndex = this.state.focusIndex;
+        var editingIndex = this.state.editingIndex;
         var keyboardShortcutsClass = this.state.keyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
         var listBundles = this.state.items.map(function(item, index) {
             var focused = focusIndex === index;
+            var editing = editingIndex === index;
             var itemID = 'item' + index;
-            return <WorksheetItem item={item} focused={focused} ref={itemID} />;
+            return <WorksheetItem item={item} focused={focused} ref={itemID} editing={editing} />;
         });
          // listBundles is now a list of react components that each el is
         return (
@@ -133,13 +158,34 @@ var Worksheet = React.createClass({
 
 
 var WorksheetItem = React.createClass({
+    handleKeyboardShortcuts: function(event){
+        if(this.props.focused){
+            var key = keyMap[event.keyCode];
+            if(typeof key !== 'undefined'){
+                event.preventDefault();
+                switch (key) {
+                    case 'esc':
+                        this._owner.setState({editingIndex:-1, keyboardShortcuts: true})
+                        break;
+                    case 'enter':
+                        if(event.ctrlKey || (isMac && event.metaKey)){
+                            // this.saveEditedItem();
+                            // this.setState({editingIndex: -1});
+                            alert('save');
+                        }
+                    default:
+                        return true;
+                }
+            } else {
+                return true;
+            }
+        }
+    },
     render: function() {
-        var item = this.props.item;
-        var focused = this.props.focused ? ' focused' : '';
-        var itemIndex = this.props.index;
-        // console.log('');
-        // console.log('WorksheetItem');
-        // console.log(item);
+        var item          = this.props.item;
+        var focused       = this.props.focused ? ' focused' : '';
+        var editing       = this.props.editing;
+        var itemIndex     = this.props.index;
         var mode          = item['mode'];
         var interpreted   = item['interpreted'];
         var info          = item['bundle_info'];
@@ -152,7 +198,7 @@ var WorksheetItem = React.createClass({
         switch (mode) {
             case 'markup':
                 rendered_bundle = (
-                    <MarkdownBundle info={info} interpreted={interpreted} type={mode} />
+                    <MarkdownBundle info={info} interpreted={interpreted} type={mode} editing={editing} />
                 );
                 break;
 
@@ -177,10 +223,9 @@ var WorksheetItem = React.createClass({
                 break;
         }
         return(
-            <div className={classString} key={this.props.itemId}>
+            <div className={classString} key={this.props.itemId} editing={this.props.editing} onKeyDown={this.handleKeyboardShortcuts}>
                 {rendered_bundle}
             </div>
-
         );
     } // end of render function
 }); // end of WorksheetItem
@@ -194,15 +239,26 @@ var MarkdownBundle = React.createClass({
             this.getDOMNode()
         ]);
     },
+    componentDidUpdate: function(){
+        if(this.props.editing){
+            this.getDOMNode().focus();
+        }
+    },
     render: function() {
         //create a string of html for innerHTML rendering
-        var text = marked(this.props.interpreted);
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
-        return(
-            <span dangerouslySetInnerHTML={{__html: text}} />
-        );
+        if (this.props.editing){
+            return(
+                <textarea>{this.props.interpreted}</textarea>
+            )
+        }else {
+            var text = marked(this.props.interpreted);
+            return(
+                <span dangerouslySetInnerHTML={{__html: text}} />
+            );
+        }
     } // end of render function
 }); //end of  MarkdownBundle
 
