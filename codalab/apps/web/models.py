@@ -998,6 +998,8 @@ class CompetitionDefBundle(models.Model):
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
 
+        data_set_cache = {}
+
         # Create phases
         for index, p_num in enumerate(comp_spec['phases']):
             phase_spec = comp_spec['phases'][p_num].copy()
@@ -1038,19 +1040,22 @@ class CompetitionDefBundle(models.Model):
             if not hasattr(phase, 'max_submissions_per_day'):
                 phase.max_submissions_per_day = 999
 
-            # Evaluation Program
+            # Create automatic datasets out of some included files, cache file names here as to not make duplicates
+            # where many phases use same dataset files
             if hasattr(phase, 'scoring_program') and phase.scoring_program:
                 if phase_spec["scoring_program"].endswith(".zip"):
                     phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
 
                     file_name = os.path.splitext(os.path.basename(phase.scoring_program.file.name))[0]
-                    data_set = OrganizerDataSet.objects.create(
-                        name="%s_%s" % (file_name, comp.pk),
-                        type="Scoring Program",
-                        data_file=phase.scoring_program.file.name,
-                        uploaded_by=self.owner
-                    )
-                    phase.scoring_program_organizer_dataset = data_set
+                    if phase_spec['scoring_program'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
+                        data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
+                            name="%s_%s" % (file_name, comp.pk),
+                            type="Scoring Program",
+                            data_file=phase.scoring_program.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.scoring_program_organizer_dataset = data_set_cache[phase_spec['scoring_program']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
@@ -1062,13 +1067,15 @@ class CompetitionDefBundle(models.Model):
                     phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
 
                     file_name = os.path.splitext(os.path.basename(phase.reference_data.file.name))[0]
-                    data_set = OrganizerDataSet.objects.create(
-                        name="%s_%s" % (file_name, comp.pk),
-                        type="Reference Data",
-                        data_file=phase.reference_data.file.name,
-                        uploaded_by=self.owner
-                    )
-                    phase.reference_data_organizer_dataset = data_set
+                    if phase_spec['reference_data'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
+                        data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
+                            name="%s_%s" % (file_name, comp.pk),
+                            type="Reference Data",
+                            data_file=phase.reference_data.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.reference_data_organizer_dataset = data_set_cache[phase_spec['reference_data']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
@@ -1080,13 +1087,15 @@ class CompetitionDefBundle(models.Model):
                     phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
 
                     file_name = os.path.splitext(os.path.basename(phase.input_data.file.name))[0]
-                    data_set = OrganizerDataSet.objects.create(
-                        name="%s_%s" % (file_name, comp.pk),
-                        type="Input Data",
-                        data_file=phase.input_data.file.name,
-                        uploaded_by=self.owner
-                    )
-                    phase.input_data_organizer_dataset = data_set
+                    if phase_spec['input_data'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
+                        data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
+                            name="%s_%s" % (file_name, comp.pk),
+                            type="Input Data",
+                            data_file=phase.input_data.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.input_data_organizer_dataset = data_set_cache[phase_spec['input_data']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
                     data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
