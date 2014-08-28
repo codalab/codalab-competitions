@@ -9,9 +9,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.common import UsageError
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from apps.authenz.oauth import get_user_token
+    from codalab.lib import worksheet_util
 
     def _call_with_retries(f, retry_count=0):
-
         try:
             return f()
         except (Fault, ProtocolError) as e:
@@ -39,8 +39,17 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def create_worksheet(self, name):
             return _call_with_retries(lambda: self.client.new_worksheet(name))
 
-        def worksheet(self, uuid):
-            return _call_with_retries(lambda: self.client.get_worksheet_info(uuid))
+        def worksheet(self, uuid, interpreted=False):
+            worksheet_info  = _call_with_retries(lambda: self.client.get_worksheet_info(uuid))
+            if interpreted:
+                interpreted = worksheet_util.interpret_items(
+                                    worksheet_util.get_default_schemas(),
+                                    worksheet_info['items']
+                                )
+                worksheet_info['items'] = interpreted['items']
+                return worksheet_info
+            else:
+                return worksheet_info
 
         def ls(self, uuid, path):
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
@@ -56,6 +65,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                         break
             finally:
                 self.client.close_file(fid)
+
+        def download_target(self, uuid, return_zip=False):
+            target = (uuid, '')
+            result_path, container_path = self.client.download_target(target=target, follow_symlinks=True, return_zip=return_zip)
+            return (result_path, container_path)
 
         def http_status_from_exception(self, ex):
             # This is brittle. See https://github.com/codalab/codalab/issues/345.

@@ -2,28 +2,38 @@ import datetime
 import StringIO
 import csv
 import json
+import zipfile
+import os
+import sys
+import traceback
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse, reverse_lazy
+from os.path import splitext
+
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.views.generic.edit import FormMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.template import RequestContext, loader
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
+from django.http import Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import StreamingHttpResponse
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, render
+from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
+
 from mimetypes import MimeTypes
 
-from apps.web import models
 from apps.web import forms
+from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
 
@@ -38,11 +48,25 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 def competition_index(request):
-    template = loader.get_template("web/competitions/index.html")
-    context = RequestContext(request, {
-        'competitions' : models.Competition.objects.filter(published=True),
-        })
-    return HttpResponse(template.render(context))
+    query = request.GET.get('q')
+    is_active = request.GET.get('is_active', False)
+    is_finished = request.GET.get('is_finished', False)
+    medical_image_viewer = request.GET.get('medical_image_viewer', False)
+
+    competitions = models.Competition.objects.filter(published=True)
+
+    if query:
+        competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
+    if medical_image_viewer:
+        competitions = competitions.filter(enable_medical_image_viewer=True)
+    if is_active:
+        competitions = [c for c in competitions if c.is_active]
+    if is_finished:
+        competitions = [c for c in competitions if not c.is_active]
+
+    return render(request, "web/competitions/index.html", {
+        'competitions': competitions,
+    })
 
 @login_required
 def my_index(request):
@@ -123,7 +147,6 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         the queryset for the "keywords" field'''
         inline_formsets = super(CompetitionEdit, self).construct_inlines()
 
-        # inline_formsets[0] == web pages
         # inline_formsets[1] == phases
         for inline_form in inline_formsets[1].forms:
             inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
@@ -250,6 +273,7 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+        context['site'] = Site.objects.get_current()
         submissions = dict()
         all_submissions = dict()
         try:
@@ -513,7 +537,7 @@ class MySubmissionResultsPartial(TemplateView):
 
         return ctx
 
-class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     This view serves the files associated with a submission.
     """
@@ -530,9 +554,11 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
             return HttpResponse(status=500)
         try:
             response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type != 'text/plain':
+            if file_type == 'application/zip':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+            else:
+                response['Content-Type'] = file_type
             return response
         except azure.WindowsAzureMissingResourceError:
             # for stderr.txt which does not exist when no errors have occurred
@@ -541,6 +567,17 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         except:
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+
+class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
+    """
+    This view serves the files associated with a submission.
+    """
+    model = models.CompetitionSubmission
+    template_name = 'web/my/detailed_results.html'
+    def get(self, request, *args, **kwargs):
+        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username}
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
@@ -686,6 +723,16 @@ class BundleDetailView(TemplateView):
         context['bundle'] = results
         return context
 
+def BundleDownload(request, uuid):
+    service = BundleService(request.user)
+
+    local_path, temp_path = service.download_target(uuid, return_zip=True)
+
+    return StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
+
+
+    # return StreamingHttpResponse(service.read_file(uuid, local_path), content_type=content_type)
+
 # Worksheets
 
 class WorksheetListView(TemplateView):
@@ -724,6 +771,14 @@ class OrganizerDataSetFormMixin(LoginRequiredMixin):
         kwargs = super(OrganizerDataSetFormMixin, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.request.user
         return kwargs
+
+    def get_form(self, form_class):
+        form = super(OrganizerDataSetFormMixin, self).get_form(form_class)
+        form.fields["sub_data_files"].queryset = models.OrganizerDataSet.objects.filter(
+            uploaded_by=self.request.user,
+            sub_data_files__isnull=True, # ignore datasets that are multi
+        )
+        return form
 
     def get_success_url(self):
         return reverse("my_datasets")
@@ -829,18 +884,42 @@ def download_dataset(request, dataset_key):
     except ObjectDoesNotExist:
         return Http404()
 
-    mime = MimeTypes()
-    file_type = mime.guess_type(dataset.data_file.file.name)
-
     try:
-        response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
-        if file_type != 'text/plain':
-            #response['Content-Type'] = 'application/zip'
-            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
-        return response
+        if dataset.sub_data_files.count() > 0:
+            zip_buffer = StringIO.StringIO()
+
+            zip_file = zipfile.ZipFile(zip_buffer, "w")
+            file_name = ""
+
+            for sub_dataset in dataset.sub_data_files.all():
+                file_dir, file_name = os.path.split(sub_dataset.data_file.file.name)
+                zip_file.writestr(file_name, sub_dataset.data_file.read())
+
+            zip_file.close()
+
+            resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+            resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
+            return resp
+        else:
+            mime = MimeTypes()
+            file_type = mime.guess_type(dataset.data_file.file.name)
+            response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+            if file_type != 'text/plain':
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
+            return response
     except:
-        msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-        return HttpResponse(msg % file_type, status=400, content_type='text/plain')
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
 
 
 def system_monitoring(request):

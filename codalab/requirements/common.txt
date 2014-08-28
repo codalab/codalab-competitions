@@ -1,4 +1,4 @@
-Django==1.5.4
+Django==1.5.9
 pytz==2013b
 argparse
 django-configurations
@@ -33,4 +33,6 @@ django-tinymce
 closure_linter
 mock==1.0.1
 sorl-thumbnail==11.12
-PIL==1.1.7
+Pillow==2.5.1
+psutil==2.1.1
+
