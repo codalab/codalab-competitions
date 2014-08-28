@@ -9,6 +9,17 @@
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
 
+
+    <div class="row" style="margin-top: 20px;">
+        <b>Phase description</b>
+        {% if phase.description %}
+            <p>{{ phase.description }}</p>
+        {% else %}
+            <p>None</p>
+        {% endif %}
+    </div>
+
+
     {% if phase.is_active %}
     <div class="row">
         <div class="panel">
