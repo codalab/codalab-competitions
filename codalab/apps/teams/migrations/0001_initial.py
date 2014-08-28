@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.URLField')(unique=True, max_length=200)),
             ('avatar', self.gf('sorl.thumbnail.fields.ImageField')(default='', max_length=100, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('creation_date', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('creation_date', self.gf('django.db.models.fields.DateTimeField')()),
         ))
         db.send_create_signal(u'teams', ['Team'])
 
@@ -27,6 +27,7 @@ class Migration(SchemaMigration):
             ('dateJoined', self.gf('django.db.models.fields.DateField')(blank=True)),
             ('userAccepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('teamAccepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('membershipRequestMessage', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal(u'teams', ['Membership'])
 
@@ -90,6 +91,7 @@ class Migration(SchemaMigration):
             'dateJoined': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'isAdmin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'membershipRequestMessage': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"}),
             'teamAccepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['teams.Team']"}),
@@ -98,7 +100,7 @@ class Migration(SchemaMigration):
         u'teams.team': {
             'Meta': {'object_name': 'Team'},
             'avatar': ('sorl.thumbnail.fields.ImageField', [], {'default': "''", 'max_length': '100', 'blank': 'True'}),
-            'creation_date': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
+            'creation_date': ('django.db.models.fields.DateTimeField', [], {}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'members': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['authenz.ClUser']", 'through': u"orm['teams.Membership']", 'symmetrical': 'False'}),
             'name': ('django.db.models.fields.URLField', [], {'unique': 'True', 'max_length': '200'}),
