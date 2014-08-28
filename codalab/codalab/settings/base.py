@@ -213,6 +213,7 @@ class Base(Settings):
         'apps.web',
         'apps.profile',
         'apps.health',
+        'apps.teams',
 
 
         # Authentication app, enables social authentication
