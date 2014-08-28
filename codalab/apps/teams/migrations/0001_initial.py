@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'Team'
         db.create_table(u'teams_team', (
-            ('teamId', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('team_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.URLField')(unique=True, max_length=200)),
             ('avatar', self.gf('sorl.thumbnail.fields.ImageField')(default='', max_length=100, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
@@ -23,11 +23,11 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('team', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['authenz.ClUser'])),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['teams.Team'])),
-            ('isAdmin', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('dateJoined', self.gf('django.db.models.fields.DateField')(blank=True)),
-            ('userAccepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('teamAccepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('membershipRequestMessage', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('is_admin', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('date_joined', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('user_accepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('team_accepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('membership_request_message', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal(u'teams', ['Membership'])
 
@@ -88,14 +88,14 @@ class Migration(SchemaMigration):
         },
         u'teams.membership': {
             'Meta': {'unique_together': "(('team', 'user'),)", 'object_name': 'Membership'},
-            'dateJoined': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
+            'date_joined': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'isAdmin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'membershipRequestMessage': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'is_admin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'membership_request_message': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"}),
-            'teamAccepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'team_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['teams.Team']"}),
-            'userAccepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+            'user_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         u'teams.team': {
             'Meta': {'object_name': 'Team'},
@@ -104,7 +104,7 @@ class Migration(SchemaMigration):
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'members': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['authenz.ClUser']", 'through': u"orm['teams.Membership']", 'symmetrical': 'False'}),
             'name': ('django.db.models.fields.URLField', [], {'unique': 'True', 'max_length': '200'}),
-            'teamId': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            'team_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         }
     }
 

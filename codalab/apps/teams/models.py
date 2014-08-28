@@ -6,7 +6,7 @@ import datetime
 # Team details
 class Team(models.Model):
 
-    teamId = models.AutoField(primary_key=True)
+    team_id = models.AutoField(primary_key=True)
     name = models.URLField(blank=False, unique=True)
     avatar = ImageField(upload_to='team_avatars', blank=True, default='')
     description = models.TextField(blank=True)
@@ -30,11 +30,11 @@ class Membership(models.Model):
     team = models.ForeignKey(ClUser)
     user = models.ForeignKey(Team)
 
-    isAdmin = models.BooleanField(default=False)
-    dateJoined = models.DateField(blank=True)
-    userAccepted = models.BooleanField(default=False)
-    teamAccepted = models.BooleanField(default=False)
-    membershipRequestMessage = models.TextField(blank=True)
+    is_admin = models.BooleanField(default=False)
+    date_joined = models.DateField(blank=True)
+    user_accepted = models.BooleanField(default=False)
+    team_accepted = models.BooleanField(default=False)
+    membership_request_message = models.TextField(blank=True)
 
     # Alternative to composed keys. Check integrity.
     class Meta:
@@ -46,7 +46,7 @@ class Membership(models.Model):
 
     def save(self, *args, **kwargs):
         ''' On save, if membership is accepted by both parts, set the date '''
-        if not self.dateJoined:
-            if self.teamAccepted and self.userAccepted:
-                self.dateJoined = datetime.datetime.today()
+        if not self.date_joined:
+            if self.team_accepted and self.user_accepted:
+                self.date_joined = datetime.datetime.today()
         return super(Membership, self).save(*args, **kwargs)
