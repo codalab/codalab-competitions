@@ -445,7 +445,7 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
-    max_submissions_per_day = models.PositiveIntegerField(default=0, verbose_name="Max Submissions (per User) per day")
+    max_submissions_per_day = models.PositiveIntegerField(default=999, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
@@ -787,6 +787,17 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
+
+
+
+
+            print 'ABOUT TO CHECK%%%%%%%%%%%%%%%'
+            print self.phase.max_submissions_per_day
+
+
+
+
+
             if self.phase.max_submissions_per_day:
                 print 'Checking submissions per day count'
 
@@ -798,7 +809,7 @@ class CompetitionSubmission(models.Model):
 
                 print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                if submissions_from_today_count > self.phase.max_submissions_per_day:
+                if submissions_from_today_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                     raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
