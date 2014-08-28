@@ -6,14 +6,12 @@
     "cli": {
         "verbose": false
     },
+    "editor": "vim",
     "server": {
         "host": "localhost",
         "port": 2800,
         "class": "MySQLModel",
-        "username": "{{BUNDLE_DB_USER}}",
-        "password": "{{BUNDLE_DB_PASSWORD}}",
-        "address": "localhost",
-        "database": "{{BUNDLE_DB_NAME}}",
+        "engine_url": "mysql://{{BUNDLE_DB_USER}}:{{BUNDLE_DB_PASSWORD}}@localhost:3306/{{BUNDLE_DB_NAME}}",
         "verbose": 1,
         "auth": {
             "class": "OAuthHandler",
