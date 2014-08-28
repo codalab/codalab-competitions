@@ -17,6 +17,15 @@
                 {% endfor %}
             </select>
 
+            <div class="small-12 columns" style="margin-top: 20px;">
+                <b>Selected phase description</b>
+                {% if phase.description %}
+                    <p>{{ phase.description }}</p>
+                {% else %}
+                    <p>None</p>
+                {% endif %}
+            </div>
+
             <!--<section class="challStatusStripSection">
             {% for phase in competition.phases.all %}
                 {% if phase.id == selected_phase_id %}

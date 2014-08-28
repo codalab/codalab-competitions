@@ -445,7 +445,7 @@ class CompetitionPhase(models.Model):
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
-    max_submissions_per_day = models.PositiveIntegerField(default=0, verbose_name="Max Submissions (per User) per day")
+    max_submissions_per_day = models.PositiveIntegerField(default=999, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
@@ -572,8 +572,8 @@ class CompetitionPhase(models.Model):
             headers = []
             scores = {}
 
-            # add the location of the results on the blob storage to the scores 
-            for (pk,name) in submissions: 
+            # add the location of the results on the blob storage to the scores
+            for (pk,name) in submissions:
                 scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
 
             scoreDefs = []
@@ -787,7 +787,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            if self.phase.max_submissions_per_day > 0:
+            if hasattr(self.phase, 'max_submissions_per_day'):
                 print 'Checking submissions per day count'
 
                 submissions_from_today_count = len(CompetitionSubmission.objects.filter(
@@ -798,7 +798,8 @@ class CompetitionSubmission(models.Model):
 
                 print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                if submissions_from_today_count > self.phase.max_submissions_per_day:
+                if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    print 'PERMISSION DENIED'
                     raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
@@ -1032,6 +1033,11 @@ class CompetitionDefBundle(models.Model):
 
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
+
+            # Set default for max submissions per day
+            if not hasattr(phase, 'max_submissions_per_day'):
+                phase.max_submissions_per_day = 999
+
             # Evaluation Program
             if hasattr(phase, 'scoring_program') and phase.scoring_program:
                 if phase_spec["scoring_program"].endswith(".zip"):
