@@ -572,8 +572,8 @@ class CompetitionPhase(models.Model):
             headers = []
             scores = {}
 
-            # add the location of the results on the blob storage to the scores 
-            for (pk,name) in submissions: 
+            # add the location of the results on the blob storage to the scores
+            for (pk,name) in submissions:
                 scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
 
             scoreDefs = []
@@ -787,7 +787,7 @@ class CompetitionSubmission(models.Model):
             else:
                 print "Submission number below maximum."
 
-            if self.phase.max_submissions_per_day > 0:
+            if self.phase.max_submissions_per_day:
                 print 'Checking submissions per day count'
 
                 submissions_from_today_count = len(CompetitionSubmission.objects.filter(
