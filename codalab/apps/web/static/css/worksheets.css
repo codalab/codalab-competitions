@@ -15,6 +15,9 @@
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
 }
+#worksheet-content .worksheet-name label input[type="checkbox"]{
+  margin-right:5px;
+}
 #worksheet-content .worksheet-name h1 {
   text-indent:65px;
   margin-top:.25em;
@@ -36,6 +39,20 @@
 #worksheet-content .focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
+}
+#worksheet-content .focused table {
+  background:#FFFEF4;
+}
+#worksheet-content textarea {
+  background:#FFF;
+  color:#333;
+  box-shadow:none;
+  font-family:monospace;
+  font-size:14px;
+  outline:none;
+  height:auto;
+  padding:0.5em;
+  width:100%;
 }
 table.table {
   border-collapse: separate;
