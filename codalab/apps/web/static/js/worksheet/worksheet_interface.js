@@ -40,7 +40,6 @@ var Worksheet = React.createClass({
                         break;
                     case 'e':
                         this.setState({editingIndex: index});
-                        this.toggleKeyboardShortcuts(false);
                         break;
                     default:
                         return;
@@ -130,7 +129,7 @@ var Worksheet = React.createClass({
             var focused = focusIndex === index;
             var editing = editingIndex === index;
             var itemID = 'item' + index;
-            return <WorksheetItem item={item} focused={focused} ref={itemID} editing={editing} />;
+            return <WorksheetItem item={item} focused={focused} ref={itemID} editing={editing} key={index} />;
         });
          // listBundles is now a list of react components that each el is
         return (
@@ -162,17 +161,17 @@ var WorksheetItem = React.createClass({
         if(this.props.focused){
             var key = keyMap[event.keyCode];
             if(typeof key !== 'undefined'){
-                event.preventDefault();
                 switch (key) {
                     case 'esc':
-                        this._owner.setState({editingIndex:-1, keyboardShortcuts: true})
+                        event.preventDefault();
+                        this._owner.setState({editingIndex:-1, keyboardShortcuts: true});
                         break;
                     case 'enter':
+                        event.preventDefault();
                         if(event.ctrlKey || (isMac && event.metaKey)){
-                            // this.saveEditedItem();
-                            // this.setState({editingIndex: -1});
-                            alert('save');
+                            this.saveEditedItem();
                         }
+                        break;
                     default:
                         return true;
                 }
@@ -180,6 +179,12 @@ var WorksheetItem = React.createClass({
                 return true;
             }
         }
+    },
+    saveEditedItem: function(){
+        console.log('------ save the worksheet here ------');
+        var newVal = this.getDOMNode().children[0].value;
+        this.props.item.interpreted = newVal;
+        this._owner.setState({editingIndex:-1, keyboardShortcuts: true});
     },
     render: function() {
         var item          = this.props.item;
@@ -250,8 +255,9 @@ var MarkdownBundle = React.createClass({
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         if (this.props.editing){
+            this.props.lines = this.props.interpreted.split(/\r\n|\r|\n/).length;
             return(
-                <textarea>{this.props.interpreted}</textarea>
+                <textarea rows={this.props.lines}>{this.props.interpreted}</textarea>
             )
         }else {
             var text = marked(this.props.interpreted);
@@ -285,22 +291,22 @@ var TableBundle = React.createClass({
             });
 
         var row_items = this.props.interpreted[1];
-        var body_rows_html = row_items.map(function(row_item) {
-            var row_cells = header_items.map(function(header_key){
+        var body_rows_html = row_items.map(function(row_item, index) {
+            var row_cells = header_items.map(function(header_key, index){
                 if(header_key == 'name'){
                     return (
-                        <td>
+                        <td key={index}>
                             <a href={bundle_url} className="bundle-link">
                                 { row_item[header_key] }
                             </a>
                         </td>
                     )
                 } else {
-                    return <td> { row_item[header_key] }</td>
+                    return <td key={index}> { row_item[header_key] }</td>
                 }
             });
             return (
-                <tr>
+                <tr key={index}>
                     {row_cells}
                 </tr>
             );
