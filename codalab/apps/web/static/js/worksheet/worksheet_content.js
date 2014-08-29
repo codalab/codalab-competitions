@@ -1,10 +1,10 @@
-// 'class' to manage a worksheet and it's items.
+// 'class' to manage a worksheet and its items.
 // gets created in worksheet/details.html
-var WorksheetContent =  function() {
+var WorksheetContent = function() {
     //init
     function WorksheetContent(url) {
         this.url = url;
-        this.state= {
+        this.state = {
             last_item_id: 0,
             name: '',
             owner: null,
@@ -55,7 +55,6 @@ var WorksheetContent =  function() {
                 console.log("WorksheetContent: setting worksheet state:");
                 console.log(data);
                 console.log('');
-                console.log('consolidate markup bundles');
                 consolidatedWorksheet = this.consolidateMarkdownBundles(data);
                 this.state = consolidatedWorksheet;
                 props.success(consolidatedWorksheet);

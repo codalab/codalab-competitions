@@ -66,7 +66,7 @@ var Worksheet = React.createClass({
         var newContent = itemNode.children[0].value;
         alert('Save this content: ' + newContent);
     },
-    componentDidMount: function() {  // once on the page lets get the ws info
+    componentWillMount: function() {  // once on the page lets get the ws info
         ws_obj.fetch({
             success: function(){
                 $("#worksheet-message").hide();
@@ -214,7 +214,12 @@ var MarkdownBundle = React.createClass({
     saveEditedItem: function(textarea){
         console.log('------ save the worksheet here ------');
         var newVal = textarea.value;
-        this.setState({interpreted:newVal});
+        
+        // TODO //
+        // This is clearly not the right way to do this. It's not triggering any updates. //
+        ws_obj.state.items[this._owner.props.key].interpreted = newVal;
+
+        // Callback to <Worksheet /> to reset editing
         this._owner.props.onExitEdit();
     },
     componentDidMount: function() {
@@ -231,7 +236,7 @@ var MarkdownBundle = React.createClass({
         }
     },
     render: function() {
-        //create a string of html for innerHTML rendering
+        // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
