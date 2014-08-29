@@ -50,7 +50,7 @@ def profile(request):
     return render_to_response('profile.html', {'user_form': user_form, 'profile_form': profile_form, 'user': request.user}, context)
 
 @login_required
-def user_details(request, username):
+def user_details(request, username=""):
     template = loader.get_template("user_details.html")
     if username=="":
         targetUser=request.user;

@@ -3,4 +3,5 @@ from apps.profile import views
 
 urlpatterns = patterns('',
                        url(r'^my', views.profile, name='profile'),
+                       url(r'^view', views.user_details, name='details'),
                        url(r'^view/(?P<username>\w+)/$', views.user_details, name='details'))
