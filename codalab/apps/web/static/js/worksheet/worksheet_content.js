@@ -12,6 +12,33 @@ var WorksheetContent =  function() {
             uuid: 0,
             items: [ ]
         };
+        this.consolidateMarkdownBundles = function(ws) {
+            var consolidatedWorksheet = [];
+            var markdownChunk         = '';
+            ws.items.map(function(item){
+                var mode        = item['mode'];
+                var interpreted = item['interpreted'];
+                switch(mode) {
+                    case 'markup':
+                        var content = interpreted + '\n';
+                        markdownChunk += content;
+                        break;
+                    default:
+                        if(markdownChunk.length){
+                            consolidatedWorksheet.push({
+                                mode: 'markup',
+                                interpreted: markdownChunk,
+                                bundle_info: null
+                            });
+                            markdownChunk = '';
+                        }
+                        consolidatedWorksheet.push(item);
+                        break;
+                }
+            });
+            ws.items = consolidatedWorksheet;
+            return ws;
+        };
     }
     //add functions and calls below
     WorksheetContent.prototype.fetch = function(props) {
@@ -25,11 +52,13 @@ var WorksheetContent =  function() {
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log("setting worksheet state");
+                console.log("WorksheetContent: setting worksheet state:");
                 console.log(data);
                 console.log('');
-                this.state = data;
-                props.success(data);
+                console.log('consolidate markup bundles');
+                consolidatedWorksheet = this.consolidateMarkdownBundles(data);
+                this.state = consolidatedWorksheet;
+                props.success(consolidatedWorksheet);
             }.bind(this),
             error: function(xhr, status, err) {
                 props.error(xhr, status, err);
