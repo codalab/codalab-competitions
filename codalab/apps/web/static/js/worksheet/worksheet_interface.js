@@ -261,7 +261,7 @@ var TableBundle = React.createClass({
     },
     render: function() {
         // var info = this.props.info;  //shortcut naming
-        var bundle_url = "/bundles/" + this.state.uuid + "/"
+        var bundle_url = "/bundles/" + this.state.bundle_info.uuid + "/"
 
         var header_items = this.state.interpreted[0]
         var header_html = header_items.map(function(item, index) {
