@@ -28,7 +28,7 @@ class Dev(DevBase):
     PREVIEW_WORKSHEETS = True
     # Following config is necessary to use a bundle service
     # CODE_PATH points to local source code for bundles repo. Path is relative to this file.
-    BUNDLE_SERVICE_CODE_PATH = "..\\..\\..\\..\\codalab-cli\\"
+    BUNDLE_SERVICE_CODE_PATH = "../../../../codalab-cli/"
     if len(BUNDLE_SERVICE_CODE_PATH) > 0:
         sys.path.append(join(dirname(abspath(__file__)), BUNDLE_SERVICE_CODE_PATH))
         codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)
@@ -48,12 +48,15 @@ class Dev(DevBase):
 
     DATABASES = {
         'default': {
-            'ENGINE':  'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'MySQL_DevDB',                 # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
-            'USER': 'someuser',
-            'PASSWORD': 'somepassword',
-            'HOST': 'someserver', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',           # Set to empty string for default.
+            'ENGINE': 'django.db.backends.sqlite3', # Simple database
+            'NAME': 'codalab.sqlite3',              # Path to database file
+
+            # If want something fancier:
+            #'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            #'NAME': 'MySQL_DevDB',                # Or path to database file if using sqlite3.
+            #'USER': 'someuser',
+            #'PASSWORD': 'somepassword',
+            #'HOST': 'someserver', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            #'PORT': '',           # Set to empty string for default.
         }
     }

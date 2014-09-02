@@ -897,7 +897,7 @@ class Deployment(object):
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
-            bundle_auth_scheme = "https"  
+            bundle_auth_scheme = "https"
         else:
             bundle_auth_scheme = "http"
         if len(ssl_allowed_hosts) == 0:
