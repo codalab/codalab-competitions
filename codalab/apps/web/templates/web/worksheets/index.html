@@ -22,3 +22,19 @@
         $("#liWorksheets").addClass("active");
     });
 {% endblock js %}
+
+{% block jsincludes %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-route.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.min.js"></script>
+
+    <script src="{{ STATIC_URL }}app/js/app.js"></script>
+    <script src="{{ STATIC_URL }}app/js/services/worksheetsapi.js"></script>
+    <script src="{{ STATIC_URL }}app/js/controllers/root.js"></script>
+    <script src="{{ STATIC_URL }}app/js/controllers/worksheets.js"></script>
+    <script src="{{ STATIC_URL }}app/js/controllers/worksheet.js"></script>
+    <script src="{{ STATIC_URL }}app/js/directives/shortcut.js"></script>
+    <script src="{{ STATIC_URL }}app/js/directives/setfocus.js"></script>
+    <script src="{{ STATIC_URL }}app/js/directives/scrollintoview.js"></script>
+
+{% endblock %}

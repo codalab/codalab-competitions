@@ -11,7 +11,9 @@ from os.path import splitext
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -54,7 +56,7 @@ def competition_index(request):
     competitions = models.Competition.objects.filter(published=True)
 
     if query:
-        competitions = competitions.filter(title__iregex=".*%s" % query)
+        competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
     if medical_image_viewer:
         competitions = competitions.filter(enable_medical_image_viewer=True)
     if is_active:
@@ -271,6 +273,7 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+        context['site'] = Site.objects.get_current()
         submissions = dict()
         all_submissions = dict()
         try:
@@ -534,7 +537,7 @@ class MySubmissionResultsPartial(TemplateView):
 
         return ctx
 
-class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     This view serves the files associated with a submission.
     """
@@ -551,9 +554,11 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
             return HttpResponse(status=500)
         try:
             response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type != 'text/plain':
+            if file_type == 'application/zip':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+            else:
+                response['Content-Type'] = file_type
             return response
         except azure.WindowsAzureMissingResourceError:
             # for stderr.txt which does not exist when no errors have occurred
@@ -562,6 +567,17 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         except:
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+
+class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
+    """
+    This view serves the files associated with a submission.
+    """
+    model = models.CompetitionSubmission
+    template_name = 'web/my/detailed_results.html'
+    def get(self, request, *args, **kwargs):
+        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username}
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
