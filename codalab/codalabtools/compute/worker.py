@@ -152,7 +152,7 @@ def _send_update(queue, task_id, status):
                        'task_args': {'status': status}})
     queue.send_message(body)
 
-def _upload(blob_service, container, blob_id, blob_file):
+def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
     Uploads a Blob.
 
@@ -163,7 +163,7 @@ def _upload(blob_service, container, blob_id, blob_file):
     """
     with open(blob_file, 'rb') as f:
         blob = f.read()
-        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob')
+        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
 
 def get_run_func(config):
     """
@@ -312,7 +312,7 @@ def get_run_func(config):
                         if file_ext.lower() ==".html":
                             html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
                             print "file_to_upload:%s" % file_to_upload  
-                            _upload(blob_service, container, html_file_id, file_to_upload)
+                            _upload(blob_service, container, html_file_id, file_to_upload, "html")
                             html_found = True                            
             _send_update(queue, task_id, 'finished')
         except Exception:
