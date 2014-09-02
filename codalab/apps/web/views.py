@@ -7,27 +7,33 @@ import os
 import sys
 import traceback
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse, reverse_lazy
+from os.path import splitext
+
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.views.generic.edit import FormMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.template import RequestContext, loader
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
+from django.http import Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import StreamingHttpResponse
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, render
+from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
+
 from mimetypes import MimeTypes
 
-from apps.web import models
 from apps.web import forms
+from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
 
@@ -50,7 +56,7 @@ def competition_index(request):
     competitions = models.Competition.objects.filter(published=True)
 
     if query:
-        competitions = competitions.filter(title__iregex=".*%s" % query)
+        competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
     if medical_image_viewer:
         competitions = competitions.filter(enable_medical_image_viewer=True)
     if is_active:
@@ -267,6 +273,7 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+        context['site'] = Site.objects.get_current()
         submissions = dict()
         all_submissions = dict()
         try:
@@ -538,7 +545,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         filetype = kwargs.get('filetype')
         try:
-            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)            
+            file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
         except PermissionDenied:
             return HttpResponse(status=403)
         except ValueError:
@@ -570,8 +577,8 @@ class MyCompetitionSubmissionDetailedResults(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username}
-        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))            
- 
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
+
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
     # Requires an authenticated user who is an administrator of the competition.
@@ -715,6 +722,16 @@ class BundleDetailView(TemplateView):
         results = service.item(uuid)
         context['bundle'] = results
         return context
+
+def BundleDownload(request, uuid):
+    service = BundleService(request.user)
+
+    local_path, temp_path = service.download_target(uuid, return_zip=True)
+
+    return StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
+
+
+    # return StreamingHttpResponse(service.read_file(uuid, local_path), content_type=content_type)
 
 # Worksheets
 

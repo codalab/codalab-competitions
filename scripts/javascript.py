@@ -11,18 +11,18 @@ files = [
 	"js/bundle.js",
 	"js/competition.js",
 	"js/main.js",
-	"app/js/app.js",
-	"app/js/services/worksheetsapi.js",
-	"app/js/controllers/root.js",
-	"app/js/controllers/worksheets.js",
-	"app/js/controllers/worksheet.js",
-	"app/js/directives/shortcut.js",
-	"app/js/directives/setfocus.js",
-	"app/js/directives/scrollintoview.js",
+	# "app/js/app.js",  # moved to worksheet/index.html
+	# "app/js/services/worksheetsapi.js",
+	# "app/js/controllers/root.js",
+	# "app/js/controllers/worksheets.js",
+	# "app/js/controllers/worksheet.js",
+	# "app/js/directives/shortcut.js",
+	# "app/js/directives/setfocus.js",
+	# "app/js/directives/scrollintoview.js",
 	]
 
 # Run JSLint
-call(["gjslint", "--disable", "110"] + files)
+call(["gjslint", "--disable", "110", "414", "424", ] + files)
 
 # Minify js files
 call(["java", "-jar", sys.argv[1], "--js"] + files + ["--js_output_file", "codalab.min.js", "--create_source_map", "codalab.min.map", "--output_wrapper", "%output%//# sourceMappingURL=/static/codalab.min.map"])
