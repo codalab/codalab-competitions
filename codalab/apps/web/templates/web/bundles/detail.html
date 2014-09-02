@@ -4,27 +4,17 @@
 {% block page_title %}Bundle details{% endblock page_title %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns worksheet-name">
-        <!-- COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
-            <a href="#" class="right">
-            <button class="med button">Export</button>
-        </a> -->
-        <h2 class="worksheet-icon"></h2>
-        <label class="worksheet-author"></label>
+<div id="bundle-message" class="row">
+    <div class="large-12 columns">
+        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle information...
     </div>
 </div>
-<div class="row">
-    <div class="large-12 columns">
-        <div id="bundle-message">
-            Loading bundle information...
-        </div>
-        <div id="bundle-content">
-        </div>
-    </div>
+<div id="general_search" class="bundle-detail"></div>
+<div id="bundle-content">
 </div>
 
-<div id="bundle-template" style="visibility: hidden;">
+<!-- legacy template -->
+<!-- <div id="bundle-template" style="visibility: hidden;">
     <div class="row">
         <div class="large-12 columns">
             <div class="bundle-tile">
@@ -41,44 +31,58 @@
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+</div> -->
+
+{% endblock content %}
 
 {% block js %}
+    {# moved below because the script tag is in base making this block not color code in editors #}
+{% endblock js %}
+
+{% block jsincludes %}
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
+
+    {# TODO: remove JSX and move to deploy processing of JSX #}
+    <script src="http://fb.me/react-0.11.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/bundle/bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+<script>
+MathJax.Hub.Config({
+    tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+    }
+});
+
+
 $(function () {
     $(".top-bar-section ul > li").removeClass("active");
     $("#liBundles").addClass("active");
 });
-{% endblock js %}
 
-{% block jsincludes %}
-<script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script>
-MathJax.Hub.Config({
-    tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-    }
-});
-
-$(document).ready(function() {
-    $.ajax({
-        type: "GET",
-        url: "/api" + document.location.pathname,
-        cache: false,
-        success: function (data) {
-            bundleElement = (new BundleRenderer($("#bundle-template > div").get(0))).render(data);
-            $("#bundle-content").append(bundleElement);
-            $("#bundle-message").hide();
-        },
-        error: function (xhr, status, err) {
-            if (xhr.status == 404) {
-                $("#bundle-message").html("Bundle was not found.");
-            } else {
-                $("#bundle-message").html("An error occurred. Please try refreshing the page.");
-            }
-        }
-    });
-});
+/* 
+    legacy
+*/
+// $(document).ready(function() {
+//     $.ajax({
+//         type: "GET",
+//         url: "/api" + document.location.pathname,
+//         cache: false,
+//         success: function (data) {
+//             bundleElement = (new BundleRenderer($("#bundle-template > div").get(0))).render(data);
+//             $("#bundle-content").append(bundleElement);
+//             $("#bundle-message").hide();
+//         },
+//         error: function (xhr, status, err) {
+//             if (xhr.status == 404) {
+//                 $("#bundle-message").html("Bundle was not found.");
+//             } else {
+//                 $("#bundle-message").html("An error occurred. Please try refreshing the page.");
+//             }
+//         }
+//     });
+// });
 </script>
 {% endblock jsincludes %}
