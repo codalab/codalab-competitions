@@ -125,7 +125,7 @@ var Worksheet = React.createClass({
                         */
                     }
                 </div>
-                <div>{listBundles}</div>
+                <div className="worksheet-items">{listBundles}</div>
             </div>
         );
     },
@@ -207,8 +207,7 @@ var MarkdownBundle = React.createClass({
     },
     saveEditedItem: function(textarea){
         console.log('------ save the worksheet here ------');
-        var newVal = textarea.value;
-        this.state.interpreted = newVal;
+        this.state.interpreted = textarea.value;
         // Callback to <Worksheet /> to reset editing
         this._owner.props.onExitEdit();
     },
@@ -227,7 +226,7 @@ var MarkdownBundle = React.createClass({
     render: function() {
         if (this.props.editing){
             return(
-                <textarea rows={this.state.lines} onKeyDown={this.handleMarkdownKeyboardShortcuts}>{this.state.interpreted}</textarea>
+                <textarea rows={this.state.lines} onKeyDown={this.handleMarkdownKeyboardShortcuts} defaultValue={this.state.interpreted} />
             )
         }else {
         var text = marked(this.state.interpreted);
