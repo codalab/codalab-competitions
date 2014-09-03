@@ -24,7 +24,7 @@
 
 {% block jsincludes %}
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="http://fb.me/react-0.11.1.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
@@ -33,8 +33,8 @@
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
     {#  JSX FILES #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
 
 <script>
 MathJax.Hub.Config({
