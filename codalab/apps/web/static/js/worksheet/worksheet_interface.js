@@ -11,10 +11,10 @@ var keyMap = {
 
 var Worksheet = React.createClass({
     getInitialState: function(){
-        ws_obj.state.focusIndex = 0;
-        ws_obj.state.editingIndex = -1;
-        ws_obj.state.keyboardShortcuts = true;
-        return ws_obj.state;
+        return {
+            content: ws_obj.state,
+            interactions: ws_interactions.state
+        }
     },
     bindEvents: function(){
         window.addEventListener('keydown', this.handleKeyboardShortcuts);
@@ -23,29 +23,35 @@ var Worksheet = React.createClass({
         window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
     handleKeyboardShortcuts: function(event) {
-        if(this.state.keyboardShortcuts){
+        var content = this.state.content;
+        if(this.state.interactions.worksheetKeyboardShortcuts){
             var key = keyMap[event.keyCode];
-            var index = this.state.focusIndex;
+            var index = this.state.interactions.worksheetFocusIndex;
             if(typeof key !== 'undefined'){
                 switch (key) {
                     case 'k':
                         event.preventDefault();
-                        index = Math.max(this.state.focusIndex - 1, 0);
-                        this.setState({focusIndex: index});
+                        index = Math.max(this.state.interactions.worksheetFocusIndex - 1, 0);
+                        ws_interactions.state.worksheetFocusIndex = index;
                         break;
                     case 'j':
                         event.preventDefault();
-                        index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
-                        this.setState({focusIndex: index});
+                        index = Math.min(this.state.interactions.worksheetFocusIndex + 1, content.items.length - 1);
+                        ws_interactions.state.worksheetFocusIndex = index;
                         break;
                     case 'e':
                         event.preventDefault();
-                        this.setState({editingIndex: index});
-                        this.toggleKeyboardShortcuts(false);
+                        ws_interactions.state.worksheetEditingIndex = index;
+                        // TODO: we only need to disable keyboard shortcuts if the focused item CAN be edited.
+                        // Is there a better way to do this?
+                        if(content.items[this.state.interactions.worksheetFocusIndex].state.mode == 'markup'){
+                            this.toggleKeyboardShortcuts(false);
+                        }
                         break;
                     default:
                         return true;
                     }
+                this.setState({interactions:ws_interactions.state});
             } else {
                 return true;
             }
@@ -55,17 +61,19 @@ var Worksheet = React.createClass({
     },
     toggleKeyboardShortcuts: function(event, direction){
         if(typeof direction == 'undefined'){
-            this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
+            ws_interactions.state.worksheetKeyboardShortcuts = !ws_interactions.state.worksheetKeyboardShortcuts;
         }else {
-            this.setState({keyboardShortcuts: direction});
+            ws_interactions.state.worksheetKeyboardShortcuts = direction;
         }
-        console.log('keyboard shortuts: ' + !this.state.keyboardShortcuts);
+        this.setState({interactions:ws_interactions.state});
     },
     exitEditMode: function(){
-        this.setState({editingIndex:-1, keyboardShortcuts: true});
+        ws_interactions.state.worksheetEditingIndex = -1;
+        ws_interactions.state.worksheetKeyboardShortcuts = true;
+        this.setState({interactions:ws_interactions.state});
     },
     saveEditedItem: function(){
-        var itemNode = this.refs['item' + this.state.focusIndex].getDOMNode();
+        var itemNode = this.refs['item' + this.state.interactions.worksheetFocusIndex].getDOMNode();
         var newContent = itemNode.children[0].value;
         alert('Save this content: ' + newContent);
     },
@@ -74,7 +82,10 @@ var Worksheet = React.createClass({
             success: function(data){
                 $("#worksheet-message").hide();
                 // as successful fetch will update our state data on the ws_obj.
-                this.setState(ws_obj.state);
+                this.setState({
+                    content:ws_obj.state,
+                    interactions:ws_interactions.state
+                });
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -88,7 +99,8 @@ var Worksheet = React.createClass({
         this.bindEvents();
     },
     componentDidUpdate: function(){
-        var itemNode = this.refs['item' + this.state.focusIndex].getDOMNode();
+        var focusIndex = this.state.interactions.worksheetFocusIndex; // shortcut
+        var itemNode = this.refs['item' + focusIndex].getDOMNode();
         if(itemNode.offsetTop > window.innerHeight / 2){
             window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
         }
@@ -97,24 +109,26 @@ var Worksheet = React.createClass({
         this.unbindEvents();
     },
     render: function() {
-        var focusIndex = this.state.focusIndex;
-        var editingIndex = this.state.editingIndex;
-        var keyboardShortcutsClass = this.state.keyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
+        var content = this.state.content;
+        var focusIndex = this.state.interactions.worksheetFocusIndex;
+        var editingIndex = this.state.interactions.worksheetEditingIndex;
+        console.log(this.state.interactions.worksheetKeyboardShortcuts ? 'on' : 'off');
+        var keyboardShortcutsClass = this.state.interactions.worksheetKeyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
         var onExitEdit = this.exitEditMode;
-        var listBundles = this.state.items.map(function(item, index) {
+        var listBundles = this.state.content.items.map(function(item, index) {
             var focused = focusIndex === index;
             var editing = editingIndex === index;
             var itemID = 'item' + index;
             return <WorksheetItemFactory item={item} focused={focused} ref={itemID} editing={editing} key={index} onExitEdit={onExitEdit} />;
         });
-         // listBundles is now a list of react components that each el is
+        // listBundles is now a list of react components that each el is
         return (
             <div id="worksheet-content" className={keyboardShortcutsClass}>
                 <div className="worksheet-name">
-                    <h1 className="worksheet-icon">{this.state.name}</h1>
-                    <div className="worksheet-author">{this.state.owner}</div>
+                    <h1 className="worksheet-icon">{this.state.content.name}</h1>
+                    <div className="worksheet-author">{this.state.content.owner}</div>
                     <label>
-                        <input type="checkbox" onChange={this.toggleKeyboardShortcuts} checked={this.state.keyboardShortcuts} />
+                        <input type="checkbox" onChange={this.toggleKeyboardShortcuts} checked={this.state.interactions.worksheetKeyboardShortcuts} />
                             Keyboard Shortcuts <small> for example on/off </small>
                     </label>
                     {
@@ -179,129 +193,6 @@ var WorksheetItemFactory = React.createClass({
     } // end of render function
 }); // end of WorksheetItemFactory
 
-
-var MarkdownBundle = React.createClass({
-    getInitialState: function(){
-        this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
-        return this.props.item.state;
-    },
-    handleMarkdownKeyboardShortcuts: function(event){
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'esc':
-                    this._owner.props.onExitEdit();
-                    break;
-                case 'enter':
-                    if(event.ctrlKey || (isMac && event.metaKey)){
-                        event.preventDefault();
-                        this.saveEditedItem(event.target);
-                    }
-                    break;
-                default:
-                    return true;
-            }
-        } else {
-            return true;
-        }
-    },
-    saveEditedItem: function(textarea){
-        console.log('------ save the worksheet here ------');
-        this.state.interpreted = textarea.value;
-        // Callback to <Worksheet /> to reset editing
-        this._owner.props.onExitEdit();
-    },
-    componentDidMount: function() {
-        MathJax.Hub.Queue([
-            'Typeset',
-            MathJax.Hub,
-            this.getDOMNode()
-        ]);
-    },
-    componentDidUpdate: function(){
-        if(this.props.editing){
-            this.getDOMNode().focus();
-        }
-    },
-    render: function() {
-        if (this.props.editing){
-            return(
-                <textarea rows={this.state.lines} onKeyDown={this.handleMarkdownKeyboardShortcuts} defaultValue={this.state.interpreted} />
-            )
-        }else {
-        var text = marked(this.state.interpreted);
-        // create a string of html for innerHTML rendering
-        // more info about dangerouslySetInnerHTML
-        // http://facebook.github.io/react/docs/special-non-dom-attributes.html
-        // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
-        return(
-            <span dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleMarkdownKeyboardShortcuts} />
-        );
-        }
-    } // end of render function
-}); //end of  MarkdownBundle
-
-
-var InlineBundle = React.createClass({
-    getInitialState: function(){
-        return this.props.item.state;
-    },
-    render: function() {
-        return(
-            <em>
-                {this.state.interpreted}
-            </em>
-        );
-    } // end of render function
-}); //end of  InlineBundle
-
-var TableBundle = React.createClass({
-    getInitialState: function(){
-        return this.props.item.state;
-    },
-    render: function() {
-        // var info = this.props.info;  //shortcut naming
-        var bundle_url = "/bundles/" + this.state.bundle_info.uuid + "/"
-
-        var header_items = this.state.interpreted[0]
-        var header_html = header_items.map(function(item, index) {
-                return <th key={index}> {item} </th>;
-            });
-
-        var row_items = this.state.interpreted[1];
-        var body_rows_html = row_items.map(function(row_item, index) {
-            var row_cells = header_items.map(function(header_key, index){
-                if(header_key == 'name'){
-                    return (
-                        <td key={index}>
-                            <a href={bundle_url} className="bundle-link">
-                                {row_item[header_key]}
-                            </a>
-                        </td>
-                    )
-                } else {
-                    return <td key={index}> {row_item[header_key]}</td>
-                }
-            });
-            return (
-                <tr key={index}>
-                    {row_cells}
-                </tr>
-            );
-        });
-
-        return(
-            <table className="table table-responsive">
-                <thead>
-                    <tr>{header_html}</tr>
-                </thead>
-                <tbody>
-                    {body_rows_html}
-                </tbody>
-            </table>
-        );
-    } // end of render function
-}); //end of  InlineBundle
 
 var worksheet_react = <Worksheet />;
 React.renderComponent(worksheet_react, document.getElementById('worksheet-body'));
