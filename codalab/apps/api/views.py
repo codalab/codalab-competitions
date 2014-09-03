@@ -3,6 +3,7 @@ Defines Django views for 'apps.api' app.
 """
 import json
 import logging
+import traceback
 
 from . import serializers
 from uuid import uuid4
@@ -651,6 +652,11 @@ class WorksheetsListApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
     """
@@ -673,6 +679,11 @@ class WorksheetsListApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
 class WorksheetContentApi(views.APIView):
@@ -686,6 +697,7 @@ class WorksheetContentApi(views.APIView):
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
+            fdads
             # if owner:
             #     owner = owner[0]
             # else:
@@ -697,6 +709,12 @@ class WorksheetContentApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+
             return Response(status=service.http_status_from_exception(e))
 
 class BundleInfoApi(views.APIView):
@@ -713,6 +731,11 @@ class BundleInfoApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
 class BundleContentApi(views.APIView):
@@ -729,6 +752,11 @@ class BundleContentApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
@@ -752,4 +780,9 @@ class BundleFileContentApi(views.APIView):
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
