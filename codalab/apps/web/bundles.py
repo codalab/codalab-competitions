@@ -46,11 +46,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                             True
                     )
                 )
+
             if interpreted:
-                interpreted = worksheet_util.interpret_items(
-                                    worksheet_util.get_default_schemas(),
-                                    worksheet_info['items']
-                                )
+                interpreted = self.client.interpret_items_and_file_genpaths(
+                        worksheet_util.get_default_schemas(),
+                        worksheet_info['items']
+                    )
                 worksheet_info['items'] = interpreted['items']
                 return worksheet_info
             else:
