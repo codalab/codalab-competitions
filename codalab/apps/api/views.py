@@ -697,7 +697,6 @@ class WorksheetContentApi(views.APIView):
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
-            fdads
             # if owner:
             #     owner = owner[0]
             # else:
