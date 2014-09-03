@@ -1,5 +1,10 @@
 /** @jsx React.DOM */
+var isMac = window.navigator.platform.toString().indexOf('Mac') >= 0;
+
 var keyMap = {
+    13: "enter",
+    27: "esc",
+    69: "e",
     74: "j",
     75: "k"
 };
@@ -7,42 +12,63 @@ var keyMap = {
 var Worksheet = React.createClass({
     getInitialState: function(){
         ws_obj.state.focusIndex = 0;
+        ws_obj.state.editingIndex = -1;
         ws_obj.state.keyboardShortcuts = true;
         return ws_obj.state;
     },
     bindEvents: function(){
-        window.addEventListener('keydown', this.move);
+        window.addEventListener('keydown', this.handleKeyboardShortcuts);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.move);
+        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
-    move: function(event) {
+    handleKeyboardShortcuts: function(event) {
         if(this.state.keyboardShortcuts){
             var key = keyMap[event.keyCode];
+            var index = this.state.focusIndex;
             if(typeof key !== 'undefined'){
                 switch (key) {
                     case 'k':
-                        var index = Math.max(this.state.focusIndex - 1, 0);
+                        event.preventDefault();
+                        index = Math.max(this.state.focusIndex - 1, 0);
+                        this.setState({focusIndex: index});
                         break;
                     case 'j':
-                        var index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        event.preventDefault();
+                        index = Math.min(this.state.focusIndex + 1, this.state.items.length - 1);
+                        this.setState({focusIndex: index});
+                        break;
+                    case 'e':
+                        event.preventDefault();
+                        this.setState({editingIndex: index});
                         break;
                     default:
-                        var index = this.state.focusIndex;
-                }
-                this.setState({focusIndex: index});
+                        return true;
+                    }
             } else {
-                return false;
+                return true;
             }
         } else {
-            return false;
+        return true;
         }
     },
-    toggleKeyboardShortcuts: function(){
-        this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
+    toggleKeyboardShortcuts: function(event, direction){
+        if(typeof direction == 'undefined'){
+            this.setState({keyboardShortcuts: !this.state.keyboardShortcuts});
+        }else {
+            this.setState({keyboardShortcuts: direction});
+        }
+        console.log('keyboard shortuts: ' + this.state.keyboardShortcuts ? 'on' : 'off');
     },
-    componentDidMount: function() {  // once on the page lets get the ws info
-        console.log('componentDidMount');
+    exitEditMode: function(){
+        this.setState({editingIndex:-1, keyboardShortcuts: true});
+    },
+    saveEditedItem: function(){
+        var itemNode = this.refs['item' + this.state.focusIndex].getDOMNode();
+        var newContent = itemNode.children[0].value;
+        alert('Save this content: ' + newContent);
+    },
+    componentWillMount: function() {  // once on the page lets get the ws info
         ws_obj.fetch({
             success: function(data){
                 $("#worksheet-message").hide();
@@ -71,11 +97,14 @@ var Worksheet = React.createClass({
     },
     render: function() {
         var focusIndex = this.state.focusIndex;
+        var editingIndex = this.state.editingIndex;
         var keyboardShortcutsClass = this.state.keyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
+        var onExitEdit = this.exitEditMode;
         var listBundles = this.state.items.map(function(item, index) {
             var focused = focusIndex === index;
+            var editing = editingIndex === index;
             var itemID = 'item' + index;
-            return <WorksheetItem item={item} focused={focused} ref={itemID} />;
+            return <WorksheetItemFactory item={item} focused={focused} ref={itemID} editing={editing} key={index} onExitEdit={onExitEdit} />;
         });
          // listBundles is now a list of react components that each el is
         return (
@@ -102,39 +131,34 @@ var Worksheet = React.createClass({
 });
 
 
-var WorksheetItem = React.createClass({
+var WorksheetItemFactory = React.createClass({
     render: function() {
-        var item = this.props.item;
-        var focused = this.props.focused ? ' focused' : '';
-        var itemIndex = this.props.index;
-        console.log('');
-        console.log('WorksheetItem');
-        console.log(item);
-        var mode          = item['mode'];
-        var interpreted   = item['interpreted'];
-        var info          = item['bundle_info'];
+        var item          = this.props.item;
+        var focused       = this.props.focused ? ' focused' : '';
+        var editing       = this.props.editing;
+        var itemIndex     = this.props.ref;
+        var mode          = item.state.mode;
         var classString   = 'type-' + mode + focused;
         var rendered_bundle = (
                 <div> </div>
             );
-
         //based on the mode create the correct isolated component
         switch (mode) {
             case 'markup':
                 rendered_bundle = (
-                    <MarkdownBundle info={info} interpreted={interpreted} type={mode} />
+                    <MarkdownBundle item={item} editing={editing} />
                 );
                 break;
 
             case 'inline':
                 rendered_bundle = (
-                    <InlineBundle info={info} interpreted={interpreted} mode={mode} />
+                    <InlineBundle item={item} />
                 );
                 break;
 
             case 'table':
                 rendered_bundle = (
-                    <TableBundle info={info} interpreted={interpreted} mode={mode} />
+                    <TableBundle item={item} />
                 );
                 break;
 
@@ -147,16 +171,46 @@ var WorksheetItem = React.createClass({
                 break;
         }
         return(
-            <div className={classString} key={this.props.itemId}>
+            <div className={classString} key={this.props.ref} editing={this.props.editing}>
                 {rendered_bundle}
             </div>
-
         );
     } // end of render function
-}); // end of WorksheetItem
+}); // end of WorksheetItemFactory
 
 
 var MarkdownBundle = React.createClass({
+    getInitialState: function(){
+        this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
+        return this.props.item.state;
+    },
+    handleMarkdownKeyboardShortcuts: function(event){
+        var key = keyMap[event.keyCode];
+        if(typeof key !== 'undefined'){
+            switch (key) {
+                case 'esc':
+                    this._owner.props.onExitEdit();
+                    break;
+                case 'enter':
+                    if(event.ctrlKey || (isMac && event.metaKey)){
+                        event.preventDefault();
+                        this.saveEditedItem(event.target);
+                    }
+                    break;
+                default:
+                    return true;
+            }
+        } else {
+            return true;
+        }
+    },
+    saveEditedItem: function(textarea){
+        console.log('------ save the worksheet here ------');
+        var newVal = textarea.value;
+        this.state.interpreted = newVal;
+        // Callback to <Worksheet /> to reset editing
+        this._owner.props.onExitEdit();
+    },
     componentDidMount: function() {
         MathJax.Hub.Queue([
             'Typeset',
@@ -164,61 +218,73 @@ var MarkdownBundle = React.createClass({
             this.getDOMNode()
         ]);
     },
-    render: function() {
-        //create a string of html for innerHTML rendering
-        var text = markdown.toHTML(this.props.interpreted);
-        if(text.length == 0){
-            text = "<br>"
+    componentDidUpdate: function(){
+        if(this.props.editing){
+            this.getDOMNode().focus();
         }
-        //
+    },
+    render: function() {
+        if (this.props.editing){
+            return(
+                <textarea rows={this.state.lines} onKeyDown={this.handleMarkdownKeyboardShortcuts}>{this.state.interpreted}</textarea>
+            )
+        }else {
+        var text = marked(this.state.interpreted);
+        // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <span dangerouslySetInnerHTML={{__html: text}} />
+            <span dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleMarkdownKeyboardShortcuts} />
         );
+        }
     } // end of render function
 }); //end of  MarkdownBundle
 
 
 var InlineBundle = React.createClass({
+    getInitialState: function(){
+        return this.props.item.state;
+    },
     render: function() {
         return(
             <em>
-                {this.props.interpreted}
+                {this.state.interpreted}
             </em>
         );
     } // end of render function
 }); //end of  InlineBundle
 
 var TableBundle = React.createClass({
-
+    getInitialState: function(){
+        return this.props.item.state;
+    },
     render: function() {
-        var info = this.props.info;  //shortcut naming
-        var bundle_url = "/bundles/" + info.uuid + "/"
+        // var info = this.props.info;  //shortcut naming
+        var bundle_url = "/bundles/" + this.state.uuid + "/"
 
-        var header_items = this.props.interpreted[0]
-        var header_html = header_items.map(function(item) {
-                return <th> {item} </th>;
+        var header_items = this.state.interpreted[0]
+        var header_html = header_items.map(function(item, index) {
+                return <th key={index}> {item} </th>;
             });
 
-        var row_items = this.props.interpreted[1];
-        var body_rows_html = row_items.map(function(row_item) {
-            var row_cells = header_items.map(function(header_key){
+        var row_items = this.state.interpreted[1];
+        var body_rows_html = row_items.map(function(row_item, index) {
+            var row_cells = header_items.map(function(header_key, index){
                 if(header_key == 'name'){
                     return (
-                        <td>
+                        <td key={index}>
                             <a href={bundle_url} className="bundle-link">
-                                { row_item[header_key] }
+                                {row_item[header_key]}
                             </a>
                         </td>
                     )
                 } else {
-                    return <td> { row_item[header_key] }</td>
+                    return <td key={index}> {row_item[header_key]}</td>
                 }
             });
             return (
-                <tr>
+                <tr key={index}>
                     {row_cells}
                 </tr>
             );
@@ -227,10 +293,10 @@ var TableBundle = React.createClass({
         return(
             <table className="table table-responsive">
                 <thead>
-                    <tr>{ header_html }</tr>
+                    <tr>{header_html}</tr>
                 </thead>
                 <tbody>
-                    { body_rows_html }
+                    {body_rows_html}
                 </tbody>
             </table>
         );
