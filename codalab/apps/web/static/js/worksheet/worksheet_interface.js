@@ -41,6 +41,7 @@ var Worksheet = React.createClass({
                     case 'e':
                         event.preventDefault();
                         this.setState({editingIndex: index});
+                        this.toggleKeyboardShortcuts(false);
                         break;
                     default:
                         return true;
@@ -58,7 +59,7 @@ var Worksheet = React.createClass({
         }else {
             this.setState({keyboardShortcuts: direction});
         }
-        console.log('keyboard shortuts: ' + this.state.keyboardShortcuts ? 'on' : 'off');
+        console.log('keyboard shortuts: ' + !this.state.keyboardShortcuts);
     },
     exitEditMode: function(){
         this.setState({editingIndex:-1, keyboardShortcuts: true});
