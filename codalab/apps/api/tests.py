@@ -305,3 +305,17 @@ class CompetitionPublishTests(TestCase):
         resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
 
         self.assertEquals(resp.status_code, 200)
+
+    def test_publish_competition_works_for_admins(self):
+        self.phase.reference_data = 'test/path'
+        self.phase.save()
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.logout()
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+
+        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 200)
+

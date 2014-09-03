@@ -148,7 +148,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         """
         c = webmodels.Competition.objects.get(id=pk)
         response = {}
-        if self.request.user == c.creator:
+        if self.request.user == c.creator or self.request.user in c.admins.all():
             phases_needing_reference_data = webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
 
             if phases_needing_reference_data > 0:
