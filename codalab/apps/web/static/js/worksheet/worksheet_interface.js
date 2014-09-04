@@ -22,6 +22,12 @@ var Worksheet = React.createClass({
     unbindEvents: function(){
         window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
+    updateState: function(){
+        this.setState({
+            content:ws_obj.state,
+            interactions:ws_interactions.state
+        });
+    },
     handleKeyboardShortcuts: function(event) {
         var content = this.state.content;
         if(this.state.interactions.worksheetKeyboardShortcuts){
@@ -51,7 +57,7 @@ var Worksheet = React.createClass({
                     default:
                         return true;
                     }
-                this.setState({interactions:ws_interactions.state});
+                this.updateState();
             } else {
                 return true;
             }
@@ -65,12 +71,12 @@ var Worksheet = React.createClass({
         }else {
             ws_interactions.state.worksheetKeyboardShortcuts = direction;
         }
-        this.setState({interactions:ws_interactions.state});
+        this.updateState();
     },
     exitEditMode: function(){
         ws_interactions.state.worksheetEditingIndex = -1;
         ws_interactions.state.worksheetKeyboardShortcuts = true;
-        this.setState({interactions:ws_interactions.state});
+        this.updateState();
     },
     saveEditedItem: function(){
         var itemNode = this.refs['item' + this.state.interactions.worksheetFocusIndex].getDOMNode();
@@ -82,10 +88,7 @@ var Worksheet = React.createClass({
             success: function(data){
                 $("#worksheet-message").hide();
                 // as successful fetch will update our state data on the ws_obj.
-                this.setState({
-                    content:ws_obj.state,
-                    interactions:ws_interactions.state
-                });
+                this.updateState();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -112,7 +115,6 @@ var Worksheet = React.createClass({
         var content = this.state.content;
         var focusIndex = this.state.interactions.worksheetFocusIndex;
         var editingIndex = this.state.interactions.worksheetEditingIndex;
-        console.log(this.state.interactions.worksheetKeyboardShortcuts ? 'on' : 'off');
         var keyboardShortcutsClass = this.state.interactions.worksheetKeyboardShortcuts ? 'shortcuts-on' : 'shortcuts-off';
         var onExitEdit = this.exitEditMode;
         var listBundles = this.state.content.items.map(function(item, index) {
@@ -147,13 +149,17 @@ var Worksheet = React.createClass({
 
 
 var WorksheetItemFactory = React.createClass({
+    focusOnThis: function(){
+        ws_interactions.state.worksheetFocusIndex = this.props.key;
+        this._owner.updateState();
+    },
     render: function() {
         var item          = this.props.item;
-        var focused       = this.props.focused ? ' focused' : '';
+        var focusedClass  = this.props.focused ? ' focused' : '';
         var editing       = this.props.editing;
         var itemIndex     = this.props.ref;
         var mode          = item.state.mode;
-        var classString   = 'type-' + mode + focused;
+        var classString   = 'type-' + mode + focusedClass;
         var rendered_bundle = (
                 <div> </div>
             );
@@ -186,7 +192,7 @@ var WorksheetItemFactory = React.createClass({
                 break;
         }
         return(
-            <div className={classString} key={this.props.ref} editing={this.props.editing}>
+            <div className={classString} key={this.props.ref} editing={this.props.editing} onClick={this.focusOnThis}>
                 {rendered_bundle}
             </div>
         );
