@@ -25,6 +25,9 @@ var Search = React.createClass({
         }
         this.setState({value: searchInput});
     },
+    handleFocus: function(){
+        ws_interactions.state.worksheetKeyboardShortcuts = false;
+    },
     getResults: function(searchInput){
         console.log('------------');
         console.log('Searching for ' + searchInput);
@@ -45,7 +48,7 @@ var Search = React.createClass({
         return (
             <div className="row">
                 <div className="large-12 columns general-search-container">
-                    <input type="text" value={this.state.value} placeholder='General search box' onChange={this.handleChange} />
+                    <input type="text" value={this.state.value} placeholder='General search box' onChange={this.handleChange} onFocus={this.handleFocus} />
                     <ul id="search_results" className={openClass}>
                        {resultList}
                     </ul>
@@ -56,14 +59,21 @@ var Search = React.createClass({
 });
 
 var SearchResult = React.createClass({
-    doSearchAction: function(){
-        console.log('do the search action for ' + this.props.term);
-        alert(this.props.result.action.toString());
-        this.props.callback();
+    doSearchAction: function(functionName, context){
+        var args = [].slice.call(arguments).splice(2);
+        var namespaces = functionName.split(".");
+        var func = namespaces.pop();
+        for(var i=0; i<namespaces.length; i++){
+            context = context[namespaces[i]];
+        }
+        return context[func].apply(this, args);
+        // console.log('do the search action for ' + this.props.term);
+        // alert(this.props.result.action.toString());
+        // this.props.callback();
     },
     render: function(){
         return(
-            <li onClick={this.doSearchAction} key={this.props.key}>
+            <li onClick={this.doSearchAction(this.props.result.term, window, 'args')} key={this.props.key}>
                 {this.props.result.term}
             </li>
         )
