@@ -174,11 +174,20 @@ class CompetitionDeleteTests(CompetitionTest):
 
         self.assertEquals(resp.status_code, 403)
 
-    def test_can_view_competition_with_ownership(self):
+    def test_can_view_delete_competition_with_ownership(self):
         self.client.login(username="organizer", password="pass")
         resp = self.client.get(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
 
         self.assertEquals(resp.status_code, 200)
+
+    def test_cant_delete_competition_even_as_admin(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.logout()
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.get(reverse("competitions:delete", kwargs={"pk": self.competition.pk}))
+        self.assertEquals(resp.status_code, 403)
 
     def test_cant_delete_competition_if_you_dont_own_it(self):
         self.client.login(username="participant", password="pass")
