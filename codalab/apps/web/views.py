@@ -72,8 +72,11 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+
+    competitions_owner = models.Competition.objects.filter(creator=request.user)
+    competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
@@ -214,7 +217,7 @@ def competition_message_participants(request, competition_id):
     except ObjectDoesNotExist:
         return HttpResponse(status=404)
 
-    if competition.creator != request.user:
+    if competition.creator != request.user and request.user not in competition.admins.all():
         return HttpResponse(status=403)
 
     if "subject" not in request.POST and "body" not in request.POST:

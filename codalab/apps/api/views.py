@@ -186,9 +186,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         context_data["site"] = Site.objects.get_current()
 
-        print context_data
-        print "site in there"
-
         context = Context(context_data)
         text = render_to_string(text_file, context)
         html = render_to_string(html_file, context)
