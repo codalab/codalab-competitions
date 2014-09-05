@@ -15,6 +15,10 @@
         </div>
     </div>
 </div>
+<div id="save_progress">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" />
+    Saving...
+</div>
 {% endblock content %}
 
 
@@ -52,7 +56,7 @@ MathJax.Hub.Config({
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
-    ws_interactions = new WorksheetInteractions.getInstance();
+    ws_interactions = new WorksheetInteractions();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liWorksheets").addClass("active");
