@@ -115,8 +115,12 @@ table.table-responsive > tfoot > tr > td {
 }
 #general_search input {
   height:32px;
+  margin-bottom:0;
 }
-.general-search-container #search_results.closed {
+#general_search input:focus {
+  background:#fff;
+}
+/*.general-search-container #search_results.closed {
   display:none;
 }
 .general-search-container #search_results.open {
@@ -138,10 +142,65 @@ table.table-responsive > tfoot > tr > td {
   overflow:auto;
   z-index:2;
 }
-#search_results li {
+*/
+.twitter-typeahead {
+  width:100%;
+}
+.tt-hint {
+    color: #999
+}
+.tt-dropdown-menu {
+  width:100%;
+  background-color:rgba(255,255,255,.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  position:absolute;
+  left: 15px;
+  right: 15px;
+  top:32px;
+  border:1px solid #ccc;
+  border-top:none;
+  max-height:200px;
+  padding-top:5px;
+  padding-bottom:5px;
+  font-size:14px;
+  overflow:auto;
+  z-index:2;
+}
+.tt-suggestion {
   padding:3px 10px 2px;
 }
-#search_results li:hover {
-  background-color:rgba(115, 156, 185, 0.5);
+.tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: rgba(115, 156, 185, 0.5);
   cursor:pointer;
+}
+.tt-suggestion p {
+    margin: 0;
+}
+/* DEMO ONLY */
+h1.worksheet-icon.orange {
+  background-color:orange;
+}
+body.yellow {
+  background-color:yellow;
+}
+
+#save_progress {
+  position:fixed;
+  bottom:40px;
+  right:40px;
+  width:120px;
+  height:40px;
+  line-height:40px;
+  background-color:rgba(255,255,255,.75);
+  text-align:center;
+  opacity:0;
+  -webkit-transition: opacity 150ms ease-in-out;
+  -moz-transition: opacity 150ms ease-in-out;
+  -ms-transition: opacity 150ms ease-in-out;
+  -o-transition: opacity 150ms ease-in-out;
+  transition: opacity 150ms ease-in-out;
+}
+.content.saving #save_progress {
+  opacity:1;
 }

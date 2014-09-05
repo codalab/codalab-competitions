@@ -1,12 +1,30 @@
 /** @jsx React.DOM */
 
+// var substringMatcher = function(strs) {
+//     return function findMatches(q, cb) {
+//         var matches, substrRegex;
+//         matches = [];
+//         q = q.split(' ');
+//         q = q[q.length -1];
+//         substrRegex = new RegExp(q, 'i');
+//         $.each(strs, function(i, str) {
+//             // todo split q on space and pop off the last one to match against
+//             if (substrRegex.test(str.term)) {
+//             matches.push(str);
+//         }
+//     });
+//     cb(matches);
+//     };
+// };
+
 var fakedata = [
-    {term:'red', action:'paint the town red'},
-    {term:'green', action:'green like the leaves'},
-    {term:'blue', action:'the deep blue sea'},
-    {term:'orange', action:'orange you glad I didn\'t say banana?'},
-    {term:'yellow', action:'they call me mellow yellow'}
-];
+    {'term': 'red', 'action': 'doRed'},
+    {'term': 'green', 'action': 'doGreen'},
+    {'term': 'blue', 'action': 'doBlue'},
+    {'term': 'orange', 'action': 'doOrange'},
+    {'term': 'yellow', 'action': 'doYellow'},
+    {'term': 'save', 'action': 'doSave'}
+    ];
 
 var Search = React.createClass({
     getInitialState: function(){
@@ -16,68 +34,46 @@ var Search = React.createClass({
             results: []
         };
     },
-    handleChange: function(event){
-        var searchInput = event.target.value;
-        if(searchInput.length >= 3){
-            this.getResults(searchInput);
-        }else {
-            this.setState({results: []});
-        }
-        this.setState({value: searchInput});
+    componentDidMount: function(){
+        var fakedata = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: fakedata
+        });
+        fakedata.initialize();
+        $('#search').typeahead({
+            hint:true,
+            highlight:true,
+            minLength:1,
+        },
+        {
+            name:'fakedata',
+            displayKey: 'value',
+            source: fakedata.ttAdapter()
+        }).on('typeahead:selected', function(event, suggestion, dataset){
+           ws_searchActions[suggestion.action]();
+        }).on('typeahead:autocompleted', function(event, suggestion, dataset){
+            console.log('autocompleted');
+        }).on('typeahead:selected', function(event, suggestion, dataset){
+            console.log('selected');
+        });
+    },
+    componentWillUnmount: function(){
+        $('#search').typeahead('destroy');
     },
     handleFocus: function(){
         ws_interactions.state.worksheetKeyboardShortcuts = false;
     },
-    getResults: function(searchInput){
-        console.log('------------');
-        console.log('Searching for ' + searchInput);
-        this.setState({results: fakedata});
-    },
-    cleanupSearch: function(){
-        this.setState({
-            value:'',
-            results:[]
-        });
-    },
     render: function(){
-        var openClass = this.state.results.length ? 'open' : 'closed';
-        var parentCallback = this.cleanupSearch;
-        var resultList = this.state.results.map(function(result, index){
-            return <SearchResult result={result} key={index} callback={parentCallback} />
-        });
         return (
             <div className="row">
                 <div className="large-12 columns general-search-container">
-                    <input type="text" value={this.state.value} placeholder='General search box' onChange={this.handleChange} onFocus={this.handleFocus} />
-                    <ul id="search_results" className={openClass}>
-                       {resultList}
-                    </ul>
+                    <input id="search" type="text" placeholder='General search box' onFocus={this.handleFocus} />
                 </div>
             </div>
         );
     }
 });
 
-var SearchResult = React.createClass({
-    doSearchAction: function(functionName, context){
-        var args = [].slice.call(arguments).splice(2);
-        var namespaces = functionName.split(".");
-        var func = namespaces.pop();
-        for(var i=0; i<namespaces.length; i++){
-            context = context[namespaces[i]];
-        }
-        return context[func].apply(this, args);
-        // console.log('do the search action for ' + this.props.term);
-        // alert(this.props.result.action.toString());
-        // this.props.callback();
-    },
-    render: function(){
-        return(
-            <li onClick={this.doSearchAction(this.props.result.term, window, 'args')} key={this.props.key}>
-                {this.props.result.term}
-            </li>
-        )
-    }
-})
 var general_search = <Search />;
 React.renderComponent(general_search, document.getElementById('general_search'));
