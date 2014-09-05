@@ -4,9 +4,10 @@ Defines Django views for 'apps.api' app.
 import json
 import logging
 
+
 from . import serializers
 from uuid import uuid4
-from rest_framework import (permissions, status, viewsets, views)
+from rest_framework import (permissions, status, viewsets, views, generics, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
@@ -24,7 +25,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
-from django.utils.encoding import smart_str
 
 from apps.authenz.models import ClUser
 from apps.jobs.models import Job
@@ -119,7 +119,11 @@ class CompetitionCreationStatusApi(views.APIView):
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
-
+    filter_class = serializers.CompetitionFilter
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)    
+    filter_fields = ('creator')
+    search_fields = ("title", "description", "=creator__username")
+    
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
         """
@@ -589,11 +593,27 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         if phase_id:
             kw['phase__pk'] = phase_id
         if competition_id:
-            kw['phase__competition__pk'] = competition_id
+            kw['phase__competition__pk'] = competition_id        
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
 leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
+
+class LeaderBoardDataViewSet(views.APIView):
+    """
+    Provides a web API to get the leaderboard data for a phase of a competition
+    """    
+    def get(self, request, *args, **kwargs):
+        competition_id = self.kwargs.get('competition_id', None)
+        phase_id = self.kwargs.get('phase_id', None)
+        competition = webmodels.Competition.objects.get(pk=competition_id)
+        phase = webmodels.CompetitionPhase.objects.filter(competition=competition, phasenumber=phase_id)[0]
+        if phase.is_blind:
+            return HttpResponse(status=403)
+        groups = phase.scores()
+        response = Response(groups, status=status.HTTP_200_OK)
+        return response
+
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
@@ -649,8 +669,6 @@ class WorksheetsListApi(views.APIView):
                         worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
     """
@@ -671,8 +689,6 @@ class WorksheetsListApi(views.APIView):
             logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
             return Response(data)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class WorksheetContentApi(views.APIView):
@@ -684,19 +700,11 @@ class WorksheetContentApi(views.APIView):
         logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService(self.request.user)
         try:
-            worksheet = service.worksheet(uuid, interpreted=True)
-            owner = ClUser.objects.filter(id=worksheet['owner_id'])
-            # if owner:
-            #     owner = owner[0]
-            # else:
-            #     pass
-                #TODO throw error
-            #TODO assign owner.
-            # worksheet['owner'] = owner.username
+            worksheet = service.worksheet(uuid)
+            owner = ClUser.objects.filter(id=worksheet['owner_id'])[0]
+            worksheet['owner'] = owner.username
             return Response(worksheet)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleInfoApi(views.APIView):
@@ -711,8 +719,6 @@ class BundleInfoApi(views.APIView):
             item = service.item(uuid)
             return Response(item, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleContentApi(views.APIView):
@@ -727,8 +733,6 @@ class BundleContentApi(views.APIView):
             items = service.ls(uuid, path)
             return Response(items)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
@@ -750,6 +754,4 @@ class BundleFileContentApi(views.APIView):
             content_type = BundleFileContentApi._content_type(path)
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
