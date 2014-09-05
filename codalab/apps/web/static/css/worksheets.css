@@ -54,6 +54,17 @@
   padding:0.5em;
   width:100%;
 }
+#worksheet-content .type-markup ul,
+#worksheet-content .type-markup ol {
+  margin: 0 0 1em 0;
+  padding-left:40px;
+}
+#worksheet-content .type-markup ul {
+  list-style-type:disc;
+}
+#worksheet-content .type-markup ol {
+  list-style-type:decimal;
+}
 table.table {
   border-collapse: separate;
   border-spacing: 2px;
