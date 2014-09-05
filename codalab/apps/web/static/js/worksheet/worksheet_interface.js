@@ -5,8 +5,11 @@ var keyMap = {
     13: "enter",
     27: "esc",
     69: "e",
+    38: "up",
+    40: "down",
     74: "j",
-    75: "k"
+    75: "k",
+    88: "x"
 };
 
 var Worksheet = React.createClass({
@@ -14,7 +17,7 @@ var Worksheet = React.createClass({
         return {
             content: ws_obj.state,
             interactions: ws_interactions.state
-        }
+        };
     },
     bindEvents: function(){
         window.addEventListener('keydown', this.handleKeyboardShortcuts);
@@ -34,12 +37,16 @@ var Worksheet = React.createClass({
             var key = keyMap[event.keyCode];
             var index = this.state.interactions.worksheetFocusIndex;
             if(typeof key !== 'undefined'){
+                event.preventDefault();
                 switch (key) {
+                    case 'up':
                     case 'k':
                         event.preventDefault();
                         index = Math.max(this.state.interactions.worksheetFocusIndex - 1, 0);
                         ws_interactions.state.worksheetFocusIndex = index;
+
                         break;
+                    case 'down':
                     case 'j':
                         event.preventDefault();
                         index = Math.min(this.state.interactions.worksheetFocusIndex + 1, content.items.length - 1);
