@@ -143,39 +143,54 @@ table.table-responsive > tfoot > tr > td {
   z-index:2;
 }
 */
-.twitter-typeahead {
+.select2-container {
   width:100%;
 }
-.tt-hint {
-    color: #999
+.select2-container.select2-container-multi.select2-dropdown-open .select2-choices {
+  border-bottom:none;
 }
-.tt-dropdown-menu {
-  width:100%;
-  background-color:rgba(255,255,255,.9);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  position:absolute;
-  left: 15px;
-  right: 15px;
-  top:32px;
-  border:1px solid #ccc;
-  border-top:none;
-  max-height:200px;
-  padding-top:5px;
-  padding-bottom:5px;
-  font-size:14px;
-  overflow:auto;
+.select2-container-multi .select2-choices {
+  background-image:none;
+}
+.select2-container-multi.select2-container-active .select2-choices {
+  border-color:#aaa;
+  box-shadow:none;
   z-index:2;
 }
-.tt-suggestion {
-  padding:3px 10px 2px;
+.select2-drop, .select2-drop-active  {
+  background-color:rgba(255,255,255,.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  border-radius:0;
+  border-color:#aaa;
 }
-.tt-suggestion.tt-cursor {
-  color: #fff;
+.select2-results {
+  font-size:14px;
+}
+.select2-results .select2-highlighted{
   background-color: rgba(115, 156, 185, 0.5);
-  cursor:pointer;
 }
-.tt-suggestion p {
-    margin: 0;
+.select2-container-multi .select2-choices .select2-search-choice {
+  margin: 3px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color:rgba(115, 156, 185, 0.5);
+  background-image: none;
+  border:none;
+  border-radius:0;
+}
+.select2-container-multi .select2-choices .select2-search-choice div {
+  margin:1px 0 0 0;
+  padding: 0;
+  height: 20px;
+  font-family: sans-serif;
+  font-size: 100%;
+  color: #666;
+  outline: 0;
+  line-height:20px;
+  border: 0;
+}
+.select2-container-multi .select2-search-choice-close {
+  display:none;
 }
 /* DEMO ONLY */
 h1.worksheet-icon.orange {

@@ -35,31 +35,18 @@ var Search = React.createClass({
         };
     },
     componentDidMount: function(){
-        var fakedata = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: fakedata
-        });
-        fakedata.initialize();
-        $('#search').typeahead({
-            hint:true,
-            highlight:true,
-            minLength:1,
-        },
-        {
-            name:'fakedata',
-            displayKey: 'value',
-            source: fakedata.ttAdapter()
-        }).on('typeahead:selected', function(event, suggestion, dataset){
-           ws_searchActions[suggestion.action]();
-        }).on('typeahead:autocompleted', function(event, suggestion, dataset){
-            console.log('autocompleted');
-        }).on('typeahead:selected', function(event, suggestion, dataset){
-            console.log('selected');
+        $('#search').select2({
+            tags: function(){
+                options = [];
+                fakedata.map(function(item){
+                    options.push(item.term);
+                })
+                return options;
+            },
         });
     },
     componentWillUnmount: function(){
-        $('#search').typeahead('destroy');
+        
     },
     handleFocus: function(){
         ws_interactions.state.worksheetKeyboardShortcuts = false;

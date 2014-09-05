@@ -30,6 +30,7 @@ var MarkdownBundle = React.createClass({
         this.setState({interpreted: textarea.value});
         // Callback to <Worksheet /> to reset editing
         this._owner.props.onExitEdit();
+        ws_searchActions.doSave();
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
