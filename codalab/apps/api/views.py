@@ -25,6 +25,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
+from django.utils.encoding import smart_str
 
 from apps.authenz.models import ClUser
 from apps.jobs.models import Job
@@ -669,6 +670,8 @@ class WorksheetsListApi(views.APIView):
                         worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
     """
@@ -689,6 +692,8 @@ class WorksheetsListApi(views.APIView):
             logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
             return Response(data)
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class WorksheetContentApi(views.APIView):
@@ -700,11 +705,19 @@ class WorksheetContentApi(views.APIView):
         logger.debug("WorksheetContent: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService(self.request.user)
         try:
-            worksheet = service.worksheet(uuid)
-            owner = ClUser.objects.filter(id=worksheet['owner_id'])[0]
-            worksheet['owner'] = owner.username
+            worksheet = service.worksheet(uuid, interpreted=True)
+            owner = ClUser.objects.filter(id=worksheet['owner_id'])
+            # if owner:
+            #     owner = owner[0]
+            # else:
+            #     pass
+                #TODO throw error
+            #TODO assign owner.
+            # worksheet['owner'] = owner.username
             return Response(worksheet)
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleInfoApi(views.APIView):
@@ -719,6 +732,8 @@ class BundleInfoApi(views.APIView):
             item = service.item(uuid)
             return Response(item, content_type="application/json")
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleContentApi(views.APIView):
@@ -733,6 +748,8 @@ class BundleContentApi(views.APIView):
             items = service.ls(uuid, path)
             return Response(items)
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
@@ -754,4 +771,6 @@ class BundleFileContentApi(views.APIView):
             content_type = BundleFileContentApi._content_type(path)
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
             return Response(status=service.http_status_from_exception(e))
