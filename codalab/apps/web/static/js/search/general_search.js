@@ -1,22 +1,5 @@
 /** @jsx React.DOM */
 
-// var substringMatcher = function(strs) {
-//     return function findMatches(q, cb) {
-//         var matches, substrRegex;
-//         matches = [];
-//         q = q.split(' ');
-//         q = q[q.length -1];
-//         substrRegex = new RegExp(q, 'i');
-//         $.each(strs, function(i, str) {
-//             // todo split q on space and pop off the last one to match against
-//             if (substrRegex.test(str.term)) {
-//             matches.push(str);
-//         }
-//     });
-//     cb(matches);
-//     };
-// };
-
 var fakedata = [
     {'term': 'red', 'action': 'doRed'},
     {'term': 'green', 'action': 'doGreen'},
@@ -35,7 +18,9 @@ var Search = React.createClass({
         };
     },
     componentDidMount: function(){
+        _this = this;
         $('#search').select2({
+            multiple:true,
             tags: function(){
                 options = [];
                 fakedata.map(function(item){
@@ -43,10 +28,14 @@ var Search = React.createClass({
                 })
                 return options;
             },
+            tokenSeparators: [":", " "]
+        })
+        .on('select2-focus', function(){
+            _this.handleFocus();
         });
     },
     componentWillUnmount: function(){
-        
+        $('#search').select2('destroy');
     },
     handleFocus: function(){
         ws_interactions.state.worksheetKeyboardShortcuts = false;
