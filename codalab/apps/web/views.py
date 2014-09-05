@@ -169,7 +169,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.creator != request.user:
+        if self.object.creator != request.user and request.user not in self.object.admins.all():
             return HttpResponse(status=403)
 
         return super(CompetitionEdit, self).get(request, *args, **kwargs)

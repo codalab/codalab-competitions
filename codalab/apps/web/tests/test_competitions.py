@@ -217,6 +217,15 @@ class CompetitionEditPermissionsTests(CompetitionTest):
 
         self.assertEquals(resp.status_code, 200)
 
+    def test_can_view_edit_competition_as_admin(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.get(reverse("competitions:edit", kwargs={"pk": self.competition.pk}))
+
+        self.assertEquals(resp.status_code, 200)
+
     def test_cant_edit_competition_if_you_dont_own_it(self):
         self.client.login(username="participant", password="pass")
         resp = self.client.post(reverse("competitions:edit", kwargs={"pk": self.competition.pk}))
