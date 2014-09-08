@@ -110,13 +110,13 @@ table.table-responsive > tfoot > tr > td {
 #general_search.ws-detail {
   padding-top:2.25em;
 }
-/*#general_search.bundle-detail, #general_search.ws-list {
+#general_search.bundle-detail, #general_search.ws-list {
   padding-bottom:1em;
 }
 #general_search input {
   height:auto;
   margin-bottom:0;
-}*/
+}
 #general_search input:focus {
   background:#fff;
 }
