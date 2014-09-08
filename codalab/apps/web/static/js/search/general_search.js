@@ -1,13 +1,13 @@
 /** @jsx React.DOM */
 
-var fakedata = [
-    {'term': 'red', 'action': 'doRed'},
-    {'term': 'green', 'action': 'doGreen'},
-    {'term': 'blue', 'action': 'doBlue'},
-    {'term': 'orange', 'action': 'doOrange'},
-    {'term': 'yellow', 'action': 'doYellow'},
-    {'term': 'save', 'action': 'doSave'}
-    ];
+var fakedata = {
+    red: 'doRed',
+    green: 'doGreen',
+    blue: 'doBlue',
+    orange: 'doOrange',
+    yellow: 'doYellow',
+    save: 'doSave'
+    };
 
 var Search = React.createClass({
     getInitialState: function(){
@@ -23,16 +23,36 @@ var Search = React.createClass({
             multiple:true,
             tags: function(){
                 options = [];
-                fakedata.map(function(item){
-                    options.push(item.term);
-                })
+                for(key in fakedata){
+                    options.push(key);
+                }
                 return options;
             },
-            tokenSeparators: [":", " "]
+            tokenSeparators: [":", " ", ","],
+            createSearchChoicePosition: 'bottom'
         })
         .on('select2-focus', function(){
             _this.handleFocus();
         });
+        $('#s2id_search').on('keydown', '.select2-input', function(e){
+            switch(e.keyCode){
+                case 9:
+                    e.preventDefault();
+                    break;
+                case 13:
+                    e.preventDefault();
+                    _this.executeCommands();
+                    break;
+                default:
+                    return true;
+            }
+        });
+    },
+    executeCommands: function(){
+        var command = $('#search').select2('val');
+        for(i=0; i < command.length; i++){
+            ws_searchActions[fakedata[command[i]]]();
+        }
     },
     componentWillUnmount: function(){
         $('#search').select2('destroy');
