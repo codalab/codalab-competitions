@@ -20,10 +20,17 @@ var Worksheet = React.createClass({
         };
     },
     bindEvents: function(){
+        var _this = this;
         window.addEventListener('keydown', this.handleKeyboardShortcuts);
+        ws_broker.register('updateState', function(){
+            _this.updateState();
+        });
     },
     unbindEvents: function(){
         window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+        ws_broker.unregister('updateState', function(){
+            _this.updateState();
+        });
     },
     updateState: function(){
         this.setState({

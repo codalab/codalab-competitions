@@ -33,6 +33,9 @@ var Search = React.createClass({
         })
         .on('select2-focus', function(){
             _this.handleFocus();
+        })
+        .on('select2-blur', function(){
+            _this.handleBlur();
         });
         $('#s2id_search').on('keydown', '.select2-input', function(e){
             switch(e.keyCode){
@@ -64,6 +67,11 @@ var Search = React.createClass({
     },
     handleFocus: function(){
         ws_interactions.state.worksheetKeyboardShortcuts = false;
+        ws_broker.fire('updateState');
+    },
+    handleBlur: function(){
+        ws_interactions.state.worksheetKeyboardShortcuts = true;
+        ws_broker.fire('updateState');
     },
     render: function(){
         return (
