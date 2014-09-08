@@ -51,7 +51,12 @@ var Search = React.createClass({
     executeCommands: function(){
         var command = $('#search').select2('val');
         for(i=0; i < command.length; i++){
-            ws_searchActions[fakedata[command[i]]]();
+            var functionName = fakedata[command[i]];
+            if(ws_searchActions.hasOwnProperty(functionName)){
+                ws_searchActions[functionName]();
+            } else {
+                console.error('The command \'' + command[i] + '\' was not recognized');
+            }
         }
     },
     componentWillUnmount: function(){
