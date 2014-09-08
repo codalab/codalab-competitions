@@ -16,10 +16,10 @@ var WorksheetList = React.createClass({
         };
     },
     bindEvents: function(){
-        window.addEventListener('keydown', this.move);
+        window.addEventListener('keydown', this.handleKeyboardShortcuts);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.move);
+        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
     componentDidMount: function() {
         $.ajax({
@@ -55,18 +55,20 @@ var WorksheetList = React.createClass({
     toggleMyWorksheets: function(){
         this.setState({myWorksheets: !this.state.myWorksheets});
     },
-    move: function(event) {
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            event.preventDefault();
-            if(key == 'k' || key == 'up'){
-                this.setState({focusIndex: Math.max(this.state.focusIndex - 1, 0)});
-            }else if (key == 'j' || key == 'down'){
-                this.setState({focusIndex: Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1)});
-            }else if (key == 'x' || key == 'enter'){
-                this.goToFocusedWorksheet();
-            }else {
-                return false;
+    handleKeyboardShortcuts: function(event) {
+        if(ws_interactions.state.worksheetKeyboardShortcuts){
+            var key = keyMap[event.keyCode];
+            if(typeof key !== 'undefined'){
+                event.preventDefault();
+                if(key == 'k' || key == 'up'){
+                    this.setState({focusIndex: Math.max(this.state.focusIndex - 1, 0)});
+                }else if (key == 'j' || key == 'down'){
+                    this.setState({focusIndex: Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1)});
+                }else if (key == 'x' || key == 'enter'){
+                    this.goToFocusedWorksheet();
+                }else {
+                    return false;
+                }
             }
         }
     },
