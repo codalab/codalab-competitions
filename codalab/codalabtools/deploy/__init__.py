@@ -947,7 +947,7 @@ class Deployment(object):
             "    EMAIL_HOST_PASSWORD = '{0}'".format(self.config.getEmailPassword()),
             "    EMAIL_PORT = 587",
             "    EMAIL_USE_TLS = True",
-            "    DEFAULT_FROM_EMAIL = 'info@codalab.org'",
+            "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
             "    # Django secret",

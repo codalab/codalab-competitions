@@ -237,7 +237,7 @@ class Base(Settings):
     EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'info@codalab.org'
+    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'
     SERVER_EMAIL = 'info@codalab.org'
 
     # Authentication configuration
