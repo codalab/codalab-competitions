@@ -139,6 +139,17 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
             phase_form.instance.save()
 
+        # Look for admins that are not participants yet
+        approved_status = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.APPROVED)
+
+        for admin in form.instance.admins.all():
+            try:
+                participant = models.CompetitionParticipant.objects.get(user=admin, competition=form.instance)
+                participant.status = approved_status
+                participant.save()
+            except ObjectDoesNotExist:
+                models.CompetitionParticipant.objects.create(user=admin, competition=form.instance, status=approved_status)
+
         return save_result
 
     def get_context_data(self, **kwargs):
@@ -257,8 +268,9 @@ class CompetitionDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         competition = self.get_object()
         secret_key = request.GET.get("secret_key", None)
-        if not competition.published and competition.secret_key != secret_key and competition.creator != request.user:
-            return HttpResponse(status=404)
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            if not competition.published and competition.secret_key != secret_key:
+                return HttpResponse(status=404)
         return super(CompetitionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
