@@ -45,18 +45,17 @@ var Worksheet = React.createClass({
     },
     handleKeyboardShortcuts: function(event) {
         var content = this.state.content;
-        if(this.state.interactions.worksheetKeyboardShortcuts){
+        var focusedItem = content.items[this.state.interactions.worksheetFocusIndex];
+        if(this.state.interactions.worksheetKeyboardShortcuts && focusedItem.state.mode !== 'table'){
             var key = keyMap[event.keyCode];
             var index = this.state.interactions.worksheetFocusIndex;
             if(typeof key !== 'undefined'){
-                event.preventDefault();
                 switch (key) {
                     case 'up':
                     case 'k':
                         event.preventDefault();
                         index = Math.max(this.state.interactions.worksheetFocusIndex - 1, 0);
                         ws_interactions.state.worksheetFocusIndex = index;
-
                         break;
                     case 'down':
                     case 'j':
@@ -69,7 +68,7 @@ var Worksheet = React.createClass({
                         ws_interactions.state.worksheetEditingIndex = index;
                         // TODO: we only need to disable keyboard shortcuts if the focused item CAN be edited.
                         // Is there a better way to do this?
-                        if(content.items[this.state.interactions.worksheetFocusIndex].state.mode == 'markup'){
+                        if(focusedItem.state.mode == 'markup'){
                             this.toggleKeyboardShortcuts(false);
                         }
                         break;
@@ -81,7 +80,10 @@ var Worksheet = React.createClass({
                 return true;
             }
         } else {
-        return true;
+            if(focusedItem.state.mode == 'table'){
+                focusedItem.state.handleKeyboardShortcuts(event);
+            }
+            return true;
         }
     },
     toggleKeyboardShortcuts: function(event, direction){
