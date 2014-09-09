@@ -152,7 +152,7 @@ def _send_update(queue, task_id, status):
                        'task_args': {'status': status}})
     queue.send_message(body)
 
-def _upload(blob_service, container, blob_id, blob_file):
+def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
     Uploads a Blob.
 
@@ -163,7 +163,7 @@ def _upload(blob_service, container, blob_id, blob_file):
     """
     with open(blob_file, 'rb') as f:
         blob = f.read()
-        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob')
+        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
 
 def get_run_func(config):
     """
@@ -256,10 +256,10 @@ def get_run_func(config):
 
                     # time in seconds
                     if exit_code is None and time.time() - startTime > execution_time_limit:
-                        evaluator_process.kill()
                         exit_code = -1
                         logger.info("Killed process for running too long!")
                         err.write("Execution time limit exceeded!")
+                        evaluator_process.kill()
                         timed_out = True
                         break
                     else:
@@ -279,10 +279,6 @@ def get_run_func(config):
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, stderr_id, stderr_file)
-
-            # check if timed out AFTER output files are written! If we exit sooner, no output is written
-            if timed_out:
-                raise Exception("Execution time limit exceeded!")
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
@@ -305,16 +301,22 @@ def get_run_func(config):
             html_found = False
             for root, dirs, files in os.walk(output_dir):
                 if not (html_found):
-                    path = root.split('/')                      
+                    path = root.split('/')
                     for file in files:
                         file_to_upload = os.path.join(root,file)
                         file_ext = os.path.splitext(file_to_upload)[1]
                         if file_ext.lower() ==".html":
                             html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
-                            print "file_to_upload:%s" % file_to_upload  
-                            _upload(blob_service, container, html_file_id, file_to_upload)
-                            html_found = True                            
-            _send_update(queue, task_id, 'finished')
+                            print "file_to_upload:%s" % file_to_upload
+                            _upload(blob_service, container, html_file_id, file_to_upload, "html")
+                            html_found = True
+
+            # check if timed out AFTER output files are written! If we exit sooner, no output is written
+            if timed_out:
+                logger.exception("Run task failed (task_id=%s).", task_id)
+                _send_update(queue, task_id, 'failed')
+            else:
+                _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
             _send_update(queue, task_id, 'failed')

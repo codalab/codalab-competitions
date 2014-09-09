@@ -454,7 +454,7 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
-    execution_time_limit = models.PositiveIntegerField(default=(5 * 60))
+    execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
     color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
 
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
