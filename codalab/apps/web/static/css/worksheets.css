@@ -114,38 +114,81 @@ table.table-responsive > tfoot > tr > td {
   padding-bottom:1em;
 }
 #general_search input {
-  height:32px;
+  height:auto;
+  margin-bottom:0;
 }
-.general-search-container #search_results.closed {
-  display:none;
+#general_search input:focus {
+  background:#fff;
 }
-.general-search-container #search_results.open {
-  display:block;
+.select2-container {
+  width:100%;
 }
-.general-search-container #search_results {
-  background-color:rgba(255,255,255,.9);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  position:absolute;
-  left: 15px;
-  right: 15px;
-  top:32px;
-  border:1px solid #ccc;
-  border-top:none;
-  max-height:200px;
-  padding-top:5px;
-  padding-bottom:5px;
-  font-size:14px;
-  overflow:auto;
+/*.select2-container.select2-container-multi.select2-dropdown-open .select2-choices {
+  border-bottom:none;
+}*/
+.select2-container-multi .select2-choices {
+  background-image:none;
+  /*padding:3px;*/
+}
+.select2-container-multi.select2-container-active .select2-choices {
+  border-color:#aaa;
+  box-shadow:none;
   z-index:2;
 }
-#search_results li {
-  padding:3px 10px 2px;
+.select2-drop, .select2-drop-active  {
+  background-color:rgba(255,255,255,.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  border-radius:0;
+  border-color:#aaa;
 }
-#search_results li:hover {
-  background-color:rgba(115, 156, 185, 0.5);
-  cursor:pointer;
+.select2-results {
+  font-size:14px;
+ /* margin:0;
+  padding:0 4px;*/
 }
-
+/*.select2-results .select2-no-results {
+  display:none;
+}*/
+.select2-results .select2-highlighted{
+  background-color: rgba(115, 156, 185, 0.5);
+}
+.select2-container-multi .select2-choices .select2-search-choice {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color:rgba(115, 156, 185, 0.25);
+  background-image: none;
+  border:none;
+  border-radius:0;
+}
+/* DEMO ONLY */
+h1.worksheet-icon.orange {
+  background-color:orange;
+}
+body.yellow {
+  background-color:yellow;
+}
+#save_progress, #save_error {
+  position:fixed;
+  bottom:40px;
+  right:40px;
+  width:120px;
+  height:40px;
+  line-height:40px;
+  background-color:rgba(255,255,255,.75);
+  text-align:center;
+  opacity:0;
+  -webkit-transition: opacity 150ms ease-in-out;
+  -moz-transition: opacity 150ms ease-in-out;
+  -ms-transition: opacity 150ms ease-in-out;
+  -o-transition: opacity 150ms ease-in-out;
+  transition: opacity 150ms ease-in-out;
+}
+.content.saving #save_progress {
+  opacity:1;
+}
+.content.save-error #save_error {
+  opacity:1;
+}
 #worksheet-list .worksheet-tile {
   border-left:1px solid #ccc;
   padding:0;
