@@ -293,7 +293,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
 
-        if comp.creator != request.user:
+        if comp.creator != request.user and request.user not in comp.admins.all():
             raise PermissionDenied()
 
         try:

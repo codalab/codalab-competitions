@@ -273,6 +273,24 @@ class ParticipationStatusPermissionsTests(TestCase):
         participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
         self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
 
+    def test_updating_participant_status_works_as_competition_admin(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.post(
+            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            {
+                "status": ParticipantStatus.APPROVED,
+                "participant_id": self.participant.pk,
+                "reason": ""
+            }
+        )
+
+        self.assertEquals(resp.status_code, 200)
+        participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
+        self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
+
 
 class CompetitionPublishTests(TestCase):
 
