@@ -20,6 +20,7 @@
     {% block css %}
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
         <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css">
@@ -179,11 +180,14 @@
 
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}js/vendor/foundation.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/select2/select2.min.js"></script>
+    <script src="{{ STATIC_URL }}js/search/search_actions.js"></script>
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
     <script>
-    $(document).foundation();
-    Competition.initialize();
+        $(document).foundation();
+        Competition.initialize();
+        ws_searchActions = new SearchActions();
     {% block js %}
     {% endblock js %}
     </script>

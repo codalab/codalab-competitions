@@ -2,39 +2,44 @@
 {% block head_title %}Worksheets{% endblock head_title %}
 {% block page_title %}Worksheets{% endblock page_title %}
 
-{% block custom_html_attributes %} ng-app="codalab" {% endblock custom_html_attributes %}
-{% block custom_body_attributes %} ng-controller="root" {% endblock custom_body_attributes %}
-{% block nosubheader %} {% endblock nosubheader %}
-{% block header_space %} {% endblock header_space %}
-
-{% block content_wrapper %}
-{% load static %}
-<ng-view></ng-view>
-{% endblock content_wrapper %}
-
-{% block js %}
-    // Initialize Foundation
-    $(document).foundation();
-
-    // Following code is shared with competitions which do not yet support AngularJS
-    $(function () {
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liWorksheets").addClass("active");
-    });
-{% endblock js %}
+{% block content %}
+<div class="row">
+    <div class="large-12 columns">
+        <div id="worksheet-message">
+            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheets...
+        </div>
+        <div id="general_search" class="ws-list"></div>
+        <div id="worksheets">
+            <!-- worksheet list wil go here-->
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block jsincludes %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-route.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.min.js"></script>
+    <script src="http://fb.me/react-0.11.1.js"></script>
 
-    <script src="{{ STATIC_URL }}app/js/app.js"></script>
-    <script src="{{ STATIC_URL }}app/js/services/worksheetsapi.js"></script>
-    <script src="{{ STATIC_URL }}app/js/controllers/root.js"></script>
-    <script src="{{ STATIC_URL }}app/js/controllers/worksheets.js"></script>
-    <script src="{{ STATIC_URL }}app/js/controllers/worksheet.js"></script>
-    <script src="{{ STATIC_URL }}app/js/directives/shortcut.js"></script>
-    <script src="{{ STATIC_URL }}app/js/directives/setfocus.js"></script>
-    <script src="{{ STATIC_URL }}app/js/directives/scrollintoview.js"></script>
+    {# TODO: remove JSX and move to deploy processing of JSX #}
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
+    
+    <script src="{{ STATIC_URL }}js/broker.js"></script>
+    <script src="{{ STATIC_URL }}js/worksheet/worksheet_interactions.js"></script>
 
-{% endblock %}
+    {#  JSX FILES #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_list.js"></script>
+
+    <script>
+        $(function () {
+            ws_interactions = new WorksheetInteractions();
+
+            $(".top-bar-section ul > li").removeClass("active");
+            $("#liWorksheets").addClass("active");
+            {% if request.user.is_authenticated %}
+                user_id = {{ request.user }};
+            {% else %}
+                user_id = 0;
+            {% endif %}
+        });
+    </script>
+{% endblock jsincludes %}

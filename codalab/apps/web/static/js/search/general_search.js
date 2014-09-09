@@ -1,73 +1,103 @@
 /** @jsx React.DOM */
 
-var fakedata = [
-    {term:'red', action:'paint the town red'},
-    {term:'green', action:'green like the leaves'},
-    {term:'blue', action:'the deep blue sea'},
-    {term:'orange', action:'orange you glad I didn\'t say banana?'},
-    {term:'yellow', action:'they call me mellow yellow'}
-];
+// Dictionary of terms that can be entered into the search bar and the names of 
+// functions they call. See search_actions.js
+var fakedata = {
+    red: 'doRed',
+    green: 'doGreen',
+    blue: 'doBlue',
+    orange: 'doOrange',
+    yellow: 'doYellow',
+    save: 'doSave'
+    };
+
 
 var Search = React.createClass({
-    getInitialState: function(){
-        return {
-            value: '',
-            open: false,
-            results: []
-        };
-    },
-    handleChange: function(event){
-        var searchInput = event.target.value;
-        if(searchInput.length >= 3){
-            this.getResults(searchInput);
-        }else {
-            this.setState({results: []});
-        }
-        this.setState({value: searchInput});
-    },
-    getResults: function(searchInput){
-        console.log('------------');
-        console.log('Searching for ' + searchInput);
-        this.setState({results: fakedata});
-    },
-    cleanupSearch: function(){
-        this.setState({
-            value:'',
-            results:[]
+    componentDidMount: function(){
+        // when the component has mounted, init the select2 plugin on the 
+        // general search input (http://ivaynberg.github.io/select2/)
+        _this = this;
+        $('#search').select2({
+            multiple:true,
+            tags: function(){ // make a list possible search results from the dict
+                options = [];
+                for(var key in fakedata){
+                    options.push(key);
+                }
+                return options;
+            },
+            tokenSeparators: [":", " ", ","], // Define token separators for the tokenizer function
+            createSearchChoicePosition: 'bottom' // Users can enter their own commands (not autocompleted) 
+                                                 // but these will show up at the bottom. This allows a user
+                                                 // to hit 'tab' to select the first highlighted option
+        })
+        .on('select2-focus', function(){
+            _this.handleFocus();
+        })
+        .on('select2-blur', function(){
+            _this.handleBlur();
         });
+        $('#s2id_search').on('keydown', '.select2-input', function(e){
+            // add some custom key events for working with the search bar
+            switch(e.keyCode){
+                case 9:
+                    // usually the Tab key would move focus off the search input, so
+                    // we want to prevent that
+                    e.preventDefault();
+                    break;
+                case 13:
+                    // cmd-enter or ctrl-enter triggers execution of whatever is
+                    // in the search input
+                    if(e.ctrlKey || e.metaKey){
+                        e.preventDefault();
+                        _this.executeCommands();
+                    }
+                    break;
+                default:
+                    return true;
+            }
+        });
+    },
+    executeCommands: function(){
+        // parse and execute the contents of the search input
+        var command = $('#search').select2('val'); // this comes in as an array
+        // customization can be done here, depending on the desired syntax of commands.
+        // currently, this just calls all of the functions named in the input
+        for(i=0; i < command.length; i++){
+            var input = fakedata[command[i]];
+            if(ws_searchActions.hasOwnProperty(input)){
+                ws_searchActions[input]();
+            } else {
+                console.error('The command \'' + command[i] + '\' was not recognized');
+            }
+        }
+    },
+    componentWillUnmount: function(){
+        // when the component unmounts, destroy the select2 instance
+        $('#search').select2('destroy');
+    },
+    handleFocus: function(){
+        // when the search bar is focused, turn off keyboard shortcuts for the
+        // rest of the worksheet. This is done in two parts: change the interactions store
+        // then trigger Worksheet to update its state
+        ws_interactions.state.worksheetKeyboardShortcuts = false;
+        ws_broker.fire('updateState');
+    },
+    handleBlur: function(){
+        // see handleFocus method
+        ws_interactions.state.worksheetKeyboardShortcuts = true;
+        ws_broker.fire('updateState');
     },
     render: function(){
-        var openClass = this.state.results.length ? 'open' : 'closed';
-        var parentCallback = this.cleanupSearch;
-        var resultList = this.state.results.map(function(result, index){
-            return <SearchResult result={result} key={index} callback={parentCallback} />
-        });
         return (
             <div className="row">
                 <div className="large-12 columns general-search-container">
-                    <input type="text" value={this.state.value} placeholder='General search box' onChange={this.handleChange} />
-                    <ul id="search_results" className={openClass}>
-                       {resultList}
-                    </ul>
+                    <input id="search" type="text" placeholder='General search box' onFocus={this.handleFocus} />
                 </div>
             </div>
         );
     }
 });
 
-var SearchResult = React.createClass({
-    doSearchAction: function(){
-        console.log('do the search action for ' + this.props.term);
-        alert(this.props.result.action.toString());
-        this.props.callback();
-    },
-    render: function(){
-        return(
-            <li onClick={this.doSearchAction} key={this.props.key}>
-                {this.props.result.term}
-            </li>
-        )
-    }
-})
 var general_search = <Search />;
 React.renderComponent(general_search, document.getElementById('general_search'));
