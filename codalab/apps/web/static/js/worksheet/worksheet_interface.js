@@ -20,12 +20,24 @@ var Worksheet = React.createClass({
         };
     },
     bindEvents: function(){
+        var _this = this; // maintain context
+        // listen for all keyboard shortcuts
         window.addEventListener('keydown', this.handleKeyboardShortcuts);
+        // register a listener with the broker
+        ws_broker.register('updateState', function(){
+            // when the broker says to update our state, do it
+            _this.updateState();
+        });
     },
     unbindEvents: function(){
         window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+        ws_broker.unregister('updateState', function(){
+            _this.updateState();
+        });
     },
     updateState: function(){
+        // thanks to React, this is actually very efficient. Only the parts of the state that are
+        // affected will update themselves, even though we appear to be resetting the whole object.
         this.setState({
             content:ws_obj.state,
             interactions:ws_interactions.state
