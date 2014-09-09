@@ -32,6 +32,7 @@
                     <th>Description</th>
                     <th>Type</th>
                     <th>Actions</th>
+                    <th width="75">Multi-delete? (unsafe!)</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,6 +46,7 @@
                             <a href="{% url "datasets_download" dataset_key=dataset.key %}" class="button">Download</a>
                             <a href="{% url "my_datasets_delete" pk=dataset.pk %}" class="button secondary delete">DEL</a>
                         </td>
+                        <td style="text-align: center;"><input type="checkbox" name="delete_dataset" value="{{ dataset.pk }}"></td>
                     </tr>
                 {% empty %}
                     <tr>
@@ -56,9 +58,52 @@
             </tbody>
         </table>
     </div>
+    <div class="large-12 columns" style="text-align: right;">
+        <button id="delete_multiple_datasets_button" class="button alert">Delete multiple datasets?</button>
+    </div>
 </div>
 {% endblock %}
 
 {% block js %}
+    // Deleting multiple datasets action
+    $("#delete_multiple_datasets_button").click(function(){
+        if(confirm("Are you sure you want to delete all of these datasets?")) {
+            ids_to_delete = [];
 
+            $('input[type="checkbox"]:checked').each(function(n, input){
+                ids_to_delete.push($(input).attr('value'));
+            });
+
+            $.post("{% url "datasets_delete_multiple" %}", {"ids_to_delete": ids_to_delete})
+                .success(function() {
+                    window.location.reload();
+                })
+                .error(function() {
+                    alert("Couldn't delete datasets, something went wrong (is your Internet connected?)");
+                });
+        }
+    });
+
+    // Checking multiple datasets with shift key
+    var lastChecked = null;
+
+    $(document).ready(function() {
+        var $chkboxes = $('input[type="checkbox"]');
+        $chkboxes.click(function(e) {
+            if(!lastChecked) {
+                lastChecked = this;
+                return;
+            }
+
+            if(e.shiftKey) {
+                console.log("shift key");
+                var start = $chkboxes.index(this);
+                var end = $chkboxes.index(lastChecked);
+
+                $chkboxes.slice(Math.min(start,end), Math.max(start,end)+ 1).attr('checked', lastChecked.checked);
+            }
+
+            lastChecked = this;
+        });
+    });
 {% endblock js %}
