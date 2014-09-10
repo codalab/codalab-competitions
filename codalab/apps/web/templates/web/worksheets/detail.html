@@ -15,6 +15,12 @@
         </div>
     </div>
 </div>
+<div id="save_progress">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...
+</div>
+<div id="save_error">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Error Saving...
+</div>
 {% endblock content %}
 
 
@@ -24,17 +30,22 @@
 
 {% block jsincludes %}
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="http://fb.me/react-0.11.1.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
 
 
+    <script src="{{ STATIC_URL }}js/broker.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
+    <script src="{{ STATIC_URL }}js/worksheet/worksheet_interactions.js"></script>
     {#  JSX FILES #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
 
 <script>
 MathJax.Hub.Config({
@@ -48,6 +59,7 @@ MathJax.Hub.Config({
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    ws_interactions = new WorksheetInteractions();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liWorksheets").addClass("active");
