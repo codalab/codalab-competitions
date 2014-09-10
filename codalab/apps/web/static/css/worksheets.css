@@ -68,6 +68,20 @@
 #worksheet-content .type-markup ol {
   list-style-type:decimal;
 }
+#worksheet-content .type-contents blockquote {
+  padding: 1em 0 1em 1.5em;
+  border-left:4px solid #eee;
+}#worksheet-content .type-contents:not(.focused) blockquote{
+  background-color:#fafafa;
+
+}
+#worksheet-content .type-contents blockquote p {
+  white-space: pre;
+  color:#555;
+  margin:0;
+  font-size:14px;
+  line-height:1.5em;
+}
 table.table {
   border-collapse: separate;
   border-spacing: 2px;
