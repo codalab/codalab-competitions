@@ -37,3 +37,11 @@ class CompetitionSecretKey(TestCase):
         self.client.login(username="organizer", password="pass")
         resp = self.client.get(reverse("competitions:view", kwargs={"pk": self.competition.pk}))
         self.assertEquals(resp.status_code, 200)
+
+    def test_competition_view_unpublished_returns_200_for_competition_admins(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.get(reverse("competitions:view", kwargs={"pk": self.competition.pk}))
+        self.assertEquals(resp.status_code, 200)
