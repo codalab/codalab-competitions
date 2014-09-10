@@ -36,12 +36,15 @@
 #worksheet-content h3 {
   font-size:1.25em;
 }
-#worksheet-content .focused {
+#worksheet-content .worksheet-items>.focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
 #worksheet-content .focused table {
   background:#FFFEF4;
+}
+#worksheet-content .focused table tr.focused{
+  background:#DFEDF7;
 }
 #worksheet-content textarea {
   background:#FFF;
