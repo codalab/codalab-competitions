@@ -149,7 +149,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         """
         c = webmodels.Competition.objects.get(id=pk)
         response = {}
-        if self.request.user == c.creator:
+        if self.request.user == c.creator or self.request.user in c.admins.all():
             phases_needing_reference_data = webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
 
             if phases_needing_reference_data > 0:
@@ -186,9 +186,6 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
 
         context_data["site"] = Site.objects.get_current()
-
-        print context_data
-        print "site in there"
 
         context = Context(context_data)
         text = render_to_string(text_file, context)
@@ -297,7 +294,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         part = request.DATA['participant_id']
         reason = request.DATA['reason']
 
-        if comp.creator != request.user:
+        if comp.creator != request.user and request.user not in comp.admins.all():
             raise PermissionDenied()
 
         try:

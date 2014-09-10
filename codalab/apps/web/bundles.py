@@ -51,7 +51,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                                     worksheet_util.get_default_schemas(),
                                     worksheet_info['items']
                                 )
-                worksheet_info['items'] = self.client.resolve_interpeted_items(interpreted_items['items'])
+                worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
                 return worksheet_info
             else:
                 return worksheet_info
