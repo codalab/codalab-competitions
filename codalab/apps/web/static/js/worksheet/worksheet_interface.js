@@ -204,6 +204,12 @@ var WorksheetItemFactory = React.createClass({
                 );
                 break;
 
+            case 'contents':
+                rendered_bundle = (
+                    <ContentsBundle item={item} />
+                );
+                break;
+
             default: // render things we don't know in bold for now
                 rendered_bundle = (
                     <div>
