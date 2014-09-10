@@ -96,6 +96,17 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         )
         self.assertEquals(resp.status_code, 302)
 
+    def test_msg_participants_view_returns_200_when_admin(self):
+        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        self.client.login(username="some_admin", password="pass")
+        self.competition.admins.add(some_admin)
+        self.competition.save()
+        resp = self.client.post(
+            reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+            data={"subject": "test", "body": "Test body"}
+        )
+        self.assertEquals(resp.status_code, 200)
+
     def test_msg_participants_task_called_with_proper_args(self):
         self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         self.participant.save()
