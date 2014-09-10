@@ -15,6 +15,9 @@
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
 }
+#worksheet-content .worksheet-name label input[type="checkbox"]{
+  margin-right:5px;
+}
 #worksheet-content .worksheet-name h1 {
   text-indent:65px;
   margin-top:.25em;
@@ -36,6 +39,31 @@
 #worksheet-content .focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
+}
+#worksheet-content .focused table {
+  background:#FFFEF4;
+}
+#worksheet-content textarea {
+  background:#FFF;
+  color:#333;
+  box-shadow:none;
+  font-family:monospace;
+  font-size:14px;
+  outline:none;
+  height:auto;
+  padding:0.5em;
+  width:100%;
+}
+#worksheet-content .type-markup ul,
+#worksheet-content .type-markup ol {
+  margin: 0 0 1em 0;
+  padding-left:40px;
+}
+#worksheet-content .type-markup ul {
+  list-style-type:disc;
+}
+#worksheet-content .type-markup ol {
+  list-style-type:decimal;
 }
 table.table {
   border-collapse: separate;
@@ -82,38 +110,113 @@ table.table-responsive > tfoot > tr > td {
 #general_search.ws-detail {
   padding-top:2.25em;
 }
-#general_search.bundle-detail {
+#general_search.bundle-detail, #general_search.ws-list {
   padding-bottom:1em;
 }
 #general_search input {
-  height:32px;
+  height:auto;
+  margin-bottom:0;
 }
-.general-search-container #search_results.closed {
-  display:none;
+#general_search input:focus {
+  background:#fff;
 }
-.general-search-container #search_results.open {
-  display:block;
+.select2-container {
+  width:100%;
 }
-.general-search-container #search_results {
-  background-color:rgba(255,255,255,.9);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  position:absolute;
-  left: 15px;
-  right: 15px;
-  top:32px;
-  border:1px solid #ccc;
-  border-top:none;
-  max-height:200px;
-  padding-top:5px;
-  padding-bottom:5px;
-  font-size:14px;
-  overflow:auto;
+/*.select2-container.select2-container-multi.select2-dropdown-open .select2-choices {
+  border-bottom:none;
+}*/
+.select2-container-multi .select2-choices {
+  background-image:none;
+  /*padding:3px;*/
+}
+.select2-container-multi.select2-container-active .select2-choices {
+  border-color:#aaa;
+  box-shadow:none;
   z-index:2;
 }
-#search_results li {
-  padding:3px 10px 2px;
+.select2-drop, .select2-drop-active  {
+  background-color:rgba(255,255,255,.9);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  border-radius:0;
+  border-color:#aaa;
 }
-#search_results li:hover {
-  background-color:rgba(115, 156, 185, 0.5);
+.select2-results {
+  font-size:14px;
+ /* margin:0;
+  padding:0 4px;*/
+}
+/*.select2-results .select2-no-results {
+  display:none;
+}*/
+.select2-results .select2-highlighted{
+  background-color: rgba(115, 156, 185, 0.5);
+}
+.select2-container-multi .select2-choices .select2-search-choice {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color:rgba(115, 156, 185, 0.25);
+  background-image: none;
+  border:none;
+  border-radius:0;
+}
+/* DEMO ONLY */
+h1.worksheet-icon.orange {
+  background-color:orange;
+}
+body.yellow {
+  background-color:yellow;
+}
+#save_progress, #save_error {
+  position:fixed;
+  bottom:40px;
+  right:40px;
+  width:120px;
+  height:40px;
+  line-height:40px;
+  background-color:rgba(255,255,255,.75);
+  text-align:center;
+  opacity:0;
+  -webkit-transition: opacity 150ms ease-in-out;
+  -moz-transition: opacity 150ms ease-in-out;
+  -ms-transition: opacity 150ms ease-in-out;
+  -o-transition: opacity 150ms ease-in-out;
+  transition: opacity 150ms ease-in-out;
+}
+.content.saving #save_progress {
+  opacity:1;
+}
+.content.save-error #save_error {
+  opacity:1;
+}
+#worksheet-list .worksheet-tile {
+  border-left:1px solid #ccc;
+  padding:0;
+}
+#worksheet-list .worksheet-tile:hover {
   cursor:pointer;
+}
+#worksheet-list .worksheet-tile:hover h3 {
+  color:#739CB9;
+}
+#worksheet-list .worksheet-tile .worksheet-inner {
+  border-left: 10px solid #739CB9;
+  padding:10px 15px 10px 58px;
+  background:url('../img/icon_worksheet.png') no-repeat 5px 10px;
+  min-height:48px;
+}
+#worksheet-list .worksheet-tile.focused {
+  -moz-box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+  -webkit-box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+}
+#worksheet-list .worksheet-tile.focused .worksheet-inner {
+  border-left-color:#08ac33;
+}
+#worksheet-list .worksheet-tile .worksheet-inner h3 {
+  margin:0;
+  padding-bottom: 0.5em;
+}
+#worksheet-list .my-worksheets-toggle input {
+  margin-right:5px;
 }

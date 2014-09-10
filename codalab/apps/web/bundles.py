@@ -40,13 +40,18 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.new_worksheet(name))
 
         def worksheet(self, uuid, interpreted=False):
-            worksheet_info  = _call_with_retries(lambda: self.client.get_worksheet_info(uuid))
+            worksheet_info  = _call_with_retries(
+                    lambda: self.client.get_worksheet_info(
+                            uuid,
+                            True
+                    )
+                )
             if interpreted:
-                interpreted = worksheet_util.interpret_items(
+                interpreted_items = worksheet_util.interpret_items(
                                     worksheet_util.get_default_schemas(),
                                     worksheet_info['items']
                                 )
-                worksheet_info['items'] = interpreted['items']
+                worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
                 return worksheet_info
             else:
                 return worksheet_info
