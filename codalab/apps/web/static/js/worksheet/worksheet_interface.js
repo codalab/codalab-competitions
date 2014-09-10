@@ -46,7 +46,7 @@ var Worksheet = React.createClass({
     handleKeyboardShortcuts: function(event) {
         var content = this.state.content;
         var focusedItem = content.items[this.state.interactions.worksheetFocusIndex];
-        if(this.state.interactions.worksheetKeyboardShortcuts && focusedItem.state.mode !== 'table'){
+        if(this.state.interactions.worksheetKeyboardShortcuts && focusedItem.state.mode !== 'table' && focusedItem.state.mode !== 'record'){
             var key = keyMap[event.keyCode];
             var index = this.state.interactions.worksheetFocusIndex;
             if(typeof key !== 'undefined'){
@@ -80,7 +80,7 @@ var Worksheet = React.createClass({
                 return true;
             }
         } else {
-            if(focusedItem.state.mode == 'table'){
+            if(focusedItem.state.mode == 'table' || focusedItem.state.mode == 'record'){
                 focusedItem.state.handleKeyboardShortcuts(event);
             }
             return true;
@@ -207,6 +207,12 @@ var WorksheetItemFactory = React.createClass({
             case 'contents':
                 rendered_bundle = (
                     <ContentsBundle item={item} />
+                );
+                break;
+
+            case 'record':
+                rendered_bundle = (
+                    <RecordBundle item={item} />
                 );
                 break;
 
