@@ -5,9 +5,10 @@ import json
 import logging
 import traceback
 
+
 from . import serializers
 from uuid import uuid4
-from rest_framework import (permissions, status, viewsets, views)
+from rest_framework import (permissions, status, viewsets, views, generics, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
@@ -120,7 +121,11 @@ class CompetitionCreationStatusApi(views.APIView):
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
-
+    filter_class = serializers.CompetitionFilter
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)    
+    filter_fields = ('creator')
+    search_fields = ("title", "description", "=creator__username")
+    
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
         """
@@ -587,11 +592,27 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         if phase_id:
             kw['phase__pk'] = phase_id
         if competition_id:
-            kw['phase__competition__pk'] = competition_id
+            kw['phase__competition__pk'] = competition_id        
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
 leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
+
+class LeaderBoardDataViewSet(views.APIView):
+    """
+    Provides a web API to get the leaderboard data for a phase of a competition
+    """    
+    def get(self, request, *args, **kwargs):
+        competition_id = self.kwargs.get('competition_id', None)
+        phase_id = self.kwargs.get('phase_id', None)
+        competition = webmodels.Competition.objects.get(pk=competition_id)
+        phase = webmodels.CompetitionPhase.objects.filter(competition=competition, phasenumber=phase_id)[0]
+        if phase.is_blind:
+            return HttpResponse(status=403)
+        groups = phase.scores()
+        response = Response(groups, status=status.HTTP_200_OK)
+        return response
+
 
 class DefaultContentViewSet(viewsets.ModelViewSet):
     queryset = webmodels.DefaultContentItem.objects.all()
