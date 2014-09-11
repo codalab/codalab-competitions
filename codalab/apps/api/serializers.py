@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.web import models as webmodels
+import django_filters
 
 class ContentCategorySerial(serializers.ModelSerializer):
     visibility = serializers.SlugField(source='visibility.codename')
@@ -40,7 +41,6 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
         return attr
 
 class CompetitionParticipantSerial(serializers.ModelSerializer):
-
     class Meta:
         model = webmodels.CompetitionParticipant
 
@@ -69,14 +69,12 @@ class CompetitionPhaseSerial(serializers.ModelSerializer):
 
 class LeaderBoardSerial(serializers.ModelSerializer):
     entries =  CompetitionSubmissionSerial(read_only=True, source='submissions')
-
     class Meta:
         model = webmodels.PhaseLeaderBoard
 
 class CompetitionDataSerial(serializers.ModelSerializer):
     image_url = serializers.URLField(source='image.url', read_only=True)
     phases = serializers.RelatedField(many=True)
-
     class Meta:
         model = webmodels.Competition
 
@@ -107,10 +105,16 @@ class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True,read_only=False)
     image_url = serializers.CharField(source='image_url',read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
-
+    
     class Meta:
         model = webmodels.Competition
-        read_only_fields = ['image_url_base']
+        read_only_fields = ['image_url_base']        
+
+class CompetitionFilter(django_filters.FilterSet):
+    creator = django_filters.CharFilter(name="creator__username")
+    class Meta:
+        model = webmodels.Competition
+        fields = ['creator']
 
 class ScoreSerial(serializers.ModelSerializer):
     class Meta:
