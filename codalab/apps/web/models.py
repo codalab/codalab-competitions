@@ -147,7 +147,7 @@ class Competition(models.Model):
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
     end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
-    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins')
+    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
