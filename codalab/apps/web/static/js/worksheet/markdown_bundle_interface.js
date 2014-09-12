@@ -13,7 +13,7 @@ var MarkdownBundle = React.createClass({
                     this._owner.props.onExitEdit();
                     break;
                 case 'enter':
-                    if(event.ctrlKey || (isMac && event.metaKey)){
+                    if(event.ctrlKey || event.metaKey){
                         event.preventDefault();
                         this.saveEditedItem(event.target);
                     }
