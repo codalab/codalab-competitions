@@ -1,5 +1,4 @@
 /** @jsx React.DOM */
-var isMac = window.navigator.platform.toString().indexOf('Mac') >= 0;
 
 var keyMap = {
     13: "enter",
@@ -7,6 +6,7 @@ var keyMap = {
     69: "e",
     38: "up",
     40: "down",
+    68: "d",
     74: "j",
     75: "k",
     88: "x"
@@ -46,7 +46,10 @@ var Worksheet = React.createClass({
     handleKeyboardShortcuts: function(event) {
         var content = this.state.content;
         var focusedItem = content.items[this.state.interactions.worksheetFocusIndex];
-        if(this.state.interactions.worksheetKeyboardShortcuts && focusedItem.state.mode !== 'table' && focusedItem.state.mode !== 'record'){
+        if(this.state.interactions.worksheetKeyboardShortcuts 
+            && focusedItem.state.mode !== 'table' 
+            && focusedItem.state.mode !== 'record'
+        ){
             var key = keyMap[event.keyCode];
             var index = this.state.interactions.worksheetFocusIndex;
             if(typeof key !== 'undefined'){
@@ -71,6 +74,10 @@ var Worksheet = React.createClass({
                         if(focusedItem.state.mode == 'markup'){
                             this.toggleKeyboardShortcuts(false);
                         }
+                        break;
+                    case 'd':
+                        event.preventDefault();
+                        this.deleteItem(index);
                         break;
                     default:
                         return true;
@@ -104,6 +111,15 @@ var Worksheet = React.createClass({
         var newContent = itemNode.children[0].value;
         alert('Save this content: ' + newContent);
     },
+    deleteItem: function(index){
+        var newItems = this.state.content.items;
+        if(index == newItems.length - 1){
+            ws_interactions.state.worksheetFocusIndex--;
+        }
+        newItems.splice(index, 1);
+        ws_obj.state.items = newItems;
+        this.updateState();
+    },
     componentWillMount: function() {  // once on the page lets get the ws info
         ws_obj.fetch({
             success: function(data){
@@ -123,10 +139,15 @@ var Worksheet = React.createClass({
         this.bindEvents();
     },
     componentDidUpdate: function(){
-        var focusIndex = this.state.interactions.worksheetFocusIndex; // shortcut
-        var itemNode = this.refs['item' + focusIndex].getDOMNode();
-        if(itemNode.offsetTop > window.innerHeight / 2){
-            window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+        if(this.state.content.items.length){
+            var focusIndex = this.state.interactions.worksheetFocusIndex; // shortcut
+            var itemNode = this.refs['item' + focusIndex].getDOMNode();
+            if(itemNode.offsetTop > window.innerHeight / 2){
+                window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+            }
+        }
+        else {
+            $('.empty-worksheet').fadeIn('fast');
         }
     },
     componentWillUnmount: function(){
@@ -163,6 +184,7 @@ var Worksheet = React.createClass({
                     }
                 </div>
                 <div className="worksheet-items">{listBundles}</div>
+                <p className="empty-worksheet hidden"><em>This worksheet is empty</em></p>
             </div>
         );
     },
