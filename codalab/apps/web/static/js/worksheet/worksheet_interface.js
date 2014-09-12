@@ -1,5 +1,4 @@
 /** @jsx React.DOM */
-var isMac = window.navigator.platform.toString().indexOf('Mac') >= 0;
 
 var keyMap = {
     13: "enter",
@@ -59,7 +58,6 @@ var Worksheet = React.createClass({
                     case 'k':
                         event.preventDefault();
                         index = Math.max(this.state.interactions.worksheetFocusIndex - 1, 0);
-                        console.log(index);
                         ws_interactions.state.worksheetFocusIndex = index;
                         break;
                     case 'down':
@@ -141,10 +139,15 @@ var Worksheet = React.createClass({
         this.bindEvents();
     },
     componentDidUpdate: function(){
-        var focusIndex = this.state.interactions.worksheetFocusIndex; // shortcut
-        var itemNode = this.refs['item' + focusIndex].getDOMNode();
-        if(itemNode.offsetTop > window.innerHeight / 2){
-            window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+        if(this.state.content.items.length){
+            var focusIndex = this.state.interactions.worksheetFocusIndex; // shortcut
+            var itemNode = this.refs['item' + focusIndex].getDOMNode();
+            if(itemNode.offsetTop > window.innerHeight / 2){
+                window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+            }
+        }
+        else {
+            $('.empty-worksheet').fadeIn('fast');
         }
     },
     componentWillUnmount: function(){
@@ -162,7 +165,6 @@ var Worksheet = React.createClass({
             var itemID = 'item' + index;
             return <WorksheetItemFactory item={item} focused={focused} ref={itemID} editing={editing} key={index} onExitEdit={onExitEdit} />;
         });
-        var worksheetItems = listBundles.length ? listBundles : <em>This worksheet is empty!</em>;
         // listBundles is now a list of react components that each el is
         return (
             <div id="worksheet-content" className={keyboardShortcutsClass}>
@@ -181,7 +183,8 @@ var Worksheet = React.createClass({
                         */
                     }
                 </div>
-                <div className="worksheet-items">{worksheetItems}</div>
+                <div className="worksheet-items">{listBundles}</div>
+                <p className="empty-worksheet hidden"><em>This worksheet is empty</em></p>
             </div>
         );
     },

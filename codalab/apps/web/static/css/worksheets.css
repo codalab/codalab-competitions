@@ -11,6 +11,13 @@
 #worksheet-content {
   line-height:1.2em;
 }
+#worksheet-content .hidden {
+  display:none;
+}
+#worksheet-content .empty-worksheet {
+  color:#a4a4a4;
+  text-align:center;
+}
 #worksheet-content .worksheet-name {
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
