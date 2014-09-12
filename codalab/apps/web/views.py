@@ -923,13 +923,13 @@ def download_dataset(request, dataset_key):
 
 
 def datasets_delete_multiple(request):
-    ids_to_delete = request.POST.get("ids_to_delete[]", [])
+    ids_to_delete = request.POST.getlist("ids_to_delete[]", [])
 
     for dataset_id in ids_to_delete:
         try:
-            dataset = models.OrganizerDataSet.objects.get(pk=dataset_id, uploaded_by=request.user)
+            dataset = models.OrganizerDataSet.objects.get(pk=int(dataset_id), uploaded_by=request.user)
             dataset.delete()
-        except ObjectDoesNotExist:
+        except:
             pass
 
     return HttpResponse()
