@@ -10,6 +10,8 @@
 {% endblock extra_headers %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+    <script src="{% static "js/vendor/select2/select2.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "js/vendor/select2/select2.css" %}" />
 {% endblock extra_scripts %}
 
 {% block content %}
@@ -161,6 +163,7 @@
 
 {% block js %}
 $('document').ready(function () {
+    $("#id_admins").select2();
 
     var tMCE = tinyMCE.init({
         //General otptions
