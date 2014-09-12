@@ -72,8 +72,11 @@ def competition_index(request):
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+
+    competitions_owner = models.Competition.objects.filter(creator=request.user)
+    competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
@@ -136,6 +139,17 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
             phase_form.instance.save()
 
+        # Look for admins that are not participants yet
+        approved_status = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.APPROVED)
+
+        for admin in form.instance.admins.all():
+            try:
+                participant = models.CompetitionParticipant.objects.get(user=admin, competition=form.instance)
+                participant.status = approved_status
+                participant.save()
+            except ObjectDoesNotExist:
+                models.CompetitionParticipant.objects.create(user=admin, competition=form.instance, status=approved_status)
+
         return save_result
 
     def get_context_data(self, **kwargs):
@@ -166,7 +180,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.creator != request.user:
+        if self.object.creator != request.user and request.user not in self.object.admins.all():
             return HttpResponse(status=403)
 
         return super(CompetitionEdit, self).get(request, *args, **kwargs)
@@ -214,7 +228,7 @@ def competition_message_participants(request, competition_id):
     except ObjectDoesNotExist:
         return HttpResponse(status=404)
 
-    if competition.creator != request.user:
+    if competition.creator != request.user and request.user not in competition.admins.all():
         return HttpResponse(status=403)
 
     if "subject" not in request.POST and "body" not in request.POST:
@@ -254,8 +268,9 @@ class CompetitionDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         competition = self.get_object()
         secret_key = request.GET.get("secret_key", None)
-        if not competition.published and competition.secret_key != secret_key and competition.creator != request.user:
-            return HttpResponse(status=404)
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            if not competition.published and competition.secret_key != secret_key:
+                return HttpResponse(status=404)
         return super(CompetitionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
