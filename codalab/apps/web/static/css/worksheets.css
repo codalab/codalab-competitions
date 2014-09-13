@@ -128,20 +128,12 @@ table.table-responsive > tfoot > tr > td {
 #worksheet-content p {
   margin-bottom:1em;
 }
-.general-search-container {
-  position:relative;
-}
-#general_search.ws-detail {
-  padding-top:2.25em;
-}
-#general_search.bundle-detail, #general_search.ws-list {
-  padding-bottom:1em;
-}
-#general_search input {
+input.ws-search  {
   height:auto;
-  margin-bottom:0;
+  margin-top:1em;
+  margin-bottom:2em;
 }
-#general_search input:focus {
+ input.ws-search:focus {
   background:#fff;
 }
 .select2-container {
