@@ -1,4 +1,6 @@
 /** @jsx React.DOM */
+
+// key mapping for convenience. we can move this into the global scope at some point.
 var keyMap = {
     13: "enter",
     38: "up",
@@ -10,6 +12,7 @@ var keyMap = {
 };
 
 var Worksheets = React.createClass({
+    // this is the master parent component -- the 'app'
     getInitialState: function(){
         return {
             activeComponent:"list",
@@ -17,6 +20,8 @@ var Worksheets = React.createClass({
         }
     },
     handleFocus: function(event){
+        // the search input is the only one who calls this so far.
+        // if it's being focused, set it as the active component. if blurred, set the list as active.
         if(event.type=="focus"){
             this.setState({activeComponent:"search"});
         }else if(event.type=="blur"){
@@ -24,32 +29,37 @@ var Worksheets = React.createClass({
         }
     },
     bindEvents: function(){
+        // listen for ALL keyboard events at the top leve
         window.addEventListener('keydown', this.handleKeyboardShortcuts);
     },
     unbindEvents: function(){
         window.removeEventListener('keydown', this.handleKeyboardShortcuts);
     },
     setFilter: function(event){
+        // all this does is store and update the string we're filter worksheet names by
         this.setState({filter:event.target.value})
+    },
+    handleKeyboardShortcuts: function(event){
+        // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
+        if(keyMap[event.keyCode] == 'bslash'){
+            event.preventDefault();
+            this.refs.search.getDOMNode().focus();
+        }
+        // otherwise, try to pass off the event to the active component
+        var activeComponent = this.refs[this.state.activeComponent];
+        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
+            // if it has a method to handle keyboard shortcuts, pass it
+            activeComponent.handleKeyboardShortcuts(event);
+        }else {
+            // otherwise watch it go by
+            return true;
+        }
     },
     componentDidMount: function(){
         this.bindEvents();
     },
     componentWillUnmount: function(){
         this.unbindEvents();
-    },
-    handleKeyboardShortcuts: function(event){
-        if(keyMap[event.keyCode] == 'bslash'){
-            event.preventDefault();
-            this.refs.search.getDOMNode().focus();
-        }
-        // dispatch the keycode to the active component
-        var activeComponent = this.refs[this.state.activeComponent];
-        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
-            activeComponent.handleKeyboardShortcuts(event);
-        }else {
-            return true;
-        }
     },
     render: function(){
         return(
@@ -70,6 +80,7 @@ var WorksheetList = React.createClass({
         };
     },
     componentDidMount: function() {
+        // get the list of worksheets and store it in this.state.worksheets
         $.ajax({
             type: "GET",
             url: "/api/worksheets",
@@ -88,18 +99,22 @@ var WorksheetList = React.createClass({
         });
     },
     componentDidUpdate: function(){
+        // scroll the window to keep the focused element in view
         var itemNode = this.refs['ws' + this.state.focusIndex].getDOMNode();
         if(itemNode.offsetTop > window.innerHeight / 2){
             window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
         }
     },
     goToFocusedWorksheet: function(){
+        // navigate to the worksheet details page for the focused worksheet
         window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
     },
     toggleMyWorksheets: function(){
+        // filter by MY worksheets?
         this.setState({myWorksheets: !this.state.myWorksheets});
     },
     handleKeyboardShortcuts: function(event) {
+        // this guy has shortcuts for going up and down, and selecting (essentially, clicking on it)
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             event.preventDefault();
@@ -115,6 +130,7 @@ var WorksheetList = React.createClass({
         }
     },
     filterWorksheets:function(filter){
+        // internal method for filtering the list, called from render() below
         var worksheets = this.state.worksheets;
         if(this.state.myWorksheets){
             worksheets = worksheets.filter(function(ws){ return ws.owner_id === user_id; });
@@ -128,7 +144,9 @@ var WorksheetList = React.createClass({
         return worksheets;
     },
     render: function() {
+        // filter the worksheets by whatever
         var worksheets = this.filterWorksheets(this.props.filter);
+        // if there's only one worksheet, it should always be focused
         var focusIndex = worksheets.length > 1 ? this.state.focusIndex : 0;
         var worksheetList = worksheets.map(function(worksheet, index){
             var wsID = 'ws' + index;
@@ -148,7 +166,9 @@ var WorksheetList = React.createClass({
 });
 
 var Worksheet = React.createClass({
+    // a single worksheet in the list
     goToWorksheet: function(){
+        // in case you click on one that isn't focused. this is essentially the same as making the whole thing an <a href="">
         window.location.href += this.props.details.uuid;
     },
     render: function(){
@@ -174,6 +194,10 @@ var Worksheet = React.createClass({
 });
 
 var WorksheetSearch = React.createClass({
+    // the search bar at the top. it only does three things, all of them in the parent's state:
+    //   1. if it's focused, make it the active component
+    //   2. if it's blurred, make the other component active
+    //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
         return (      
             <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
