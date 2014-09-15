@@ -1047,7 +1047,7 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["scoring_program"].endswith(".zip"):
                     phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.scoring_program.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['scoring_program']))[0]
                     if phase_spec['scoring_program'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
                         data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
@@ -1067,7 +1067,7 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["reference_data"].endswith(".zip"):
                     phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.reference_data.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['reference_data']))[0]
                     if phase_spec['reference_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
                         data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
@@ -1087,7 +1087,7 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["input_data"].endswith(".zip"):
                     phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.input_data.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['input_data']))[0]
                     if phase_spec['input_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
                         data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
