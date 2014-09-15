@@ -1051,7 +1051,7 @@ class CompetitionDefBundle(models.Model):
                     if phase_spec['scoring_program'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
                         data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Scoring Program",
                             data_file=phase.scoring_program.file.name,
                             uploaded_by=self.owner
@@ -1071,7 +1071,7 @@ class CompetitionDefBundle(models.Model):
                     if phase_spec['reference_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
                         data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Reference Data",
                             data_file=phase.reference_data.file.name,
                             uploaded_by=self.owner
@@ -1091,7 +1091,7 @@ class CompetitionDefBundle(models.Model):
                     if phase_spec['input_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
                         data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Input Data",
                             data_file=phase.input_data.file.name,
                             uploaded_by=self.owner
