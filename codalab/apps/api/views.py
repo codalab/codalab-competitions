@@ -114,18 +114,21 @@ class CompetitionCreationStatusApi(views.APIView):
         logger.debug("CompetitionCreationStatus: requestor=%s; job=%s; job.status:%s.", user_id, job.pk, job.status)
         data = {'status' : job.get_status_code_name()}
         info = job.get_task_info()
+        logger.debug("CompetitionCreationStatus: info=%s", info)
         if 'competition_id' in info:
             data['id'] = info['competition_id']
+        if 'error' in info:
+            data['error'] = info['error']
         return Response(data)
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
     filter_class = serializers.CompetitionFilter
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)    
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
-    
+
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
         """
@@ -592,7 +595,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         if phase_id:
             kw['phase__pk'] = phase_id
         if competition_id:
-            kw['phase__competition__pk'] = competition_id        
+            kw['phase__competition__pk'] = competition_id
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
@@ -601,7 +604,7 @@ leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'upda
 class LeaderBoardDataViewSet(views.APIView):
     """
     Provides a web API to get the leaderboard data for a phase of a competition
-    """    
+    """
     def get(self, request, *args, **kwargs):
         competition_id = self.kwargs.get('competition_id', None)
         phase_id = self.kwargs.get('phase_id', None)
