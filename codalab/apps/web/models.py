@@ -32,7 +32,10 @@ from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
@@ -959,9 +962,32 @@ class CompetitionDefBundle(models.Model):
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
 
+        admin_names = None
+        if 'admin_names' in comp_base:
+            admin_names = comp_base['admin_names']
+            del comp_base['admin_names']
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
+
+        if admin_names:
+            logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
+            admins = User.objects.filter(username__in=admin_names.split(','))
+            logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
+            comp.admins.add(*admins)
+
+            logger.debug("CompetitionDefBundle::unpack adding admins as participants")
+            approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+
+            for admin in admins:
+                try:
+                    participant = CompetitionParticipant.objects.get(user=admin, competition=comp)
+                    participant.status = approved_status
+                    participant.save()
+                except models.ObjectDoesNotExist:
+                    CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
+
 
         # Unpack and save the logo
         if 'image' in comp_base:
