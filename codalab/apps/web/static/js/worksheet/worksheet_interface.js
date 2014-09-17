@@ -191,5 +191,5 @@ var WorksheetItemFactory = function(item, ref, focused, editing){
 }
 
 
-var worksheet = <Worksheet />;
-React.renderComponent(worksheet, document.getElementById('worksheet_container'));
+var worksheet_react = <Worksheet />;
+React.renderComponent(worksheet_react, document.getElementById('worksheet_container'));

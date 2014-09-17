@@ -10,7 +10,7 @@ var MarkdownBundle = React.createClass({
         if(typeof key !== 'undefined'){
             switch (key) {
                 case 'esc':
-                    this._owner.props.onExitEdit();
+                    this._owner.setState({editingIndex: -1});
                     break;
                 case 'enter':
                     if(event.ctrlKey || event.metaKey){
@@ -29,8 +29,8 @@ var MarkdownBundle = React.createClass({
         console.log('------ save the worksheet here ------');
         this.setState({interpreted: textarea.value});
         // Callback to <Worksheet /> to reset editing
-        this._owner.props.onExitEdit();
-        ws_searchActions.doSave();
+        this._owner.setState({editingIndex: -1});
+        ws_actions.doSave();
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
