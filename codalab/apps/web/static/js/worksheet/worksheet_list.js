@@ -11,18 +11,66 @@ var keyMap = {
     191: "fslash"
 };
 
-var WorksheetSearch = React.createClass({
-    // the search bar at the top. it only does three things, all of them in the parent's state:
-    //   1. if it's focused, make it the active component
-    //   2. if it's blurred, make the other component active
-    //   3. pass the value of the input up to the parent to use for filtering
+var Worksheets = React.createClass({
+    // this is the master parent component -- the 'app'
+    getInitialState: function(){
+        return {
+            activeComponent:"list",
+            filter: "",
+        }
+    },
+    handleFocus: function(event){
+        // the search input is the only one who calls this so far.
+        // if it's being focused, set it as the active component. if blurred, set the list as active.
+        if(event.type=="focus"){
+            this.setState({activeComponent:"search"});
+        }else if(event.type=="blur"){
+            this.setState({activeComponent:"list"});
+        }
+    },
+    bindEvents: function(){
+        // listen for ALL keyboard events at the top leve
+        window.addEventListener('keydown', this.handleKeyboardShortcuts);
+    },
+    unbindEvents: function(){
+        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+    },
+    setFilter: function(event){
+        // all this does is store and update the string we're filter worksheet names by
+        this.setState({filter:event.target.value})
+    },
+    handleKeyboardShortcuts: function(event){
+        console.log(event.keyCode);
+        // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
+        if(keyMap[event.keyCode] == 'fslash'){
+            event.preventDefault();
+            this.refs.search.getDOMNode().focus();
+        }
+        // otherwise, try to pass off the event to the active component
+        var activeComponent = this.refs[this.state.activeComponent];
+        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
+            // if it has a method to handle keyboard shortcuts, pass it
+            activeComponent.handleKeyboardShortcuts(event);
+        }else {
+            // otherwise watch it go by
+            return true;
+        }
+    },
+    componentDidMount: function(){
+        this.bindEvents();
+    },
+    componentWillUnmount: function(){
+        this.unbindEvents();
+    },
     render: function(){
-        return (      
-            <input id="search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
+        return(
+            <div>
+                <WorksheetSearch setFilter={this.setFilter} handleFocus={this.handleFocus} ref={"search"} active={this.state.activeComponent=='search'} />
+                <WorksheetList handleFocus={this.handleFocus} ref={"list"} active={this.state.activeComponent=='list'} filter={this.state.filter} />
+            </div>
         )
     }
 });
-
 
 var WorksheetList = React.createClass({
     getInitialState: function(){
@@ -146,64 +194,14 @@ var Worksheet = React.createClass({
     }
 });
 
-var Worksheets = React.createClass({
-    // this is the master parent component -- the 'app'
-    getInitialState: function(){
-        return {
-            activeComponent:"list",
-            filter: "",
-        }
-    },
-    handleFocus: function(event){
-        // the search input is the only one who calls this so far.
-        // if it's being focused, set it as the active component. if blurred, set the list as active.
-        if(event.type=="focus"){
-            this.setState({activeComponent:"search"});
-        }else if(event.type=="blur"){
-            this.setState({activeComponent:"list"});
-        }
-    },
-    bindEvents: function(){
-        // listen for ALL keyboard events at the top leve
-        window.addEventListener('keydown', this.handleKeyboardShortcuts);
-    },
-    unbindEvents: function(){
-        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
-    },
-    setFilter: function(event){
-        // all this does is store and update the string we're filter worksheet names by
-        this.setState({filter:event.target.value})
-    },
-    handleKeyboardShortcuts: function(event){
-        // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
-        if(keyMap[event.keyCode] == 'fslash'){
-            event.preventDefault();
-            this.refs.search.getDOMNode().focus();
-        }
-        // otherwise, try to pass off the event to the active component
-        var activeComponent = this.refs[this.state.activeComponent];
-        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
-            // if it has a method to handle keyboard shortcuts, pass it
-            activeComponent.handleKeyboardShortcuts(event);
-        }else {
-            // otherwise watch it go by
-            return true;
-        }
-    },
-    componentDidMount: function(){
-        this.bindEvents();
-    },
-    componentWillUnmount: function(){
-        this.unbindEvents();
-    },
+var WorksheetSearch = React.createClass({
+    // the search bar at the top. it only does three things, all of them in the parent's state:
+    //   1. if it's focused, make it the active component
+    //   2. if it's blurred, make the other component active
+    //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
-        return(
-            <div>
-                <div className="ws-search">
-                    <WorksheetSearch setFilter={this.setFilter} handleFocus={this.handleFocus} ref={"search"} active={this.state.activeComponent=='search'} />
-                </div>
-                <WorksheetList handleFocus={this.handleFocus} ref={"list"} active={this.state.activeComponent=='list'} filter={this.state.filter} />
-            </div>
+        return (      
+            <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
         )
     }
 });
