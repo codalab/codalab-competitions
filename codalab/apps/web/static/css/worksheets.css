@@ -128,12 +128,11 @@ table.table-responsive > tfoot > tr > td {
 #worksheet-content p {
   margin-bottom:1em;
 }
-input.ws-search  {
-  height:auto;
-  margin-top:1em;
-  margin-bottom:2em;
+#general_search {
+  margin-top:2em;
+  margin-bottom:1em;
 }
- input.ws-search:focus {
+ #general_search input:focus {
   background:#fff;
 }
 .select2-container {
