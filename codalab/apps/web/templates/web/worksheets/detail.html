@@ -9,8 +9,7 @@
         <div id="worksheet-message">
             <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
         </div>
-        <div id="general_search" class="ws-detail"></div>
-        <div id="worksheet-body">
+        <div id="worksheet_container">
             <!-- worksheet html wil go here-->
         </div>
     </div>
@@ -36,12 +35,8 @@
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
 
-
-    <script src="{{ STATIC_URL }}js/broker.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    <script src="{{ STATIC_URL }}js/worksheet/worksheet_interactions.js"></script>
     {#  JSX FILES #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
@@ -62,7 +57,6 @@ MathJax.Hub.Config({
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
-    ws_interactions = new WorksheetInteractions();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liWorksheets").addClass("active");
