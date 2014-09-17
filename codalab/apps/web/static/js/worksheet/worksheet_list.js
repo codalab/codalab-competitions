@@ -8,7 +8,7 @@ var keyMap = {
     74: "j",
     75: "k",
     88: "x",
-    220: "bslash"
+    191: "fslash"
 };
 
 var Worksheets = React.createClass({
@@ -40,8 +40,9 @@ var Worksheets = React.createClass({
         this.setState({filter:event.target.value})
     },
     handleKeyboardShortcuts: function(event){
+        console.log(event.keyCode);
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
-        if(keyMap[event.keyCode] == 'bslash'){
+        if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
             this.refs.search.getDOMNode().focus();
         }
