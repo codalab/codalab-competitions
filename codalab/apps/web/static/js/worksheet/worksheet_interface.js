@@ -59,6 +59,7 @@ var Worksheet = React.createClass({
     },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
+        window.scrollTo(0, 0);
     },
     handleSearchBlur: function(event){
         this.setState({activeComponent:'list'});
@@ -105,7 +106,7 @@ var WorksheetSearch = React.createClass({
     },
     render: function(){
         return (
-            <div id="ws_search">
+            <div className="ws-search">
                 <input id="search" type="text" placeholder="General search" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
             </div>
         )
@@ -181,7 +182,7 @@ var WorksheetItems = React.createClass({
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;
-            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing))
+            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i))
         });
         return (
             <div id="worksheet_content">
@@ -191,22 +192,22 @@ var WorksheetItems = React.createClass({
     }
 });
 
-var WorksheetItemFactory = function(item, ref, focused, editing){
+var WorksheetItemFactory = function(item, ref, focused, editing, i){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle item={item} ref={ref} focused={focused} editing={editing} />
+            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'inline':
-            return <InlineBundle item={item} ref={ref} focused={focused} editing={editing} />
+            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'table':
-            return <TableBundle item={item} ref={ref} focused={focused} editing={editing} />
+            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'contents':
-            return <ContentsBundle item={item} ref={ref} focused={focused} editing={editing} />
+            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'record':
-            return <RecordBundle item={item} ref={ref} focused={focused} editing={editing} />
+            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
             break;
         default:
             return (
