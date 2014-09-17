@@ -103,7 +103,7 @@ table.table-responsive {
   width:100%;
   max-width:100%;
   border:none;
-  margin-bottom:0;
+
 }
 .type-table, .table-wrapper {
   width: 100%;
@@ -128,14 +128,14 @@ table.table-responsive > tfoot > tr > td {
 #worksheet_content p {
   margin-bottom:1em;
 }
-#ws_search {
+.ws-search {
   margin:1.5em 0 1em;
 }
-#ws_search input {
+.ws-search input {
   height:auto;
   margin-bottom:0;
 }
-#ws_search input:focus {
+.ws-search input:focus {
   background:#fff;
 }
 .select2-container {
