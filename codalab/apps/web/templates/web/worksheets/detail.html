@@ -57,6 +57,7 @@ MathJax.Hub.Config({
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    ws_actions = new WorksheetActions();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liWorksheets").addClass("active");
