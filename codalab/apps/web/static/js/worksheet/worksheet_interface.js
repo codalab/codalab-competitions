@@ -10,7 +10,18 @@ var keyMap = {
     74: "j",
     75: "k",
     88: "x",
-    220: "bslash"
+    191: "fslash"
+};
+
+// Dictionary of terms that can be entered into the search bar and the names of 
+// functions they call. See search_actions.js
+var fakedata = {
+    red: 'doRed',
+    green: 'doGreen',
+    blue: 'doBlue',
+    orange: 'doOrange',
+    yellow: 'doYellow',
+    save: 'doSave'
 };
 
 var Worksheet = React.createClass({
@@ -46,23 +57,20 @@ var Worksheet = React.createClass({
     unbindEvents: function(){
         window.removeEventListener('keydown');
     },
-    handleFocus: function(event){
-        console.log('handlefocus');
-        if(event.type=="focus"){
-            this.setState({activeComponent:'search'});
-        }else if(event.type=="blur"){
-            this.setState({activeComponent:'list'});
-        }
-        console.log('set active component to ' + this.state.activeComponent);
+    handleSearchFocus: function(event){
+        this.setState({activeComponent:'search'});
+    },
+    handleSearchBlur: function(event){
+        this.setState({activeComponent:'list'});
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         var activeComponent = this.refs[this.state.activeComponent];
         if(typeof key !== 'undefined'){
             switch (key) {
-                case 'bslash':
+                case 'fslash':
                     event.preventDefault();
-                    this.refs.search.getDOMNode().focus();
+                    this.handleSearchFocus();
                     break;
                 default:
                     if(activeComponent.hasOwnProperty('handleKeydown')){
@@ -76,9 +84,7 @@ var Worksheet = React.createClass({
     render: function(){
         return (
             <div id="worksheet">
-                <div id="ws_search">
-                    <WorksheetSearch handleFocus={this.handleFocus} ref={"search"} active={this.state.activeComponent=='search'}/>
-                </div>
+                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
                 <WorksheetItems items={this.state.worksheetItems} ref={"list"} active={this.state.activeComponent=='list'} />
             </div>
         )
@@ -86,20 +92,22 @@ var Worksheet = React.createClass({
 });
 
 var WorksheetSearch = React.createClass({
+    mixins: [Select2SearchMixin],
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
-        var focusedItem = this.refs[this.state.focus];
         if(typeof key !== 'undefined'){
             switch (key) {
                 case 'esc':
                     event.preventDefault();
-                    this.getDOMNode().blur();
+                    this.props.handleBlur();
             }
         }
     },
     render: function(){
         return (
-            <input type="text" placeholder="General search" onFocus={this.props.handleFocus} onBlur={this.props.handleFocus} />
+            <div id="ws_search">
+                <input id="search" type="text" placeholder="General search" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+            </div>
         )
     }
 });
@@ -109,6 +117,23 @@ var WorksheetItems = React.createClass({
         return {
             focusIndex: -1,
             editingIndex: -1 
+        }
+    },
+    componentDidUpdate: function(){
+        if(this.props.items.length){
+            var fIndex = this.state.focusIndex;
+            if(fIndex >= 0){
+                var itemNode = this.refs['item' + fIndex].getDOMNode();
+                if(itemNode.offsetTop > window.innerHeight / 2){
+                    window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            $('.empty-worksheet').fadeIn('fast');
         }
     },
     handleKeydown: function(event){
@@ -127,7 +152,11 @@ var WorksheetItems = React.createClass({
                     case 'up':
                     case 'k':
                         event.preventDefault();
-                        fIndex = Math.max(this.state.focusIndex - 1, 0);
+                        if(fIndex <= 0){
+                            fIndex = -1;
+                        }else {
+                            fIndex = Math.max(this.state.focusIndex - 1, 0);
+                        }
                         this.setState({focusIndex: fIndex});
                         break;
                     case 'down':
