@@ -4,15 +4,16 @@ var TableMixin = {
     // This handles some common elements of worksheet items that are presented as tables
     // TableBundle and RecordBundle
     getInitialState: function(){
-        var state = this.props.item.state;
-        state.rowFocusIndex = 0;
-        state.handleKeyboardShortcuts = this.handleKeyboardShortcuts;
-        return state;
+        return {
+            rowFocusIndex: 0
+        }
     },
     handleKeyboardShortcuts: function(event){
+        var item = this.props.item.state;
         var key = keyMap[event.keyCode];
         var index = this.state.rowFocusIndex;
-        var rowsInTable = this.props.item.state.interpreted[1].length;
+        var rowsInTable = item.interpreted[1].length;
+        var parentFocusIndex = this._owner.state.focusIndex;
         if(typeof key !== 'undefined'){
             event.preventDefault();
             switch (key) {
@@ -21,8 +22,7 @@ var TableMixin = {
                     event.preventDefault();
                     index = Math.max(this.state.rowFocusIndex - 1, 0);
                     if(this.state.rowFocusIndex == 0){
-                        ws_interactions.state.worksheetFocusIndex--;
-                        ws_broker.fire('updateState');
+                        this._owner.setState({focusIndex: parentFocusIndex - 1});
                     }else {
                         this.setState({rowFocusIndex: index});
                     }
@@ -32,8 +32,7 @@ var TableMixin = {
                     event.preventDefault();
                     index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
                     if(index == rowsInTable){
-                        ws_interactions.state.worksheetFocusIndex++;
-                        ws_broker.fire('updateState');
+                        this._owner.setState({focusIndex: parentFocusIndex + 1});
                     }else {
                         this.setState({rowFocusIndex: index});
                     }

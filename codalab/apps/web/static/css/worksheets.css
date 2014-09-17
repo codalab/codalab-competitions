@@ -47,10 +47,10 @@
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
-#worksheet_content .focused table {
+#worksheet_content table.focused  {
   background:#FFFEF4;
 }
-#worksheet_content .focused table tr.focused{
+#worksheet_content table.focused tr.focused{
   background:#DFEDF7;
 }
 #worksheet_content textarea {
