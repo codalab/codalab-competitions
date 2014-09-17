@@ -978,6 +978,7 @@ var Competition;
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass('hide');
                     $(obj).parent().parent().find('a').removeClass('hide');
+                    $("a[href='traceback/" + submissionId + "/']").parent().html("<pre>" + data.extra.traceback + "</pre>");
                 }
                 $('.competitionPreloader').hide();
             },
