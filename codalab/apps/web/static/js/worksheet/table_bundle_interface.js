@@ -3,6 +3,7 @@
 var TableBundle = React.createClass({
     mixins: [TableMixin],
     render: function() {
+        var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
         var bundle_info = this.state.bundle_info;
         var header_items = this.state.interpreted[0];
         var header_html = header_items.map(function(item, index) {
@@ -34,7 +35,7 @@ var TableBundle = React.createClass({
             );
         });
         return(
-            <table className="table table-responsive" onKeyDown={this.handleKeyboardShortcuts}>
+            <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
                 <thead>
                     <tr>{header_html}</tr>
                 </thead>

@@ -5,7 +5,7 @@ var MarkdownBundle = React.createClass({
         this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
         return this.props.item.state;
     },
-    handleMarkdownKeyboardShortcuts: function(event){
+    handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             switch (key) {
@@ -45,9 +45,10 @@ var MarkdownBundle = React.createClass({
         }
     },
     render: function() {
+        var className = this.props.focused ? 'focused' : '';
         if (this.props.editing){
             return(
-                <textarea rows={this.state.lines} onKeyDown={this.handleMarkdownKeyboardShortcuts} defaultValue={this.state.interpreted} />
+                <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={this.state.interpreted} />
             )
         }else {
         var text = marked(this.state.interpreted);
@@ -56,7 +57,7 @@ var MarkdownBundle = React.createClass({
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <div dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleMarkdownKeyboardShortcuts} />
+            <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
         );
         }
     } // end of render function

@@ -88,6 +88,7 @@ var Worksheet = React.createClass({
 var WorksheetSearch = React.createClass({
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
+        var focusedItem = this.refs[this.state.focus];
         if(typeof key !== 'undefined'){
             switch (key) {
                 case 'esc':
@@ -104,20 +105,54 @@ var WorksheetSearch = React.createClass({
 });
 
 var WorksheetItems = React.createClass({
+    getInitialState: function(){
+        return {
+            focusIndex: -1,
+            editingIndex: -1 
+        }
+    },
     handleKeydown: function(event){
-        if(typeof keyMap[event.keyCode] !== 'undefined'){
-            console.log('worksheet list received ' + keyMap[event.keyCode]);
+        var key = keyMap[event.keyCode];
+        if(typeof key !== 'undefined'){
+            var fIndex = this.state.focusIndex;
+            var eIndex = this.state.editingIndex;
+            var focusedItem = this.refs['item' + fIndex];
+            if(focusedItem && focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
+                focusedItem.handleKeyboardShortcuts(event);
+            }
+            else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
+                focusedItem.handleKeydown(event);
+            } else {
+                switch (key) {
+                    case 'up':
+                    case 'k':
+                        event.preventDefault();
+                        fIndex = Math.max(this.state.focusIndex - 1, 0);
+                        this.setState({focusIndex: fIndex});
+                        break;
+                    case 'down':
+                    case 'j':
+                        event.preventDefault();
+                        fIndex = Math.min(this.state.focusIndex + 1, this.props.items.length - 1);
+                        this.setState({focusIndex: fIndex});
+                        break;
+                    case 'e':
+                        event.preventDefault();
+                        this.setState({editingIndex: fIndex});
+                        break;
+                }
+            }
         }
     },
     render: function(){
+        var focusIndex = this.state.focusIndex;
+        var editingIndex = this.state.editingIndex;
         var worksheet_items = []
-        this.props.items.forEach(function(item){
-            var classString = 'type-' + item.state.mode;
-            worksheet_items.push(
-                <div className={classString}>
-                    {WorksheetItemFactory(item)}
-                </div>
-            );
+        this.props.items.forEach(function(item, i){
+            var ref = 'item' + i;
+            var focused = i === focusIndex;
+            var editing = i === editingIndex;
+            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing))
         });
         return (
             <div id="worksheet_content">
@@ -127,22 +162,22 @@ var WorksheetItems = React.createClass({
     }
 });
 
-var WorksheetItemFactory = function(item){
+var WorksheetItemFactory = function(item, ref, focused, editing){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle item={item} />
+            return <MarkdownBundle item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'inline':
-            return <InlineBundle item={item} />
+            return <InlineBundle item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'table':
-            return <TableBundle item={item} />
+            return <TableBundle item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'contents':
-            return <ContentsBundle item={item} />
+            return <ContentsBundle item={item} ref={ref} focused={focused} editing={editing} />
             break;
         case 'record':
-            return <RecordBundle item={item} />
+            return <RecordBundle item={item} ref={ref} focused={focused} editing={editing} />
             break;
         default:
             return (
