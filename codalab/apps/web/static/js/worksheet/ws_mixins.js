@@ -38,12 +38,7 @@ var TableMixin = {
                     }
                     break;
                 case 'd':
-                    if(event.ctrlKey || event.metaKey){
-                        this._owner._owner.deleteItem(ws_interactions.state.worksheetFocusIndex)
-                    }else {
-                        this.deleteRow(this.state.rowFocusIndex);
-                    }
-                    break;
+                    this._owner.props.deleteChecked();
                 case 'x':
                     event.preventDefault();
                     this.setState({checked: !this.state.checked});
@@ -53,23 +48,6 @@ var TableMixin = {
             } else {
                 return true;
             }
-    },
-    deleteRow: function(index){
-        var newItems = this.state.interpreted[1];
-        if(index == newItems.length - 1){
-            if(newItems.length == 1){
-                // delete the whole table by calling its grandparent
-                this._owner._owner.deleteItem(ws_interactions.state.worksheetFocusIndex);
-            }else{
-                // it's the last row, so change the focus to the new last row
-                this.setState({rowFocusIndex:index-1});
-            }
-        }
-        newItems.splice(index, 1);
-        this.setState({interpreted:[
-            this.state.interpreted[0],
-            newItems
-        ]});
     }
 }
 
