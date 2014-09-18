@@ -60,6 +60,9 @@ var Worksheet = React.createClass({
     componentWillUnmount: function(){
         this.unbindEvents();
     },
+    componentDidUpdate: function(){
+        this.refs.list.setState({worksheetItems:this.state.worksheet.items});
+    },
     bindEvents: function(){
         window.addEventListener('keydown', this.handleKeydown);
     },
@@ -92,8 +95,6 @@ var Worksheet = React.createClass({
         }
     },
     render: function(){
-        console.log('!!!!');
-        console.log(this.state);
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
@@ -128,11 +129,12 @@ var WorksheetItems = React.createClass({
     getInitialState: function(){
         return {
             focusIndex: -1,
-            editingIndex: -1 
+            editingIndex: -1,
+            worksheetItems: []
         }
     },
     componentDidUpdate: function(){
-        if(this.props.worksheet.items.length){
+        if(this.state.worksheetItems.length){
             var fIndex = this.state.focusIndex;
             if(fIndex >= 0){
                 var itemNode = this.refs['item' + fIndex].getDOMNode();
@@ -150,46 +152,66 @@ var WorksheetItems = React.createClass({
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            var fIndex = this.state.focusIndex;
-            var eIndex = this.state.editingIndex;
-            var focusedItem = this.refs['item' + fIndex];
-            if(focusedItem && focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
-                focusedItem.handleKeyboardShortcuts(event);
-            }
-            else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
-                focusedItem.handleKeydown(event);
-            } else {
-                switch (key) {
-                    case 'up':
-                    case 'k':
-                        event.preventDefault();
-                        if(fIndex <= 0){
-                            fIndex = -1;
-                        }else {
-                            fIndex = Math.max(this.state.focusIndex - 1, 0);
-                        }
-                        this.setState({focusIndex: fIndex});
-                        break;
-                    case 'down':
-                    case 'j':
-                        event.preventDefault();
-                        fIndex = Math.min(this.state.focusIndex + 1, this.props.worksheet.items.length - 1);
-                        this.setState({focusIndex: fIndex});
-                        break;
-                    case 'e':
-                        event.preventDefault();
-                        this.setState({editingIndex: fIndex});
-                        break;
-                }
+        var fIndex = this.state.focusIndex;
+        var eIndex = this.state.editingIndex;
+        var focusedItem = this.refs['item' + fIndex];
+        if(focusedItem && focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
+            focusedItem.handleKeyboardShortcuts(event);
+        }else {
+            switch (key) {
+                case 'up':
+                case 'k':
+                    event.preventDefault();
+                    if(fIndex <= 0){
+                        fIndex = -1;
+                    }else {
+                        fIndex = Math.max(this.state.focusIndex - 1, 0);
+                    }
+                    this.setState({focusIndex: fIndex});
+                    break;
+                case 'down':
+                case 'j':
+                    event.preventDefault();
+                    fIndex = Math.min(this.state.focusIndex + 1, this.props.worksheet.items.length - 1);
+                    this.setState({focusIndex: fIndex});
+                    break;
+                case 'e':
+                    event.preventDefault();
+                    this.setState({editingIndex: fIndex});
+                    break;
+                case 'x':
+                    event.preventDefault();
+                    if(focusedItem){
+                        focusedItem.setState({checked: !focusedItem.state.checked});
+                    }
+                    break;
+                case 'd':
+                    event.preventDefault();
+                    this.deleteChecked();
+                    break;
+                default:
+                    if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
+                        focusedItem.handleKeydown(event);
+                    }
+                    else {
+                        return true;
+                    }
             }
         }
+    },
+    deleteChecked: function(){
+        for(var ref in this.refs){
+            if(this.refs[ref].state.checked){
+                console.log('delete ' + ref);
+            }
+        }
+            
     },
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
         var worksheet_items = [];
-        this.props.worksheet.items.forEach(function(item, i){
+        this.state.worksheetItems.forEach(function(item, i){
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;

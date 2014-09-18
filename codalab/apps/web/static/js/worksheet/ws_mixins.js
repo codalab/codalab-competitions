@@ -44,13 +44,15 @@ var TableMixin = {
                         this.deleteRow(this.state.rowFocusIndex);
                     }
                     break;
+                case 'x':
+                    event.preventDefault();
+                    this.setState({checked: !this.state.checked});
                 default:
                     return true;
                 }
             } else {
                 return true;
             }
-        event.stopPropagation();
     },
     deleteRow: function(index){
         var newItems = this.state.interpreted[1];
@@ -135,5 +137,11 @@ var Select2SearchMixin = {
                 console.error('The command \'' + command[i] + '\' was not recognized');
             }
         }
+    }
+}
+
+var CheckboxMixin = {
+    handleCheck: function(event){
+        this.setState({checked: event.target.checked});
     }
 }
