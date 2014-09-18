@@ -3,17 +3,19 @@
 var TableBundle = React.createClass({
     mixins: [TableMixin],
     render: function() {
-        var bundle_info = this.state.bundle_info;
-        var header_items = this.state.interpreted[0];
+        var item = this.props.item.state;
+        var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
+        var bundle_info = item.bundle_info;
+        var header_items = item.interpreted[0];
         var header_html = header_items.map(function(item, index) {
                 return <th key={index}> {item} </th>;
             });
         var focusIndex = this.state.rowFocusIndex;
-        var row_items = this.state.interpreted[1];
+        var row_items = item.interpreted[1];
         var body_rows_html = row_items.map(function(row_item, index) {
             var focused = index === focusIndex;
             var focusedClass = focused ? 'focused' : '';
-            var bundle_url = '/bundles/' + bundle_info[index].uuid + '/';
+            var bundle_url = '/bundles/' + bundle_info[index].uuid;
             var row_cells = header_items.map(function(header_key, index){
                 if(index == 0){
                     return (
@@ -34,7 +36,7 @@ var TableBundle = React.createClass({
             );
         });
         return(
-            <table className="table table-responsive" onKeyDown={this.handleKeyboardShortcuts}>
+            <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
                 <thead>
                     <tr>{header_html}</tr>
                 </thead>

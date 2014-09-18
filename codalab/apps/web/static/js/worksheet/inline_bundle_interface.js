@@ -5,8 +5,9 @@ var InlineBundle = React.createClass({
         return this.props.item.state;
     },
     render: function() {
+        var className = this.props.focused ? 'focused' : '';
         return(
-            <em>
+            <em className={className}>
                 {this.state.interpreted}
             </em>
         );
