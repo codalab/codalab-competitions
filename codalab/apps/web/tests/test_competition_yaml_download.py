@@ -9,7 +9,7 @@ from apps.web.models import (Competition,
 User = get_user_model()
 
 
-class CompetitionSecretKey(TestCase):
+class CompetitionYamlDownload(TestCase):
 
     def setUp(self):
         self.organizer_user = User.objects.create_user(username="organizer", password="pass")

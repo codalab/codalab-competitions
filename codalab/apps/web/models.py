@@ -163,7 +163,7 @@ class Competition(models.Model):
     secret_key = UUIDField(version=4)
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
-    original_yaml_file = models.TextField(default='')
+    original_yaml_file = models.TextField(default='', blank=True, null=True)
 
     @property
     def pagecontent(self):
