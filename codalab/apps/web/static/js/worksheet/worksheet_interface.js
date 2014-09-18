@@ -60,9 +60,6 @@ var Worksheet = React.createClass({
     componentWillUnmount: function(){
         this.unbindEvents();
     },
-    componentDidUpdate: function(){
-        this.refs.list.setState({worksheetItems:this.state.worksheet.items});
-    },
     bindEvents: function(){
         window.addEventListener('keydown', this.handleKeydown);
     },
@@ -94,11 +91,24 @@ var Worksheet = React.createClass({
             }
         }
     },
+    handleDelete: function(event){
+        // TODO: this seems hugely inefficient. What's a better way to do this?
+        var _this = this;
+        var currentItems = this.state.worksheet.items;
+        var isNotChecked = function(item){
+            varitemIndex = currentItems.indexOf(item);
+            return !_this.refs.list.refs['item' + varitemIndex].state.checked;
+        }
+        var newItems = currentItems.filter(isNotChecked);
+        var worksheet = this.state.worksheet;
+        worksheet.items = newItems;
+        this.setState({worksheet: worksheet});
+    },
     render: function(){
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItems worksheet={this.state.worksheet} ref={"list"} active={this.state.activeComponent=='list'} />
+                <WorksheetItems worksheet={this.state.worksheet} ref={"list"} active={this.state.activeComponent=='list'} deleteChecked={this.handleDelete} />
             </div>
         )
     }
@@ -130,11 +140,10 @@ var WorksheetItems = React.createClass({
         return {
             focusIndex: -1,
             editingIndex: -1,
-            worksheetItems: []
         }
     },
     componentDidUpdate: function(){
-        if(this.state.worksheetItems.length){
+        if(this.props.worksheet.items.length){
             var fIndex = this.state.focusIndex;
             if(fIndex >= 0){
                 var itemNode = this.refs['item' + fIndex].getDOMNode();
@@ -187,7 +196,7 @@ var WorksheetItems = React.createClass({
                     break;
                 case 'd':
                     event.preventDefault();
-                    this.deleteChecked();
+                    this.props.deleteChecked();
                     break;
                 default:
                     if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
@@ -199,19 +208,11 @@ var WorksheetItems = React.createClass({
             }
         }
     },
-    deleteChecked: function(){
-        for(var ref in this.refs){
-            if(this.refs[ref].state.checked){
-                console.log('delete ' + ref);
-            }
-        }
-            
-    },
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
         var worksheet_items = [];
-        this.state.worksheetItems.forEach(function(item, i){
+        this.props.worksheet.items.forEach(function(item, i){
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;
