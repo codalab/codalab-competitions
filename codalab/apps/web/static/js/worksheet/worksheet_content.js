@@ -60,7 +60,7 @@ var WorksheetContent = function() {
                 });
                 consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
                 ws_obj.state.items = consolidatedWorksheetItems;
-                props.success(consolidatedWorksheetItems);
+                props.success(ws_obj.state);
             }.bind(this),
             error: function(xhr, status, err) {
                 props.error(xhr, status, err);

@@ -28,14 +28,23 @@ var Worksheet = React.createClass({
     getInitialState: function(){
         return {
             activeComponent: 'list',
-            worksheetItems: []
+            worksheet: {
+                last_item_id: 0,
+                name: '',
+                owner: null,
+                owner_id: 0,
+                uuid: 0,
+                items: []
+            }
         }
     },
-    componentWillMount: function() {
+    componentDidMount: function() {
         ws_obj.fetch({
             success: function(data){
                 $("#worksheet-message").hide();
-                this.setState({worksheetItems: data});
+                if(this.isMounted()){
+                    this.setState({worksheet: data});
+                }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -83,10 +92,12 @@ var Worksheet = React.createClass({
         }
     },
     render: function(){
+        console.log('!!!!');
+        console.log(this.state);
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItems items={this.state.worksheetItems} ref={"list"} active={this.state.activeComponent=='list'} />
+                <WorksheetItems worksheet={this.state.worksheet} ref={"list"} active={this.state.activeComponent=='list'} />
             </div>
         )
     }
@@ -121,7 +132,7 @@ var WorksheetItems = React.createClass({
         }
     },
     componentDidUpdate: function(){
-        if(this.props.items.length){
+        if(this.props.worksheet.items.length){
             var fIndex = this.state.focusIndex;
             if(fIndex >= 0){
                 var itemNode = this.refs['item' + fIndex].getDOMNode();
@@ -163,7 +174,7 @@ var WorksheetItems = React.createClass({
                     case 'down':
                     case 'j':
                         event.preventDefault();
-                        fIndex = Math.min(this.state.focusIndex + 1, this.props.items.length - 1);
+                        fIndex = Math.min(this.state.focusIndex + 1, this.props.worksheet.items.length - 1);
                         this.setState({focusIndex: fIndex});
                         break;
                     case 'e':
@@ -177,8 +188,8 @@ var WorksheetItems = React.createClass({
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
-        var worksheet_items = []
-        this.props.items.forEach(function(item, i){
+        var worksheet_items = [];
+        this.props.worksheet.items.forEach(function(item, i){
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;
@@ -186,6 +197,17 @@ var WorksheetItems = React.createClass({
         });
         return (
             <div id="worksheet_content">
+                <div className="worksheet-name">
+                    <h1 className="worksheet-icon">{this.props.worksheet.name}</h1>
+                    <div className="worksheet-author">{this.props.worksheet.owner}</div>
+                {
+                /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
+                <a href="#" className="right">
+                <button className="med button">Export</button>
+                </a<
+                */
+                }
+                </div>
                 {worksheet_items}
             </div>
         )
