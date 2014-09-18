@@ -591,7 +591,7 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     template_name = 'web/my/detailed_results.html'
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username, 'filename':submission.detailed_results_file.name}
+        context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
