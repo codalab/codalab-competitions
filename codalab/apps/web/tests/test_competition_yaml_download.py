@@ -49,4 +49,4 @@ class CompetitionSecretKey(TestCase):
         resp = self.client.get(reverse("competitions:download_yaml", kwargs={"competition_pk": self.competition.pk}))
         self.assertEquals(resp.content, "original yaml file contents")
         self.assertIn(('Content-Type', 'text/yaml'), resp.items())
-        self.assertIn(('Content-Disposition', 'attachment; filename="competition_5.yaml"'), resp.items())
+        self.assertIn(('Content-Disposition', 'attachment; filename="competition_%s.yaml"' % self.competition.pk), resp.items())
