@@ -29,7 +29,6 @@ from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
-from django.core.servers.basehttp import FileWrapper
 
 from mimetypes import MimeTypes
 
