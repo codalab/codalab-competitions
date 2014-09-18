@@ -29,6 +29,7 @@ from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from django.core.servers.basehttp import FileWrapper
 
 from mimetypes import MimeTypes
 
@@ -950,5 +951,13 @@ def datasets_delete_multiple(request):
     return HttpResponse()
 
 
-def system_monitoring(request):
-    pass
+def download_competition_yaml(request, competition_pk):
+    # check admin or owner
+    # return contents as .yaml with proper MIME
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+        response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
+        response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
+        return response
+    except ObjectDoesNotExist:
+        return Http404()
