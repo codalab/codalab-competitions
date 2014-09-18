@@ -1,8 +1,10 @@
 /** @jsx React.DOM */
 
 var MarkdownBundle = React.createClass({
+    mixins: [CheckboxMixin],
     getInitialState: function(){
         this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
+        this.props.item.state.checked = false
         return this.props.item.state;
     },
     handleKeydown: function(event){
@@ -41,14 +43,17 @@ var MarkdownBundle = React.createClass({
     },
     componentDidUpdate: function(){
         if(this.props.editing){
-            this.getDOMNode().focus();
+            $(this.getDOMNode()).find('textarea').focus();
         }
     },
     render: function() {
         var className = this.props.focused ? 'focused' : '';
         if (this.props.editing){
             return(
-                <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={this.state.interpreted} />
+                <div className="ws-item">
+                    <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+                    <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={this.state.interpreted} />
+                </div>
             )
         }else {
         var text = marked(this.state.interpreted);
@@ -57,7 +62,10 @@ var MarkdownBundle = React.createClass({
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+            <div className="ws-item">
+                <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+                <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+            </div>
         );
         }
     } // end of render function

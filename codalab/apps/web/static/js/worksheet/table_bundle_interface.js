@@ -1,7 +1,11 @@
 /** @jsx React.DOM */
 
 var TableBundle = React.createClass({
-    mixins: [TableMixin],
+    mixins: [TableMixin, CheckboxMixin],
+    getInitialState: function(){
+        this.props.item.state.checked = false;
+        return this.props.item.state;
+    },
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
@@ -36,14 +40,17 @@ var TableBundle = React.createClass({
             );
         });
         return(
-            <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
-                <thead>
-                    <tr>{header_html}</tr>
-                </thead>
-                <tbody>
-                    {body_rows_html}
-                </tbody>
-            </table>
+            <div className="ws-item">
+                <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+                <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
+                    <thead>
+                        <tr>{header_html}</tr>
+                    </thead>
+                    <tbody>
+                        {body_rows_html}
+                    </tbody>
+                </table>
+            </div>
         );
     } // end of render function
 }); //end of  InlineBundle
