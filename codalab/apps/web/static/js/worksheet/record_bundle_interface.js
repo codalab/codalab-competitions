@@ -3,14 +3,17 @@
 var RecordBundle = React.createClass({
     mixins: [TableMixin],
     render: function() {
-        var header = this.state.interpreted[0];
-        var focusIndex = this.state.rowFocusIndex;
+        var item = this.props.item.state;
+        var className = 'table table-record' + (this.props.focused ? ' focused' : '');
+        var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
-        var items = this.state.interpreted[1].map(function(item, index){
+        var focusIndex = this.state.rowFocusIndex;
+        var items = item.interpreted[1].map(function(item, index){
             var focused = index === focusIndex;
+            var focusedClass = focused ? 'focused' : '';
             return(
-                <tr key={index} focused={focused} className={focused ? 'focused' : ''}>
+                <tr key={index} focused={focused} className={focusedClass}>
                     <th>
                         {item[k]}
                     </th>
@@ -21,7 +24,7 @@ var RecordBundle = React.createClass({
             )
         });
         return (
-            <table className="table table-record">
+            <table className={className}>
                 <tbody>
                     {items}
                 </tbody>

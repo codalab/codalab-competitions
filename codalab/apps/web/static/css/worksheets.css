@@ -8,52 +8,52 @@
 #bundle-message {
   padding:20px 0;
 }
-#worksheet-content {
+#worksheet_content {
   line-height:1.2em;
 }
-#worksheet-content .hidden {
+#worksheet_content .hidden {
   display:none;
 }
-#worksheet-content .empty-worksheet {
+#worksheet_content .empty-worksheet {
   color:#a4a4a4;
   text-align:center;
 }
-#worksheet-content .worksheet-name {
+#worksheet_content .worksheet-name {
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
 }
-#worksheet-content .worksheet-name label input[type="checkbox"]{
+#worksheet_content .worksheet-name label input[type="checkbox"]{
   margin-right:5px;
 }
-#worksheet-content .worksheet-name h1 {
+#worksheet_content .worksheet-name h1 {
   text-indent:65px;
   margin-top:.25em;
   font-size:2.75em
 }
-#worksheet-content h1, #worksheet-content h3, #worksheet-content h3 {
+#worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {
   margin:.85em 0 .5em 0;
   font-weight:200;
 }
-#worksheet-content h1 {
+#worksheet_content h1 {
   font-size:2.25em;
 }
-#worksheet-content h2 {
+#worksheet_content h2 {
   font-size:1.75em;
 }
-#worksheet-content h3 {
+#worksheet_content h3 {
   font-size:1.25em;
 }
-#worksheet-content .worksheet-items>.focused {
+#worksheet_content > .focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
-#worksheet-content .focused table {
+#worksheet_content table.focused  {
   background:#FFFEF4;
 }
-#worksheet-content .focused table tr.focused{
+#worksheet_content table.focused tr.focused{
   background:#DFEDF7;
 }
-#worksheet-content textarea {
+#worksheet_content textarea {
   background:#FFF;
   color:#333;
   box-shadow:none;
@@ -64,25 +64,25 @@
   padding:0.5em;
   width:100%;
 }
-#worksheet-content .type-markup ul,
-#worksheet-content .type-markup ol {
+#worksheet_content .type-markup ul,
+#worksheet_content .type-markup ol {
   margin: 0 0 1em 0;
   padding-left:40px;
 }
-#worksheet-content .type-markup ul {
+#worksheet_content .type-markup ul {
   list-style-type:disc;
 }
-#worksheet-content .type-markup ol {
+#worksheet_content .type-markup ol {
   list-style-type:decimal;
 }
-#worksheet-content .type-contents blockquote {
+#worksheet_content .type-contents blockquote {
   padding: 1em 0 1em 1.5em;
   border-left:4px solid #eee;
-}#worksheet-content .type-contents:not(.focused) blockquote{
+}#worksheet_content .type-contents:not(.focused) blockquote{
   background-color:#fafafa;
 
 }
-#worksheet-content .type-contents blockquote p {
+#worksheet_content .type-contents blockquote p {
   white-space: pre;
   color:#555;
   margin:0;
@@ -103,7 +103,7 @@ table.table-responsive {
   width:100%;
   max-width:100%;
   border:none;
-  margin-bottom:0;
+
 }
 .type-table, .table-wrapper {
   width: 100%;
@@ -122,17 +122,20 @@ table.table-responsive > tbody > tr > td,
 table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
 }
-#worksheet-content hr {
+#worksheet_content hr {
   margin:1em 0;
 }
-#worksheet-content p {
+#worksheet_content p {
   margin-bottom:1em;
 }
-#general_search {
-  margin-top:2em;
-  margin-bottom:1em;
+.ws-search {
+  margin:1.5em 0 1em;
 }
- #general_search input:focus {
+.ws-search input {
+  height:auto;
+  margin-bottom:0;
+}
+.ws-search input:focus {
   background:#fff;
 }
 .select2-container {

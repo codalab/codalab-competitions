@@ -181,13 +181,13 @@
     <!-- Included JS Files (Compressed) -->
     <script src="{{ STATIC_URL }}js/vendor/foundation.min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/select2/select2.min.js"></script>
-    <script src="{{ STATIC_URL }}js/search/search_actions.js"></script>
+    <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
     <script>
         $(document).foundation();
         Competition.initialize();
-        ws_searchActions = new SearchActions();
+        ws_actions = new WorksheetActions();
     {% block js %}
     {% endblock js %}
     </script>

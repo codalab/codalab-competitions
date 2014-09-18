@@ -1,13 +1,13 @@
 // Singleton class to manage actions triggered by the 
 // general search bar
-function SearchActions() {
+function WorksheetActions() {
     var instance;
-    SearchActions = function SearchActions(){
+    WorksheetActions = function WorksheetActions(){
         return instance;
     };
-    SearchActions.prototype = this;
-    instance = new SearchActions();
-    instance.constructor = SearchActions();
+    WorksheetActions.prototype = this;
+    instance = new WorksheetActions();
+    instance.constructor = WorksheetActions();
 
     instance.doRed = function(){
         alert('CODE RED!\nFunction for red executed');
