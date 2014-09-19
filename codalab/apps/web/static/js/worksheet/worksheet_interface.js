@@ -6,7 +6,9 @@ var keyMap = {
     69: "e",
     38: "up",
     40: "down",
+    65: "a",
     68: "d",
+    73: "i",
     74: "j",
     75: "k",
     88: "x",
@@ -198,15 +200,32 @@ var WorksheetItems = React.createClass({
                     event.preventDefault();
                     this.props.deleteChecked();
                     break;
+                case 'i':
+                    event.preventDefault();
+                    this.insertItem(key);
+                    break;
+                case 'a':
+                    if(event.shiftKey){
+                        this.insertItem(key);
+                    }
+                    break;
                 default:
                     if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
                         focusedItem.handleKeydown(event);
                     }
                     else {
                         return true;
-                    }
+                }
             }
         }
+    },
+    insertItem: function(key){
+        var pos = key === 'i' ? 0 : 1;
+        var newIndex = this.state.focusIndex + pos;
+        var newItem = new WorksheetItem('', null, 'markup');
+        var worksheet = this.props.worksheet;
+        worksheet.items.splice(newIndex, 0, newItem);
+        console.log('SET STATE');
     },
     render: function(){
         var focusIndex = this.state.focusIndex;

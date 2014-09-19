@@ -42,12 +42,29 @@ var TableMixin = {
                 case 'x':
                     event.preventDefault();
                     this.setState({checked: !this.state.checked});
+                case 'i':
+                    event.preventDefault();
+                    this.insertRow(key);
+                    break;
+                case 'a':
+                    if(event.shiftKey){
+                        this.insertRow(key);
+                    }
+                    break;
                 default:
                     return true;
                 }
             } else {
                 return true;
             }
+    },
+    insertRow: function(key){
+        console.log('insert table row');
+        if(key == 'i'){
+            console.log('before');
+        }else {
+            console.log('after');
+        }
     }
 }
 
