@@ -73,7 +73,7 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} deleteChecked={this.handleDelete} />
+                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} />
             </div>
         )
     }
@@ -214,7 +214,12 @@ var WorksheetItemList = React.createClass({
         console.log('------ save the worksheet here ------');
     },
     deleteChecked: function(){
-        
+        var reactItems = this.refs;
+        for(var k in reactItems){
+            if(reactItems[k].state.checked){
+                console.log('delete ' + reactItems[k].props.ref);
+            }
+        }
     },
     insertItem: function(keyPressed){
         var pos = keyPressed === 'i' ? 0 : 1;
