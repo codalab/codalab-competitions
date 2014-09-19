@@ -38,13 +38,15 @@ var TableMixin = {
                     }
                     break;
                 case 'd':
-                    this._owner.props.deleteChecked();
+                    event.preventDefault(); 
+                    this._owner.deleteChecked();
+                    break;
                 case 'x':
                     event.preventDefault();
                     this.setState({checked: !this.state.checked});
+                    break;
                 case 'i':
                     event.preventDefault();
-                    this.insertRow(key);
                     break;
                 case 'a':
                     if(event.shiftKey){
