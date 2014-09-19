@@ -30,33 +30,9 @@ var Worksheet = React.createClass({
     getInitialState: function(){
         return {
             activeComponent: 'list',
-            worksheet: {
-                last_item_id: 0,
-                name: '',
-                owner: null,
-                owner_id: 0,
-                uuid: 0,
-                items: []
-            }
         }
     },
     componentDidMount: function() {
-        ws_obj.fetch({
-            success: function(data){
-                $("#worksheet-message").hide();
-                if(this.isMounted()){
-                    this.setState({worksheet: data});
-                }
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-                if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.");
-                } else {
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
-                }
-            }.bind(this)
-        });
         this.bindEvents();
     },
     componentWillUnmount: function(){
@@ -93,24 +69,11 @@ var Worksheet = React.createClass({
             }
         }
     },
-    handleDelete: function(event){
-        // TODO: this seems hugely inefficient. What's a better way to do this?
-        var _this = this;
-        var currentItems = this.state.worksheet.items;
-        var isNotChecked = function(item){
-            varitemIndex = currentItems.indexOf(item);
-            return !_this.refs.list.refs['item' + varitemIndex].state.checked;
-        }
-        var newItems = currentItems.filter(isNotChecked);
-        var worksheet = this.state.worksheet;
-        worksheet.items = newItems;
-        this.setState({worksheet: worksheet});
-    },
     render: function(){
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItems worksheet={this.state.worksheet} ref={"list"} active={this.state.activeComponent=='list'} deleteChecked={this.handleDelete} />
+                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} deleteChecked={this.handleDelete} />
             </div>
         )
     }
@@ -137,15 +100,41 @@ var WorksheetSearch = React.createClass({
     }
 });
 
-var WorksheetItems = React.createClass({
+var WorksheetItemList = React.createClass({
     getInitialState: function(){
         return {
             focusIndex: -1,
             editingIndex: -1,
+            worksheet: {
+                last_item_id: 0,
+                name: '',
+                owner: null,
+                owner_id: 0,
+                uuid: 0,
+                items: []
+            }
         }
     },
+    componentDidMount: function() {
+        ws_obj.fetch({
+            success: function(data){
+                $("#worksheet-message").hide();
+                if(this.isMounted()){
+                    this.setState({worksheet: data});
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+                if (xhr.status == 404) {
+                    $("#worksheet-message").html("Worksheet was not found.");
+                } else {
+                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
+                }
+            }.bind(this)
+        });
+    },
     componentDidUpdate: function(){
-        if(this.props.worksheet.items.length){
+        if(this.state.worksheet.items.length){
             var fIndex = this.state.focusIndex;
             if(fIndex >= 0){
                 var itemNode = this.refs['item' + fIndex].getDOMNode();
@@ -168,6 +157,8 @@ var WorksheetItems = React.createClass({
         var focusedItem = this.refs['item' + fIndex];
         if(focusedItem && focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
             focusedItem.handleKeyboardShortcuts(event);
+        }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
+            focusedItem.handleKeydown(event);
         }else {
             switch (key) {
                 case 'up':
@@ -183,7 +174,7 @@ var WorksheetItems = React.createClass({
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    fIndex = Math.min(this.state.focusIndex + 1, this.props.worksheet.items.length - 1);
+                    fIndex = Math.min(this.state.focusIndex + 1, this.state.worksheet.items.length - 1);
                     this.setState({focusIndex: fIndex});
                     break;
                 case 'e':
@@ -198,7 +189,7 @@ var WorksheetItems = React.createClass({
                     break;
                 case 'd':
                     event.preventDefault();
-                    this.props.deleteChecked();
+                    this.deleteChecked();
                     break;
                 case 'i':
                     event.preventDefault();
@@ -206,42 +197,56 @@ var WorksheetItems = React.createClass({
                     break;
                 case 'a':
                     if(event.shiftKey){
+                        event.preventDefault();
                         this.insertItem(key);
                     }
                     break;
                 default:
-                    if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
-                        focusedItem.handleKeydown(event);
-                    }
-                    else {
-                        return true;
-                }
+                    return true;
+
             }
         }
     },
-    insertItem: function(key){
-        var pos = key === 'i' ? 0 : 1;
+    saveItem: function(textarea){
+        var item = this.state.worksheet.items[this.state.editingIndex];
+        item.state.interpreted = textarea.value;
+        this.setState({editingIndex: -1});
+        console.log('------ save the worksheet here ------');
+    },
+    deleteChecked: function(){
+        
+    },
+    insertItem: function(keyPressed){
+        var pos = keyPressed === 'i' ? 0 : 1;
         var newIndex = this.state.focusIndex + pos;
-        var newItem = new WorksheetItem('', null, 'markup');
-        var worksheet = this.props.worksheet;
-        worksheet.items.splice(newIndex, 0, newItem);
-        console.log('SET STATE');
+        var newItem = new WorksheetItem('', {}, 'markup');
+        var worksheet = this.state.worksheet;
+        var ws1 = worksheet.items.slice(0,newIndex);
+        var ws2 = worksheet.items.slice(newIndex);
+        ws1.push(newItem);
+        worksheet.items = ws1.concat(ws2);
+        this.setState({
+            worksheet: worksheet,
+            focusIndex: newIndex,
+            editingIndex: newIndex
+        });
     },
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
         var worksheet_items = [];
-        this.props.worksheet.items.forEach(function(item, i){
+        var handleSave = this.saveItem;
+        this.state.worksheet.items.forEach(function(item, i){
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;
-            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i))
+            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave))
         });
         return (
             <div id="worksheet_content">
                 <div className="worksheet-name">
-                    <h1 className="worksheet-icon">{this.props.worksheet.name}</h1>
-                    <div className="worksheet-author">{this.props.worksheet.owner}</div>
+                    <h1 className="worksheet-icon">{this.state.worksheet.name}</h1>
+                    <div className="worksheet-author">{this.state.worksheet.owner}</div>
                 {
                 /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
                 <a href="#" className="right">
@@ -256,10 +261,10 @@ var WorksheetItems = React.createClass({
     }
 });
 
-var WorksheetItemFactory = function(item, ref, focused, editing, i){
+var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />
+            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} handleSave={handleSave} />
             break;
         case 'inline':
             return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} />

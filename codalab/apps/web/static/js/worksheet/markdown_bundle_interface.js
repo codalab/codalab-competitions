@@ -3,9 +3,10 @@
 var MarkdownBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
-        this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
-        this.props.item.state.checked = false
-        return this.props.item.state;
+        return {
+            lines: this.props.item.state.interpreted.split(/\r\n|\r|\n/).length,
+            checked: false
+        }
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
@@ -28,11 +29,7 @@ var MarkdownBundle = React.createClass({
         }
     },
     saveEditedItem: function(textarea){
-        console.log('------ save the worksheet here ------');
-        this.setState({interpreted: textarea.value});
-        // Callback to <Worksheet /> to reset editing
-        this._owner.setState({editingIndex: -1});
-        ws_actions.doSave();
+        this.props.handleSave(textarea);
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
@@ -40,6 +37,9 @@ var MarkdownBundle = React.createClass({
             MathJax.Hub,
             this.getDOMNode()
         ]);
+        if(this.props.editing){
+            $(this.getDOMNode()).find('textarea').focus();
+        }
     },
     componentDidUpdate: function(){
         if(this.props.editing){
@@ -47,16 +47,17 @@ var MarkdownBundle = React.createClass({
         }
     },
     render: function() {
+        var content = this.props.item.state.interpreted;
         var className = this.props.focused ? 'focused' : '';
         if (this.props.editing){
             return(
                 <div className="ws-item">
                     <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
-                    <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={this.state.interpreted} />
+                    <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={content} />
                 </div>
             )
         }else {
-        var text = marked(this.state.interpreted);
+        var text = marked(content);
         // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html

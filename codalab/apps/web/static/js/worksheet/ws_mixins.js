@@ -57,14 +57,6 @@ var TableMixin = {
             } else {
                 return true;
             }
-    },
-    insertRow: function(key){
-        console.log('insert table row');
-        if(key == 'i'){
-            console.log('before');
-        }else {
-            console.log('after');
-        }
     }
 }
 
