@@ -9,6 +9,7 @@ var TableBundle = React.createClass({
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];
         var header_html = header_items.map(function(item, index) {
@@ -40,8 +41,8 @@ var TableBundle = React.createClass({
             );
         });
         return(
-            <div className="ws-item">
-                <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+            <div className="ws-item" onClick={this.handleClick}>
+                {checkbox}
                 <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
                     <thead>
                         <tr>{header_html}</tr>

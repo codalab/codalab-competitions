@@ -8,6 +8,9 @@ var TableMixin = {
             rowFocusIndex: 0
         }
     },
+    handleClick: function(){
+        this.props.handleClick(this);
+    },
     handleKeyboardShortcuts: function(event){
         var item = this.props.item.state;
         var key = keyMap[event.keyCode];
