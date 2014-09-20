@@ -46,13 +46,17 @@ var MarkdownBundle = React.createClass({
             $(this.getDOMNode()).find('textarea').focus();
         }
     },
+    handleClick: function(){
+        this.props.handleClick(this);
+    },
     render: function() {
         var content = this.props.item.state.interpreted;
         var className = this.props.focused ? 'focused' : '';
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         if (this.props.editing){
             return(
-                <div className="ws-item">
-                    <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+                <div className="ws-item" onClick={this.handleClick}>
+                    {checkbox}
                     <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={content} />
                 </div>
             )
@@ -63,8 +67,8 @@ var MarkdownBundle = React.createClass({
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <div className="ws-item">
-                <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} />
+            <div className="ws-item" onClick={this.handleClick}>
+                {checkbox}
                 <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
             </div>
         );
