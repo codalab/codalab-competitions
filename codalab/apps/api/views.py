@@ -122,10 +122,10 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
     filter_class = serializers.CompetitionFilter
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)    
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
-    
+
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
         """
@@ -592,7 +592,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         if phase_id:
             kw['phase__pk'] = phase_id
         if competition_id:
-            kw['phase__competition__pk'] = competition_id        
+            kw['phase__competition__pk'] = competition_id
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
@@ -601,7 +601,7 @@ leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'upda
 class LeaderBoardDataViewSet(views.APIView):
     """
     Provides a web API to get the leaderboard data for a phase of a competition
-    """    
+    """
     def get(self, request, *args, **kwargs):
         competition_id = self.kwargs.get('competition_id', None)
         phase_id = self.kwargs.get('phase_id', None)
@@ -664,7 +664,7 @@ class WorksheetsListApi(views.APIView):
             if len(user_ids) > 0:
                 users = ClUser.objects.filter(id__in=user_ids)
                 for user in users:
-                    for worksheet in user_id_to_worksheets[user.id]:
+                    for worksheet in user_id_to_worksheets[int(user.id)]:
                         worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
