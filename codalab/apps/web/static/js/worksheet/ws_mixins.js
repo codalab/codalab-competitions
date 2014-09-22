@@ -15,7 +15,6 @@ var TableMixin = {
         return['up','k','down','j','x']
     },
     handleKeyboardShortcuts: function(event){
-        this.keysIWant = ['a','b'];
         var item = this.props.item.state;
         var key = keyMap[event.keyCode];
         var index = this.state.rowFocusIndex;
