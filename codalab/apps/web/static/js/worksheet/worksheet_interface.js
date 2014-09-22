@@ -222,7 +222,7 @@ var WorksheetItemList = React.createClass({
         ws_obj.state.items = consolidated;
         this.setState({
             editingIndex: -1,
-            worksheet: ws_obj.state
+            worksheet: ws_obj.getState()
         });
         console.log('------ save the worksheet here ------');
     },
