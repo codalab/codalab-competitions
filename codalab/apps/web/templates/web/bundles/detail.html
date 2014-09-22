@@ -4,13 +4,15 @@
 {% block page_title %}Bundle details{% endblock page_title %}
 
 {% block content %}
-<div id="bundle-message" class="row">
+<div class="row">
     <div class="large-12 columns">
-        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle information...
+        <div id="bundle-message" class="bundle-detail">
+            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle...
+        </div>
+        <div id="bundle-content">
+            <!-- bundle html wil go here-->
+        </div>
     </div>
-</div>
-<div id="general_search" class="bundle-detail"></div>
-<div id="bundle-content">
 </div>
 
 <!-- legacy template -->
@@ -47,7 +49,6 @@
     <script src="http://fb.me/react-0.11.1.js"></script>
     <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/bundle/bundle_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
 <script>
 MathJax.Hub.Config({
     tex2jax: {
