@@ -3,7 +3,10 @@
   padding-top:49px;
 }
 #worksheet-message {
-  padding-top:30px;
+  margin-bottom:2em;
+}
+#worksheet-message.ws-detail {
+  margin-top:2em;
 }
 #bundle-message {
   padding:20px 0;

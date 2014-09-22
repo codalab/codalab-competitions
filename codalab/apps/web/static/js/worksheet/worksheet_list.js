@@ -40,7 +40,6 @@ var Worksheets = React.createClass({
         this.setState({filter:event.target.value})
     },
     handleKeyboardShortcuts: function(event){
-        console.log(event.keyCode);
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
         if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
@@ -91,11 +90,12 @@ var WorksheetList = React.createClass({
                 if(this.isMounted()){
                     this.setState({worksheets: data});
                 }
-                $("#worksheet-message").hide();
+                $("#worksheet-message").hide().removeClass('alert-box alert');
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
-                $("#worksheet_list").html("Couldn\'t retrieve worksheets - Try refreshing the page");
+                $("#worksheet-message").html("Couldn\'t retrieve worksheets. Please try refreshing the page.").addClass('alert-box alert');
+                $("#container").hide();
             }.bind(this)
         });
     },

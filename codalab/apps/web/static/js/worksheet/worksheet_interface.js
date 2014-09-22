@@ -119,7 +119,7 @@ var WorksheetItemList = React.createClass({
     componentDidMount: function() {
         ws_obj.fetch({
             success: function(data){
-                $("#worksheet-message").hide();
+                $("#worksheet-message").hide().removeClass('alert-box alert');
                 if(this.isMounted()){
                     this.setState({worksheet: ws_obj.getState()});
                 }
@@ -127,10 +127,11 @@ var WorksheetItemList = React.createClass({
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.");
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
                 } else {
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.");
+                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
                 }
+                $('#worksheet_container').hide();
             }.bind(this)
         });
     },
