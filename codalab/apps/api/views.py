@@ -114,8 +114,11 @@ class CompetitionCreationStatusApi(views.APIView):
         logger.debug("CompetitionCreationStatus: requestor=%s; job=%s; job.status:%s.", user_id, job.pk, job.status)
         data = {'status' : job.get_status_code_name()}
         info = job.get_task_info()
+        logger.debug("CompetitionCreationStatus: info=%s", info)
         if 'competition_id' in info:
             data['id'] = info['competition_id']
+        if 'error' in info:
+            data['error'] = info['error']
         return Response(data)
 
 class CompetitionAPIViewSet(viewsets.ModelViewSet):

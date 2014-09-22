@@ -937,5 +937,18 @@ def download_dataset(request, dataset_key):
         return HttpResponse(msg, status=400, content_type='text/plain')
 
 
+def datasets_delete_multiple(request):
+    ids_to_delete = request.POST.getlist("ids_to_delete[]", [])
+
+    for dataset_id in ids_to_delete:
+        try:
+            dataset = models.OrganizerDataSet.objects.get(pk=int(dataset_id), uploaded_by=request.user)
+            dataset.delete()
+        except:
+            pass
+
+    return HttpResponse()
+
+
 def system_monitoring(request):
     pass
