@@ -17,6 +17,9 @@
 #worksheet_content .ws-item {
   position:relative;
 }
+#worksheet_content.editable .ws-item {
+  margin-left:1.5em;
+}
 #worksheet_content .ws-item .ws-checkbox {
   margin:0;
   position:absolute;
@@ -26,6 +29,7 @@
 #worksheet_content .empty-worksheet {
   color:#a4a4a4;
   text-align:center;
+  display:none;
 }
 #worksheet_content .worksheet-name {
   border-bottom:1px solid #ddd;
