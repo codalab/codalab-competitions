@@ -6,9 +6,6 @@ var RecordBundle = React.createClass({
         this.props.item.state.checked = false;
         return this.props.item.state;
     },
-    handleClick: function(){
-        this.props.handleClick(this);
-    },
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-record' + (this.props.focused ? ' focused' : '');

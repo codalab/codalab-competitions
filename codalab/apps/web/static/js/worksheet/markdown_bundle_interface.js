@@ -8,12 +8,18 @@ var MarkdownBundle = React.createClass({
             checked: false
         }
     },
+    keysToHandle: function(){
+        return['esc','enter']
+    },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             switch (key) {
                 case 'esc':
                     this._owner.setState({editingIndex: -1});
+                    if(!$(this.getDOMNode()).find('textarea').val().length){
+                        this._owner.unInsert();
+                    }
                     break;
                 case 'enter':
                     if(event.ctrlKey || event.metaKey){
@@ -47,11 +53,11 @@ var MarkdownBundle = React.createClass({
         }
     },
     handleClick: function(){
-        this.props.handleClick(this);
+        this.props.setFocus(this);
     },
     render: function() {
         var content = this.props.item.state.interpreted;
-        var className = this.props.focused ? 'focused' : '';
+        var className = 'type-markup' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         if (this.props.editing){
             return(

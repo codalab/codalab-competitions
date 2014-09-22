@@ -156,7 +156,7 @@ var WorksheetItemList = React.createClass({
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
-        if(focusedItem && focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
+        if(focusedItem && focusedItem.hasOwnProperty('keysToHandle') && focusedItem.keysToHandle().indexOf(key) != -1){
             focusedItem.handleKeyboardShortcuts(event);
         }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
             focusedItem.handleKeydown(event);
@@ -203,7 +203,7 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'a':
-                    if(event.shiftKey && this.state.edit_permission){
+                    if(event.shiftKey && this.props.canEdit){
                         event.preventDefault();
                         this.insertItem(key);
                     }
@@ -217,11 +217,18 @@ var WorksheetItemList = React.createClass({
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
         item.state.interpreted = textarea.value;
+        var unconsolidated = ws_obj.getState();
+        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+        ws_obj.state.items = consolidated;
         this.setState({
             editingIndex: -1,
-            worksheet: ws_obj.getState()
+            worksheet: ws_obj.state
         });
         console.log('------ save the worksheet here ------');
+    },
+    unInsert: function(){
+        ws_obj.setItem(this.state.focusIndex, undefined);
+        this.setState({worksheet: ws_obj.getState()});
     },
     deleteChecked: function(){
         var reactItems = this.refs;
@@ -256,7 +263,7 @@ var WorksheetItemList = React.createClass({
             editingIndex: newIndex
         });
     },
-    handleClick: function(child){
+    setFocus: function(child){
         this.setState({focusIndex: child.props.key});
     },
     render: function(){
@@ -265,12 +272,12 @@ var WorksheetItemList = React.createClass({
         var canEdit = this.props.canEdit;
         var worksheet_items = [];
         var handleSave = this.saveItem;
-        var handleClick = this.handleClick;
+        var setFocus = this.setFocus;
         ws_obj.state.items.forEach(function(item, i){
             var ref = 'item' + i;
             var focused = i === focusIndex;
             var editing = i === editingIndex;
-            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, handleClick, canEdit))
+            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit))
         });
         return (
             <div id="worksheet_content">
@@ -291,22 +298,22 @@ var WorksheetItemList = React.createClass({
     }
 });
 
-var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, handleClick, canEdit){
+var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} handleClick={handleClick} />
+            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} />
             break;
         case 'inline':
-            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleClick={handleClick} />
+            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
         case 'table':
-            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleClick={handleClick} />
+            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
         case 'contents':
-            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleClick={handleClick} />
+            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
         case 'record':
-            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleClick={handleClick}/>
+            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus}/>
             break;
         default:
             return (

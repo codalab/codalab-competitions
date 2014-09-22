@@ -9,9 +9,13 @@ var TableMixin = {
         }
     },
     handleClick: function(){
-        this.props.handleClick(this);
+        this.props.setFocus(this);
+    },
+    keysToHandle: function(){
+        return['up','k','down','j','x']
     },
     handleKeyboardShortcuts: function(event){
+        this.keysIWant = ['a','b'];
         var item = this.props.item.state;
         var key = keyMap[event.keyCode];
         var index = this.state.rowFocusIndex;
@@ -40,21 +44,9 @@ var TableMixin = {
                         this.setState({rowFocusIndex: index});
                     }
                     break;
-                case 'd':
-                    event.preventDefault(); 
-                    this._owner.deleteChecked();
-                    break;
                 case 'x':
                     event.preventDefault();
                     this.setState({checked: !this.state.checked});
-                    break;
-                case 'i':
-                    event.preventDefault();
-                    break;
-                case 'a':
-                    if(event.shiftKey){
-                        this.insertRow(key);
-                    }
                     break;
                 default:
                     return true;
