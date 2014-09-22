@@ -7,7 +7,7 @@
         "class": "LocalBundleClient"
     },
     "cli": {
-        "verbose": false
+        "verbose": 1
     },
     "editor": "vim",
     "server": {
