@@ -270,17 +270,22 @@ var WorksheetItemList = React.createClass({
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
         var canEdit = this.props.canEdit;
+        var className = canEdit ? 'editable' : '';
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
-        ws_obj.state.items.forEach(function(item, i){
-            var ref = 'item' + i;
-            var focused = i === focusIndex;
-            var editing = i === editingIndex;
-            worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit))
-        });
+        if(ws_obj.state.items.length){
+            ws_obj.state.items.forEach(function(item, i){
+                var ref = 'item' + i;
+                var focused = i === focusIndex;
+                var editing = i === editingIndex;
+                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit))
+            });
+        }else {
+            $('.empty-worksheet').fadeIn();
+        }
         return (
-            <div id="worksheet_content">
+            <div id="worksheet_content" className={className}>
                 <div className="worksheet-name">
                     <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                     <div className="worksheet-author">{ws_obj.state.owner}</div>
@@ -293,6 +298,7 @@ var WorksheetItemList = React.createClass({
                 }
                 </div>
                 {worksheet_items}
+                <p className="empty-worksheet">This worksheet is empty</p>
             </div>
         )
     }
