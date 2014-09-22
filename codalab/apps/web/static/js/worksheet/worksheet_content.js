@@ -4,7 +4,9 @@ var WorksheetContent = function() {
     //init
     function WorksheetContent(url) {
         this.url = url;
+        this.needs_cleanup = false;
         this.state = {
+            edit_permission: true,
             last_item_id: 0,
             name: '',
             owner: null,
@@ -14,6 +16,34 @@ var WorksheetContent = function() {
         };
     }
     //add functions and calls below
+    WorksheetContent.prototype.getState = function() {
+        if(this.needs_cleanup){
+            this.cleanUp(); // removes any blank/null/undefined from our list of items
+            this.needs_cleanup = false;
+        }
+        return this.state;
+    };
+    WorksheetContent.prototype.cleanUp = function() {
+        //removes any falsy value, from the items array which should be only WorksheetItems
+        //usfeull when deleting out items, we set to null and cleanup
+        var newArray = new Array();
+        for(var i = 0; i < this.state.items.length; i++){
+            if (this.state.items[i]){
+                newArray.push(this.state.items[i]);
+            }
+        }
+        this.state.items = newArray;
+    };
+    WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
+        var ws1 = this.state.items.slice(0,newIndex);
+        var ws2 = this.state.items.slice(newIndex);
+        ws1.push(newItem);
+        this.state.items = ws1.concat(ws2);
+    };
+    WorksheetContent.prototype.setItem = function(index, newItem) {
+        this.state.items[index] = newItem;
+        this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's 
+    };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
         var consolidatedWorksheet = [];
         var markdownChunk         = '';
