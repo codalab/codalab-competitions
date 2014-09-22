@@ -1,7 +1,6 @@
 /** @jsx React.DOM */
 
 var Bundle = React.createClass({
-    mixins: [CheckboxMixin],
     getInitialState: function(){
         return {
             "data_hash": "",
@@ -25,15 +24,16 @@ var Bundle = React.createClass({
                 if(this.isMounted()){
                     this.setState(data);
                 }
-                $("#bundle-message").hide();
+                $("#bundle-message").hide().removeClass('alert-box alert');
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
                 if (xhr.status == 404) {
-                    $("#bundle").html("Bundle was not found.");
+                    $("#bundle-message").html("Bundle was not found.").addClass('alert-box alert');
                 } else {
-                    $("#bundle").html("An error occurred. Please try refreshing the page.");
+                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
                 }
+                $('#bundle-content').hide();
             }.bind(this)
         });
     },
