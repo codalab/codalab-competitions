@@ -7,7 +7,7 @@ var InlineBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(){
-        this.props.handleClick(this);
+        this.props.setFocus(this);
     },
     render: function() {
         var className = this.props.focused ? 'focused' : '';
