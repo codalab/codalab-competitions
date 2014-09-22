@@ -29,7 +29,6 @@ psutil==2.1.1
 python-openid==2.2.5
 python-ptrace==0.6.5
 pytz==2013b
-pyyaml
 PyYAML==3.10
 requests-oauthlib==0.3.2
 requests==1.2.3
