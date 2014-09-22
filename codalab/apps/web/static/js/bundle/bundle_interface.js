@@ -111,7 +111,21 @@ var BundleAttr = React.createClass({
             return false;
         }
     }
-})
+});
 
 React.renderComponent(<Bundle />, document.getElementById('bundle-content'));
+
+var FileBrowser = React.createClass({
+    render: function() {
+        return false;
+    }
+});
+
+var FileBrowserItem = React.createClass({
+    // Type can be 'file' or 'folder'
+    type: 'file',
+    render: function() {
+        return false;
+    }
+});
 
