@@ -92,7 +92,7 @@
   padding: 1em 0 1em 1.5em;
   border-left:4px solid #eee;
 }#worksheet_content .type-contents:not(.focused) blockquote{
-  background-color:#fafafa;
+  background-color:#fcfcfc;
 
 }
 #worksheet_content .type-contents blockquote p {
@@ -101,6 +101,15 @@
   margin:0;
   font-size:14px;
   line-height:1.5em;
+}
+#worksheet_content .type-worksheet a {
+  display:block;
+  height:2.5em;
+  line-height:2.5em;
+  padding:0 .5em 0 2.5em;
+  background: url('../img/icon_worksheet.png') no-repeat .25em #fcfcfc;
+  background-size:2em;
+
 }
 table.table {
   border-collapse: separate;
