@@ -59,6 +59,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def ls(self, uuid, path):
             return _call_with_retries(lambda: self.client.ls((uuid, path)))
 
+        def resolve_interpreted_items(self, interpreted_items):
+            return _call_with_retries(lambda: self.client.resolve_interpreted_items(('test', 'test')))
+
+        def get_worksheet_info(self):
+            return _call_with_retries(lambda: self.client.get_worksheet_info())
+
         MAX_BYTES = 1024*1024
         def read_file(self, uuid, path):
             fid = self.client.open_target((uuid, path))

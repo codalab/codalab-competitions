@@ -122,10 +122,10 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
     filter_class = serializers.CompetitionFilter
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)    
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
-    
+
     @method_decorator(login_required)
     def destroy(self, request, pk, *args, **kwargs):
         """
@@ -592,7 +592,7 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
         if phase_id:
             kw['phase__pk'] = phase_id
         if competition_id:
-            kw['phase__competition__pk'] = competition_id        
+            kw['phase__competition__pk'] = competition_id
         return self.queryset.filter(**kw)
 
 leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
@@ -601,7 +601,7 @@ leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'upda
 class LeaderBoardDataViewSet(views.APIView):
     """
     Provides a web API to get the leaderboard data for a phase of a competition
-    """    
+    """
     def get(self, request, *args, **kwargs):
         competition_id = self.kwargs.get('competition_id', None)
         phase_id = self.kwargs.get('phase_id', None)
@@ -744,6 +744,7 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
+            print 'tried getting items'
             return Response(item, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
@@ -764,7 +765,9 @@ class BundleContentApi(views.APIView):
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService(self.request.user)
         try:
-            items = service.ls(uuid, path)
+            #items = service.ls(uuid, path)
+            items = service.resolve_interpreted_items([1])
+            print 'tried getting contents'
             return Response(items)
         except Exception as e:
             logging.error(self.__str__())
