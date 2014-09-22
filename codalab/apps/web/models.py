@@ -32,7 +32,10 @@ from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
@@ -959,9 +962,32 @@ class CompetitionDefBundle(models.Model):
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
 
+        admin_names = None
+        if 'admin_names' in comp_base:
+            admin_names = comp_base['admin_names']
+            del comp_base['admin_names']
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
+
+        if admin_names:
+            logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
+            admins = User.objects.filter(username__in=admin_names.split(','))
+            logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
+            comp.admins.add(*admins)
+
+            logger.debug("CompetitionDefBundle::unpack adding admins as participants")
+            approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+
+            for admin in admins:
+                try:
+                    participant = CompetitionParticipant.objects.get(user=admin, competition=comp)
+                    participant.status = approved_status
+                    participant.save()
+                except models.ObjectDoesNotExist:
+                    CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
+
 
         # Unpack and save the logo
         if 'image' in comp_base:
@@ -1047,11 +1073,11 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["scoring_program"].endswith(".zip"):
                     phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.scoring_program.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['scoring_program']))[0]
                     if phase_spec['scoring_program'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
                         data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Scoring Program",
                             data_file=phase.scoring_program.file.name,
                             uploaded_by=self.owner
@@ -1067,11 +1093,11 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["reference_data"].endswith(".zip"):
                     phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.reference_data.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['reference_data']))[0]
                     if phase_spec['reference_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
                         data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Reference Data",
                             data_file=phase.reference_data.file.name,
                             uploaded_by=self.owner
@@ -1087,11 +1113,11 @@ class CompetitionDefBundle(models.Model):
                 if phase_spec["input_data"].endswith(".zip"):
                     phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
 
-                    file_name = os.path.splitext(os.path.basename(phase.input_data.file.name))[0]
+                    file_name = os.path.splitext(os.path.basename(phase_spec['input_data']))[0]
                     if phase_spec['input_data'] not in data_set_cache:
                         logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
                         data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
-                            name="%s_%s" % (file_name, comp.pk),
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
                             type="Input Data",
                             data_file=phase.input_data.file.name,
                             uploaded_by=self.owner
