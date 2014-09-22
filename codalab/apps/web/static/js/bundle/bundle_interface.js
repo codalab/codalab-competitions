@@ -10,7 +10,8 @@ var Bundle = React.createClass({
             "dependencies": [],
             "command": null,
             "bundle_type": "",
-            "metadata": {}
+            "metadata": {},
+            "files": {}
         };
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
@@ -36,13 +37,22 @@ var Bundle = React.createClass({
             }.bind(this)
         });
     },
+    expandDetails: function() {
+        alert('shiiiii');
+    },
     render: function() {
         var metadata = this.state.metadata;
-        var bundleAttrs = []
+
+
+        console.log(metadata);
+
+
+        var bundleAttrs = [];
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} />);
-        };
-        bundle_download_url = "/bundles/" + this.state.uuid + "/download"
+        }
+        bundle_download_url = "/bundles/" + this.state.uuid + "/download";
+
         return (
             <div className="row">
                 <div className="large-12 columns">
@@ -73,9 +83,9 @@ var Bundle = React.createClass({
                                 {bundleAttrs}
                             </tbody>
                         </table>
-                        <a href="" className="bundle__expand_button">
+                        <div className="bundle__expand_button" onClick={this.expandDetails}>
                             <img src="/static/img/expand-arrow.png" alt="More" />
-                        </a>
+                        </div>
                         <div className="bundle-file-view-container large-12-columns"></div>
                     </div>
                 </div>

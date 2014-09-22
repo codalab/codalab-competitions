@@ -2790,6 +2790,7 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .bundle__expand_button {
     float: right;
     font-size: 11px;
+    cursor: pointer;
 }
 .bundle__expand_button.expanded img {
     -webkit-transform: rotate(180deg);
