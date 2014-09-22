@@ -100,10 +100,12 @@ var WorksheetList = React.createClass({
         });
     },
     componentDidUpdate: function(){
-        // scroll the window to keep the focused element in view
-        var itemNode = this.refs['ws' + this.state.focusIndex].getDOMNode();
-        if(itemNode.offsetTop > window.innerHeight / 2){
-            window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+        if(this.state.worksheets.length){
+            // scroll the window to keep the focused element in view
+            var itemNode = this.refs['ws' + this.state.focusIndex].getDOMNode();
+            if(itemNode.offsetTop > window.innerHeight / 2){
+                window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
+            }
         }
     },
     goToFocusedWorksheet: function(){
@@ -149,11 +151,15 @@ var WorksheetList = React.createClass({
         var worksheets = this.filterWorksheets(this.props.filter);
         // if there's only one worksheet, it should always be focused
         var focusIndex = worksheets.length > 1 ? this.state.focusIndex : 0;
-        var worksheetList = worksheets.map(function(worksheet, index){
-            var wsID = 'ws' + index;
-            var focused = focusIndex === index;
-            return <Worksheet details={worksheet} focused={focused} ref={wsID} key={index} />
-        });
+        if(worksheets.length){
+            var worksheetList = worksheets.map(function(worksheet, index){
+                var wsID = 'ws' + index;
+                var focused = focusIndex === index;
+                return <Worksheet details={worksheet} focused={focused} ref={wsID} key={index} />
+            });
+        } else {
+            worksheetList = 'No worksheets matched your criteria'
+        }
         return (
             <div id="worksheet-list">
                 <label className="my-worksheets-toggle">
