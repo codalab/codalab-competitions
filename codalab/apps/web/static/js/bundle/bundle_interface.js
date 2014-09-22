@@ -10,8 +10,12 @@ var Bundle = React.createClass({
             "dependencies": [],
             "command": null,
             "bundle_type": "",
-            "metadata": {}
+            "metadata": {},
+            "editing": false
         };
+    },
+    toggleEditing: function(){
+        this.setState({editing:!this.state.editing});
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
@@ -38,10 +42,16 @@ var Bundle = React.createClass({
         });
     },
     render: function() {
+        var footer;
         var metadata = this.state.metadata;
-        var bundleAttrs = []
+        var bundleAttrs = [];
+        var editing = this.state.editing;
+        var editButtonText = editing ? 'save' : 'edit';
+        if(editing){
+            footer = <tfoot><tr><td colSpan="2"><button>+ add row</button></td></tr></tfoot>
+        }
         for(var k in metadata) {
-            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} />);
+            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
         };
         bundle_download_url = "/bundles/" + this.state.uuid + "/download"
         return (
@@ -68,11 +78,15 @@ var Bundle = React.createClass({
                         </p>
                         <h4>
                             metadata
+                            <button className="button secondary" onClick={this.toggleEditing}>
+                                {editButtonText}
+                            </button>
                         </h4>
                         <table className="table">
                             <tbody>
                                 {bundleAttrs}
                             </tbody>
+                            {footer}
                         </table>
                         <a href="" className="bundle__expand_button">
                             <img src="/static/img/expand-arrow.png" alt="More" />
@@ -88,16 +102,29 @@ var Bundle = React.createClass({
 var BundleAttr = React.createClass({
     render: function(){
         if(this.props.key !== 'description' && this.props.val !== ''){
-            return (
-                <tr>
-                    <th>
-                        {this.props.key}
-                    </th>
-                    <td>
-                        {this.props.val}
-                    </td>
-                </tr>
-            );
+            if(this.props.editing){
+                return (
+                    <tr>
+                        <th>
+                            <input type="text" defaultValue={this.props.key} />
+                        </th>
+                        <td>
+                            <input type="text" defaultValue={this.props.val} />
+                        </td>
+                    </tr>
+                )
+            } else {
+                return (
+                    <tr>
+                        <th>
+                            {this.props.key}
+                        </th>
+                        <td>
+                            {this.props.val}
+                        </td>
+                    </tr>
+                );
+            }
         }else {
             return false;
         }

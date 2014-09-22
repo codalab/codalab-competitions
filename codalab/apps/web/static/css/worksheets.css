@@ -260,3 +260,12 @@ body.yellow {
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
 }
+
+#bundle-content .bundle-tile h4 .button {
+  font-size: .5em;
+  margin-bottom: 0;
+  line-height: 1.4em;
+  padding: .25em .5em;
+  vertical-align: middle;
+  margin-left: 1em;
+}
