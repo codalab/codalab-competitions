@@ -3,10 +3,10 @@
   padding-top:49px;
 }
 #worksheet-message {
-  padding-top:30px;
+  margin-bottom:2em;
 }
-#bundle-message {
-  padding:20px 0;
+#worksheet-message.ws-detail {
+  margin-top:2em;
 }
 #worksheet_content {
   line-height:1.2em;
@@ -14,9 +14,22 @@
 #worksheet_content .hidden {
   display:none;
 }
+#worksheet_content .ws-item {
+  position:relative;
+}
+#worksheet_content.editable .ws-item {
+  margin-left:1.5em;
+}
+#worksheet_content .ws-item .ws-checkbox {
+  margin:0;
+  position:absolute;
+  left:-1.5em;
+  top:0.25em;
+}
 #worksheet_content .empty-worksheet {
   color:#a4a4a4;
   text-align:center;
+  display:none;
 }
 #worksheet_content .worksheet-name {
   border-bottom:1px solid #ddd;
@@ -43,7 +56,7 @@
 #worksheet_content h3 {
   font-size:1.25em;
 }
-#worksheet_content > .focused {
+#worksheet_content .ws-item > .focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
@@ -79,7 +92,7 @@
   padding: 1em 0 1em 1.5em;
   border-left:4px solid #eee;
 }#worksheet_content .type-contents:not(.focused) blockquote{
-  background-color:#fafafa;
+  background-color:#fcfcfc;
 
 }
 #worksheet_content .type-contents blockquote p {
@@ -88,6 +101,15 @@
   margin:0;
   font-size:14px;
   line-height:1.5em;
+}
+#worksheet_content .type-worksheet a {
+  display:block;
+  height:2.5em;
+  line-height:2.5em;
+  padding:0 .5em 0 2.5em;
+  background: url('../img/icon_worksheet.png') no-repeat .25em #fcfcfc;
+  background-size:2em;
+
 }
 table.table {
   border-collapse: separate;

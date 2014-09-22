@@ -6,7 +6,7 @@
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <div id="worksheet-message">
+        <div id="worksheet-message" class="ws-detail">
             <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
         </div>
         <div id="worksheet_container">
@@ -44,6 +44,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
 
 <script>
 MathJax.Hub.Config({

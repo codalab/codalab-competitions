@@ -1,9 +1,15 @@
 /** @jsx React.DOM */
 
 var MarkdownBundle = React.createClass({
+    mixins: [CheckboxMixin],
     getInitialState: function(){
-        this.props.item.state.lines = this.props.item.state.interpreted.split(/\r\n|\r|\n/).length;
-        return this.props.item.state;
+        return {
+            lines: this.props.item.state.interpreted.split(/\r\n|\r|\n/).length,
+            checked: false
+        }
+    },
+    keysToHandle: function(){
+        return['esc','enter']
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
@@ -11,6 +17,9 @@ var MarkdownBundle = React.createClass({
             switch (key) {
                 case 'esc':
                     this._owner.setState({editingIndex: -1});
+                    if(!$(this.getDOMNode()).find('textarea').val().length){
+                        this._owner.unInsert();
+                    }
                     break;
                 case 'enter':
                     if(event.ctrlKey || event.metaKey){
@@ -26,11 +35,7 @@ var MarkdownBundle = React.createClass({
         }
     },
     saveEditedItem: function(textarea){
-        console.log('------ save the worksheet here ------');
-        this.setState({interpreted: textarea.value});
-        // Callback to <Worksheet /> to reset editing
-        this._owner.setState({editingIndex: -1});
-        ws_actions.doSave();
+        this.props.handleSave(textarea);
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
@@ -38,26 +43,40 @@ var MarkdownBundle = React.createClass({
             MathJax.Hub,
             this.getDOMNode()
         ]);
+        if(this.props.editing){
+            $(this.getDOMNode()).find('textarea').focus();
+        }
     },
     componentDidUpdate: function(){
         if(this.props.editing){
-            this.getDOMNode().focus();
+            $(this.getDOMNode()).find('textarea').focus();
         }
     },
+    handleClick: function(){
+        this.props.setFocus(this);
+    },
     render: function() {
-        var className = this.props.focused ? 'focused' : '';
+        var content = this.props.item.state.interpreted;
+        var className = 'type-markup' + (this.props.focused ? ' focused' : '');
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         if (this.props.editing){
             return(
-                <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={this.state.interpreted} />
+                <div className="ws-item" onClick={this.handleClick}>
+                    {checkbox}
+                    <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={content} />
+                </div>
             )
         }else {
-        var text = marked(this.state.interpreted);
+        var text = marked(content);
         // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
         // http://facebook.github.io/react/docs/special-non-dom-attributes.html
         // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
         return(
-            <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+            <div className="ws-item" onClick={this.handleClick}>
+                {checkbox}
+                <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+            </div>
         );
         }
     } // end of render function
