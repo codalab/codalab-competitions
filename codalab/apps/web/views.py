@@ -591,7 +591,7 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     template_name = 'web/my/detailed_results.html'
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username, 'filename':submission.detailed_results_file.name}
+        context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
@@ -935,6 +935,19 @@ def download_dataset(request, dataset_key):
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+def datasets_delete_multiple(request):
+    ids_to_delete = request.POST.getlist("ids_to_delete[]", [])
+
+    for dataset_id in ids_to_delete:
+        try:
+            dataset = models.OrganizerDataSet.objects.get(pk=int(dataset_id), uploaded_by=request.user)
+            dataset.delete()
+        except:
+            pass
+
+    return HttpResponse()
 
 
 def system_monitoring(request):
