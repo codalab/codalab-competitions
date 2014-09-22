@@ -1,4 +1,7 @@
 {
+    "aliases": {
+        "localhost": "http://localhost:2800"
+    },
     "home": "~/.codalab",
     "client": {
         "class": "LocalBundleClient"
