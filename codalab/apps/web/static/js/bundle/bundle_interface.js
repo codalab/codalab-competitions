@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 var Bundle = React.createClass({
+    mixins: [CheckboxMixin],
     getInitialState: function(){
         return {
             "data_hash": "",

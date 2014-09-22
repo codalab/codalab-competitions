@@ -1,10 +1,18 @@
 /** @jsx React.DOM */
 
 var RecordBundle = React.createClass({
-    mixins: [TableMixin],
+    mixins: [TableMixin, CheckboxMixin],
+    getInitialState: function(){
+        this.props.item.state.checked = false;
+        return this.props.item.state;
+    },
+    handleClick: function(){
+        this.props.handleClick(this);
+    },
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-record' + (this.props.focused ? ' focused' : '');
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
@@ -24,11 +32,14 @@ var RecordBundle = React.createClass({
             )
         });
         return (
-            <table className={className}>
-                <tbody>
-                    {items}
-                </tbody>
-            </table>
+            <div className="ws-item" onClick={this.handleClick}>
+                {checkbox}
+                <table className={className}>
+                    <tbody>
+                        {items}
+                    </tbody>
+                </table>
+            </div>
         );
     } // end of render function
 }); //end of  RecordBundle
