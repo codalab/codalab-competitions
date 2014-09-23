@@ -260,7 +260,13 @@ body.yellow {
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
 }
-
+#metadata_table input {
+  margin-bottom:0;
+}
+#metadata_table.editing tr td,
+#metadata_table.editing tr th {
+  padding:.25em;
+}
 #bundle-content .bundle-tile h4 .button {
   font-size: .5em;
   margin-bottom: 0;
