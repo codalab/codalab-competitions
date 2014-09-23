@@ -17,6 +17,19 @@ var Bundle = React.createClass({
     toggleEditing: function(){
         this.setState({editing:!this.state.editing});
     },
+    saveMetadata: function(){
+        var newMetadata = {}
+        $('#metadata_table tr').each(function(){
+            var kInput = $(this).find('input[name="k"]');
+            var vInput = $(this).find('input[name="v"]');
+            var vInputVal = $(vInput).val().length ? $(vInput).val() : null;
+            newMetadata[$(kInput).val()] = vInputVal;
+        });
+        this.setState({
+            editing:false,
+            metadata: newMetadata
+        });
+    },
     componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
             type: "GET",
@@ -42,13 +55,14 @@ var Bundle = React.createClass({
         });
     },
     render: function() {
-        var footer;
+        var saveButton;
         var metadata = this.state.metadata;
         var bundleAttrs = [];
         var editing = this.state.editing;
-        var editButtonText = editing ? 'save' : 'edit';
+        var tableClassName = 'table' + (editing ? ' editing' : '');
+        var editButtonText = editing ? 'cancel' : 'edit';
         if(editing){
-            footer = <tfoot><tr><td colSpan="2"><button>+ add row</button></td></tr></tfoot>
+            saveButton = <button className="button primary" onClick={this.saveMetadata}>save</button>
         }
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
@@ -81,12 +95,12 @@ var Bundle = React.createClass({
                             <button className="button secondary" onClick={this.toggleEditing}>
                                 {editButtonText}
                             </button>
+                            {saveButton}
                         </h4>
-                        <table className="table">
+                        <table id="metadata_table" className={tableClassName}>
                             <tbody>
                                 {bundleAttrs}
                             </tbody>
-                            {footer}
                         </table>
                         <a href="" className="bundle__expand_button">
                             <img src="/static/img/expand-arrow.png" alt="More" />
@@ -106,10 +120,10 @@ var BundleAttr = React.createClass({
                 return (
                     <tr>
                         <th>
-                            <input type="text" defaultValue={this.props.key} />
+                            <input name="k" type="text" defaultValue={this.props.key} />
                         </th>
                         <td>
-                            <input type="text" defaultValue={this.props.val} />
+                            <input name="v" type="text" defaultValue={this.props.val} />
                         </td>
                     </tr>
                 )
