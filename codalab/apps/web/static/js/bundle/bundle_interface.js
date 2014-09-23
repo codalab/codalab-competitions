@@ -23,13 +23,38 @@ var Bundle = React.createClass({
             var key = $(this).attr('name');
             var type = $(this).attr('rel');
             var val = $(this).val();
-            console.log('val ' + val + ' should be a ' + type);
+            switch (type){
+                case 'number':
+                    if(val % 1 === 0){
+                        val = parseInt(val);
+                    }else {
+                        val = parseFloat(val);
+                    }
+                    break;
+                case 'array':
+                    if(val.length){
+                        if(val.indexOf(',') > -1){
+                            val = val.split(',');
+                            for (var i = 0; i < val.length; i++)
+                                val[i] = val[i].trim();
+                        }else {
+                            val = [val]
+                        }
+                    }else {
+                        val = []
+                    }
+                default:
+                    val = val;
+            }
             metadata[key] = val;
         });
         this.setState({
             editing:false,
             metadata: metadata
         });
+        console.log('------ save the bundle here ------');
+        console.log('new metadata:');
+        console.log(metadata);
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
@@ -117,33 +142,33 @@ var Bundle = React.createClass({
 var BundleAttr = React.createClass({
     render: function(){
         var type = typeof(this.props.val);
+        var defaultVal = this.props.val;
         if(type == 'object' && this.props.val instanceof Array){
             type = 'array';
+            defaultVal = this.props.val.join(', ');
         }
-        if(this.props.key !== 'description' && this.props.val !== ''){
-            if(this.props.editing){
-                return (
-                    <tr>
-                        <th>
-                            {this.props.key}
-                        </th>
-                        <td>
-                            <input name={this.props.key} type="text" defaultValue={this.props.val} rel={type} />
-                        </td>
-                    </tr>
-                )
-            } else {
-                return (
-                    <tr>
-                        <th>
-                            {this.props.key}
-                        </th>
-                        <td>
-                            {this.props.val}
-                        </td>
-                    </tr>
-                );
-            }
+        if(this.props.key !== 'description' && !this.props.editing){
+            return (
+                <tr>
+                    <th>
+                        {this.props.key}
+                    </th>
+                    <td>
+                        {defaultVal}
+                    </td>
+                </tr>
+            );
+        } else if(this.props.editing){
+            return (
+                <tr>
+                    <th>
+                        {this.props.key}
+                    </th>
+                    <td>
+                        <input name={this.props.key} type="text" defaultValue={defaultVal} rel={type} />
+                    </td>
+                </tr>
+            )
         }else {
             return false;
         }
