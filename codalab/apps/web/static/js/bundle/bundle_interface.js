@@ -18,16 +18,15 @@ var Bundle = React.createClass({
         this.setState({editing:!this.state.editing});
     },
     saveMetadata: function(){
-        var newMetadata = {}
-        $('#metadata_table tr').each(function(){
-            var kInput = $(this).find('input[name="k"]');
-            var vInput = $(this).find('input[name="v"]');
-            var vInputVal = $(vInput).val().length ? $(vInput).val() : null;
-            newMetadata[$(kInput).val()] = vInputVal;
+        var metadata = this.state.metadata;
+        $('#metadata_table input').each(function(){
+            var key = $(this).attr('name');
+            var val = $(this).val();
+            metadata[key] = val;
         });
         this.setState({
             editing:false,
-            metadata: newMetadata
+            metadata: metadata
         });
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
@@ -120,10 +119,10 @@ var BundleAttr = React.createClass({
                 return (
                     <tr>
                         <th>
-                            <input name="k" type="text" defaultValue={this.props.key} />
+                            {this.props.key}
                         </th>
                         <td>
-                            <input name="v" type="text" defaultValue={this.props.val} />
+                            <input name={this.props.key} type="text" defaultValue={this.props.val} />
                         </td>
                     </tr>
                 )
