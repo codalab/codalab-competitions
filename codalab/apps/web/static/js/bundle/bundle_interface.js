@@ -21,7 +21,9 @@ var Bundle = React.createClass({
         var metadata = this.state.metadata;
         $('#metadata_table input').each(function(){
             var key = $(this).attr('name');
+            var type = $(this).attr('rel');
             var val = $(this).val();
+            console.log('val ' + val + ' should be a ' + type);
             metadata[key] = val;
         });
         this.setState({
@@ -114,6 +116,10 @@ var Bundle = React.createClass({
 
 var BundleAttr = React.createClass({
     render: function(){
+        var type = typeof(this.props.val);
+        if(type == 'object' && this.props.val instanceof Array){
+            type = 'array';
+        }
         if(this.props.key !== 'description' && this.props.val !== ''){
             if(this.props.editing){
                 return (
@@ -122,7 +128,7 @@ var BundleAttr = React.createClass({
                             {this.props.key}
                         </th>
                         <td>
-                            <input name={this.props.key} type="text" defaultValue={this.props.val} />
+                            <input name={this.props.key} type="text" defaultValue={this.props.val} rel={type} />
                         </td>
                     </tr>
                 )
