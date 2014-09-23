@@ -139,6 +139,9 @@ def predict(submission, job_id):
     # Generate metadata-only bundle describing the computation
     lines = []
     program_value = submission.file.name
+
+    import ipdb; ipdb.set_trace()
+
     if len(program_value) > 0:
         lines.append("program: %s" % program_value)
     else:
@@ -146,9 +149,6 @@ def predict(submission, job_id):
     input_value = submission.phase.input_data.name
 
     logger.info("Running prediction")
-
-    # Do this save before we modify files
-    submission.save()
 
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
@@ -161,7 +161,7 @@ def predict(submission, job_id):
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    submission.save('stderr.txt', ContentFile('\n'.join(lines)))
+    #submission.save('stderr.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
@@ -171,9 +171,9 @@ def predict(submission, job_id):
         "id" : job_id,
         "task_type": "run",
         "task_args": {
-            "bundle_id" : submission.prediction_runfile.name,
-            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "bundle_id": submission.prediction_runfile.name,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
             "execution_time_limit": submission.phase.execution_time_limit
         }
     })
