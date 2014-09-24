@@ -667,7 +667,7 @@ class WorksheetsListApi(views.APIView):
             if len(user_ids) > 0:
                 users = ClUser.objects.filter(id__in=user_ids)
                 for user in users:
-                    for worksheet in user_id_to_worksheets[int(user.id)]:
+                    for worksheet in user_id_to_worksheets[str(user.id)]:
                         worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
