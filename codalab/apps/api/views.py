@@ -762,12 +762,13 @@ class BundleContentApi(views.APIView):
     """
     Provides a web API to browse the content of a bundle.
     """
-    def get(self, request, uuid, path):
+    def get(self, request, uuid, path=''):
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService(self.request.user)
         try:
-            items = service.ls(uuid, path)
+            target = (uuid, path)
+            items = service.get_target_info(target, 2)
             return Response(items)
         except Exception as e:
             logging.error(self.__str__())
@@ -777,6 +778,7 @@ class BundleContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
+            return Response({'error': smart_str(e)})
             return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
