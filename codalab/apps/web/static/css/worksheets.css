@@ -91,7 +91,17 @@
 #worksheet_content .type-contents blockquote {
   padding: 1em 0 1em 1.5em;
   border-left:4px solid #eee;
-}#worksheet_content .type-contents:not(.focused) blockquote{
+}
+#worksheet_content .type-html .html-bundle {
+  padding: 1em;
+  margin-bottom:1.5em;
+  border:1px solid #eee;
+  background-color:#fff;
+}
+#worksheet_content .type-html.focused .html-bundle {
+  background-color:#FFFEF4;
+}
+#worksheet_content .type-contents:not(.focused) blockquote{
   background-color:#fcfcfc;
 
 }
@@ -260,8 +270,12 @@ body.yellow {
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
 }
+#metadata_table {
+  width:100%;
+}
 #metadata_table input {
   margin-bottom:0;
+  width:100%;
 }
 #metadata_table.editing tr td,
 #metadata_table.editing tr th {
@@ -275,3 +289,4 @@ body.yellow {
   vertical-align: middle;
   margin-left: 1em;
 }
+#bundle-content .bundle-tile
