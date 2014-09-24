@@ -99,11 +99,15 @@ var Bundle = React.createClass({
                             </button>
                             {saveButton}
                         </h4>
-                        <table id="metadata_table" className={tableClassName}>
-                            <tbody>
-                                {bundleAttrs}
-                            </tbody>
-                        </table>
+                        <div className="row">
+                            <div className="large-6 columns">
+                                <table id="metadata_table" className={tableClassName}>
+                                    <tbody>
+                                        {bundleAttrs}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                         <a href="" className="bundle__expand_button">
                             <img src="/static/img/expand-arrow.png" alt="More" />
                         </a>
@@ -121,7 +125,7 @@ var BundleAttr = React.createClass({
         if(this.props.key !== 'description' && !this.props.editing){
             return (
                 <tr>
-                    <th>
+                    <th width="33%">
                         {this.props.key}
                     </th>
                     <td>
@@ -132,7 +136,7 @@ var BundleAttr = React.createClass({
         } else if(this.props.editing){
             return (
                 <tr>
-                    <th>
+                    <th width="33%">
                         {this.props.key}
                     </th>
                     <td>
