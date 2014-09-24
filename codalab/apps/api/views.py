@@ -768,11 +768,8 @@ class BundleContentApi(views.APIView):
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService(self.request.user)
         try:
-            #items = service.ls(uuid, path)
-            #items = service.resolve_interpreted_items([1])
-            items = {'type': 'directory', 'name': u'0x0d73e6989e91906b5ce36bde2c76f72dc5f3685b',
-                     'contents': [{'type': 'file', 'name': u'.DS_Store', 'size': 6148}, {'type': 'file', 'name': u'AXKPnB8.png', 'size': 196340}, {'type': 'file', 'name': u'ds.txt', 'size': 23}, {'type': 'directory', 'name': u'inner'}, {'type': 'file', 'name': u'output.txt', 'size': 23}]}
-            print 'tried getting contents'
+            items = service.ls(uuid, path)
+           
             return Response(items)
         except Exception as e:
             logging.error(self.__str__())
