@@ -270,8 +270,12 @@ body.yellow {
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
 }
+#metadata_table {
+  width:100%;
+}
 #metadata_table input {
   margin-bottom:0;
+  width:100%;
 }
 #metadata_table.editing tr td,
 #metadata_table.editing tr th {
@@ -285,3 +289,4 @@ body.yellow {
   vertical-align: middle;
   margin-left: 1em;
 }
+#bundle-content .bundle-tile
