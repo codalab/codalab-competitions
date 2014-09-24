@@ -21,31 +21,7 @@ var Bundle = React.createClass({
         var metadata = this.state.metadata;
         $('#metadata_table input').each(function(){
             var key = $(this).attr('name');
-            var type = $(this).attr('rel');
             var val = $(this).val();
-            switch (type){
-                case 'number':
-                    if(val % 1 === 0){
-                        val = parseInt(val);
-                    }else {
-                        val = parseFloat(val);
-                    }
-                    break;
-                case 'array':
-                    if(val.length){
-                        if(val.indexOf(',') > -1){
-                            val = val.split(',');
-                            for (var i = 0; i < val.length; i++)
-                                val[i] = val[i].trim();
-                        }else {
-                            val = [val]
-                        }
-                    }else {
-                        val = []
-                    }
-                default:
-                    val = val;
-            }
             metadata[key] = val;
         });
         this.setState({
@@ -141,12 +117,7 @@ var Bundle = React.createClass({
 
 var BundleAttr = React.createClass({
     render: function(){
-        var type = typeof(this.props.val);
         var defaultVal = this.props.val;
-        if(type == 'object' && this.props.val instanceof Array){
-            type = 'array';
-            defaultVal = this.props.val.join(', ');
-        }
         if(this.props.key !== 'description' && !this.props.editing){
             return (
                 <tr>
@@ -165,7 +136,7 @@ var BundleAttr = React.createClass({
                         {this.props.key}
                     </th>
                     <td>
-                        <input name={this.props.key} type="text" defaultValue={defaultVal} rel={type} />
+                        <input name={this.props.key} type="text" defaultValue={defaultVal} />
                     </td>
                 </tr>
             )
