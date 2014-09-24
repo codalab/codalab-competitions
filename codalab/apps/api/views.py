@@ -758,6 +758,29 @@ class BundleInfoApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+    def post(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService(self.request.user)
+
+        try:
+            item = service.item(uuid)
+            if item['owner_id'] == str(self.request.user.id):
+                new_metadata = request.POST['new_metadata']
+                service.update_bundle_metadata(uuid, new_metadata)
+                # update and return
+                item = service.update_bundle_metadata(uuid)
+            return Response(item, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
 class BundleContentApi(views.APIView):
     """
     Provides a web API to browse the content of a bundle.
