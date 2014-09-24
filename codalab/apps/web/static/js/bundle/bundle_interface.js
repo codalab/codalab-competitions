@@ -54,6 +54,8 @@ var Bundle = React.createClass({
         }
         bundle_download_url = "/bundles/" + this.state.uuid + "/download";
 
+        var fileBrowser = <FileBrowser />;
+
         return (
             <div className="row">
                 <div className="large-12 columns">
@@ -87,7 +89,9 @@ var Bundle = React.createClass({
                         <div className="bundle__expand_button" onClick={this.expandDetails}>
                             <img src="/static/img/expand-arrow.png" alt="More" />
                         </div>
-                        <div className="bundle-file-view-container large-12-columns"></div>
+                        <div className="bundle-file-view-container large-12-columns">
+                            {fileBrowser}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,11 +118,18 @@ var BundleAttr = React.createClass({
     }
 });
 
-React.renderComponent(<Bundle />, document.getElementById('bundle-content'));
-
 var FileBrowser = React.createClass({
     render: function() {
-        return false;
+        var items = [];
+
+        items.push(<FileBrowserItem name='test1.py' />);
+        items.push(<FileBrowserItem name='test2.py' />);
+
+        return (
+            <div class="blehblargblorp">
+                {items}
+            </div>
+        );
     }
 });
 
@@ -126,7 +137,10 @@ var FileBrowserItem = React.createClass({
     // Type can be 'file' or 'folder'
     type: 'file',
     render: function() {
-        return false;
+        return (
+            <b>{this.props.name}</b>
+        );
     }
 });
 
+React.renderComponent(<Bundle />, document.getElementById('bundle-content'));
