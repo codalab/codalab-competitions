@@ -319,6 +319,9 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
         case 'contents':
             return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
+        case 'html':
+            return <HTMLBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            break;
         case 'record':
             return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
