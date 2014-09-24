@@ -950,5 +950,15 @@ def datasets_delete_multiple(request):
     return HttpResponse()
 
 
-def system_monitoring(request):
-    pass
+def download_competition_yaml(request, competition_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            return HttpResponse(status=403)
+
+        response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
+        response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
+        return response
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
