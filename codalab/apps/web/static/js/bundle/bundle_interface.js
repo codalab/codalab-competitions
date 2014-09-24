@@ -138,8 +138,8 @@ var FileBrowser = React.createClass({
     render: function() {
         var items = [];
 
-        items.push(<FileBrowserItem key='test1.py' />);
-        items.push(<FileBrowserItem key='test2.py' />);
+        items.push(<FileBrowserItem key='test1.py' type="file" />);
+        items.push(<FileBrowserItem key='test2.py' type="directory" />);
 
         return (
             <div className="row">
@@ -162,13 +162,17 @@ var FileBrowser = React.createClass({
 });
 
 var FileBrowserItem = React.createClass({
-    // Type can be 'file' or 'folder'
-    type: 'file',
     render: function() {
+        // Type can be 'file' or 'folder'
+        var icon = "directory icon";
+        if(this.props.type == "file") {
+            icon = "my-file-class"
+        }
+
         return (
             <tr>
                 <td>
-                    (icon file or folder) <a href="#">{this.props.key}</a> click this to view file OR if folder go there
+                    {icon} <a href="#">{this.props.key}</a> click this to view file OR if folder go there
                 </td>
             </tr>
         );
