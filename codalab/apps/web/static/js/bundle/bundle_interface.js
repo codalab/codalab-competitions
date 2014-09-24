@@ -11,7 +11,8 @@ var Bundle = React.createClass({
             "command": null,
             "bundle_type": "",
             "metadata": {},
-            "files": {}
+            "files": {},
+            "showFileBrowser": false
         };
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
@@ -38,15 +39,29 @@ var Bundle = React.createClass({
             }.bind(this)
         });
     },
-    expandDetails: function() {
-        alert('shiiiii');
+    toggleFileBrowser: function() {
+        $.ajax({
+            type: "GET",
+            //  /api/bundles/0x706<...>d5b66e
+            url: document.location.pathname.replace('/bundles/', '/api/bundles/content/') + '/', //extra slash at end means root dir
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log(data);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                if (xhr.status != 404) {
+                    $("#bundle-message").html("Bundle was not found.").addClass('alert-box alert');
+                } else {
+                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                }
+                $('.bundle-file-view-container').hide();
+            }.bind(this)
+        });
+        this.setState({"showFileBrowser": !this.state.showFileBrowser});
     },
     render: function() {
         var metadata = this.state.metadata;
-
-
-        console.log(metadata);
-
 
         var bundleAttrs = [];
         for(var k in metadata) {
@@ -86,12 +101,13 @@ var Bundle = React.createClass({
                                 {bundleAttrs}
                             </tbody>
                         </table>
-                        <div className="bundle__expand_button" onClick={this.expandDetails}>
+                        <div className="bundle__expand_button" onClick={this.toggleFileBrowser}>
                             <img src="/static/img/expand-arrow.png" alt="More" />
                         </div>
-                        <div className="bundle-file-view-container large-12-columns">
-                            {fileBrowser}
-                        </div>
+                    </div>
+
+                    <div class="bundle-file-view-container">
+                        {this.state.showFileBrowser ? fileBrowser : null}
                     </div>
                 </div>
             </div>
@@ -122,12 +138,24 @@ var FileBrowser = React.createClass({
     render: function() {
         var items = [];
 
-        items.push(<FileBrowserItem name='test1.py' />);
-        items.push(<FileBrowserItem name='test2.py' />);
+        items.push(<FileBrowserItem key='test1.py' />);
+        items.push(<FileBrowserItem key='test2.py' />);
 
         return (
-            <div class="blehblargblorp">
-                {items}
+            <div className="row">
+                <div className="large-12 columns">
+                    <div className="bundle-tile">
+                        <h4><b>File Browser</b></h4>
+                        <table>
+                            <thead>
+                                <th>File name</th>
+                            </thead>
+                            <tbody>
+                                {items}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -138,7 +166,11 @@ var FileBrowserItem = React.createClass({
     type: 'file',
     render: function() {
         return (
-            <b>{this.props.name}</b>
+            <tr>
+                <td>
+                    (icon file or folder) <a href="#">{this.props.key}</a> click this to view file OR if folder go there
+                </td>
+            </tr>
         );
     }
 });
