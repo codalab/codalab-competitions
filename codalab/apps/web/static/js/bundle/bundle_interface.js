@@ -14,26 +14,57 @@ var Bundle = React.createClass({
             "files": {},
             "fileBrowserData": "",
             "currentWorkingDirectory": "",
-            "editing": false
+            "editing": false,
+            "permission": false
         };
     },
     toggleEditing: function(){
         this.setState({editing:!this.state.editing});
     },
     saveMetadata: function(){
-        var metadata = this.state.metadata;
+        var new_metadata = this.state.metadata;
         $('#metadata_table input').each(function(){
             var key = $(this).attr('name');
             var val = $(this).val();
-            metadata[key] = val;
+            new_metadata[key] = val;
         });
-        this.setState({
-            editing:false,
-            metadata: metadata
-        });
+
         console.log('------ save the bundle here ------');
         console.log('new metadata:');
-        console.log(metadata);
+        console.log(new_metadata);
+        var postdata = {
+            'metadata': new_metadata,
+            'uuid': this.state.uuid
+        };
+
+        $.ajax({
+            type: "POST",
+            cache: false,
+            //  /api/bundles/0x706<...>d5b66e
+            url: "/api" + document.location.pathname,
+            contentType:"application/json; charset=utf-8",
+            dataType:"json",
+            data: JSON.stringify(postdata),
+            success: function(data) {
+                console.log('success')
+                console.log(data)
+                if('error' in data){
+                    $("#bundle-message").html(data['error']).addClass('alert-box alert');
+                    $("#bundle-message").show()
+                }else{
+                    this.setState(data);
+                    this.setState({
+                         editing:false,
+                    });
+                    $("#bundle-message").hide().removeClass('alert-box alert');
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+                $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                $("#bundle-message").show()
+            }.bind(this)
+        });
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
@@ -122,7 +153,7 @@ var Bundle = React.createClass({
     render: function() {
         var saveButton;
         var metadata = this.state.metadata;
-
+        var bundle_download_url = "/bundles/" + this.state.uuid + "/download";
         var bundleAttrs = [];
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
@@ -133,10 +164,22 @@ var Bundle = React.createClass({
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
         }
-        var bundle_download_url = "/bundles/" + this.state.uuid + "/download";
 
-        var fileBrowser = <FileBrowser fileBrowserData={this.state.fileBrowserData} updateFileBrowser={this.updateFileBrowser} currentWorkingDirectory={this.state.currentWorkingDirectory} />;
+        var fileBrowser = (
+                <FileBrowser
+                    fileBrowserData={this.state.fileBrowserData}
+                    updateFileBrowser={this.updateFileBrowser}
+                    currentWorkingDirectory={this.state.currentWorkingDirectory} />
+            );
 
+        var edit = ''
+        if(this.state.permission){
+            edit = (
+                <button className="button secondary" onClick={this.toggleEditing}>
+                        {editButtonText}
+                </button>
+            )
+        }
         return (
             <div className="row">
                 <div className="large-12 columns">
@@ -161,9 +204,7 @@ var Bundle = React.createClass({
                         </p>
                         <h4>
                             metadata
-                            <button className="button secondary" onClick={this.toggleEditing}>
-                                {editButtonText}
-                            </button>
+                            {edit}
                             {saveButton}
                         </h4>
                         <div className="row">
