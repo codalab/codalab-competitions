@@ -12,7 +12,7 @@ var TableMixin = {
         this.props.setFocus(this);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x']
+        return['up','k','down','j','x','d']
     },
     handleKeyboardShortcuts: function(event){
         var item = this.props.item.state;
@@ -45,7 +45,30 @@ var TableMixin = {
                     break;
                 case 'x':
                     event.preventDefault();
-                    this.setState({checked: !this.state.checked});
+                    // if it doesn't have a method for deleting its own rows, we don't care about 
+                    // passing the keyboard action
+                    if(!this.hasOwnProperty('deleteCheckedRows')){
+                        this.setState({checked: !this.state.checked});
+                    }else if(event.ctrlKey || event.metaKey){
+                        // this gets tricky. if the user is holding ctrl or cmd, check the whole table
+                        this.setState({checked: !this.state.checked});
+                    }else {
+                        // otherwise check whatever row is focused
+                        this.refs['row' + index].toggleChecked();
+                    }
+                    break;
+                case 'd':
+                    event.preventDefault();
+                    // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
+                    // perform actions outside the table, so refer it back to the parent
+                    if(this.state.checked || event.ctrlKey || event.metaKey){
+                        this._owner.deleteChecked();
+                    }else {
+                        // otherwise assume its an inside-the-table action and pass it along
+                        if (this.hasOwnProperty('deleteCheckedRows')){
+                            this.deleteCheckedRows();
+                        }
+                    }
                     break;
                 default:
                     return true;

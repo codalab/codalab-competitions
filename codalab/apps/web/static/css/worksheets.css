@@ -128,8 +128,13 @@ table.table {
 table.table th {
   font-weight:bold;
 }
-table.table tr th, table.table tr td {
+table.table tr th, 
+table.table tr td {
   color:#555;
+}
+table.table tr th.checkbox input, 
+table.table tr td.checkbox input {
+  margin:0;
 }
 table.table-responsive {
   width:100%;
