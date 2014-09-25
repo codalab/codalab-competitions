@@ -110,7 +110,6 @@ var Bundle = React.createClass({
             if(folder_path.substr(-1) == '/') {
                 return folder_path.substr(0, folder_path.length - 1);
             }
-            console.log("splitted -> " + folder_path);
 
             reset_cwd = true;
         }
@@ -125,11 +124,6 @@ var Bundle = React.createClass({
                 this.setState({"currentWorkingDirectory": folder_path});
             }
         }
-
-        //location.hash = folder_path;
-
-        console.log("fp: " + folder_path);
-        console.log("cwd: " + this.state.currentWorkingDirectory);
 
         $.ajax({
             type: "GET",
@@ -322,6 +316,7 @@ var FileBrowserBreadCrumbs = React.createClass({
         var splitDirs = this.props.currentWorkingDirectory.split('/');
         var currentDirectory = '';
 
+        // Generate list of breadcrumbs separated by ' / '
         for(var i=0; i<splitDirs.length; i++) {
             if(i == 0) {
                 currentDirectory += splitDirs[i];
