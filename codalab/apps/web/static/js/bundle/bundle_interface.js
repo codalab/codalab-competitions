@@ -13,8 +13,27 @@ var Bundle = React.createClass({
             "metadata": {},
             "files": {},
             "fileBrowserData": "",
-            "currentWorkingDirectory": ""
+            "currentWorkingDirectory": "",
+            "editing": false
         };
+    },
+    toggleEditing: function(){
+        this.setState({editing:!this.state.editing});
+    },
+    saveMetadata: function(){
+        var metadata = this.state.metadata;
+        $('#metadata_table input').each(function(){
+            var key = $(this).attr('name');
+            var val = $(this).val();
+            metadata[key] = val;
+        });
+        this.setState({
+            editing:false,
+            metadata: metadata
+        });
+        console.log('------ save the bundle here ------');
+        console.log('new metadata:');
+        console.log(metadata);
     },
     componentWillMount: function() {  // once on the page lets get the bundle info
         $.ajax({
@@ -82,13 +101,20 @@ var Bundle = React.createClass({
         });
     },
     render: function() {
+        var saveButton;
         var metadata = this.state.metadata;
 
         var bundleAttrs = [];
-        for(var k in metadata) {
-            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} />);
+        var editing = this.state.editing;
+        var tableClassName = 'table' + (editing ? ' editing' : '');
+        var editButtonText = editing ? 'cancel' : 'edit';
+        if(editing){
+            saveButton = <button className="button primary" onClick={this.saveMetadata}>save</button>
         }
-        bundle_download_url = "/bundles/" + this.state.uuid + "/download";
+        for(var k in metadata) {
+            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
+        }
+        var bundle_download_url = "/bundles/" + this.state.uuid + "/download";
 
         var fileBrowser = <FileBrowser fileBrowserData={this.state.fileBrowserData} updateFileBrowser={this.updateFileBrowser} />;
 
@@ -105,7 +131,7 @@ var Bundle = React.createClass({
                             <div className="large-6 columns">
                                 <a href={bundle_download_url} className="bundle-download" alt="Download Bundle">
                                     <button className="small button secondary">
-                                            <i className="fi-arrow-down"></i>
+                                        <i className="fi-arrow-down"></i>
                                     </button>
                                 </a>
                                 <div className="bundle-uuid">{this.state.uuid}</div>
@@ -116,13 +142,20 @@ var Bundle = React.createClass({
                         </p>
                         <h4>
                             metadata
+                            <button className="button secondary" onClick={this.toggleEditing}>
+                                {editButtonText}
+                            </button>
+                            {saveButton}
                         </h4>
-                        <table className="table">
-                            <tbody>
-                                {bundleAttrs}
-                            </tbody>
-                        </table>
-
+                        <div className="row">
+                            <div className="large-6 columns">
+                                <table id="metadata_table" className={tableClassName}>
+                                    <tbody>
+                                        {bundleAttrs}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                         <div className="bundle-file-view-container">
                             {fileBrowser}
                         </div>
@@ -137,17 +170,29 @@ var Bundle = React.createClass({
 
 var BundleAttr = React.createClass({
     render: function(){
-        if(this.props.key !== 'description' && this.props.val !== ''){
+        var defaultVal = this.props.val;
+        if(this.props.key !== 'description' && !this.props.editing){
             return (
                 <tr>
-                    <th>
+                    <th width="33%">
                         {this.props.key}
                     </th>
                     <td>
-                        {this.props.val}
+                        {defaultVal}
                     </td>
                 </tr>
             );
+        } else if(this.props.editing){
+            return (
+                <tr>
+                    <th width="33%">
+                        {this.props.key}
+                    </th>
+                    <td>
+                        <input name={this.props.key} type="text" defaultValue={defaultVal} />
+                    </td>
+                </tr>
+            )
         }else {
             return false;
         }
