@@ -2813,6 +2813,9 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .file-browser-table {
     width: 100%;
 }
+.file-browser-bread-crumbs {
+    padding: 0 0 15px 0;
+}
 .coda-jax {
     background: transparent;
     color: #3b3b3b;
