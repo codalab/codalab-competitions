@@ -12,7 +12,6 @@ var Bundle = React.createClass({
             "bundle_type": "",
             "metadata": {},
             "files": {},
-            "showFileBrowser": false,
             "fileBrowserData": "",
             "currentWorkingDirectory": ""
         };
@@ -40,22 +39,16 @@ var Bundle = React.createClass({
                 $('#bundle-content').hide();
             }.bind(this)
         });
-    },
-    toggleFileBrowser: function() {
-        this.setState({"showFileBrowser": !this.state.showFileBrowser});
 
-        // it's still false, but is true
-        if(!this.state.showFileBrowser) {
-            this.updateFileBrowser();
-        }
+        this.updateFileBrowser();
     },
     // File browser is updated based on location.hash!
     updateFileBrowser: function(specific_folder_path) {
         var folder_path = specific_folder_path || '';
 
-        if(folder_path == '') {
-            folder_path = location.hash.replace('#', '');
-        }
+//        if(folder_path == '') {
+//            folder_path = location.hash.replace('#', '');
+//        }
 
         if(this.state.currentWorkingDirectory != '') {
             folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
@@ -64,7 +57,7 @@ var Bundle = React.createClass({
             this.setState({"currentWorkingDirectory": folder_path});
         }
 
-        location.hash = folder_path;
+        //location.hash = folder_path;
 
         console.log("fp: " + folder_path);
         console.log("cwd: " + this.state.currentWorkingDirectory);
@@ -129,14 +122,13 @@ var Bundle = React.createClass({
                                 {bundleAttrs}
                             </tbody>
                         </table>
-                        <div className="bundle__expand_button" onClick={this.toggleFileBrowser}>
-                            <img src="/static/img/expand-arrow.png" alt="More" />
+
+                        <div className="bundle-file-view-container">
+                            {fileBrowser}
                         </div>
                     </div>
 
-                    <div class="bundle-file-view-container">
-                        {this.state.showFileBrowser ? fileBrowser : null}
-                    </div>
+
                 </div>
             </div>
         );
@@ -165,22 +157,9 @@ var BundleAttr = React.createClass({
 var FileBrowser = React.createClass({
     render: function() {
         var items = [];
-        var item;
-
-        if(!this.props.fileBrowserData.contents) {
-            return (
-                <div className="row">
-                    <div className="large-12 columns">
-                        <div className="bundle-tile">
-                            <h4>
-                                <b>File Browser</b>
-                            </h4>
-                            <b>No files found</b>
-                        </div>
-                    </div>
-                </div>
-                );
-        } else {
+        var item; // so we have 1, see later
+        var files;
+        if(this.props.fileBrowserData.contents) {
             // One loop for folders so they are on the top of the list
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
@@ -197,26 +176,27 @@ var FileBrowser = React.createClass({
                 }
             }
 
-            return (
-                <div className="row">
-                    <div className="large-12 columns">
-                        <div className="bundle-tile">
-                            <h4>
-                                <b>File Browser</b>
-                            </h4>
-                            <table>
-                                <thead>
-                                    <th>File name</th>
-                                </thead>
-                                <tbody>
-                                    {items}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            file_browser = (
+
+                <table className="file-browser-table">
+                    <thead>
+                        <th>File name</th>
+                    </thead>
+                    <tbody>
+                        {items}
+                    </tbody>
+                </table>
                 );
+        } else {
+            file_browser = (<b>No files found</b>);
         }
+
+        return (
+            <div>
+                <h4>file browser</h4>
+                {file_browser}
+            </div>
+            );
     }
 });
 
