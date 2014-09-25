@@ -62,18 +62,37 @@ var Bundle = React.createClass({
         this.updateFileBrowser();
     },
     // File browser is updated based on location.hash!
-    updateFileBrowser: function(specific_folder_path) {
+    updateFileBrowser: function(specific_folder_path, reset_cwd) {
         var folder_path = specific_folder_path || '';
 
 //        if(folder_path == '') {
 //            folder_path = location.hash.replace('#', '');
 //        }
 
-        if(this.state.currentWorkingDirectory != '') {
-            folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+        // Special case '..' we go up a directory
+        if(folder_path == '..') {
+            // Remove the last directory
+            dirs = this.state.currentWorkingDirectory.split('/');
+            dirs.pop();
+            folder_path = dirs.join('/');
+            // Remove last '/'
+            if(folder_path.substr(-1) == '/') {
+                return folder_path.substr(0, folder_path.length - 1);
+            }
+            console.log("splitted -> " + folder_path);
+
+            reset_cwd = true;
+        }
+
+        if(reset_cwd) {
             this.setState({"currentWorkingDirectory": folder_path});
         } else {
-            this.setState({"currentWorkingDirectory": folder_path});
+            if (this.state.currentWorkingDirectory != '') {
+                folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+                this.setState({"currentWorkingDirectory": folder_path});
+            } else {
+                this.setState({"currentWorkingDirectory": folder_path});
+            }
         }
 
         //location.hash = folder_path;
@@ -116,7 +135,7 @@ var Bundle = React.createClass({
         }
         var bundle_download_url = "/bundles/" + this.state.uuid + "/download";
 
-        var fileBrowser = <FileBrowser fileBrowserData={this.state.fileBrowserData} updateFileBrowser={this.updateFileBrowser} />;
+        var fileBrowser = <FileBrowser fileBrowserData={this.state.fileBrowserData} updateFileBrowser={this.updateFileBrowser} currentWorkingDirectory={this.state.currentWorkingDirectory} />;
 
         return (
             <div className="row">
@@ -205,6 +224,11 @@ var FileBrowser = React.createClass({
         var item; // so we have 1, see later
         var files;
         if(this.props.fileBrowserData.contents) {
+            // .. special item, only on inside dirs (current directory not '')
+            if(this.props.currentWorkingDirectory) {
+                items.push(<FileBrowserItem key=".." type=".." updateFileBrowser={this.props.updateFileBrowser} />);
+            }
+
             // One loop for folders so they are on the top of the list
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
@@ -222,7 +246,6 @@ var FileBrowser = React.createClass({
             }
 
             file_browser = (
-
                 <table className="file-browser-table">
                     <thead>
                         <th>File name</th>
@@ -236,11 +259,44 @@ var FileBrowser = React.createClass({
             file_browser = (<b>No files found</b>);
         }
 
+        var bread_crumbs = (<FileBrowserBreadCrumbs updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
+
         return (
             <div>
                 <h4>file browser</h4>
+                {bread_crumbs}
                 {file_browser}
             </div>
+            );
+    }
+});
+
+var FileBrowserBreadCrumbs = React.createClass({
+    linkClicked: function(path) {
+        this.props.updateFileBrowser(path, true);
+        console.log("breadcrumb -> "+path);
+    },
+    render: function() {
+        var links = [];
+        var splitDirs = this.props.currentWorkingDirectory.split('/');
+        var currentDirectory = '';
+
+        for(var i=0; i<splitDirs.length; i++) {
+            if(i == 0) {
+                currentDirectory += splitDirs[i];
+            } else {
+                currentDirectory += "/" + splitDirs[i];
+            }
+            links.push(<a key={splitDirs[i]} onClick={this.linkClicked.bind(null, currentDirectory)}>{splitDirs[i]}</a>);
+            if(i+1<splitDirs.length) {
+                links.push(" / ");
+            }
+        }
+
+        //<a href="">{this.props.currentWorkingDirectory}</a>
+
+        return (
+            <div className="file-browser-bread-crumbs">{links}&nbsp;</div>
             );
     }
 });
@@ -262,7 +318,7 @@ var FileBrowserItem = React.createClass({
                 <td>
                     <div onClick={this.linkClicked}>
                         <img src={"/static/img/" + icon + ".png"} alt="More" />&nbsp;
-                        <b>{this.props.key}</b>
+                        <a>{this.props.key}</a>
                     </div>
                 </td>
             </tr>
