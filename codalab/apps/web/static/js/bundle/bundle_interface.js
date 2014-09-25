@@ -176,7 +176,7 @@ var Bundle = React.createClass({
                             </div>
                         </div>
                         <div className="bundle-file-view-container">
-                            {fileBrowser}
+                            {this.state.fileBrowserData.contents ? fileBrowser : null}
                         </div>
                     </div>
 
@@ -292,8 +292,6 @@ var FileBrowserBreadCrumbs = React.createClass({
                 links.push(" / ");
             }
         }
-
-        //<a href="">{this.props.currentWorkingDirectory}</a>
 
         return (
             <div className="file-browser-bread-crumbs">{links}&nbsp;</div>
