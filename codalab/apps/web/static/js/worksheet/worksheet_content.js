@@ -90,6 +90,9 @@ var WorksheetContent = function() {
                 });
                 consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
                 ws_obj.state.items = consolidatedWorksheetItems;
+                // TODO permissions ////////
+                ws_obj.state.edit_permission = true;
+                // ////////
                 props.success(ws_obj.state);
             }.bind(this),
             error: function(xhr, status, err) {
