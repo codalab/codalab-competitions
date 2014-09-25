@@ -2810,6 +2810,9 @@ table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table 
 .bundle__file_view.expanded {
     display: inline-table;
 }
+.file-browser-table {
+    width: 100%;
+}
 .coda-jax {
     background: transparent;
     color: #3b3b3b;
