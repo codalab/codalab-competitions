@@ -46,7 +46,7 @@ var Worksheet = React.createClass({
     },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
-        window.scrollTo(0, 0);
+        $('html,body').animate({scrollTop: 0}, 250);
     },
     handleSearchBlur: function(event){
         this.setState({activeComponent:'list'});
@@ -70,7 +70,7 @@ var Worksheet = React.createClass({
         }
     },
     render: function(){
-        var canEdit = ws_obj.state.edit_permission;
+        var canEdit = ws_obj.getState().edit_permission;
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
@@ -136,19 +136,7 @@ var WorksheetItemList = React.createClass({
         });
     },
     componentDidUpdate: function(){
-        if(this.state.worksheet.items.length){
-            var fIndex = this.state.focusIndex;
-            if(fIndex >= 0){
-                var itemNode = this.refs['item' + fIndex].getDOMNode();
-                if(itemNode.offsetTop > window.innerHeight / 2){
-                    window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
-                }
-            }
-            else {
-                return false;
-            }
-        }
-        else {
+        if(!this.state.worksheet.items.length){
             $('.empty-worksheet').fadeIn('fast');
         }
     },
@@ -172,12 +160,14 @@ var WorksheetItemList = React.createClass({
                         fIndex = Math.max(this.state.focusIndex - 1, 0);
                     }
                     this.setState({focusIndex: fIndex});
+                    this.scrollToItem(fIndex);
                     break;
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    fIndex = Math.min(this.state.focusIndex + 1, this.state.worksheet.items.length - 1);
+                    fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
                     this.setState({focusIndex: fIndex});
+                    this.scrollToItem(fIndex);
                     break;
                 case 'e':
                     if(this.props.canEdit){
@@ -214,6 +204,14 @@ var WorksheetItemList = React.createClass({
 
             }
         }
+    },
+    scrollToItem: function(index){
+        // scroll the window to keep the focused element in view
+        var offsetTop = 0;
+        if(index > -1){
+            offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 100;
+        }
+        $('html,body').animate({scrollTop: offsetTop}, 250);
     },
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
