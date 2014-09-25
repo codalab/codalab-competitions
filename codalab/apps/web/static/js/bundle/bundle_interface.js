@@ -267,14 +267,14 @@ var FileBrowser = React.createClass({
         if(this.props.fileBrowserData.contents) {
             // .. special item, only on inside dirs (current directory not '')
             if(this.props.currentWorkingDirectory) {
-                items.push(<FileBrowserItem key=".." type=".." updateFileBrowser={this.props.updateFileBrowser} />);
+                items.push(<FileBrowserItem key=".." type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
             }
 
             // One loop for folders so they are on the top of the list
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type == 'directory') {
-                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} />);
+                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -282,7 +282,7 @@ var FileBrowser = React.createClass({
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} />);
+                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -313,7 +313,7 @@ var FileBrowser = React.createClass({
 });
 
 var FileBrowserBreadCrumbs = React.createClass({
-    linkClicked: function(path) {
+    breadCrumbClicked: function(path) {
         this.props.updateFileBrowser(path, true);
         console.log("breadcrumb -> "+path);
     },
@@ -328,7 +328,7 @@ var FileBrowserBreadCrumbs = React.createClass({
             } else {
                 currentDirectory += "/" + splitDirs[i];
             }
-            links.push(<a key={splitDirs[i]} onClick={this.linkClicked.bind(null, currentDirectory)}>{splitDirs[i]}</a>);
+            links.push(<a key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}>{splitDirs[i]}</a>);
             if(i+1<splitDirs.length) {
                 links.push(" / ");
             }
@@ -341,23 +341,24 @@ var FileBrowserBreadCrumbs = React.createClass({
 });
 
 var FileBrowserItem = React.createClass({
-    linkClicked: function(evt) {
+    browseToFolder: function(type) {
         this.props.updateFileBrowser(this.props.key);
     },
     render: function() {
         // Type can be 'file' or 'folder'
         var icon = "icon_folder";
-        var link = this.props.key;
         if(this.props.type == "file") {
             icon = "icon_document"
         }
 
+        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + this.props.currentWorkingDirectory + this.props.key + '/';
+
         return (
             <tr>
                 <td>
-                    <div onClick={this.linkClicked}>
+                    <div onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <img src={"/static/img/" + icon + ".png"} alt="More" />&nbsp;
-                        <a>{this.props.key}</a>
+                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.key}</a>
                     </div>
                 </td>
             </tr>
