@@ -747,6 +747,9 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
+            item['permission'] = False
+            if item['owner_id'] == str(self.request.user.id):
+                item['permission'] = True
             return Response(item, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
@@ -757,6 +760,56 @@ class BundleInfoApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
+
+    def post(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService(self.request.user)
+
+        try:
+            item = service.item(uuid)
+            if item['owner_id'] == str(self.request.user.id):
+                data = json.loads(request.body)
+                new_metadata = data['metadata']
+                #clean up
+                if new_metadata.get('data_size', None):
+                    new_metadata.pop('data_size')
+
+                if new_metadata.get('created', None):
+                    new_metadata.pop('created')
+
+                if new_metadata.get('tags', None):
+                    tags = new_metadata['tags']
+                    tags = tags.split(',')
+                    new_metadata['tags'] = tags
+
+                if new_metadata.get('language', None):
+                    language = new_metadata['language']
+                    language = language.split(',')
+                    new_metadata['language'] = language
+                else:
+                    new_metadata['language'] = []
+
+                if new_metadata.get('architectures', None):
+                    architectures = new_metadata['architectures']
+                    architectures = architectures.split(',')
+                    new_metadata['architectures'] = architectures
+                else:
+                    new_metadata['architectures'] = []
+
+                # update and return
+                service.update_bundle_metadata(uuid, new_metadata)
+                item = service.item(uuid)
+            return Response(item, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response({'error': smart_str(e)})
 
 class BundleContentApi(views.APIView):
     """

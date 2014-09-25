@@ -82,6 +82,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 return 404
             return 500
 
+        def update_bundle_metadata(self, uuid, new_metadata):
+            self.client.update_bundle_metadata(uuid, new_metadata)
+            return
+
 else:
 
     class BundleService():
