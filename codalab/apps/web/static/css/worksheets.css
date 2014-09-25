@@ -10,6 +10,12 @@
 }
 #worksheet_content {
   line-height:1.2em;
+  min-height:480px;
+}
+#worksheet_content .glossary-link {
+  float:right;
+  font-weight:normal;
+  font-size:.75em;
 }
 #worksheet_content .hidden {
   display:none;
@@ -34,6 +40,7 @@
 #worksheet_content .worksheet-name {
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
+  min-height:88px;
 }
 #worksheet_content .worksheet-name label input[type="checkbox"]{
   margin-right:5px;
@@ -162,6 +169,7 @@ table.table-responsive > tfoot > tr > td {
 }
 .ws-search {
   margin:1.5em 0 1em;
+  min-height:32px;
 }
 .ws-search input {
   height:auto;
@@ -289,4 +297,18 @@ body.yellow {
   vertical-align: middle;
   margin-left: 1em;
 }
-#bundle-content .bundle-tile
+#glossaryModal {
+  margin-top:-49px; /* account for navbar height */
+}
+#glossaryModal dl {
+  margin-bottom:0;
+}
+#glossaryModal dt {
+  float:left;
+  margin-right:1em;
+  font-weight:normal;
+}
+#glossaryModal dt code {
+  padding:4px;
+  text-align:center;
+}
