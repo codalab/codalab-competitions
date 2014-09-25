@@ -49,6 +49,7 @@ var Worksheet = React.createClass({
         $('html,body').animate({scrollTop: 0}, 250);
     },
     handleSearchBlur: function(event){
+        $('#search').select2('close');
         this.setState({activeComponent:'list'});
     },
     handleKeydown: function(event){
@@ -58,7 +59,13 @@ var Worksheet = React.createClass({
             switch (key) {
                 case 'fslash':
                     event.preventDefault();
-                    this.handleSearchFocus();
+                    if(event.shiftKey){
+                        this.handleSearchBlur();
+                        $('#glossaryModal').foundation('reveal', 'open');
+                    }else {
+                        this.handleSearchFocus();
+                    }
+                    event.stopPropagation();
                     break;
                 default:
                     if(activeComponent.hasOwnProperty('handleKeydown')){
@@ -285,6 +292,7 @@ var WorksheetItemList = React.createClass({
         }
         return (
             <div id="worksheet_content" className={className}>
+                <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
                 <div className="worksheet-name">
                     <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                     <div className="worksheet-author">{ws_obj.state.owner}</div>
