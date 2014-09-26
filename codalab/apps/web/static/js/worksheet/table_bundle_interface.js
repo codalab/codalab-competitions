@@ -38,6 +38,12 @@ var TableBundle = React.createClass({
             reactRows[k].setState({checked:false});
         }
     },
+    toggleCheckRows: function(){
+        var reactRows = this.refs;
+        for(var k in reactRows){
+            reactRows[k].setState({checked:!this.state.checked});
+        }
+    },
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
