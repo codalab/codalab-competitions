@@ -165,7 +165,7 @@ var WorksheetItemList = React.createClass({
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    fIndex = Math.min(this.state.focusIndex + 1, this.state.worksheet.items.length - 1);
+                    fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
                     this.setState({focusIndex: fIndex});
                     this.scrollToItem(fIndex);
                     break;
