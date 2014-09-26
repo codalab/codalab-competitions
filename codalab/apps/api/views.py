@@ -782,20 +782,18 @@ class BundleInfoApi(views.APIView):
                     tags = new_metadata['tags']
                     tags = tags.split(',')
                     new_metadata['tags'] = tags
+                else:
+                    new_metadata['tags'] = []
 
                 if new_metadata.get('language', None):
                     language = new_metadata['language']
                     language = language.split(',')
                     new_metadata['language'] = language
-                else:
-                    new_metadata['language'] = []
 
                 if new_metadata.get('architectures', None):
                     architectures = new_metadata['architectures']
                     architectures = architectures.split(',')
                     new_metadata['architectures'] = architectures
-                else:
-                    new_metadata['architectures'] = []
 
                 # update and return
                 service.update_bundle_metadata(uuid, new_metadata)
