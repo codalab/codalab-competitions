@@ -23,6 +23,8 @@
 
 <div class="row">
   <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
+    <a href="{% url "competitions:download_yaml" competition_pk=competition.pk %}">Download original YAML file</a>
+
     <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
         <fieldset>
         <legend>General Information</legend>
