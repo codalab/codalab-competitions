@@ -77,6 +77,10 @@
   padding:0.5em;
   width:100%;
 }
+#worksheet_content .type-markup,
+#worksheet_content .type-inline {
+  min-height:1.5em;
+}
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
   margin: 0 0 1em 0;
