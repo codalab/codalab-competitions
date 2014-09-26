@@ -20,6 +20,34 @@
 <div id="save_error">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Error Saving...
 </div>
+<div id="glossaryModal" class="reveal-modal medium" data-reveal>
+    <h3>Keyboard Shortcuts</h3>
+    <dl>
+        <dt><code>/</code></dt>
+            <dd>jump to search bar</dd>
+        <dt><code>j</code> or <code>↓</code></dt>
+            <dd>next worksheet item or table row</dd>
+        <dt><code>k</code> or <code>↑</code></dt>
+            <dd>previous worksheet item or table row</dd>
+        <dt><code>e</code></dt>
+            <dd>edit highlighted item (markup bundles only)</dd>
+        <dt><code>esc</code></dt>
+            <dd>exit edit mode</dd>
+        <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
+            <dd>save edits to markup item</dd>
+        <dt><code>x</code></dt>
+            <dd>select highlighted item</dd>
+        <dt><code>d</code></dt>
+            <dd>delete selected items</dd>
+        <dt><code>i</code></dt>
+            <dd>insert markup before highlighted item</dd>
+        <dt><code>A</code></dt>
+            <dd>insert markup after highlighted item</dd>
+        <dt><code>?</code></dt>
+            <dd>show this glossary</dd>
+    </dl>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
 {% endblock content %}
 
 
