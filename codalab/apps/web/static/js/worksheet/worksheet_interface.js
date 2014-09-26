@@ -49,24 +49,20 @@ var Worksheet = React.createClass({
         $('html,body').animate({scrollTop: 0}, 250);
     },
     handleSearchBlur: function(event){
+        $('#search').select2('close');
         this.setState({activeComponent:'list'});
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         var activeComponent = this.refs[this.state.activeComponent];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'fslash':
-                    event.preventDefault();
-                    this.handleSearchFocus();
-                    break;
-                default:
-                    if(activeComponent.hasOwnProperty('handleKeydown')){
-                        activeComponent.handleKeydown(event);
-                    }else {
-                        return true;
-                    }
-            }
+        if(key === 'fslash' && event.shiftKey){
+            event.preventDefault();
+            this.handleSearchBlur();
+            $('#glossaryModal').foundation('reveal', 'open');
+        }else if(activeComponent.hasOwnProperty('handleKeydown')){
+            activeComponent.handleKeydown(event);
+        }else {
+            return true;
         }
     },
     render: function(){
@@ -89,6 +85,9 @@ var WorksheetSearch = React.createClass({
                 case 'esc':
                     event.preventDefault();
                     this.props.handleBlur();
+                    break;
+                default:
+                    return true;
             }
         }
     },
@@ -151,6 +150,10 @@ var WorksheetItemList = React.createClass({
             focusedItem.handleKeydown(event);
         }else {
             switch (key) {
+                case 'fslash':
+                    event.preventDefault();
+                    this._owner.setState({activeComponent: 'search'});
+                    break;
                 case 'up':
                 case 'k':
                     event.preventDefault();
@@ -285,6 +288,7 @@ var WorksheetItemList = React.createClass({
         }
         return (
             <div id="worksheet_content" className={className}>
+                <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
                 <div className="worksheet-name">
                     <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                     <div className="worksheet-author">{ws_obj.state.owner}</div>
