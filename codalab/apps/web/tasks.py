@@ -140,8 +140,6 @@ def predict(submission, job_id):
     lines = []
     program_value = submission.file.name
 
-    import ipdb; ipdb.set_trace()
-
     if len(program_value) > 0:
         lines.append("program: %s" % program_value)
     else:
@@ -161,7 +159,6 @@ def predict(submission, job_id):
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    #submission.save('stderr.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
@@ -336,7 +333,14 @@ def update_submission_task(job_id, args):
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 logger.debug("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
-                scores = open(ozip.extract('scores.txt'), 'r').read()
+                scores = None
+                try:
+                    scores = open(ozip.extract('scores.txt'), 'r').read()
+                except Exception:
+                    logger.error("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
+                    _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+                    return Job.FAILED
+
                 logger.debug("Processing scores... (submission_id=%s)", submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
