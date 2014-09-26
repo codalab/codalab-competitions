@@ -55,25 +55,14 @@ var Worksheet = React.createClass({
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         var activeComponent = this.refs[this.state.activeComponent];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'fslash':
-                    event.preventDefault();
-                    if(event.shiftKey){
-                        this.handleSearchBlur();
-                        $('#glossaryModal').foundation('reveal', 'open');
-                    }else {
-                        this.handleSearchFocus();
-                    }
-                    event.stopPropagation();
-                    break;
-                default:
-                    if(activeComponent.hasOwnProperty('handleKeydown')){
-                        activeComponent.handleKeydown(event);
-                    }else {
-                        return true;
-                    }
-            }
+        if(key === 'fslash' && event.shiftKey){
+            event.preventDefault();
+            this.handleSearchBlur();
+            $('#glossaryModal').foundation('reveal', 'open');
+        }else if(activeComponent.hasOwnProperty('handleKeydown')){
+            activeComponent.handleKeydown(event);
+        }else {
+            return true;
         }
     },
     render: function(){
@@ -96,6 +85,9 @@ var WorksheetSearch = React.createClass({
                 case 'esc':
                     event.preventDefault();
                     this.props.handleBlur();
+                    break;
+                default:
+                    return true;
             }
         }
     },
@@ -158,6 +150,10 @@ var WorksheetItemList = React.createClass({
             focusedItem.handleKeydown(event);
         }else {
             switch (key) {
+                case 'fslash':
+                    event.preventDefault();
+                    this._owner.setState({activeComponent: 'search'});
+                    break;
                 case 'up':
                 case 'k':
                     event.preventDefault();
