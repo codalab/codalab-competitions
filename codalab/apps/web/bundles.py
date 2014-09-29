@@ -22,7 +22,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
 
     class BundleService():
-
         def __init__(self, user=None):
             self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
                                              lambda command: get_user_token(user), verbose=1)
@@ -58,6 +57,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def get_target_info(self, target, depth=1):
             return _call_with_retries(lambda: self.client.get_target_info(target, depth))
+
+        def resolve_interpreted_items(self, interpreted_items):
+            return _call_with_retries(lambda: self.client.resolve_interpreted_items(('test', 'test')))
+
+        def get_worksheet_info(self):
+            return _call_with_retries(lambda: self.client.get_worksheet_info())
 
         MAX_BYTES = 1024*1024
         def read_file(self, uuid, path):

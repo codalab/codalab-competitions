@@ -611,7 +611,7 @@ class LeaderBoardDataViewSet(views.APIView):
         competition = webmodels.Competition.objects.get(pk=competition_id)
         phase = webmodels.CompetitionPhase.objects.filter(competition=competition, phasenumber=phase_id)[0]
         if phase.is_blind:
-            return HttpResponse(status=403)
+            return Response(status=403)
         groups = phase.scores()
         response = Response(groups, status=status.HTTP_200_OK)
         return response
@@ -819,7 +819,7 @@ class BundleContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             target = (uuid, path)
-            items = service.get_target_info(target, 2)
+            items = service.get_target_info(target, 2) # 2 is the depth to retrieve
             return Response(items)
         except Exception as e:
             logging.error(self.__str__())
@@ -830,7 +830,7 @@ class BundleContentApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response({'error': smart_str(e)})
-            return Response(status=service.http_status_from_exception(e))
+            #return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
     """
