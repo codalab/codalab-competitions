@@ -15,7 +15,7 @@ var keyMap = {
     191: "fslash"
 };
 
-// Dictionary of terms that can be entered into the search bar and the names of 
+// Dictionary of terms that can be entered into the search bar and the names of
 // functions they call. See search_actions.js
 var fakedata = {
     red: 'doRed',
@@ -66,6 +66,7 @@ var Worksheet = React.createClass({
         }
     },
     render: function(){
+
         var canEdit = ws_obj.getState().edit_permission;
         return (
             <div id="worksheet">
@@ -111,7 +112,8 @@ var WorksheetItemList = React.createClass({
                 owner: null,
                 owner_id: 0,
                 uuid: 0,
-                items: []
+                items: [],
+                edit_permission: false
             }
         }
     },
@@ -173,7 +175,7 @@ var WorksheetItemList = React.createClass({
                     this.scrollToItem(fIndex);
                     break;
                 case 'e':
-                    if(this.props.canEdit){
+                    if(ws_obj.getState().edit_permission){
                         event.preventDefault();
                         this.setState({editingIndex: fIndex});
                     }
@@ -185,19 +187,19 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'd':
-                    if(this.props.canEdit){
+                    if(ws_obj.getState().edit_permission){
                         event.preventDefault();
                         this.deleteChecked();
                     }
                     break;
                 case 'i':
-                    if(this.props.canEdit){
+                    if(ws_obj.getState().edit_permission){
                         event.preventDefault();
                         this.insertItem(key);
                     }
                     break;
                 case 'a':
-                    if(event.shiftKey && this.props.canEdit){
+                    if(event.shiftKey && ws_obj.getState().edit_permission){
                         event.preventDefault();
                         this.insertItem(key);
                     }
@@ -237,10 +239,10 @@ var WorksheetItemList = React.createClass({
         var worksheet = this.state.worksheet;
         for(var k in reactItems){
             if(reactItems[k].state.checked){
-                // we know the key of the item is the same as the index. We set it. 
-                // see WorksheetItemFactory. This will change but always match. 
-                var index = reactItems[k].props.key; 
-                ws_obj.setItem(index, undefined) 
+                // we know the key of the item is the same as the index. We set it.
+                // see WorksheetItemFactory. This will change but always match.
+                var index = reactItems[k].props.key;
+                ws_obj.setItem(index, undefined)
                 // when called gets a edited flag, when you getState
                 // does a clean before setting it's state
             }
@@ -271,8 +273,9 @@ var WorksheetItemList = React.createClass({
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
-        var canEdit = this.props.canEdit;
+        var canEdit = ws_obj.getState().edit_permission;
         var className = canEdit ? 'editable' : '';
+
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;

@@ -15,7 +15,7 @@ var Bundle = React.createClass({
             "fileBrowserData": "",
             "currentWorkingDirectory": "",
             "editing": false,
-            "permission": false
+            "edit_permission": false
         };
     },
     toggleEditing: function(){
@@ -167,7 +167,7 @@ var Bundle = React.createClass({
             );
 
         var edit = ''
-        if(this.state.permission){
+        if(this.state.edit_permission){
             edit = (
                 <button className="button secondary" onClick={this.toggleEditing}>
                         {editButtonText}
