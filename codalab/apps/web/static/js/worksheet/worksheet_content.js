@@ -44,6 +44,11 @@ var WorksheetContent = function() {
         this.state.items[index] = newItem;
         this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's
     };
+    WorksheetContent.prototype.moveItem = function(oldIndex, newIndex){
+        var items = this.state.items;
+        items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
+        this.state.items = items;
+    };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
         var consolidatedWorksheet = [];
         var markdownChunk         = '';
