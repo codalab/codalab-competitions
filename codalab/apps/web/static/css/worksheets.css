@@ -50,7 +50,6 @@
 }
 #worksheet_content textarea.raw-textarea {
   min-height:480px;
-  height:auto;
 }
 #worksheet_content .worksheet-name {
   min-height:65px;

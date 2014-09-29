@@ -51,7 +51,11 @@ var WorksheetContent = function() {
         this.state.items = items;
     };
     WorksheetContent.prototype.getRaw = function(){
-        return this.state.raw.join('\n');
+        var raw = {
+            content: this.state.raw.join('\n'),
+            lines: this.state.raw.length
+        }   
+        return raw;
     };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
         var consolidatedWorksheet = [];
