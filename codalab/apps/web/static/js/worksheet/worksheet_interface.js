@@ -309,6 +309,7 @@ var WorksheetItemList = React.createClass({
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
+        var getRaw = ws_obj.getRaw();
         if(ws_obj.state.items.length){
             ws_obj.state.items.forEach(function(item, i){
                 var ref = 'item' + i;
@@ -321,7 +322,7 @@ var WorksheetItemList = React.createClass({
         }
         var worksheet_items_display;
         if(this.state.rawMode){
-            worksheet_items_display = <textarea defaultValue={ws_obj.getRaw()} className="raw-textarea" />;
+            worksheet_items_display = <textarea defaultValue={getRaw.content} rows={getRaw.lines} className="raw-textarea" />;
         }else {
             worksheet_items_display = worksheet_items;
         }
