@@ -333,7 +333,7 @@ var CodaLab;
                                     );
                                     $('#uploadButton').removeClass('disabled');
                                 } else if (data.status == 'failed') {
-                                    $('#details').html('Oops! There was a problem creating the competition.');
+                                    $('#details').html('Oops! There was a problem creating the competition: <br><pre>' + data.error + '</pre>');
                                     $('#uploadButton').removeClass('disabled');
                                 } else {
                                     setTimeout(wait_for_competition, 1000);

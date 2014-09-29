@@ -2,23 +2,37 @@
 {% block head_title %}Worksheets{% endblock head_title %}
 {% block page_title %}Worksheets{% endblock page_title %}
 
-{% block custom_html_attributes %} ng-app="codalab" {% endblock custom_html_attributes %}
-{% block custom_body_attributes %} ng-controller="root" {% endblock custom_body_attributes %}
-{% block nosubheader %} {% endblock nosubheader %}
-{% block header_space %} {% endblock header_space %}
+{% block content %}
+<div class="row">
+    <div class="large-12 columns">
+        <div id="worksheet-message">
+            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheets...
+        </div>
+        <div id="container">
+            <!-- worksheet list wil go here-->
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-{% block content_wrapper %}
-{% load static %}
-<ng-view></ng-view>
-{% endblock content_wrapper %}
+{% block jsincludes %}
+    <script src="http://fb.me/react-0.11.1.js"></script>
 
-{% block js %}
-    // Initialize Foundation
-    $(document).foundation();
+    {# TODO: remove JSX and move to deploy processing of JSX #}
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
 
-    // Following code is shared with competitions which do not yet support AngularJS
-    $(function () {
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liWorksheets").addClass("active");
-    });
-{% endblock js %}
+    {#  JSX FILES #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_list.js"></script>
+
+    <script>
+        $(function () {
+            $(".top-bar-section ul > li").removeClass("active");
+            $("#liWorksheets").addClass("active");
+            {% if request.user.is_authenticated %}
+                user_id = {{ request.user.id }};
+            {% else %}
+                user_id = 0;
+            {% endif %}
+        });
+    </script>
+{% endblock jsincludes %}

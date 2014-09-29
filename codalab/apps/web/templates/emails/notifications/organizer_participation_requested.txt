@@ -1,0 +1,10 @@
+{% extends 'emails/base_email.txt' %}
+
+{% block content %}
+The user {{ participant.user }} requested access into your competition:
+{{ competition }} -> http://{{ site.domain }}{{ competition.get_absolute_url }}
+
+Manage participants -> http://{{ site.domain }}{% url 'my_competition_participants' competition_id=competition.pk %}
+{% endblock %}
+
+

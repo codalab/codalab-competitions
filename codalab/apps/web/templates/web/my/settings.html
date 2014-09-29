@@ -1,0 +1,94 @@
+﻿{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+{% block page_title %}Settings{% endblock page_title %}
+{% block head_title %}Settings{% endblock %}
+
+{% block extra_head %}
+{# include extra JS stuff here #}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    input[type="radio"] {
+        margin-left: 20px;
+    }
+    .inline {
+        display: inline;
+        margin-left: 10px !important;
+    }
+
+    .error {
+        color: #efefef;
+        background-color: #ff333d;
+        padding: 20px;
+        margin: 20px;
+    }
+    .success {
+        color: #efefef;
+        background-color: #218026;
+        padding: 20px;
+        margin: 20px;
+    }
+</style>
+
+<div class="row">
+    <div class="large-12 large-centered columns content">
+        <form method="POST" action=".">
+            {% if errors %}
+                <div class="error">
+                    There were errors processing the form, please try reloading the page!
+                </div>
+            {% endif %}
+
+            {% if saved_successfully %}
+                <div class="success">
+                    Saved successfully!
+                </div>
+            {% endif %}
+
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <label>Receive updates about your participation status in competitions</label>
+                    <input type="radio" name="participation_status_updates" value="true"  {% if request.user.participation_status_updates %}checked{% endif %}>
+                    <label for="pokemonRed" class="inline">Yes</label>
+
+                    <input type="radio" name="participation_status_updates" value="false"  {% if not request.user.participation_status_updates %}checked{% endif %}>
+                    <label for="pokemonBlue" class="inline">No</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="large-12 columns">
+                    <label>Receive updates about participants in your competitions</label>
+                    <input type="radio" name="organizer_status_updates" value="true" {% if request.user.organizer_status_updates %}checked{% endif %}>
+                    <label for="pokemonRed" class="inline">Yes</label>
+
+                    <input type="radio" name="organizer_status_updates" value="false"  {% if not request.user.organizer_status_updates %}checked{% endif %}>
+                    <label for="pokemonBlue" class="inline">No</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="large-12 columns">
+                    <label>Receive messages from competiton organizers</label>
+                    <input type="radio" name="organizer_direct_message_updates" value="true"  {% if request.user.organizer_direct_message_updates %}checked{% endif %}>
+                    <label for="pokemonRed" class="inline">Yes</label>
+
+                    <input type="radio" name="organizer_direct_message_updates" value="false"  {% if not request.user.organizer_direct_message_updates %}checked{% endif %}>
+                    <label for="pokemonBlue" class="inline">No</label>
+                </div>
+            </div>
+
+            <input type="submit" class="button" value="Save">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock js %}
