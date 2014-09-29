@@ -26,21 +26,29 @@ var TableMixin = {
                 case 'up':
                 case 'k':
                     event.preventDefault();
-                    index = Math.max(this.state.rowFocusIndex - 1, 0);
-                    if(this.state.rowFocusIndex == 0){
-                        this._owner.setState({focusIndex: parentFocusIndex - 1});
-                    }else {
-                        this.setState({rowFocusIndex: index});
+                    if(event.shiftKey){
+                        this._owner.moveItem(-1);
+                    }else{
+                        index = Math.max(this.state.rowFocusIndex - 1, 0);
+                        if(this.state.rowFocusIndex == 0){
+                            this._owner.setState({focusIndex: parentFocusIndex - 1});
+                        }else {
+                            this.setState({rowFocusIndex: index});
+                        }
                     }
                     break;
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
-                    if(index == rowsInTable){
-                        this._owner.setState({focusIndex: parentFocusIndex + 1});
+                    if(event.shiftKey){
+                        this._owner.moveItem(1);
                     }else {
-                        this.setState({rowFocusIndex: index});
+                        index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
+                        if(index == rowsInTable){
+                            this._owner.setState({focusIndex: parentFocusIndex + 1});
+                        }else {
+                            this.setState({rowFocusIndex: index});
+                        }
                     }
                     break;
                 case 'x':
