@@ -45,6 +45,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                             True
                     )
                 )
+            worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
             if interpreted:
                 interpreted_items = worksheet_util.interpret_items(
                                     worksheet_util.get_default_schemas(),
