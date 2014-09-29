@@ -157,20 +157,28 @@ var WorksheetItemList = React.createClass({
                 case 'up':
                 case 'k':
                     event.preventDefault();
-                    if(fIndex <= 0){
-                        fIndex = -1;
+                    if(event.shiftKey){
+                        this.moveItem(-1);
                     }else {
-                        fIndex = Math.max(this.state.focusIndex - 1, 0);
+                        if(fIndex <= 0){
+                            fIndex = -1;
+                        }else {
+                            fIndex = Math.max(this.state.focusIndex - 1, 0);
+                        }
+                        this.setState({focusIndex: fIndex});
+                        this.scrollToItem(fIndex);
                     }
-                    this.setState({focusIndex: fIndex});
-                    this.scrollToItem(fIndex);
                     break;
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
-                    this.setState({focusIndex: fIndex});
-                    this.scrollToItem(fIndex);
+                    if(event.shiftKey){
+                        this.moveItem(1);
+                    }else {
+                        fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
+                        this.setState({focusIndex: fIndex});
+                        this.scrollToItem(fIndex);
+                    }
                     break;
                 case 'e':
                     if(this.props.canEdit){
@@ -264,6 +272,16 @@ var WorksheetItemList = React.createClass({
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+    },
+    moveItem: function(delta){
+        var oldIndex = this.state.focusIndex;
+        var newIndex = oldIndex + delta;
+        if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
+            ws_obj.moveItem(oldIndex, newIndex);
+            this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
+        }else {
+            return false;
+        }
     },
     setFocus: function(child){
         this.setState({focusIndex: child.props.key});
