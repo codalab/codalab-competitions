@@ -26,7 +26,7 @@ var TableMixin = {
                 case 'up':
                 case 'k':
                     event.preventDefault();
-                    if(event.shiftKey){
+                    if(event.shiftKey && this.props.canEdit){
                         this._owner.moveItem(-1);
                     }else{
                         index = Math.max(this.state.rowFocusIndex - 1, 0);
@@ -40,7 +40,7 @@ var TableMixin = {
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    if(event.shiftKey){
+                    if(event.shiftKey && this.props.canEdit){
                         this._owner.moveItem(1);
                     }else {
                         index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);

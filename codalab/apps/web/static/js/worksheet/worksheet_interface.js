@@ -162,7 +162,7 @@ var WorksheetItemList = React.createClass({
                 case 'up':
                 case 'k':
                     event.preventDefault();
-                    if(event.shiftKey){
+                    if(event.shiftKey && this.props.canEdit){
                         this.moveItem(-1);
                     }else {
                         if(fIndex <= 0){
@@ -177,7 +177,7 @@ var WorksheetItemList = React.createClass({
                 case 'down':
                 case 'j':
                     event.preventDefault();
-                    if(event.shiftKey){
+                    if(event.shiftKey && this.props.canEdit){
                         this.moveItem(1);
                     }else {
                         fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
