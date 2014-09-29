@@ -112,13 +112,11 @@ var Select2SearchMixin = {
         var command = $('#search').select2('val'); // this comes in as an array
         // customization can be done here, depending on the desired syntax of commands.
         // currently, this just calls all of the functions named in the input
-        for(i=0; i < command.length; i++){
-            var input = fakedata[command[i]];
-            if(ws_actions.hasOwnProperty(input)){
-                ws_actions[input]();
-            } else {
-                console.error('The command \'' + command[i] + '\' was not recognized');
-            }
+        var input = fakedata[command[0]];
+        if(ws_actions.hasOwnProperty(input)){
+            ws_actions[input](command);
+        } else {
+            console.error('The command \'' + command[i] + '\' was not recognized');
         }
     }
 }

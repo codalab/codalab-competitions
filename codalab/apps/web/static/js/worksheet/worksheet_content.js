@@ -26,7 +26,7 @@ var WorksheetContent = function() {
     WorksheetContent.prototype.cleanUp = function() {
         //removes any falsy value, from the items array which should be only WorksheetItems
         //usfeull when deleting out items, we set to null and cleanup
-        var newArray = new Array();
+        var newArray = [];
         for(var i = 0; i < this.state.items.length; i++){
             if (this.state.items[i]){
                 newArray.push(this.state.items[i]);
