@@ -1,0 +1,12 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <p>This is a message updating your access to the competition:</p>
+    <a href="http://{{ site.domain }}{{ competition.get_absolute_url }}">{{ competition }}</a>
+
+    <p>Your participation privileges have been suspended.</p>
+
+    {% if reason %}
+    <p><strong>Reason:</strong>{{ reason }}</p>
+    {% endif %}
+{% endblock %}

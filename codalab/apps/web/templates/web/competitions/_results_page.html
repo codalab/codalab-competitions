@@ -1,4 +1,4 @@
-{% load codalab %}
+{% load codalab_tags %}
 
 {% if phase == None %}
 {% elif phase.is_future %}
@@ -15,27 +15,46 @@
             <p>Competition organizers have chosen to keep the leaderboard private but as the owner, you can access this page.</p>
         </div>
     {% endif %}
+
+    <div class="small-12 columns" style="margin-top: 20px;">
+        <b>Phase description</b>
+        {% if phase.description %}
+            <p>{{ phase.description }}</p>
+        {% else %}
+            <p>None</p>
+        {% endif %}
+    </div>
+
     {% if groups|length > 0 %}
     <div class="small-12 columns icon_excel">
         <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
     </div>
     {% endif %}
+
+
+
     <div class="leaderboard-result-table">
         {% for group in groups %}
         <table class="resultsTable dataTable">
-            <tr class="table-title">
-              <th colspan="{{group.total_span}}">{{group.label}}</th>
-            </tr>
+             <tr class="table-title">
+              <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
+             </tr>
              <tr class="leaderboard-result-table-header">
                 <th rowspan="2"></th>
                 <th rowspan="2">User</th>
                  {% for head in group.headers %}
                  {% if head.subs %}
                  <th colspan="{{head.subs|length}}">{{head.label}}</th>
-                 {% else %}                 
+                 {% else %}
                  <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
                  {% endif %}
-                 {% endfor %}  
+                 {% endfor %}
+                 {% if phase.competition.enable_detailed_results %}
+                 <th>Detailed Results</th>
+                 {% endif %}
+                 {% if phase.competition.enable_medical_image_viewer %}
+                 <th>Image Viewer</th>
+                 {% endif %}
              </tr>
              <tr>
                 {% for head in group.headers %}
@@ -48,9 +67,9 @@
             </tr>
             {% if group.scores.items|length_is:"0" %}
             <tr class="noData">
-                <td colspan="{{group.total_span}}">No data available in table</td>
-            </tr>  
-            {% else %}  
+                <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
+            </tr>
+            {% else %}
             {% for pk,scoredata in group.scores %}
             <tr>
                 <td class="row-position">{{pk}}</td>
@@ -66,11 +85,25 @@
                         {% endwith %}
                     {% endfor %}
                 {% endfor %}
+                {% if phase.competition.enable_detailed_results %}
+                    <td>
+                        <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">HTML report</a></br>
+                    </td>
+                {% endif %}
+                {% if phase.competition.enable_medical_image_viewer %}
+                    {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}
+                    <td>
+                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
+                            View results
+                        </a>
+                    </td>
+                    {% endwith %}
+                {% endif %}
             </tr>
             {% endfor %}
             {% endif %}
         </table>
         </br>
-        {% endfor %}        
+        {% endfor %}
     </div>
 {% endif %}

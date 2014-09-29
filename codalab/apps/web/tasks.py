@@ -10,17 +10,23 @@ from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
+from django.template import Context
+from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
                               getQueue)
 from apps.web.models import (add_submission_to_leaderboard,
+                             Competition,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
                              submission_prediction_output_filename,
                              submission_output_filename,
+                             submission_detailed_results_filename,
                              submission_private_output_filename,
                              submission_stdout_filename,
                              submission_stderr_filename,
@@ -133,11 +139,15 @@ def predict(submission, job_id):
     # Generate metadata-only bundle describing the computation
     lines = []
     program_value = submission.file.name
+
     if len(program_value) > 0:
         lines.append("program: %s" % program_value)
     else:
         raise ValueError("Program is missing.")
     input_value = submission.phase.input_data.name
+
+    logger.info("Running prediction")
+
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
@@ -149,16 +159,22 @@ def predict(submission, job_id):
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
     # Submit the request to the computation service
-    body = json.dumps({"id" : job_id,
-                       "task_type": "run",
-                       "task_args": {
-                           "bundle_id" : submission.prediction_runfile.name,
-                           "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-                           "reply_to" : settings.SBS_RESPONSE_QUEUE}})
+    body = json.dumps({
+        "id" : job_id,
+        "task_type": "run",
+        "task_args": {
+            "bundle_id": submission.prediction_runfile.name,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
+        }
+    })
+
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -223,6 +239,16 @@ def score(submission, job_id):
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
+    is_automatic_submission = False
+    if submission.phase.auto_migration:
+        # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
+        submissions_this_phase = CompetitionSubmission.objects.filter(
+            phase=submission.phase,
+            participant=submission.participant
+        ).count()
+        is_automatic_submission = submissions_this_phase == 1
+
+    lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
 
 
@@ -256,7 +282,8 @@ def score(submission, job_id):
         "task_args": {
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE
+            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
@@ -301,14 +328,24 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
                 submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
+                submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
                 submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
+                logger.debug("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
-                scores = open(ozip.extract('scores.txt'), 'r').read()
+                scores = None
+                try:
+                    scores = open(ozip.extract('scores.txt'), 'r').read()
+                except Exception:
+                    logger.error("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
+                    _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+                    return Job.FAILED
+
                 logger.debug("Processing scores... (submission_id=%s)", submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
                         label, value = line.split(":")
+                        logger.debug("Attempting to submit score %s:%s" % (label, value))
                         try:
                             scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
                                                                       key=label.strip())
@@ -431,3 +468,45 @@ def evaluate_submission(submission_id, is_scoring_only):
     """
     task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
     return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
+
+
+def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
+                        connection=None):
+    connection = connection or get_connection(
+        username=user, password=password, fail_silently=fail_silently
+    )
+
+    messages = []
+    for subject, text, html, from_email, recipient in datatuple:
+        message = EmailMultiAlternatives(subject, text, from_email, recipient)
+        message.attach_alternative(html, 'text/html')
+        messages.append(message)
+
+    return connection.send_messages(messages)
+
+
+def send_mass_email_task(job_id, task_args):
+    competition = Competition.objects.get(pk=task_args["competition_pk"])
+    body = task_args["body"]
+    subject = task_args["subject"]
+    from_email = task_args["from_email"]
+    to_emails = task_args["to_emails"]
+
+    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
+    text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
+    html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
+
+    mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
+
+    _send_mass_html_mail(mail_tuples)
+
+
+def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
+    task_args = {
+        "competition_pk": competition.pk,
+        "body": body,
+        "subject": subject,
+        "from_email": from_email,
+        "to_emails": to_emails
+    }
+    return Job.objects.create_and_dispatch_job('send_mass_email', task_args)

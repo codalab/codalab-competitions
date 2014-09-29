@@ -32,7 +32,10 @@
                 </div>
             </a>
             <div id="competition-actions" published="{{competition.published}}" class="columns cursor-default myCompetitionButtons">
+                {% if request.user == competition.creator %}
                 <a target="_self" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
+                {% endif %}
+
                 <a target="_self" href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
                 <button value="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button" class="secondary button">Publish</button>
                 <!-- <button value="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button" class="secondary button">Unpublish</button> -->

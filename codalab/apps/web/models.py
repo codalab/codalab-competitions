@@ -10,6 +10,8 @@ import tempfile
 import datetime
 import django.dispatch
 import time
+import string
+import uuid
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
@@ -29,7 +31,11 @@ from django.contrib.contenttypes import generic
 from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
+from django_extensions.db.fields import UUIDField
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
@@ -144,6 +150,7 @@ class Competition(models.Model):
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
     end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
+    admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
     last_modified = models.DateTimeField(auto_now_add=True)
     pagecontainers = generic.GenericRelation(PageContainer)
@@ -152,6 +159,11 @@ class Competition(models.Model):
     last_phase_migration = models.PositiveIntegerField(default=1)
     is_migrating = models.BooleanField(default=False)
     force_submission_to_leaderboard = models.BooleanField(default=False)
+    disallow_leaderboard_modifying = models.BooleanField(default=False)
+    secret_key = UUIDField(version=4)
+    enable_medical_image_viewer = models.BooleanField(default=False)
+    enable_detailed_results = models.BooleanField(default=False)
+    original_yaml_file = models.TextField(default='', blank=True, null=True)
 
     @property
     def pagecontent(self):
@@ -370,6 +382,9 @@ def submission_history_file_name(instance, filename="history.txt"):
 def submission_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), filename)
 
+def submission_detailed_results_filename(instance, filename="detailed_results.html"):
+    return os.path.join(submission_root(instance), "run", "html", filename)
+
 def submission_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
@@ -391,7 +406,7 @@ def submission_prediction_output_filename(instance, filename="output.zip"):
 class _LeaderboardManagementMode(object):
     """
     Provides a set of constants which define when results become visible to participants
-    and how successful submisstion are added to the leaderboard.
+    and how successful submmisions are added to the leaderboard.
     """
     @property
     def DEFAULT(self):
@@ -419,12 +434,23 @@ class CompetitionPhase(models.Model):
     """
         A phase of a competition.
     """
+    COLOR_CHOICES = (
+        ('white', 'White'),
+        ('orange', 'Orange'),
+        ('yellow', 'Yellow'),
+        ('green', 'Green'),
+        ('blue', 'Blue'),
+        ('purple', 'Purple'),
+    )
+
     competition = models.ForeignKey(Competition,related_name='phases')
+    description = models.CharField(max_length=1000, null=True, blank=True)
     # Is this 0 based or 1 based?
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
+    max_submissions_per_day = models.PositiveIntegerField(default=999, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
     scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
     reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
@@ -433,6 +459,12 @@ class CompetitionPhase(models.Model):
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
+    execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
+    color = models.CharField(max_length=24, choices=COLOR_CHOICES, blank=True, null=True)
+
+    input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
+    reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
+    scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['phasenumber']
@@ -530,18 +562,24 @@ class CompetitionPhase(models.Model):
 
         # Get the list of submissions in this leaderboard
         submissions = []
+        result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+            for entry in qs:
+                result_location.append(entry.result.file.name)
             for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
                 submissions.append((rid,  name))
 
         results = []
-        for g in SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering'):
+        for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
             label = g.label
             headers = []
             scores = {}
-            for (pk,name) in submissions: scores[pk] = {'username': name, 'values': []}
+
+            # add the location of the results on the blob storage to the scores
+            for (pk,name) in submissions:
+                scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
@@ -721,6 +759,7 @@ class CompetitionSubmission(models.Model):
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
+    detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
@@ -752,6 +791,21 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied("The maximum number of submissions has been reached.")
             else:
                 print "Submission number below maximum."
+
+            if hasattr(self.phase, 'max_submissions_per_day'):
+                print 'Checking submissions per day count'
+
+                submissions_from_today_count = len(CompetitionSubmission.objects.filter(
+                    phase__competition=self.phase.competition,
+                    participant=self.participant,
+                    submitted_at__gte=datetime.date.today()
+                ))
+
+                print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
+
+                if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    print 'PERMISSION DENIED'
+                    raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
@@ -795,11 +849,11 @@ class CompetitionSubmission(models.Model):
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
+            'detailed_results.html': ('detailed_results_file', 'html', True),
         }
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-
         # If the user requesting access is the owner, access granted
         if self.participant.competition.creator.id != requested_by.id:
             # User making request must be owner of this submission and be granted
@@ -813,9 +867,13 @@ class CompetitionSubmission(models.Model):
             if self.participant.competition.creator.id != requested_by.id:
                 raise PermissionDenied()
 
-        file_type = 'text/plain' if file_ext == 'txt' else 'application/zip'
+        if file_ext == 'txt':
+            file_type = 'text/plain'
+        elif file_ext == 'html':
+            file_type = 'text/html'
+        else:
+            file_type = 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
-
         return getattr(self, file_attr), file_type, file_name
 
 class SubmissionResultGroup(models.Model):
@@ -891,13 +949,15 @@ class CompetitionDefBundle(models.Model):
         zf = zipfile.ZipFile(self.config_bundle)
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
-        comp_spec = yaml.load(zf.open(comp_spec_file))
+        yaml_contents = zf.open(comp_spec_file).read()
+        comp_spec = yaml.load(yaml_contents)
         comp_base = comp_spec.copy()
         for block in ['html', 'phases', 'leaderboard']:
             if block in comp_base:
                 del comp_base[block]
         comp_base['creator'] = self.owner
         comp_base['modified_by'] = self.owner
+        comp_base['original_yaml_file'] = yaml_contents
 
         if 'end_date' in comp_base:
             if comp_base['end_date'] is None:
@@ -905,9 +965,32 @@ class CompetitionDefBundle(models.Model):
             else:
                 comp_base['end_date'] = CompetitionDefBundle.localize_datetime(comp_base['end_date'])
 
+        admin_names = None
+        if 'admin_names' in comp_base:
+            admin_names = comp_base['admin_names']
+            del comp_base['admin_names']
+
         comp = Competition(**comp_base)
         comp.save()
         logger.debug("CompetitionDefBundle::unpack created base competition (pk=%s)", self.pk)
+
+        if admin_names:
+            logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
+            admins = User.objects.filter(username__in=admin_names.split(','))
+            logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
+            comp.admins.add(*admins)
+
+            logger.debug("CompetitionDefBundle::unpack adding admins as participants")
+            approved_status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
+
+            for admin in admins:
+                try:
+                    participant = CompetitionParticipant.objects.get(user=admin, competition=comp)
+                    participant.status = approved_status
+                    participant.save()
+                except models.ObjectDoesNotExist:
+                    CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
+
 
         # Unpack and save the logo
         if 'image' in comp_base:
@@ -924,11 +1007,28 @@ class CompetitionDefBundle(models.Model):
                                    label="Evaluation", rank=1, html=zf.read(comp_spec['html']['evaluation']))
         Page.objects.create(category=details_category, container=pc,  codename="terms_and_conditions", competition=comp,
                                    label="Terms and Conditions", rank=2, html=zf.read(comp_spec['html']['terms']))
+
+        default_pages = ('overview', 'evaluation', 'terms', 'data')
+
+        for (page_number, (page_name, page_data)) in enumerate(comp_spec['html'].items()):
+            if page_name not in default_pages:
+                Page.objects.create(
+                    category=details_category,
+                    container=pc,
+                    codename=page_name,
+                    competition=comp,
+                    label=page_name,
+                    rank=3 + page_number,     # Start at 3 (Overview, Evaluation and Terms and Conditions first)
+                    html=zf.read(page_data)
+                )
+
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
         Page.objects.create(category=participate_category, container=pc,  codename="submit_results", label="Submit / View Results", rank=1, html="")
         logger.debug("CompetitionDefBundle::unpack created competition pages (pk=%s)", self.pk)
+
+        data_set_cache = {}
 
         # Create phases
         for index, p_num in enumerate(comp_spec['phases']):
@@ -945,6 +1045,11 @@ class CompetitionDefBundle(models.Model):
 
             if 'datasets' in phase_spec:
                 datasets = phase_spec['datasets']
+
+                for dataset_index, dataset in datasets.items():
+                    if "key" in dataset:
+                        dataset["url"] = reverse("datasets_download", kwargs={"dataset_key": dataset["key"]})
+
                 del phase_spec['datasets']
             else:
                 datasets = {}
@@ -960,12 +1065,74 @@ class CompetitionDefBundle(models.Model):
 
             phase, created = CompetitionPhase.objects.get_or_create(**phase_spec)
             logger.debug("CompetitionDefBundle::unpack created phase (pk=%s)", self.pk)
-            # Evaluation Program
-            phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
-            phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
-            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
+
+            # Set default for max submissions per day
+            if not hasattr(phase, 'max_submissions_per_day'):
+                phase.max_submissions_per_day = 999
+
+            # Create automatic datasets out of some included files, cache file names here as to not make duplicates
+            # where many phases use same dataset files
+            if hasattr(phase, 'scoring_program') and phase.scoring_program:
+                if phase_spec["scoring_program"].endswith(".zip"):
+                    phase.scoring_program.save(phase_scoring_program_file(phase), File(io.BytesIO(zf.read(phase_spec['scoring_program']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['scoring_program']))[0]
+                    if phase_spec['scoring_program'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['scoring_program'])
+                        data_set_cache[phase_spec['scoring_program']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Scoring Program",
+                            data_file=phase.scoring_program.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.scoring_program_organizer_dataset = data_set_cache[phase_spec['scoring_program']]
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
+                    phase.scoring_program = data_set.data_file.file.name
+                    phase.scoring_program_organizer_dataset = data_set
+
+            if hasattr(phase, 'reference_data') and phase.reference_data:
+                if phase_spec["reference_data"].endswith(".zip"):
+                    phase.reference_data.save(phase_reference_data_file(phase), File(io.BytesIO(zf.read(phase_spec['reference_data']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['reference_data']))[0]
+                    if phase_spec['reference_data'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['reference_data'])
+                        data_set_cache[phase_spec['reference_data']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Reference Data",
+                            data_file=phase.reference_data.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.reference_data_organizer_dataset = data_set_cache[phase_spec['reference_data']]
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
+                    phase.reference_data = data_set.data_file.file.name
+                    phase.reference_data_organizer_dataset = data_set
+
             if 'input_data' in phase_spec:
-                phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
+                if phase_spec["input_data"].endswith(".zip"):
+                    phase.input_data.save(phase_input_data_file(phase), File(io.BytesIO(zf.read(phase_spec['input_data']))))
+
+                    file_name = os.path.splitext(os.path.basename(phase_spec['input_data']))[0]
+                    if phase_spec['input_data'] not in data_set_cache:
+                        logger.debug('Adding organizer dataset to cache: %s' % phase_spec['input_data'])
+                        data_set_cache[phase_spec['input_data']] = OrganizerDataSet.objects.create(
+                            name="%s_%s_%s" % (file_name, phase.phasenumber, comp.pk),
+                            type="Input Data",
+                            data_file=phase.input_data.file.name,
+                            uploaded_by=self.owner
+                        )
+                    phase.input_data_organizer_dataset = data_set_cache[phase_spec['input_data']]
+                else:
+                    logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
+                    data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
+                    phase.input_data = data_set.data_file.file.name
+                    phase.input_data_organizer_dataset = data_set
+
+            phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()
             logger.debug("CompetitionDefBundle::unpack saved scoring program and reference data (pk=%s)", self.pk)
             eft,cr_=ExternalFileType.objects.get_or_create(name="Data", codename="data")
@@ -1188,6 +1355,41 @@ class PhaseLeaderBoardEntry(models.Model):
 
     class Meta:
         unique_together = (('board', 'result'),)
+
+
+def dataset_data_file(dataset, filename="data.zip"):
+    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
+
+
+class OrganizerDataSet(models.Model):
+    TYPES = (
+        ("Reference Data", "Reference Data"),
+        ("Scoring Program", "Scoring Program"),
+        ("Input Data", "Input Data"),
+        ("None", "None")
+    )
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=64, choices=TYPES, default="None")
+    description = models.TextField(null=True, blank=True)
+    data_file = models.FileField(
+        upload_to=dataset_data_file,
+        storage=BundleStorage,
+        verbose_name="Data file",
+        blank=True,
+        null=True,
+    )
+    sub_data_files = models.ManyToManyField('OrganizerDataSet', null=True, blank=True, verbose_name="Bundle of data files")
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    key = UUIDField(version=4)
+
+    def save(self, **kwargs):
+        if self.key is None or self.key == '':
+            self.key = "%s" % (uuid.uuid4())
+        super(OrganizerDataSet, self).save(**kwargs)
+
+    def __unicode__(self):
+        return "%s uploaded by %s" % (self.name, self.uploaded_by)
+
 
 def add_submission_to_leaderboard(submission):
     """

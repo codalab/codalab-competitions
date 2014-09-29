@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
+
 from apps.web import views
 
 partials_patterns = patterns(
@@ -24,8 +25,18 @@ urlpatterns = patterns(
     url(r'^competition/(?P<competition_id>\d+)/submissions/',
         views.MyCompetitionSubmissionsPage.as_view(),
         name='my_competition_submissions'),
-    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|input.zip|prediction-output.zip|output.zip|private_output.zip)$',
-        views.MyCompetitionSubmisisonOutput.as_view(),
+    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|input.zip|prediction-output.zip|output.zip|private_output.zip|detailed_results.html)$',
+        views.MyCompetitionSubmissionOutput.as_view(),
         name='my_competition_output'),
+    url(r'^competition/submission/(?P<submission_id>\d+)/detailed_results/',
+        views.MyCompetitionSubmissionDetailedResults.as_view(),
+        name='my_competition_detailed_results'),
     url(r'^_partials/', include(partials_patterns)),
+    url(r'^datasets/$', views.OrganizerDataSetListView.as_view(), name='my_datasets'),
+    url(r'^datasets/create', views.OrganizerDataSetCreate.as_view(), name='my_datasets_create'),
+    url(r'^datasets/update/(?P<pk>\d+)', views.OrganizerDataSetUpdate.as_view(), name='my_datasets_update'),
+    url(r'^datasets/delete/(?P<pk>\d+)', views.OrganizerDataSetDelete.as_view(), name='my_datasets_delete'),
+    url(r'^datasets/delete_multiple/', views.datasets_delete_multiple, name="datasets_delete_multiple"),
+    url(r'^datasets/download/(?P<dataset_key>.+)', views.download_dataset, name='datasets_download'),
+    url(r'^settings/', views.user_settings, name='user_settings')
 )

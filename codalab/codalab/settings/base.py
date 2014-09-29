@@ -14,6 +14,7 @@ try:
 except ImportError:
     pass
 
+
 class Base(Settings):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -44,7 +45,7 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = ''
 
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+    TEST_RUNNER = 'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
@@ -65,7 +66,7 @@ class Base(Settings):
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
     )
-   
+
     MANAGERS = ADMINS
 
     # Local time zone for this installation. Choices can be found here:
@@ -123,7 +124,7 @@ class Base(Settings):
     # various locations.
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-        'django.contrib.staticfiles.finders.FileSystemFinder', 
+        'django.contrib.staticfiles.finders.FileSystemFinder',
         #'django.contrib.staticfiles.finders.DefaultStorageFinder',
         'compressor.finders.CompressorFinder',
     )
@@ -163,6 +164,7 @@ class Base(Settings):
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
         "apps.web.context_processors.beta",
+        'django.core.context_processors.request',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -208,6 +210,7 @@ class Base(Settings):
         'apps.jobs',
         'apps.api',
         'apps.web',
+        'apps.health',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -234,7 +237,7 @@ class Base(Settings):
     EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'info@codalab.org'
+    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'
     SERVER_EMAIL = 'info@codalab.org'
 
     # Authentication configuration
@@ -247,7 +250,7 @@ class Base(Settings):
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
-   
+
     # Django Analytical configuration
     GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
 
@@ -389,4 +392,4 @@ class DevBase(Base):
     }
 
     # Send e-mails to the console during development
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

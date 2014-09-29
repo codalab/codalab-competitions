@@ -897,7 +897,7 @@ class Deployment(object):
         namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
-            bundle_auth_scheme = "https"  
+            bundle_auth_scheme = "https"
         else:
             bundle_auth_scheme = "http"
         if len(ssl_allowed_hosts) == 0:
@@ -947,7 +947,7 @@ class Deployment(object):
             "    EMAIL_HOST_PASSWORD = '{0}'".format(self.config.getEmailPassword()),
             "    EMAIL_PORT = 587",
             "    EMAIL_USE_TLS = True",
-            "    DEFAULT_FROM_EMAIL = 'info@codalab.org'",
+            "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
             "    # Django secret",

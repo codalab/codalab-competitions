@@ -1,19 +1,21 @@
 {
+    "aliases": {
+        "localhost": "http://localhost:2800"
+    },
     "home": "~/.codalab",
     "client": {
         "class": "LocalBundleClient"
     },
     "cli": {
-        "verbose": false
+        "verbose": 1
     },
+    "editor": "vim",
     "server": {
         "host": "localhost",
         "port": 2800,
         "class": "MySQLModel",
-        "username": "{{BUNDLE_DB_USER}}",
-        "password": "{{BUNDLE_DB_PASSWORD}}",
-        "address": "localhost",
-        "database": "{{BUNDLE_DB_NAME}}",
+        "engine_url": "mysql://{{BUNDLE_DB_USER}}:{{BUNDLE_DB_PASSWORD}}@localhost:3306/{{BUNDLE_DB_NAME}}",
+        "verbose": 1,
         "auth": {
             "class": "OAuthHandler",
             "address": "{{BUNDLE_AUTH_URL}}",

@@ -6,4 +6,4 @@ source ../venv/bin/activate
 echo " .... "
 echo "$DJANGO_CONFIGURATION Configuration"
 echo " .... "
-exec python manage.py "$@"
+exec python2.7 manage.py "$@"

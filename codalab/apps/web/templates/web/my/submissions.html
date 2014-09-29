@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-{% load codalab %}
+{% load codalab_tags %}
 {% load tz %}
 
 {% block page_title %}Submissions{% endblock page_title %}
@@ -11,19 +11,34 @@
 <div class="row">
     <div class="large-12 large-centered columns submissions content">
         <div class="challStatusStrip">
-            <section class="challStatusStripSection">
+            <select id="phase_selector">
+                {% for phase in competition.phases.all %}
+                    <option {% if phase.id == selected_phase_id %}selected{% endif %} value="{{ phase.id }}">{{ phase.label }} - {{phase.start_date|utc}} UTC</option>
+                {% endfor %}
+            </select>
+
+            <div class="small-12 columns" style="margin-top: 20px;">
+                <b>Selected phase description</b>
+                {% if phase.description %}
+                    <p>{{ phase.description }}</p>
+                {% else %}
+                    <p>None</p>
+                {% endif %}
+            </div>
+
+            <!--<section class="challStatusStripSection">
             {% for phase in competition.phases.all %}
                 {% if phase.id == selected_phase_id %}
                 <section class="currentPhase">
                 {% else %}
                 <section>
                 {% endif %}
-                    <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a> 
+                    <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a>
                     <br>
                     <span>{{phase.start_date|utc}} UTC</span>
                 </section>
             {% endfor %}
-            </section>
+            </section>-->
         </div>
         <br>
         {% if not submission_info_list %}
@@ -40,6 +55,7 @@
                     </th>
                     {% endfor %}
                     <th width="40px"></th>
+                    <th width="40px"></th>
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +69,7 @@
                     {% endif %}
                     {% endfor %}
                     <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
+                    <td><a href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -62,11 +79,16 @@
 </div>
 
 {% include "web/common/_submission_details_template.html" %}
+
 {% endblock %}
 
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
         $("#liMyCodalab").addClass("active");
+
+        $("#phase_selector").change(function(){
+            window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
+        });
     });
 {% endblock js %}

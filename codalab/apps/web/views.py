@@ -1,24 +1,39 @@
 import datetime
 import StringIO
 import csv
+import json
+import zipfile
+import os
+import sys
+import traceback
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse, reverse_lazy
+from os.path import splitext
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.views.generic.edit import FormMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.template import RequestContext, loader
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
-from django.utils.decorators import method_decorator
+from django.http import Http404
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.http import StreamingHttpResponse
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext, loader
+from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
+from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
 
-from apps.web import models
+from mimetypes import MimeTypes
+
 from apps.web import forms
+from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
 
@@ -33,18 +48,35 @@ except ImportError:
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
 def competition_index(request):
-    template = loader.get_template("web/competitions/index.html")
-    context = RequestContext(request, {
-        'competitions' : models.Competition.objects.filter(published=True),
-        })
-    return HttpResponse(template.render(context))
+    query = request.GET.get('q')
+    is_active = request.GET.get('is_active', False)
+    is_finished = request.GET.get('is_finished', False)
+    medical_image_viewer = request.GET.get('medical_image_viewer', False)
+
+    competitions = models.Competition.objects.filter(published=True)
+
+    if query:
+        competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
+    if medical_image_viewer:
+        competitions = competitions.filter(enable_medical_image_viewer=True)
+    if is_active:
+        competitions = [c for c in competitions if c.is_active]
+    if is_finished:
+        competitions = [c for c in competitions if not c.is_active]
+
+    return render(request, "web/competitions/index.html", {
+        'competitions': competitions,
+    })
 
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
     denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+
+    competitions_owner = models.Competition.objects.filter(creator=request.user)
+    competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
     context = RequestContext(request, {
-        'my_competitions' : models.Competition.objects.filter(creator=request.user),
+        'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied)
         })
     return HttpResponse(template.render(context))
@@ -87,18 +119,68 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     inlines_names = ['Pages', 'Phases']
     template_name = 'web/competitions/edit.html'
 
-    def form_valid(self, form):
+    def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
-        return super(CompetitionEdit, self).form_valid(form)
+
+        # save up here, before checks for new phase data
+        save_result = super(CompetitionEdit, self).forms_valid(form, inlines)
+
+        # inlines[0] = pages
+        # inlines[1] = phases
+        for phase_form in inlines[1]:
+            if phase_form.cleaned_data["input_data_organizer_dataset"]:
+                phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
+
+            if phase_form.cleaned_data["reference_data_organizer_dataset"]:
+                phase_form.instance.reference_data = phase_form.cleaned_data["reference_data_organizer_dataset"].data_file.file.name
+
+            if phase_form.cleaned_data["scoring_program_organizer_dataset"]:
+                phase_form.instance.scoring_program = phase_form.cleaned_data["scoring_program_organizer_dataset"].data_file.file.name
+
+            phase_form.instance.save()
+
+        # Look for admins that are not participants yet
+        approved_status = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.APPROVED)
+
+        for admin in form.instance.admins.all():
+            try:
+                participant = models.CompetitionParticipant.objects.get(user=admin, competition=form.instance)
+                participant.status = approved_status
+                participant.save()
+            except ObjectDoesNotExist:
+                models.CompetitionParticipant.objects.create(user=admin, competition=form.instance, status=approved_status)
+
+        return save_result
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionEdit, self).get_context_data(**kwargs)
         return context
 
+    def construct_inlines(self):
+        '''I need to overwrite this method in order to change
+        the queryset for the "keywords" field'''
+        inline_formsets = super(CompetitionEdit, self).construct_inlines()
+
+        # inline_formsets[1] == phases
+        for inline_form in inline_formsets[1].forms:
+            inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Input Data"
+            )
+            inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Reference Data"
+            )
+            inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
+                uploaded_by=self.request.user,
+                type="Scoring Program"
+            )
+        return inline_formsets
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.creator != request.user:
+        if self.object.creator != request.user and request.user not in self.object.admins.all():
             return HttpResponse(status=403)
 
         return super(CompetitionEdit, self).get(request, *args, **kwargs)
@@ -136,10 +218,60 @@ class CompetitionDelete(LoginRequiredMixin, DeleteView):
         return HttpResponseRedirect(success_url)
 
 
+@login_required
+def competition_message_participants(request, competition_id):
+    if request.method != "POST":
+        return HttpResponse(status=400)
+
+    try:
+        competition = models.Competition.objects.get(pk=competition_id)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+
+    if competition.creator != request.user and request.user not in competition.admins.all():
+        return HttpResponse(status=403)
+
+    if "subject" not in request.POST and "body" not in request.POST:
+        return HttpResponse(
+            json.dumps({
+                "error": "Missing subject or body of message!"
+            }),
+            status=400
+        )
+
+    participants = models.CompetitionParticipant.objects.filter(
+        competition=competition,
+        status=models.ParticipantStatus.objects.get(codename="approved"),
+        user__organizer_direct_message_updates=True
+    )
+    emails = [p.user.email for p in participants]
+    subject = request.POST.get('subject')
+    body = strip_tags(request.POST.get('body'))
+
+    if len(emails) > 0:
+        tasks.send_mass_email(
+            competition,
+            subject=subject,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to_emails=emails
+        )
+
+    return HttpResponse(status=200)
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
     template_name = 'web/competitions/view.html'
+
+    def get(self, request, *args, **kwargs):
+        competition = self.get_object()
+        secret_key = request.GET.get("secret_key", None)
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            if not competition.published and competition.secret_key != secret_key:
+                return HttpResponse(status=404)
+        return super(CompetitionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
@@ -156,17 +288,33 @@ class CompetitionDetailView(DetailView):
                 tc = []
             side_tabs[category] = tc
         context['tabs'] = side_tabs
+        context['site'] = Site.objects.get_current()
         submissions = dict()
         all_submissions = dict()
         try:
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
                 context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
-                for phase in competition.phases.all():
+
+                context["previous_phase"] = None
+                context["next_phase"] = None
+
+                phase_iterator = iter(competition.phases.all())
+                for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['active_phase'] = phase
                         context['my_active_phase_submissions'] = submissions[phase]
+
+                        # Set next phase if available
+                        try:
+                            context["next_phase"] = next(phase_iterator)
+                        except StopIteration:
+                            pass
+                    elif "active_phase" not in context:
+                        # Set trailing phase since active one hasn't been found yet
+                        context["previous_phase"] = phase
+
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
@@ -328,6 +476,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for participant in competition_participants:
             participant_entry = {
+                'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
                 'status': participant.status.codename,
@@ -403,7 +552,7 @@ class MySubmissionResultsPartial(TemplateView):
 
         return ctx
 
-class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
+class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     This view serves the files associated with a submission.
     """
@@ -420,9 +569,11 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
             return HttpResponse(status=500)
         try:
             response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type != 'text/plain':
+            if file_type == 'application/zip':
                 response['Content-Type'] = 'application/zip'
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+            else:
+                response['Content-Type'] = file_type
             return response
         except azure.WindowsAzureMissingResourceError:
             # for stderr.txt which does not exist when no errors have occurred
@@ -431,6 +582,17 @@ class MyCompetitionSubmisisonOutput(LoginRequiredMixin, View):
         except:
             msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
             return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+
+class MyCompetitionSubmissionDetailedResults(TemplateView):
+    """
+    This view serves the files associated with a submission.
+    """
+    model = models.CompetitionSubmission
+    template_name = 'web/my/detailed_results.html'
+    def get(self, request, *args, **kwargs):
+        submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
+        return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the submissions competition administration.
@@ -576,6 +738,16 @@ class BundleDetailView(TemplateView):
         context['bundle'] = results
         return context
 
+def BundleDownload(request, uuid):
+    service = BundleService(request.user)
+
+    local_path, temp_path = service.download_target(uuid, return_zip=True)
+    item = service.item(uuid)
+
+    response = StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
+    response['Content-Disposition'] = 'attachment; filename="%s.zip"' % item['metadata']['name']
+    return response
+
 # Worksheets
 
 class WorksheetListView(TemplateView):
@@ -595,3 +767,198 @@ class WorksheetDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
         return context
+
+
+class OrganizerDataSetListView(LoginRequiredMixin, ListView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets.html"
+
+    def get_queryset(self):
+        return models.OrganizerDataSet.objects.filter(uploaded_by=self.request.user)
+
+
+class OrganizerDataSetFormMixin(LoginRequiredMixin):
+    model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
+    template_name = "web/my/datasets_form.html"
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetFormMixin, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_form(self, form_class):
+        form = super(OrganizerDataSetFormMixin, self).get_form(form_class)
+        form.fields["sub_data_files"].queryset = models.OrganizerDataSet.objects.filter(
+            uploaded_by=self.request.user,
+            sub_data_files__isnull=True, # ignore datasets that are multi
+        )
+        return form
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetCreate(OrganizerDataSetFormMixin, CreateView):
+    model = models.OrganizerDataSet
+    form_class = forms.OrganizerDataSetModelForm
+    template_name = "web/my/datasets_form.html"
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OrganizerDataSetCreate, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+
+class OrganizerDataSetCheckOwnershipMixin(LoginRequiredMixin):
+    def get_object(self, queryset=None):
+        dataset = super(OrganizerDataSetCheckOwnershipMixin, self).get_object(queryset)
+
+        if dataset.uploaded_by != self.request.user:
+            raise Http404()
+
+        return dataset
+
+
+class OrganizerDataSetUpdate(OrganizerDataSetCheckOwnershipMixin, OrganizerDataSetFormMixin, UpdateView):
+    pass
+
+
+class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
+    model = models.OrganizerDataSet
+    template_name = "web/my/datasets_delete.html"
+
+    def get_success_url(self):
+        return reverse("my_datasets")
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizerDataSetDelete, self).get_context_data(**kwargs)
+
+        usage = models.CompetitionPhase.objects.all()
+
+        if self.object.type == "Input Data":
+            usage = usage.filter(input_data_organizer_dataset=self.object)
+        if self.object.type == "Reference Data":
+            usage = usage.filter(reference_data_organizer_dataset=self.object)
+        if self.object.type == "Scoring Program":
+            usage = usage.filter(scoring_program_organizer_dataset=self.object)
+
+        context["competitions_in_use"] = usage
+        return context
+
+
+class SubmissionDelete(LoginRequiredMixin, DeleteView):
+    model = models.CompetitionSubmission
+    template_name = "web/my/submission_delete.html"
+
+    def get_object(self, queryset=None):
+        obj = super(SubmissionDelete, self).get_object(queryset)
+
+        self.success_url = reverse("competitions:view", kwargs={"pk": obj.phase.competition.pk})
+
+        if obj.participant.user != self.request.user and obj.phase.competition.creator != self.request.user:
+            raise Http404()
+
+        return obj
+
+
+@login_required
+def user_settings(request):
+    if request.method == "POST":
+        fields = [
+            'participation_status_updates',
+            'organizer_status_updates',
+            'organizer_direct_message_updates'
+        ]
+
+        for f in fields:
+            if f not in request.POST:
+                return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        for f in fields:
+            value = request.POST.get(f)
+
+            bool_value = True if value == "true" else False
+            #try:
+            setattr(request.user, f, bool_value)
+            #except:
+            #    return render(request, "web/my/settings.html", {"errors": True}, status=400)
+
+        request.user.save()
+        return render(request, "web/my/settings.html", {"saved_successfully": True})
+
+    return render(request, "web/my/settings.html")
+
+
+def download_dataset(request, dataset_key):
+    try:
+        dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
+    except ObjectDoesNotExist:
+        return Http404()
+
+    try:
+        if dataset.sub_data_files.count() > 0:
+            zip_buffer = StringIO.StringIO()
+
+            zip_file = zipfile.ZipFile(zip_buffer, "w")
+            file_name = ""
+
+            for sub_dataset in dataset.sub_data_files.all():
+                file_dir, file_name = os.path.split(sub_dataset.data_file.file.name)
+                zip_file.writestr(file_name, sub_dataset.data_file.read())
+
+            zip_file.close()
+
+            resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+            resp['Content-Disposition'] = 'attachment; filename=%s.zip' % dataset.name
+            return resp
+        else:
+            mime = MimeTypes()
+            file_type = mime.guess_type(dataset.data_file.file.name)
+            response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+            if file_type != 'text/plain':
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
+            return response
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+def datasets_delete_multiple(request):
+    ids_to_delete = request.POST.getlist("ids_to_delete[]", [])
+
+    for dataset_id in ids_to_delete:
+        try:
+            dataset = models.OrganizerDataSet.objects.get(pk=int(dataset_id), uploaded_by=request.user)
+            dataset.delete()
+        except:
+            pass
+
+    return HttpResponse()
+
+
+def download_competition_yaml(request, competition_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            return HttpResponse(status=403)
+
+        response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
+        response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
+        return response
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)

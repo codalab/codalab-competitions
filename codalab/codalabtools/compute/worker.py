@@ -13,6 +13,7 @@ import tempfile
 import time
 import yaml
 from os.path import dirname, abspath, join
+from subprocess import Popen, PIPE
 from zipfile import ZipFile
 
 
@@ -70,8 +71,6 @@ class WorkerConfig(BaseConfig):
 
 def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
     """
-    Gets a bundle and its dependent bundles from Azure storage and stage them on the local
-    system to prepare for execution. The function is recursive but depth of recursion can
     be controlled with the max_depth parameter.
 
     root_path: Path of the local directory under which all files are staged for execution.
@@ -97,6 +96,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
         try:
+            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
             blob = blob_service.get_blob(container, bundle_id)
         except azure.WindowsAzureMissingResourceError:
             #file not found lets None this bundle
@@ -105,6 +105,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
         bundle_ext = os.path.splitext(bundle_id)[1]
         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+
+        logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
 
         #take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
@@ -150,7 +152,7 @@ def _send_update(queue, task_id, status):
                        'task_args': {'status': status}})
     queue.send_message(body)
 
-def _upload(blob_service, container, blob_id, blob_file):
+def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
     Uploads a Blob.
 
@@ -161,7 +163,7 @@ def _upload(blob_service, container, blob_id, blob_file):
     """
     with open(blob_file, 'rb') as f:
         blob = f.read()
-        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob')
+        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
 
 def get_run_func(config):
     """
@@ -180,6 +182,7 @@ def get_run_func(config):
         task_args: The input arguments for this task:
         """
         run_id = task_args['bundle_id']
+        execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
@@ -228,6 +231,7 @@ def get_run_func(config):
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
+            os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
             # Update command-line with the real paths
             logger.debug("CMD: %s", prog_cmd)
@@ -241,12 +245,31 @@ def get_run_func(config):
             stdout_file = join(run_dir, 'stdout.txt')
             stderr_file = join(run_dir, 'stderr.txt')
             startTime = time.time()
-            exitCode = os.system(prog_cmd + ' >' + stdout_file + ' 2>' + stderr_file) # Run it!
-            logger.debug("Exit Code: %d", exitCode)
+            exit_code = None
+            timed_out = False
+
+            with open(stdout_file, "wb") as out, open(stderr_file, "wb") as err:
+                evaluator_process = Popen(prog_cmd.split(' '), stdout=out, stderr=err)
+
+                while exit_code is None:
+                    exit_code = evaluator_process.poll()
+
+                    # time in seconds
+                    if exit_code is None and time.time() - startTime > execution_time_limit:
+                        exit_code = -1
+                        logger.info("Killed process for running too long!")
+                        err.write("Execution time limit exceeded!")
+                        evaluator_process.kill()
+                        timed_out = True
+                        break
+                    else:
+                        time.sleep(.1)
+
+            logger.debug("Exit Code: %d", exit_code)
             endTime = time.time()
             elapsedTime = endTime - startTime
             prog_status = {
-                'exitCode': exitCode,
+                'exitCode': exit_code,
                 'elapsedTime': elapsedTime
             }
             with open(join(output_dir, 'metadata'), 'w') as f:
@@ -273,19 +296,39 @@ def get_run_func(config):
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
 
-            _send_update(queue, task_id, 'finished')
+            # Check if the output folder contain an "html file" and copy the html file as detailed_results.html
+            # traverse root directory, and list directories as dirs and files as files
+            html_found = False
+            for root, dirs, files in os.walk(output_dir):
+                if not (html_found):
+                    path = root.split('/')
+                    for file in files:
+                        file_to_upload = os.path.join(root,file)
+                        file_ext = os.path.splitext(file_to_upload)[1]
+                        if file_ext.lower() ==".html":
+                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
+                            print "file_to_upload:%s" % file_to_upload
+                            _upload(blob_service, container, html_file_id, file_to_upload, "html")
+                            html_found = True
+
+            # check if timed out AFTER output files are written! If we exit sooner, no output is written
+            if timed_out:
+                logger.exception("Run task failed (task_id=%s).", task_id)
+                _send_update(queue, task_id, 'failed')
+            else:
+                _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
             _send_update(queue, task_id, 'failed')
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
-           # Try cleaning-up temporary directory
-           try:
-               os.chdir(current_dir)
-               shutil.rmtree(root_dir)
-           except:
-               logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+            # Try cleaning-up temporary directory
+            try:
+                os.chdir(current_dir)
+                shutil.rmtree(root_dir)
+            except:
+                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():
