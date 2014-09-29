@@ -12,8 +12,7 @@
   line-height:1.2em;
   min-height:480px;
 }
-#worksheet_content .glossary-link {
-  float:right;
+#worksheet_content .glossary-link, #worksheet_content .controls label {
   font-weight:normal;
   font-size:.75em;
 }
@@ -37,17 +36,23 @@
   text-align:center;
   display:none;
 }
-#worksheet_content .worksheet-name {
+#worksheet_content .header-row {
   border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
-  min-height:88px;
+}
+#worksheet_content .header-row .controls {
+  text-align:right;
+  padding-top:.75em;
+}
+#worksheet_content .worksheet-name {
+  min-height:65px;
 }
 #worksheet_content .worksheet-name label input[type="checkbox"]{
   margin-right:5px;
 }
 #worksheet_content .worksheet-name h1 {
   text-indent:65px;
-  margin-top:.25em;
+  margin-top:0;
   font-size:2.75em
 }
 #worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {

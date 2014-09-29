@@ -30,6 +30,7 @@ var Worksheet = React.createClass({
     getInitialState: function(){
         return {
             activeComponent: 'list',
+            editMode: false
         }
     },
     componentDidMount: function() {
@@ -65,13 +66,15 @@ var Worksheet = React.createClass({
             return true;
         }
     },
+    toggleEditing: function(){
+        this.setState({editMode:!this.state.editMode});
+    },
     render: function(){
-
-        var canEdit = ws_obj.getState().edit_permission;
+        var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} />
+                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
             </div>
         )
     }
@@ -183,7 +186,7 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'e':
-                    if(ws_obj.getState().edit_permission){
+                    if(this.props.canEdit){
                         event.preventDefault();
                         this.setState({editingIndex: fIndex});
                     }
@@ -195,13 +198,13 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'd':
-                    if(ws_obj.getState().edit_permission){
+                    if(this.props.canEdit){
                         event.preventDefault();
                         this.deleteChecked();
                     }
                     break;
                 case 'i':
-                    if(ws_obj.getState().edit_permission){
+                    if(this.props.canEdit){
                         event.preventDefault();
                         this.insertItem(key);
                     }
@@ -291,9 +294,13 @@ var WorksheetItemList = React.createClass({
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
-        var canEdit = ws_obj.getState().edit_permission;
+        var canEdit = this.props.canEdit;
         var className = canEdit ? 'editable' : '';
-
+        var editPermission = ws_obj.getState().edit_permission;
+        var editStatus = 'not allowed';
+        if(editPermission){
+            var editStatus = canEdit ? 'on' : 'off';
+        }
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
@@ -309,17 +316,23 @@ var WorksheetItemList = React.createClass({
         }
         return (
             <div id="worksheet_content" className={className}>
-                <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
-                <div className="worksheet-name">
-                    <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                    <div className="worksheet-author">{ws_obj.state.owner}</div>
-                {
-                /*  COMMENTING OUT EXPORT BUTTON UNTIL WE DETERMINE ASSOCIATED ACTION
-                <a href="#" className="right">
-                <button className="med button">Export</button>
-                </a<
-                */
-                }
+                <div className="row header-row">
+                    <div className="large-6 columns">
+                        <div className="worksheet-name">
+                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                            <div className="worksheet-author">{ws_obj.state.owner}</div>
+                        </div>
+                    </div>
+                    <div className="large-6 columns controls">
+                        <div>
+                            <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
+                        </div>
+                        <div>
+                            <label htmlFor="editing">
+                                <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} disabled={!editPermission} /> Editing {editStatus}
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 {worksheet_items}
                 <p className="empty-worksheet">This worksheet is empty</p>
