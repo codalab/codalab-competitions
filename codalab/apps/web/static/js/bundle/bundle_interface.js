@@ -346,7 +346,14 @@ var FileBrowserItem = React.createClass({
             icon = "icon_document"
         }
 
-        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + this.props.currentWorkingDirectory + this.props.key + '/';
+        var file_location = '';
+        if(this.props.currentWorkingDirectory) {
+            file_location = this.props.currentWorkingDirectory + '/' + this.props.key;
+        } else {
+            file_location = this.props.key;
+        }
+
+        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location + '/';
 
         return (
             <tr>
