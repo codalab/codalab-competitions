@@ -102,6 +102,46 @@ var WorksheetContent = function() {
             }.bind(this)
         });
     };
+
+    WorksheetContent.prototype.saveWorksheet = function(props) {
+        props = props || {};
+        props.success = props.success || function(data){};
+        props.error = props.error || function(xhr, status, err){};
+        console.log('------ save the worksheet here ------');
+        var postdata = {
+            'name': this.state.name,
+            'uuid': this.state.uuid,
+            'owner_id': this.state.owner_id,
+            // 'items' : items
+        };
+
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: this.url,
+            contentType:"application/json; charset=utf-8",
+            dataType:"json",
+            data: JSON.stringify(postdata),
+            success: function(data) {
+                console.log('Saved worksheet');
+                console.log(data);
+                console.log('');
+                ws_obj.state = data;
+                var ws_items = [];
+                data.items.map(function(item){
+                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode);
+                    ws_items.push(ws_item);
+                });
+                consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
+                ws_obj.state.items = consolidatedWorksheetItems;
+                props.success(ws_obj.state);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                props.error(xhr, status, err);
+            }.bind(this)
+        });
+    };
+
     return WorksheetContent;
 }();
 
