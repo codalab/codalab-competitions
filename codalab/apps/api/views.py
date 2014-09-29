@@ -717,14 +717,18 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
+            worksheet['edit_permission'] = False
+
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
-            # if owner:
-            #     owner = owner[0]
-            # else:
-            #     pass
-                #TODO throw error
-            #TODO assign owner.
-            # worksheet['owner'] = owner.username
+            if owner:
+                owner = owner[0]
+                worksheet['owner'] = owner.username
+                if str(owner.id) == str(worksheet['owner_id']):
+                    worksheet['edit_permission'] = True
+            else:
+                worksheet['owner'] = None
+
+
             return Response(worksheet)
         except Exception as e:
             logging.error(self.__str__())
@@ -747,9 +751,9 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
-            item['permission'] = False
+            item['edit_permission'] = False
             if item['owner_id'] == str(self.request.user.id):
-                item['permission'] = True
+                item['edit_permission'] = True
             return Response(item, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())

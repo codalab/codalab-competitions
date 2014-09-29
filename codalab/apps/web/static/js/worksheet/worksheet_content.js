@@ -6,7 +6,7 @@ var WorksheetContent = function() {
         this.url = url;
         this.needs_cleanup = false;
         this.state = {
-            edit_permission: true,
+            edit_permission: false,
             last_item_id: 0,
             name: '',
             owner: null,
@@ -42,7 +42,7 @@ var WorksheetContent = function() {
     };
     WorksheetContent.prototype.setItem = function(index, newItem) {
         this.state.items[index] = newItem;
-        this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's 
+        this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's
     };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
         var consolidatedWorksheet = [];
@@ -90,9 +90,6 @@ var WorksheetContent = function() {
                 });
                 consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
                 ws_obj.state.items = consolidatedWorksheetItems;
-                // TODO permissions ////////
-                ws_obj.state.edit_permission = true;
-                // ////////
                 props.success(ws_obj.state);
             }.bind(this),
             error: function(xhr, status, err) {
@@ -115,6 +112,6 @@ var WorksheetItem = function() {
             mode: mode,
         };
     }
-   
+
     return WorksheetItem;
 }();
