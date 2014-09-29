@@ -109,6 +109,7 @@ var WorksheetItemList = React.createClass({
         return {
             focusIndex: -1,
             editingIndex: -1,
+            rawMode: false,
             worksheet: {
                 last_item_id: 0,
                 name: '',
@@ -116,7 +117,8 @@ var WorksheetItemList = React.createClass({
                 owner_id: 0,
                 uuid: 0,
                 items: [],
-                edit_permission: false
+                edit_permission: false,
+                raw: []
             }
         }
     },
@@ -291,6 +293,9 @@ var WorksheetItemList = React.createClass({
     setFocus: function(child){
         this.setState({focusIndex: child.props.key});
     },
+    toggleRawMode: function(){
+        this.setState({rawMode: !this.state.rawMode})
+    },
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
@@ -314,6 +319,12 @@ var WorksheetItemList = React.createClass({
         }else {
             $('.empty-worksheet').fadeIn();
         }
+        var worksheet_items_display;
+        if(this.state.rawMode){
+            worksheet_items_display = <textarea defaultValue={ws_obj.state.raw} className="raw-textarea" />;
+        }else {
+            worksheet_items_display = worksheet_items;
+        }
         return (
             <div id="worksheet_content" className={className}>
                 <div className="row header-row">
@@ -332,9 +343,14 @@ var WorksheetItemList = React.createClass({
                                 <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} disabled={!editPermission} /> Editing {editStatus}
                             </label>
                         </div>
+                        <div>
+                            <label htmlFor="rawMode">
+                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
+                            </label>
+                        </div>
                     </div>
                 </div>
-                {worksheet_items}
+                {worksheet_items_display}
                 <p className="empty-worksheet">This worksheet is empty</p>
             </div>
         )
