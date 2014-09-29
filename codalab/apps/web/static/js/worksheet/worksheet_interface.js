@@ -321,7 +321,7 @@ var WorksheetItemList = React.createClass({
         }
         var worksheet_items_display;
         if(this.state.rawMode){
-            worksheet_items_display = <textarea defaultValue={ws_obj.state.raw} className="raw-textarea" />;
+            worksheet_items_display = <textarea defaultValue={ws_obj.getRaw()} className="raw-textarea" />;
         }else {
             worksheet_items_display = worksheet_items;
         }

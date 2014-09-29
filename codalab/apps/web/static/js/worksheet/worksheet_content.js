@@ -50,6 +50,9 @@ var WorksheetContent = function() {
         items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
         this.state.items = items;
     };
+    WorksheetContent.prototype.getRaw = function(){
+        return this.state.raw.join('\n');
+    };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
         var consolidatedWorksheet = [];
         var markdownChunk         = '';
