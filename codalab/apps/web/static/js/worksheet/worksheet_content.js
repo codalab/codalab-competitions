@@ -63,8 +63,18 @@ var WorksheetContent = function() {
         this.state.items = ws1.concat(ws2);
         this.cleanUp();
     };
-    WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
+    WorksheetContent.prototype.insertRawItem = function(index, item){
         //update raw
+        //the index refers to the item in whose place we are inserting, so we'll get its raw index
+        var raw_index = this.state.items[index].state.raw_index;
+        //the item is the value of the textarea, so we need to split it into an array by linebreaks
+        var item_array = item.split('\n');
+        //now do the same split, insert, and concat business we do elsewhere
+        var raw1 = this.state.raw.slice(0,raw_index);
+        var raw2 = this.state.raw.slice(raw_index);
+        this.state.raw = raw1.concat(item_array, raw2);
+    };
+    WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
         //insert new item at index, raw_index+raw_size
         var ws1 = this.state.items.slice(0,newIndex);
         var ws2 = this.state.items.slice(newIndex);
