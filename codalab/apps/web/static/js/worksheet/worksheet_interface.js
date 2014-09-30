@@ -299,8 +299,12 @@ var WorksheetItemList = React.createClass({
     toggleRawMode: function(){
         if(this.state.rawMode){
             ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-            ws_obj.saveWorksheet();
-            this.fetch_and_update()
+            ws_obj.saveWorksheet({
+                success: function(data){
+                    this.fetch_and_update();
+                }.bind(this)
+            });
+
         }
         this.setState({rawMode: !this.state.rawMode})
     },

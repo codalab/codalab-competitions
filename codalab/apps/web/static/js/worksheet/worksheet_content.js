@@ -54,7 +54,7 @@ var WorksheetContent = function() {
         var raw = {
             content: this.state.raw.join('\n'),
             lines: this.state.raw.length
-        }   
+        };
         return raw;
     };
     WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
