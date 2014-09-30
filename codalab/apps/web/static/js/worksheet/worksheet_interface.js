@@ -259,7 +259,7 @@ var WorksheetItemList = React.createClass({
                 // we know the key of the item is the same as the index. We set it.
                 // see WorksheetItemFactory. This will change but always match.
                 var index = reactItems[k].props.key;
-                ws_obj.setItem(index, undefined)
+                ws_obj.deleteItem(index)
                 // when called gets a edited flag, when you getState
                 // does a clean before setting it's state
             }
@@ -300,24 +300,24 @@ var WorksheetItemList = React.createClass({
     toggleRawMode: function(){
         if(this.state.rawMode){
             ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-            ws_obj.saveWorksheet({
-                success: function(data){
-                    this.fetch_and_update();
-                    if('error' in data){ // TEMP REMOVE FDC
-                         $("#worksheet-message").html(data['error']).addClass('alert-box alert');
-                    }
-                }.bind(this),
-                error: function(xhr, status, err) {
-                    console.error(this.props.url, status, err.toString());
-                    if (xhr.status == 404) {
-                        $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
-                    } else {
-                        // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-                        $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-                    }
-                }
+            // ws_obj.saveWorksheet({
+            //     success: function(data){
+            //         this.fetch_and_update();
+            //         if('error' in data){ // TEMP REMOVE FDC
+            //              $("#worksheet-message").html(data['error']).addClass('alert-box alert');
+            //         }
+            //     }.bind(this),
+            //     error: function(xhr, status, err) {
+            //         console.error(this.props.url, status, err.toString());
+            //         if (xhr.status == 404) {
+            //             $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+            //         } else {
+            //             // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+            //             $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+            //         }
+            //     }
 
-            });
+            // });
 
         }
         this.setState({rawMode: !this.state.rawMode})
