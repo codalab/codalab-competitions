@@ -717,7 +717,7 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
-            worksheet['edit_permission'] = False
+            worksheet['edit_permission'] = True
 
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
             if owner:

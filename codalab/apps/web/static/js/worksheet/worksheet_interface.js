@@ -377,6 +377,7 @@ var WorksheetItemList = React.createClass({
                             </label>
                         </div>
                     </div>
+                    <hr />
                 </div>
                 {worksheet_items_display}
                 <p className="empty-worksheet">This worksheet is empty</p>
