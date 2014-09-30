@@ -761,9 +761,8 @@ class WorksheetContentApi(views.APIView):
         logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner.id, worksheet_name, uuid)
         service = BundleService(self.request.user)
         try:
-            worksheet = service.worksheet(uuid, interpreted=True)
-            service.parse_and_update_worksheet(worksheet, lines)
-            return Response(worksheet)
+            service.parse_and_update_worksheet(worksheet_uuid, lines)
+            return Response({})
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
