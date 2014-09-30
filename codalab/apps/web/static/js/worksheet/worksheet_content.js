@@ -35,7 +35,34 @@ var WorksheetContent = function() {
         }
         this.state.items = newArray;
     };
+    WorksheetContent.prototype.updateItemsIndex = function() {
+        //loop through and update all items to there raw index
+
+
+
+
+
+
+
+
+
+
+
+    };
+    WorksheetContent.prototype.deleteItem = function(index) {
+        //update raw
+        //deleting items at index, raw_index+raw_size
+
+        //now update the list
+        var ws1 = this.state.items.slice(0,newIndex);
+        var ws2 = this.state.items.slice(newIndex);
+        ws1.push(undefined);
+        this.state.items = ws1.concat(ws2);
+        this.cleanup();
+    };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
+        //update raw
+        //insert new item at index, raw_index+raw_size
         var ws1 = this.state.items.slice(0,newIndex);
         var ws2 = this.state.items.slice(newIndex);
         ws1.push(newItem);
@@ -154,8 +181,25 @@ var WorksheetItem = function() {
             interpreted: interpreted,
             bundle_info: bundle_info,
             mode: mode,
+            raw_index: 30,
+            raw_size: 5
         };
     }
+
+    WorksheetItem.prototype.updateIndex = function() {
+
+
+
+
+
+        //todo
+
+
+
+
+
+    };
+
 
     return WorksheetItem;
 }();
