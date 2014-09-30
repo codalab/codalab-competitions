@@ -750,7 +750,8 @@ class WorksheetContentApi(views.APIView):
         worksheet_name = data['name']
         worksheet_uuid = data['uuid']
         owner_id = data['owner_id']
-        items = data['items']
+        lines = data['lines']
+
         if not (worksheet_uuid == uuid):
             return Response(None, status=403)
 
@@ -758,17 +759,10 @@ class WorksheetContentApi(views.APIView):
             return Response(None, status=403)
 
         logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner.id, worksheet_name, uuid)
-
-        # FDC
-        import pprint
-        pp = pprint.PrettyPrinter(indent=4)
-        print " items " * 50
-        pp.pprint(items)
-        print
-
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
+            service.parse_and_update_worksheet(worksheet, lines)
             return Response(worksheet)
         except Exception as e:
             logging.error(self.__str__())
