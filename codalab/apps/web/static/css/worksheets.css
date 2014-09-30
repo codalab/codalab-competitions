@@ -37,8 +37,10 @@
   display:none;
 }
 #worksheet_content .header-row {
-  border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
+}
+#worksheet_content .header-row hr {
+  margin: 1em 0.9375em;
 }
 #worksheet_content .header-row .controls {
   text-align:right;

@@ -52,13 +52,16 @@ var WorksheetContent = function() {
     WorksheetContent.prototype.deleteItem = function(index) {
         //update raw
         //deleting items at index, raw_index+raw_size
+        var ri = this.state.items[index].state.raw_index;
+        var rs = this.state.items[index].state.raw_size;
+        this.state.raw.splice(ri, rs);
 
         //now update the list
-        var ws1 = this.state.items.slice(0,newIndex);
-        var ws2 = this.state.items.slice(newIndex);
+        var ws1 = this.state.items.slice(0,index);
+        var ws2 = this.state.items.slice(index + 1);
         ws1.push(undefined);
         this.state.items = ws1.concat(ws2);
-        this.cleanup();
+        this.cleanUp();
     };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
         //update raw
@@ -181,7 +184,7 @@ var WorksheetItem = function() {
             interpreted: interpreted,
             bundle_info: bundle_info,
             mode: mode,
-            raw_index: 30,
+            raw_index: 29,
             raw_size: 5
         };
     }
