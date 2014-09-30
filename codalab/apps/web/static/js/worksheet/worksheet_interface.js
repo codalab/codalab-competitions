@@ -147,6 +147,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     handleKeydown: function(event){
+        if(this.state.rawMode){ return true; }
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
