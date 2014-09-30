@@ -302,7 +302,20 @@ var WorksheetItemList = React.createClass({
             ws_obj.saveWorksheet({
                 success: function(data){
                     this.fetch_and_update();
-                }.bind(this)
+                    if('error' in data){ // TEMP REMOVE FDC
+                         $("#worksheet-message").html(data['error']).addClass('alert-box alert');
+                    }
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                    if (xhr.status == 404) {
+                        $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                    } else {
+                        // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                        $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    }
+                }
+
             });
 
         }

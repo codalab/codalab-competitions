@@ -133,9 +133,6 @@ var WorksheetContent = function() {
                 console.log('Saved worksheet');
                 console.log(data);
                 console.log('');
-                if('error' in data){
-                    return;
-                }
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
