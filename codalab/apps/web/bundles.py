@@ -55,6 +55,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 return worksheet_info
             else:
                 return worksheet_info
+        def parse_and_update_worksheet(self, uuid, lines):
+            worksheet_info = self.client.get_worksheet_info(uuid, True)
+            new_items, commands = worksheet_util.parse_worksheet_form(lines, self.client, worksheet_info['uuid'])
+            self.client.update_worksheet(
+                                worksheet_info,
+                                new_items
+                        )
+
 
         def get_target_info(self, target, depth=1):
             return _call_with_retries(lambda: self.client.get_target_info(target, depth))
