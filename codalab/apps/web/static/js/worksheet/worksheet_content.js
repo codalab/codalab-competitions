@@ -120,9 +120,8 @@ var WorksheetContent = function() {
             'name': this.state.name,
             'uuid': this.state.uuid,
             'owner_id': this.state.owner_id,
-            // 'items' : items
+            'lines': this.state.raw
         };
-
         $.ajax({
             type: "POST",
             cache: false,
@@ -134,15 +133,10 @@ var WorksheetContent = function() {
                 console.log('Saved worksheet');
                 console.log(data);
                 console.log('');
-                ws_obj.state = data;
-                var ws_items = [];
-                data.items.map(function(item){
-                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode);
-                    ws_items.push(ws_item);
-                });
-                consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
-                ws_obj.state.items = consolidatedWorksheetItems;
-                props.success(ws_obj.state);
+                if('error' in data){
+                    return;
+                }
+                props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
                 props.error(xhr, status, err);

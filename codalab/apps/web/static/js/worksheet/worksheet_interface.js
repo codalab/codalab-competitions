@@ -123,6 +123,14 @@ var WorksheetItemList = React.createClass({
         }
     },
     componentDidMount: function() {
+        this.fetch_and_update()
+    },
+    componentDidUpdate: function(){
+        if(!this.state.worksheet.items.length){
+            $('.empty-worksheet').fadeIn('fast');
+        }
+    },
+    fetch_and_update: function(){
         ws_obj.fetch({
             success: function(data){
                 $("#worksheet-message").hide().removeClass('alert-box alert');
@@ -140,11 +148,6 @@ var WorksheetItemList = React.createClass({
                 $('#worksheet_container').hide();
             }.bind(this)
         });
-    },
-    componentDidUpdate: function(){
-        if(!this.state.worksheet.items.length){
-            $('.empty-worksheet').fadeIn('fast');
-        }
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
@@ -294,6 +297,11 @@ var WorksheetItemList = React.createClass({
         this.setState({focusIndex: child.props.key});
     },
     toggleRawMode: function(){
+        if(this.state.rawMode){
+            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+            ws_obj.saveWorksheet();
+            this.fetch_and_update()
+        }
         this.setState({rawMode: !this.state.rawMode})
     },
     render: function(){
@@ -322,7 +330,8 @@ var WorksheetItemList = React.createClass({
         }
         var worksheet_items_display;
         if(this.state.rawMode){
-            worksheet_items_display = <textarea defaultValue={getRaw.content} rows={getRaw.lines} className="raw-textarea" />;
+            // http://facebook.github.io/react/docs/forms.html#why-textarea-value
+            worksheet_items_display = <textarea id="raw-textarea" defaultValue={getRaw.content} rows={getRaw.lines}  ref="textarea" />;
         }else {
             worksheet_items_display = worksheet_items;
         }
