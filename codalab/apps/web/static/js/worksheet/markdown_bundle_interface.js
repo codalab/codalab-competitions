@@ -4,12 +4,12 @@ var MarkdownBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
         return {
-            lines: this.props.item.state.interpreted.split(/\r\n|\r|\n/).length,
-            checked: false
+            checked: false,
+            new_item: false
         }
     },
     keysToHandle: function(){
-        return['esc','enter']
+        return['esc','enter'];
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
@@ -20,6 +20,7 @@ var MarkdownBundle = React.createClass({
                     if(!$(this.getDOMNode()).find('textarea').val().length){
                         this._owner.unInsert();
                     }
+                    event.stopPropagation();
                     break;
                 case 'enter':
                     if(event.ctrlKey || event.metaKey){
@@ -60,10 +61,11 @@ var MarkdownBundle = React.createClass({
         var className = 'type-markup' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         if (this.props.editing){
+            var lines = Math.max(this.props.item.state.interpreted.split(/\r\n|\r|\n/).length, 3);
             return(
                 <div className="ws-item" onClick={this.handleClick}>
                     {checkbox}
-                    <textarea className={className} rows={this.state.lines} onKeyDown={this.handleKeydown} defaultValue={content} />
+                    <textarea className={className} rows={lines} onKeyDown={this.handleKeydown} defaultValue={content} />
                 </div>
             )
         }else {

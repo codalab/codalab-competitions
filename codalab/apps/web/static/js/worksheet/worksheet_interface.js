@@ -156,7 +156,11 @@ var WorksheetItemList = React.createClass({
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
         if(focusedItem && focusedItem.hasOwnProperty('keysToHandle') && focusedItem.keysToHandle().indexOf(key) != -1){
-            focusedItem.handleKeyboardShortcuts(event);
+            if(focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
+                focusedItem.handleKeyboardShortcuts(event);
+            }else{
+                focusedItem.handleKeydown(event);
+            }
         }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
             focusedItem.handleKeydown(event);
         }else {
@@ -237,15 +241,27 @@ var WorksheetItemList = React.createClass({
     },
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
-        item.state.interpreted = textarea.value;
-        var unconsolidated = ws_obj.getState();
-        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-        ws_obj.state.items = consolidated;
-        this.setState({
-            editingIndex: -1,
-            worksheet: ws_obj.getState()
-        });
-        console.log('------ save the worksheet here ------');
+        //apparently sometimes item is undefined if this gets triggered again by a callback
+        if(item){
+            //because we need to distinguish between items that have just been inserted and items
+            //that were edited, we now have a 'new_item' flag on markdown items' state
+            if(this.refs['item' + this.state.editingIndex].state.new_item){
+                ws_obj.insertRawItem(this.state.editingIndex, textarea.value);
+            }
+            item.state.interpreted = textarea.value;
+            var unconsolidated = ws_obj.getState();
+            var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+            ws_obj.state.items = consolidated;
+            this.setState({
+                editingIndex: -1,
+                worksheet: ws_obj.getState()
+            });
+            //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
+            this.refs['item' + this.state.editingIndex].setState({new_item:false});
+            console.log('------ save the worksheet here ------');
+        }else {
+            return false;
+        }
     },
     unInsert: function(){
         ws_obj.setItem(this.state.focusIndex, undefined);
@@ -283,6 +299,7 @@ var WorksheetItemList = React.createClass({
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+        this.refs['item' + newIndex].setState({new_item: true});
     },
     moveItem: function(delta){
         var oldIndex = this.state.focusIndex;
