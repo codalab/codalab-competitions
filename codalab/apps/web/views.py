@@ -163,17 +163,19 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         # inline_formsets[1] == phases
         for inline_form in inline_formsets[1].forms:
+            # get existing datasets and add them, so admins can see them!
+            input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
+            reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
+            scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+
             inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Input Data"
+                Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
             )
             inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Reference Data"
+                Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
             )
             inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Scoring Program"
+                Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
             )
         return inline_formsets
 
@@ -188,7 +190,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.creator != request.user:
+        if self.object.creator != request.user and request.user not in self.object.admins.all():
             return HttpResponse(status=403)
 
         return super(CompetitionEdit, self).post(request, *args, **kwargs)
