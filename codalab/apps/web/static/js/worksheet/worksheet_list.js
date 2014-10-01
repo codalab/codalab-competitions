@@ -43,6 +43,7 @@ var Worksheets = React.createClass({
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
         if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
+            $('html,body').animate({scrollTop: 0}, 250);
             this.refs.search.getDOMNode().focus();
         }
         // otherwise, try to pass off the event to the active component
@@ -99,15 +100,6 @@ var WorksheetList = React.createClass({
             }.bind(this)
         });
     },
-    componentDidUpdate: function(){
-        if(this.state.worksheets.length){
-            // scroll the window to keep the focused element in view
-            var itemNode = this.refs['ws' + this.state.focusIndex].getDOMNode();
-            if(itemNode.offsetTop > window.innerHeight / 2){
-                window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
-            }
-        }
-    },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
         window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
@@ -122,9 +114,13 @@ var WorksheetList = React.createClass({
         if(typeof key !== 'undefined'){
             event.preventDefault();
             if(key == 'k' || key == 'up'){
-                this.setState({focusIndex: Math.max(this.state.focusIndex - 1, 0)});
+                var newFI = Math.max(this.state.focusIndex - 1, 0);
+                this.setState({focusIndex: newFI});
+                this.scrollToItem(newFI);
             }else if (key == 'j' || key == 'down'){
-                this.setState({focusIndex: Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1)});
+                var newFI = Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1);
+                this.setState({focusIndex: newFI});
+                this.scrollToItem(newFI);
             }else if (key == 'x' || key == 'enter'){
                 this.goToFocusedWorksheet();
             }else {
@@ -145,6 +141,14 @@ var WorksheetList = React.createClass({
             });
         }
         return worksheets;
+    },
+    scrollToItem: function(index){
+        if(this.state.worksheets.length){
+            // scroll the window to keep the focused element in view
+            var itemNode = this.refs['ws' + index].getDOMNode();
+            $('html,body').animate({scrollTop: itemNode.offsetTop - 100}, 250);
+            return false;
+        }
     },
     render: function() {
         // filter the worksheets by whatever

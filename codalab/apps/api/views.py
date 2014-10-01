@@ -611,7 +611,7 @@ class LeaderBoardDataViewSet(views.APIView):
         competition = webmodels.Competition.objects.get(pk=competition_id)
         phase = webmodels.CompetitionPhase.objects.filter(competition=competition, phasenumber=phase_id)[0]
         if phase.is_blind:
-            return HttpResponse(status=403)
+            return Response(status=403)
         groups = phase.scores()
         response = Response(groups, status=status.HTTP_200_OK)
         return response
@@ -717,14 +717,16 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
+            worksheet['edit_permission'] = True
+
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
-            # if owner:
-            #     owner = owner[0]
-            # else:
-            #     pass
-                #TODO throw error
-            #TODO assign owner.
-            # worksheet['owner'] = owner.username
+            if owner:
+                owner = owner[0]
+                worksheet['owner'] = owner.username
+                if str(owner.id) == str(worksheet['owner_id']):
+                    worksheet['edit_permission'] = True
+            else:
+                worksheet['owner'] = None
             return Response(worksheet)
         except Exception as e:
             logging.error(self.__str__())
@@ -734,8 +736,43 @@ class WorksheetContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-
             return Response(status=service.http_status_from_exception(e))
+
+    """
+    Provides a web API to update a worksheet.
+    """
+    def post(self, request, uuid):
+        owner = self.request.user
+        if not owner.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+
+        worksheet_name = data['name']
+        worksheet_uuid = data['uuid']
+        owner_id = data['owner_id']
+        lines = data['lines']
+
+        if not (worksheet_uuid == uuid):
+            return Response(None, status=403)
+
+        if not (owner_id == str(owner.id)):
+            return Response(None, status=403)
+
+        logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner.id, worksheet_name, uuid)
+        service = BundleService(self.request.user)
+        try:
+            service.parse_and_update_worksheet(worksheet_uuid, lines)
+            return Response({})
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response({'error': smart_str(e)})
+
 
 class BundleInfoApi(views.APIView):
     """
@@ -747,6 +784,9 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             item = service.item(uuid)
+            item['edit_permission'] = False
+            if item['owner_id'] == str(self.request.user.id):
+                item['edit_permission'] = True
             return Response(item, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
@@ -758,16 +798,65 @@ class BundleInfoApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+    def post(self, request, uuid):
+        user_id = self.request.user.id
+        logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
+        service = BundleService(self.request.user)
+
+        try:
+            item = service.item(uuid)
+            if item['owner_id'] == str(self.request.user.id):
+                data = json.loads(request.body)
+                new_metadata = data['metadata']
+                #clean up
+                if new_metadata.get('data_size', None):
+                    new_metadata.pop('data_size')
+
+                if new_metadata.get('created', None):
+                    new_metadata.pop('created')
+
+                if new_metadata.get('tags', None):
+                    tags = new_metadata['tags']
+                    tags = tags.split(',')
+                    new_metadata['tags'] = tags
+                else:
+                    new_metadata['tags'] = []
+
+                if new_metadata.get('language', None):
+                    language = new_metadata['language']
+                    language = language.split(',')
+                    new_metadata['language'] = language
+
+                if new_metadata.get('architectures', None):
+                    architectures = new_metadata['architectures']
+                    architectures = architectures.split(',')
+                    new_metadata['architectures'] = architectures
+
+                # update and return
+                service.update_bundle_metadata(uuid, new_metadata)
+                item = service.item(uuid)
+            return Response(item, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response({'error': smart_str(e)})
+
 class BundleContentApi(views.APIView):
     """
     Provides a web API to browse the content of a bundle.
     """
-    def get(self, request, uuid, path):
+    def get(self, request, uuid, path=''):
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService(self.request.user)
         try:
-            items = service.ls(uuid, path)
+            target = (uuid, path)
+            items = service.get_target_info(target, 2) # 2 is the depth to retrieve
             return Response(items)
         except Exception as e:
             logging.error(self.__str__())
@@ -777,7 +866,8 @@ class BundleContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({'error': smart_str(e)})
+            #return Response(status=service.http_status_from_exception(e))
 
 class BundleFileContentApi(views.APIView):
     """

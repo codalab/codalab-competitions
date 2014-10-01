@@ -10,6 +10,11 @@
 }
 #worksheet_content {
   line-height:1.2em;
+  min-height:480px;
+}
+#worksheet_content .glossary-link, #worksheet_content .controls label {
+  font-weight:normal;
+  font-size:.75em;
 }
 #worksheet_content .hidden {
   display:none;
@@ -31,16 +36,32 @@
   text-align:center;
   display:none;
 }
-#worksheet_content .worksheet-name {
-  border-bottom:1px solid #ddd;
+#worksheet_content .header-row {
   margin-bottom:1.875em;
+}
+#worksheet_content .header-row hr {
+  margin: 1em 0.9375em;
+}
+#worksheet_content .header-row .controls {
+  text-align:right;
+  padding-top:.75em;
+}
+#worksheet_content .header-row .controls input,
+#worksheet_content .header-row .controls label {
+  margin:0;
+}
+#worksheet_content textarea.raw-textarea {
+  min-height:480px;
+}
+#worksheet_content .worksheet-name {
+  min-height:65px;
 }
 #worksheet_content .worksheet-name label input[type="checkbox"]{
   margin-right:5px;
 }
 #worksheet_content .worksheet-name h1 {
   text-indent:65px;
-  margin-top:.25em;
+  margin-top:0;
   font-size:2.75em
 }
 #worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {
@@ -77,6 +98,10 @@
   padding:0.5em;
   width:100%;
 }
+#worksheet_content .type-markup,
+#worksheet_content .type-inline {
+  min-height:1.5em;
+}
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
   margin: 0 0 1em 0;
@@ -91,7 +116,17 @@
 #worksheet_content .type-contents blockquote {
   padding: 1em 0 1em 1.5em;
   border-left:4px solid #eee;
-}#worksheet_content .type-contents:not(.focused) blockquote{
+}
+#worksheet_content .type-html .html-bundle {
+  padding: 1em;
+  margin-bottom:1.5em;
+  border:1px solid #eee;
+  background-color:#fff;
+}
+#worksheet_content .type-html.focused .html-bundle {
+  background-color:#FFFEF4;
+}
+#worksheet_content .type-contents:not(.focused) blockquote{
   background-color:#fcfcfc;
 
 }
@@ -152,6 +187,7 @@ table.table-responsive > tfoot > tr > td {
 }
 .ws-search {
   margin:1.5em 0 1em;
+  min-height:32px;
 }
 .ws-search input {
   height:auto;
@@ -259,4 +295,38 @@ body.yellow {
 }
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
+}
+#metadata_table {
+  width:100%;
+}
+#metadata_table input {
+  margin-bottom:0;
+  width:100%;
+}
+#metadata_table.editing tr td,
+#metadata_table.editing tr th {
+  padding:.25em;
+}
+#bundle-content .bundle-tile h4 .button {
+  font-size: .5em;
+  margin-bottom: 0;
+  line-height: 1.4em;
+  padding: .25em .5em;
+  vertical-align: middle;
+  margin-left: 1em;
+}
+#glossaryModal {
+  margin-top:-49px; /* account for navbar height */
+}
+#glossaryModal dl {
+  margin-bottom:0;
+}
+#glossaryModal dt {
+  float:left;
+  margin-right:1em;
+  font-weight:normal;
+}
+#glossaryModal dt code {
+  padding:4px;
+  text-align:center;
 }
