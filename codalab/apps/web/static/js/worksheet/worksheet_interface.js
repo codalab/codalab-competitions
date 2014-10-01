@@ -350,14 +350,27 @@ var WorksheetItemList = React.createClass({
         var canEdit = this.props.canEdit;
         var className = canEdit ? 'editable' : '';
         var editPermission = ws_obj.getState().edit_permission;
-        var editStatus = 'not allowed';
-        if(editPermission){
-            var editStatus = canEdit ? 'on' : 'off';
-        }
+        var editFeatures;
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
         var getRaw = ws_obj.getRaw();
+        if(editPermission){
+            var editStatus = canEdit ? 'on' : 'off';
+            var editFeatures =
+                    <div className="edit-features">
+                        <div>
+                            <label htmlFor="editing">
+                                <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} /> Editing {editStatus}
+                            </label>
+                        </div>
+                        <div>
+                            <label htmlFor="rawMode">
+                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
+                            </label>
+                        </div>
+                    </div>
+        }
         if(ws_obj.state.items.length){
             ws_obj.state.items.forEach(function(item, i){
                 var ref = 'item' + i;
@@ -388,16 +401,7 @@ var WorksheetItemList = React.createClass({
                         <div>
                             <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
                         </div>
-                        <div>
-                            <label htmlFor="editing">
-                                <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} disabled={!editPermission} /> Editing {editStatus}
-                            </label>
-                        </div>
-                        <div>
-                            <label htmlFor="rawMode">
-                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
-                            </label>
-                        </div>
+                        {editFeatures}
                     </div>
                     <hr />
                 </div>
