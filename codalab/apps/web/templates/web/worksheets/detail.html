@@ -20,6 +20,38 @@
 <div id="save_error">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Error Saving...
 </div>
+<div id="glossaryModal" class="reveal-modal medium" data-reveal>
+    <h3>Keyboard Shortcuts</h3>
+    <dl>
+        <dt><code>/</code></dt>
+            <dd>jump to search bar</dd>
+        <dt><code>j</code> or <code>↓</code></dt>
+            <dd>next worksheet item or table row</dd>
+        <dt><code>shift + j</code> or <code>shift + ↓</code></dt>
+            <dd>move focused item down</dd>
+        <dt><code>k</code> or <code>↑</code></dt>
+            <dd>previous worksheet item or table row</dd>
+        <dt><code>shift + k</code> or <code>shift + ↑</code></dt>
+            <dd>move focused item up</dd>
+        <dt><code>e</code></dt>
+            <dd>edit highlighted item (markup bundles only)</dd>
+        <dt><code>esc</code></dt>
+            <dd>exit edit mode</dd>
+        <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
+            <dd>save edits to markup item</dd>
+        <dt><code>x</code></dt>
+            <dd>select highlighted item</dd>
+        <dt><code>d</code></dt>
+            <dd>delete selected items</dd>
+        <dt><code>i</code></dt>
+            <dd>insert markup before highlighted item</dd>
+        <dt><code>A</code></dt>
+            <dd>insert markup after highlighted item</dd>
+        <dt><code>?</code></dt>
+            <dd>show this glossary</dd>
+    </dl>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
 {% endblock content %}
 
 
@@ -30,6 +62,7 @@
 {% block jsincludes %}
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="http://fb.me/react-0.11.1.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
@@ -43,6 +76,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
 
