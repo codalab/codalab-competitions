@@ -717,7 +717,7 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
-            worksheet['edit_permission'] = False
+            worksheet['edit_permission'] = True
 
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
             if owner:
@@ -727,8 +727,6 @@ class WorksheetContentApi(views.APIView):
                     worksheet['edit_permission'] = True
             else:
                 worksheet['owner'] = None
-
-
             return Response(worksheet)
         except Exception as e:
             logging.error(self.__str__())
@@ -738,8 +736,43 @@ class WorksheetContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-
             return Response(status=service.http_status_from_exception(e))
+
+    """
+    Provides a web API to update a worksheet.
+    """
+    def post(self, request, uuid):
+        owner = self.request.user
+        if not owner.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+
+        worksheet_name = data['name']
+        worksheet_uuid = data['uuid']
+        owner_id = data['owner_id']
+        lines = data['lines']
+
+        if not (worksheet_uuid == uuid):
+            return Response(None, status=403)
+
+        if not (owner_id == str(owner.id)):
+            return Response(None, status=403)
+
+        logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner.id, worksheet_name, uuid)
+        service = BundleService(self.request.user)
+        try:
+            service.parse_and_update_worksheet(worksheet_uuid, lines)
+            return Response({})
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response({'error': smart_str(e)})
+
 
 class BundleInfoApi(views.APIView):
     """

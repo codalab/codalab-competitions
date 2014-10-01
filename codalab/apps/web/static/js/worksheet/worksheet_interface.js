@@ -109,6 +109,7 @@ var WorksheetItemList = React.createClass({
         return {
             focusIndex: -1,
             editingIndex: -1,
+            rawMode: false,
             worksheet: {
                 last_item_id: 0,
                 name: '',
@@ -116,11 +117,20 @@ var WorksheetItemList = React.createClass({
                 owner_id: 0,
                 uuid: 0,
                 items: [],
-                edit_permission: false
+                edit_permission: false,
+                raw: []
             }
         }
     },
     componentDidMount: function() {
+        this.fetch_and_update()
+    },
+    componentDidUpdate: function(){
+        if(!this.state.worksheet.items.length){
+            $('.empty-worksheet').fadeIn('fast');
+        }
+    },
+    fetch_and_update: function(){
         ws_obj.fetch({
             success: function(data){
                 $("#worksheet-message").hide().removeClass('alert-box alert');
@@ -139,18 +149,18 @@ var WorksheetItemList = React.createClass({
             }.bind(this)
         });
     },
-    componentDidUpdate: function(){
-        if(!this.state.worksheet.items.length){
-            $('.empty-worksheet').fadeIn('fast');
-        }
-    },
     handleKeydown: function(event){
+        if(this.state.rawMode){ return true; }
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
         if(focusedItem && focusedItem.hasOwnProperty('keysToHandle') && focusedItem.keysToHandle().indexOf(key) != -1){
-            focusedItem.handleKeyboardShortcuts(event);
+            if(focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
+                focusedItem.handleKeyboardShortcuts(event);
+            }else{
+                focusedItem.handleKeydown(event);
+            }
         }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
             focusedItem.handleKeydown(event);
         }else {
@@ -231,15 +241,28 @@ var WorksheetItemList = React.createClass({
     },
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
-        item.state.interpreted = textarea.value;
-        var unconsolidated = ws_obj.getState();
-        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-        ws_obj.state.items = consolidated;
-        this.setState({
-            editingIndex: -1,
-            worksheet: ws_obj.getState()
-        });
-        console.log('------ save the worksheet here ------');
+        //apparently sometimes item is undefined if this gets triggered again by a callback
+        if(item){
+            //because we need to distinguish between items that have just been inserted and items
+            //that were edited, we now have a 'new_item' flag on markdown items' state
+            if(this.refs['item' + this.state.editingIndex].state.new_item){
+                ws_obj.insertRawItem(this.state.editingIndex, textarea.value);
+            }
+            item.state.interpreted = textarea.value;
+            var unconsolidated = ws_obj.getState();
+            var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+            ws_obj.state.items = consolidated;
+            this.setState({
+                editingIndex: -1,
+                worksheet: ws_obj.getState()
+            });
+            //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
+            this.refs['item' + this.state.editingIndex].setState({new_item:false});
+            // this.saveAndUpdateWorksheet();
+        }else {
+            return false;
+        }
+
     },
     unInsert: function(){
         ws_obj.setItem(this.state.focusIndex, undefined);
@@ -253,12 +276,12 @@ var WorksheetItemList = React.createClass({
                 // we know the key of the item is the same as the index. We set it.
                 // see WorksheetItemFactory. This will change but always match.
                 var index = reactItems[k].props.key;
-                ws_obj.setItem(index, undefined)
+                ws_obj.deleteItem(index)
                 // when called gets a edited flag, when you getState
                 // does a clean before setting it's state
             }
         }
-        this.setState({worksheet: ws_obj.getState()});
+        this.saveAndUpdateWorksheet();
         this.unCheckItems();
     },
     unCheckItems: function(){
@@ -272,11 +295,14 @@ var WorksheetItemList = React.createClass({
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
         ws_obj.insertItem(newIndex, newItem);
+
         this.setState({
             worksheet: ws_obj.getState(),
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+        this.refs['item' + newIndex].setState({new_item: true});
+        // this.saveAndUpdateWorksheet();
     },
     moveItem: function(delta){
         var oldIndex = this.state.focusIndex;
@@ -291,6 +317,33 @@ var WorksheetItemList = React.createClass({
     setFocus: function(child){
         this.setState({focusIndex: child.props.key});
     },
+    toggleRawMode: function(){
+        if(this.state.rawMode){
+            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+            this.saveAndUpdateWorksheet();
+        }
+        this.setState({rawMode: !this.state.rawMode})
+    },
+    saveAndUpdateWorksheet: function(){
+        ws_obj.saveWorksheet({
+            success: function(data){
+                this.fetch_and_update();
+                if('error' in data){ // TEMP REMOVE FDC
+                     $("#worksheet-message").html(data['error']).addClass('alert-box alert');
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+                if (xhr.status == 404) {
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                } else {
+                    // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                }
+            }
+        });
+
+    },
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
@@ -304,6 +357,7 @@ var WorksheetItemList = React.createClass({
         var worksheet_items = [];
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
+        var getRaw = ws_obj.getRaw();
         if(ws_obj.state.items.length){
             ws_obj.state.items.forEach(function(item, i){
                 var ref = 'item' + i;
@@ -313,6 +367,13 @@ var WorksheetItemList = React.createClass({
             });
         }else {
             $('.empty-worksheet').fadeIn();
+        }
+        var worksheet_items_display;
+        if(this.state.rawMode){
+            // http://facebook.github.io/react/docs/forms.html#why-textarea-value
+            worksheet_items_display = <textarea id="raw-textarea" defaultValue={getRaw.content} rows={getRaw.lines}  ref="textarea" />;
+        }else {
+            worksheet_items_display = worksheet_items;
         }
         return (
             <div id="worksheet_content" className={className}>
@@ -332,9 +393,15 @@ var WorksheetItemList = React.createClass({
                                 <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} disabled={!editPermission} /> Editing {editStatus}
                             </label>
                         </div>
+                        <div>
+                            <label htmlFor="rawMode">
+                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
+                            </label>
+                        </div>
                     </div>
+                    <hr />
                 </div>
-                {worksheet_items}
+                {worksheet_items_display}
                 <p className="empty-worksheet">This worksheet is empty</p>
             </div>
         )

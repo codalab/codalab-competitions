@@ -37,12 +37,21 @@
   display:none;
 }
 #worksheet_content .header-row {
-  border-bottom:1px solid #ddd;
   margin-bottom:1.875em;
+}
+#worksheet_content .header-row hr {
+  margin: 1em 0.9375em;
 }
 #worksheet_content .header-row .controls {
   text-align:right;
   padding-top:.75em;
+}
+#worksheet_content .header-row .controls input,
+#worksheet_content .header-row .controls label {
+  margin:0;
+}
+#worksheet_content textarea.raw-textarea {
+  min-height:480px;
 }
 #worksheet_content .worksheet-name {
   min-height:65px;
