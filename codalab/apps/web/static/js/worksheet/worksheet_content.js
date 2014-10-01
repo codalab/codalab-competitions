@@ -37,16 +37,84 @@ var WorksheetContent = function() {
     };
     WorksheetContent.prototype.updateItemsIndex = function() {
         //loop through and update all items to there raw index
+        var items =  this.state.items;
+        var raw = this.state.raw;
+        items.map(function(ws_item, index){
 
+            var above_item = items[index-1];
+            var below_item = items[index+1];
+            var last_raw_index = -1;
+            var raw_size = -1;
 
+            var i = 0;
 
+            if(above_item){
+                last_raw_index = above_item.state.raw_index + above_item.state.raw_size; //sub one for 0 index/size
+            }else{
+                // this is the first item. Lets get the index after the comments stop
+                // and the real worksheet begins
+                for(i=0; i < raw.length; i++){
+                    if(raw[i].lastIndexOf('//', 0) === 0){
+                        last_raw_index = i+1;
+                    }else{
+                        break; // break out we are done with comments
+                    }
+                }
+            }
+            ws_item.state.raw_index = last_raw_index;
 
-
-
-
-
-
-
+            raw_size = raw.length - last_raw_index; //default to the end
+            if(!below_item){
+                // end of worksheet
+                ws_item.state.raw_size = raw_size;
+                return;
+            }
+            // we are in the middle of a ws,
+            // what are you? Then lets find where you begin and end
+            switch (ws_item.state.mode) {
+                case 'markup':
+                    // grab the first bundle's info following you.
+                    var bundle = below_item.state.bundle_info[0];
+                    for(i=last_raw_index; i < raw.length; i++){
+                        // that bundle maybe the start of the next non markdown block
+                        // or find a line that begins with %, which means an bundle display type
+                        if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
+                            raw_size = i - last_raw_index;
+                            break;
+                        }else{
+                            //??
+                        }
+                    }
+                    ws_item.state.raw_size = raw_size;
+                    break;
+                case 'inline':
+                case 'table':
+                case 'contents':
+                case 'html':
+                case 'record':
+                    var bundle_info = ws_item.state.bundle_info;
+                    // find the last bundle in the table ect. that is ref
+                    // thats the end of the display
+                    var bundle = ws_item.state.bundle_info[bundle_info.length-1];
+                    var found = false;
+                    for(i=last_raw_index; i < raw.length; i++){
+                        if(raw[i].search(bundle.uuid) > -1){
+                            raw_size = i - last_raw_index;
+                            found = true;
+                        }else{
+                            if(found){ // we found the last instance of it in this chunk. Quit out
+                                break;
+                            }
+                        }
+                    }
+                    ws_item.state.raw_size = raw_size;
+                    break;
+                case 'worksheet':
+                    break;
+                default:
+                    console.error("Got a item Mode index does not handle.");
+            }
+        });
 
     };
     WorksheetContent.prototype.deleteItem = function(index) {
@@ -117,22 +185,27 @@ var WorksheetContent = function() {
         };
         return raw;
     };
-    WorksheetContent.prototype.consolidateMarkdownBundles = function(ws_items) {
+    WorksheetContent.prototype.consolidateMarkdownBundles = function() {
         var consolidatedWorksheet = [];
         var markdownChunk         = '';
+        var ws_items = this.state.items; // shortcut naming
+
         ws_items.map(function(item, index){
             var mode        = item.state.mode;
             var interpreted = item.state.interpreted;
+
             if(mode == 'markup' && index <= ws_items.length - 1){
                 var content = interpreted + '\n';
                 markdownChunk += content;
-                if(index == ws_items.length - 1){
-                    newMarkdownItem = new WorksheetItem(markdownChunk, item.state.bundle_info, 'markup');
+                if(index == ws_items.length - 1){ // we have reached the end, add it and call it a day
+                    // markdown bundles do not have a bundle_info
+                    newMarkdownItem = new WorksheetItem(markdownChunk, undefined, 'markup');
                     consolidatedWorksheet.push(newMarkdownItem);
                 }
-            }else {
+            }else { // not markdown
                 if(markdownChunk.length){
-                    newMarkdownItem = new WorksheetItem(markdownChunk, item.state.bundle_info, 'markup');
+                    // add in the markdown as one single item
+                    newMarkdownItem = new WorksheetItem(markdownChunk, undefined, 'markup');
                     consolidatedWorksheet.push(newMarkdownItem);
                     markdownChunk = '';
                 }
@@ -155,15 +228,19 @@ var WorksheetContent = function() {
                 console.log("WorksheetContent: setting worksheet state:");
                 console.log(data);
                 console.log('');
-                ws_obj.state = data;
+                this.state = data;
                 var ws_items = [];
                 data.items.map(function(item){
                     var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode);
                     ws_items.push(ws_item);
                 });
-                consolidatedWorksheetItems = this.consolidateMarkdownBundles(ws_items);
-                ws_obj.state.items = consolidatedWorksheetItems;
-                props.success(ws_obj.state);
+                this.state.items = ws_items;
+                //consolidated
+                consolidatedWorksheetItems = this.consolidateMarkdownBundles();
+                this.state.items = consolidatedWorksheetItems;
+
+                this.updateItemsIndex();
+                props.success(this.state);
             }.bind(this),
             error: function(xhr, status, err) {
                 props.error(xhr, status, err);
@@ -214,25 +291,10 @@ var WorksheetItem = function() {
             interpreted: interpreted,
             bundle_info: bundle_info,
             mode: mode,
-            raw_index: 29,
-            raw_size: 5
+            raw_index: 0,
+            raw_size: 0,
         };
     }
-
-    WorksheetItem.prototype.updateIndex = function() {
-
-
-
-
-
-        //todo
-
-
-
-
-
-    };
-
 
     return WorksheetItem;
 }();

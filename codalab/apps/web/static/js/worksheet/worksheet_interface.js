@@ -258,10 +258,11 @@ var WorksheetItemList = React.createClass({
             });
             //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
             this.refs['item' + this.state.editingIndex].setState({new_item:false});
-            console.log('------ save the worksheet here ------');
+            // this.saveAndUpdateWorksheet();
         }else {
             return false;
         }
+
     },
     unInsert: function(){
         ws_obj.setItem(this.state.focusIndex, undefined);
@@ -280,7 +281,7 @@ var WorksheetItemList = React.createClass({
                 // does a clean before setting it's state
             }
         }
-        this.setState({worksheet: ws_obj.getState()});
+        this.saveAndUpdateWorksheet();
         this.unCheckItems();
     },
     unCheckItems: function(){
@@ -294,12 +295,14 @@ var WorksheetItemList = React.createClass({
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
         ws_obj.insertItem(newIndex, newItem);
+
         this.setState({
             worksheet: ws_obj.getState(),
             focusIndex: newIndex,
             editingIndex: newIndex
         });
         this.refs['item' + newIndex].setState({new_item: true});
+        // this.saveAndUpdateWorksheet();
     },
     moveItem: function(delta){
         var oldIndex = this.state.focusIndex;
@@ -317,27 +320,29 @@ var WorksheetItemList = React.createClass({
     toggleRawMode: function(){
         if(this.state.rawMode){
             ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-            // ws_obj.saveWorksheet({
-            //     success: function(data){
-            //         this.fetch_and_update();
-            //         if('error' in data){ // TEMP REMOVE FDC
-            //              $("#worksheet-message").html(data['error']).addClass('alert-box alert');
-            //         }
-            //     }.bind(this),
-            //     error: function(xhr, status, err) {
-            //         console.error(this.props.url, status, err.toString());
-            //         if (xhr.status == 404) {
-            //             $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
-            //         } else {
-            //             // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-            //             $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-            //         }
-            //     }
-
-            // });
-
+            this.saveAndUpdateWorksheet();
         }
         this.setState({rawMode: !this.state.rawMode})
+    },
+    saveAndUpdateWorksheet: function(){
+        ws_obj.saveWorksheet({
+            success: function(data){
+                this.fetch_and_update();
+                if('error' in data){ // TEMP REMOVE FDC
+                     $("#worksheet-message").html(data['error']).addClass('alert-box alert');
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+                if (xhr.status == 404) {
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                } else {
+                    // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                }
+            }
+        });
+
     },
     render: function(){
         var focusIndex = this.state.focusIndex;
