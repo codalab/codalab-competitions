@@ -88,19 +88,36 @@ var WorksheetContent = function() {
             switch (ws_item.state.mode) {
                 case 'markup':
                     // grab the first bundle's info following you.
-                    var bundle = below_item.state.bundle_info[0];
-                    for(i=last_raw_index; i < raw.length; i++){
-                        // that bundle may be the start of the next non-markdown block
-                        // or a line that begins with %, which means another bundle display type
-                        if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
-                            raw_size = i - last_raw_index;
+                    switch (below_item.state.mode) {
+                        case 'worksheet':
+                            for(i=last_raw_index; i < raw.length; i++){
+                                // that bundle may be the start of the next non-markdown block
+                                // or a line that begins with %, which means another bundle display type
+                                if((raw[i].lastIndexOf('[worksheet', 0) === 0)){
+                                    raw_size = i - last_raw_index;
+                                    break;
+                                }else{
+                                    //??
+                                }
+                            }
                             break;
-                        }else{
-                            //??
-                        }
-                    }
+                        default:
+                            var bundle = below_item.state.bundle_info[0];
+                            for(i=last_raw_index; i < raw.length; i++){
+                                // that bundle may be the start of the next non-markdown block
+                                // or a line that begins with %, which means another bundle display type
+                                if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
+                                    raw_size = i - last_raw_index;
+                                    break;
+                                }else{
+                                    //??
+                                }
+                            }
+                            break;
+                    }// end of switch (below_item.state.mode)
+
                     ws_item.state.raw_size = raw_size;
-                    break;
+                    break; //break out of case 'markup':
                 case 'inline':
                 case 'table':
                 case 'contents':
@@ -113,7 +130,7 @@ var WorksheetContent = function() {
                     var found = false;
                     for(i=last_raw_index; i < raw.length; i++){
                         if(raw[i].search(bundle.uuid) > -1){
-                            raw_size = i - last_raw_index;
+                            raw_size = i - last_raw_index + 1;
                             found = true;
                         }else{
                             if(found){ // we found the last instance of it in this chunk. Quit out
@@ -166,7 +183,7 @@ var WorksheetContent = function() {
         var items = this.state.items;
         var above_item = items[index-1];
         var below_item = items[index+1];
-        // because this is a new item has been inserted into this.state.items, 
+        // because this is a new item has been inserted into this.state.items,
         // we can't trust the raw_index of this item so we need to derive it from its neighbors
         var raw_index = -1;
         if(below_item){
@@ -178,7 +195,7 @@ var WorksheetContent = function() {
         }
         //now that we know where to insert, do the same split, insert, and concat business we do elsewhere
         var raw1 = this.state.raw.slice(0,raw_index);
-        //account for the extra blank line we've inserted 
+        //account for the extra blank line we've inserted
         var raw2 = this.state.raw.slice(raw_index);
         // set the raw. the WorksheetItems will take care of themselves
         this.state.raw = raw1.concat(item_array, raw2);
