@@ -36,25 +36,38 @@ var WorksheetContent = function() {
         this.state.items = newArray;
     };
     WorksheetContent.prototype.updateItemsIndex = function() {
-        //loop through and update all items to there raw index
+        // loop through and update all items to there raw text index
+        // console.log('updateItemsIndex');
+        // console.log('~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-');
         var items =  this.state.items;
         var raw = this.state.raw;
         items.map(function(ws_item, index){
+            // console.log('%c----------------------------------updateIndex----------------------------------', 'background: #333; color: #dad');
+            // console.log(ws_item.state.interpreted);
+            // console.log(ws_item.state.bundle_info);
+            // console.log('%c'+ws_item.state.mode, 'background: #fff; color: #a8b');
+            // console.log('');
 
             var above_item = items[index-1];
             var below_item = items[index+1];
             var last_raw_index = -1;
             var raw_size = -1;
-
-            var i = 0;
+            var i = 0; // counter
 
             if(above_item){
-                last_raw_index = above_item.state.raw_index + above_item.state.raw_size; //sub one for 0 index/size
+                var size = 0;
+                if(above_item.state.raw_size){// a non 0
+                    size = above_item.state.raw_size;
+                }else{
+                    // the last items size was 0, but we need to add one to move to the next index.
+                    size = 1;
+                }
+                last_raw_index = above_item.state.raw_index + size; //sub one for 0 index/size
             }else{
                 // this is the first item. Lets get the index after the comments stop
                 // and the real worksheet begins
                 for(i=0; i < raw.length; i++){
-                    if(raw[i].lastIndexOf('//', 0) === 0){
+                    if(raw[i].lastIndexOf('//', 0) === 0 || raw[i].lastIndexOf('%', 0) === 0){
                         last_raw_index = i+1;
                     }else{
                         break; // break out we are done with comments
@@ -115,6 +128,20 @@ var WorksheetContent = function() {
                     console.error("Got a item Mode index does not handle.");
             }
         });
+        console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
+
+        items.map(function(ws_item, index){
+            console.log('%c oooooooooooooooooooooooooooooooooooo', 'background: #fff; color: #fad');
+            console.log(ws_item.state.interpreted);
+            console.log(ws_item.state.bundle_info);
+            console.log(ws_item.state.raw_index);
+            console.log(ws_item.state.raw_size);
+            console.log('');
+        });
+        console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
+        console.log(this.state.raw);
+
+
 
     };
     WorksheetContent.prototype.deleteItem = function(index) {
@@ -193,7 +220,7 @@ var WorksheetContent = function() {
         ws_items.map(function(item, index){
             var mode        = item.state.mode;
             var interpreted = item.state.interpreted;
-
+            console.log(ws_items.length);
             if(mode == 'markup' && index <= ws_items.length - 1){
                 var content = interpreted + '\n';
                 markdownChunk += content;
