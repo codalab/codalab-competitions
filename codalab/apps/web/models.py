@@ -1036,8 +1036,6 @@ class CompetitionDefBundle(models.Model):
                     html=zf.read(page_data)
                 )
 
-                print "%s, %s" % (page_name, page_number)
-
         participate_category = ContentCategory.objects.get(name="Participate")
         Page.objects.create(category=participate_category, container=pc,  codename="get_data", competition=comp,
                                    label="Get Data", rank=0, html=zf.read(comp_spec['html']['data']))
