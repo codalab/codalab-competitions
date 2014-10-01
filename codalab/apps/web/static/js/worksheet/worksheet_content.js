@@ -141,6 +141,7 @@ var WorksheetContent = function() {
                     ws_item.state.raw_size = raw_size;
                     break;
                 case 'worksheet':
+                    // we default ws_item.state.raw_size to 0. worksheet is 1 line always aka size 0
                     break;
                 default:
                     console.error("Got an item mode index does not handle.");
