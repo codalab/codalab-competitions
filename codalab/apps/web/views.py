@@ -279,16 +279,12 @@ class CompetitionDetailView(DetailView):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
 
-        # This assumes the tabs were created in the correct order
-        # TODO Add a rank, order by on ContentCategory
-        side_tabs = dict()
-        for category in models.ContentCategory.objects.all():
-            pagecontent = context['object'].pagecontent
-            if pagecontent is not None:
-                tc = [x for x in pagecontent.pages.filter(category=category)]
-            else:
-                tc = []
-            side_tabs[category] = tc
+        side_tabs = {}
+        for page in self.object.pages.all().order_by('rank'):
+           if page.category not in side_tabs:
+               side_tabs[page.category] = []
+           side_tabs[page.category].append(page)
+
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         submissions = dict()
