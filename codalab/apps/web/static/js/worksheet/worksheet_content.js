@@ -209,25 +209,25 @@ var WorksheetContent = function() {
         // are we moving forward or backward?
         var delta = newIndex - oldIndex;
         // see how many raw items we need to jump by getting the size of the previous or next item
-        var jump_size = this.state.items[oldIndex+delta].state.raw_size;
+        var jump_size = this.state.items[oldIndex+delta].state.raw_size === 0 ? 1 : this.state.items[oldIndex+delta].state.raw_size;
         // raw index and size of the item we're moving
         var ri = this.state.items[oldIndex].state.raw_index;
-        var rs = this.state.items[oldIndex].state.raw_size;
+        var rs = this.state.items[oldIndex].state.raw_size === 0 ? 1 : this.state.items[oldIndex].state.raw_size;
         // the new position will be the old position minus the size of the previous item OR
         // the old position plus the size of the next item
         var newPos = ri + (jump_size * delta);
         // take out the raw lines of the item we're moving
         var raw_items = this.state.raw.splice(ri, rs);
+        switch(this.state.items[oldIndex].state.mode){
+            case 'table':
+            case 'record':
+                raw_items = [''].concat(raw_items, ['']);
+        }
         // split the list where we want to reinsert
         var raw1 = this.state.raw.slice(0,newPos);
         var raw2 = this.state.raw.slice(newPos);
         // combine the front of the list, the moved items, and the back of the list
         this.state.raw = raw1.concat(raw_items, raw2);
-
-        //update items
-        var items = this.state.items;
-        items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
-        this.state.items = items;
     };
     WorksheetContent.prototype.getRaw = function(){
         var raw = {

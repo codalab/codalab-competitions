@@ -70,7 +70,9 @@ var Worksheet = React.createClass({
         this.setState({editMode:!this.state.editMode});
     },
     render: function(){
-        var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        //////////////// DEV ONLY -- Turn on editing by default. Remove before merging ////////////////
+        // var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        var canEdit = true;
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
@@ -123,7 +125,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     componentDidMount: function() {
-        this.fetch_and_update()
+        this.fetch_and_update();
     },
     componentDidUpdate: function(){
         if(!this.state.worksheet.items.length){
@@ -299,14 +301,12 @@ var WorksheetItemList = React.createClass({
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
         ws_obj.insertItem(newIndex, newItem);
-
         this.setState({
             worksheet: ws_obj.getState(),
             focusIndex: newIndex,
             editingIndex: newIndex
         });
         this.refs['item' + newIndex].setState({new_item: true});
-        // this.saveAndUpdateWorksheet();
     },
     moveItem: function(delta){
         var oldIndex = this.state.focusIndex;
@@ -314,6 +314,7 @@ var WorksheetItemList = React.createClass({
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
             ws_obj.moveItem(oldIndex, newIndex);
             this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
+            this.saveAndUpdateWorksheet();
         }else {
             return false;
         }
