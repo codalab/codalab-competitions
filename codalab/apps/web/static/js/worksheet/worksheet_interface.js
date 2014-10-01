@@ -56,7 +56,7 @@ var Worksheet = React.createClass({
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         var activeComponent = this.refs[this.state.activeComponent];
-        if(key === 'fslash' && event.shiftKey){
+        if(key === 'fslash' && event.shiftKey && activeComponent.state.editingIndex === -1){
             event.preventDefault();
             this.handleSearchBlur();
             $('#glossaryModal').foundation('reveal', 'open');
@@ -243,10 +243,14 @@ var WorksheetItemList = React.createClass({
         var item = ws_obj.state.items[this.state.editingIndex];
         //apparently sometimes item is undefined if this gets triggered again by a callback
         if(item){
+            var index = this.state.editingIndex;
             //because we need to distinguish between items that have just been inserted and items
             //that were edited, we now have a 'new_item' flag on markdown items' state
-            if(this.refs['item' + this.state.editingIndex].state.new_item){
-                ws_obj.insertRawItem(this.state.editingIndex, textarea.value);
+            if(this.refs['item' + index].state.new_item){
+                ws_obj.insertRawItem(index, textarea.value);
+            }else {
+                ws_obj.state.items[index].state.interpreted = textarea.value;
+                ws_obj.setItem(index, ws_obj.state.items[index]);
             }
             item.state.interpreted = textarea.value;
             var unconsolidated = ws_obj.getState();
@@ -258,7 +262,7 @@ var WorksheetItemList = React.createClass({
             });
             //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
             this.refs['item' + this.state.editingIndex].setState({new_item:false});
-            // this.saveAndUpdateWorksheet();
+            this.saveAndUpdateWorksheet();
         }else {
             return false;
         }

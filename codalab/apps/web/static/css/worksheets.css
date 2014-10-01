@@ -244,26 +244,20 @@ body.yellow {
   background-color:yellow;
 }
 #save_progress, #save_error {
+  display:none;
   position:fixed;
   bottom:40px;
   right:40px;
-  width:120px;
+  width:150px;
   height:40px;
   line-height:40px;
   background-color:rgba(255,255,255,.75);
   text-align:center;
-  opacity:0;
-  -webkit-transition: opacity 150ms ease-in-out;
-  -moz-transition: opacity 150ms ease-in-out;
-  -ms-transition: opacity 150ms ease-in-out;
-  -o-transition: opacity 150ms ease-in-out;
-  transition: opacity 150ms ease-in-out;
 }
-.content.saving #save_progress {
-  opacity:1;
-}
-.content.save-error #save_error {
-  opacity:1;
+#save_error i {
+  font-size:24px;
+  color:red;
+  vertical-align:-3px;
 }
 #worksheet-list .worksheet-tile {
   border-left:1px solid #ccc;

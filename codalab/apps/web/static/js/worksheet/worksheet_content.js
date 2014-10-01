@@ -36,7 +36,8 @@ var WorksheetContent = function() {
         this.state.items = newArray;
     };
     WorksheetContent.prototype.updateItemsIndex = function() {
-        // loop through and update all items to there raw text index
+        console.log('%c CALL UPDATE ITEMS ', 'background: green; color: white;');
+        // loop through and update all items to their raw index
         // console.log('updateItemsIndex');
         // console.log('~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-');
         var items =  this.state.items;
@@ -64,13 +65,13 @@ var WorksheetContent = function() {
                 }
                 last_raw_index = above_item.state.raw_index + size; //sub one for 0 index/size
             }else{
-                // this is the first item. Lets get the index after the comments stop
+                // this is the first item. Let's get the index after the comments stop
                 // and the real worksheet begins
                 for(i=0; i < raw.length; i++){
                     if(raw[i].lastIndexOf('//', 0) === 0 || raw[i].lastIndexOf('%', 0) === 0){
                         last_raw_index = i+1;
                     }else{
-                        break; // break out we are done with comments
+                        break; // break out, we are done with comments
                     }
                 }
             }
@@ -83,14 +84,14 @@ var WorksheetContent = function() {
                 return;
             }
             // we are in the middle of a ws,
-            // what are you? Then lets find where you begin and end
+            // what are you? Then let's find where you begin and end
             switch (ws_item.state.mode) {
                 case 'markup':
                     // grab the first bundle's info following you.
                     var bundle = below_item.state.bundle_info[0];
                     for(i=last_raw_index; i < raw.length; i++){
-                        // that bundle maybe the start of the next non markdown block
-                        // or find a line that begins with %, which means an bundle display type
+                        // that bundle may be the start of the next non-markdown block
+                        // or a line that begins with %, which means another bundle display type
                         if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
                             raw_size = i - last_raw_index;
                             break;
@@ -106,8 +107,8 @@ var WorksheetContent = function() {
                 case 'html':
                 case 'record':
                     var bundle_info = ws_item.state.bundle_info;
-                    // find the last bundle in the table ect. that is ref
-                    // thats the end of the display
+                    // find the last bundle in the table etc. that is ref
+                    // that's the end of the display
                     var bundle = ws_item.state.bundle_info[bundle_info.length-1];
                     var found = false;
                     for(i=last_raw_index; i < raw.length; i++){
@@ -125,7 +126,7 @@ var WorksheetContent = function() {
                 case 'worksheet':
                     break;
                 default:
-                    console.error("Got a item Mode index does not handle.");
+                    console.error("Got an item mode index does not handle.");
             }
         });
         console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
@@ -160,13 +161,26 @@ var WorksheetContent = function() {
     };
     WorksheetContent.prototype.insertRawItem = function(index, item){
         //update raw
-        //the index refers to the item in whose place we are inserting, so we'll get its raw index
-        var raw_index = this.state.items[index].state.raw_index;
         //the item is the value of the textarea, so we need to split it into an array by linebreaks
         var item_array = item.split('\n');
-        //now do the same split, insert, and concat business we do elsewhere
+        var items = this.state.items;
+        var above_item = items[index-1];
+        var below_item = items[index+1];
+        // because this is a new item has been inserted into this.state.items, 
+        // we can't trust the raw_index of this item so we need to derive it from its neighbors
+        var raw_index = -1;
+        if(below_item){
+            // its' easiest to do this using the next item, because we're going to take its place
+            raw_index = below_item.state.raw_index;
+        }else {
+            // but if we're at the end of the worksheet, we need to use the preceeding item to calculate the raw index
+            raw_index = above_item.state.raw_index + above_item.state.raw_size + 1;
+        }
+        //now that we know where to insert, do the same split, insert, and concat business we do elsewhere
         var raw1 = this.state.raw.slice(0,raw_index);
+        //account for the extra blank line we've inserted 
         var raw2 = this.state.raw.slice(raw_index);
+        // set the raw. the WorksheetItems will take care of themselves
         this.state.raw = raw1.concat(item_array, raw2);
     };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
@@ -176,8 +190,18 @@ var WorksheetContent = function() {
         ws1.push(newItem);
         this.state.items = ws1.concat(ws2);
     };
-    WorksheetContent.prototype.setItem = function(index, newItem) {
-        this.state.items[index] = newItem;
+    WorksheetContent.prototype.setItem = function(index, item) {
+        //update raw
+        //the item here is a WorksheetItem, so we need to get its interpreted value and split it into an array
+        var item_array = item.state.interpreted.split('\n');
+        //because we're editing an item that already exists, we can use its raw_index and assume it's correct...
+        var ri = this.state.items[index].state.raw_index;
+        var rs = this.state.items[index].state.raw_size;
+        var raw1 = this.state.raw.slice(0,ri);
+        var raw2 = this.state.raw.slice(ri + rs);
+        this.state.raw = raw1.concat(item_array, raw2);
+        //now update items
+        this.state.items[index] = item;
         this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's
     };
     WorksheetContent.prototype.moveItem = function(oldIndex, newIndex){
@@ -216,11 +240,9 @@ var WorksheetContent = function() {
         var consolidatedWorksheet = [];
         var markdownChunk         = '';
         var ws_items = this.state.items; // shortcut naming
-
         ws_items.map(function(item, index){
             var mode        = item.state.mode;
             var interpreted = item.state.interpreted;
-            console.log(ws_items.length);
             if(mode == 'markup' && index <= ws_items.length - 1){
                 var content = interpreted + '\n';
                 markdownChunk += content;
@@ -265,7 +287,6 @@ var WorksheetContent = function() {
                 //consolidated
                 consolidatedWorksheetItems = this.consolidateMarkdownBundles();
                 this.state.items = consolidatedWorksheetItems;
-
                 this.updateItemsIndex();
                 props.success(this.state);
             }.bind(this),
@@ -293,13 +314,20 @@ var WorksheetContent = function() {
             contentType:"application/json; charset=utf-8",
             dataType:"json",
             data: JSON.stringify(postdata),
+            beforeSend: function(){
+                $('#save_error').hide();
+                $('#save_progress').fadeIn('fast');
+            },
             success: function(data) {
                 console.log('Saved worksheet');
                 console.log(data);
                 console.log('');
+                $('#save_progress').fadeOut('fast');
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
+                $('#save_progress').hide();
+                $('#save_error').show();
                 props.error(xhr, status, err);
             }.bind(this)
         });
