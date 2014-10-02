@@ -234,8 +234,10 @@ var WorksheetContent = function() {
         // the new position will be the old position minus the size of the previous item OR
         // the old position plus the size of the next item
         var newPos = ri + (jump_size * delta);
-        // take out the raw lines of the item we're moving
+        // pop out the raw lines of the item we're moving
         var raw_items = this.state.raw.splice(ri, rs);
+        // if it's a table or a record bundle, add a blank line of padding so bundles don't get
+        // automatically consolidated
         switch(this.state.items[oldIndex].state.mode){
             case 'table':
             case 'record':

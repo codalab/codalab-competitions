@@ -126,6 +126,7 @@ var WorksheetItemList = React.createClass({
     },
     componentDidMount: function() {
         this.fetch_and_update();
+        this.slowSave = _.debounce(this.saveAndUpdateWorksheet, 1000);
     },
     componentDidUpdate: function(){
         if(!this.state.worksheet.items.length){
@@ -314,7 +315,7 @@ var WorksheetItemList = React.createClass({
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
             ws_obj.moveItem(oldIndex, newIndex);
             this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
-            this.saveAndUpdateWorksheet();
+            this.slowSave();
         }else {
             return false;
         }
@@ -347,7 +348,6 @@ var WorksheetItemList = React.createClass({
                 }
             }
         });
-
     },
     render: function(){
         var focusIndex = this.state.focusIndex;
