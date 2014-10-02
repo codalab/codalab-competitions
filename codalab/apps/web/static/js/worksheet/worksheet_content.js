@@ -106,11 +106,16 @@ var WorksheetContent = function() {
                             for(i=last_raw_index; i < raw.length; i++){
                                 // that bundle may be the start of the next non-markdown block
                                 // or a line that begins with %, which means another bundle display type
-                                if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
-                                    raw_size = i - last_raw_index;
+                                if(bundle){
+                                    if(raw[i].search(bundle.uuid) > -1 || (raw[i].lastIndexOf('%', 0) === 0)){
+                                        raw_size = i - last_raw_index;
+                                        break;
+                                    }else{
+                                        break;
+                                        //??
+                                    }
+                                }else {
                                     break;
-                                }else{
-                                    //??
                                 }
                             }
                             break;
