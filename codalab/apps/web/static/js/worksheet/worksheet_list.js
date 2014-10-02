@@ -102,7 +102,7 @@ var WorksheetList = React.createClass({
     },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
-        window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
+        window.location.href += this.refs['ws' + this.state.focusIndex].props.details.uuid;
     },
     toggleMyWorksheets: function(){
         // filter by MY worksheets?
@@ -136,7 +136,7 @@ var WorksheetList = React.createClass({
         }
         if(this.props.filter.length){
             console.log('filtering by: ' + filter);
-            worksheets = worksheets.filter(function(ws){ 
+            worksheets = worksheets.filter(function(ws){
                 return (ws.name.indexOf(filter) > -1);
             });
         }
@@ -210,7 +210,7 @@ var WorksheetSearch = React.createClass({
     //   2. if it's blurred, make the other component active
     //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
-        return (      
+        return (
             <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
         )
     }
