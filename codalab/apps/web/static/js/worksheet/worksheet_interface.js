@@ -47,20 +47,27 @@ var Worksheet = React.createClass({
     },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
+        // just scroll to the top of the page.
+        // Add the stop() to keep animation events from building up in the queue
+        // See also scrollTo* methods
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
     handleSearchBlur: function(event){
+        // explicitly close the select2 dropdown because we're leaving the search bar
         $('#search').select2('close');
         this.setState({activeComponent:'list'});
     },
     handleKeydown: function(event){
         var key = keyMap[event.keyCode];
         var activeComponent = this.refs[this.state.activeComponent];
+        // At this top level, the only keypress the parent cares about is ? to open
+        // the keyboard shortcuts modal, and then only if we're not actively editing something
         if(key === 'fslash' && event.shiftKey && activeComponent.state.editingIndex === -1){
             event.preventDefault();
-            this.handleSearchBlur();
+            this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').foundation('reveal', 'open');
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
+            // pass the event along to children
             activeComponent.handleKeydown(event);
         }else {
             return true;
@@ -70,7 +77,7 @@ var Worksheet = React.createClass({
         this.setState({editMode:!this.state.editMode});
     },
     render: function(){
-        //////////////// DEV ONLY -- Turn on editing by default. Remove before merging ////////////////
+        //////////////// DEV ONLY -- Turn on edit mode by default. Remove before merging ////////////////
         // var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         var canEdit = true;
         return (
@@ -85,6 +92,7 @@ var Worksheet = React.createClass({
 var WorksheetSearch = React.createClass({
     mixins: [Select2SearchMixin],
     handleKeydown: function(event){
+        // the only key the searchbar cares about is esc. Otherwise we're just typing in the input.
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             switch (key) {
@@ -126,6 +134,7 @@ var WorksheetItemList = React.createClass({
     },
     componentDidMount: function() {
         this.fetch_and_update();
+        // Set up the debounced version of the save method here so we can call it later
         this.slowSave = _.debounce(this.saveAndUpdateWorksheet, 1000);
     },
     componentDidUpdate: function(){
@@ -153,23 +162,30 @@ var WorksheetItemList = React.createClass({
         });
     },
     handleKeydown: function(event){
-        if(this.state.rawMode){ return true; }
+        // No keyboard shortcuts are active in raw mode
+        if(this.state.rawMode){
+            return true;
+        }
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
+        // if the focused item wants to handle certain keys, and this is one of them, pass it along
         if(focusedItem && focusedItem.hasOwnProperty('keysToHandle') && focusedItem.keysToHandle().indexOf(key) != -1){
+            // TODO: this could be cleaned up. We don't need two names for handling keyboard input
             if(focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
                 focusedItem.handleKeyboardShortcuts(event);
             }else{
                 focusedItem.handleKeydown(event);
             }
+        // Otherwise, if we're in edit mode (fIndex === eIndex is a sanity check)(so is the hasOwnProperty)
         }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
             focusedItem.handleKeydown(event);
         }else {
             switch (key) {
                 case 'fslash':
                     event.preventDefault();
+                    // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
                     break;
                 case 'up':
@@ -179,6 +195,7 @@ var WorksheetItemList = React.createClass({
                         this.moveItem(-1);
                     }else {
                         if(fIndex <= 0){
+                            // if we're already at the top of the worksheet, we can't go higher
                             fIndex = -1;
                         }else {
                             fIndex = Math.max(this.state.focusIndex - 1, 0);
@@ -193,14 +210,17 @@ var WorksheetItemList = React.createClass({
                     if(event.shiftKey && this.props.canEdit){
                         this.moveItem(1);
                     }else {
-                        fIndex = Math.min(this.state.focusIndex + 1, document.querySelectorAll('#worksheet_content .ws-item').length - 1);
+                        // Don't allow moving past the last item. Because the number of ws-item divs might
+                        // not be the same as the number of item objects because of editing/inserting/whatever,
+                        // count the actual divs instead
+                        fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
                         this.setState({focusIndex: fIndex});
                         this.scrollToItem(fIndex);
                     }
                     break;
                 case 'e':
+                    event.preventDefault();
                     if(this.props.canEdit){
-                        event.preventDefault();
                         this.setState({editingIndex: fIndex});
                     }
                     break;
@@ -211,26 +231,25 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'd':
+                    event.preventDefault();
                     if(this.props.canEdit){
-                        event.preventDefault();
                         this.deleteChecked();
                     }
                     break;
                 case 'i':
+                    event.preventDefault();
                     if(this.props.canEdit){
-                        event.preventDefault();
                         this.insertItem(key);
                     }
                     break;
                 case 'a':
+                    event.preventDefault();
                     if(event.shiftKey && ws_obj.getState().edit_permission){
-                        event.preventDefault();
                         this.insertItem(key);
                     }
                     break;
                 default:
                     return true;
-
             }
         }
     },
@@ -238,24 +257,30 @@ var WorksheetItemList = React.createClass({
         // scroll the window to keep the focused element in view
         var offsetTop = 0;
         if(index > -1){
+            // find the item's position on the page, and offset it from the top of the viewport
             offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 200;
         }
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
-        //apparently sometimes item is undefined if this gets triggered again by a callback
+        // apparently sometimes item is undefined if this gets triggered again by a callback
+        // TODO: who is calling this later?
         if(item){
             var index = this.state.editingIndex;
-            //because we need to distinguish between items that have just been inserted and items
-            //that were edited, we now have a 'new_item' flag on markdown items' state
+            // because we need to distinguish between items that have just been inserted and items
+            // that were edited, we have a 'new_item' flag on markdown items' state
             if(this.refs['item' + index].state.new_item){
+                // if it's a new item, it hasn't been added to the raw yet, so do that.
                 ws_obj.insertRawItem(index, textarea.value);
             }else {
+                console.log(ws_obj.state.items[index])
                 ws_obj.state.items[index].state.interpreted = textarea.value;
                 ws_obj.setItem(index, ws_obj.state.items[index]);
             }
+            // we duplicate this here so the edits show up right away, instead of after the save + update
             item.state.interpreted = textarea.value;
+            // we may have added contiguous markdown bundles, so we need to reconsolidate
             var unconsolidated = ws_obj.getState();
             var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
             ws_obj.state.items = consolidated;
@@ -272,8 +297,14 @@ var WorksheetItemList = React.createClass({
 
     },
     unInsert: function(){
+        // this gets called when we insert an item then esc without saving it
+        // set the item to undefined so it gets cleaned up
         ws_obj.setItem(this.state.focusIndex, undefined);
         var newIndex = this.state.focusIndex;
+        // Handle the special case of a bundle being added at the very end of the worksheet,
+        // then cancelled (hit esc without saving). In this case we need to set the focus index
+        // back one, to the last item in the worksheet. Otherwise the ghost of the cancelled item
+        // retains focus and throws off the indices if insert is called again
         if(this.state.focusIndex === this.state.worksheet.items.length - 1){
             newFocusIndex--;
         }
@@ -295,10 +326,13 @@ var WorksheetItemList = React.createClass({
                 // when called gets a edited flag, when you getState
             }
         }
-        ws_obj.deleteItems(item_indexes)
-        // does a clean before setting it's state and upda
-        this.saveAndUpdateWorksheet();
-        this.unCheckItems();
+        if(item_indexes.length){
+            // only proceed if it turns out that one or more items were actually checked
+            ws_obj.deleteItems(item_indexes)
+            // does a clean before setting it's state and updating
+            this.saveAndUpdateWorksheet();
+            this.unCheckItems();
+        }
     },
     unCheckItems: function(){
         var reactItems = this.refs;
@@ -307,6 +341,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     insertItem: function(keyPressed){
+        // insert before or after?
         var pos = keyPressed === 'i' ? 0 : 1;
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
@@ -316,9 +351,12 @@ var WorksheetItemList = React.createClass({
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+        // Set the new_item flag so we know to add it to raw on save
         this.refs['item' + newIndex].setState({new_item: true});
     },
     moveItem: function(delta){
+        // delta is currently either +1 or -1, but in theory an item could be moved
+        // by any number of steps
         var oldIndex = this.state.focusIndex;
         var newIndex = oldIndex + delta;
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
@@ -426,6 +464,7 @@ var WorksheetItemList = React.createClass({
     }
 });
 
+// TODO: is there a better pattern we can use here to avoid having to repeat all these arguments? FDC?
 var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit){
     switch (item.state.mode) {
         case 'markup':
