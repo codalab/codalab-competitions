@@ -20,7 +20,7 @@ var TableMixin = {
         if(index > -1){
             offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 100;
         }
-        $('html,body').animate({scrollTop: offsetTop}, 250);
+        $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
     handleKeyboardShortcuts: function(event){
         var item = this.props.item.state;
