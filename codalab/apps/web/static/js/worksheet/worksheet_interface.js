@@ -273,7 +273,14 @@ var WorksheetItemList = React.createClass({
     },
     unInsert: function(){
         ws_obj.setItem(this.state.focusIndex, undefined);
-        this.setState({worksheet: ws_obj.getState()});
+        var newIndex = this.state.focusIndex;
+        if(this.state.focusIndex === this.state.worksheet.items.length - 1){
+            newFocusIndex--;
+        }
+        this.setState({
+            worksheet: ws_obj.getState(),
+            focusIndex: newFocusIndex
+        });
     },
     deleteChecked: function(){
         var reactItems = this.refs;
