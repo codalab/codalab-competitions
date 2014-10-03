@@ -88,6 +88,7 @@ var WorksheetContent = function() {
             switch (ws_item.state.mode) {
                 case 'markup':
                     // grab the first bundle's info following you.
+                    // debugger;
                     switch (below_item.state.mode) {
                         case 'worksheet':
                             for(i=last_raw_index; i < raw.length; i++){
@@ -111,7 +112,6 @@ var WorksheetContent = function() {
                                         raw_size = i - last_raw_index;
                                         break;
                                     }else{
-                                        break;
                                         //??
                                     }
                                 }else {
