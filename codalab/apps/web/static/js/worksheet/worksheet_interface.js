@@ -278,16 +278,18 @@ var WorksheetItemList = React.createClass({
     deleteChecked: function(){
         var reactItems = this.refs;
         var worksheet = this.state.worksheet;
+        var item_indexes =[];
         for(var k in reactItems){
             if(reactItems[k].state.checked){
                 // we know the key of the item is the same as the index. We set it.
                 // see WorksheetItemFactory. This will change but always match.
                 var index = reactItems[k].props.key;
-                ws_obj.deleteItem(index)
+                item_indexes.push(index)
                 // when called gets a edited flag, when you getState
-                // does a clean before setting it's state
             }
         }
+        ws_obj.deleteItems(item_indexes)
+        // does a clean before setting it's state and upda
         this.saveAndUpdateWorksheet();
         this.unCheckItems();
     },

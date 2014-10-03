@@ -34,6 +34,15 @@ var WorksheetContent = function() {
             }
         }
         this.state.items = newArray;
+        //clean up raw
+        newArray = [];
+        for(var i = 0; i < this.state.raw.length; i++){
+            if (this.state.raw[i] !== undefined ){
+                newArray.push(this.state.raw[i]);
+            }
+        }
+        this.state.raw = newArray;
+
     };
     WorksheetContent.prototype.updateItemsIndex = function() {
         console.log('%c CALL UPDATE ITEMS ', 'background: green; color: white;');
@@ -168,18 +177,30 @@ var WorksheetContent = function() {
 
 
     };
-    WorksheetContent.prototype.deleteItem = function(index) {
-        //update raw
-        //deleting items at index, raw_index+raw_size
-        var ri = this.state.items[index].state.raw_index;
-        var rs = this.state.items[index].state.raw_size;
-        this.state.raw.splice(ri, rs);
+    WorksheetContent.prototype.deleteItems = function(item_indexes) {
+        //what are the interpeted items indexes
+        for(var i=0; i < item_indexes.length; i++){
+            var index = item_indexes[i];
 
-        //now update the list
-        var ws1 = this.state.items.slice(0,index);
-        var ws2 = this.state.items.slice(index + 1);
-        ws1.push(undefined);
-        this.state.items = ws1.concat(ws2);
+            //update the raw
+            var ri = this.state.items[index].state.raw_index;
+            var rs = this.state.items[index].state.raw_size;
+            //cut out the middle
+            var r1  = this.state.raw.slice(0,ri);
+            var r2 = this.state.raw.slice(ri + rs);
+            //replace what we cut out with undefines
+            for(var j=0; j < rs; j++){
+                r1.push(undefined);
+            }
+            this.state.raw = r1.concat(r2);
+
+            //now update the list
+            var ws1 = this.state.items.slice(0,index);
+            var ws2 = this.state.items.slice(index + 1);
+            ws1.push(undefined);
+            this.state.items = ws1.concat(ws2);
+        }
+        //removes all undefined
         this.cleanUp();
     };
     WorksheetContent.prototype.insertRawItem = function(index, item){
