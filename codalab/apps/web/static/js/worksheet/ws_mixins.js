@@ -6,13 +6,13 @@ var TableMixin = {
     getInitialState: function(){
         return {
             rowFocusIndex: 0
-        }
+        };
     },
     handleClick: function(){
         this.props.setFocus(this);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x']
+        return['up','k','down','j','x'];
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
@@ -38,7 +38,7 @@ var TableMixin = {
                         this._owner.moveItem(-1);
                     }else{
                         index = Math.max(this.state.rowFocusIndex - 1, 0);
-                        if(this.state.rowFocusIndex == 0){
+                        if(this.state.rowFocusIndex === 0){
                             this._owner.setState({focusIndex: parentFocusIndex - 1});
                             this._owner.scrollToItem(parentFocusIndex - 1);
                         }else {
@@ -74,7 +74,7 @@ var TableMixin = {
                 return true;
             }
     }
-}
+};  // end of TableMixin
 
 var Select2SearchMixin = {
     componentDidMount: function(){
@@ -141,10 +141,10 @@ var Select2SearchMixin = {
             }
         }
     }
-}
+};   // end of Select2SearchMixin
 
 var CheckboxMixin = {
     handleCheck: function(event){
         this.setState({checked: event.target.checked});
     }
-}
+};
