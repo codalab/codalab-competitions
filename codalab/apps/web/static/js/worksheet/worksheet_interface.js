@@ -47,7 +47,7 @@ var Worksheet = React.createClass({
     },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
-        $('html,body').animate({scrollTop: 0}, 250);
+        $('body').stop(true).animate({scrollTop: 0}, 250);
     },
     handleSearchBlur: function(event){
         $('#search').select2('close');
@@ -238,9 +238,9 @@ var WorksheetItemList = React.createClass({
         // scroll the window to keep the focused element in view
         var offsetTop = 0;
         if(index > -1){
-            offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 100;
+            offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 200;
         }
-        $('html,body').animate({scrollTop: offsetTop}, 250);
+        $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
     saveItem: function(textarea){
         var item = ws_obj.state.items[this.state.editingIndex];
