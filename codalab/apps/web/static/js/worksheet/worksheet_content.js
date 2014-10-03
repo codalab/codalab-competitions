@@ -179,10 +179,13 @@ var WorksheetContent = function() {
         //what are the interpeted items indexes
         for(var i=0; i < item_indexes.length; i++){
             var index = item_indexes[i];
-
             //update the raw
             var ri = this.state.items[index].state.raw_index;
             var rs = this.state.items[index].state.raw_size;
+            //slice need a 0 indexed size
+            if(rs === 0){
+                rs = 1;
+            }
             //cut out the middle
             var r1  = this.state.raw.slice(0,ri);
             var r2 = this.state.raw.slice(ri + rs);
@@ -191,7 +194,6 @@ var WorksheetContent = function() {
                 r1.push(undefined);
             }
             this.state.raw = r1.concat(r2);
-
             //now update the list
             var ws1 = this.state.items.slice(0,index);
             var ws2 = this.state.items.slice(index + 1);
