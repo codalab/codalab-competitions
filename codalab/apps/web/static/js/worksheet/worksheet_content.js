@@ -332,6 +332,9 @@ var WorksheetContent = function() {
             'owner_id': this.state.owner_id,
             'lines': this.state.raw
         };
+
+        $('#save_error').hide();
+        $('#save_progress').fadeIn('fast');
         $.ajax({
             type: "POST",
             cache: false,
@@ -339,10 +342,6 @@ var WorksheetContent = function() {
             contentType:"application/json; charset=utf-8",
             dataType:"json",
             data: JSON.stringify(postdata),
-            beforeSend: function(){
-                $('#save_error').hide();
-                $('#save_progress').fadeIn('fast');
-            },
             success: function(data) {
                 console.log('Saved worksheet');
                 console.log(data);
