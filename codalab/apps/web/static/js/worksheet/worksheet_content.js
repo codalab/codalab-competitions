@@ -215,14 +215,16 @@ var WorksheetContent = function() {
     };
     WorksheetContent.prototype.setItem = function(index, item) {
         //update raw
-        //the item here is a WorksheetItem, so we need to get its interpreted value and split it into an array
-        var item_array = item.state.interpreted.split('\n');
-        //because we're editing an item that already exists, we can use its raw_index and assume it's correct...
-        var ri = this.state.items[index].state.raw_index;
-        var rs = this.state.items[index].state.raw_size;
-        var raw1 = this.state.raw.slice(0,ri);
-        var raw2 = this.state.raw.slice(ri + rs);
-        this.state.raw = raw1.concat(item_array, raw2);
+        if(typeof(item) !== 'undefined'){
+            //the item here is a WorksheetItem, so we need to get its interpreted value and split it into an array
+            var item_array = item.state.interpreted.split('\n');
+            //because we're editing an item that already exists, we can use its raw_index and assume it's correct...
+            var ri = this.state.items[index].state.raw_index;
+            var rs = this.state.items[index].state.raw_size;
+            var raw1 = this.state.raw.slice(0,ri);
+            var raw2 = this.state.raw.slice(ri + rs);
+            this.state.raw = raw1.concat(item_array, raw2);
+        }
         //now update items
         this.state.items[index] = item;
         this.needs_cleanup = true; // newItems can be undefined. Lets cross our t's
@@ -253,6 +255,12 @@ var WorksheetContent = function() {
         var raw2 = this.state.raw.slice(newPos);
         // combine the front of the list, the moved items, and the back of the list
         this.state.raw = raw1.concat(raw_items, raw2);
+
+        //update items
+        // var items = this.state.items;
+        // items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
+        // this.state.items = items;
+
     };
     WorksheetContent.prototype.getRaw = function(){
         var raw = {
