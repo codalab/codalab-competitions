@@ -950,6 +950,20 @@ class CompetitionDefBundle(models.Model):
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
         yaml_contents = zf.open(comp_spec_file).read()
+
+        # Forcing YAML to interpret the file while maintaining the original order things are in
+        from collections import OrderedDict
+        _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+        def dict_representer(dumper, data):
+            return dumper.represent_dict(data.iteritems())
+
+        def dict_constructor(loader, node):
+            return OrderedDict(loader.construct_pairs(node))
+
+        yaml.add_representer(OrderedDict, dict_representer)
+        yaml.add_constructor(_mapping_tag, dict_constructor)
+
         comp_spec = yaml.load(yaml_contents)
         comp_base = comp_spec.copy()
         for block in ['html', 'phases', 'leaderboard']:

@@ -289,6 +289,7 @@ class CompetitionDetailView(DetailView):
             else:
                 tc = []
             side_tabs[category] = tc
+
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         submissions = dict()
