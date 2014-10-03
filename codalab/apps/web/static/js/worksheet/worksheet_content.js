@@ -164,9 +164,7 @@ var WorksheetContent = function() {
         });
         console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
         console.log(this.state.raw);
-
-
-
+        $('#update_progress').hide();
     };
     WorksheetContent.prototype.deleteItem = function(index) {
         //update raw
@@ -330,6 +328,7 @@ var WorksheetContent = function() {
     };
 
     WorksheetContent.prototype.saveWorksheet = function(props) {
+        $('#update_progress').show();
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
@@ -342,7 +341,6 @@ var WorksheetContent = function() {
         };
 
         $('#save_error').hide();
-        $('#save_progress').fadeIn('fast');
         $.ajax({
             type: "POST",
             cache: false,
@@ -354,11 +352,10 @@ var WorksheetContent = function() {
                 console.log('Saved worksheet');
                 console.log(data);
                 console.log('');
-                $('#save_progress').fadeOut('fast');
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
-                $('#save_progress').hide();
+                $('#update_progress').hide();
                 $('#save_error').show();
                 props.error(xhr, status, err);
             }.bind(this)
