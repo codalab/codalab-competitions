@@ -17,7 +17,7 @@ var MarkdownBundle = React.createClass({
             switch (key) {
                 case 'esc':
                     this._owner.setState({editingIndex: -1});
-                    if(!$(this.getDOMNode()).find('textarea').val().length){
+                    if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
                         this._owner.unInsert();
                     }
                     event.stopPropagation();
