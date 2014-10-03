@@ -172,11 +172,11 @@ table.table-responsive {
   -ms-overflow-style: -ms-autohiding-scrollbar;
   border: 1px solid #ddd;
 }
-table.table-responsive > thead > tr > th, 
-table.table-responsive > tbody > tr > th, 
-table.table-responsive > tfoot > tr > th, 
-table.table-responsive > thead > tr > td, 
-table.table-responsive > tbody > tr > td, 
+table.table-responsive > thead > tr > th,
+table.table-responsive > tbody > tr > th,
+table.table-responsive > tfoot > tr > th,
+table.table-responsive > thead > tr > td,
+table.table-responsive > tbody > tr > td,
 table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
 }
@@ -244,7 +244,7 @@ h1.worksheet-icon.orange {
 body.yellow {
   background-color:yellow;
 }
-#save_progress, #save_error {
+#save_progress, #save_error, #update_progress {
   display:none;
   position:fixed;
   bottom:40px;
@@ -254,6 +254,9 @@ body.yellow {
   line-height:40px;
   background-color:rgba(255,255,255,.75);
   text-align:center;
+}
+#update_progress {
+  top:63px;
 }
 #save_error i {
   font-size:24px;
