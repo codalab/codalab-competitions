@@ -101,6 +101,7 @@
 #worksheet_content .type-markup,
 #worksheet_content .type-inline {
   min-height:1.5em;
+  margin-bottom:20px;
 }
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
@@ -171,11 +172,11 @@ table.table-responsive {
   -ms-overflow-style: -ms-autohiding-scrollbar;
   border: 1px solid #ddd;
 }
-table.table-responsive > thead > tr > th, 
-table.table-responsive > tbody > tr > th, 
-table.table-responsive > tfoot > tr > th, 
-table.table-responsive > thead > tr > td, 
-table.table-responsive > tbody > tr > td, 
+table.table-responsive > thead > tr > th,
+table.table-responsive > tbody > tr > th,
+table.table-responsive > tfoot > tr > th,
+table.table-responsive > thead > tr > td,
+table.table-responsive > tbody > tr > td,
 table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
 }
@@ -243,27 +244,24 @@ h1.worksheet-icon.orange {
 body.yellow {
   background-color:yellow;
 }
-#save_progress, #save_error {
+#save_progress, #save_error, #update_progress {
+  display:none;
   position:fixed;
   bottom:40px;
   right:40px;
-  width:120px;
+  width:150px;
   height:40px;
   line-height:40px;
   background-color:rgba(255,255,255,.75);
   text-align:center;
-  opacity:0;
-  -webkit-transition: opacity 150ms ease-in-out;
-  -moz-transition: opacity 150ms ease-in-out;
-  -ms-transition: opacity 150ms ease-in-out;
-  -o-transition: opacity 150ms ease-in-out;
-  transition: opacity 150ms ease-in-out;
 }
-.content.saving #save_progress {
-  opacity:1;
+#update_progress {
+  top:63px;
 }
-.content.save-error #save_error {
-  opacity:1;
+#save_error i {
+  font-size:24px;
+  color:red;
+  vertical-align:-3px;
 }
 #worksheet-list .worksheet-tile {
   border-left:1px solid #ccc;
