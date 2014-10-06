@@ -77,9 +77,7 @@ var Worksheet = React.createClass({
         this.setState({editMode:!this.state.editMode});
     },
     render: function(){
-        //////////////// DEV ONLY -- Turn on edit mode by default. Remove before merging ////////////////
-        // var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
-        var canEdit = true;
+        var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
