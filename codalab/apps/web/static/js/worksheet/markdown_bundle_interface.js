@@ -6,7 +6,7 @@ var MarkdownBundle = React.createClass({
         return {
             checked: false,
             new_item: false
-        }
+        };
     },
     keysToHandle: function(){
         return['esc','enter'];
@@ -15,15 +15,15 @@ var MarkdownBundle = React.createClass({
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             switch (key) {
-                case 'esc':
+                case 'esc': // cancel
                     this._owner.setState({editingIndex: -1});
                     if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
                         this._owner.unInsert();
                     }
                     event.stopPropagation();
                     break;
-                case 'enter':
-                    if(event.ctrlKey || event.metaKey){
+                case 'enter':  // save or add a new line
+                    if(event.ctrlKey || event.metaKey){ // ctrl/meta on mac for saving item
                         event.preventDefault();
                         this.saveEditedItem(event.target);
                     }

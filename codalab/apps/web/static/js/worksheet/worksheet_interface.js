@@ -149,6 +149,7 @@ var WorksheetItemList = React.createClass({
                 if(this.isMounted()){
                     this.setState({worksheet: ws_obj.getState()});
                 }
+                $('#update_progress').hide();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -171,7 +172,10 @@ var WorksheetItemList = React.createClass({
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
         // if the focused item wants to handle certain keys, and this is one of them, pass it along
-        if(focusedItem && focusedItem.hasOwnProperty('keysToHandle') && focusedItem.keysToHandle().indexOf(key) != -1){
+        if( focusedItem &&
+            focusedItem.hasOwnProperty('keysToHandle') &&
+            focusedItem.keysToHandle().indexOf(key) != -1
+            ){
             // TODO: this could be cleaned up. We don't need two names for handling keyboard input
             if(focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
                 focusedItem.handleKeyboardShortcuts(event);
@@ -179,16 +183,19 @@ var WorksheetItemList = React.createClass({
                 focusedItem.handleKeydown(event);
             }
         // Otherwise, if we're in edit mode (fIndex === eIndex is a sanity check)(so is the hasOwnProperty)
-        }else if(focusedItem && fIndex === eIndex && focusedItem.hasOwnProperty('handleKeydown')){
+        }else if( focusedItem &&
+                  fIndex === eIndex &&
+                  focusedItem.hasOwnProperty('handleKeydown')
+                ){
             focusedItem.handleKeydown(event);
-        }else {
+        }else { // we have failed the other tests, let the worksheet handle the key
             switch (key) {
-                case 'fslash':
+                case 'fslash': // Move focus to search bar
                     event.preventDefault();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
                     break;
-                case 'up':
+                case 'up': // move up
                 case 'k':
                     event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
@@ -204,7 +211,7 @@ var WorksheetItemList = React.createClass({
                         this.scrollToItem(fIndex);
                     }
                     break;
-                case 'down':
+                case 'down': // move down
                 case 'j':
                     event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
@@ -218,31 +225,31 @@ var WorksheetItemList = React.createClass({
                         this.scrollToItem(fIndex);
                     }
                     break;
-                case 'e':
+                case 'e':  // edit item
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.setState({editingIndex: fIndex});
                     }
                     break;
-                case 'x':
+                case 'x': // select item
                     event.preventDefault();
                     if(focusedItem){
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
-                case 'd':
+                case 'd': // delete selected items
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.deleteChecked();
                     }
                     break;
-                case 'i':
+                case 'i': //insert
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.insertItem(key);
                     }
                     break;
-                case 'a':
+                case 'a': // really a cap A for instert After, like vi
                     event.preventDefault();
                     if(event.shiftKey && ws_obj.getState().edit_permission){
                         this.insertItem(key);
@@ -262,7 +269,7 @@ var WorksheetItemList = React.createClass({
         }
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
-    saveItem: function(textarea){
+    saveItem: function(textarea){ // aka handleSave
         var item = ws_obj.state.items[this.state.editingIndex];
         // apparently sometimes item is undefined if this gets triggered again by a callback
         // TODO: who is calling this later?
