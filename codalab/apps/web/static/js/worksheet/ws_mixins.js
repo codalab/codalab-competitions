@@ -1,18 +1,26 @@
 /** @jsx React.DOM */
 
-var TableMixin = { 
+var TableMixin = {
     // This handles some common elements of worksheet items that are presented as tables
     // TableBundle and RecordBundle
     getInitialState: function(){
         return {
             rowFocusIndex: 0
-        }
+        };
     },
     handleClick: function(){
         this.props.setFocus(this);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x']
+        return['up','k','down','j','x'];
+    },
+    scrollToRow: function(index){
+        // scroll the window to keep the focused row in view
+        var offsetTop = 0;
+        if(index > -1){
+            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 100;
+        }
+        $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
     handleKeyboardShortcuts: function(event){
         var item = this.props.item.state;
@@ -30,10 +38,12 @@ var TableMixin = {
                         this._owner.moveItem(-1);
                     }else{
                         index = Math.max(this.state.rowFocusIndex - 1, 0);
-                        if(this.state.rowFocusIndex == 0){
+                        if(this.state.rowFocusIndex === 0){
                             this._owner.setState({focusIndex: parentFocusIndex - 1});
+                            this._owner.scrollToItem(parentFocusIndex - 1);
                         }else {
                             this.setState({rowFocusIndex: index});
+                            this.scrollToRow(index);
                         }
                     }
                     break;
@@ -46,8 +56,10 @@ var TableMixin = {
                         index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
                         if(index == rowsInTable){
                             this._owner.setState({focusIndex: parentFocusIndex + 1});
+                            this._owner.scrollToItem(parentFocusIndex + 1);
                         }else {
                             this.setState({rowFocusIndex: index});
+                            this.scrollToRow(index);
                         }
                     }
                     break;
@@ -62,11 +74,11 @@ var TableMixin = {
                 return true;
             }
     }
-}
+};  // end of TableMixin
 
 var Select2SearchMixin = {
     componentDidMount: function(){
-        // when the component has mounted, init the select2 plugin on the 
+        // when the component has mounted, init the select2 plugin on the
         // general search input (http://ivaynberg.github.io/select2/)
         _this = this;
         $('#search').select2({
@@ -79,7 +91,7 @@ var Select2SearchMixin = {
                 return options;
             },
             tokenSeparators: [":", " ", ","], // Define token separators for the tokenizer function
-            createSearchChoicePosition: 'bottom' // Users can enter their own commands (not autocompleted) 
+            createSearchChoicePosition: 'bottom' // Users can enter their own commands (not autocompleted)
                                                  // but these will show up at the bottom. This allows a user
                                                  // to hit 'tab' to select the first highlighted option
         });
@@ -102,7 +114,7 @@ var Select2SearchMixin = {
                 default:
                     return true;
             }
-        });        
+        });
     },
     componentWillUnmount: function(){
         // when the component unmounts, destroy the select2 instance
@@ -129,10 +141,10 @@ var Select2SearchMixin = {
             }
         }
     }
-}
+};   // end of Select2SearchMixin
 
 var CheckboxMixin = {
     handleCheck: function(event){
         this.setState({checked: event.target.checked});
     }
-}
+};

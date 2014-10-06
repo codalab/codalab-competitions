@@ -21,6 +21,7 @@ var TableBundle = React.createClass({
             var focused = index === focusIndex;
             var focusedClass = focused ? 'focused' : '';
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
+            var ref = 'row' + index;
             var row_cells = header_items.map(function(header_key, index){
                 if(index == 0){
                     return (
@@ -35,7 +36,7 @@ var TableBundle = React.createClass({
                 }
             });
             return (
-                <tr key={index} focused={focused} className={focusedClass}>
+                <tr ref={ref} key={index} focused={focused} className={focusedClass}>
                     {row_cells}
                 </tr>
             );
