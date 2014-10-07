@@ -163,17 +163,19 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         # inline_formsets[1] == phases
         for inline_form in inline_formsets[1].forms:
+            # get existing datasets and add them, so admins can see them!
+            input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
+            reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
+            scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+
             inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Input Data"
+                Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
             )
             inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Reference Data"
+                Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
             )
             inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                uploaded_by=self.request.user,
-                type="Scoring Program"
+                Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
             )
         return inline_formsets
 
@@ -188,7 +190,7 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if self.object.creator != request.user:
+        if self.object.creator != request.user and request.user not in self.object.admins.all():
             return HttpResponse(status=403)
 
         return super(CompetitionEdit, self).post(request, *args, **kwargs)
@@ -287,6 +289,7 @@ class CompetitionDetailView(DetailView):
             else:
                 tc = []
             side_tabs[category] = tc
+
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         submissions = dict()
@@ -591,7 +594,7 @@ class MyCompetitionSubmissionDetailedResults(TemplateView):
     template_name = 'web/my/detailed_results.html'
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-        context_dict = {'id': kwargs.get('submission_id'), 'user': self.request.user.username, 'filename':submission.detailed_results_file.name}
+        context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
@@ -742,11 +745,11 @@ def BundleDownload(request, uuid):
     service = BundleService(request.user)
 
     local_path, temp_path = service.download_target(uuid, return_zip=True)
+    item = service.item(uuid)
 
-    return StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
-
-
-    # return StreamingHttpResponse(service.read_file(uuid, local_path), content_type=content_type)
+    response = StreamingHttpResponse(service.read_file(uuid, local_path), content_type="zip")
+    response['Content-Disposition'] = 'attachment; filename="%s.zip"' % item['metadata']['name']
+    return response
 
 # Worksheets
 
@@ -950,5 +953,15 @@ def datasets_delete_multiple(request):
     return HttpResponse()
 
 
-def system_monitoring(request):
-    pass
+def download_competition_yaml(request, competition_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            return HttpResponse(status=403)
+
+        response = HttpResponse(competition.original_yaml_file, content_type="text/yaml")
+        response['Content-Disposition'] = 'attachment; filename="competition_%s.yaml"' % competition_pk
+        return response
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)

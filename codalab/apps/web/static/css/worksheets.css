@@ -3,47 +3,91 @@
   padding-top:49px;
 }
 #worksheet-message {
-  padding-top:30px;
+  margin-bottom:2em;
 }
-#bundle-message {
-  padding:20px 0;
+#worksheet-message.ws-detail {
+  margin-top:2em;
 }
-#worksheet-content {
+#worksheet_content {
   line-height:1.2em;
+  min-height:480px;
 }
-#worksheet-content .worksheet-name {
-  border-bottom:1px solid #ddd;
+#worksheet_content .glossary-link, #worksheet_content .controls label {
+  font-weight:normal;
+  font-size:.75em;
+}
+#worksheet_content .hidden {
+  display:none;
+}
+#worksheet_content .ws-item {
+  position:relative;
+}
+#worksheet_content.editable .ws-item {
+  margin-left:1.5em;
+}
+#worksheet_content .ws-item .ws-checkbox {
+  margin:0;
+  position:absolute;
+  left:-1.5em;
+  top:0.25em;
+}
+#worksheet_content .empty-worksheet {
+  color:#a4a4a4;
+  text-align:center;
+  display:none;
+}
+#worksheet_content .header-row {
   margin-bottom:1.875em;
 }
-#worksheet-content .worksheet-name label input[type="checkbox"]{
+#worksheet_content .header-row hr {
+  margin: 1em 0.9375em;
+}
+#worksheet_content .header-row .controls {
+  text-align:right;
+  padding-top:.75em;
+}
+#worksheet_content .header-row .controls input,
+#worksheet_content .header-row .controls label {
+  margin:0;
+}
+#worksheet_content textarea.raw-textarea {
+  min-height:480px;
+}
+#worksheet_content .worksheet-name {
+  min-height:65px;
+}
+#worksheet_content .worksheet-name label input[type="checkbox"]{
   margin-right:5px;
 }
-#worksheet-content .worksheet-name h1 {
+#worksheet_content .worksheet-name h1 {
   text-indent:65px;
-  margin-top:.25em;
+  margin-top:0;
   font-size:2.75em
 }
-#worksheet-content h1, #worksheet-content h3, #worksheet-content h3 {
+#worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {
   margin:.85em 0 .5em 0;
   font-weight:200;
 }
-#worksheet-content h1 {
+#worksheet_content h1 {
   font-size:2.25em;
 }
-#worksheet-content h2 {
+#worksheet_content h2 {
   font-size:1.75em;
 }
-#worksheet-content h3 {
+#worksheet_content h3 {
   font-size:1.25em;
 }
-#worksheet-content .focused {
+#worksheet_content .ws-item > .focused {
   background:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
-#worksheet-content .focused table {
+#worksheet_content table.focused  {
   background:#FFFEF4;
 }
-#worksheet-content textarea {
+#worksheet_content table.focused tr.focused{
+  background:#DFEDF7;
+}
+#worksheet_content textarea {
   background:#FFF;
   color:#333;
   box-shadow:none;
@@ -54,16 +98,54 @@
   padding:0.5em;
   width:100%;
 }
-#worksheet-content .type-markup ul,
-#worksheet-content .type-markup ol {
+#worksheet_content .type-markup,
+#worksheet_content .type-inline {
+  min-height:1.5em;
+  margin-bottom:20px;
+}
+#worksheet_content .type-markup ul,
+#worksheet_content .type-markup ol {
   margin: 0 0 1em 0;
   padding-left:40px;
 }
-#worksheet-content .type-markup ul {
+#worksheet_content .type-markup ul {
   list-style-type:disc;
 }
-#worksheet-content .type-markup ol {
+#worksheet_content .type-markup ol {
   list-style-type:decimal;
+}
+#worksheet_content .type-contents blockquote {
+  padding: 1em 0 1em 1.5em;
+  border-left:4px solid #eee;
+}
+#worksheet_content .type-html .html-bundle {
+  padding: 1em;
+  margin-bottom:1.5em;
+  border:1px solid #eee;
+  background-color:#fff;
+}
+#worksheet_content .type-html.focused .html-bundle {
+  background-color:#FFFEF4;
+}
+#worksheet_content .type-contents:not(.focused) blockquote{
+  background-color:#fcfcfc;
+
+}
+#worksheet_content .type-contents blockquote p {
+  white-space: pre;
+  color:#555;
+  margin:0;
+  font-size:14px;
+  line-height:1.5em;
+}
+#worksheet_content .type-worksheet a {
+  display:block;
+  height:2.5em;
+  line-height:2.5em;
+  padding:0 .5em 0 2.5em;
+  background: url('../img/icon_worksheet.png') no-repeat .25em #fcfcfc;
+  background-size:2em;
+
 }
 table.table {
   border-collapse: separate;
@@ -79,7 +161,7 @@ table.table-responsive {
   width:100%;
   max-width:100%;
   border:none;
-  margin-bottom:0;
+
 }
 .type-table, .table-wrapper {
   width: 100%;
@@ -90,34 +172,29 @@ table.table-responsive {
   -ms-overflow-style: -ms-autohiding-scrollbar;
   border: 1px solid #ddd;
 }
-table.table-responsive > thead > tr > th, 
-table.table-responsive > tbody > tr > th, 
-table.table-responsive > tfoot > tr > th, 
-table.table-responsive > thead > tr > td, 
-table.table-responsive > tbody > tr > td, 
+table.table-responsive > thead > tr > th,
+table.table-responsive > tbody > tr > th,
+table.table-responsive > tfoot > tr > th,
+table.table-responsive > thead > tr > td,
+table.table-responsive > tbody > tr > td,
 table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
 }
-#worksheet-content hr {
+#worksheet_content hr {
   margin:1em 0;
 }
-#worksheet-content p {
+#worksheet_content p {
   margin-bottom:1em;
 }
-.general-search-container {
-  position:relative;
+.ws-search {
+  margin:1.5em 0 1em;
+  min-height:32px;
 }
-#general_search.ws-detail {
-  padding-top:2.25em;
-}
-#general_search.bundle-detail, #general_search.ws-list {
-  padding-bottom:1em;
-}
-#general_search input {
+.ws-search input {
   height:auto;
   margin-bottom:0;
 }
-#general_search input:focus {
+.ws-search input:focus {
   background:#fff;
 }
 .select2-container {
@@ -167,27 +244,24 @@ h1.worksheet-icon.orange {
 body.yellow {
   background-color:yellow;
 }
-#save_progress, #save_error {
+#save_progress, #save_error, #update_progress {
+  display:none;
   position:fixed;
   bottom:40px;
   right:40px;
-  width:120px;
+  width:150px;
   height:40px;
   line-height:40px;
   background-color:rgba(255,255,255,.75);
   text-align:center;
-  opacity:0;
-  -webkit-transition: opacity 150ms ease-in-out;
-  -moz-transition: opacity 150ms ease-in-out;
-  -ms-transition: opacity 150ms ease-in-out;
-  -o-transition: opacity 150ms ease-in-out;
-  transition: opacity 150ms ease-in-out;
 }
-.content.saving #save_progress {
-  opacity:1;
+#update_progress {
+  top:63px;
 }
-.content.save-error #save_error {
-  opacity:1;
+#save_error i {
+  font-size:24px;
+  color:red;
+  vertical-align:-3px;
 }
 #worksheet-list .worksheet-tile {
   border-left:1px solid #ccc;
@@ -219,4 +293,38 @@ body.yellow {
 }
 #worksheet-list .my-worksheets-toggle input {
   margin-right:5px;
+}
+#metadata_table {
+  width:100%;
+}
+#metadata_table input {
+  margin-bottom:0;
+  width:100%;
+}
+#metadata_table.editing tr td,
+#metadata_table.editing tr th {
+  padding:.25em;
+}
+#bundle-content .bundle-tile h4 .button {
+  font-size: .5em;
+  margin-bottom: 0;
+  line-height: 1.4em;
+  padding: .25em .5em;
+  vertical-align: middle;
+  margin-left: 1em;
+}
+#glossaryModal {
+  margin-top:-49px; /* account for navbar height */
+}
+#glossaryModal dl {
+  margin-bottom:0;
+}
+#glossaryModal dt {
+  float:left;
+  margin-right:1em;
+  font-weight:normal;
+}
+#glossaryModal dt code {
+  padding:4px;
+  text-align:center;
 }

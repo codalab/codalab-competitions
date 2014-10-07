@@ -1,10 +1,13 @@
 {
+    "aliases": {
+        "localhost": "http://localhost:2800"
+    },
     "home": "~/.codalab",
     "client": {
         "class": "LocalBundleClient"
     },
     "cli": {
-        "verbose": false
+        "verbose": 1
     },
     "editor": "vim",
     "server": {

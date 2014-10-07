@@ -6,11 +6,10 @@
 {% block content %}
 <div class="row">
     <div class="large-12 columns">
-        <div id="worksheet-message">
+        <div id="worksheet-message" class="ws-detail">
             <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
         </div>
-        <div id="general_search" class="ws-detail"></div>
-        <div id="worksheet-body">
+        <div id="worksheet_container">
             <!-- worksheet html wil go here-->
         </div>
     </div>
@@ -18,8 +17,43 @@
 <div id="save_progress">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...
 </div>
+<div id="update_progress">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Updating...
+</div>
 <div id="save_error">
-    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Error Saving...
+    <i class="fi-x-circle"></i> Error Saving...
+</div>
+<div id="glossaryModal" class="reveal-modal medium" data-reveal>
+    <h3>Keyboard Shortcuts</h3>
+    <dl>
+        <dt><code>/</code></dt>
+            <dd>jump to search bar</dd>
+        <dt><code>j</code> or <code>↓</code></dt>
+            <dd>next worksheet item or table row</dd>
+        <dt><code>shift + j</code> or <code>shift + ↓</code></dt>
+            <dd>move focused item down</dd>
+        <dt><code>k</code> or <code>↑</code></dt>
+            <dd>previous worksheet item or table row</dd>
+        <dt><code>shift + k</code> or <code>shift + ↑</code></dt>
+            <dd>move focused item up</dd>
+        <dt><code>e</code></dt>
+            <dd>edit highlighted item (markup bundles only)</dd>
+        <dt><code>esc</code></dt>
+            <dd>exit edit mode</dd>
+        <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
+            <dd>save edits to markup item</dd>
+        <dt><code>x</code></dt>
+            <dd>select highlighted item</dd>
+        <dt><code>d</code></dt>
+            <dd>delete selected items</dd>
+        <dt><code>i</code></dt>
+            <dd>insert markup before highlighted item</dd>
+        <dt><code>A</code></dt>
+            <dd>insert markup after highlighted item</dd>
+        <dt><code>?</code></dt>
+            <dd>show this glossary</dd>
+    </dl>
+  <a class="close-reveal-modal">&#215;</a>
 </div>
 {% endblock content %}
 
@@ -31,21 +65,23 @@
 {% block jsincludes %}
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="http://fb.me/react-0.11.1.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
 
-
-    <script src="{{ STATIC_URL }}js/broker.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    <script src="{{ STATIC_URL }}js/worksheet/worksheet_interactions.js"></script>
     {#  JSX FILES #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
 
 <script>
 MathJax.Hub.Config({
@@ -59,7 +95,6 @@ MathJax.Hub.Config({
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
-    ws_interactions = new WorksheetInteractions();
 
     $(".top-bar-section ul > li").removeClass("active");
     $("#liWorksheets").addClass("active");
