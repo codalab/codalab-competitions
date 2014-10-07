@@ -34,7 +34,7 @@
                             <div class="challStatusStripLevel">
                             </div>
                             <section class="challStatusStripSection">
-                                {% if previous_phase %}
+                                {% if previous_phase and active_phase %}
                                 <section>
                                     <h4>Previous</h4>
                                     <span class="phaseLabel phase-label-{{ previous_phase.color }}">{{previous_phase.label}}</span>
@@ -49,6 +49,16 @@
                                     <span class="phaseLabel phase-label-{{ active_phase.color }}">{{active_phase.label}}</span>
                                     <br>
                                     <span>{{active_phase.start_date|utc}} UTC</span>
+                                </section>
+                                {% endif %}
+
+                                {# If we haven't begun the competition yet, show the first phase #}
+                                {% if not active_phase %}
+                                <section>
+                                <h4>First phase</h4>
+                                <span class="phaseLabel phase-label-{{ first_phase.color }}">{{first_phase.label}}</span>
+                                <br>
+                                <span>{{first_phase.start_date|utc}} UTC</span>
                                 </section>
                                 {% endif %}
 
