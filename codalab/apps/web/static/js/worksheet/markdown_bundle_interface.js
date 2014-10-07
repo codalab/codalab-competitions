@@ -16,8 +16,10 @@ var MarkdownBundle = React.createClass({
         if(typeof key !== 'undefined'){
             switch (key) {
                 case 'esc': // cancel
+                    //telling WorksheetItemList to stop editing
                     this._owner.setState({editingIndex: -1});
                     if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
+                        //calling WorksheetItemList unInsert
                         this._owner.unInsert();
                     }
                     event.stopPropagation();
@@ -59,8 +61,10 @@ var MarkdownBundle = React.createClass({
     render: function() {
         var content = this.props.item.state.interpreted;
         var className = 'type-markup' + (this.props.focused ? ' focused' : '');
+        //if we can edit show checkbox if not show nothing(null)
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
-        if (this.props.editing){
+
+        if (this.props.editing){ // are we editing show a text area
             var lines = Math.max(this.props.item.state.interpreted.split(/\r\n|\r|\n/).length, 3);
             return(
                 <div className="ws-item" onClick={this.handleClick}>
@@ -68,18 +72,18 @@ var MarkdownBundle = React.createClass({
                     <textarea className={className} rows={lines} onKeyDown={this.handleKeydown} defaultValue={content} />
                 </div>
             )
-        }else {
-        var text = marked(content);
-        // create a string of html for innerHTML rendering
-        // more info about dangerouslySetInnerHTML
-        // http://facebook.github.io/react/docs/special-non-dom-attributes.html
-        // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
-        return(
-            <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
-                <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
-            </div>
-        );
+        }else { // just render the markdown
+            var text = marked(content);
+            // create a string of html for innerHTML rendering
+            // more info about dangerouslySetInnerHTML
+            // http://facebook.github.io/react/docs/special-non-dom-attributes.html
+            // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
+            return(
+                <div className="ws-item" onClick={this.handleClick}>
+                    {checkbox}
+                    <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+                </div>
+            );
         }
     } // end of render function
 }); //end of  MarkdownBundle
