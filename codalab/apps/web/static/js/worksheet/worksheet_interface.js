@@ -309,7 +309,7 @@ var WorksheetItemList = React.createClass({
         // this gets called when we insert an item then esc without saving it
         // set the item to undefined so it gets cleaned up
         ws_obj.setItem(this.state.focusIndex, undefined);
-        var newIndex = this.state.focusIndex;
+        var newFocusIndex = this.state.focusIndex;
         // Handle the special case of a bundle being added at the very end of the worksheet,
         // then cancelled (hit esc without saving). In this case we need to set the focus index
         // back one, to the last item in the worksheet. Otherwise the ghost of the cancelled item
