@@ -764,6 +764,7 @@ class CompetitionSubmission(models.Model):
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
                                               storage=BundleStorage, null=True, blank=True)
+    exception_details = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
