@@ -422,9 +422,6 @@ def update_submission_task(job_id, args):
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)
-
-            #import ipdb; ipdb.set_trace()
-
             raise SubmissionUpdateException(submission, e)
         return JobTaskResult(status=result)
 
