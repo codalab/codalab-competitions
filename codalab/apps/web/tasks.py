@@ -415,8 +415,6 @@ def update_submission_task(job_id, args):
                      job.id, submission_id, status)
         result = None
         try:
-            result = update_submission(submission, status, job.id)
-
             traceback = None
             if 'extra' in args and 'traceback' in args['extra']:
                 traceback = args['extra']['traceback']
@@ -424,6 +422,9 @@ def update_submission_task(job_id, args):
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)
+
+            #import ipdb; ipdb.set_trace()
+
             raise SubmissionUpdateException(submission, e)
         return JobTaskResult(status=result)
 
