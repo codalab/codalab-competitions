@@ -362,7 +362,8 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'submitted_at': submission.submitted_at,
                         'status_name': submission.status.name,
                         'is_finished': submission.status.codename == 'finished',
-                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard
+                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
+                        'exception_details': submission.exception_details,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
