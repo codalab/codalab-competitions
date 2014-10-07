@@ -13,7 +13,7 @@ var Competition;
     };
 
     function decorateLeaderboardButton(btn, submitted) {
-        if($('#disallow_leaderboard_modifying').length > 0) {
+        if ($('#disallow_leaderboard_modifying').length > 0) {
             btn.text('Leaderboard modifying disallowed').attr('disabled', 'disabled');
         } else {
             if (submitted) {
@@ -286,11 +286,11 @@ var Competition;
                         $(this).val('1');
 
                         // Add the check box if auto submitted to leaderboard
-                        if($("#forced_to_leaderboard").length > 0) {
+                        if ($('#forced_to_leaderboard').length > 0) {
                             // Remove previous checkmarks
-                            $(".fi-check").remove();
+                            $('.fi-check').remove();
 
-                            $($(elemTr).children("td")[4]).html('<i class="fi-check"></i>');
+                            $($(elemTr).children('td')[4]).html('<i class="fi-check"></i>');
                         }
                     }
                     break;
@@ -305,7 +305,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = dt.getDate().toString() + "/" + dt.getMonth().toString() + "/" + dt.getFullYear();
+                    var d = dt.getDate().toString() + '/' + dt.getMonth().toString() + '/' + dt.getFullYear();
                     var h = dt.getHours().toString();
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
@@ -396,24 +396,24 @@ var Competition;
                     $('#user_results #' + submissionId + 'input:hidden').val('1');
                     var phasestate = $('#phasestate').val();
                     if (phasestate == 1) {
-                        if($("#disallow_leaderboard_modifying").length > 0) {
+                        if ($('#disallow_leaderboard_modifying').length > 0) {
                             $(obj).text('Leaderboard modifying disallowed').attr('disabled', 'disabled');
 
-                            if($("#forced_to_leaderboard").length > 0) {
+                            if ($('#forced_to_leaderboard').length > 0) {
                                 // Remove all checkmarks
-                                $(".fi-check").remove();
+                                $('.fi-check').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<i class="fi-check"></i>');
                             }
                         } else {
-                            if ($("#forced_to_leaderboard").length == 0) {
+                            if ($('#forced_to_leaderboard').length == 0) {
                                 $(obj).addClass('leaderBoardSubmit');
                                 $(obj).text('Submit to Leaderboard');
                             } else {
                                 // Remove all checkmarks
-                                $(".fi-check").remove();
+                                $('.fi-check').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<i class="fi-check"></i>');
 
                                 $(obj).removeClass('leaderBoardSubmit');
                                 $(obj).addClass('leaderBoardRemove');
@@ -421,7 +421,7 @@ var Competition;
                             }
                         }
 
-                        $(obj).unbind( "click" ).off('click').on('click', function() {
+                        $(obj).unbind('click').off('click').on('click', function() {
                             updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
                         });
                     } else {
@@ -516,7 +516,7 @@ var Competition;
                         },
                         error: function(jsXHR, textStatus, errorThrown) {
                             var data = $.parseJSON(jsXHR.responseJSON);
-                            if(data.error) {
+                            if (data.error) {
                                 alert(data.error);
                             }
                             console.log('Error publishing competition!');
