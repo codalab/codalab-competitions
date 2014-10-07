@@ -718,12 +718,12 @@ class WorksheetContentApi(views.APIView):
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
             worksheet['edit_permission'] = False
-
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
             if owner:
                 owner = owner[0]
                 worksheet['owner'] = owner.username
-                if str(owner.id) == str(worksheet['owner_id']):
+                #check for work sheet and request user
+                if str(owner.id) == str(worksheet['owner_id']) and owner.id == request.user.id:
                     worksheet['edit_permission'] = True
             else:
                 worksheet['owner'] = None
