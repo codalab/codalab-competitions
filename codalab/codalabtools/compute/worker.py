@@ -317,8 +317,11 @@ def get_run_func(config):
 
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
-                logger.exception("Run task failed (task_id=%s).", task_id)
+                logger.exception("Run task timed out (task_id=%s).", task_id)
                 _send_update(queue, task_id, 'failed')
+            elif exit_code != 0:
+                logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
+                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
             else:
                 _send_update(queue, task_id, 'finished')
         except Exception:

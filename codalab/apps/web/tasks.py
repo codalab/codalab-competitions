@@ -306,7 +306,7 @@ def update_submission_task(job_id, args):
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status, job_id):
+    def update_submission(submission, status, job_id, traceback=None):
         """
         Updates the status of a submission.
 
@@ -380,6 +380,10 @@ def update_submission_task(job_id, args):
 
         if status != 'failed':
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
+
+        if traceback:
+            submission.exception_details = traceback
+            submission.save()
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
@@ -412,6 +416,11 @@ def update_submission_task(job_id, args):
         result = None
         try:
             result = update_submission(submission, status, job.id)
+
+            traceback = None
+            if 'extra' in args and 'traceback' in args['extra']:
+                traceback = args['extra']['traceback']
+            result = update_submission(submission, status, job.id, traceback)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)
