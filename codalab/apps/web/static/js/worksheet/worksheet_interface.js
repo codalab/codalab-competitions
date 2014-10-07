@@ -27,6 +27,7 @@ var fakedata = {
 };
 
 var Worksheet = React.createClass({
+    // master parent that controls the page
     getInitialState: function(){
         return {
             activeComponent: 'list',
@@ -167,6 +168,7 @@ var WorksheetItemList = React.createClass({
         if(this.state.rawMode){
             return true;
         }
+
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
@@ -360,16 +362,21 @@ var WorksheetItemList = React.createClass({
         });
         // Set the new_item flag so we know to add it to raw on save
         this.refs['item' + newIndex].setState({new_item: true});
+        // we are inserting the item and switching to edit mode. The markup interface will handle
+        // editing the raw/items if need and do the call back to save.
     },
     moveItem: function(delta){
-        // delta is currently either +1 or -1, but in theory an item could be moved
-        // by any number of steps
+        // delta is currently either +1 or -1
+        // but in theory an item could be moved by any number of steps
         var oldIndex = this.state.focusIndex;
         var newIndex = oldIndex + delta;
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
             ws_obj.moveItem(oldIndex, newIndex);
             this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
+            // wrap save in a debouce to slow it down
+            // will happen after they stop moving items
             this.slowSave();
+
         }else {
             return false;
         }
@@ -385,6 +392,7 @@ var WorksheetItemList = React.createClass({
         this.setState({rawMode: !this.state.rawMode})
     },
     saveAndUpdateWorksheet: function(){
+        // does a save and a update
         ws_obj.saveWorksheet({
             success: function(data){
                 this.fetch_and_update();
@@ -403,6 +411,7 @@ var WorksheetItemList = React.createClass({
             }
         });
     },
+
     render: function(){
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
@@ -494,7 +503,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
             break;
         case 'worksheet':
             return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
-        default:
+        default:  // something new or something we dont yet handle
             return (
                 <div>
                     <strong>
