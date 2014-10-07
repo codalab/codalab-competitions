@@ -620,6 +620,9 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     if phase.is_active:
                         context['selected_phase_id'] = phase.id
                         active_phase = phase
+
+            context['selected_phase'] = active_phase
+
             submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
             # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
             id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
