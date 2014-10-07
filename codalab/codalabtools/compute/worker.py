@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 import time
+import traceback
 import yaml
 from os.path import dirname, abspath, join
 from subprocess import Popen, PIPE
@@ -139,7 +140,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
-def _send_update(queue, task_id, status):
+def _send_update(queue, task_id, status, extra=None):
     """
     Sends a status update about the running task.
 
@@ -147,9 +148,12 @@ def _send_update(queue, task_id, status):
     id: The task ID.
     status: The new status for the task. One of 'running', 'finished' or 'failed'.
     """
+    task_args = {'status': status}
+    if extra:
+        task_args['extra'] = extra
     body = json.dumps({'id': task_id,
                        'task_type': 'run_update',
-                       'task_args': {'status': status}})
+                       'task_args': task_args})
     queue.send_message(body)
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -313,13 +317,16 @@ def get_run_func(config):
 
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
-                logger.exception("Run task failed (task_id=%s).", task_id)
+                logger.exception("Run task timed out (task_id=%s).", task_id)
                 _send_update(queue, task_id, 'failed')
+            elif exit_code != 0:
+                logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
+                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
             else:
                 _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed')
+            _send_update(queue, task_id, 'failed', extra={'traceback': traceback.format_exc()})
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
