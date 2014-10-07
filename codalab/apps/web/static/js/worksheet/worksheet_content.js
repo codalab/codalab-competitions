@@ -34,7 +34,7 @@ var WorksheetContent = function() {
             }
         }
         this.state.items = newArray;
-        //clean up raw
+        //clean up raw undefineds
         newArray = [];
         for(var i = 0; i < this.state.raw.length; i++){
             if (this.state.raw[i] !== undefined ){
@@ -45,19 +45,12 @@ var WorksheetContent = function() {
 
     };
     WorksheetContent.prototype.updateItemsIndex = function() {
-        console.log('%c CALL UPDATE ITEMS ', 'background: green; color: white;');
         // loop through and update all items to their raw index
-        // console.log('updateItemsIndex');
-        // console.log('~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-');
+        // we use this to keep track of the items to their raw conter part
+        // when updates/edits happen we both update the item list and the raw list.
         var items =  this.state.items;
         var raw = this.state.raw;
         items.map(function(ws_item, index){
-            // console.log('%c----------------------------------updateIndex----------------------------------', 'background: #333; color: #dad');
-            // console.log(ws_item.state.interpreted);
-            // console.log(ws_item.state.bundle_info);
-            // console.log('%c'+ws_item.state.mode, 'background: #fff; color: #a8b');
-            // console.log('');
-
             var above_item = items[index-1];
             var below_item = items[index+1];
             var last_raw_index = -1;
@@ -86,12 +79,13 @@ var WorksheetContent = function() {
             }
             ws_item.state.raw_index = last_raw_index;
 
+            // now low many elements does it take up
             raw_size = raw.length - last_raw_index; //default to the end
             if(!below_item){
-                // end of worksheet
                 ws_item.state.raw_size = raw_size;
                 return;
             }
+
             // we are in the middle of a ws,
             // what are you? Then let's find where you begin and end
             switch (ws_item.state.mode) {
@@ -111,7 +105,13 @@ var WorksheetContent = function() {
                                 }
                             }
                             break;
-                        default:
+                        case 'markup': // this case only happens when moving around items
+                            // init markup is consolidated.
+                            // will be consolidated after save and update so
+                            // set to self we already know how large you are
+                            raw_size = ws_item.state.raw_size;
+                            break;
+                        default: // the other case is always followed by some sort of bundle or display type
                             var bundle = below_item.state.bundle_info[0];
                             for(i=last_raw_index; i < raw.length; i++){
                                 // that bundle may be the start of the next non-markdown block
@@ -161,20 +161,9 @@ var WorksheetContent = function() {
                     console.error("Got an item mode index does not handle.");
             }
         });
-        console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
 
-        items.map(function(ws_item, index){
-            console.log('%c oooooooooooooooooooooooooooooooooooo', 'background: #fff; color: #fad');
-            console.log(ws_item.state.interpreted);
-            console.log(ws_item.state.bundle_info);
-            console.log(ws_item.state.raw_index);
-            console.log(ws_item.state.raw_size);
-            console.log('');
-        });
-        console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-');
-        console.log(this.state.raw);
-        $('#update_progress').hide();
     };
+
     WorksheetContent.prototype.deleteItems = function(item_indexes) {
         //what are the interpeted items indexes
         for(var i=0; i < item_indexes.length; i++){
@@ -203,6 +192,8 @@ var WorksheetContent = function() {
         //removes all undefined
         this.cleanUp();
     };
+
+
     WorksheetContent.prototype.insertRawItem = function(index, item){
         //update raw
         //the item is the value of the textarea, so we need to split it into an array by linebreaks
@@ -226,6 +217,7 @@ var WorksheetContent = function() {
         var raw2 = this.state.raw.slice(raw_index);
         // set the raw. the WorksheetItems will take care of themselves
         this.state.raw = raw1.concat(item_array, raw2);
+
     };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
         //insert new item at index, raw_index+raw_size
@@ -234,6 +226,8 @@ var WorksheetContent = function() {
         ws1.push(newItem);
         this.state.items = ws1.concat(ws2);
     };
+
+
     WorksheetContent.prototype.setItem = function(index, item) {
         //update raw
         if(typeof(item) !== 'undefined'){
@@ -255,15 +249,19 @@ var WorksheetContent = function() {
         // are we moving forward or backward?
         var delta = newIndex - oldIndex;
         // see how many raw items we need to jump by getting the size of the previous or next item
+        // if 0 set to 1, else set to the raw_size of the item
         var jump_size = this.state.items[oldIndex+delta].state.raw_size === 0 ? 1 : this.state.items[oldIndex+delta].state.raw_size;
+
         // raw index and size of the item we're moving
         var ri = this.state.items[oldIndex].state.raw_index;
         var rs = this.state.items[oldIndex].state.raw_size === 0 ? 1 : this.state.items[oldIndex].state.raw_size;
+
         // the new position will be the old position minus the size of the previous item OR
         // the old position plus the size of the next item
         var newPos = ri + (jump_size * delta);
         // pop out the raw lines of the item we're moving
         var raw_items = this.state.raw.splice(ri, rs);
+
         // if it's a table or a record bundle, add a blank line of padding so bundles don't get
         // automatically consolidated
         switch(this.state.items[oldIndex].state.mode){
@@ -277,13 +275,18 @@ var WorksheetContent = function() {
         // combine the front of the list, the moved items, and the back of the list
         this.state.raw = raw1.concat(raw_items, raw2);
 
-        //update items
-        // var items = this.state.items;
-        // items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
-        // this.state.items = items;
+
+        //update items, much simplier
+        var items = this.state.items;
+        items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
+        this.state.items = items;
+        // since moving is on a debounce with save
+        // update our raw index for the next move before the save and update
+        this.updateItemsIndex();
 
     };
     WorksheetContent.prototype.getRaw = function(){
+        // get string rep and line count for text area
         var raw = {
             content: this.state.raw.join('\n'),
             lines: this.state.raw.length
@@ -341,6 +344,7 @@ var WorksheetContent = function() {
                 //consolidated
                 consolidatedWorksheetItems = this.consolidateMarkdownBundles();
                 this.state.items = consolidatedWorksheetItems;
+                //update raw to item indexs
                 this.updateItemsIndex();
                 props.success(this.state);
             }.bind(this),
@@ -362,7 +366,6 @@ var WorksheetContent = function() {
             'owner_id': this.state.owner_id,
             'lines': this.state.raw
         };
-
         $('#save_error').hide();
         $.ajax({
             type: "POST",
