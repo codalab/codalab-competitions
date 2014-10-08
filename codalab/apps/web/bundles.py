@@ -11,6 +11,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from apps.authenz.oauth import get_user_token
     from codalab.lib import worksheet_util
 
+    from codalab.model.tables import (
+        GROUP_OBJECT_PERMISSION_ALL,
+        GROUP_OBJECT_PERMISSION_READ,
+    )
+
+
     def _call_with_retries(f, retry_count=0):
         try:
             return f()
@@ -42,10 +48,17 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             worksheet_info  = _call_with_retries(
                     lambda: self.client.get_worksheet_info(
                             uuid,
-                            True
+                            True,  #fetch_items
+                            True,  # get_permissions
                     )
                 )
             worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
+            # set permissions
+            worksheet_info['edit_permission'] = False
+            if worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL:
+                worksheet_info['edit_permission'] = True
+
+
             if interpreted:
                 interpreted_items = worksheet_util.interpret_items(
                                     worksheet_util.get_default_schemas(),

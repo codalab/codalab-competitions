@@ -717,14 +717,10 @@ class WorksheetContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet = service.worksheet(uuid, interpreted=True)
-            worksheet['edit_permission'] = False
             owner = ClUser.objects.filter(id=worksheet['owner_id'])
             if owner:
                 owner = owner[0]
                 worksheet['owner'] = owner.username
-                #check for work sheet and request user
-                if str(owner.id) == str(worksheet['owner_id']) and owner.id == request.user.id:
-                    worksheet['edit_permission'] = True
             else:
                 worksheet['owner'] = None
             return Response(worksheet)
@@ -742,8 +738,8 @@ class WorksheetContentApi(views.APIView):
     Provides a web API to update a worksheet.
     """
     def post(self, request, uuid):
-        owner = self.request.user
-        if not owner.id:
+        user = self.request.user
+        if not user.id:
             return Response(None, status=401)
         data = json.loads(request.body)
 
@@ -753,12 +749,10 @@ class WorksheetContentApi(views.APIView):
         lines = data['lines']
 
         if not (worksheet_uuid == uuid):
+            print "uui"
             return Response(None, status=403)
 
-        if not (owner_id == str(owner.id)):
-            return Response(None, status=403)
-
-        logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner.id, worksheet_name, uuid)
+        logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner_id, worksheet_name, uuid)
         service = BundleService(self.request.user)
         try:
             service.parse_and_update_worksheet(worksheet_uuid, lines)
