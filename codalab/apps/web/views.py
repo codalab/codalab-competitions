@@ -616,7 +616,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
-        if self.request.user.id == competition.creator_id:
+        if self.request.user.id == competition.creator_id or self.request.user in competition.admins.all():
             # find the active phase
             if (phase_id != None):
                 context['selected_phase_id'] = int(phase_id)
