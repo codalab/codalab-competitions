@@ -398,10 +398,10 @@ def submission_stderr_filename(instance, filename="stderr.txt"):
     return os.path.join(submission_root(instance), "run", filename)
 
 def predict_submission_stdout_filename(instance, filename="prediction_stdout_file.txt"):
-    return os.path.join(submission_root(instance), "run", filename)
+    return os.path.join(submission_root(instance), "pred", "run", filename)
 
 def predict_submission_stderr_filename(instance, filename="prediction_stderr_file.txt"):
-    return os.path.join(submission_root(instance), "run", filename)
+    return os.path.join(submission_root(instance), "pred", "run", filename)
 
 def submission_prediction_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), "pred", filename)

@@ -589,9 +589,9 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             # for stderr.txt which does not exist when no errors have occurred
             # this may hide a true 404 in unexpected circumstances
             return HttpResponse("", status=200, content_type='text/plain')
-        #except:
-        #    msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-        #    return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+        except:
+            msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+            return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):
     """

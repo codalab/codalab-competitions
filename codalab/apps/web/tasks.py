@@ -158,8 +158,10 @@ def predict(submission, job_id):
     # Create stdout.txt & stderr.txt
     username = submission.participant.user.username
     lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
     submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
     submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
@@ -373,8 +375,10 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
                 submission.prediction_output_file.name = url_name
-                submission.prediction_stderr_file = pathname2url(predict_submission_stdout_filename(submission))
-                submission.prediction_stdout_file = pathname2url(predict_submission_stderr_filename(submission))
+                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
+                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
+
+                print '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ prediction_stderr_file %s' % pathname2url(predict_submission_stdout_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
