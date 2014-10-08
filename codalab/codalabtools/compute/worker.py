@@ -261,10 +261,6 @@ def get_run_func(config):
             exit_code = None
             timed_out = False
 
-            #with open(stdout_file, "a") as out, open(stderr_file, "a") as err:
-            #    out.flush()
-            #    err.flush()
-
             stdout = open(stdout_file, "a")
             stderr = open(stderr_file, "a")
 
@@ -289,15 +285,6 @@ def get_run_func(config):
             stdout.close()
             stderr.close()
 
-
-
-            print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% stdout'
-            print open(stdout_file).read()
-            print 'is_predict_step -> %s' % (is_predict_step)
-
-
-
-
             logger.debug("Exit Code: %d", exit_code)
             endTime = time.time()
             elapsedTime = endTime - startTime
@@ -308,30 +295,11 @@ def get_run_func(config):
             with open(join(output_dir, 'metadata'), 'w') as f:
                 f.write(yaml.dump(prog_status, default_flow_style=False))
 
-            # if is_predict_step:
-            #     logger.debug("Saving prediction output")
-            #     stdout_id = "%s/prediction_stdout_file.txt" % (os.path.splitext(run_id)[0])
-            #     _upload(blob_service, container, stdout_id, stdout_file)
-            #     stderr_id = "%s/prediction_stderr_file.txt" % (os.path.splitext(run_id)[0])
-            #     _upload(blob_service, container, stderr_id, stderr_file)
-            # else:
-
             logger.debug("Saving output files")
             stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
             _upload(blob_service, container, stderr_id, stderr_file)
-
-            print '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ stdout_id %s' % stdout_id
-
-
-
-
-            #import ipdb; ipdb.set_trace()
-
-
-
-
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
