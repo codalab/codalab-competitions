@@ -292,7 +292,7 @@ def get_run_func(config):
 
 
             print '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% stdout'
-            #print open(stdout_file).read()
+            print open(stdout_file).read()
             print 'is_predict_step -> %s' % (is_predict_step)
 
 
@@ -321,6 +321,8 @@ def get_run_func(config):
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
             _upload(blob_service, container, stderr_id, stderr_file)
+
+            print '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ stdout_id %s' % stdout_id
 
 
 
