@@ -377,8 +377,6 @@ def update_submission_task(job_id, args):
                 submission.prediction_output_file.name = url_name
                 submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
                 submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
-
-                print '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ prediction_stderr_file %s' % pathname2url(predict_submission_stdout_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
