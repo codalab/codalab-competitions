@@ -31,6 +31,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
+                            predict_submission_stdout_filename,
+                            predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -156,9 +158,9 @@ def predict(submission, job_id):
     # Create stdout.txt & stderr.txt
     username = submission.participant.user.username
     lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
@@ -171,7 +173,8 @@ def predict(submission, job_id):
             "bundle_id": submission.prediction_runfile.name,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": True,
         }
     })
 
@@ -283,7 +286,8 @@ def score(submission, job_id):
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
             "reply_to" : settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": False,
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
@@ -369,6 +373,8 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
                 submission.prediction_output_file.name = url_name
+                submission.prediction_stderr_file = pathname2url(predict_submission_stdout_filename(submission))
+                submission.prediction_stdout_file = pathname2url(predict_submission_stderr_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
