@@ -25,7 +25,7 @@
                     <div class="large-12 columns">
                         <h2 class="alert">WARNING DataSet currently in use by:</h2>
                         {% for competition in competitions_in_use %}
-                            <a href="{{ competition.get_absolute_url }}">{{ competition }}</a>
+                            - <a href="{{ competition.get_absolute_url }}">{{ competition }}</a><br>
                         {% endfor %}
 
                         <br><br>
