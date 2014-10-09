@@ -189,6 +189,7 @@ def get_run_func(config):
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
+        is_predict_step = task_args["predict"]
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
                                      config.getAzureServiceBusKey(),
                                      config.getAzureServiceBusIssuer(),
@@ -246,28 +247,43 @@ def get_run_func(config):
                                 .replace("/", os.path.sep) \
                                 .replace("\\", os.path.sep)
             logger.debug("Invoking program: %s", prog_cmd)
-            stdout_file = join(run_dir, 'stdout.txt')
-            stderr_file = join(run_dir, 'stderr.txt')
+
+            if is_predict_step:
+                stdout_file_name = 'prediction_stdout_file.txt'
+                stderr_file_name = 'prediction_stderr_file.txt'
+            else:
+                stdout_file_name = 'stdout.txt'
+                stderr_file_name = 'stderr.txt'
+
+            stdout_file = join(run_dir, stdout_file_name)
+            stderr_file = join(run_dir, stderr_file_name)
             startTime = time.time()
             exit_code = None
             timed_out = False
 
-            with open(stdout_file, "wb") as out, open(stderr_file, "wb") as err:
-                evaluator_process = Popen(prog_cmd.split(' '), stdout=out, stderr=err)
+            stdout = open(stdout_file, "a")
+            stderr = open(stderr_file, "a")
 
-                while exit_code is None:
-                    exit_code = evaluator_process.poll()
+            evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE)
 
-                    # time in seconds
-                    if exit_code is None and time.time() - startTime > execution_time_limit:
-                        exit_code = -1
-                        logger.info("Killed process for running too long!")
-                        err.write("Execution time limit exceeded!")
-                        evaluator_process.kill()
-                        timed_out = True
-                        break
-                    else:
-                        time.sleep(.1)
+            while exit_code is None:
+                exit_code = evaluator_process.poll()
+
+                # time in seconds
+                if exit_code is None and time.time() - startTime > execution_time_limit:
+                    exit_code = -1
+                    logger.info("Killed process for running too long!")
+                    stderr.write("Execution time limit exceeded!")
+                    evaluator_process.kill()
+                    timed_out = True
+                    break
+                else:
+                    time.sleep(.1)
+
+            stdout.write(evaluator_process.stdout.read())
+            stderr.write(evaluator_process.stderr.read())
+            stdout.close()
+            stderr.close()
 
             logger.debug("Exit Code: %d", exit_code)
             endTime = time.time()
@@ -278,10 +294,11 @@ def get_run_func(config):
             }
             with open(join(output_dir, 'metadata'), 'w') as f:
                 f.write(yaml.dump(prog_status, default_flow_style=False))
-            # Upload stdout and stderr files
-            stdout_id = "%s/stdout.txt" % (os.path.splitext(run_id)[0])
+
+            logger.debug("Saving output files")
+            stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
             _upload(blob_service, container, stdout_id, stdout_file)
-            stderr_id = "%s/stderr.txt" % (os.path.splitext(run_id)[0])
+            stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
             _upload(blob_service, container, stderr_id, stderr_file)
 
             private_dir = join(output_dir, 'private')
