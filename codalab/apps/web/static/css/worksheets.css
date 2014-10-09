@@ -16,6 +16,9 @@
   font-weight:normal;
   font-size:.75em;
 }
+#worksheet_content .edit-features label {
+  display:inline;
+}
 #worksheet_content .hidden {
   display:none;
 }
@@ -61,8 +64,13 @@
 }
 #worksheet_content .worksheet-name h1 {
   text-indent:65px;
-  margin-top:0;
+  margin:0;
   font-size:2.75em
+}
+#worksheet_content .worksheet-name .worksheet-author {
+  text-indent:65px;
+  font-size:14px;
+  margin-top:0;
 }
 #worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {
   margin:.85em 0 .5em 0;
@@ -236,13 +244,6 @@ table.table-responsive > tfoot > tr > td {
   background-image: none;
   border:none;
   border-radius:0;
-}
-/* DEMO ONLY */
-h1.worksheet-icon.orange {
-  background-color:orange;
-}
-body.yellow {
-  background-color:yellow;
 }
 #save_progress, #save_error, #update_progress {
   display:none;
