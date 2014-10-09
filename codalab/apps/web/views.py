@@ -850,16 +850,21 @@ class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(OrganizerDataSetDelete, self).get_context_data(**kwargs)
 
-        usage = models.CompetitionPhase.objects.all()
+        usage = models.Competition.objects.all()
 
         if self.object.type == "Input Data":
-            usage = usage.filter(input_data_organizer_dataset=self.object)
-        if self.object.type == "Reference Data":
-            usage = usage.filter(reference_data_organizer_dataset=self.object)
-        if self.object.type == "Scoring Program":
-            usage = usage.filter(scoring_program_organizer_dataset=self.object)
+            usage = usage.filter(phases__input_data_organizer_dataset=self.object)
+        elif self.object.type == "Reference Data":
+            usage = usage.filter(phases__reference_data_organizer_dataset=self.object)
+        elif self.object.type == "Scoring Program":
+            usage = usage.filter(phases__scoring_program_organizer_dataset=self.object)
+        else:
+            usage = usage.filter(Q(phases__input_data_organizer_dataset=self.object) |
+                                 Q(phases__reference_data_organizer_dataset=self.object) |
+                                 Q(phases__scoring_program_organizer_dataset=self.object))
 
-        context["competitions_in_use"] = usage
+        # Filter out duplicates
+        context["competitions_in_use"] = usage.distinct()
         return context
 
 
