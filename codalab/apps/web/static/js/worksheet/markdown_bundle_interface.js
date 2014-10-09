@@ -20,6 +20,7 @@ var MarkdownBundle = React.createClass({
                     this._owner.setState({editingIndex: -1});
                     if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
                         //calling WorksheetItemList unInsert
+                        this.setState({new_item: false});
                         this._owner.unInsert();
                     }
                     event.stopPropagation();
