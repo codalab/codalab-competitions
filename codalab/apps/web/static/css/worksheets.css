@@ -73,7 +73,7 @@
   margin-top:0;
 }
 #worksheet_content h1, #worksheet_content h3, #worksheet_content h3 {
-  margin:.85em 0 .5em 0;
+  margin:0 0 .75em 0;
   font-weight:200;
 }
 #worksheet_content h1 {
@@ -105,6 +105,10 @@
   height:auto;
   padding:0.5em;
   width:100%;
+}
+#worksheet_content div.type-markup {
+  padding-top:1px;
+  margin-top:-1px;
 }
 #worksheet_content .type-markup,
 #worksheet_content .type-inline {
@@ -189,10 +193,10 @@ table.table-responsive > tfoot > tr > td {
   white-space: nowrap;
 }
 #worksheet_content hr {
-  margin:1em 0;
+  margin:.75em 0;
 }
 #worksheet_content p {
-  margin-bottom:1em;
+  margin-bottom:.75em;
 }
 .ws-search {
   margin:1.5em 0 1em;
