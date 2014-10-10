@@ -20,7 +20,7 @@
                     {% if not competition.published %}
                     <label>Secret url: <a href="{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}">http://{{ site }}{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}</a></label>
                     {% endif %}
-                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Last Modified: {{ competition.last_modified|utc }} UTC</label>
+                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</label>
                     <input type="hidden" id="competitionId" value="{{competition.id}}" />
                     <input type="hidden" id="cstoken" value="{{csrf_token}}" />
 
