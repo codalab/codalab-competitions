@@ -292,6 +292,7 @@ class CompetitionDetailView(DetailView):
 
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
+        context['current_server_time'] = datetime.datetime.now()
         submissions = dict()
         all_submissions = dict()
         try:
