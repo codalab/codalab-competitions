@@ -9,7 +9,7 @@ var WorksheetBundle = React.createClass({
     keysToHandle: function(){
         return['enter']
     },
-    handleKeyboardShortcuts: function(){
+    handleKeydown: function(){
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             event.preventDefault();

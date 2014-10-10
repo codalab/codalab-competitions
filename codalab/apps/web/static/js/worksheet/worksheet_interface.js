@@ -180,12 +180,7 @@ var WorksheetItemList = React.createClass({
             focusedItem.hasOwnProperty('keysToHandle') &&
             focusedItem.keysToHandle().indexOf(key) != -1
             ){
-            // TODO: this could be cleaned up. We don't need two names for handling keyboard input
-            if(focusedItem.hasOwnProperty('handleKeyboardShortcuts')){
-                focusedItem.handleKeyboardShortcuts(event);
-            }else{
                 focusedItem.handleKeydown(event);
-            }
         // Otherwise, if we're in edit mode (fIndex === eIndex is a sanity check)(so is the hasOwnProperty)
         }else if( focusedItem &&
                   fIndex === eIndex &&
@@ -275,37 +270,30 @@ var WorksheetItemList = React.createClass({
     },
     saveItem: function(textarea){ // aka handleSave
         var item = ws_obj.state.items[this.state.editingIndex];
-        // apparently sometimes item is undefined if this gets triggered again by a callback
-        // TODO: who is calling this later?
-        if(item){
-            var index = this.state.editingIndex;
-            // because we need to distinguish between items that have just been inserted and items
-            // that were edited, we have a 'new_item' flag on markdown items' state
-            if(this.refs['item' + index].state.new_item){
-                // if it's a new item, it hasn't been added to the raw yet, so do that.
-                ws_obj.insertRawItem(index, textarea.value);
-            }else {
-                console.log(ws_obj.state.items[index])
-                ws_obj.state.items[index].state.interpreted = textarea.value;
-                ws_obj.setItem(index, ws_obj.state.items[index]);
-            }
-            // we duplicate this here so the edits show up right away, instead of after the save + update
-            item.state.interpreted = textarea.value;
-            // we may have added contiguous markdown bundles, so we need to reconsolidate
-            var unconsolidated = ws_obj.getState();
-            var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-            ws_obj.state.items = consolidated;
-            this.setState({
-                editingIndex: -1,
-                worksheet: ws_obj.getState()
-            });
-            //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
-            this.refs['item' + this.state.editingIndex].setState({new_item:false});
-            this.saveAndUpdateWorksheet();
+        var index = this.state.editingIndex;
+        // because we need to distinguish between items that have just been inserted and items
+        // that were edited, we have a 'new_item' flag on markdown items' state
+        if(this.refs['item' + index].state.new_item){
+            // if it's a new item, it hasn't been added to the raw yet, so do that.
+            ws_obj.insertRawItem(index, textarea.value);
         }else {
-            return false;
+            console.log(ws_obj.state.items[index])
+            ws_obj.state.items[index].state.interpreted = textarea.value;
+            ws_obj.setItem(index, ws_obj.state.items[index]);
         }
-
+        // we duplicate this here so the edits show up right away, instead of after the save + update
+        item.state.interpreted = textarea.value;
+        // we may have added contiguous markdown bundles, so we need to reconsolidate
+        var unconsolidated = ws_obj.getState();
+        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+        ws_obj.state.items = consolidated;
+        this.setState({
+            editingIndex: -1,
+            worksheet: ws_obj.getState()
+        });
+        //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
+        this.refs['item' + this.state.editingIndex].setState({new_item:false});
+        this.saveAndUpdateWorksheet();
     },
     unInsert: function(){
         // this gets called when we insert an item then esc without saving it
@@ -482,7 +470,7 @@ var WorksheetItemList = React.createClass({
     }
 });
 
-// TODO: is there a better pattern we can use here to avoid having to repeat all these arguments? FDC?
+
 var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit){
     switch (item.state.mode) {
         case 'markup':

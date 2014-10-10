@@ -18,7 +18,7 @@ var MarkdownBundle = React.createClass({
                 case 'esc': // cancel
                     //telling WorksheetItemList to stop editing
                     this._owner.setState({editingIndex: -1});
-                    if(this.state.editing){
+                    if(this.props.editing){
                         if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
                             //calling WorksheetItemList unInsert
                             this.setState({new_item: false});
