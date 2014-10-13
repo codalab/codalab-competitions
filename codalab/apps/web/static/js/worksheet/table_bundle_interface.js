@@ -7,31 +7,32 @@ var TableBundle = React.createClass({
         return this.props.item.state;
     },
     deleteCheckedRows: function(){
-        // do basically the same thing we do in worksheet_content's insertItem and cleanUp methods
-        var rows = this.state.interpreted; // data
-        var reactRows = this.refs; // react components
-        for(var k in reactRows){
-            if(reactRows[k].state.checked){
-                // if the row is checked, set its data to null
-                rows[1][reactRows[k].props.key] = null;
-            }
-        }
-        var newRows = new Array();
-        // clean up the data by copying all non-null rows into a new array
-        for(var i = 0; i < rows[1].length; i++){
-            if (rows[1][i]){
-                newRows.push(rows[1][i]);
-            }
-        }
-        // then set the raw data to that new array
-        rows[1] = newRows;
-        this.setState({
-            interpreted: rows,
-            rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
-        });
-        this.saveEditedItem(this.props.key, newRows);
-        // go through and uncheck all the rows to get rid of lingering states
-        this.unCheckRows();
+        console.log('delete checked rows');
+        // // do basically the same thing we do in worksheet_content's insertItem and cleanUp methods
+        // var rows = this.state.interpreted; // data
+        // var reactRows = this.refs; // react components
+        // for(var k in reactRows){
+        //     if(reactRows[k].state.checked){
+        //         // if the row is checked, set its data to null
+        //         rows[1][reactRows[k].props.key] = null;
+        //     }
+        // }
+        // var newRows = new Array();
+        // // clean up the data by copying all non-null rows into a new array
+        // for(var i = 0; i < rows[1].length; i++){
+        //     if (rows[1][i]){
+        //         newRows.push(rows[1][i]);
+        //     }
+        // }
+        // // then set the raw data to that new array
+        // rows[1] = newRows;
+        // this.setState({
+        //     interpreted: rows,
+        //     rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
+        // });
+        // this.saveEditedItem(this.props.key, newRows);
+        // // go through and uncheck all the rows to get rid of lingering states
+        // this.unCheckRows();
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
