@@ -44,7 +44,7 @@ var TableBundle = React.createClass({
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 {checkbox}
-                <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
+                <table className={className} onKeyDown={this.handleKeydown}>
                     <thead>
                         <tr>{header_html}</tr>
                     </thead>
