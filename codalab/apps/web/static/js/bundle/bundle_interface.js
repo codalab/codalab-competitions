@@ -1,5 +1,4 @@
 /** @jsx React.DOM */
-
 var Bundle = React.createClass({
     getInitialState: function(){
         return {
@@ -187,7 +186,7 @@ var Bundle = React.createClass({
                             <div className="large-6 columns">
                                 <a href={bundle_download_url} className="bundle-download" alt="Download Bundle">
                                     <button className="small button secondary">
-                                        <i className="fi-arrow-down"></i>
+                                        Download <i className="fi-arrow-down"></i>
                                     </button>
                                 </a>
                                 <div className="bundle-uuid">{this.state.uuid}</div>
@@ -298,6 +297,7 @@ var FileBrowser = React.createClass({
 
         return (
             <div>
+                <hr></hr>
                 <h4>file browser</h4>
                 {bread_crumbs}
                 {file_browser}

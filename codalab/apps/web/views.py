@@ -292,6 +292,7 @@ class CompetitionDetailView(DetailView):
 
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
+        context['current_server_time'] = datetime.datetime.now()
         submissions = dict()
         all_submissions = dict()
         try:
@@ -301,10 +302,16 @@ class CompetitionDetailView(DetailView):
 
                 context["previous_phase"] = None
                 context["next_phase"] = None
+                context["first_phase"] = None
 
                 phase_iterator = iter(competition.phases.all())
                 for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
+
+                    if context["first_phase"] is None:
+                        # Set the first phase if it hasn't been saved yet
+                        context["first_phase"] = phase
+
                     if phase.is_active:
                         context['active_phase'] = phase
                         context['my_active_phase_submissions'] = submissions[phase]
@@ -362,7 +369,8 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'submitted_at': submission.submitted_at,
                         'status_name': submission.status.name,
                         'is_finished': submission.status.codename == 'finished',
-                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard
+                        'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
+                        'exception_details': submission.exception_details,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -609,7 +617,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
-        if self.request.user.id == competition.creator_id:
+        if self.request.user.id == competition.creator_id or self.request.user in competition.admins.all():
             # find the active phase
             if (phase_id != None):
                 context['selected_phase_id'] = int(phase_id)
@@ -620,6 +628,9 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     if phase.is_active:
                         context['selected_phase_id'] = phase.id
                         active_phase = phase
+
+            context['selected_phase'] = active_phase
+
             submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
             # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
             id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
@@ -840,16 +851,21 @@ class OrganizerDataSetDelete(OrganizerDataSetCheckOwnershipMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(OrganizerDataSetDelete, self).get_context_data(**kwargs)
 
-        usage = models.CompetitionPhase.objects.all()
+        usage = models.Competition.objects.all()
 
         if self.object.type == "Input Data":
-            usage = usage.filter(input_data_organizer_dataset=self.object)
-        if self.object.type == "Reference Data":
-            usage = usage.filter(reference_data_organizer_dataset=self.object)
-        if self.object.type == "Scoring Program":
-            usage = usage.filter(scoring_program_organizer_dataset=self.object)
+            usage = usage.filter(phases__input_data_organizer_dataset=self.object)
+        elif self.object.type == "Reference Data":
+            usage = usage.filter(phases__reference_data_organizer_dataset=self.object)
+        elif self.object.type == "Scoring Program":
+            usage = usage.filter(phases__scoring_program_organizer_dataset=self.object)
+        else:
+            usage = usage.filter(Q(phases__input_data_organizer_dataset=self.object) |
+                                 Q(phases__reference_data_organizer_dataset=self.object) |
+                                 Q(phases__scoring_program_organizer_dataset=self.object))
 
-        context["competitions_in_use"] = usage
+        # Filter out duplicates
+        context["competitions_in_use"] = usage.distinct()
         return context
 
 
