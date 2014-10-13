@@ -900,6 +900,9 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+            if($(nTr).attr('data-exception')) {
+                elem.find('.traceback').html("Error: <br><pre>" + $(nTr).attr('data-exception') + "</pre>");
+            }
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {
@@ -978,6 +981,9 @@ var Competition;
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass('hide');
                     $(obj).parent().parent().find('a').removeClass('hide');
+                    if(data.exception_details) {
+                        $("a[href='traceback/" + submissionId + "/']").parent().html("Error: <br><pre>" + data.exception_details + "</pre>");
+                    }
                 }
                 $('.competitionPreloader').hide();
             },

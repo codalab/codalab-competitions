@@ -25,7 +25,7 @@ urlpatterns = patterns(
     url(r'^competition/(?P<competition_id>\d+)/submissions/',
         views.MyCompetitionSubmissionsPage.as_view(),
         name='my_competition_submissions'),
-    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|input.zip|prediction-output.zip|output.zip|private_output.zip|detailed_results.html)$',
+    url(r'^competition/submission/(?P<submission_id>\d+)/(?P<filetype>stdout.txt|stderr.txt|input.zip|prediction-output.zip|output.zip|private_output.zip|detailed_results.html|predict_stdout.txt|predict_stderr.txt)$',
         views.MyCompetitionSubmissionOutput.as_view(),
         name='my_competition_output'),
     url(r'^competition/submission/(?P<submission_id>\d+)/detailed_results/',
