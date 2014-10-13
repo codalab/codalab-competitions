@@ -30,16 +30,16 @@ var Worksheets = React.createClass({
     },
     bindEvents: function(){
         // listen for ALL keyboard events at the top leve
-        window.addEventListener('keydown', this.handleKeyboardShortcuts);
+        window.addEventListener('keydown', this.handleKeydown);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+        window.removeEventListener('keydown', this.handleKeydown);
     },
     setFilter: function(event){
         // all this does is store and update the string we're filter worksheet names by
         this.setState({filter:event.target.value})
     },
-    handleKeyboardShortcuts: function(event){
+    handleKeydown: function(event){
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
         if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
@@ -48,9 +48,9 @@ var Worksheets = React.createClass({
         }
         // otherwise, try to pass off the event to the active component
         var activeComponent = this.refs[this.state.activeComponent];
-        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
+        if(activeComponent.hasOwnProperty('handleKeydown')){
             // if it has a method to handle keyboard shortcuts, pass it
-            activeComponent.handleKeyboardShortcuts(event);
+            activeComponent.handleKeydown(event);
         }else {
             // otherwise watch it go by
             return true;
@@ -102,13 +102,13 @@ var WorksheetList = React.createClass({
     },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
-        window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
+        window.location.href += this.refs['ws' + this.state.focusIndex].props.details.uuid;
     },
     toggleMyWorksheets: function(){
         // filter by MY worksheets?
         this.setState({myWorksheets: !this.state.myWorksheets});
     },
-    handleKeyboardShortcuts: function(event) {
+    handleKeydown: function(event) {
         // this guy has shortcuts for going up and down, and selecting (essentially, clicking on it)
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
@@ -136,7 +136,7 @@ var WorksheetList = React.createClass({
         }
         if(this.props.filter.length){
             console.log('filtering by: ' + filter);
-            worksheets = worksheets.filter(function(ws){ 
+            worksheets = worksheets.filter(function(ws){
                 return (ws.name.indexOf(filter) > -1);
             });
         }
@@ -210,7 +210,7 @@ var WorksheetSearch = React.createClass({
     //   2. if it's blurred, make the other component active
     //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
-        return (      
+        return (
             <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
         )
     }
