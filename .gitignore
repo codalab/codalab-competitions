@@ -3,6 +3,7 @@
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**
+codalab/clip
 **/**/.codalabconfig
 
 # Bundles prototype #

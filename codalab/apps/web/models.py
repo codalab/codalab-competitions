@@ -397,6 +397,12 @@ def submission_stdout_filename(instance, filename="stdout.txt"):
 def submission_stderr_filename(instance, filename="stderr.txt"):
     return os.path.join(submission_root(instance), "run", filename)
 
+def predict_submission_stdout_filename(instance, filename="prediction_stdout_file.txt"):
+    return os.path.join(submission_root(instance), "pred", "run", filename)
+
+def predict_submission_stderr_filename(instance, filename="prediction_stderr_file.txt"):
+    return os.path.join(submission_root(instance), "pred", "run", filename)
+
 def submission_prediction_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), "pred", filename)
 
@@ -764,6 +770,9 @@ class CompetitionSubmission(models.Model):
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
                                               storage=BundleStorage, null=True, blank=True)
+    exception_details = models.TextField(blank=True, null=True)
+    prediction_stdout_file = models.FileField(upload_to=predict_submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
+    prediction_stderr_file = models.FileField(upload_to=predict_submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -849,6 +858,8 @@ class CompetitionSubmission(models.Model):
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
+            'predict_stdout.txt': ('prediction_stdout_file', 'txt', True),
+            'predict_stderr.txt': ('prediction_stderr_file', 'txt', True),
             'detailed_results.html': ('detailed_results_file', 'html', True),
         }
         if key not in downloadable_files:
