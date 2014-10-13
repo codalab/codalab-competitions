@@ -28,9 +28,9 @@ var MarkdownBundle = React.createClass({
                         break;
                     }
                 case 'enter':  // save or add a new line
-                    if(event.ctrlKey || event.metaKey){ // ctrl/meta on mac for saving item
+                    if(event.ctrlKey || event.metaKey && this.props.editing){ // ctrl/meta on mac for saving item
                         event.preventDefault();
-                        this.saveEditedItem(event.target);
+                        this.saveEditedItem(event.target.value);
                         return false;
                     }
                     break;
@@ -41,8 +41,8 @@ var MarkdownBundle = React.createClass({
             return true;
         }
     },
-    saveEditedItem: function(textarea){
-        this.props.handleSave(textarea);
+    saveEditedItem: function(interpreted){
+        this.props.handleSave(this.props.key, interpreted);
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
