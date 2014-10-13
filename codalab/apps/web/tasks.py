@@ -31,6 +31,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
+                            predict_submission_stdout_filename,
+                            predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -157,8 +159,10 @@ def predict(submission, job_id):
     username = submission.participant.user.username
     lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
@@ -171,7 +175,8 @@ def predict(submission, job_id):
             "bundle_id": submission.prediction_runfile.name,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": True,
         }
     })
 
@@ -283,7 +288,8 @@ def score(submission, job_id):
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
             "reply_to" : settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": False,
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
@@ -306,7 +312,7 @@ def update_submission_task(job_id, args):
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status, job_id):
+    def update_submission(submission, status, job_id, traceback=None):
         """
         Updates the status of a submission.
 
@@ -369,6 +375,8 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
                 submission.prediction_output_file.name = url_name
+                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
+                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
@@ -380,6 +388,10 @@ def update_submission_task(job_id, args):
 
         if status != 'failed':
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
+
+        if traceback:
+            submission.exception_details = traceback
+            submission.save()
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
@@ -411,7 +423,10 @@ def update_submission_task(job_id, args):
                      job.id, submission_id, status)
         result = None
         try:
-            result = update_submission(submission, status, job.id)
+            traceback = None
+            if 'extra' in args and 'traceback' in args['extra']:
+                traceback = args['extra']['traceback']
+            result = update_submission(submission, status, job.id, traceback)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)

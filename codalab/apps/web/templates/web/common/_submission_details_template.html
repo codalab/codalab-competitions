@@ -6,6 +6,8 @@
                         <div class="bundle__meta__desc">
                             <p>No description given.</p>
                         </div>
+                        {# _'s are replaced by the submission ID in hrefs... so I'll use that to hook the traceback in #}
+                        <div class="traceback"><a href="traceback/_/"></a></div>
                         <div class="small-2 large-4 columns">
                             <a href="/my/competition/submission/_/input.zip">Download your submission</a></br>
                             {% if phase.is_blind %}
@@ -13,11 +15,13 @@
                             {% else %}
                                 <a href="/my/competition/submission/_/stdout.txt" target="_blank">View standard output log</a></br>
                                 <a href="/my/competition/submission/_/stderr.txt" target="_blank">View standard error log</a></br>
+                                <a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict standard output log</a></br>
+                                <a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict standard error log</a></br>
                                 {% if not phase.is_scoring_only %}
                                 <a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></br>
                                 {% endif %}
                                 {% if phase.competition.enable_detailed_results %}
-                                    <a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a><br>                                                    
+                                    <a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a><br>
                                 {% endif %}
                                 <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br>
                                 {% if user.id == competition.creator.id %}
