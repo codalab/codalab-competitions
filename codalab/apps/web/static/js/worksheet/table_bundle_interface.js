@@ -8,7 +8,7 @@ var TableBundle = React.createClass({
     },
     deleteCheckedRows: function(){
         // do basically the same thing we do in worksheet_content's insertItem and cleanUp methods
-        var rows = this.state.interpreted; // raw data
+        var rows = this.state.interpreted; // data
         var reactRows = this.refs; // react components
         for(var k in reactRows){
             if(reactRows[k].state.checked){
@@ -29,8 +29,12 @@ var TableBundle = React.createClass({
             interpreted: rows,
             rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
         });
+        this.saveEditedItem(this.props.key, newRows);
         // go through and uncheck all the rows to get rid of lingering states
         this.unCheckRows();
+    },
+    saveEditedItem: function(index, interpreted){
+        this.props.handleSave(index, interpreted);
     },
     unCheckRows: function(){
         var reactRows = this.refs;
@@ -46,8 +50,9 @@ var TableBundle = React.createClass({
     },
     render: function() {
         var item = this.props.item.state;
+        var canEdit = this.props.canEdit;
+        var checkbox = canEdit ? <th width="20"><input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /></th> : null;
         var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];
         var header_html = header_items.map(function(item, index) {
@@ -59,15 +64,14 @@ var TableBundle = React.createClass({
             var row_ref = 'row' + index;
             var focused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} focused={focused} bundleURL={bundle_url} headerItems={header_items} />
+            return <TableRow ref={row_ref} item={row_item} key={index} focused={focused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} />
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
                 <table className={className} onKeyDown={this.handleKeyboardShortcuts}>
                     <thead>
                         <tr>
-                            <th width="20"></th>
+                            {checkbox}
                             {header_html}
                         </tr>
                     </thead>
@@ -94,6 +98,7 @@ var TableRow = React.createClass({
         var row_item = this.props.item;
         var header_items = this.props.headerItems;
         var bundle_url = this.props.bundle_url;
+        var checkbox = this.props.canEdit ? <td className="checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
             if(index == 0){
                 return (
@@ -109,7 +114,7 @@ var TableRow = React.createClass({
         });
         return (
             <tr className={focusedClass}>
-                <td className="checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} /></td>
+                {checkbox}
                 {row_cells}
             </tr>
         );

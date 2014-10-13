@@ -268,25 +268,27 @@ var WorksheetItemList = React.createClass({
         }
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
-    saveItem: function(textarea){ // aka handleSave
-        var item = ws_obj.state.items[this.state.editingIndex];
-        var index = this.state.editingIndex;
+    saveItem: function(index, interpreted){ // aka handleSave
+        var item = ws_obj.state.items[index];
+        var mode = item.state.mode;
+        var newItem = this.refs['item' + index].state.new_item;
         // because we need to distinguish between items that have just been inserted and items
         // that were edited, we have a 'new_item' flag on markdown items' state
         if(this.refs['item' + index].state.new_item){
             // if it's a new item, it hasn't been added to the raw yet, so do that.
-            ws_obj.insertRawItem(index, textarea.value);
+            ws_obj.insertRawItem(index, interpreted);
         }else {
-            console.log(ws_obj.state.items[index])
-            ws_obj.state.items[index].state.interpreted = textarea.value;
-            ws_obj.setItem(index, ws_obj.state.items[index]);
+            ws_obj.state.items[index].state.interpreted = interpreted;
         }
         // we duplicate this here so the edits show up right away, instead of after the save + update
-        item.state.interpreted = textarea.value;
-        // we may have added contiguous markdown bundles, so we need to reconsolidate
-        var unconsolidated = ws_obj.getState();
-        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-        ws_obj.state.items = consolidated;
+        item.state.interpreted = interpreted;
+        ws_obj.setItem(index, ws_obj.state.items[index]);
+        if(mode==='markup'){
+            // we may have added contiguous markdown bundles, so we need to reconsolidate
+            var unconsolidated = ws_obj.getState();
+            var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+            ws_obj.state.items = consolidated;
+        }
         this.setState({
             editingIndex: -1,
             worksheet: ws_obj.getState()
@@ -480,7 +482,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
             return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
         case 'table':
-            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} />
             break;
         case 'contents':
             return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />

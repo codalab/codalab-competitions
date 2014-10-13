@@ -12,7 +12,7 @@ var TableMixin = {
         this.props.setFocus(this);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x'];
+        return['up','k','down','j','x','d'];
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view

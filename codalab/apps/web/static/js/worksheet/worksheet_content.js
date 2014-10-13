@@ -231,8 +231,12 @@ var WorksheetContent = function() {
     WorksheetContent.prototype.setItem = function(index, item) {
         //update raw
         if(typeof(item) !== 'undefined'){
-            //the item here is a WorksheetItem, so we need to get its interpreted value and split it into an array
-            var item_array = item.state.interpreted.split('\n');
+            //the item here is a WorksheetItem, so we need to get its interpreted value
+            var item_array = item.state.interpreted;
+            //and split it into an array if necessary
+            if(item.state.mode == 'markup'){
+                item_array = item.state.interpreted.split('\n');
+            }
             //because we're editing an item that already exists, we can use its raw_index and assume it's correct...
             var ri = this.state.items[index].state.raw_index;
             var rs = this.state.items[index].state.raw_size;
