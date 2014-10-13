@@ -18,16 +18,20 @@ var MarkdownBundle = React.createClass({
                 case 'esc': // cancel
                     //telling WorksheetItemList to stop editing
                     this._owner.setState({editingIndex: -1});
-                    if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
-                        //calling WorksheetItemList unInsert
-                        this._owner.unInsert();
+                    if(this.props.editing){
+                        if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
+                            //calling WorksheetItemList unInsert
+                            this.setState({new_item: false});
+                            this._owner.unInsert();
+                        }
+                        event.stopPropagation();
+                        break;
                     }
-                    event.stopPropagation();
-                    break;
                 case 'enter':  // save or add a new line
                     if(event.ctrlKey || event.metaKey){ // ctrl/meta on mac for saving item
                         event.preventDefault();
                         this.saveEditedItem(event.target);
+                        return false;
                     }
                     break;
                 default:

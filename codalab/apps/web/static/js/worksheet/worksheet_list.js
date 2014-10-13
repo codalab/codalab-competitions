@@ -30,16 +30,16 @@ var Worksheets = React.createClass({
     },
     bindEvents: function(){
         // listen for ALL keyboard events at the top leve
-        window.addEventListener('keydown', this.handleKeyboardShortcuts);
+        window.addEventListener('keydown', this.handleKeydown);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+        window.removeEventListener('keydown', this.handleKeydown);
     },
     setFilter: function(event){
         // all this does is store and update the string we're filter worksheet names by
         this.setState({filter:event.target.value})
     },
-    handleKeyboardShortcuts: function(event){
+    handleKeydown: function(event){
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
         if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
@@ -48,9 +48,9 @@ var Worksheets = React.createClass({
         }
         // otherwise, try to pass off the event to the active component
         var activeComponent = this.refs[this.state.activeComponent];
-        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
+        if(activeComponent.hasOwnProperty('handleKeydown')){
             // if it has a method to handle keyboard shortcuts, pass it
-            activeComponent.handleKeyboardShortcuts(event);
+            activeComponent.handleKeydown(event);
         }else {
             // otherwise watch it go by
             return true;
@@ -108,7 +108,7 @@ var WorksheetList = React.createClass({
         // filter by MY worksheets?
         this.setState({myWorksheets: !this.state.myWorksheets});
     },
-    handleKeyboardShortcuts: function(event) {
+    handleKeydown: function(event) {
         // this guy has shortcuts for going up and down, and selecting (essentially, clicking on it)
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
