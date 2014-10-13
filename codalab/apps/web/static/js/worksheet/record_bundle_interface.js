@@ -15,10 +15,11 @@ var RecordBundle = React.createClass({
         var v = header[1];
         var focusIndex = this.state.rowFocusIndex;
         var items = item.interpreted[1].map(function(item, index){
+            var ref = 'row' + index;
             var focused = index === focusIndex;
             var focusedClass = focused ? 'focused' : '';
             return(
-                <tr key={index} focused={focused} className={focusedClass}>
+                <tr ref={ref} key={index} focused={focused} className={focusedClass}>
                     <th>
                         {item[k]}
                     </th>
