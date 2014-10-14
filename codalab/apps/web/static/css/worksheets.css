@@ -33,6 +33,7 @@
   position:absolute;
   left:-1.5em;
   top:0.25em;
+  font-size:16px;
 }
 #worksheet_content .empty-worksheet {
   color:#a4a4a4;
@@ -166,11 +167,11 @@ table.table {
 table.table th {
   font-weight:bold;
 }
-table.table tr th, 
+table.table tr th,
 table.table tr td {
   color:#555;
 }
-table.table tr th.checkbox input, 
+table.table tr th.checkbox input,
 table.table tr td.checkbox input {
   margin:0;
 }
