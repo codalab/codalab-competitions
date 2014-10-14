@@ -98,7 +98,7 @@ var TableRow = React.createClass({
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_item = this.props.item;
         var header_items = this.props.headerItems;
-        var bundle_url = this.props.bundle_url;
+        var bundle_url = this.props.bundleURL;
         var checkbox = this.props.canEdit ? <td className="checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
             if(index == 0){
