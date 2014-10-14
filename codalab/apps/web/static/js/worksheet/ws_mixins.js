@@ -22,7 +22,7 @@ var TableMixin = {
         }
         $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
-    handleKeyboardShortcuts: function(event){
+    handleKeydown: function(event){
         var item = this.props.item.state;
         var key = keyMap[event.keyCode];
         var index = this.state.rowFocusIndex;

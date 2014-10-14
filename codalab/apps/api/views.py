@@ -4,6 +4,7 @@ Defines Django views for 'apps.api' app.
 import json
 import logging
 import traceback
+import mimetypes
 
 
 from . import serializers
@@ -867,19 +868,14 @@ class BundleFileContentApi(views.APIView):
     """
     Provides a web API to read the content of a file in a bundle.
     """
-    @staticmethod
-    def _content_type(path):
-        from os.path import splitext
-        _, ext = splitext(path)
-        if ext == '.css':
-            return 'text/css'
-        return None
 
     def get(self, request, uuid, path):
-        user_id = self.request.user.id
+        # user_id = self.request.user.id
         service = BundleService(self.request.user)
         try:
-            content_type = BundleFileContentApi._content_type(path)
+            content_type, _encoding = mimetypes.guess_type(path)
+            if not content_type:
+                content_type = 'text/plain'
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
             logging.error(self.__str__())
