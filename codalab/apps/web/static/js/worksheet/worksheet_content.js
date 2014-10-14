@@ -291,6 +291,46 @@ var WorksheetContent = function() {
         // TODO: update raw
         console.log('move row ' + oldIndex + ' to ' + newIndex);
     };
+    WorksheetContent.prototype.deleteTableRow = function(table, interpreted_row_indexes){
+        var interpreted_rows = table.interpreted; // data
+        var removed_bundles = []; // what bundles do we want to remove
+        var row_data = interpreted_rows[1]; // we don't want the headers
+
+        for(var index in interpreted_row_indexes){
+            index = interpreted_row_indexes[index]; // set to real index
+            console.log(index);
+            removed_bundles.push(table.bundle_info[index]);
+            row_data[index] = null;
+        }
+
+         // // clean up the data by copying all non-null rows into a new array
+        var new_row_data = [];
+        for(var i = 0; i < row_data.length; i++){
+            if (row_data[i]){
+                new_row_data.push(row_data[i]);
+            }
+        }
+        interpreted_rows[1] = new_row_data; // set the data. [0] is the headers
+
+        //update raw
+        var r_index = table.raw_index; //shortcut naming
+        var r_size = table.raw_size;
+
+        for(var b_index in removed_bundles){
+            bundle_info = removed_bundles[b_index]; //shortcut naming
+            //look though our chunk of the raw for this and remove it
+            for(var i = r_index; i < r_index+r_size; i++){
+                // check if we've already set to undefined and look for the bundle uuid in the row text
+                if(this.state.raw[i] && this.state.raw[i].search(bundle_info.uuid) > -1){
+                    this.state.raw[i] = undefined;
+                }
+            }
+        }
+        this.cleanUp(); // remove raw undefined
+        this.updateItemsIndex(); // make sure the ui is good to go.
+        // please not after this is returned and state is updated for UI we save and reload the worksheet
+        return interpreted_rows;
+    };
     WorksheetContent.prototype.getRaw = function(){
         // get string rep and line count for text area
         var raw = {
