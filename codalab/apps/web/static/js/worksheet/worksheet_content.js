@@ -287,6 +287,10 @@ var WorksheetContent = function() {
         this.updateItemsIndex();
 
     };
+    WorksheetContent.prototype.moveRow = function(oldIndex, newIndex){
+        // TODO: update raw
+        console.log('move row ' + oldIndex + ' to ' + newIndex);
+    };
     WorksheetContent.prototype.getRaw = function(){
         // get string rep and line count for text area
         var raw = {

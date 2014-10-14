@@ -22,6 +22,24 @@ var TableMixin = {
         }
         $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
+    moveRow: function(delta){
+        var oldIndex = this.state.rowFocusIndex;
+        var newIndex = oldIndex + delta;
+        var tableHead = this.state.interpreted[0];
+        var rowArray = this.state.interpreted[1];
+        if(0 <= newIndex && newIndex < rowArray.length){
+            rowArray.splice(newIndex, 0, rowArray.splice(oldIndex, 1)[0]);
+            this.setState({
+                interpreted: [tableHead, rowArray],
+                rowFocusIndex: newIndex,
+            }, this.scrollToRow(newIndex));
+            ws_obj.moveRow(oldIndex, newIndex);
+            // TODO: call save on the worksheet
+            // this._owner.saveAndUpdateWorksheet();
+        }else {
+            return false;
+        }
+    },
     handleKeydown: function(event){
         var item = this.props.item.state;
         var key = keyMap[event.keyCode];
@@ -36,6 +54,8 @@ var TableMixin = {
                     event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
                         this._owner.moveItem(-1);
+                    }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
+                        this.moveRow(-1);
                     }else{
                         index = Math.max(this.state.rowFocusIndex - 1, 0);
                         if(this.state.rowFocusIndex === 0){
@@ -52,6 +72,8 @@ var TableMixin = {
                     event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
                         this._owner.moveItem(1);
+                    }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
+                        this.moveRow(1);
                     }else {
                         index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
                         if(index == rowsInTable){
