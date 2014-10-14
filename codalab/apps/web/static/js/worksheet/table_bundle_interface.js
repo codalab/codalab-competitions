@@ -7,54 +7,27 @@ var TableBundle = React.createClass({
         return this.props.item.state;
     },
     deleteCheckedRows: function(){
-        console.log('delete checked rows');
-        // TODO MOVE LOGIC  TO CONTENT
-        // // do basically the same thing we do in worksheet_content's insertItem and cleanUp methods
-        var rows = this.state.interpreted; // data
         var reactRows = this.refs; // react components
-        var removed_bundles = new Array();
-        // if the row is checked, set its data to null
+        var interpreted_row_indexes = []; // what indexes of the data do we want gone
+
+        //lets find all rows that are checked
         for(var k in reactRows){
             if(reactRows[k].state.checked){
                 //get the raw bundle info, since they are in the same order we can take the same index
-                removed_bundles.push(this.state.bundle_info[reactRows[k].props.key]);
-                rows[1][reactRows[k].props.key] = null;
+                interpreted_row_indexes.push(reactRows[k].props.key);
             }
         }
-        var newRows = new Array();
-        // clean up the data by copying all non-null rows into a new array
-        for(var i = 0; i < rows[1].length; i++){
-            if (rows[1][i]){
-                newRows.push(rows[1][i]);
-            }
-        }
-        // then set the raw data to that new array
-        rows[1] = newRows;
-        // //set the new state for the IU
+        //delete and get our new interpreted. raw is handeled by ws_obj
+        new_interpreted_rows = ws_obj.deleteTableRow(this.state, interpreted_row_indexes);
+        //uncheck so we don't get any weird checked state hanging around
+        this.unCheckRows();
+        // go through and uncheck all the rows to get rid of lingering states
         this.setState({
-            interpreted: rows,
+            interpreted: new_interpreted_rows,
             rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
         });
-
-        //lets update the raw and save
-        var r_index = this.state.raw_index; //shortcut naming
-        var r_size = this.state.raw_size;
-        for(var b_index in removed_bundles){
-            //look though our chunk of the raw for this
-            for(var i = r_index; i< r_index+r_size; i++){
-                if(ws_obj.state.raw[i].search(removed_bundles[b_index].uuid) > -1){
-                    console.log("removing line");
-                    console.log(ws_obj.state.raw[i]);
-                    ws_obj.state.raw[i] = 'undefined';
-                }
-            }
-        }
-        ws_obj.cleanUp();
-
-
-        // this.saveEditedItem(this.props.key, newRows);
-        // go through and uncheck all the rows to get rid of lingering states
-        this.unCheckRows();
+        // TODO: REMOVE _OWNER
+        this._owner.saveAndUpdateWorksheet();
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
