@@ -287,9 +287,36 @@ var WorksheetContent = function() {
         this.updateItemsIndex();
 
     };
-    WorksheetContent.prototype.moveRow = function(oldIndex, newIndex){
-        // TODO: update raw
-        console.log('move row ' + oldIndex + ' to ' + newIndex);
+    WorksheetContent.prototype.moveRow = function(table, oldIndex, newIndex){
+        var delta = newIndex - oldIndex;
+        // interpreted vars
+        var interpreted_rows = table.interpreted;
+        var interpreted_tbody = interpreted_rows[1]; // just the rows, not the head
+        // raw vars
+        var bundle_info = table.bundle_info[oldIndex];
+        var r_index = table.raw_index; //shortcut naming
+        var r_size = table.raw_size;
+        var old_raw_index;
+        // if we're not trying to move the first row up or the last row down...
+        if(0 <= newIndex && newIndex < interpreted_tbody.length){
+            // take care of the interpreted first
+            interpreted_tbody.splice(newIndex, 0, interpreted_tbody.splice(oldIndex, 1)[0]);
+            // now find the actual raw position of this row by matching its bundle uuid
+            for(var i = r_index; i < r_index+r_size; i++){
+                if(this.state.raw[i].search(bundle_info.uuid) > -1){
+                    old_raw_index = i;
+                    break;
+                }
+            }
+            // calculate where it's going (should be +/- 1 raw space)
+            var new_raw_index = old_raw_index + delta;
+            // ...and move it there using the same trick we used on interpreted
+            this.state.raw.splice(new_raw_index, 0, this.state.raw.splice(old_raw_index, 1)[0]);
+            // update the indexes to keep the UI in sync
+            this.updateItemsIndex();
+        }
+        // and return the interpreted so the table can update its state
+        return interpreted_rows;
     };
     WorksheetContent.prototype.getRaw = function(){
         // get string rep and line count for text area

@@ -25,20 +25,13 @@ var TableMixin = {
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
         var newIndex = oldIndex + delta;
-        var tableHead = this.state.interpreted[0];
-        var rowArray = this.state.interpreted[1];
-        if(0 <= newIndex && newIndex < rowArray.length){
-            rowArray.splice(newIndex, 0, rowArray.splice(oldIndex, 1)[0]);
-            this.setState({
-                interpreted: [tableHead, rowArray],
-                rowFocusIndex: newIndex,
-            }, this.scrollToRow(newIndex));
-            ws_obj.moveRow(oldIndex, newIndex);
-            // TODO: call save on the worksheet
-            // this._owner.saveAndUpdateWorksheet();
-        }else {
-            return false;
-        }
+        new_interpreted_rows = ws_obj.moveRow(this.state, oldIndex, newIndex);
+        this.setState({
+            interpreted: new_interpreted_rows,
+            rowFocusIndex: newIndex
+        }, this.scrollToRow(newIndex));
+        // TODO: REMOVE _OWNER
+        // this._owner.saveAndUpdateWorksheet();
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
