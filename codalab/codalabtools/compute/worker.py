@@ -261,13 +261,28 @@ def get_run_func(config):
             exit_code = None
             timed_out = False
 
-            stdout = open(stdout_file, "a")
-            stderr = open(stderr_file, "a")
+            stdout = open(stdout_file, "a+")
+            stderr = open(stderr_file, "a+")
 
-            evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE)
+            evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
+
+            logger.debug("Started process, pid=%s" % evaluator_process.pid)
+
+            stdout_buffer = ''
+            stderr_buffer = ''
 
             while exit_code is None:
                 exit_code = evaluator_process.poll()
+
+                logger.debug("Checking process, exit_code = %s" % exit_code)
+
+                try:
+                    (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
+
+                    stdout_buffer += evaluator_process_out
+                    stderr_buffer += evaluator_process_err
+                except ValueError:
+                    pass # tried to communicate with dead process
 
                 # time in seconds
                 if exit_code is None and time.time() - startTime > execution_time_limit:
@@ -278,10 +293,11 @@ def get_run_func(config):
                     timed_out = True
                     break
                 else:
-                    time.sleep(.1)
+                    time.sleep(1)
 
-            stdout.write(evaluator_process.stdout.read())
-            stderr.write(evaluator_process.stderr.read())
+
+            stdout.write(stdout_buffer)
+            stderr.write(stderr_buffer)
             stdout.close()
             stderr.close()
 
