@@ -301,6 +301,8 @@ var WorksheetContent = function() {
         if(0 <= newIndex && newIndex < interpreted_tbody.length){
             // take care of the interpreted first
             interpreted_tbody.splice(newIndex, 0, interpreted_tbody.splice(oldIndex, 1)[0]);
+            // also update the bundle info so we can get the correct uuid later
+            table.bundle_info.splice(newIndex, 0, table.bundle_info.splice(oldIndex, 1)[0]);
             // now find the actual raw position of this row by matching its bundle uuid
             for(var i = r_index; i < r_index+r_size; i++){
                 if(this.state.raw[i].search(bundle_info.uuid) > -1){

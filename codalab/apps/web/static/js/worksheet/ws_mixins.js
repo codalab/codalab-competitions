@@ -31,7 +31,8 @@ var TableMixin = {
             rowFocusIndex: newIndex
         }, this.scrollToRow(newIndex));
         // TODO: REMOVE _OWNER
-        // this._owner.saveAndUpdateWorksheet();
+        // TODO: figure out why this causes a lag in the display of interpreted
+        this._owner.saveAndUpdateWorksheet();
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
