@@ -497,8 +497,12 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
         case 'record':
             return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
             break;
+        case 'image':
+            return <ImageBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            break;
         case 'worksheet':
             return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            break;
         default:  // something new or something we dont yet handle
             return (
                 <div>
