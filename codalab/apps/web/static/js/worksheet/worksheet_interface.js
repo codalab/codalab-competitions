@@ -274,15 +274,15 @@ var WorksheetItemList = React.createClass({
         var newItem = this.refs['item' + index].state.new_item;
         // because we need to distinguish between items that have just been inserted and items
         // that were edited, we have a 'new_item' flag on markdown items' state
-        if(this.refs['item' + index].state.new_item){
+        if(newItem){
             // if it's a new item, it hasn't been added to the raw yet, so do that.
             ws_obj.insertRawItem(index, interpreted);
         }else {
             ws_obj.state.items[index].state.interpreted = interpreted;
+            ws_obj.setItem(index, ws_obj.state.items[index]);
         }
         // we duplicate this here so the edits show up right away, instead of after the save + update
         item.state.interpreted = interpreted;
-        ws_obj.setItem(index, ws_obj.state.items[index]);
         if(mode==='markup'){
             // we may have added contiguous markdown bundles, so we need to reconsolidate
             var unconsolidated = ws_obj.getState();
