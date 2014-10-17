@@ -339,3 +339,12 @@ table.table-responsive > tfoot > tr > td {
   padding:4px;
   text-align:center;
 }
+.alert-box.alert a:not(.close) {
+  color:#fff;
+  text-decoration: underline;
+}
+.alert-box.alert code {
+  font-weight:normal;
+  color:white;
+  background-color:transparent;
+}
