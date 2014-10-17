@@ -112,7 +112,8 @@
   margin-top:-1px;
 }
 #worksheet_content .type-markup,
-#worksheet_content .type-inline {
+#worksheet_content .type-inline,
+#worksheet_content .type-worksheet {
   min-height:1.5em;
   margin-bottom:20px;
 }
