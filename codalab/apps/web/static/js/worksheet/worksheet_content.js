@@ -136,11 +136,19 @@ var WorksheetContent = function() {
                 case 'table':
                 case 'contents':
                 case 'html':
+                case 'image':
                 case 'record':
                     var bundle_info = ws_item.state.bundle_info;
                     // find the last bundle in the table etc. that is ref
                     // that's the end of the display
-                    var bundle = ws_item.state.bundle_info[bundle_info.length-1];
+
+                    var bundle;
+                    if(_.isArray(bundle_info)){
+                        bundle = bundle_info[bundle_info.length-1];
+                    }else{
+                        bundle = bundle_info;
+                    }
+
                     var found = false;
                     for(i=last_raw_index; i < raw.length; i++){
                         if(raw[i].search(bundle.uuid) > -1){
