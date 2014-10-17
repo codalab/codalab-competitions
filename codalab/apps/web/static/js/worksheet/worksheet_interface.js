@@ -269,32 +269,34 @@ var WorksheetItemList = React.createClass({
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
     saveItem: function(index, interpreted){ // aka handleSave
-        var item = ws_obj.state.items[index];
-        var mode = item.state.mode;
-        var newItem = this.refs['item' + index].state.new_item;
-        // because we need to distinguish between items that have just been inserted and items
-        // that were edited, we have a 'new_item' flag on markdown items' state
-        if(newItem){
-            // if it's a new item, it hasn't been added to the raw yet, so do that.
-            ws_obj.insertRawItem(index, interpreted);
-        }else {
-            ws_obj.state.items[index].state.interpreted = interpreted;
-            ws_obj.setItem(index, ws_obj.state.items[index]);
+        if(typeof index !== 'undefined' && typeof interpreted !== 'undefined'){
+            var item = ws_obj.state.items[index];
+            var mode = item.state.mode;
+            var newItem = this.refs['item' + index].state.new_item;
+            // because we need to distinguish between items that have just been inserted and items
+            // that were edited, we have a 'new_item' flag on markdown items' state
+            if(newItem){
+                // if it's a new item, it hasn't been added to the raw yet, so do that.
+                ws_obj.insertRawItem(index, interpreted);
+            }else {
+                ws_obj.state.items[index].state.interpreted = interpreted;
+                ws_obj.setItem(index, ws_obj.state.items[index]);
+            }
+            // we duplicate this here so the edits show up right away, instead of after the save + update
+            item.state.interpreted = interpreted;
+            if(mode==='markup'){
+                // we may have added contiguous markdown bundles, so we need to reconsolidate
+                var unconsolidated = ws_obj.getState();
+                var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+                ws_obj.state.items = consolidated;
+            }
+            this.setState({
+                editingIndex: -1,
+                worksheet: ws_obj.getState()
+            });
+            //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
+            this.refs['item' + this.state.editingIndex].setState({new_item:false});
         }
-        // we duplicate this here so the edits show up right away, instead of after the save + update
-        item.state.interpreted = interpreted;
-        if(mode==='markup'){
-            // we may have added contiguous markdown bundles, so we need to reconsolidate
-            var unconsolidated = ws_obj.getState();
-            var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-            ws_obj.state.items = consolidated;
-        }
-        this.setState({
-            editingIndex: -1,
-            worksheet: ws_obj.getState()
-        });
-        //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
-        this.refs['item' + this.state.editingIndex].setState({new_item:false});
         this.saveAndUpdateWorksheet();
     },
     unInsert: function(){
