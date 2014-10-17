@@ -156,11 +156,11 @@ var WorksheetItemList = React.createClass({
                 $('#update_progress').hide();
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
+                console.error(ws_obj.url, status, err);
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
                 } else {
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-box alert');
                 }
                 $('#worksheet_container').hide();
             }.bind(this)
@@ -384,6 +384,7 @@ var WorksheetItemList = React.createClass({
         this.setState({rawMode: !this.state.rawMode})
     },
     saveAndUpdateWorksheet: function(){
+        $("#worksheet-message").hide();
         // does a save and a update
         ws_obj.saveWorksheet({
             success: function(data){
@@ -393,12 +394,13 @@ var WorksheetItemList = React.createClass({
                 }
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
+                console.error(xhr, status, err);
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert').show();
+                } else if (xhr.status == 401){
+                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-box alert').show();
                 } else {
-                    // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-box alert').show();
                 }
             }
         });
