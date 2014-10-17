@@ -250,7 +250,7 @@ var WorksheetItemList = React.createClass({
                     break;
                 case 'a': // really a cap A for instert After, like vi
                     event.preventDefault();
-                    if(event.shiftKey && ws_obj.getState().edit_permission){
+                    if(event.shiftKey && this.props.canEdit){
                         this.insertItem(key);
                     }
                     break;
