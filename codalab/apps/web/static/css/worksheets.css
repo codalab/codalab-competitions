@@ -113,9 +113,14 @@
 }
 #worksheet_content .type-markup,
 #worksheet_content .type-inline,
-#worksheet_content .type-worksheet {
+#worksheet_content .type-worksheet,
+#worksheet_content .type-image {
   min-height:1.5em;
   margin-bottom:20px;
+}
+#worksheet_content .type-image img{
+  width:98%;
+  margin:1%
 }
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
