@@ -113,7 +113,7 @@ var WorksheetContent = function() {
                         default: // the other case is always followed by some sort of bundle or display type
                             // the bundle_info may be an object or an array of objects
                             var bundle = below_item.state.bundle_info;
-                            if(bundle instanceof Array){
+                            if(_.isArray(bundle)){
                                 bundle = bundle[0]
                             }
                             for(i=last_raw_index; i < raw.length; i++){
