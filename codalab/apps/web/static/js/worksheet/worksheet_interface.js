@@ -232,7 +232,7 @@ var WorksheetItemList = React.createClass({
                     break;
                 case 'x': // select item
                     event.preventDefault();
-                    if(focusedItem){
+                    if(focusedItem && this.props.canEdit){
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
