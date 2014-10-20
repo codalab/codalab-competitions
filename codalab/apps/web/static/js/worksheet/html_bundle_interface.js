@@ -12,9 +12,13 @@ var HTMLBundle = React.createClass({
     render: function() {
         var className = 'type-html' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
-        var contents = this.state.interpreted.map(function(item){
-            return item.replace(/%\s/, '');
-        });
+        // if there is an error with the file path interpreted is null
+        var contents = ["null"]
+        if(this.state.interpreted){
+            contents = this.state.interpreted.map(function(item){
+                return item.replace(/%\s/, '');
+            });
+        }
         contents = contents.join('');
         return(
             <div className="ws-item" onClick={this.handleClick}>
