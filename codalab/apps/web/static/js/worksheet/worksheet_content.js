@@ -79,7 +79,7 @@ var WorksheetContent = function() {
             }
             ws_item.state.raw_index = last_raw_index;
 
-            // now low many elements does it take up
+            // now how many elements does it take up
             raw_size = raw.length - last_raw_index; //default to the end
             if(!below_item){
                 ws_item.state.raw_size = raw_size;
@@ -91,7 +91,6 @@ var WorksheetContent = function() {
             switch (ws_item.state.mode) {
                 case 'markup':
                     // grab the first bundle's info following you.
-                    // debugger;
                     switch (below_item.state.mode) {
                         case 'worksheet':
                             for(i=last_raw_index; i < raw.length; i++){
@@ -112,7 +111,11 @@ var WorksheetContent = function() {
                             raw_size = ws_item.state.raw_size;
                             break;
                         default: // the other case is always followed by some sort of bundle or display type
-                            var bundle = below_item.state.bundle_info[0];
+                            // the bundle_info may be an object or an array of objects
+                            var bundle = below_item.state.bundle_info;
+                            if(bundle instanceof Array){
+                                bundle = bundle[0]
+                            }
                             for(i=last_raw_index; i < raw.length; i++){
                                 // that bundle may be the start of the next non-markdown block
                                 // or a line that begins with %, which means another bundle display type
