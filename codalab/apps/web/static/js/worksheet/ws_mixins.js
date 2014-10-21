@@ -9,7 +9,7 @@ var TableMixin = {
         };
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     keysToHandle: function(){
         return['up','k','down','j','x','d'];
@@ -52,8 +52,7 @@ var TableMixin = {
                     }else{
                         index = Math.max(this.state.rowFocusIndex - 1, 0);
                         if(this.state.rowFocusIndex === 0){
-                            this._owner.setState({focusIndex: parentFocusIndex - 1});
-                            this._owner.scrollToItem(parentFocusIndex - 1);
+                            this._owner.setFocus(parentFocusIndex - 1);
                         }else {
                             this.setState({rowFocusIndex: index});
                             this.scrollToRow(index);
@@ -70,8 +69,7 @@ var TableMixin = {
                     }else {
                         index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
                         if(index == rowsInTable){
-                            this._owner.setState({focusIndex: parentFocusIndex + 1});
-                            this._owner.scrollToItem(parentFocusIndex + 1);
+                            this._owner.setFocus(parentFocusIndex + 1);
                         }else {
                             this.setState({rowFocusIndex: index});
                             this.scrollToRow(index);

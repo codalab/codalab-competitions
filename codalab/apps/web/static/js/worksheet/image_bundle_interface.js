@@ -7,11 +7,11 @@ var ImageBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 
         var src= "data:image/png;base64," + this.state.interpreted
         return(

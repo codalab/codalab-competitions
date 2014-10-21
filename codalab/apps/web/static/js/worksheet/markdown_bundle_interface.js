@@ -60,13 +60,13 @@ var MarkdownBundle = React.createClass({
         }
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var content = this.props.item.state.interpreted;
         var className = 'type-markup' + (this.props.focused ? ' focused' : '');
         //if we can edit show checkbox if not show nothing(null)
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 
         if (this.props.editing){ // are we editing show a text area
             var lines = Math.max(this.props.item.state.interpreted.split(/\r\n|\r|\n/).length, 3);

@@ -9,7 +9,7 @@ var RecordBundle = React.createClass({
     render: function() {
         var item = this.props.item.state;
         var className = 'table table-record' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
         var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
