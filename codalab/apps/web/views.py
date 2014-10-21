@@ -382,13 +382,17 @@ class CompetitionResultsPage(TemplateView):
     template_name = 'web/competitions/_results_page.html'
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage, self).get_context_data(**kwargs)
-        competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        phase = competition.phases.get(pk=self.kwargs['phase'])
-        is_owner = self.request.user.id == competition.creator_id
-        context['is_owner'] = is_owner
-        context['phase'] = phase
-        context['groups'] = phase.scores()
-        return context
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['id'])
+            phase = competition.phases.get(pk=self.kwargs['phase'])
+            is_owner = self.request.user.id == competition.creator_id
+            context['is_owner'] = is_owner
+            context['phase'] = phase
+            context['groups'] = phase.scores()
+            return context
+        except:
+            context['error'] = traceback.format_exc()
+            return context
 
 class CompetitionCheckMigrations(View):
     def get(self, request, *args, **kwargs):
