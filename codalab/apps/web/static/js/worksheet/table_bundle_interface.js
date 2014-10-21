@@ -45,10 +45,12 @@ var TableBundle = React.createClass({
         }
     },
     render: function() {
+        var focused = this.props.focused;
         var item = this.props.item.state;
         var canEdit = this.props.canEdit;
-        var checkbox = canEdit ? <th width="20"><input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /></th> : null;
-        var className = 'table table-responsive' + (this.props.focused ? ' focused' : '');
+        var checkboxEnabled =  focused ? true : this.props.checkboxEnabled;
+        var checkbox = canEdit ? <th width="20"><input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!checkboxEnabled}/></th> : null;
+        var className = 'table table-responsive' + (focused ? ' focused' : '');
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];
         var header_html = header_items.map(function(item, index) {
@@ -58,9 +60,9 @@ var TableBundle = React.createClass({
         var row_items = item.interpreted[1];
         var body_rows_html = row_items.map(function(row_item, index) {
             var row_ref = 'row' + index;
-            var focused = index === focusIndex;
+            var rowFocused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} focused={focused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} />
+            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused}/>
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>
@@ -94,7 +96,7 @@ var TableRow = React.createClass({
         var row_item = this.props.item;
         var header_items = this.props.headerItems;
         var bundle_url = this.props.bundleURL;
-        var checkbox = this.props.canEdit ? <td className="checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} /></td> : null;
+        var checkbox = this.props.canEdit ? <td className="checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
             if(index == 0){
                 return (

@@ -7,11 +7,11 @@ var HTMLBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var className = 'type-html' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
         // if there is an error with the file path interpreted is null
         var contents = ["null"]
         if(this.state.interpreted){

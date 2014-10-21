@@ -24,7 +24,7 @@ var WorksheetBundle = React.createClass({
         }
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     goToWorksheet: function(){
         window.location.href = window.location.origin + '/worksheets/' + this.props.item.state.interpreted.uuid;
@@ -32,7 +32,7 @@ var WorksheetBundle = React.createClass({
     render: function() {
         var item = this.props.item.state.interpreted;
         var className = 'type-worksheet' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
         var ws_url = '/worksheets/' + item.uuid;
         return(
             <div className="ws-item" onClick={this.handleClick}>

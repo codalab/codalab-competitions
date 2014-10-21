@@ -7,11 +7,11 @@ var ContentsBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /> : null;
         var contents = this.state.interpreted.map(function(item){
             return item.replace(/%\s/, '');
         });
