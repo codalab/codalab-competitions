@@ -331,6 +331,54 @@ var WorksheetContent = function() {
         // and return the interpreted so the table can update its state
         return interpreted_rows;
     };
+    WorksheetContent.prototype.insertBetweenRows = function(table, rowIndex, key){
+        // Handle raw manipulation first
+        var r_index = table.raw_index;
+        var r_size = table.raw_size;
+        var r_item = this.state.raw.slice(r_index, r_index + r_size);
+        var metadata_size = 0
+        for(i=0; i < r_size; i++){
+            if(r_item[i].lastIndexOf('%', 0) === 0){
+                metadata_size = i+1;
+            }else{
+                break; // break out, we found all the metadata
+            }
+        }
+        var r_metadata = r_item.slice(0, metadata_size); // stash the metadata in a var
+        var insertion_point = r_index + metadata_size + rowIndex; // this is where the table gets split in the raw
+        // Prep the raw for insertion
+        var new_raw1 = this.state.raw.slice(0, insertion_point);
+        var new_raw2 = this.state.raw.slice(insertion_point);
+        // Copy the table metadata in front of the new table and put it all together
+        this.state.raw = new_raw1.concat('', r_metadata, new_raw2);
+
+        // Now handle interpreted
+        var items = this.state.items;
+        var table_bundle_info = items[key].state.bundle_info;
+        var interpreted_table = table.interpreted; // grab the table
+        var interpreted_thead = interpreted_table[0]; // store the thead so we can use it in the new table
+        var interpreted_tbody = interpreted_table[1];
+        var table_reinterpreted = [interpreted_thead, interpreted_tbody.slice(0, rowIndex)];
+        var table_bundle_info_reinterpreted = table_bundle_info.slice(0, rowIndex);
+        var new_table_interpeted = [interpreted_thead, interpreted_tbody.slice(rowIndex)];
+        var new_table_bundle_info = table_bundle_info.slice(rowIndex);
+        // Reset interpreted of original table
+        items[key].state.interpreted = table_reinterpreted;
+        items[key].state.bundle_info = table_bundle_info_reinterpreted;
+        // Create a new WorksheetItem for the new table
+        var new_table = new WorksheetItem(new_table_interpeted, new_table_bundle_info, 'table');
+        // Prepare for insertion
+        var new_items1 = items.slice(0, key+1);
+        var new_items2 = items.slice(key+1);
+        // Reset the items with the split tables
+        this.state.items = new_items1.concat(new_table, new_items2);
+        // Create a new WorksheetItem for the inserted markdown
+        var insertedMarkdown = new WorksheetItem('', undefined, 'markup');
+        // Use this internal method to insert the new markdown
+        this.insertItem(key+1, insertedMarkdown);
+        // Clean up raw indices and sizes
+        this.updateItemsIndex();
+    };
     WorksheetContent.prototype.deleteTableRow = function(table, interpreted_row_indexes){
         var interpreted_rows = table.interpreted; // data
         var removed_bundles = []; // what bundles do we want to remove
