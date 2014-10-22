@@ -376,8 +376,9 @@ var WorksheetContent = function() {
         var insertedMarkdown = new WorksheetItem('', undefined, 'markup');
         // Use this internal method to insert the new markdown
         this.insertItem(key+1, insertedMarkdown);
-        // Clean up raw indices and sizes
-        this.updateItemsIndex();
+
+        this.cleanUp(); // remove raw undefined
+        this.updateItemsIndex(); // make sure the ui is good to go.
     };
     WorksheetContent.prototype.deleteTableRow = function(table, interpreted_row_indexes){
         var interpreted_rows = table.interpreted; // data
