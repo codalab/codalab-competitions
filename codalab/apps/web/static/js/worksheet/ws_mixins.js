@@ -12,7 +12,7 @@ var TableMixin = {
         this.props.setFocus(this.props.key);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d'];
+        return['up','k','down','j','x','d','i','a'];
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
@@ -32,6 +32,18 @@ var TableMixin = {
         }, this.scrollToRow(newIndex));
         // TODO: figure out why this causes a lag in the display of interpreted
         this.props.handleSave();
+    },
+    insertBetweenRows: function(rowIndex){
+        var key = this.props.key;
+        var new_key = key + 1;
+        ws_obj.insertBetweenRows(this.state, rowIndex, key);
+        // TODO: remove _owner
+        this._owner.setState({
+            worksheet: ws_obj.getState(),
+            editingIndex: new_key,
+        });
+        this._owner.setFocus(new_key);
+        this._owner.refs['item' + (new_key)].setState({new_item: true});
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -100,6 +112,26 @@ var TableMixin = {
                         // otherwise assume its an inside-the-table action and pass it along
                         if (this.hasOwnProperty('deleteCheckedRows')){
                             this.deleteCheckedRows();
+                        }
+                    }
+                    break;
+                case 'i': //insert row before
+                    event.preventDefault();
+                    if(this.props.canEdit){
+                        if(this.state.rowFocusIndex > 0){
+                            this.insertBetweenRows(this.state.rowFocusIndex);
+                        }else if(this.state.rowFocusIndex === 0){
+                            this._owner.insertItem('i');
+                        }
+                    }
+                    break;
+                case 'a': // cap A instert row After, like vi
+                    event.preventDefault();
+                    if(event.shiftKey && this.props.canEdit){
+                        if(this.state.rowFocusIndex < this.state.interpreted[1].length - 1){
+                            this.insertBetweenRows(this.state.rowFocusIndex + 1);
+                        }else if(this.state.rowFocusIndex == this.state.interpreted[1].length - 1){
+                            this._owner.insertItem('a');
                         }
                     }
                     break;
