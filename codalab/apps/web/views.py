@@ -504,7 +504,7 @@ class CompetitionCompleteResultsDownload(View):
 
                     row.append(submission.description)
                     row.append(submission.submitted_at)
-                    row.append(os.path.basename(submission.file.name))
+                    row.append(submission.get_filename())
 
                     is_on_leaderboard = submission.pk in leader_board_entries
                     row.append(is_on_leaderboard)
