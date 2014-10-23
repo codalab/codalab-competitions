@@ -8,6 +8,9 @@ var TableMixin = {
             rowFocusIndex: 0
         };
     },
+    componentDidMount: function(){
+        this.slowSave = _.debounce(this.props.handleSave, 1000);
+    },
     componentWillReceiveProps: function(nextProps){
         // When new props are passed down or set, we need to update our state
         // Apparently they're not that tightly bound. This might be a performance
@@ -36,8 +39,7 @@ var TableMixin = {
             interpreted: new_interpreted_rows,
             rowFocusIndex: newIndex
         }, this.scrollToRow(newIndex));
-        // TODO: figure out why this causes a lag in the display of interpreted
-        this.props.handleSave();
+        this.slowSave();
     },
     insertBetweenRows: function(rowIndex){
         var key = this.props.key;
