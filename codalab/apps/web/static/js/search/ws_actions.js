@@ -1,4 +1,4 @@
-// Singleton class to manage actions triggered by the 
+// Singleton class to manage actions triggered by the
 // general search bar
 function WorksheetActions() {
     var instance;
@@ -9,36 +9,11 @@ function WorksheetActions() {
     instance = new WorksheetActions();
     instance.constructor = WorksheetActions();
 
-    instance.doRed = function(){
-        alert('CODE RED!\nFunction for red executed');
-    };
-    instance.doGreen = function(){
-        console.log('--------');
-        console.log('Execute the action for GREEN');
-        console.log('--------');
-    };
-    instance.doBlue = function(){
-        if(confirm('Did you choose blue?')){
-            alert('That is correct.');
-        }
-    };
-    instance.doOrange = function(){
-        $('h1.worksheet-icon').addClass("orange").delay(1000).queue(function(next){
-            $(this).removeClass("orange");
-            next();
-        });
-    };
-    instance.doYellow = function(){
-        $('body').addClass("yellow").delay(1000).queue(function(next){
-            $(this).removeClass("yellow");
-            next();
-        });
-    };
-    instance.doSave = function(){
-        $('.content').addClass("saving").delay(2000).queue(function(next){
-            $(this).removeClass("saving");
-            next();
-        });
+    instance.doAdd = function(params){
+        var bundleID = params[1];
+        var worksheetID = ws_obj.state.uuid;
+        alert('Make a call to the cli to add the bundle with UUID ' + bundleID +
+            ' to this worksheet, which has the UUID ' + worksheetID);
     };
 
     return instance;

@@ -157,9 +157,9 @@ var Select2SearchMixin = {
         _this = this;
         $('#search').select2({
             multiple:true,
-            tags: function(){ // make a list possible search results from the dict
+            tags: function(){ // make a list of possible search results from the clActions dict
                 options = [];
-                for(var key in fakedata){
+                for(var key in clActions){
                     options.push(key);
                 }
                 return options;
@@ -206,13 +206,11 @@ var Select2SearchMixin = {
         var command = $('#search').select2('val'); // this comes in as an array
         // customization can be done here, depending on the desired syntax of commands.
         // currently, this just calls all of the functions named in the input
-        for(i=0; i < command.length; i++){
-            var input = fakedata[command[i]];
-            if(ws_actions.hasOwnProperty(input)){
-                ws_actions[input]();
-            } else {
-                console.error('The command \'' + command[i] + '\' was not recognized');
-            }
+        var input = clActions[command[0]];
+        if(ws_actions.hasOwnProperty(input)){
+            ws_actions[input](command);
+        } else {
+            console.error('The command \'' + command[i] + '\' was not recognized');
         }
     }
 };   // end of Select2SearchMixin
