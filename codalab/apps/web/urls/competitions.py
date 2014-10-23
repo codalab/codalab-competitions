@@ -16,6 +16,7 @@ urlpatterns = patterns(
         views.MyCompetitionSubmissionOutput.as_view(),
         name='my_competition_output'),
     url(r'^(?P<id>\d+)/results/(?P<phase>\d+)/data$', views.CompetitionResultsDownload.as_view(), name='competition_results_download'),
+    url(r'^(?P<id>\d+)/results_complete/(?P<phase>\d+)/data$', views.CompetitionCompleteResultsDownload.as_view(), name='competition_results_complete_download'),
     url(r'^check_phase_migrations', views.CompetitionCheckMigrations.as_view(), name="competition_check_phase_migrations"),
     url(r'^message_participants/(?P<competition_id>\d+)', views.competition_message_participants, name="competition_message_participants"),
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
