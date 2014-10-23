@@ -563,7 +563,7 @@ class CompetitionPhase(models.Model):
             pass
         return ("{:." + str(p) + "f}").format(v)
 
-    def scores(self,**kwargs):
+    def scores(self, include_scores_not_on_leaderboard=False, **kwargs):
         score_filters = kwargs.pop('score_filters',{})
 
         # Get the list of submissions in this leaderboard
@@ -571,11 +571,18 @@ class CompetitionPhase(models.Model):
         result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-            qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
-            for entry in qs:
-                result_location.append(entry.result.file.name)
-            for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
-                submissions.append((rid,  name))
+            if include_scores_not_on_leaderboard:
+                qs = CompetitionSubmission.objects.filter(phase=self)
+                for submission in qs:
+                    result_location.append(submission.file.name)
+                    submissions.append((submission.pk,  submission.participant.user.username))
+            else:
+                qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+                for entry in qs:
+                    result_location.append(entry.result.file.name)
+
+                for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
+                    submissions.append((rid,  name))
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -584,8 +591,13 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk,name) in submissions:
-                scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
+            for (pk, name) in submissions:
+                scores[pk] = {
+                    'username': name,
+                    'id': pk,
+                    'values': [],
+                    'resultLocation': result_location[count]
+                }
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list

@@ -28,7 +28,7 @@
 
             {% if submission_info_list|length > 0 %}
             <div class="small-12 columns icon_excel">
-                <a href="{% url 'competitions:competition_results_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
+                <a href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
             </div>
             {% endif %}
 
