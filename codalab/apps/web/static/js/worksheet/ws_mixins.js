@@ -8,6 +8,12 @@ var TableMixin = {
             rowFocusIndex: 0
         };
     },
+    componentWillReceiveProps: function(nextProps){
+        // When new props are passed down or set, we need to update our state
+        // Apparently they're not that tightly bound. This might be a performance
+        // hit in some way, but at least it doesn't involve the DOM.
+        this.setState(nextProps.item.state);
+    },
     handleClick: function(){
         this.props.setFocus(this.props.key);
     },
@@ -62,8 +68,8 @@ var TableMixin = {
                     }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
                         this.moveRow(-1);
                     }else{
-                        index = Math.max(this.state.rowFocusIndex - 1, 0);
-                        if(this.state.rowFocusIndex === 0){
+                        index = Math.max(index - 1, 0);
+                        if(index === 0){
                             this._owner.setFocus(parentFocusIndex - 1);
                         }else {
                             this.setState({rowFocusIndex: index});
@@ -79,7 +85,7 @@ var TableMixin = {
                     }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
                         this.moveRow(1);
                     }else {
-                        index = Math.min(this.state.rowFocusIndex + 1, rowsInTable);
+                        index = Math.min(index + 1, rowsInTable);
                         if(index == rowsInTable){
                             this._owner.setFocus(parentFocusIndex + 1);
                         }else {
@@ -118,9 +124,9 @@ var TableMixin = {
                 case 'i': //insert row before
                     event.preventDefault();
                     if(this.props.canEdit){
-                        if(this.state.rowFocusIndex > 0){
-                            this.insertBetweenRows(this.state.rowFocusIndex);
-                        }else if(this.state.rowFocusIndex === 0){
+                        if(index > 0){
+                            this.insertBetweenRows(index);
+                        }else if(index === 0){
                             this._owner.insertItem('i');
                         }
                     }
@@ -128,9 +134,9 @@ var TableMixin = {
                 case 'a': // cap A instert row After, like vi
                     event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
-                        if(this.state.rowFocusIndex < this.state.interpreted[1].length - 1){
-                            this.insertBetweenRows(this.state.rowFocusIndex + 1);
-                        }else if(this.state.rowFocusIndex == this.state.interpreted[1].length - 1){
+                        if(index < this.state.interpreted[1].length - 1){
+                            this.insertBetweenRows(index + 1);
+                        }else if(index == this.state.interpreted[1].length - 1){
                             this._owner.insertItem('a');
                         }
                     }
