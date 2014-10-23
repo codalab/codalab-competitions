@@ -228,6 +228,7 @@ var WorksheetContent = function() {
         var raw2 = this.state.raw.slice(raw_index);
         // set the raw. the WorksheetItems will take care of themselves
         this.state.raw = raw1.concat(item_array, raw2);
+        this.updateItemsIndex();
 
     };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
