@@ -17,13 +17,8 @@ var keyMap = {
 
 // Dictionary of terms that can be entered into the search bar and the names of
 // functions they call. See search_actions.js
-var fakedata = {
-    red: 'doRed',
-    green: 'doGreen',
-    blue: 'doBlue',
-    orange: 'doOrange',
-    yellow: 'doYellow',
-    save: 'doSave'
+var clActions = {
+    add: 'doAdd',
 };
 
 var Worksheet = React.createClass({
