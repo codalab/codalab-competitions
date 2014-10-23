@@ -257,8 +257,16 @@ var WorksheetItemList = React.createClass({
         // scroll the window to keep the focused element in view
         var offsetTop = 0;
         if(index > -1){
+            var item = this.refs['item' + index];
+            var node = item.getDOMNode();
+            var offset = node.offsetTop;
+            if(this.state.worksheet.items[index].state.mode === 'table' &&
+                keyMap[event.keyCode] == 'k' ||
+                keyMap[event.keyCode] == 'up' ){
+                offset += ($(node).innerHeight() - 30);
+            }
             // find the item's position on the page, and offset it from the top of the viewport
-            offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 200;
+            offsetTop = offset - 200;
         }
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },

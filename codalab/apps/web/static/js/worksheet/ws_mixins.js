@@ -24,7 +24,7 @@ var TableMixin = {
         // scroll the window to keep the focused row in view
         var offsetTop = 0;
         if(index > -1){
-            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 100;
+            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 200;
         }
         $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
@@ -68,8 +68,8 @@ var TableMixin = {
                     }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
                         this.moveRow(-1);
                     }else{
-                        index = Math.max(index - 1, 0);
-                        if(index === 0){
+                        index--;
+                        if(index < 0){
                             this._owner.setFocus(parentFocusIndex - 1);
                         }else {
                             this.setState({rowFocusIndex: index});
