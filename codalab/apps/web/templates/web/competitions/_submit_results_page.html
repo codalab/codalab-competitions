@@ -24,6 +24,7 @@
     <div class="row">
         <div class="panel">
             <p>Click the Submit button to upload a new submission.</p>
+            <textarea id="submission_description_textarea" placeholder="Optionally add more information about this submission"></textarea>
             <button
                     id="fileUploadButton"
                     class="button {% if not phase.reference_data %}disabled{% endif %}"
@@ -68,7 +69,11 @@
                 </tr>
                 {% else %}
                 {% for submission_info in submission_info_list %}
-                <tr id="{{submission_info.id}}" <tr id="{{submission_info.id}}" {% if submission_info.exception_details %}data-exception="{{ submission_info.exception_details|escape }}"{% endif %}>
+                <tr id="{{submission_info.id}}"
+                    {% if submission_info.exception_details %}
+                        data-exception="{{ submission_info.exception_details|escape }}"
+                    {% endif %}
+                    data-description="{{ submission_info.description|default_if_none:""|escape }}">
                     {% if submission_info.is_finished %}
                     <input type="hidden" name="state" value='1' />
                     {% else %}

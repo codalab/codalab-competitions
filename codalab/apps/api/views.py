@@ -527,6 +527,12 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise ParseError(detail='Invalid or missing tracking ID.')
         obj.file.name = blob_name
 
+    def create(self, request, **kwargs):
+        response = super(CompetitionSubmissionViewSet, self).create(request, **kwargs)
+        self.object.description = request.QUERY_PARAMS.get('description', None)
+        self.object.save()
+        return response
+
     def post_save(self, obj, created):
         if created:
             evaluate_submission(obj.pk, obj.phase.is_scoring_only)
