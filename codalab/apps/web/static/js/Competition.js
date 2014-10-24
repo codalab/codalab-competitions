@@ -116,15 +116,17 @@ var Competition;
                         },
                         uploadSuccess: function(file, trackingId) {
                             $('#details').html('Creating new submission...');
+                            var description = $('#submission_description_textarea').val();
+                            $('#submission_description_textarea').val('');
                             $.ajax({
-                                url: '/api/competition/' + competitionId + '/submission',
+                                url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response));
+                                $('#user_results').append(Competition.displayNewSubmission(response, description));
                                 $('#user_results #' + response.id + ' .fi-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
@@ -275,10 +277,15 @@ var Competition;
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
     }
 
-    Competition.displayNewSubmission = function(response) {
+    Competition.displayNewSubmission = function(response, description) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
+
+        if(description) {
+            $(elemTr).attr('data-description', description);
+        }
+
         $(elemTr).children().each(function(index) {
             switch (index) {
                 case 0:
@@ -353,6 +360,9 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+            if($(nTr).attr('data-description')) {
+                elem.find('.submission_description').html("Description: <br><pre>" + $(nTr).attr('data-description') + "</pre>");
+            }
             if($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html("Error: <br><pre>" + $(nTr).attr('data-exception') + "</pre>");
             }
