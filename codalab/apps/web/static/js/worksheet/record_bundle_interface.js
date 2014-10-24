@@ -1,10 +1,14 @@
 /** @jsx React.DOM */
 
 var RecordBundle = React.createClass({
-    mixins: [TableMixin, CheckboxMixin],
+    mixins: [CheckboxMixin],
     getInitialState: function(){
-        this.props.item.state.checked = false;
-        return this.props.item.state;
+        return {
+            checked: false
+        }
+    },
+    handleClick: function(){
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var item = this.props.item.state;
@@ -13,7 +17,7 @@ var RecordBundle = React.createClass({
         var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
-        var focusIndex = this.state.rowFocusIndex;
+        var focusIndex = item.rowFocusIndex;
         var items = item.interpreted[1].map(function(item, index){
             var ref = 'row' + index;
             var focused = index === focusIndex;
