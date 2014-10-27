@@ -1,0 +1,29 @@
+footer {
+    height: @footer-height;
+    background-color: @brand-primary;
+    color:white;
+    font-size:@font-size-small;
+    a {
+        color:white;
+    }
+    > .container {
+        padding-left: @grid-gutter-width / 2;
+        padding-right: @grid-gutter-width / 2;
+    }
+    .navbar-text {
+        margin:0;
+    }
+    .nav > li > a {
+        padding-left:10px;
+        padding-right:10px;
+        line-height:@footer-height;
+        &:hover {
+            background:transparent;
+            color:white;
+            text-decoration: underline;
+        }
+    }
+    .navbar-nav.navbar-right:last-child {
+        margin-right:0;
+    }
+}

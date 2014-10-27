@@ -1,0 +1,19 @@
+.alt-bullet {
+    list-style-type:none;
+    li {
+        position:relative;
+        &:before {
+            content:'\00BB';
+            position:absolute;
+            font-size: 1.25em;
+            left: -.95em;
+            top: -.25em;
+        }
+    }
+}
+.pad-top {
+    padding-top:24px;
+}
+.pad-bottom {
+    padding-bottom:24px;
+}

@@ -1,64 +1,48 @@
 {% extends 'base.html' %}
 {% block head_title %}Home{% endblock %}
 {% block nosubheader %} {% endblock nosubheader %}
-{% block hero_subheader %}
 {% block title %}{% endblock title %}
 
-<!-- First Band (Slider) -->
-<div class="slider">
-    <!-- GitHub Ribbon 
-    <div class="ribbon">
-        <a href="https://github.com/codalab/codalab" target="_blank">Fork CodaLab on GitHub</a>
-    </div>-->
-    <img src="{{STATIC_URL}}img/codalab-logo-white.png" width="50%" height="50%" alt="CodaLab">
-    <h4 style="color: #6B6B6B;">An experimental platform for collaboration and competition.</h4>
-    <br />
-</div>
+{% block hero_subheader %}
+    <div class="jumbotron">
+        <!-- GitHub Ribbon
+        <div class="ribbon">
+            <a href="https://github.com/codalab/codalab" target="_blank">Fork CodaLab on GitHub</a>
+        </div>-->
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2">
+                    <img src="{{STATIC_URL}}img/codalab-logo-white.png" alt="CodaLab" class="img-responsive">
+                    <h4>An experimental platform for collaboration and competition.</h4>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock hero_subheader %}
 
 {% block content %}
-<!-- Call to Action Panel -->
-<div class="row">
-    <div class="small-12 columns">
-        <div class="signupblock"> 
-            <div class="row"></div>
-            <div class="row">
-                <div class="small-12 columns">
-                    <p>
-                    CodaLab is an open-source platform that makes life easier for those conducting
-data- and computation-intensive experiments. Use existing algorithms and datasets or upload your own (any format, any language). All experiments you do are reproducible and sharable with others.
-                    </p>
-                </div>
-<!--                <div class="small-2 columns">-->
-<!--                    {% if not user.is_authenticated %}-->
-<!--                    <a href="{% url 'account_signup' %}" class="button">Sign Up</a>-->
-<!--                    {% endif %}-->
-<!--                </div>-->
-            </div>
-        </div>      
-    </div>
-</div>
+    <p>CodaLab is an open-source platform that makes life easier for those conducting data- and computation-intensive experiments. Use existing algorithms and datasets or upload your own (any format, any language). All experiments you do are reproducible and sharable with others.</p>
+    <!-- {% if not user.is_authenticated %}-->
+    <!-- <a href="{% url 'account_signup' %}" class="button">Sign Up</a>-->
+    <!-- {% endif %}-->
 
-<!-- Three-up Content Blocks -->
-<div class="row homepage_featured">
-    <div class="large-6 columns">
-        <a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets" class="padbottom"></a><br>
-        <p class="padbottom"><b>Worksheets</b> allow you to create publishable executable papers or personal research logs, where text and experiments are seamlessly integrated.</p>
-        
-    </div>
-    <div class="large-6 columns">
-        <a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions" class="padbottom"></a><br>
-        <p class="padbottom"><b>Competitions</b> unite great minds to solve problems in machine learning, medical imaging, and more. Get started with competitions right now:</p>
-        <ul>
-            <li class="indent"><a href="/competitions"><img src="{{STATIC_URL}}img/bullet.png" /> Participate in a competition</a></li>
-            <li class="indent"><a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"><img src="{{STATIC_URL}}img/bullet.png" /> Host a competition</a></li>
-        </ul>
-    </div>    
-</div>
+    <div class="row">
+        <div class="col-sm-6">
+            <p><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"></a></p>
+            <p><strong>Worksheets</strong> allow you to create publishable executable papers or personal research logs, where text and experiments are seamlessly integrated.</p>
 
-<div class="row" style="text-align: center">
-    <p><a href="https://github.com/codalab/codalab/wiki/Dev_How-to-Contribute">Contribute your skills</a> to help develop the CodaLab platform!</p>
-</div>
+        </div>
+        <div class="col-sm-6">
+            <p><a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"></a></p>
+            <p><strong>Competitions</strong> unite great minds to solve problems in machine learning, medical imaging, and more. Get started with competitions right now:</p>
+            <ul class="alt-bullet">
+                <li><a href="/competitions"><strong>Participate in a competition</strong></a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"><strong>Host a competition</strong></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <p class="text-center pad-top pad-bottom"><a href="https://github.com/codalab/codalab/wiki/Dev_How-to-Contribute"><strong>Contribute your skills</strong></a> to help develop the CodaLab platform!</p>
 
 {% endblock content %}
 
