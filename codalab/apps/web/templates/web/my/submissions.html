@@ -28,7 +28,7 @@
 
             {% if submission_info_list|length > 0 %}
             <div class="small-12 columns icon_excel">
-                <a href="{% url 'competitions:competition_results_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
+                <a href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
             </div>
             {% endif %}
 
@@ -66,7 +66,11 @@
             </thead>
             <tbody>
                 {% for submission in submission_info_list %}
-                <tr id="{{submission.id}}">
+                <tr id="{{submission.id}}"
+                    {% if submission.exception_details %}
+                        data-exception="{{ submission.exception_details|escape }}"
+                    {% endif %}
+                    data-description="{{ submission.description|default_if_none:""|escape }}">
                     {% for column in columns %}
                     {% if column.name == 'filename' %}
                         <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>

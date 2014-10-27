@@ -5,6 +5,8 @@ codalab/static/**/**
 codalab/media/**/**
 codalab/clip
 **/**/.codalabconfig
+codalab/scores.txt
+codalab/codalab/scores.txt
 
 # Bundles prototype #
 #####################
