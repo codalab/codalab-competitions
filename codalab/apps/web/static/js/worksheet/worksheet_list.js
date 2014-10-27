@@ -166,10 +166,12 @@ var WorksheetList = React.createClass({
         }
         return (
             <div id="worksheet-list">
-                <label className="my-worksheets-toggle">
-                    <input type="checkbox" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
-                    Show my worksheets only
-                </label>
+                <div className="checkbox">
+                    <label className="my-worksheets-toggle">
+                        <input type="checkbox" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
+                        Show my worksheets only
+                    </label>
+                </div>
                 {worksheetList}
             </div>
         );
@@ -211,10 +213,10 @@ var WorksheetSearch = React.createClass({
     //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
         return (
-            <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
+            <input id="search" className="ws-search form-control" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
         )
     }
 });
 
-React.renderComponent(<Worksheets />, document.getElementById('container'));
+React.renderComponent(<Worksheets />, document.getElementById('ws_list_container'));
 
