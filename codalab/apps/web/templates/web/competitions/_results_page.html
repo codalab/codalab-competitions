@@ -1,6 +1,15 @@
 {% load codalab_tags %}
 
 {% if phase == None %}
+{% elif error %}
+    <div class="columns">
+        <b>There is a problem with the leaderboard</b>
+        <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
+
+        <br><br>
+
+        <pre>{{ error }}</pre>
+    </div>
 {% elif phase.is_future %}
     <div class="columns">
         <p>This phase of the competition has not started yet. Please check back later.</p>

@@ -371,6 +371,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_finished': submission.status.codename == 'finished',
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
+                        'description': submission.description,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -382,13 +383,17 @@ class CompetitionResultsPage(TemplateView):
     template_name = 'web/competitions/_results_page.html'
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage, self).get_context_data(**kwargs)
-        competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        phase = competition.phases.get(pk=self.kwargs['phase'])
-        is_owner = self.request.user.id == competition.creator_id
-        context['is_owner'] = is_owner
-        context['phase'] = phase
-        context['groups'] = phase.scores()
-        return context
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['id'])
+            phase = competition.phases.get(pk=self.kwargs['phase'])
+            is_owner = self.request.user.id == competition.creator_id
+            context['is_owner'] = is_owner
+            context['phase'] = phase
+            context['groups'] = phase.scores()
+            return context
+        except:
+            context['error'] = traceback.format_exc()
+            return context
 
 class CompetitionCheckMigrations(View):
     def get(self, request, *args, **kwargs):
@@ -398,6 +403,7 @@ class CompetitionCheckMigrations(View):
             c.check_trailing_phase_submissions()
 
         return HttpResponse()
+
 
 class CompetitionResultsDownload(View):
 
@@ -445,6 +451,71 @@ class CompetitionResultsDownload(View):
 
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
+
+        return response
+
+
+class CompetitionCompleteResultsDownload(View):
+
+    def get(self, request, *args, **kwargs):
+        competition = models.Competition.objects.get(pk=self.kwargs['id'])
+        phase = competition.phases.get(pk=self.kwargs['phase'])
+        if phase.is_blind:
+            return HttpResponse(status=403)
+        groups = phase.scores(include_scores_not_on_leaderboard=True)
+        leader_board = models.PhaseLeaderBoard.objects.get(phase=phase)
+
+        csvfile = StringIO.StringIO()
+        csvwriter = csv.writer(csvfile)
+
+        for group in groups:
+            csvwriter.writerow([group['label']])
+            csvwriter.writerow([])
+
+            headers = ["User"]
+            sub_headers = [""]
+            for header in group['headers']:
+                subs = header['subs']
+                if subs:
+                    for sub in subs:
+                        headers.append(header['label'])
+                        sub_headers.append(sub['label'])
+                else:
+                    headers.append(header['label'])
+            headers.append('Description')
+            headers.append('Date')
+            headers.append('Filename')
+            headers.append('Is on leaderboard?')
+            csvwriter.writerow(headers)
+            csvwriter.writerow(sub_headers)
+
+            if len(group['scores']) <= 0:
+                csvwriter.writerow(["No data available"])
+            else:
+                leader_board_entries = models.PhaseLeaderBoardEntry.objects.filter(board=leader_board).values_list('result__id', flat=True)
+
+                for pk, scores in group['scores']:
+                    submission = models.CompetitionSubmission.objects.get(pk=scores['id'])
+                    row = [scores['username']]
+                    for v in scores['values']:
+                        if 'rnk' in v:
+                            row.append("%s (%s)" % (v['val'], v['rnk']))
+                        else:
+                            row.append("%s (%s)" % (v['val'], v['hidden_rnk']))
+
+                    row.append(submission.description)
+                    row.append(submission.submitted_at)
+                    row.append(submission.get_filename())
+
+                    is_on_leaderboard = submission.pk in leader_board_entries
+                    row.append(is_on_leaderboard)
+                    csvwriter.writerow(row)
+
+            csvwriter.writerow([])
+            csvwriter.writerow([])
+
+        response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=competition_results.csv"
 
         return response
 
@@ -674,7 +745,9 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'filename': submission.get_filename(),
                     'submitted_at': submission.submitted_at,
                     'status_name': submission.status.name,
-                    'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard
+                    'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
+                    'exception_details': submission.exception_details,
+                    'description': submission.description,
                 }
                 # add score groups into data columns
                 if (submission_info['is_in_leaderboard'] == True):
