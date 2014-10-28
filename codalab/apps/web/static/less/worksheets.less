@@ -1,25 +1,30 @@
 #worksheet-message {
    margin:20px 0;
    .ws-detail {
-      margin-top:2em;
+      margin-top:32px;
    }
 }
 #worksheet_content {
-   line-height:1.2em;
+   line-height:1.2;
    min-height:480px;
    hr {
-      margin:.75em 0;
+      margin:12px 0;
    }
    p {
-      margin-bottom:.75em;
+      margin-bottom:12px;
    }
    .glossary-link,
    .controls label {
       font-weight:normal;
-      font-size:.75em;
-   }
-   .edit-features label {
+      font-size:@font-size-small;
       display:inline;
+      &:hover {
+         text-decoration: none;
+      }
+      code {
+         background-color:transparent;
+         padding:0;
+      }
    }
    .empty-worksheet {
       color:#a4a4a4;
@@ -27,17 +32,16 @@
       display:none;
    }
    h1, h3 {
-      margin:0 0 .75em 0;
-      font-weight:200;
+      margin:0 0 12px 0;
    }
    h1 {
-      font-size:2.25em;
+      font-size:36px;
    }
    h2 {
-      font-size:1.75em;
+      font-size:28px;
    }
    h3 {
-      font-size:1.25em;
+      font-size:20px;
    }
    .worksheet-name {
       min-height:65px;
@@ -47,7 +51,7 @@
       h1 {
          text-indent:65px;
          margin:0;
-         font-size:2.75em
+         font-size:44px;
       }
       .worksheet-author {
          text-indent:65px;
@@ -56,14 +60,14 @@
       }
    }
    .header-row {
-      margin-bottom:1.875em;
       hr {
-         margin: 1em 0.9375em;
+         margin-bottom:30px;
       }
       .controls {
          text-align:right;
-         padding-top:.75em;
+         padding-top:12px;
          input, label {
+            font-weight:normal;
             margin:0;
          }
       }
@@ -73,45 +77,40 @@
       .ws-checkbox {
          margin:0;
          position:absolute;
-         left:-1.5em;
-         top:0.25em;
+         left:-24px;
+         top:4px;
          font-size:16px;
-      }
-      textarea {
-         background:white;
-         color:@gray-dark;
-         box-shadow:none;
-         font-family:monospace;
-         font-size:14px;
-         outline:none;
-         height:auto;
-         padding:0.5em;
-         width:100%;
-         &.raw-textarea {
-            min-height:480px;
-         }
       }
       > .focused {
          background-color:@focused-bg;
          box-shadow:0 0 3px @brand-primary;
       }
-      table.focused  {
-         background:@focused-bg;
-         tr.focused {
-           background:#DFEDF7;
-         }
-      }
    }
    &.editable .ws-item {
-      margin-left:1.5em;
+      margin-left:24px;
+   }
+   textarea {
+      background:white;
+      color:@gray-dark;
+      box-shadow:none;
+      font-family:monospace;
+      font-size:14px;
+      outline:none;
+      height:auto;
+      padding:8px;
+      width:100%;
+      line-height:1.2em;
+      color:@gray-darker;
+      &.raw-textarea {
+         min-height:480px;
+      }
    }
 
    // Bundle Types
    .type-markup {
-      padding-top:1px;
-      margin-top:-1px;
+      .clearfix;
       ul, ol {
-         margin: 0 0 1em 0;
+         margin: 0 0 16px 0;
          padding-left:40px;
       }
       ul {
@@ -125,7 +124,7 @@
    .type-inline,
    .type-worksheet,
    .type-image {
-      min-height:1.5em;
+      min-height:24px;
       margin-bottom:20px;
    }
    .type-image img {
@@ -134,13 +133,13 @@
    }
    .type-contents {
       blockquote {
-         padding: 1em 0 1em 1.5em;
+         padding: 16px 0 16px 24px;
          border-left:4px solid @gray-lighter;
          p {
             color:@gray-dark;
             margin:0;
             font-size:14px;
-            line-height:1.5em;
+            line-height:1.5;
          }
       }
       &:not(.focused) blockquote{
@@ -149,8 +148,8 @@
    }
    .type-html {
       .html-bundle {
-         padding: 1em;
-         margin-bottom:1.5em;
+         padding:16px;
+         margin-bottom:24px;
          border:1px solid @gray-lighter;
          background-color:#fff;
          &.focused .html-bundle {
@@ -159,56 +158,66 @@
       }
    }
    .type-worksheet {
-      height:2.5em;
-      line-height:2.5em;
-      padding:0 .5em 0 2.5em;
-      background: url('../img/icon_worksheet.png') no-repeat .25em #fcfcfc;
-      background-size:2em;
+      height:40px;
+      line-height:40px;
+      padding:0 8px 0 40px;
+      background: url('../img/icon_worksheet.png') no-repeat 4px #fcfcfc;
+      background-size:32px;
    }
-   .type-table, .table-wrapper {
-      width: 100%;
-      margin-bottom: 1.75em;
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      -ms-overflow-style: -ms-autohiding-scrollbar;
-      border: 1px solid @gray-light;
-   }
-
-   // Table Styles
-   table.table {
-      border-collapse: separate;
-      border-spacing: 2px;
-      tr {
-         th, td {
+   .type-table, .type-record {
+      margin-bottom: 28px;
+      table {
+         .table;
+         .table-bordered;
+         .table-striped;
+         .table-responsive;
+         border-width:2px;
+         margin-bottom:0;
+         > thead,
+         > tbody,
+         > tfoot {
+            > tr {
+               > th,
+               > td {
+                  line-height:1.2;
+                  font-size:@font-size-med;
+                  border-width:2px;
+                  a.bundle-link {
+                     font-weight:bold;
+                  }
+               }
+            }
+         }
+         > thead > tr > th {
+            font-weight:bold;
             color:@gray-dark;
-            &.checkbox input {
-               margin:0;
+         }
+         &.focused {
+            border-color:@focused-bg;
+            box-shadow:0 0 3px @brand-primary;
+            > thead,
+            > tbody,
+            > tfoot {
+               > tr {
+                  > th,
+                  > td {
+                    border-color:@focused-bg;
+                  }
+                  &.focused {
+                     > td {
+                        background-color:@focused-bg-alt;
+                     }
+                  }
+               }
             }
          }
       }
-      th {
-        font-weight:bold;
-      }
    }
-   table.table-responsive {
-      width:100%;
-      max-width:100%;
-      border:none;
-      > thead, > tbody, > tfoot {
-         > tr > th, > tr > td {
-            white-space: nowrap;
-         }
+   .type-record {
+      table.table {
+         width:auto;
+         max-width:100%;
       }
-   }
-}
-
-// Search Bar
-.ws-search {
-   margin:20px 0;
-   height:auto;
-   &:focus {
-      background:white;
    }
 }
 
@@ -218,27 +227,27 @@
 }
 .select2-container-multi .select2-choices {
    background-image:none;
-}
-.select2-container-multi.select2-container-active .select2-choices {
-   border-color:#aaa;
+   border-color:@input-border;
    box-shadow:none;
    z-index:2;
    .select2-search-choice {
-      -webkit-box-shadow: none;
-      box-shadow: none;
+      .box-shadow(none);
       background-color:fade(@brand-primary, 25%);
       background-image: none;
       border:none;
       border-radius:0;
-      padding:5px 5px 5px 18px;
+      padding:4px 4px 4px 16px;
+   }
+   .select2-search-field input {
+      font-family:@font-family-base;
    }
 }
 .select2-drop,
 .select2-drop-active {
+   .box-shadow(0 2px 4px fadeout(black, 85%));
    background-color:fadeout(white, 10%);
-   .box-shadow(0 2px 5px fadeout(black, 85%));
    border-radius:0;
-   border-color:#aaa;
+   border-color:@input-border;
 }
 .select2-results {
    font-size:14px;
@@ -248,9 +257,7 @@
 }
 
 // Progress Messages
-#save_progress,
-#save_error,
-#update_progress {
+.progress-message {
    display:none;
    position:fixed;
    bottom:40px;
@@ -260,14 +267,16 @@
    line-height:40px;
    background-color:fade(white, 75%);
    text-align:center;
-}
-#update_progress {
-   top:63px;
-}
-#save_error i {
-   font-size:24px;
-   color:red;
-   vertical-align:-3px;
+   z-index:1020;
+   &#update_progress {
+      top:63px;
+   }
+   &#save_error i {
+      font-size:18px;
+      color:red;
+      vertical-align:-3px;
+      margin-right:2px;
+   }
 }
 
 // Worksheet List
@@ -318,28 +327,30 @@
    &.editing {
       tr td,
       tr th {
-         padding:.25em;
+         padding:4px;
       }
    }
 }
 #bundle-content .bundle-tile h4 .button {
-   font-size: .5em;
+   font-size: 8px;
    margin-bottom: 0;
-   line-height: 1.4em;
-   padding: .25em .5em;
+   line-height: 1.4;
+   padding: 4px 8px;
    vertical-align: middle;
-   margin-left: 1em;
+   margin-left: 16px;
 }
 
 // Keyboard Shortcut Glossary
 #glossaryModal {
-   margin-top:-@navbar-height;
+   .modal-header h4 {
+      margin:0;
+   }
    dl {
       margin-bottom:0;
    }
    dt {
       float:left;
-      margin-right:1em;
+      margin-right:16px;
       font-weight:normal;
       code {
          padding:4px;
@@ -347,4 +358,5 @@
       }
    }
 }
+
 

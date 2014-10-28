@@ -61,7 +61,7 @@ var Worksheet = React.createClass({
         if(key === 'fslash' && event.shiftKey){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
-            $('#glossaryModal').foundation('reveal', 'open');
+            $('#glossaryModal').modal('show');
             return false;
         }else if(key === 'e' && (event.metaKey || event.ctrlKey)){
             this.toggleEditing();
@@ -145,7 +145,7 @@ var WorksheetItemList = React.createClass({
     fetch_and_update: function(){
         ws_obj.fetch({
             success: function(data){
-                $("#worksheet-message").hide().removeClass('alert-box alert');
+                $("#worksheet-message").hide().removeClass('alert-danger alert');
                 if(this.isMounted()){
                     this.setState({worksheet: ws_obj.getState()});
                 }
@@ -154,9 +154,9 @@ var WorksheetItemList = React.createClass({
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert');
                 } else {
-                    $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-danger alert');
                 }
                 $('#worksheet_container').hide();
             }.bind(this)
@@ -406,17 +406,17 @@ var WorksheetItemList = React.createClass({
             success: function(data){
                 this.fetch_and_update();
                 if('error' in data){ // TEMP REMOVE FDC
-                     $("#worksheet-message").html(data['error']).addClass('alert-box alert');
+                     $("#worksheet-message").html(data['error']).addClass('alert-danger alert');
                 }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err);
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert').show();
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert').show();
                 } else if (xhr.status == 401){
-                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-box alert').show();
+                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
                 } else {
-                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-box alert').show();
+                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-danger alert').show();
                 }
             }
         });
@@ -463,24 +463,26 @@ var WorksheetItemList = React.createClass({
         var worksheet_items_display;
         if(this.state.rawMode){
             // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-            worksheet_items_display = <textarea id="raw-textarea" defaultValue={getRaw.content} rows={getRaw.lines}  ref="textarea" />;
+            worksheet_items_display = <textarea id="raw-textarea" className="form-control" defaultValue={getRaw.content} rows={getRaw.lines} ref="textarea" />;
         }else {
             worksheet_items_display = worksheet_items;
         }
         return (
             <div id="worksheet_content" className={className}>
-                <div className="row header-row">
-                    <div className="large-6 columns">
-                        <div className="worksheet-name">
-                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                            <div className="worksheet-author">{ws_obj.state.owner}</div>
+                <div className="header-row">
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <div className="worksheet-name">
+                                <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                                <div className="worksheet-author">{ws_obj.state.owner}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="large-6 columns controls">
-                        <div>
-                            <a href="#" className="glossary-link" data-reveal-id="glossaryModal"><code>?</code> Keyboard Shortcuts</a>
+                        <div className="col-sm-6">
+                            <div className="controls">
+                                <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                {editFeatures}
+                            </div>
                         </div>
-                        {editFeatures}
                     </div>
                     <hr />
                 </div>

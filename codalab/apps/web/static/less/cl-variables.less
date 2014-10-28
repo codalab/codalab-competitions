@@ -20,8 +20,8 @@
 @brand-warning:         #f0ad4e;
 @brand-danger:          #d9534f;
 
-@focused:               #ffe800;
-@focused-bg:            desaturate(@focused, 95%);
+@focused-bg:            #fffef4;
+@focused-bg-alt:        #dfedf7;
 
 @body-bg:               @white-dark;
 
@@ -34,6 +34,7 @@
 @font-size-base:          16px;
 @font-size-large:         ceil((@font-size-base * 1.25)); // ~18px
 @font-size-small:         ceil((@font-size-base * 0.8)); // ~12px
+@font-size-med:           ceil((@font-size-base * 0.85)); // ~13px
 
 @font-size-h1:            floor((@font-size-base * 2.6)); // ~36px
 @font-size-h2:            floor((@font-size-base * 2.15)); // ~30px
@@ -48,8 +49,8 @@
 @line-height-computed:    floor((@font-size-base * @line-height-base)); // ~20px
 
 //** By default, this inherits from the `<body>`.
-@headings-font-family:    inherit;
-@headings-font-weight:    100;
+@headings-font-family:    'Segoe UI';
+@headings-font-weight:    200;
 @headings-line-height:    1.2;
 @headings-color:          inherit;
 
@@ -92,20 +93,17 @@
 //## Customizes the `.table` component with basic values, each used across all table variations.
 
 //** Padding for `<th>`s and `<td>`s.
-@table-cell-padding:            8px;
+@table-cell-padding:            4px;
 //** Padding for cells in `.table-condensed`.
-@table-condensed-cell-padding:  5px;
+@table-condensed-cell-padding:  2px;
 
 //** Default background color used for all tables.
-@table-bg:                      transparent;
+@table-bg:                      @white-dark;
 //** Background color used for `.table-striped`.
-@table-bg-accent:               #f9f9f9;
-//** Background color used for `.table-hover`.
-@table-bg-hover:                #f5f5f5;
-@table-bg-active:               @table-bg-hover;
+@table-bg-accent:               white;
 
 //** Border color for table and cell borders.
-@table-border-color:            #ddd;
+@table-border-color:            white;
 
 
 //== Buttons
@@ -157,7 +155,7 @@
 //** `<input>` border radius
 @input-border-radius:            @border-radius-base;
 //** Border color for inputs on focus
-@input-border-focus:             #66afe9;
+@input-border-focus:             saturate(@brand-primary, 10%);
 
 //** Placeholder text color
 @input-color-placeholder:        @gray-light;
@@ -551,7 +549,7 @@
 //
 //## Define alert colors, border radius, and padding.
 
-@alert-padding:               15px;
+@alert-padding:               10px;
 @alert-border-radius:         @border-radius-base;
 @alert-link-font-weight:      bold;
 

@@ -48,19 +48,19 @@ var Bundle = React.createClass({
                 console.log('success')
                 console.log(data)
                 if('error' in data){
-                    $("#bundle-message").html(data['error']).addClass('alert-box alert');
+                    $("#bundle-message").html(data['error']).addClass('alert-danger alert');
                     $("#bundle-message").show()
                 }else{
                     this.setState(data);
                     this.setState({
                          editing:false,
                     });
-                    $("#bundle-message").hide().removeClass('alert-box alert');
+                    $("#bundle-message").hide().removeClass('alert-danger alert');
                 }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
-                $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
                 $("#bundle-message").show()
             }.bind(this)
         });
@@ -76,14 +76,14 @@ var Bundle = React.createClass({
                 if(this.isMounted()){
                     this.setState(data);
                 }
-                $("#bundle-message").hide().removeClass('alert-box alert');
+                $("#bundle-message").hide().removeClass('alert-danger alert');
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
                 if (xhr.status == 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-box alert');
+                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
                 } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
                 }
                 $('#bundle-content').hide();
             }.bind(this)
@@ -135,9 +135,9 @@ var Bundle = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 if (xhr.status != 404) {
-                    $("#bundle-message").html("Bundle was not found.").addClass('alert-box alert');
+                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
                 } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
                 }
                 $('.bundle-file-view-container').hide();
             }.bind(this)
