@@ -784,11 +784,12 @@ class BundleInfoApi(views.APIView):
         logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService(self.request.user)
         try:
-            item = service.item(uuid)
-            item['edit_permission'] = False
-            if item['owner_id'] == str(self.request.user.id):
-                item['edit_permission'] = True
-            return Response(item, content_type="application/json")
+            bundle_info = service.get_bundle_info(uuid)
+            print bundle_info
+            bundle_info['edit_permission'] = False
+            if bundle_info['owner_id'] == str(self.request.user.id):
+                bundle_info['edit_permission'] = True
+            return Response(bundle_info, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
@@ -805,16 +806,17 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
 
         try:
-            item = service.item(uuid)
-            if item['owner_id'] == str(self.request.user.id):
+            bundle_info = service.get_bundle_info(uuid)
+            if bundle_info['owner_id'] == str(self.request.user.id):
                 data = json.loads(request.body)
                 new_metadata = data['metadata']
-                #clean up
+                #clean up stuff
                 if new_metadata.get('data_size', None):
                     new_metadata.pop('data_size')
-
                 if new_metadata.get('created', None):
                     new_metadata.pop('created')
+                if new_metadata.get('time', None):
+                    new_metadata.pop('time')
 
                 if new_metadata.get('tags', None):
                     tags = new_metadata['tags']
@@ -823,7 +825,7 @@ class BundleInfoApi(views.APIView):
                 else:
                     new_metadata['tags'] = []
 
-                if new_metadata.get('language', None):
+                if new_metadata.get('language', None) or new_metadata.get('language') ==  u'':
                     language = new_metadata['language']
                     language = language.split(',')
                     new_metadata['language'] = language
@@ -834,9 +836,10 @@ class BundleInfoApi(views.APIView):
                     new_metadata['architectures'] = architectures
 
                 # update and return
+                print new_metadata
                 service.update_bundle_metadata(uuid, new_metadata)
-                item = service.item(uuid)
-            return Response(item, content_type="application/json")
+                bundle_info = service.get_bundle_info(uuid)
+            return Response(bundle_info, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
