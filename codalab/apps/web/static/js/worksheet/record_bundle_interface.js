@@ -35,12 +35,14 @@ var RecordBundle = React.createClass({
         });
         return (
             <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
-                <table className={className}>
-                    <tbody>
-                        {items}
-                    </tbody>
-                </table>
+                <div className="type-record">
+                    {checkbox}
+                    <table className={className}>
+                        <tbody>
+                            {items}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
     } // end of render function
