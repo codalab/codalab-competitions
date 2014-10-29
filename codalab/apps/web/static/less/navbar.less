@@ -11,9 +11,13 @@
     }
     .navbar-nav {
         > li {
+            border-top: 4px solid transparent;
+            &.active {
+                border-color:@blue;
+            }
             > a {
-                line-height:@navbar-height;
-                &:active {
+                line-height:@navbar-height - 4; // account for top border on parent
+                &:active, &:focus {
                     outline:none;
                 }
             }
@@ -28,4 +32,16 @@
 }
 .dropdown-menu .divider {
     margin:5px 0 4px;
+}
+
+@media (max-width: @grid-float-breakpoint) {
+    .navbar.navbar-default.navbar-fixed-top {
+        .navbar-nav > li > a {
+            line-height: inherit;
+            padding-bottom:5px;
+        }
+        .mini-avatar {
+            .hide;
+        }
+    }
 }
