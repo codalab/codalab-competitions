@@ -5,7 +5,7 @@
 //== Colors
 @gray-darker:            #333;
 @gray-dark:              #666;
-@gray:                   #777;
+@gray:                   #999;
 @gray-light:             #ccc;
 @gray-lighter:           #ddd;
 @white-dark:             #f7f7f7;
@@ -71,8 +71,8 @@
 @line-height-small:         1.4;
 
 @border-radius-base:        0;
-@border-radius-large:       6px;
-@border-radius-small:       3px;
+@border-radius-large:       4px;
+@border-radius-small:       0;
 
 //== Tables
 //
@@ -89,7 +89,7 @@
 @table-bg-accent:               white;
 
 //** Border color for table and cell borders.
-@table-border-color:            white;
+@table-border-color:            @gray-lighter;
 
 
 //== Buttons
@@ -99,7 +99,7 @@
 @btn-font-weight:                normal;
 
 @btn-default-color:              #333;
-@btn-default-bg:                 #fff;
+@btn-default-bg:                 @white-dark;
 @btn-default-border:             #ccc;
 
 @btn-primary-color:              #fff;
@@ -700,7 +700,7 @@
 //** Horizontal offset for forms and lists.
 @component-offset-horizontal: 180px;
 //** Text muted color
-@text-muted:                  @gray-light;
+@text-muted:                  @gray;
 //** Abbreviations and acronyms border color
 @abbr-border-color:           @gray-light;
 //** Headings small color

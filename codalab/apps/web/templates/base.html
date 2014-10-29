@@ -81,7 +81,7 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                         {% if PREVIEW_WORKSHEETS %}
-                            <li class="{% active request '/worksheets/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
+                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
                         {% endif %}
                         <li class="{% active request '/competitions/' %}"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
                         {% if user.is_authenticated %}
