@@ -60,3 +60,10 @@ def get_sas(value):
                             duration=60)
     print url
     return url
+
+@register.simple_tag
+def active(request, pattern):
+    import re
+    if re.search(pattern, request.path):
+        return 'active'
+    return ''
