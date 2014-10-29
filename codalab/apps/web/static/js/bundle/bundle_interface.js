@@ -152,7 +152,7 @@ var Bundle = React.createClass({
         var tableClassName = 'table' + (editing ? ' editing' : '');
         var editButtonText = editing ? 'cancel' : 'edit';
         if(editing){
-            saveButton = <button className="button primary" onClick={this.saveMetadata}>save</button>
+            saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
         }
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
@@ -166,55 +166,51 @@ var Bundle = React.createClass({
             );
 
         var edit = ''
-        if(this.state.edit_permission){
+        if(!this.state.edit_permission){
             edit = (
-                <button className="button secondary" onClick={this.toggleEditing}>
-                        {editButtonText}
+                <button className="btn btn-secondary btn-sm" onClick={this.toggleEditing}>
+                    {editButtonText}
                 </button>
             )
         }
         return (
-            <div className="row">
-                <div className="large-12 columns">
-                    <div className="bundle-tile">
-                        <div className="bundle-header">
-                            <div className="large-6 columns">
-                                <h4 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
-                                    <a href="" className="bundle-link">{this.state.metadata.name}</a>
-                                </h4>
-                            </div>
-                            <div className="large-6 columns">
-                                <a href={bundle_download_url} className="bundle-download" alt="Download Bundle">
-                                    <button className="small button secondary">
-                                        Download <i className="fi-arrow-down"></i>
-                                    </button>
-                                </a>
-                                <div className="bundle-uuid">{this.state.uuid}</div>
-                            </div>
+            <div className="bundle-tile">
+                <div className="bundle-header">
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <h2 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
+                                {this.state.metadata.name}
+                            </h2>
                         </div>
-                        <p>
-                            {this.state.metadata.description}
-                        </p>
-                        <h4>
-                            metadata
-                            {edit}
-                            {saveButton}
-                        </h4>
-                        <div className="row">
-                            <div className="large-6 columns">
-                                <table id="metadata_table" className={tableClassName}>
-                                    <tbody>
-                                        {bundleAttrs}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div className="bundle-file-view-container">
-                            {this.state.fileBrowserData.contents ? fileBrowser : null}
+                        <div className="col-sm-6">
+                            <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+                                Download <span className="glyphicon glyphicon-download-alt"></span>
+                            </a>
+                            <div className="bundle-uuid">{this.state.uuid}</div>
                         </div>
                     </div>
-
-
+                </div>
+                <p>
+                    {this.state.metadata.description}
+                </p>
+                <h3>
+                    Metadata
+                    {edit}
+                    {saveButton}
+                </h3>
+                <div className="row">
+                    <div className="col-sm-6">
+                        <div className="metadata-table">
+                            <table className={tableClassName}>
+                                <tbody>
+                                    {bundleAttrs}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div className="bundle-file-view-container">
+                    {this.state.fileBrowserData.contents ? fileBrowser : null}
                 </div>
             </div>
         );
@@ -242,7 +238,7 @@ var BundleAttr = React.createClass({
                         {this.props.key}
                     </th>
                     <td>
-                        <input name={this.props.key} type="text" defaultValue={defaultVal} />
+                        <input className="form-control" name={this.props.key} type="text" defaultValue={defaultVal} />
                     </td>
                 </tr>
             )
@@ -281,9 +277,6 @@ var FileBrowser = React.createClass({
 
             file_browser = (
                 <table className="file-browser-table">
-                    <thead>
-                        <th>File name</th>
-                    </thead>
                     <tbody>
                         {items}
                     </tbody>
@@ -294,13 +287,15 @@ var FileBrowser = React.createClass({
         }
 
         var bread_crumbs = (<FileBrowserBreadCrumbs updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
-
         return (
             <div>
-                <hr></hr>
-                <h4>file browser</h4>
-                {bread_crumbs}
-                {file_browser}
+                <h3>File Browser</h3>
+                <div className="panel panel-default">
+                    {bread_crumbs.props.currentWorkingDirectory.length ? bread_crumbs : null}
+                    <div className="panel-body">
+                        {file_browser}
+                    </div>
+                </div>
             </div>
             );
     }
@@ -323,15 +318,12 @@ var FileBrowserBreadCrumbs = React.createClass({
             } else {
                 currentDirectory += "/" + splitDirs[i];
             }
-            links.push(<a key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}>{splitDirs[i]}</a>);
-            if(i+1<splitDirs.length) {
-                links.push(" / ");
-            }
+            links.push(<a key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</a>);
         }
 
         return (
-            <div className="file-browser-bread-crumbs">{links}&nbsp;</div>
-            );
+            <div className="panel-heading">{links} </div>
+        );
     }
 });
 
@@ -341,10 +333,11 @@ var FileBrowserItem = React.createClass({
     },
     render: function() {
         // Type can be 'file' or 'folder'
-        var icon = "icon_folder";
+        var icon = "glyphicon-folder-close";
         if(this.props.type == "file") {
-            icon = "icon_document"
+            icon = "glyphicon-file"
         }
+        icon += " glyphicon"
 
         var file_location = '';
         if(this.props.currentWorkingDirectory) {
@@ -359,7 +352,7 @@ var FileBrowserItem = React.createClass({
             <tr>
                 <td>
                     <div onClick={this.props.type != 'file' ? this.browseToFolder : null}>
-                        <img src={"/static/img/" + icon + ".png"} alt="More" />&nbsp;
+                        <span className={icon} alt="More"></span>
                         <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.key}</a>
                     </div>
                 </td>

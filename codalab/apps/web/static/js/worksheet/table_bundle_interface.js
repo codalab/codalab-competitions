@@ -188,7 +188,7 @@ var TableBundle = React.createClass({
         var canEdit = this.props.canEdit;
         var checkboxEnabled =  focused ? true : this.props.checkboxEnabled;
         var checkbox = canEdit ? <th width="20"><input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!checkboxEnabled}/></th> : null;
-        var className = (focused ? 'focused ' : '');
+        var className = 'table ' + (focused ? 'focused ' : '');
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];
         var header_html = header_items.map(function(item, index) {

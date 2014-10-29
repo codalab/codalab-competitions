@@ -171,8 +171,8 @@
          .table;
          .table-bordered;
          .table-striped;
-         .table-responsive;
          border-width:2px;
+         border-color:white;
          margin-bottom:0;
          > thead,
          > tbody,
@@ -183,6 +183,7 @@
                   line-height:1.2;
                   font-size:@font-size-med;
                   border-width:2px;
+                  border-color:white;
                   a.bundle-link {
                      font-weight:bold;
                   }
@@ -319,27 +320,90 @@
 }
 
 // Bundle Detail
-#metadata_table {
-   width:100%;
-   input {
-      margin-bottom:0;
-      width:100%;
-   }
-   &.editing {
-      tr td,
-      tr th {
-         padding:4px;
+#bundle-content {
+   padding-top:15px;
+   .bundle-tile {
+      .cl-tile;
+      .bundle-header {
+         border-bottom:1px solid @gray-light;
+         padding-bottom:12px;
+         margin-bottom:24px;
+         line-height:@font-size-h3;
+         h2 {
+            margin:0;
+            background-position:0 15px;
+         }
+         .bundle-download,
+         .bundle-uuid {
+            float:right;
+            margin:10px 0 0 12px
+         }
+         .bundle-uuid {
+            .small;
+            .text-muted
+         }
+      }
+      h3 {
+         margin-top:20px;
+         .btn {
+            margin-left:6px;
+         }
+      }
+      .metadata-table {
+         margin-bottom:24px;
+         table {
+            .table;
+            .table-bordered;
+            .table-striped;
+            margin-bottom:0;
+            input.form-control {
+               margin-bottom:0;
+               padding:4px 8px;
+               height:auto;
+            }
+            &.editing {
+               tr td,
+               tr th {
+               }
+            }
+         }
+      }
+      .bundle-file-view-container {
+         border-top:1px solid @gray-light;
+         margin-bottom:24px;
+         .breadcrumb {
+            margin-bottom:12px;
+         }
+         .file-browser-table {
+            .table;
+            .table-striped;
+            margin-bottom:0;
+            > thead,
+            > tbody,
+            > tfoot {
+               > tr {
+                  > th,
+                  > td {
+                     line-height:1.2;
+                     font-size:@font-size-med;
+                     border-width:0;
+                     a, span {
+                        font-weight:bold;
+                        cursor:pointer;
+                     }
+                  }
+               }
+            }
+            .glyphicon {
+               font-size:@font-size-med;
+               color:@gray;
+               margin-right:6px;
+            }
+         }
       }
    }
 }
-#bundle-content .bundle-tile h4 .button {
-   font-size: 8px;
-   margin-bottom: 0;
-   line-height: 1.4;
-   padding: 4px 8px;
-   vertical-align: middle;
-   margin-left: 16px;
-}
+
 
 // Keyboard Shortcut Glossary
 #glossaryModal {
@@ -356,6 +420,15 @@
       code {
          padding:4px;
          text-align:center;
+      }
+   }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+   #worksheet_content {
+      .type-table table,
+      .type-record table {
+         margin-bottom:16px;
       }
    }
 }
