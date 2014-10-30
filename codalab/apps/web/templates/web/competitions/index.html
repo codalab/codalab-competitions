@@ -56,9 +56,9 @@
                         <div class="col-sm-3 col-md-2">
                             <div class="img-container">
                                 {% if item.image_url == None %}
-                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}">
+                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
                                 {% else %}
-                                    <img src="{{ item.image_url }}">
+                                    <img src="{{ item.image_url }}" class="img-responsive">
                                 {% endif %}
                             </div>
                         </div>

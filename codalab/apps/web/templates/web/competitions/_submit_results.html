@@ -1,16 +1,13 @@
 {% load codalab_tags %}
-
-<div class="row" id="submissions_phase_buttons">
-  <div class="right">
-    {% for phase in competition.phases.all %}
-      {% if phase == active_phase %}
-        <!-- active, dont change bg color -->
-        <button class="button active phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-      {% else %}
-        <button class="button phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
-      {% endif %}
-    {% endfor %}
-  </div>
+<div id="submissions_phase_buttons">
+  {% for phase in competition.phases.all %}
+    {% if phase == active_phase %}
+      <!-- active, dont change bg color -->
+        <button class="btn active phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+    {% else %}
+        <button class="btn phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+    {% endif %}
+  {% endfor %}
 </div>
 
 <div class="competition_submissions">

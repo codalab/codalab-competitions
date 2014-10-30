@@ -19,6 +19,8 @@
         }
         &:hover {
             cursor: pointer;
+            .box-shadow(0 0 5px @blue-light);
+            border-color:@blue;
             h3 {
                 color:@link-hover-color;
             }
@@ -71,16 +73,98 @@
         }
     }
     .competition-tabs {
-        margin-top:24px;
+        margin:24px 0 36px 0;
         .nav.nav-tabs > li {
             > a {
                 font-size:@font-size-large;
                 font-weight:200;
             }
-            &.active > a {
-                font-weight:normal;
+        }
+    }
+    .phase-list {
+        .phase-list-item:last-child {
+            margin-bottom:0;
+        }
+    }
+    #submissions_phase_buttons, #results_phase_buttons {
+        .btn {
+            margin-bottom:5px;
+            &.active {
+                border-top-width:3px;
+                border-top-color:@blue;
+                padding-top:4px;
+                .box-shadow(none);
+            }
+            &.selected {
+                @shadow: inset 0 3px 3px rgba(0,0,0,.2);
+                -webkit-box-shadow: @shadow;
+                box-shadow: @shadow;
+                color:@gray-dark;
             }
         }
+    }
+    .competition_results {
+        .clearfix;
+        position:relative;
+        margin-top:12px;
+        .phase-description {
+            h4 {
+                margin:6px 0 0;
+            }
+            border-bottom:1px solid @gray-lighter;
+            margin-bottom:12px;
+        }
+        .leaderboard-result-table table {
+            tr {
+                th {
+                    vertical-align: top;
+                    text-align: center;
+                    border:1px solid @blue-med;
+                    background: @blue-med;
+                    color: @blue;
+                    font-size: @font-size-med;
+                    padding:4px 6px;
+                }
+                &.column-selected {
+                    background: @blue-med;
+                    color: white;
+                }
+            }
+            tr.table-title th {
+                color: white;
+                font-weight: 200;
+                font-size: @font-size-large;
+                background-color: @purple;
+                text-transform: none;
+                text-align: left;
+            }
+            tr.leaderboard-result-table-header th {
+              background: @blue;
+              color: white;
+            }
+            tr:nth-child(odd) .column-selected {
+                background: #e8e8e8 !important;
+            }
+            tr:nth-child(2) {
+                th:nth-child(1) {
+                    background: #648ca8;
+                    color: #fff;
+                }
+                th:nth-child(2) {
+                    background: #648ca8;
+                    color: #fff;
+                }
+                th:last-child {
+                    background: #648ca8;
+                    color: #fff;
+                }
+            }
+        }
+    }
+    .competition_submissions {
+        .clearfix;
+        position:relative;
+        margin-top:12px;
     }
 }
 @media (max-width: @screen-xs-max) {

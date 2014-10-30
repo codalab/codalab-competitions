@@ -1,118 +1,100 @@
 {% load codalab_tags %}
 
 {% if phase == None %}
+
 {% elif error %}
-    <div class="columns">
-        <b>There is a problem with the leaderboard</b>
-        <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
-
-        <br><br>
-
-        <pre>{{ error }}</pre>
-    </div>
+    <p><strong>There is a problem with the leaderboard</strong></p>
+    <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
+    <pre>{{ error }}</pre>
 {% elif phase.is_future %}
-    <div class="columns">
-        <p>This phase of the competition has not started yet. Please check back later.</p>
-    </div>
+    <p>This phase of the competition has not started yet. Please check back later.</p>
 {% elif phase.is_blind and not is_owner %}
-    <div class="columns">
-        <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
-    </div>
+    <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
 {% else %}
     {% if phase.is_blind and is_owner %}
-        <div class="columns">
-            <p>Competition organizers have chosen to keep the leaderboard private but as the owner, you can access this page.</p>
-        </div>
+        <p>Competition organizers have chosen to keep the leaderboard private but as the owner, you can access this page.</p>
     {% endif %}
-
-    <div class="small-12 columns" style="margin-top: 20px;">
-        <b>Phase description</b>
+    <div class="phase-description">
+        <h4>Phase description</h4>
         {% if phase.description %}
             <p>{{ phase.description }}</p>
         {% else %}
             <p>None</p>
         {% endif %}
     </div>
-
     {% if groups|length > 0 %}
-    <div class="small-12 columns icon_excel">
-        <a href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
-    </div>
+        <p><strong><a class="icon-excel" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a></strong></p>
     {% endif %}
-
-
-
     <div class="leaderboard-result-table">
         {% for group in groups %}
-        <table class="resultsTable dataTable">
-             <tr class="table-title">
-              <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
-             </tr>
-             <tr class="leaderboard-result-table-header">
-                <th rowspan="2"></th>
-                <th rowspan="2">User</th>
-                 {% for head in group.headers %}
-                 {% if head.subs %}
-                 <th colspan="{{head.subs|length}}">{{head.label}}</th>
-                 {% else %}
-                 <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
-                 {% endif %}
-                 {% endfor %}
-                 {% if phase.competition.enable_detailed_results %}
-                 <th>Detailed Results</th>
-                 {% endif %}
-                 {% if phase.competition.enable_medical_image_viewer %}
-                 <th>Image Viewer</th>
-                 {% endif %}
-             </tr>
-             <tr>
-                {% for head in group.headers %}
-                    {% if head.subs %}
-                    {% for sub in head.subs %}
-                    <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
+            <table class="resultsTable dataTable">
+                <tr class="table-title">
+                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
+                </tr>
+                <tr class="leaderboard-result-table-header">
+                    <th rowspan="2"></th>
+                    <th rowspan="2">User</th>
+                    {% for head in group.headers %}
+                        {% if head.subs %}
+                            <th colspan="{{head.subs|length}}">{{head.label}}</th>
+                        {% else %}
+                            <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
+                        {% endif %}
                     {% endfor %}
+                    {% if phase.competition.enable_detailed_results %}
+                        <th>Detailed Results</th>
                     {% endif %}
-                {% endfor %}
-            </tr>
-            {% if group.scores.items|length_is:"0" %}
-            <tr class="noData">
-                <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
-            </tr>
-            {% else %}
-            {% for pk,scoredata in group.scores %}
-            <tr>
-                <td class="row-position">{{pk}}</td>
-                <td>{{scoredata.username}}</td>
-                {% for head in group.headers %}
-                    {% for head_or_sub in head|get_array_or_attr:'subs' %}
-                        {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
-                            {% if 'rnk' in v %}
-                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
-                            {% else %}
-                                <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
-                            {% endif %}
-                        {% endwith %}
+                    {% if phase.competition.enable_medical_image_viewer %}
+                        <th>Image Viewer</th>
+                    {% endif %}
+                </tr>
+                <tr>
+                    {% for head in group.headers %}
+                        {% if head.subs %}
+                            {% for sub in head.subs %}
+                                <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
+                            {% endfor %}
+                        {% endif %}
                     {% endfor %}
-                {% endfor %}
-                {% if phase.competition.enable_detailed_results %}
-                    <td>
-                        <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">HTML report</a></br>
-                    </td>
+                </tr>
+                {% if group.scores.items|length_is:"0" %}
+                    <tr class="noData">
+                        <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
+                    </tr>
+                {% else %}
+                    {% for pk,scoredata in group.scores %}
+                        <tr>
+                            <td class="row-position">{{pk}}</td>
+                            <td>{{scoredata.username}}</td>
+                            {% for head in group.headers %}
+                                {% for head_or_sub in head|get_array_or_attr:'subs' %}
+                                    {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
+                                        {% if 'rnk' in v %}
+                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                                        {% else %}
+                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% if phase.competition.enable_detailed_results %}
+                                <td>
+                                    <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">HTML report</a></br>
+                                </td>
+                            {% endif %}
+                            {% if phase.competition.enable_medical_image_viewer %}
+                                {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}
+                                    <td>
+                                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
+                                            View results
+                                        </a>
+                                    </td>
+                                {% endwith %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
                 {% endif %}
-                {% if phase.competition.enable_medical_image_viewer %}
-                    {% with "http://cirrusweb.cloudapp.net:8080/Packages/MeVisLab/Private/Sources/Web/application/Presentation.html?module=CodaLabViewer&useTiling=1" as viewerlink %}
-                    <td>
-                        <a href="{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}" onclick="window.open('{{viewerlink}}&imageData={{phase.input_data.name|get_sas}}&overlayData={{scoredata.resultLocation|get_sas}}', '_blank', 'width=1000, height=1000, location=0'); return false;">
-                            View results
-                        </a>
-                    </td>
-                    {% endwith %}
-                {% endif %}
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </table>
-        </br>
+            </table>
         {% endfor %}
     </div>
 {% endif %}

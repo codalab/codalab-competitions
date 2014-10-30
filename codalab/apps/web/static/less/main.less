@@ -1,55 +1,100 @@
 body {
-    padding-top:@navbar-height + 2px; // include bottom border;
-    padding-bottom:@footer-height;
+      padding-top:@navbar-height + 2px; // include bottom border;
+      padding-bottom:@footer-height;
 }
 .jumbotron {
-    background: url('../img/slider_exp_comp.gif') repeat-x center center;
-    background-size:cover;
-    background-color: @brand-primary;
-    text-align:center;
-    padding:36px 0 24px;
-    margin-bottom:20px;
-    img.img-responsive {
-        max-width:90%;
-        margin:0 5%;
-    }
-    h4 {
-        margin-top:12px;
-        font-size:24px;
-    }
+      background: url('../img/slider_exp_comp.gif') repeat-x center center;
+      background-size:cover;
+      background-color: @brand-primary;
+      text-align:center;
+      padding:36px 0 24px;
+      margin-bottom:20px;
+      img.img-responsive {
+            max-width:90%;
+            margin:0 5%;
+      }
+      h4 {
+            margin-top:12px;
+            font-size:24px;
+      }
 }
 .page-header {
-    margin:0 0 20px;
-    border:none;
-    background: url('../img/tiled-header-bg.gif') repeat-x top left;
-    min-height: 80px;
-    color:white;
-    h1 {
-        margin-top:14px;
-        margin-bottom:0;
-    }
+      margin:0 0 20px;
+      border:none;
+      background: url('../img/tiled-header-bg.gif') repeat-x top left;
+      min-height: 80px;
+      color:white;
+      h1 {
+            margin-top:14px;
+            margin-bottom:0;
+      }
 }
 // Alerts
 .alert-box.alert {
-   code {
-      font-weight:normal;
-      color:white;
-      background-color:transparent;
-   }
-   a:not(.close) {
-      color:#fff;
-      text-decoration: underline;
-   }
+    code {
+         font-weight:normal;
+         color:white;
+         background-color:transparent;
+    }
+    a:not(.close) {
+         color:#fff;
+         text-decoration: underline;
+    }
 }
 // Tabs
 .tab-content > .tab-pane {
-  background-color:white;
+   background-color:white;
 }
 .tab-content > .active {
-  border-style:solid;
-  border-color: #ccc;
-  border-width:0 1px 1px 1px;
+   border-style:solid;
+   border-color: #ccc;
+   border-width:0 1px 1px 1px;
 }
 .tab-content > .tab-pane > .tab-inner {
-  padding:12px 24px;
+   padding:24px;
+}
+.tab-content.sidenav > .active {
+   border:none;
+}
+.tab-pane {
+   > h3,
+   > h2,
+   > h1 {
+      &:first-child {
+         margin-top:0;
+      }
+   }
+}
+// Panels
+.panel {
+   .panel-body {
+      p:last-child {
+         margin-bottom:0;
+      }
+   }
+}
+.nav.nav-sidenav {
+   > li > a {
+      border-left: 2px solid transparent;
+      padding: 6px 12px;
+   }
+   > .active > a,
+   > li > a:hover,
+   > li > a:focus {
+      color:@blue;
+      font-weight:bold;
+      border-left:2px solid @blue;
+      background-color:@white-dark;
+   }
+}
+.competitionPreloader {
+   background:url('../img/Preloader_Medium.gif') no-repeat center center;
+   width:50px;
+   height:50px;
+   position:absolute;
+   z-index:10;
+   margin:-25px 0 0 -25px;
+   left:50%;
+   top:50%;
+   display:block;
 }

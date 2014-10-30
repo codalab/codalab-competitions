@@ -26,6 +26,7 @@
             <input type="hidden" id="cstoken" value="{{csrf_token}}" />
             <div class="phase-container">
                 <div class="row">
+
                     {% if previous_phase and active_phase %}
                         <div class="col-sm-4">
                             <div class="phase">
@@ -74,116 +75,107 @@
                             </div>
                         </div>
                     {% endif %}
+
                 </div>
-                <a href="#phases" class="btn btn-default btn-sm pull-right">View all phases</a>
+                <button id="view_all_phases" class="btn btn-default btn-sm pull-right">View all phases</button>
             </div>
         </div>
     </div>
     <section class="competition-tabs">
-    <ul class="nav nav-tabs" role="tablist">
-        {% for tab, contents in tabs.items %}
-            <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
-        {% endfor %}
-    </ul>
-    <div class="tab-content">
-        {% for tab, contents in tabs.items %}
-            <div class="tab-pane" id="{{ tab.codename|slugify }}">
-                <div class="tab-inner">{{ tab.name }}</div>
-            </div>
-        {% endfor %}
-    </div>
-</section>
-    {% comment DUMMY %}
-    <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true" id="sections">
-        {% for tab, contents in tabs.items %}
-            {# Let's insert the "phases" tab just before participate #}
+        <ul class="nav nav-tabs" id="competition_tab_nav">
+            {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
-                    <section id="phases-section">
-                        <p class="title" data-section-title width="100%" height="100%">
-                            <a href="#phases">Phases</a>
-                        </p>
-                        <div class="content" data-slug="phases" data-section-content>
-                            {% for phase in competition.phases.all %}
-                                <div class="phaseListContainer phase-list-item-{{ phase.color }}">
-                                    <h3 class="phaseList">{{ phase.label }}</h3>
-                                    <p><b>Start: </b> {{ phase.start_date }}</p>
-                                    {% if phase.description %}
-                                    <p><b>Description: </b> {{ phase.description }}</p>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </section>
+                    <li class=""><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
                 {% endif %}
-
-                    <section id="{{tab.name}}-section">
-                        <p class="title" id="{{tab.name}}" data-section-title width="100%" height="100%">
-                            <a href="#{{tab.codename}}">{{tab.name}}</a>
-                        </p>
-                        <div class="content" data-slug="{{tab.codename}}" data-section-content>
-                            {% if tab.codename == "participate" %}
-                                {% if not user.is_authenticated %}
-                                <div class="participateInfoBlock">
-                                    <div class="infoStatusBar"></div>
-                                    <div class="labelArea">
-                                        <p class="regApprovLabel">You must be logged in to participate in competitions.</p>
-                                        <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data"><button class="button">Sign In</button></a>
+                <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for tab, contents in tabs.items %}
+                {# Let's insert the "phases" tab just before participate #}
+                {% if tab.codename == "participate" %}
+                    <div class="tab-pane" id="phases">
+                        <div class="tab-inner">
+                            <div class="phase-list">
+                                {% for phase in competition.phases.all %}
+                                    <div class="phase-list-item panel phase-list-item-{% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{ phase.label }}</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            {% if phase.description %}
+                                                <p><strong>Description:</strong> {{ phase.description }}</p>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
-                                {% else %}
-                                    {% if my_status == "unknown" %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="tab-pane" id="{{ tab.codename|slugify }}">
+                    <div class="tab-inner">
+                        {% if tab.codename == "participate" %}
+                            {% if not user.is_authenticated %}
+                                <p>You must be logged in to participate in competitions.</p>
+                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-secondary">Sign In</a>
+                            {% else %}
+                                {% if my_status == "unknown" %}
                                     <form id="participate_form">
                                         {% csrf_token %}
-                                        <div class="participateInfoBlock">
-                                            <div class="infoStatusBar"></div>
-                                            <div class="labelArea">
-                                                <p class="regApprovLabel">You have not yet registered for this competition.</p>
-                                                <p></p>
-                                                <p>
-                                                    To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
-                                                </p>
-                                                <p id="terms" for="checkbox">
-                                                    <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
-                                                    <span class="custom checkbox"></span>
-                                                    I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
-                                                </p>
-                                                <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
-                                            </div>
+                                        <p>You have not yet registered for this competition.</p>
+                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
+                                                I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
+                                            </label>
                                         </div>
+                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-secondary margin-top" value="Register" />
                                     </form>
-                                    {% elif my_status == "pending" %}
-                                    <div class="participateInfoBlock pendingApproval">
-                                        <div class="infoStatusBar"></div>
-                                        <div class="labelArea">
-                                            <p class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</p>
-                                            <p></p>
-                                        </div>
-                                    </div>
-                                    {% elif my_status == "denied" %}
-                                    <div class="participateInfoBlock rejectedApproval">
-                                        <div class="infoStatusBar"></div>
-                                        <div class="labelArea">
-                                            <p class="regApprovLabel">Your request to participate in this competition was denied or your privileges have been suspended.</p>
-                                            <p>Reason: {{my_participant.reason}}</p>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    {% if my_status == "approved" %}
-                                        {% include "web/competitions/_innertabs.html" %}
+                                {% elif my_status == "pending" %}
+                                    <p>Your request to participate in this challenge has been received and a decision is pending.</p>
+                                {% elif my_status == "denied" %}
+                                    <p>Your request to participate in this competition was denied or your privileges have been suspended.</p>
+                                    {% if my_participant.reason %}
+                                        <p>Reason: {{my_participant.reason}}</p>
                                     {% endif %}
                                 {% endif %}
-                            {% elif tab.codename == 'results' %}
-                                {% include "web/competitions/_results.html"%}
-                            {% else %}
-                                {% include "web/competitions/_innertabs.html" %}
+                                {% if my_status == "approved" %}
+                                    {% include "web/competitions/_innertabs.html" %}
+                                {% endif %}
                             {% endif %}
-                        </div>
-                    </section>
-                    {% endfor %}
+                        {% elif tab.codename == 'results' %}
+                            {% include "web/competitions/_results.html"%}
+                        {% else %}
+                            {% include "web/competitions/_innertabs.html" %}
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-    {% endcomment %}
+    </section>
 </div>
 {% endblock content %}
+
+{% block jsincludes %}
+    <script>
+        $('#view_all_phases').on('click', function(e){
+            $('#competition_tab_nav a[href="#phases"]').tab('show')
+        });
+        $(function(){
+            if(location.hash !== ''){
+                var main_tab = location.hash.split('-')[0];
+                var sub_tab = location.hash.split('-')[1];
+                $('#competition_tab_nav a[href="' + main_tab + '"]').tab('show');
+                $(main_tab + ' .innertabs a[href="' + main_tab + '-' + sub_tab + '"]').tab('show');
+            }else {
+                $('#competition_tab_nav a:first').tab('show')
+            }
+            $('#competition_tab_nav a, .innertabs a').on('show.bs.tab', function(e){
+                return location.hash = $(e.target).attr('href').substr(1);
+            });
+        });
+    </script>
+{% endblock %}

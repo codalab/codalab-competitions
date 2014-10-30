@@ -45,12 +45,3 @@
     </div>
 </div>
 {% endblock content %}
-
-{% block js %}
-    $('document').ready(function() {
-        // This helps make sections appear with Foundation
-        $(this).foundation('section', 'reflow');
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liMyCodalab").addClass("active");
-    });
-{% endblock js %}
