@@ -45,39 +45,30 @@
     </div>
 </div>
 <div class="row pad-top">
-    <div class="col-sm-9 competition-list">
+    <div class="col-md-9 competition-list">
         {% if not competitions %}
             <p><em>There are no competitions.</em></p>
         {% else %}
             {% for item in competitions %}
-                <a href="/competitions/{{item.id}}#learn_the_details">
-                    <div class="competition-tile">
-                        <article class="subContainer">
-                            <input id="competitionID" type="hidden" value="{{ item.id }}" />
-                            <div class="competitionTileLftStrip"></div>
-                            <div class="articleImageContainer">
-                                <div class="subContainerPadding">
-                                    {% if item.image_url == None %}
-                                    <img src="{% static "img/ProfileImageDummy.jpg" %}">
-                                    {% else %}
+                <div class="competition-tile">
+                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                    <div class="row">
+                        <div class="col-sm-3 col-md-2">
+                            <div class="img-container">
+                                {% if item.image_url == None %}
+                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}">
+                                {% else %}
                                     <img src="{{ item.image_url }}">
-                                    {% endif %}
-                                </div>
+                                {% endif %}
                             </div>
-                            <div class="articleTextArea">
-                                <div class="subContainerPadding">
-                                    <div class="articleHeadingContainer">
-                                        <h3>{{ item.title }}</h3>
-                                        <label>Organized by {{ item.creator }}</label>
-                                    </div>
-                                    <div class="competition-paragraph">
-                                    {{ item.description|safe }}
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
+                        </div>
+                        <div class="col-sm-9 col-md-10">
+                            <h3>{{ item.title }}</h3>
+                            <p class="organizer">Organized by {{ item.creator }}</p>
+                            <p>{{ item.description|safe }}</p>
+                        </div>
                     </div>
-                </a>
+                </div>
             {% endfor %}
         {% endif %}
     </div>
@@ -110,6 +101,10 @@
             }
         });
     }
+    $('.competition-tile').on('click',function(){
+        var competitionID = $(this).find('#competitionID').val();
+        window.location.href = '/competitions/' + competitionID + '#learn_the_details';
+    });
 
     var params = {}
     location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
