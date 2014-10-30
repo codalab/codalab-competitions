@@ -2,11 +2,11 @@ var Competition;
 (function(Competition) {
 
     Competition.invokePhaseButtonOnOpen = function(id) {
-        var btn = $('#' + id + ' .button.selected')[0];
+        var btn = $('#' + id + ' .btn.selected')[0];
         if (btn === undefined) {
-            btn = $('#' + id + ' .button.active')[0];
+            btn = $('#' + id + ' .btn.active')[0];
             if (btn === undefined) {
-                btn = $('#' + id + ' .button')[0];
+                btn = $('#' + id + ' .btn')[0];
             }
         }
         btn.click();
@@ -148,7 +148,7 @@ var Competition;
                 });
             },
             error: function(xhr, status, err) {
-                $('.competition_submissions').html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
+                $('.competition_submissions').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
     };
@@ -193,7 +193,7 @@ var Competition;
                 });
             },
             error: function(xhr, status, err) {
-                $('.competition_results').html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
+                $('.competition_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
     };
@@ -482,10 +482,10 @@ var Competition;
                 return false;
             });
 
-            $('#submissions_phase_buttons .button').each(function(e, index) {
+            $('#submissions_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
                     var phaseId = $.trim($(this).attr('id').replace('submissions_phase_', ''));
-                    $('#submissions_phase_buttons .button').removeClass('selected');
+                    $('#submissions_phase_buttons .btn').removeClass('selected');
                     $(this).addClass('selected');
                     var competitionId = $('#competitionId').val();
                     var cstoken = $('#cstoken').val();
@@ -497,10 +497,10 @@ var Competition;
                 Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
             });
 
-            $('#results_phase_buttons .button').each(function(e, index) {
+            $('#results_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
                     var phaseId = $.trim($(this).attr('id').replace('results_phase_', ''));
-                    $('#results_phase_buttons .button').removeClass('selected');
+                    $('#results_phase_buttons .btn').removeClass('selected');
                     $(this).addClass('selected');
                     var competitionId = $('#competitionId').val();
                     Competition.getPhaseResults(competitionId, phaseId);
@@ -512,7 +512,7 @@ var Competition;
             });
 
             // This helps make sections appear with Foundation
-            $(this).foundation('section', 'reflow');
+            // $(this).foundation('section', 'reflow');
 
             $('.top-bar-section ul > li').removeClass('active');
             $('#liCompetitions').addClass('active');

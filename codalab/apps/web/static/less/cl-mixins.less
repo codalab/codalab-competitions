@@ -47,7 +47,6 @@
     background: #FFF;
     .box-shadow(0 0 5px fadeout(black, 85%));
 }
-
 .ws-search {
    margin:10px 0 20px;
    height:auto;
@@ -67,6 +66,10 @@
 .bundle-icon {
     background: url('../img/icon_bundle.png') no-repeat 5px 10px;
     padding-left:65px;
+}
+.icon-excel {
+    background: url('../img/icon_excel.png') no-repeat left center;
+    padding-left:36px;
 }
 .radio.radio-with-label {
     margin-top:0;
@@ -94,4 +97,50 @@
 }
 .phase-label-purple {
     .label-variant(@purple-light);
+}
+
+.phase-list-item {
+    border-left-width:10px;
+}
+.phase-list-item-default {
+  .panel-variant(@panel-default-border; @panel-default-text; @panel-default-heading-bg; @panel-default-border);
+}
+.phase-list-item-white {
+  .panel-variant(@white-dark; @panel-default-text; white; @white-dark);
+}
+.phase-list-item-orange {
+  .panel-warning;
+  border-left-color:@orange;
+}
+.phase-list-item-yellow {
+  .panel-variant(@yellow; @panel-default-text; lighten(@yellow, 25%); @yellow);
+}
+.phase-list-item-green {
+  .panel-success;
+  border-left-color:@green;
+}
+.phase-list-item-blue {
+  .panel-variant(@panel-primary-border; @panel-default-text; lighten(@blue, 35%); @panel-primary-border);
+}
+.phase-list-item-purple {
+  .panel-variant(@purple-light; @purple; lighten(@purple-light, 25%); @purple-light);
+}
+
+.phase-btn-default, .phase-btn-white {
+    .btn-default;
+}
+.phase-btn-orange {
+    .btn-warning;
+}
+.phase-btn-yellow {
+    .button-variant(@btn-default-color; @yellow; darken(@yellow, 5%));
+}
+.phase-btn-green {
+    .btn-success;
+}
+.phase-btn-blue {
+    .btn-primary;
+}
+.phase-btn-purple {
+    .button-variant(@btn-default-color; @purple-light; darken(@purple-light, 5%));
 }
