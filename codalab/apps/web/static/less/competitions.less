@@ -1,0 +1,95 @@
+.competition-list {
+    .competition-tile {
+        .cl-tile;
+        .img-container {
+            max-height:120px;
+            overflow-y:hidden;
+        }
+        h3 {
+            font-size:@font-size-large;
+            margin:0 0 5px 0;
+            padding:0;
+            font-weight:normal;
+        }
+        p.organizer {
+            font-size:@font-size-med;
+            color:@gray;
+            font-weight:bold;
+            margin-bottom:6px;
+        }
+        &:hover {
+            cursor: pointer;
+            h3 {
+                color:@link-hover-color;
+            }
+        }
+    }
+}
+.competition-view {
+    margin-top:15px;
+    h2 {
+        font-size:24px;
+        font-weight:normal;
+        margin-top:6px;
+    }
+    code {
+        font-size:@font-size-small;
+        margin-bottom:6px;
+        display:block;
+        line-height:1.2;
+    }
+    .organizer {
+        font-size:@font-size-med;
+        color:@gray;
+    }
+    .phase-container {
+        .clearfix;
+        padding:12px;
+        margin-top:12px;
+        background-color:lighten(@gray-lighter, 5%);
+        .phase {
+            font-size:@font-size-med;
+            h4 {
+                margin-top:0;
+            }
+            .phase-label {
+                font-size:13px;
+            }
+            .date {
+                margin-top:6px;
+            }
+            &.current {
+                h4 {
+                    font-weight:bold;
+                    color:@blue;
+                    span.glyphicon {
+                        font-size:16px;
+                        margin-left:-16px;
+                    }
+                }
+            }
+        }
+    }
+    .competition-tabs {
+        margin-top:24px;
+        .nav.nav-tabs > li {
+            > a {
+                font-size:@font-size-large;
+                font-weight:200;
+            }
+            &.active > a {
+                font-weight:normal;
+            }
+        }
+    }
+}
+@media (max-width: @screen-xs-max) {
+    .competition-list {
+        .competition-tile {
+            .img-container {
+                margin-bottom:20px;
+                max-height:none;
+            }
+        }
+    }
+}

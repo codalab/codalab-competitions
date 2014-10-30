@@ -30,7 +30,10 @@
     margin-top:12px;
 }
 .margin-bottom {
-margin-bottom:12px;
+    margin-bottom:12px;
+}
+.alert-error {
+    .alert-danger;
 }
 .hidden {
     .hide;
@@ -45,7 +48,6 @@ margin-bottom:12px;
     .box-shadow(0 0 5px fadeout(black, 85%));
 }
 
-// Search Bar
 .ws-search {
    margin:10px 0 20px;
    height:auto;
@@ -53,7 +55,6 @@ margin-bottom:12px;
       background:white;
    }
 }
-
 .worksheet-icon {
     text-indent: 75px;
     background: url('../img/icon_worksheet.png') no-repeat 0 10px;
@@ -66,4 +67,31 @@ margin-bottom:12px;
 .bundle-icon {
     background: url('../img/icon_bundle.png') no-repeat 5px 10px;
     padding-left:65px;
+}
+.radio.radio-with-label {
+    margin-top:0;
+    margin-bottom:20px;
+}
+.phase-label-default, .competition-end {
+    .label-default;
+}
+.phase-label-white {
+    .label-variant(#FAFAFA);
+    color:@gray-dark;
+}
+.phase-label-orange {
+    .label-warning;
+}
+.phase-label-yellow {
+    .label-variant(@yellow);
+    color:@gray-dark;
+}
+.phase-label-green {
+    .label-success;
+}
+.phase-label-blue {
+    .label-primary
+}
+.phase-label-purple {
+    .label-variant(@purple-light);
 }
