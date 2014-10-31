@@ -47,6 +47,36 @@
     background: #FFF;
     .box-shadow(0 0 5px fadeout(black, 85%));
 }
+.competition-tile {
+    .cl-tile;
+    .img-container {
+        max-height:120px;
+        overflow-y:hidden;
+        img {
+            .img-responsive;
+        }
+    }
+    h3 {
+        font-size:@font-size-large;
+        margin:0 0 5px 0;
+        padding:0;
+        font-weight:normal;
+    }
+    p.organizer {
+        font-size:@font-size-med;
+        color:@gray;
+        font-weight:bold;
+        margin-bottom:6px;
+    }
+    &:hover {
+        cursor: pointer;
+        .box-shadow(0 0 5px @blue-light);
+        border-color:@blue;
+        h3 {
+            color:@link-hover-color;
+        }
+    }
+}
 .ws-search {
    margin:10px 0 20px;
    height:auto;
@@ -70,6 +100,11 @@
 .icon-excel {
     background: url('../img/icon_excel.png') no-repeat left center;
     padding-left:36px;
+    &.btn {
+        background-position:6px center;
+        background-size:28px;
+        padding-left:42px;
+    }
 }
 .radio.radio-with-label {
     margin-top:0;
@@ -97,6 +132,16 @@
 }
 .phase-label-purple {
     .label-variant(@purple-light);
+}
+
+.label-pending {
+    .label-warning;
+}
+.label-approved {
+    .label-success;
+}
+.label-denied {
+    .label-danger;
 }
 
 .phase-list-item {

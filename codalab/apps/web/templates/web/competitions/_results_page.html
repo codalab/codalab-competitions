@@ -23,7 +23,7 @@
         {% endif %}
     </div>
     {% if groups|length > 0 %}
-        <p><strong><a class="icon-excel" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a></strong></p>
+        <a class="icon-excel btn btn-default" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
     {% endif %}
     <div class="leaderboard-result-table">
         {% for group in groups %}
