@@ -83,21 +83,26 @@
                         {% if PREVIEW_WORKSHEETS %}
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
                         {% endif %}
-                        <li class="{% active request '/competitions/' %}"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
-                        {% if user.is_authenticated %}
-                            <li class="{% active request '/my/' %}"><a href="/my" tabindex=4 target="_self">My CodaLab</a></li>
-                            <li><a href="{% url 'my_datasets' %}" tabindex=4 target="_self">My Datasets</a></li>
-                        {% else %}
-                            <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
-                        {% endif %}
+                        <li class="dropdown {% active request '/competitions/' %}">
+                            <a href="/competitions">Competitions <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                {% if user.is_authenticated %}
+                                    <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'my_datasets' %}" tabindex=4 target="_self">My Datasets</a></li>
+                                {% else %}
+                                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
                         <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                         {% if user.is_authenticated %}
                             <li class="dropdown {% active request '/accounts/' %}">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="{% url 'user_settings' %}">
                                     <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="{% url "user_settings" %}">Settings</a></li>
+                                    <li><a href="{% url 'user_settings' %}">Settings</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
                                 </ul>
