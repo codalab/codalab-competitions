@@ -98,7 +98,9 @@
     padding-left:65px;
 }
 .icon-excel {
-    background: url('../img/icon_excel.png') no-repeat left center;
+    background-image: url('../img/icon_excel.png');
+    background-repeat: no-repeat;
+    background-position: left center;
     padding-left:36px;
     &.btn {
         background-position:6px center;
@@ -141,6 +143,12 @@
             > th,
             > td {
                 line-height: @line-height-small;
+            }
+            > th {
+                a .glyphicon {
+                    font-size:@font-size-med;
+                    padding-top:3px;
+                }
             }
         }
     }
