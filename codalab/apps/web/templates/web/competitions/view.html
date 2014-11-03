@@ -119,7 +119,7 @@
                         {% if tab.codename == "participate" %}
                             {% if not user.is_authenticated %}
                                 <p>You must be logged in to participate in competitions.</p>
-                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-secondary">Sign In</a>
+                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-primary">Sign In</a>
                             {% else %}
                                 {% if my_status == "unknown" %}
                                     <form id="participate_form">
@@ -132,7 +132,7 @@
                                                 I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
                                             </label>
                                         </div>
-                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-secondary margin-top" value="Register" />
+                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="Register" />
                                     </form>
                                 {% elif my_status == "pending" %}
                                     <p>Your request to participate in this challenge has been received and a decision is pending.</p>

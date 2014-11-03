@@ -75,7 +75,7 @@
 @padding-xs-horizontal:     5px;
 
 @line-height-large:         1.8;
-@line-height-small:         1.4;
+@line-height-small:         1.34;
 
 @border-radius-base:        0;
 @border-radius-large:       4px;
@@ -86,9 +86,9 @@
 //## Customizes the `.table` component with basic values, each used across all table variations.
 
 //** Padding for `<th>`s and `<td>`s.
-@table-cell-padding:            4px;
+@table-cell-padding:            4px 6px;
 //** Padding for cells in `.table-condensed`.
-@table-condensed-cell-padding:  2px;
+@table-condensed-cell-padding:  3px 4px;
 
 //** Default background color used for all tables.
 @table-bg:                      @white-dark;
@@ -110,12 +110,12 @@
 @btn-default-border:             #ccc;
 
 @btn-primary-color:              #fff;
-@btn-primary-bg:                 @brand-primary;
-@btn-primary-border:             darken(@btn-primary-bg, 5%);
+@btn-primary-bg:                 @purple;
+@btn-primary-border:             @purple-dark;
 
-@btn-secondary-color:              #fff;
-@btn-secondary-bg:                 @purple;
-@btn-secondary-border:             @purple-dark;
+@btn-secondary-color:            #fff;
+@btn-secondary-bg:               @brand-primary;
+@btn-secondary-border:           darken(@btn-primary-bg, 5%);
 
 @btn-success-color:              #fff;
 @btn-success-bg:                 @brand-success;

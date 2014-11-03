@@ -168,7 +168,7 @@ var Bundle = React.createClass({
         var edit = ''
         if(!this.state.edit_permission){
             edit = (
-                <button className="btn btn-secondary btn-sm" onClick={this.toggleEditing}>
+                <button className="btn btn-primary btn-sm" onClick={this.toggleEditing}>
                     {editButtonText}
                 </button>
             )
