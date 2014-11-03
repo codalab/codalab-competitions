@@ -110,6 +110,63 @@
     margin-top:0;
     margin-bottom:20px;
 }
+.form-controller {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+        .form-control;
+    }
+    textarea {
+        height:100px;
+    }
+}
+.table {
+    > thead,
+    > tbody,
+    > tfoot {
+        > tr {
+            > th,
+            > td {
+                line-height: @line-height-small;
+            }
+        }
+    }
+}
+.cl-table-style {
+    margin-top:20px;
+    line-height:1.2;
+    th {
+        text-transform:uppercase;
+        background:@blue;
+        text-align:left;
+        color:white;
+        cursor: auto;
+        a {
+            color:white;
+            &:hover {
+                text-decoration:underline;
+            }
+        }
+    }
+    &.table-bordered > thead > tr > th,
+    &.table-bordered > thead > tr > td {
+        border-bottom-width:1px;
+    }
+}
+
 .phase-label-default, .competition-end {
     .label-default;
 }

@@ -29,9 +29,9 @@
                         <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">Edit</a>
                         <a class="btn btn-sm btn-success" href="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button">Publish</button>
                         <a class="btn btn-sm btn-warning" href="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button">Unpublish</button>
-                        <a class="btn btn-sm btn-secondary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
-                        <a class="btn btn-sm btn-secondary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">Submissions</a>
-                        <a class="btn btn-sm btn-secondary" href="/competitions/{{competition.pk}}#results">Leaderboard</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">Submissions</a>
+                        <a class="btn btn-sm btn-primary" href="/competitions/{{competition.pk}}#results">Leaderboard</a>
                     </div>
                 </div>
             </div>

@@ -56,13 +56,13 @@
                                 </div>
                             </div>
                         </div>
-                        <input type="submit" class="btn btn-secondary pull-right" value="Process" />
+                        <input type="submit" class="btn btn-primary pull-right" value="Process" />
                     </form>
                 </div>
             </div>
         {% endfor %}
 
-        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-secondary">Send message to all participants?</button>
+        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">Send message to all participants?</button>
 
         <table class="resultsTable dataTable table table-striped table-bordered">
             <thead>
@@ -72,7 +72,7 @@
                         <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
                             {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
                         </a>
-                    </th>
+                </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -116,7 +116,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button id="direct_message_participants_button" class="btn btn-secondary">Send</button>
+                <button id="direct_message_participants_button" class="btn btn-primary">Send</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
