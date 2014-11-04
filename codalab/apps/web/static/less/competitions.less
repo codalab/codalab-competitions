@@ -61,16 +61,27 @@
         .btn {
             margin-bottom:5px;
             &.active {
-                border-top-width:3px;
-                border-top-color:@blue;
-                padding-top:4px;
                 .box-shadow(none);
+                outline:2px solid @blue;
             }
             &.selected {
                 @shadow: inset 0 3px 3px rgba(0,0,0,.2);
                 -webkit-box-shadow: @shadow;
                 box-shadow: @shadow;
-                color:@gray-dark;
+            }
+        }
+    }
+    .competition_submissions {
+        .user_results {
+            table {
+                .cl-table-style;
+                td .glyphicon-plus, td .glyphicon-minus {
+                    color:@link-color;
+                    &:hover {
+                        color:@link-hover-color;
+                        cursor:pointer;
+                    }
+                }
             }
         }
     }
