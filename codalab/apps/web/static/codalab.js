@@ -548,16 +548,16 @@ var WorksheetRenderer = (function() {
 var Competition;
 (function(Competition) {
 
-    Competition.invokePhaseButtonOnOpen = function(id) {
-        var btn = $('#' + id + ' .btn.selected')[0];
-        if (btn === undefined) {
-            btn = $('#' + id + ' .btn.active')[0];
-            if (btn === undefined) {
-                btn = $('#' + id + ' .btn')[0];
-            }
-        }
-        btn.click();
-    };
+    // Competition.invokePhaseButtonOnOpen = function(id) {
+    //     var btn = $('#' + id + ' .btn.selected')[0];
+    //     if (btn === undefined) {
+    //         btn = $('#' + id + ' .btn.active')[0];
+    //         if (btn === undefined) {
+    //             btn = $('#' + id + ' .btn')[0];
+    //         }
+    //     }
+    //     btn.click();
+    // };
 
     function decorateLeaderboardButton(btn, submitted) {
         if ($('#disallow_leaderboard_modifying').length > 0) {
@@ -1040,9 +1040,9 @@ var Competition;
                 });
             });
 
-            $("a[href='#participate-submit_results']").click(function(obj) {
-                Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
-            });
+            // $("a[href='#participate-submit_results']").click(function(obj) {
+            //     Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
+            // });
 
             $('#results_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
@@ -1054,14 +1054,15 @@ var Competition;
                 });
             });
 
-            $('#Results').click(function(obj) {
-                Competition.invokePhaseButtonOnOpen('results_phase_buttons');
-            });
+            // $('#Results').click(function(obj) {
+            //     Competition.invokePhaseButtonOnOpen('results_phase_buttons');
+            // });
 
             // This helps make sections appear with Foundation
             // $(this).foundation('section', 'reflow');
 
             $('.top-bar-section ul > li').removeClass('active');
+
             $('#liCompetitions').addClass('active');
 
 
@@ -1121,14 +1122,6 @@ var Competition;
                 }
             });
 
-            var loc = window.location.href;
-            if (loc !== undefined) {
-                if (loc.match(/#participate-submit_results$/i) !== null) {
-                    Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
-                } else if (loc.match(/#results$/i) !== null) {
-                    Competition.invokePhaseButtonOnOpen('results_phase_buttons');
-                }
-            }
         });
     };
 })(Competition || (Competition = {}));
