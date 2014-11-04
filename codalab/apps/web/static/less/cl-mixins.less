@@ -162,6 +162,9 @@
         text-align:left;
         color:white;
         cursor: auto;
+        &.text-center {
+            text-align:center;
+        }
         a {
             color:white;
             &:hover {
@@ -175,6 +178,9 @@
     }
 }
 
+.btn:focus {
+    outline:none;
+}
 .phase-label-default, .competition-end {
     .label-default;
 }
@@ -253,4 +259,7 @@
 }
 .phase-btn-purple {
     .button-variant(@btn-default-color; @purple-light; darken(@purple-light, 5%));
+    &:hover, &.active {
+        color:white;
+    }
 }

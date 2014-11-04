@@ -52,7 +52,7 @@ var Competition;
                     rows.html('');
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
-                    row.html("<i class='fi-check'></i>");
+                    row.html('<span class="glyphicon glyphicon-ok"></span>');
                     $('#user_results button.leaderBoardRemove').each(function(index) {
                         decorateLeaderboardButton($(this), false);
                     });
@@ -127,10 +127,10 @@ var Competition;
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
                                 $('#user_results').append(Competition.displayNewSubmission(response, description));
-                                $('#user_results #' + response.id + ' .fi-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
+                                $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
-                                $('#user_results #' + response.id + ' .fi-plus').click();
+                                $('#user_results #' + response.id + ' .glyphicon-plus').click();
                             }).fail(function(jqXHR) {
                                 var msg = 'An unexpected error occurred.';
                                 if (jqXHR.status == 403) {
@@ -143,7 +143,7 @@ var Competition;
                         }
                     });
                 }
-                $('#user_results .fi-plus').on('click', function() {
+                $('#user_results .glyphicon-plus').on('click', function() {
                     Competition.showOrHideSubmissionDetails(this);
                 });
             },
@@ -295,9 +295,9 @@ var Competition;
                         // Add the check box if auto submitted to leaderboard
                         if ($('#forced_to_leaderboard').length > 0) {
                             // Remove previous checkmarks
-                            $('.fi-check').remove();
+                            $('.glyphicon-ok').remove();
 
-                            $($(elemTr).children('td')[4]).html('<i class="fi-check"></i>');
+                            $($(elemTr).children('td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                         }
                     }
                     break;
@@ -349,14 +349,14 @@ var Competition;
 
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
-        if ($(obj).hasClass('fi-minus')) {
-            $(obj).removeClass('fi-minus');
-            $(obj).addClass('fi-plus');
+        if ($(obj).hasClass('glyphicon-minus')) {
+            $(obj).removeClass('glyphicon-minus');
+            $(obj).addClass('glyphicon-plus');
             $(nTr).next('tr.trDetails').remove();
         }
         else {
-            $(obj).removeClass('fi-plus');
-            $(obj).addClass('fi-minus');
+            $(obj).removeClass('glyphicon-plus');
+            $(obj).addClass('glyphicon-minus');
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
@@ -414,9 +414,9 @@ var Competition;
 
                             if ($('#forced_to_leaderboard').length > 0) {
                                 // Remove all checkmarks
-                                $('.fi-check').remove();
+                                $('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($('#' + submissionId + ' td')[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                             }
                         } else {
                             if ($('#forced_to_leaderboard').length == 0) {
@@ -424,9 +424,9 @@ var Competition;
                                 $(obj).text('Submit to Leaderboard');
                             } else {
                                 // Remove all checkmarks
-                                $('.fi-check').remove();
+                                $('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($('#' + submissionId + ' td')[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
 
                                 $(obj).removeClass('leaderBoardSubmit');
                                 $(obj).addClass('leaderBoardRemove');
