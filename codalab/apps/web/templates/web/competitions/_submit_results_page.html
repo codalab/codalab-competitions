@@ -13,13 +13,14 @@
     {% if phase.competition.disallow_leaderboard_modifying %}
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
-
-    <h4>Phase description</h4>
-    {% if phase.description %}
-        <p>{{ phase.description }}</p>
-    {% else %}
-        <p>None</p>
-    {% endif %}
+    <div class="phase-description">
+        <h4>Phase description</h4>
+        {% if phase.description %}
+            <p>{{ phase.description }}</p>
+        {% else %}
+            <p>None</p>
+        {% endif %}
+    </div>div>
 
     {% if phase.is_active %}
         <div class="form-group">

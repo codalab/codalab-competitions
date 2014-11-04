@@ -3,9 +3,9 @@
   {% for phase in competition.phases.all %}
     {% if phase == active_phase %}
       <!-- active, dont change bg color -->
-        <button class="btn active phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="btn active phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
     {% else %}
-        <button class="btn phase-btn-{{ phase.color }}" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
+        <button class="btn phase-btn-{{ phase.color }} btn-sm" id="submissions_phase_{{phase.id}}">{{phase.label}}</button>
     {% endif %}
   {% endfor %}
 </div>
