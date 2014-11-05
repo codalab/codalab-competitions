@@ -79,7 +79,7 @@ var WorksheetContent = function() {
             }
             ws_item.state.raw_index = last_raw_index;
 
-            // now low many elements does it take up
+            // now how many elements does it take up
             raw_size = raw.length - last_raw_index; //default to the end
             if(!below_item){
                 ws_item.state.raw_size = raw_size;
@@ -91,7 +91,6 @@ var WorksheetContent = function() {
             switch (ws_item.state.mode) {
                 case 'markup':
                     // grab the first bundle's info following you.
-                    // debugger;
                     switch (below_item.state.mode) {
                         case 'worksheet':
                             for(i=last_raw_index; i < raw.length; i++){
@@ -112,7 +111,11 @@ var WorksheetContent = function() {
                             raw_size = ws_item.state.raw_size;
                             break;
                         default: // the other case is always followed by some sort of bundle or display type
-                            var bundle = below_item.state.bundle_info[0];
+                            // the bundle_info may be an object or an array of objects
+                            var bundle = below_item.state.bundle_info;
+                            if(_.isArray(bundle)){
+                                bundle = bundle[0]
+                            }
                             for(i=last_raw_index; i < raw.length; i++){
                                 // that bundle may be the start of the next non-markdown block
                                 // or a line that begins with %, which means another bundle display type
@@ -136,11 +139,19 @@ var WorksheetContent = function() {
                 case 'table':
                 case 'contents':
                 case 'html':
+                case 'image':
                 case 'record':
                     var bundle_info = ws_item.state.bundle_info;
                     // find the last bundle in the table etc. that is ref
                     // that's the end of the display
-                    var bundle = ws_item.state.bundle_info[bundle_info.length-1];
+
+                    var bundle;
+                    if(_.isArray(bundle_info)){
+                        bundle = bundle_info[bundle_info.length-1];
+                    }else{
+                        bundle = bundle_info;
+                    }
+
                     var found = false;
                     for(i=last_raw_index; i < raw.length; i++){
                         if(raw[i].search(bundle.uuid) > -1){
@@ -217,6 +228,7 @@ var WorksheetContent = function() {
         var raw2 = this.state.raw.slice(raw_index);
         // set the raw. the WorksheetItems will take care of themselves
         this.state.raw = raw1.concat(item_array, raw2);
+        this.updateItemsIndex();
 
     };
     WorksheetContent.prototype.insertItem = function(newIndex, newItem) {
@@ -231,8 +243,12 @@ var WorksheetContent = function() {
     WorksheetContent.prototype.setItem = function(index, item) {
         //update raw
         if(typeof(item) !== 'undefined'){
-            //the item here is a WorksheetItem, so we need to get its interpreted value and split it into an array
-            var item_array = item.state.interpreted.split('\n');
+            //the item here is a WorksheetItem, so we need to get its interpreted value
+            var item_array = item.state.interpreted;
+            //and split it into an array if necessary
+            if(item.state.mode == 'markup'){
+                item_array = item.state.interpreted.split('\n');
+            }
             //because we're editing an item that already exists, we can use its raw_index and assume it's correct...
             var ri = this.state.items[index].state.raw_index;
             var rs = this.state.items[index].state.raw_size;
@@ -282,6 +298,128 @@ var WorksheetContent = function() {
         // update our raw index for the next move before the save and update
         this.updateItemsIndex();
 
+    };
+    WorksheetContent.prototype.moveRow = function(table, oldIndex, newIndex){
+        var delta = newIndex - oldIndex;
+        // interpreted vars
+        var interpreted_rows = table.interpreted;
+        var interpreted_tbody = interpreted_rows[1]; // just the rows, not the head
+        // raw vars
+        var bundle_info = table.bundle_info[oldIndex];
+        var r_index = table.raw_index; //shortcut naming
+        var r_size = table.raw_size;
+        var old_raw_index;
+        // if we're not trying to move the first row up or the last row down...
+        if(0 <= newIndex && newIndex < interpreted_tbody.length){
+            // take care of the interpreted first
+            interpreted_tbody.splice(newIndex, 0, interpreted_tbody.splice(oldIndex, 1)[0]);
+            // also update the bundle info so we can get the correct uuid later
+            table.bundle_info.splice(newIndex, 0, table.bundle_info.splice(oldIndex, 1)[0]);
+            // now find the actual raw position of this row by matching its bundle uuid
+            for(var i = r_index; i < r_index+r_size; i++){
+                if(this.state.raw[i].search(bundle_info.uuid) > -1){
+                    old_raw_index = i;
+                    break;
+                }
+            }
+            // calculate where it's going (should be +/- 1 raw space)
+            var new_raw_index = old_raw_index + delta;
+            // ...and move it there using the same trick we used on interpreted
+            this.state.raw.splice(new_raw_index, 0, this.state.raw.splice(old_raw_index, 1)[0]);
+            // update the indexes to keep the UI in sync
+            this.updateItemsIndex();
+        }
+        // and return the interpreted so the table can update its state
+        return interpreted_rows;
+    };
+    WorksheetContent.prototype.insertBetweenRows = function(table, rowIndex, key){
+        // Handle raw manipulation first
+        var r_index = table.raw_index;
+        var r_size = table.raw_size;
+        var r_item = this.state.raw.slice(r_index, r_index + r_size);
+        var metadata_size = 0
+        for(i=0; i < r_size; i++){
+            if(r_item[i].lastIndexOf('%', 0) === 0){
+                metadata_size = i+1;
+            }else{
+                break; // break out, we found all the metadata
+            }
+        }
+        var r_metadata = r_item.slice(0, metadata_size); // stash the metadata in a var
+        var insertion_point = r_index + metadata_size + rowIndex; // this is where the table gets split in the raw
+        // Prep the raw for insertion
+        var new_raw1 = this.state.raw.slice(0, insertion_point);
+        var new_raw2 = this.state.raw.slice(insertion_point);
+        // Copy the table metadata in front of the new table and put it all together
+        this.state.raw = new_raw1.concat('', r_metadata, new_raw2);
+
+        // Now handle interpreted
+        var items = this.state.items;
+        var table_bundle_info = items[key].state.bundle_info;
+        var interpreted_table = table.interpreted; // grab the table
+        var interpreted_thead = interpreted_table[0]; // store the thead so we can use it in the new table
+        var interpreted_tbody = interpreted_table[1];
+        var table_reinterpreted = [interpreted_thead, interpreted_tbody.slice(0, rowIndex)];
+        var table_bundle_info_reinterpreted = table_bundle_info.slice(0, rowIndex);
+        var new_table_interpeted = [interpreted_thead, interpreted_tbody.slice(rowIndex)];
+        var new_table_bundle_info = table_bundle_info.slice(rowIndex);
+        // Reset interpreted of original table
+        items[key].state.interpreted = table_reinterpreted;
+        items[key].state.bundle_info = table_bundle_info_reinterpreted;
+        // Create a new WorksheetItem for the new table
+        var new_table = new WorksheetItem(new_table_interpeted, new_table_bundle_info, 'table');
+        // Prepare for insertion
+        var new_items1 = items.slice(0, key+1);
+        var new_items2 = items.slice(key+1);
+        // Reset the items with the split tables
+        this.state.items = new_items1.concat(new_table, new_items2);
+        // Create a new WorksheetItem for the inserted markdown
+        var insertedMarkdown = new WorksheetItem('', undefined, 'markup');
+        // Use this internal method to insert the new markdown
+        this.insertItem(key+1, insertedMarkdown);
+
+        this.cleanUp(); // remove raw undefined
+        this.updateItemsIndex(); // make sure the ui is good to go.
+    };
+    WorksheetContent.prototype.deleteTableRow = function(table, interpreted_row_indexes){
+        var interpreted_rows = table.interpreted; // data
+        var removed_bundles = []; // what bundles do we want to remove
+        var row_data = interpreted_rows[1]; // we don't want the headers
+
+        for(var index in interpreted_row_indexes){
+            index = interpreted_row_indexes[index]; // set to real index
+            console.log(index);
+            removed_bundles.push(table.bundle_info[index]);
+            row_data[index] = null;
+        }
+
+         // // clean up the data by copying all non-null rows into a new array
+        var new_row_data = [];
+        for(var i = 0; i < row_data.length; i++){
+            if (row_data[i]){
+                new_row_data.push(row_data[i]);
+            }
+        }
+        interpreted_rows[1] = new_row_data; // set the data. [0] is the headers
+
+        //update raw
+        var r_index = table.raw_index; //shortcut naming
+        var r_size = table.raw_size;
+
+        for(var b_index in removed_bundles){
+            bundle_info = removed_bundles[b_index]; //shortcut naming
+            //look though our chunk of the raw for this and remove it
+            for(var i = r_index; i < r_index+r_size; i++){
+                // check if we've already set to undefined and look for the bundle uuid in the row text
+                if(this.state.raw[i] && this.state.raw[i].search(bundle_info.uuid) > -1){
+                    this.state.raw[i] = undefined;
+                }
+            }
+        }
+        this.cleanUp(); // remove raw undefined
+        this.updateItemsIndex(); // make sure the ui is good to go.
+        // please not after this is returned and state is updated for UI we save and reload the worksheet
+        return interpreted_rows;
     };
     WorksheetContent.prototype.getRaw = function(){
         // get string rep and line count for text area

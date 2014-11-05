@@ -821,8 +821,8 @@ class BundleDetailView(TemplateView):
         context = super(BundleDetailView, self).get_context_data(**kwargs)
         uuid = kwargs.get('uuid')
         service = BundleService(self.request.user)
-        results = service.item(uuid)
-        context['bundle'] = results
+        bundle_info = service.get_bundle_info(uuid)
+        context['bundle'] = bundle_info
         return context
 
 def BundleDownload(request, uuid):

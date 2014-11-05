@@ -17,13 +17,8 @@ var keyMap = {
 
 // Dictionary of terms that can be entered into the search bar and the names of
 // functions they call. See search_actions.js
-var fakedata = {
-    red: 'doRed',
-    green: 'doGreen',
-    blue: 'doBlue',
-    orange: 'doOrange',
-    yellow: 'doYellow',
-    save: 'doSave'
+var clActions = {
+    add: 'doAdd',
 };
 
 var Worksheet = React.createClass({
@@ -124,6 +119,7 @@ var WorksheetItemList = React.createClass({
             focusIndex: -1,
             editingIndex: -1,
             rawMode: false,
+            checkboxEnabled: true,
             worksheet: {
                 last_item_id: 0,
                 name: '',
@@ -156,11 +152,11 @@ var WorksheetItemList = React.createClass({
                 $('#update_progress').hide();
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
+                console.error(ws_obj.url, status, err);
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
                 } else {
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-box alert');
                 }
                 $('#worksheet_container').hide();
             }.bind(this)
@@ -206,8 +202,7 @@ var WorksheetItemList = React.createClass({
                         }else {
                             fIndex = Math.max(this.state.focusIndex - 1, 0);
                         }
-                        this.setState({focusIndex: fIndex});
-                        this.scrollToItem(fIndex);
+                        this.setFocus(fIndex);
                     }
                     break;
                 case 'down': // move down
@@ -220,8 +215,7 @@ var WorksheetItemList = React.createClass({
                         // not be the same as the number of item objects because of editing/inserting/whatever,
                         // count the actual divs instead
                         fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-                        this.setState({focusIndex: fIndex});
-                        this.scrollToItem(fIndex);
+                        this.setFocus(fIndex);
                     }
                     break;
                 case 'e':  // edit item
@@ -232,7 +226,7 @@ var WorksheetItemList = React.createClass({
                     break;
                 case 'x': // select item
                     event.preventDefault();
-                    if(focusedItem){
+                    if(focusedItem && this.props.canEdit){
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
@@ -250,7 +244,7 @@ var WorksheetItemList = React.createClass({
                     break;
                 case 'a': // really a cap A for instert After, like vi
                     event.preventDefault();
-                    if(event.shiftKey && ws_obj.getState().edit_permission){
+                    if(event.shiftKey && this.props.canEdit){
                         this.insertItem(key);
                     }
                     break;
@@ -263,36 +257,48 @@ var WorksheetItemList = React.createClass({
         // scroll the window to keep the focused element in view
         var offsetTop = 0;
         if(index > -1){
+            var item = this.refs['item' + index];
+            var node = item.getDOMNode();
+            var offset = node.offsetTop;
+            if(this.state.worksheet.items[index].state.mode === 'table' &&
+                keyMap[event.keyCode] == 'k' ||
+                keyMap[event.keyCode] == 'up' ){
+                offset += ($(node).innerHeight() - 30);
+            }
             // find the item's position on the page, and offset it from the top of the viewport
-            offsetTop = this.refs['item' + index].getDOMNode().offsetTop - 200;
+            offsetTop = offset - 200;
         }
         $('body').stop(true).animate({scrollTop: offsetTop}, 250);
     },
-    saveItem: function(textarea){ // aka handleSave
-        var item = ws_obj.state.items[this.state.editingIndex];
-        var index = this.state.editingIndex;
-        // because we need to distinguish between items that have just been inserted and items
-        // that were edited, we have a 'new_item' flag on markdown items' state
-        if(this.refs['item' + index].state.new_item){
-            // if it's a new item, it hasn't been added to the raw yet, so do that.
-            ws_obj.insertRawItem(index, textarea.value);
-        }else {
-            console.log(ws_obj.state.items[index])
-            ws_obj.state.items[index].state.interpreted = textarea.value;
-            ws_obj.setItem(index, ws_obj.state.items[index]);
+    saveItem: function(index, interpreted){ // aka handleSave
+        if(typeof index !== 'undefined' && typeof interpreted !== 'undefined'){
+            var item = ws_obj.state.items[index];
+            var mode = item.state.mode;
+            var newItem = this.refs['item' + index].state.new_item;
+            // because we need to distinguish between items that have just been inserted and items
+            // that were edited, we have a 'new_item' flag on markdown items' state
+            if(newItem){
+                // if it's a new item, it hasn't been added to the raw yet, so do that.
+                ws_obj.insertRawItem(index, interpreted);
+            }else {
+                ws_obj.state.items[index].state.interpreted = interpreted;
+                ws_obj.setItem(index, ws_obj.state.items[index]);
+            }
+            // we duplicate this here so the edits show up right away, instead of after the save + update
+            item.state.interpreted = interpreted;
+            if(mode==='markup'){
+                // we may have added contiguous markdown bundles, so we need to reconsolidate
+                var unconsolidated = ws_obj.getState();
+                var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
+                ws_obj.state.items = consolidated;
+            }
+            this.setState({
+                editingIndex: -1,
+                worksheet: ws_obj.getState()
+            });
+            //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
+            this.refs['item' + this.state.editingIndex].setState({new_item:false});
         }
-        // we duplicate this here so the edits show up right away, instead of after the save + update
-        item.state.interpreted = textarea.value;
-        // we may have added contiguous markdown bundles, so we need to reconsolidate
-        var unconsolidated = ws_obj.getState();
-        var consolidated = ws_obj.consolidateMarkdownBundles(unconsolidated.items);
-        ws_obj.state.items = consolidated;
-        this.setState({
-            editingIndex: -1,
-            worksheet: ws_obj.getState()
-        });
-        //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
-        this.refs['item' + this.state.editingIndex].setState({new_item:false});
         this.saveAndUpdateWorksheet();
     },
     unInsert: function(){
@@ -371,8 +377,17 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(child){
-        this.setState({focusIndex: child.props.key});
+    setFocus: function(index){
+        this.setState({focusIndex: index});
+        if(index >= 0){
+            var mode = ws_obj.state.items[index].state.mode;
+            if(mode === 'table'){
+                this.toggleCheckboxEnable(false);
+            }else {
+                this.toggleCheckboxEnable(true);
+            }
+            this.scrollToItem(index);
+        }
     },
     toggleRawMode: function(){
         if(this.state.rawMode){
@@ -381,7 +396,11 @@ var WorksheetItemList = React.createClass({
         }
         this.setState({rawMode: !this.state.rawMode})
     },
+    toggleCheckboxEnable: function(enabled){
+        this.setState({checkboxEnabled: enabled})
+    },
     saveAndUpdateWorksheet: function(){
+        $("#worksheet-message").hide();
         // does a save and a update
         ws_obj.saveWorksheet({
             success: function(data){
@@ -391,12 +410,13 @@ var WorksheetItemList = React.createClass({
                 }
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
+                console.error(xhr, status, err);
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert');
+                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-box alert').show();
+                } else if (xhr.status == 401){
+                    $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-box alert').show();
                 } else {
-                    // $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
-                    $("#worksheet-message").html("An error occurred. Please try refreshing the page.").addClass('alert-box alert');
+                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-box alert').show();
                 }
             }
         });
@@ -406,6 +426,7 @@ var WorksheetItemList = React.createClass({
         var focusIndex = this.state.focusIndex;
         var editingIndex = this.state.editingIndex;
         var canEdit = this.props.canEdit;
+        var checkboxEnabled = this.state.checkboxEnabled;
         var className = canEdit ? 'editable' : '';
         var editPermission = ws_obj.getState().edit_permission;
         var editFeatures;
@@ -434,7 +455,7 @@ var WorksheetItemList = React.createClass({
                 var ref = 'item' + i;
                 var focused = i === focusIndex;
                 var editing = i === editingIndex;
-                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit))
+                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled))
             });
         }else {
             $('.empty-worksheet').fadeIn();
@@ -471,28 +492,32 @@ var WorksheetItemList = React.createClass({
 });
 
 
-var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit){
+var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} />
+            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'inline':
-            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'table':
-            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'contents':
-            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'html':
-            return <HTMLBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <HTMLBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'record':
-            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            break;
+        case 'image':
+            return <ImageBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
             break;
         case 'worksheet':
-            return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} />
+            return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            break;
         default:  // something new or something we dont yet handle
             return (
                 <div>
