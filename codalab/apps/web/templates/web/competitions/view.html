@@ -176,6 +176,17 @@
             $('#competition_tab_nav a, .innertabs a').on('show.bs.tab', function(e){
                 return location.hash = $(e.target).attr('href').substr(1);
             });
+            if($('#participate-submit_results').hasClass('active')){
+                $('#submissions_phase_buttons .active').click();
+            } else if($('#results').hasClass('active')){
+                $('#results_phase_buttons .active').click();
+            };
+            $('a[href="#participate-submit_results"]').on('shown.bs.tab', function(e){
+                $($(e.target).attr('href') + ' .active').click();
+            });
+            $('a[href="#results"]').on('shown.bs.tab', function(e){
+                $($(e.target).attr('href') + ' .active').click();
+            });
         });
     </script>
 {% endblock %}
