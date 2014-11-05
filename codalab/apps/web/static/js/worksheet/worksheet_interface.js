@@ -31,6 +31,7 @@ var Worksheet = React.createClass({
     },
     componentDidMount: function() {
         this.bindEvents();
+        $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
@@ -82,7 +83,9 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet">
                 <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                <div className="container">
+                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                </div>
             </div>
         )
     }
@@ -107,7 +110,9 @@ var WorksheetSearch = React.createClass({
     render: function(){
         return (
             <div className="ws-search">
-                <input id="search" type="text" placeholder="General search" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                <div className="container">
+                    <input id="search" type="text" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                </div>
             </div>
         )
     }
@@ -199,6 +204,7 @@ var WorksheetItemList = React.createClass({
                         if(fIndex <= 0){
                             // if we're already at the top of the worksheet, we can't go higher
                             fIndex = -1;
+                            $('body').stop(true).animate({scrollTop: 0}, 250);
                         }else {
                             fIndex = Math.max(this.state.focusIndex - 1, 0);
                         }
