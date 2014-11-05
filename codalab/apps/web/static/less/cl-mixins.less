@@ -38,10 +38,21 @@
 .hidden {
     .hide;
 }
+// Sometimes Django includes introduce newline characters that create
+// breaks in the layout (see web/my/_entered.html or web/my/_managed.html)
+// So attaching this mixin reduces the line-height to 0, effectively negating
+// all newline characters. Then in the first child element, whatever it is,
+// we reset the line-height to its standard value.
+.kill-newlines {
+    line-height:0;
+    > * {
+        line-height:@line-height-base;
+    }
+}
 .cl-tile {
     .clearfix;
-    margin-bottom: 20px;
-    padding: 10px 15px;
+    margin-bottom: 24px;
+    padding: 12px 16px;
     border: 1px #CCC solid;
     border-left: 10px #739CB9 solid;
     background: #FFF;
