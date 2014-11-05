@@ -2,55 +2,50 @@
 {% block head_title %}My CodaLab{% endblock head_title %}
 {% block page_title %}My CodaLab{% endblock page_title %}
 
-{% block custom_html_attributes %} ng-app="codalab" {% endblock custom_html_attributes %}
-{% block custom_body_attributes %} ng-controller="root" {% endblock custom_body_attributes %}
-
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true">
-            <section>
-                <p class="title active" id="participating" data-section-title>
-                    <a href="#participate">Competitions I'm In</a>
-                </p>
-                <div class="content" data-section-content data-slug="participate">
-                    <div class="row">
-                        <div class="large-9 push-3 columns">
-                            <div class="my_participating"> {% include "web/my/_entered.html" with participations=competitions_im_in %} </div>
-                        </div>
-                        <div class="large-3 pull-9 columns">
-                            <a target="_self" href="/competitions"><button class="small button">View Competitions</button></a>
-                        </div>
+<section class="my-codalab">
+    <ul class="nav nav-tabs" id="my_competition_tab_nav">
+        <li class="active">
+            <a href="#my_participating" role="tab"  data-toggle="tab">Competitions I'm In</a>
+        </li>
+        <li>
+            <a href="#my_managing" role="tab"  data-toggle="tab">Competitions I'm Running</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="my_participating" class="tab-pane active">
+            <div class="tab-inner">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <a class="btn btn-primary" target="_self" href="/competitions">View Competitions</a>
+                    </div>
+                    <div class="col-sm-9">
+                        {% include "web/my/_entered.html" with participations=competitions_im_in %}
                     </div>
                 </div>
-            </section>
-            <section>
-                <p class="title" id="managed" data-section-title>
-                    <a href="#manage">Competitions I'm Running</a>
-                </p>
-                <div class="content" data-section-content data-slug="manage">
-                    <div class="row">
-                        <div class="large-9 push-3 columns ">
-                            <div class="my_managing">
-                                {% include "web/my/_managed.html" with competitions=my_competitions %}
-                            </div>
-                        </div>
-                        <div class="large-3 pull-9 columns">
-                            <a  target="_self" href="{% url 'competitions:create' %}"><button class="small button">Create Competition</button></a>
-                        </div>
+            </div>
+        </div>
+
+        <div id="my_managing" class="tab-pane">
+            <div class="tab-inner">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">Create Competition</a>
+                    </div>
+                    <div class="col-sm-9">
+                        {% include "web/my/_managed.html" with competitions=my_competitions %}
                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     </div>
-</div>
-{% endblock content %}
 
-{% block js %}
-    $('document').ready(function() {
-        // This helps make sections appear with Foundation
-        $(this).foundation('section', 'reflow');
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liMyCodalab").addClass("active");
+{% endblock content %}
+{% block jsincludes %}
+<script>
+    $('.competition-tile').on('click',function(){
+        var competitionID = $(this).find('#competitionID').val();
+        window.location.href = '/competitions/' + competitionID + '#learn_the_details';
     });
-{% endblock js %}
+</script>
+{% endblock %}

@@ -8,32 +8,34 @@
                         </div>
                         {# _'s are replaced by the submission ID in hrefs... so I'll use that to hook the traceback in #}
                         <div class="traceback"><a href="traceback/_/"></a></div>
-                        <div class="small-2 large-4 columns">
-                            <a href="/my/competition/submission/_/input.zip">Download your submission</a></br>
-                            {% if phase.is_blind %}
-                                <a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></br>
-                            {% else %}
-                                <a href="/my/competition/submission/_/stdout.txt" target="_blank">View standard output log</a></br>
-                                <a href="/my/competition/submission/_/stderr.txt" target="_blank">View standard error log</a></br>
-                                <a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict standard output log</a></br>
-                                <a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict standard error log</a></br>
-                                {% if not phase.is_scoring_only %}
-                                <a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></br>
-                                {% endif %}
-                                {% if phase.competition.enable_detailed_results %}
-                                    <a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a><br>
-                                {% endif %}
-                                <a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a><br>
-                                {% if user.id == competition.creator.id %}
-                                    <a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a><br>
-                                {% endif %}
-                                <br>
-                            {% endif %}
-                        </div>
-                        <div class="small-2 large-4 columns preloader-handler"></div>
-                        <div class="small-2 large-4 columns">
-                            <button class="button rFloat hide"></button>
-
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <ul class="list-unstyled">
+                                    <li><a href="/my/competition/submission/_/input.zip">Download your submission</a></li>
+                                    {% if phase.is_blind %}
+                                        <li><a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></li>
+                                    {% else %}
+                                        <li><a href="/my/competition/submission/_/stdout.txt" target="_blank">View standard output log</a></li>
+                                        <li><a href="/my/competition/submission/_/stderr.txt" target="_blank">View standard error log</a></li>
+                                        <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict standard output log</a></li>
+                                        <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict standard error log</a></li>
+                                        {% if not phase.is_scoring_only %}
+                                            <li><a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></li>
+                                        {% endif %}
+                                        {% if phase.competition.enable_detailed_results %}
+                                            <li><a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a></li>
+                                        {% endif %}
+                                            <li><a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a></li>
+                                        {% if user.id == competition.creator.id %}
+                                            <li><a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a></li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="col-sm-3 preloader-handler"></div>
+                            <div class="col-sm-3">
+                                <button class="button btn btn-default pull-right hide"></button>
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -47,7 +49,7 @@
                 <td></td>
                 <td class="statusName"></td>
                 <td class="status not_submitted"></td>
-                <td><i class="fi-plus"></i></td>
+                <td><span class="glyphicon glyphicon-plus"></span></td>
             </tr>
         </table>
     </div>

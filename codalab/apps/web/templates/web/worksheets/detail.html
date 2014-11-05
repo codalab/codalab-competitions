@@ -4,58 +4,65 @@
 {% block subheader %}{% endblock subheader %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div id="worksheet-message" class="ws-detail">
-            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
-        </div>
-        <div id="worksheet_container">
-            <!-- worksheet html wil go here-->
-        </div>
-    </div>
+
+<div id="worksheet-message" class="ws-detail">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
 </div>
-<div id="save_progress">
+<div id="worksheet_container">
+    <!-- worksheet html wil go here-->
+</div>
+<div id="save_progress" class="progress-message">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...
 </div>
-<div id="update_progress">
+<div id="update_progress" class="progress-message">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Updating...
 </div>
-<div id="save_error">
-    <i class="fi-x-circle"></i> Error Saving...
+<div id="save_error" class="progress-message">
+    <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
 </div>
-<div id="glossaryModal" class="reveal-modal medium" data-reveal>
-    <h3>Keyboard Shortcuts</h3>
-    <dl>
-        <dt><code>/</code></dt>
-            <dd>jump to search bar</dd>
-        <dt><code>ctrl + e</code> or <code>⌘ + e</code></dt>
-            <dd>toggle editing mode (if user has permission)</dd>
-        <dt><code>j</code> or <code>↓</code></dt>
-            <dd>next worksheet item or table row</dd>
-        <dt><code>shift + j</code> or <code>shift + ↓</code></dt>
-            <dd>move focused item down</dd>
-        <dt><code>k</code> or <code>↑</code></dt>
-            <dd>previous worksheet item or table row</dd>
-        <dt><code>shift + k</code> or <code>shift + ↑</code></dt>
-            <dd>move focused item up</dd>
-        <dt><code>e</code></dt>
-            <dd>edit highlighted item (markup bundles only)</dd>
-        <dt><code>esc</code></dt>
-            <dd>exit edit mode</dd>
-        <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
-            <dd>save edits to markup item</dd>
-        <dt><code>x</code></dt>
-            <dd>select highlighted item</dd>
-        <dt><code>d</code></dt>
-            <dd>delete selected items</dd>
-        <dt><code>i</code></dt>
-            <dd>insert markup before highlighted item</dd>
-        <dt><code>A</code></dt>
-            <dd>insert markup after highlighted item</dd>
-        <dt><code>?</code></dt>
-            <dd>show this glossary</dd>
-    </dl>
-  <a class="close-reveal-modal">&#215;</a>
+<div id="glossaryModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4>Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+                <dl>
+                    <dt><code>/</code></dt>
+                        <dd>jump to search bar</dd>
+                    <dt><code>ctrl + e</code> or <code>⌘ + e</code></dt>
+                        <dd>toggle editing mode (if user has permission)</dd>
+                    <dt><code>j</code> or <code>↓</code></dt>
+                        <dd>next worksheet item or table row</dd>
+                    <dt><code>shift + j</code> or <code>shift + ↓</code></dt>
+                        <dd>move focused item down</dd>
+                    <dt><code>k</code> or <code>↑</code></dt>
+                        <dd>previous worksheet item or table row</dd>
+                    <dt><code>shift + k</code> or <code>shift + ↑</code></dt>
+                        <dd>move focused item up</dd>
+                    <dt><code>e</code></dt>
+                        <dd>edit highlighted item (markup bundles only)</dd>
+                    <dt><code>esc</code></dt>
+                        <dd>exit edit mode</dd>
+                    <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
+                        <dd>save edits to markup item</dd>
+                    <dt><code>x</code></dt>
+                        <dd>select highlighted item</dd>
+                    <dt><code>d</code></dt>
+                        <dd>delete selected items</dd>
+                    <dt><code>i</code></dt>
+                        <dd>insert markup before highlighted item</dd>
+                    <dt><code>A</code></dt>
+                        <dd>insert markup after highlighted item</dd>
+                    <dt><code>?</code></dt>
+                        <dd>show this glossary</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 

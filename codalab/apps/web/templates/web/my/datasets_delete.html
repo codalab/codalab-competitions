@@ -11,51 +11,41 @@
 {% endblock %}
 
 {% block content %}
-<style>
-.confirm-button.disabled {
-    opacity: 0.1 !important;
-}
-</style>
-
-<div class="row">
-    <div class="large-12 columns">
-        <form action="" method="post">{% csrf_token %}
-            {% if competitions_in_use %}
-                <div class="row" style="padding: 30px 0;">
-                    <div class="large-12 columns">
-                        <h2 class="alert">WARNING DataSet currently in use by:</h2>
-                        {% for competition in competitions_in_use %}
-                            - <a href="{{ competition.get_absolute_url }}">{{ competition }}</a><br>
-                        {% endfor %}
-
-                        <br><br>
-
-                        <input type="checkbox" id="are-you-sure" style="float: left; margin-right: 5px;"><label for="are-you-sure">Yes I am absolutely sure, even though competitions are using this, I want to delete it.</label>
-                    </div>
-                </div>
-            {% else %}
-                <p>Are you sure you want to delete "{{ object }}"?</p>
-            {% endif %}
-
-            <input type="submit" value="Confirm" class="button alert disabled confirm-button" disabled/>
-            <a href="{% url "my_datasets" %}" class="button">Cancel</a>
-        </form>
-    </div>
-</div>
+<form action="" method="post">{% csrf_token %}
+    {% if competitions_in_use %}
+        <div class="alert alert-warning"><strong>WARNING</strong> DataSet currently in use by:
+            <ul class="margin-top">
+                {% for competition in competitions_in_use %}
+                    <li><a href="{{ competition.get_absolute_url }}">{{ competition }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <div class="checkbox">
+            <label for="are-you-sure">
+                <input type="checkbox" id="are-you-sure"><strong>Yes</strong>, I am absolutely sure, even though competitions are using this, I want to delete it.
+            </label>
+        </div>
+    {% else %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+    {% endif %}
+    <input type="submit" value="Confirm" class="button btn btn-primary disabled confirm-button" disabled/>
+    <a href="{% url 'my_datasets' %}" class="button btn btn-default">Cancel</a>
+</form>
 {% endblock %}
 
 {% block js %}
 {% if competitions_in_use %}
-    $(".button.alert").addClass("disabled").attr('disabled','disabled');
+    $(".confirm-button").addClass("disabled").attr('disabled','disabled');
 
     $("#are-you-sure").change(function() {
         if($(this).is(':checked')){
-            $(".button.alert").removeClass("disabled").removeAttr('disabled');
+            $(".confirm-button").removeClass("disabled").removeAttr('disabled');
         } else {
-            $(".button.alert").addClass("disabled").attr('disabled','disabled');
+            $(".confirm-button").addClass("disabled").attr('disabled','disabled');
         }
     });
 {% else %}
-    $(".button.alert").removeClass("disabled").removeAttr('disabled');
+    $(".confirm-button").removeClass("disabled").removeAttr('disabled');
 {% endif %}
 {% endblock js %}

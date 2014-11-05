@@ -7,77 +7,64 @@
 {% block head_title %}Participants{% endblock %}
 
 {% block extra_head %}
-<script src="{% static "js/foundation/vendor/jquery.validate.min.js" %}"></script>
+    <script src="{% static 'js/foundation/vendor/jquery.validate.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
-    <div class="large-12 large-centered columns participants content">
-        {% if not object_list %}
-        <p>There are no participants.</p>
-        {% else %}
+<div class="participants">
+    {% if not object_list %}
+        <p><em>There are no participants.</em></p>
+    {% else %}
         {% for item in pending_participants %}
-        <div class="row">
-            <div class="competitionUserBlock competitionUserBlock_{{item.id}}">
-                <div class="large-8 push-4 columns process_participant_request">
-                    <form class="custom process_request" id="process_request_{{item.id}}">
-                        {% csrf_token %}
+            <div class="panel panel-default competitionUserBlock competitionUserBlock_{{item.id}}">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ item.user.username }}
+                        <span class="participationStatus label label-{{ item.status.codename }}">
+                            {% if item.status.codename == 'pending' %}
+                                Participation pending approval
+                            {% elif item.status.codename == 'approved' %}
+                                Participation approved
+                            {% elif item.status.codename == 'denied' %}
+                                Participation denied
+                            {% else %}
+                                Unknown Status
+                            {% endif %}
+                        </span>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    {% if item.status.codename == 'denied' %}
+                        <p class="text-danger">Reason: {{ item.reason }}</p>
+                    {% endif %}
+                    <form class="custom process_request" id="process_request_{{item.id}}">{% csrf_token %}
                         <input type="hidden" name="participant_id" value="{{item.id}}"/>
                         <div class="row">
-                        <div class="small-8 push-4 columns">
-                            <label for="reason">Reason:</label>
-                            <textarea id="reason" name="reason"></textarea>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="status">Status:</label>
+                                    <select id="status" name="status" class="form-control">
+                                        <option value="approved">Approve</option>
+                                        <option value="denied">Deny</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="form-group">
+                                    <label for="reason">Reason:</label>
+                                    <textarea id="reason" name="reason" class="form-control"></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div class="small-4 pull-8 columns">
-                            <label for="status">Status:</label>
-                            <select id="status" name="status">
-                                <option value="approved">Approve</option>
-                                <option value="denied">Deny</option>
-                            </select>
-                        </div>
-                    </div>
-                        <input type="submit" class="button" value="Process" />
+                        <input type="submit" class="btn btn-primary pull-right" value="Process" />
                     </form>
                 </div>
-                <div class="large-4 pull-8 columns">
-                    <h3>{{ item.user.username }}</h3>
-		            <p class="participationStatus">
-                        {% if item.status.codename == 'pending' %}
-                        Participation pending approval
-                        {% elif item.status.codename == 'approved' %}
-                        Participation approved
-                        {% elif item.status.codename == 'denied' %}
-                        Participation denied
-                        <p style="color:red;">Reason: {{ item.reason }}</p>
-                        {% else %}
-                        Unknown Status
-                        {% endif %}
-		            </p>
-                </div>
             </div>
-        </div>
         {% endfor %}
 
-        <div class="large-12">
-            <a href="#" data-reveal-id="myModal" class="button">Send message to all participants?</a>
+        <button type="button" data-toggle="modal" href="#message_all_modal" class="btn btn-primary">Send message to all participants?</button>
 
-            <div id="myModal" class="reveal-modal" data-reveal>
-                <h2>Email Participants</h2>
-                <a class="close-reveal-modal">&#215;</a>
-
-                <form>
-                    <input id="subject_input" type="text" placeholder="Subject">
-
-                    <textarea id="message_textarea" placeholder="Message"></textarea>
-                </form>
-
-                <a id="direct_message_participants_button" class="button">Send</a>
-                <a class="button alert" onclick="$('a.close-reveal-modal').trigger('click');">Cancel</a>
-            </div>
-        </div>
-
-        <table class="resultsTable dataTable">
+        <table class="resultsTable dataTable table table-striped table-bordered">
             <thead>
                 <tr>
                     {% for column in columns %}
@@ -85,7 +72,7 @@
                         <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
                             {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
                         </a>
-                    </th>
+                </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -94,14 +81,12 @@
                 <tr>
                     {% for column in columns %}
                     <td>
-                        <span class="column_text">{{ participant|get_item:column.name }}</span>
-
-
-
                         {% if column.label == "STATUS" %}
-                            <div class="revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</div>
-
-                            <div class="reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</div>
+                            <span class="label label-{{participant|get_item:column.name}}">{{participant|get_item:column.name}}</span>
+                            <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</button>
+                            <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</button>
+                        {% else %}
+                            {{ participant|get_item:column.name }}
                         {% endif %}
                     </td>
                     {% endfor %}
@@ -112,6 +97,31 @@
         {% endif %}
     </div>
 </div>
+<div class="modal fade" id="message_all_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Email Participants</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <input id="subject_input" type="text" placeholder="Subject" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message_textarea" placeholder="Message" class="form-control"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button id="direct_message_participants_button" class="btn btn-primary">Send</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 {% endblock %}
 
 {% block js %}

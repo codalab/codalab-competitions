@@ -1,100 +1,94 @@
 {% if phase == None %}
+
 {% elif phase.is_future %}
+
     <p>This phase of the competition has not started yet. Please check back later.</p>
+
 {% else %}
+
     {% if phase.competition.force_submission_to_leaderboard %}
         <div id="forced_to_leaderboard"></div>
     {% endif %}
+
     {% if phase.competition.disallow_leaderboard_modifying %}
         <div id="disallow_leaderboard_modifying"></div>
     {% endif %}
-
-
-    <div class="row" style="margin-top: 20px;">
-        <b>Phase description</b>
+    <div class="phase-description">
+        <h4>Phase description</h4>
         {% if phase.description %}
             <p>{{ phase.description }}</p>
         {% else %}
             <p>None</p>
         {% endif %}
-    </div>
-
+    </div>div>
 
     {% if phase.is_active %}
-    <div class="row">
-        <div class="panel">
-            <p>Click the Submit button to upload a new submission.</p>
-            <textarea id="submission_description_textarea" placeholder="Optionally add more information about this submission"></textarea>
-            <button
-                    id="fileUploadButton"
-                    class="button {% if not phase.reference_data %}disabled{% endif %}"
-                    {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
-
-            {% if not phase.reference_data %}
-                <br><i style="color: #a30000;">This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</i>
-            {% endif %}
-
-            <p id="details" class="submission_upload_details"></p>
+        <div class="form-group">
+            <label class="control-label">Click the Submit button to upload a new submission.</label>
+            <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
         </div>
-        <div>
-            <p><br>Here are your submissions to date:</p>
-            <p>( <i class="fi-check"></i>&nbsp; indicates submission on leaderboard )</p>
-        </div>
-    </div>
-    {% else %}
-      <p><br>This phase of the competition is closed. Here are the submissions you made:</p>
-    {% endif %}
-    <div class="row">
-      <div class="user_results">
-        {% if phase.is_active and not phase.is_blind %}
-        <input type="hidden" id="phasestate" value="1" />
-        {% else %}
-        <input type="hidden" id="phasestate" value="0" />
+        <button id="fileUploadButton" class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
+        {% if not phase.reference_data %}
+            <p><em>This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</em></p>
         {% endif %}
-        <table class="resultsTable dataTable" id="user_results">
-          <thead>
-            <tr>
-                <th width="40px"></th>
-                <th>Filename</th>
-                <th>Submission date</th>
-                <th>Status</th>
-                <th width="40px"><i class="fi-check"></i></th>
-                <th width="40px"></th>
-            </tr>
-          </thead>
-          <tbody>
-                {% if submission_info_list|length_is:"0" %}
+
+        <p id="details" class="submission_upload_details"></p>
+
+        <p>Here are your submissions to date
+            <span class="small">(<span class="glyphicon glyphicon-ok"></span> indicates submission on leaderboard )</span>:</p>
+    {% else %}
+        <p>This phase of the competition is closed. Here are the submissions you made:</p>
+    {% endif %}
+    <div class="user_results">
+    {% if phase.is_active and not phase.is_blind %}
+        <input type="hidden" id="phasestate" value="1" />
+    {% else %}
+        <input type="hidden" id="phasestate" value="0" />
+    {% endif %}
+        <table class="table resultsTable dataTable table-striped table-bordered" id="user_results">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Filename</th>
+                    <th>Submission date</th>
+                    <th>Status</th>
+                    <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if submission_info_list|length_is:"0" %}
                 <tr class="noData">
                     <td class="tdDetails" colspan="6">No data available in table</td>
                 </tr>
-                {% else %}
+            {% else %}
                 {% for submission_info in submission_info_list %}
-                <tr id="{{submission_info.id}}"
-                    {% if submission_info.exception_details %}
-                        data-exception="{{ submission_info.exception_details|escape }}"
-                    {% endif %}
-                    data-description="{{ submission_info.description|default_if_none:""|escape }}">
-                    {% if submission_info.is_finished %}
-                    <input type="hidden" name="state" value='1' />
-                    {% else %}
-                    <input type="hidden" name="state" value='0' />
-                    {% endif %}
-                    <td>{{submission_info.number}}</td>
-                    <td>{{submission_info.filename}}</td>
-                    <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
-                    <td class="statusName">{{submission_info.status_name}}</td>
-                    {% if submission_info.is_in_leaderboard %}
-                    <td class="status submitted"><i class="fi-check"></i></td>
-                    {% else %}
-                    <td class="status not_submitted"></td>
-                    {% endif %}
-                    <td><i class="fi-plus"></i></td>
-                </tr>
+                    <tr id="{{submission_info.id}}"
+                        {% if submission_info.exception_details %}
+                            data-exception="{{ submission_info.exception_details|escape }}"
+                        {% endif %}
+                        data-description="{{ submission_info.description|default_if_none:""|escape }}">
+                        {% if submission_info.is_finished %}
+                            <input type="hidden" name="state" value='1' />
+                        {% else %}
+                            <input type="hidden" name="state" value='0' />
+                        {% endif %}
+                        <td>{{submission_info.number}}</td>
+                        <td>{{submission_info.filename}}</td>
+                        <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                        <td class="statusName">{{submission_info.status_name}}</td>
+                        {% if submission_info.is_in_leaderboard %}
+                            <td class="status submitted text-center"><span class="glyphicon glyphicon-ok text-success"></span></td>
+                        {% else %}
+                            <td class="status not_submitted text-center"></td>
+                        {% endif %}
+                        <td class="text-center"><span class="glyphicon glyphicon-plus"></span></td>
+                    </tr>
                 {% endfor %}
-                {% endif %}
-          </tbody>
+            {% endif %}
+            </tbody>
         </table>
-      </div>
     </div>
-    {% include "web/common/_submission_details_template.html" %}
+{% include "web/common/_submission_details_template.html" %}
 {% endif %}

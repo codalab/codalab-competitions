@@ -4,15 +4,11 @@
 {% block page_title %}Bundle details{% endblock page_title %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div id="bundle-message" class="bundle-detail">
-            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle...
-        </div>
-        <div id="bundle-content">
-            <!-- bundle html wil go here see bundle_interface.js -->
-        </div>
-    </div>
+<div id="bundle-message" class="bundle-detail">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading bundle...
+</div>
+<div id="bundle-content">
+    <!-- bundle html wil go here see bundle_interface.js -->
 </div>
 {% endblock content %}
 

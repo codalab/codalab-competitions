@@ -1,18 +1,11 @@
-<div class="row" id="results_phase_buttons">
-  <div class="small-12 columns">
-    <div class="right">
-    {% for phase in competition.phases.all %}
-      {% if phase.is_active %}
-        <button class="button active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
-      {% else %}
-        <button class="button phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
-      {% endif %}
-    {% endfor %}
-    </div>
-  </div>
+<div id="results_phase_buttons">
+  {% for phase in competition.phases.all %}
+    {% if phase.is_active %}
+      <button class="btn active phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+    {% else %}
+      <button class="btn phase-btn-{{ phase.color }}" id="results_phase_{{phase.id}}">{{phase.label}}</button>
+    {% endif %}
+  {% endfor %}
 </div>
 
-<div class="row">
-  <div class="competition_results">
-  </div>
-</div>
+<div class="competition_results"></div>

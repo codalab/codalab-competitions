@@ -1,50 +1,40 @@
 ﻿{% load static %}
-
 {% if not competitions %}
-<p>You do not manage any competitions.</p>
+    <p><em>You do not manage any competitions.</em></p>
 {% else %}
-{% for competition in competitions %}
-<div class="competition-tile">
-    <article class="subContainer">
-        <input id="competitionID" type="hidden" value="{{ competition.pk }}" />
-        <div class="competitionTileLftStrip"></div>
-        <div class="articleTextArea">
-            <a target="_self" href="/competitions/{{competition.pk}}">
-                <div class="articleTextAreaContainer">
-                    <div class="articleImageContainer">
-                        <div class="subContainerPadding">
-                            {% if competition.image_url = None %}
+    {% for competition in competitions %}
+        <div class="competition-tile">
+            <div class="row">
+                <input id="competitionID" type="hidden" value="{{ competition.pk }}" />
+                <div class="col-sm-3 col-md-2">
+                    <div class="img-container">
+                        {% if competition.image_url = None %}
                             <img src="{% static "img/ProfileImageDummy.jpg" %}">
-                            {% else %}
+                        {% else %}
                             <img src="{{ competition.image_url }}">
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="subContainerPadding">
-                        <div class="articleHeadingContainer">
-                            <h3>{{ competition.title }}</h3>
-                            <label>Organized by {{ competition.creator }}</label>
-                        </div>
-                        <div class="competition-paragraph">
-                        {{ competition.description|safe }}
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
-            </a>
-            <div id="competition-actions" published="{{competition.published}}" class="columns cursor-default myCompetitionButtons">
-                {% if request.user == competition.creator %}
-                <a target="_self" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}"><button class="secondary button">Delete</button></a>
-                {% endif %}
-
-                <a target="_self" href="{% url 'competitions:edit' pk=competition.pk %}"><button class="secondary button">Edit</button></a>
-                <button value="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button" class="secondary button">Publish</button>
-                <!-- <button value="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button" class="secondary button">Unpublish</button> -->
-                <a target="_self" href="{% url 'my_competition_participants' competition_id=competition.pk %}"><button class="secondary button">Participants</button></a>
-                <a target="_self" href="{% url 'my_competition_submissions' competition_id=competition.pk %}"><button class="secondary button">Submissions</button></a>
-                <a target="_self" href="/competitions/{{competition.pk}}#results"><button class="secondary button">Leaderboard</button></a>
+                <div class="col-sm-9 col-md-10">
+                    <h3>{{ competition.title }}</h3>
+                    <p class="organizer">Organized by {{ competition.creator }}</p>
+                    <p>{{ competition.description|safe }}</p>
+                </div>
+            </div>
+            <div class="competition-actions" published="{{competition.published}}" class="columns cursor-default myCompetitionButtons">
+                <div class="btn-group btn-group-justified">
+                    {% if request.user == competition.creator %}
+                        <a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">Delete</button>
+                    {% endif %}
+                        <a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">Edit</a>
+                        <a class="btn btn-sm btn-success" href="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button">Publish</button>
+                        <a class="btn btn-sm btn-warning" href="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button">Unpublish</button>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">Submissions</a>
+                        <a class="btn btn-sm btn-primary" href="/competitions/{{competition.pk}}#results">Leaderboard</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </article>
-</div>
-{% endfor %}
+    {% endfor %}
 {% endif %}

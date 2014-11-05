@@ -9,43 +9,45 @@
 
 {% block content %}
 <div class="row">
-    <div class="large-6 columns">
+    <div class="col-md-6">
 	    {% if socialaccount.providers  %}
-		<p>
-			{% blocktrans with site.name as site_name %}Please sign in with one
-			of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a> 
-			for a {{site_name}} account and sign in below:
-            {% endblocktrans %}
-		</p>
-		<div class="socialaccount_ballot">
-			<ul class="socialaccount_providers">
-				{% include "socialaccount/snippets/provider_list.html" %}
-			</ul>
-			<div class="login-or">{% trans 'or' %}</div>
-		</div>
-		{% include "socialaccount/snippets/login_extra.html" %}
+    		<p>
+    			{% blocktrans with site.name as site_name %}Please sign in with one
+    			of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+    			for a {{site_name}} account and sign in below:
+                {% endblocktrans %}
+    		</p>
+    		<div class="socialaccount_ballot">
+    			<ul class="socialaccount_providers">
+    				{% include "socialaccount/snippets/provider_list.html" %}
+    			</ul>
+    			<div class="login-or">{% trans 'or' %}</div>
+    		</div>
+    		{% include "socialaccount/snippets/login_extra.html" %}
 	    {% endif %}
-
 	    <form class="login" method="POST" action="{% url 'account_login' %}">
 		    {% csrf_token %}
-            {{ form.as_p }} 
+            <div class="form-group">
+                <label for="id_login">Login:</label>
+                <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text">
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password:</label>
+                <input id="id_password" class="form-control" name="password" placeholder="Password" type="password">
+            </div>
+            <div class="checkbox">
+                <label for="id_remember">
+                    <input id="id_remember" name="remember" type="checkbox">
+                    Remember Me
+                </label>
+            </div>
 		    {% if redirect_field_value %}
-		    <input type="hidden" name="{{ redirect_field_name }}" value=	"{{ redirect_field_value }}" />
+		      <input type="hidden" name="{{ redirect_field_name }}" value=	"{{ redirect_field_value }}" />
 		    {% endif %}
-		    <button class="button" type="submit">{% trans "Sign In" %} </button>            
+		    <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
 	    </form>
-	    <p>
-    		{% blocktrans %}<a href="{{signup_url}}">Sign up</a> if you don't have an account.
-    		<br><br><a href="../password/reset/" class="small">I forgot my password.</a> 
-    		{% endblocktrans %}
-	    </p>
-    </div>
-    <div class="large-6 columns">
+	    <p class="pad-top"><a href="{{signup_url}}">Sign up</a> if you don't have an account.<br />
+		<a href="../password/reset/">I forgot my password.</a></p>
     </div>
 </div>
 {% endblock %}
-
-{% block js %}
-$("#id_login").focus();
-{% endblock js %}
-

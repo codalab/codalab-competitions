@@ -1,0 +1,436 @@
+#worksheet-message {
+   margin:20px 0;
+   .ws-detail {
+      margin-top:32px;
+   }
+}
+#worksheet_content {
+   line-height:1.2;
+   min-height:480px;
+   hr {
+      margin:12px 0;
+   }
+   p {
+      margin-bottom:12px;
+   }
+   .glossary-link,
+   .controls label {
+      font-weight:normal;
+      font-size:@font-size-small;
+      display:inline;
+      &:hover {
+         text-decoration: none;
+      }
+      code {
+         background-color:transparent;
+         padding:0;
+      }
+   }
+   .empty-worksheet {
+      color:#a4a4a4;
+      text-align:center;
+      display:none;
+   }
+   .worksheet-name {
+      min-height:65px;
+      label input[type="checkbox"]{
+         margin-right:5px;
+      }
+      h1 {
+         text-indent:65px;
+         margin:0;
+         font-size:44px;
+      }
+      .worksheet-author {
+         text-indent:65px;
+         font-size:14px;
+         margin-top:0;
+      }
+   }
+   .header-row {
+      hr {
+         margin-bottom:30px;
+      }
+      .controls {
+         text-align:right;
+         padding-top:12px;
+         input, label {
+            font-weight:normal;
+            margin:0;
+         }
+      }
+   }
+   .ws-item {
+      position:relative;
+      .ws-checkbox {
+         margin:0;
+         position:absolute;
+         left:-24px;
+         top:4px;
+         font-size:16px;
+      }
+      > .focused {
+         background-color:@focused-bg;
+         box-shadow:0 0 3px @brand-primary;
+      }
+   }
+   &.editable .ws-item {
+      margin-left:24px;
+   }
+   textarea {
+      background:white;
+      color:@gray-dark;
+      box-shadow:none;
+      font-family:monospace;
+      font-size:14px;
+      outline:none;
+      height:auto;
+      padding:8px;
+      width:100%;
+      line-height:1.2em;
+      color:@gray-darker;
+      &.raw-textarea {
+         min-height:480px;
+      }
+   }
+
+   // Bundle Types
+   .type-markup {
+      .clearfix;
+      ul, ol {
+         margin: 0 0 16px 0;
+         padding-left:40px;
+      }
+      ul {
+         list-style-type:disc;
+      }
+      ol {
+         list-style-type:decimal;
+      }
+      h1, h2, h3 {
+         margin:0 0 12px 0;
+         padding:0;
+      }
+      h1 {
+         font-size:36px;
+      }
+      h2 {
+         font-size:28px;
+      }
+      h3 {
+         font-size:20px;
+      }
+   }
+   .type-markup,
+   .type-inline,
+   .type-worksheet,
+   .type-image {
+      min-height:24px;
+      margin-bottom:20px;
+   }
+   .type-image img {
+      width:98%;
+      margin:1%
+   }
+   .type-contents {
+      blockquote {
+         padding: 16px 0 16px 24px;
+         border-left:4px solid @gray-lighter;
+         p {
+            color:@gray-dark;
+            margin:0;
+            font-size:14px;
+            line-height:1.5;
+         }
+      }
+      &:not(.focused) blockquote{
+         background-color:@white-dark;
+      }
+   }
+   .type-html {
+      .html-bundle {
+         padding:16px;
+         margin-bottom:24px;
+         border:1px solid @gray-lighter;
+         background-color:#fff;
+         &.focused .html-bundle {
+            background-color:@focused-bg;
+         }
+      }
+   }
+   .type-worksheet {
+      height:40px;
+      line-height:40px;
+      padding:0 8px 0 40px;
+      background: url('../img/icon_worksheet.png') no-repeat 4px #fcfcfc;
+      background-size:32px;
+   }
+   .type-table, .type-record {
+      margin-bottom: 28px;
+      table {
+         .table;
+         .table-bordered;
+         .table-striped;
+         border-width:2px;
+         border-color:white;
+         margin-bottom:0;
+         > thead,
+         > tbody,
+         > tfoot {
+            > tr {
+               > th,
+               > td {
+                  line-height:1.2;
+                  font-size:@font-size-med;
+                  border-width:2px;
+                  border-color:white;
+                  a.bundle-link {
+                     font-weight:bold;
+                  }
+               }
+            }
+         }
+         > thead > tr > th {
+            font-weight:bold;
+            color:@gray-dark;
+         }
+         &.focused {
+            border-color:@focused-bg;
+            box-shadow:0 0 3px @brand-primary;
+            > thead,
+            > tbody,
+            > tfoot {
+               > tr {
+                  > th,
+                  > td {
+                    border-color:@focused-bg;
+                  }
+                  &.focused {
+                     > td {
+                        background-color:@focused-bg-alt;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   .type-record {
+      table.table {
+         width:auto;
+         max-width:100%;
+      }
+   }
+}
+
+// Select2 Overrides
+.select2-container {
+   width:100%;
+}
+.select2-container-multi .select2-choices {
+   background-image:none;
+   border-color:@input-border;
+   box-shadow:none;
+   z-index:2;
+   .select2-search-choice {
+      .box-shadow(none);
+      background-color:fade(@brand-primary, 25%);
+      background-image: none;
+      border:none;
+      border-radius:0;
+      padding:4px 4px 4px 16px;
+   }
+   .select2-search-field input {
+      font-family:@font-family-base;
+   }
+}
+.select2-drop,
+.select2-drop-active {
+   .box-shadow(0 2px 4px fadeout(black, 85%));
+   background-color:fadeout(white, 10%);
+   border-radius:0;
+   border-color:@input-border;
+}
+.select2-results {
+   font-size:14px;
+   .select2-highlighted {
+      background-color: fade(@brand-primary, 50%);
+   }
+}
+
+// Progress Messages
+.progress-message {
+   display:none;
+   position:fixed;
+   bottom:40px;
+   right:40px;
+   width:150px;
+   height:40px;
+   line-height:40px;
+   background-color:fade(white, 75%);
+   text-align:center;
+   z-index:1020;
+   &#update_progress {
+      top:63px;
+   }
+   &#save_error i {
+      font-size:18px;
+      color:red;
+      vertical-align:-3px;
+      margin-right:2px;
+   }
+}
+
+// Worksheet List
+#worksheet-list {
+   .checkbox {
+      margin:20px 0;
+      .my-worksheets-toggle input {
+         margin-right:5px;
+      }
+
+   }
+   .worksheet-tile {
+      .cl-tile;
+      border-left:1px solid @gray-light;
+      padding:0;
+      &:hover {
+         cursor:pointer;
+         h3 {
+            color:@brand-primary;
+         }
+      }
+      &.focused {
+         .box-shadow(0 1px 6px fadeout(black, 75%));
+         .worksheet-inner {
+            border-left-color:@brand-success;
+         }
+      }
+      .worksheet-inner {
+         border-left: 10px solid @brand-primary;
+         padding:10px 15px 10px 58px;
+         background:url('../img/icon_worksheet.png') no-repeat 5px 10px;
+         min-height:48px;
+         h3 {
+            margin:0;
+            padding-bottom: 0.5em;
+         }
+      }
+   }
+}
+
+// Bundle Detail
+#bundle-content {
+   padding-top:15px;
+   .bundle-tile {
+      .cl-tile;
+      .bundle-header {
+         border-bottom:1px solid @gray-light;
+         padding-bottom:12px;
+         margin-bottom:24px;
+         line-height:@font-size-h3;
+         h2 {
+            margin:0;
+            background-position:0 15px;
+         }
+         .bundle-download,
+         .bundle-uuid {
+            float:right;
+            margin:10px 0 0 12px
+         }
+         .bundle-uuid {
+            .small;
+            .text-muted
+         }
+      }
+      h3 {
+         margin-top:20px;
+         .btn {
+            margin-left:6px;
+         }
+      }
+      .metadata-table {
+         margin-bottom:24px;
+         table {
+            .table;
+            .table-bordered;
+            .table-striped;
+            margin-bottom:0;
+            input.form-control {
+               margin-bottom:0;
+               padding:4px 8px;
+               height:auto;
+            }
+            &.editing {
+               tr td,
+               tr th {
+               }
+            }
+         }
+      }
+      .bundle-file-view-container {
+         border-top:1px solid @gray-light;
+         margin-bottom:24px;
+         .breadcrumb {
+            margin-bottom:12px;
+         }
+         .file-browser-table {
+            .table;
+            .table-striped;
+            margin-bottom:0;
+            > thead,
+            > tbody,
+            > tfoot {
+               > tr {
+                  > th,
+                  > td {
+                     line-height:1.2;
+                     font-size:@font-size-med;
+                     border-width:0;
+                     a, span {
+                        font-weight:bold;
+                        cursor:pointer;
+                     }
+                  }
+               }
+            }
+            .glyphicon {
+               font-size:@font-size-med;
+               color:@gray;
+               margin-right:6px;
+            }
+         }
+      }
+   }
+}
+
+
+// Keyboard Shortcut Glossary
+#glossaryModal {
+   .modal-header h4 {
+      margin:0;
+   }
+   dl {
+      margin-bottom:0;
+   }
+   dt {
+      float:left;
+      margin-right:16px;
+      font-weight:normal;
+      code {
+         padding:4px;
+         text-align:center;
+      }
+   }
+}
+
+@media screen and (max-width: @screen-xs-max) {
+   #worksheet_content {
+      .type-table table,
+      .type-record table {
+         margin-bottom:16px;
+      }
+   }
+}
+
+
