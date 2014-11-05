@@ -1,0 +1,85 @@
+.navbar.navbar-default.navbar-fixed-top  {
+    border-width:0 0 2px 0;
+    .box-shadow(0 2px 8px @gray-dark);
+    .navbar-header {
+        .navbar-brand {
+            line-height:@navbar-height - 10;
+            img {
+                width: 135px;
+            }
+            &:focus {
+                outline:none;
+            }
+        }
+    }
+    .navbar-nav {
+        > li {
+            border-top: 4px solid transparent;
+            &.active {
+                border-color:@blue;
+            }
+            > a {
+                line-height:@navbar-height - 4; // account for top border on parent
+                &:active, &:focus {
+                    outline:none;
+                }
+            }
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    }
+    .navbar-form {
+        .navbar-vertical-align(32px);
+        .form-control {
+            height:32px;
+            padding:4px 10px;
+        }
+    }
+    .mini-avatar {
+        width:36px;
+        border:1px solid @gray-light;
+        border-radius:50%;
+        margin-top:-3px;
+    }
+}
+.dropdown-menu .divider {
+    margin:5px 0 4px;
+}
+
+@media (max-width: @grid-float-breakpoint) {
+    .navbar.navbar-default.navbar-fixed-top {
+        .navbar-nav {
+            padding:0;
+            margin-bottom:20px;
+            margin-top:5px;
+            > li {
+                border:none;
+                > a {
+                    line-height: inherit;
+                }
+            }
+            .dropdown-menu {
+                display: block;
+                position: static;
+                float: none;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                li.divider {
+                    .hide;
+                }
+                > li > a {
+                    padding:5px 15px 5px 30px;
+                    font-size:@font-size-med;
+                    .caret {
+                        .hide;
+                    }
+                }
+            }
+        }
+        .mini-avatar {
+            .hide;
+        }
+    }
+}

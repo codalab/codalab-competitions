@@ -1,5 +1,6 @@
 import os,sys
 from django import template
+from django.forms import CheckboxInput
 
 # Long way to point to the CodaLab directory where azure_storage.py resides
 # sys.path to find the settings
@@ -60,3 +61,18 @@ def get_sas(value):
                             duration=60)
     print url
     return url
+
+@register.simple_tag
+def active(request, pattern):
+    import re
+    if re.search(pattern, request.path):
+        return 'active'
+    return ''
+
+@register.filter(name='is_checkbox')
+def is_checkbox(field):
+    return field.field.widget.__class__.__name__ == CheckboxInput().__class__.__name__
+
+@register.simple_tag
+def field_type(field):
+    return field.field.widget.__class__.__name__.lower()

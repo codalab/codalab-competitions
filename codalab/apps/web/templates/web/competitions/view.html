@@ -1,165 +1,146 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% load tz %}
+{% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 large-centered columns">
-        <div class="CompetitionsDetailContainer">
-            <section class="competitionsDetailHeader">
-                <figure class="competitionsProfileImage">
-                    {% if competition.image_url %}
-                        <img id="imgProfileImage" src="{{ competition.image_url }}">
-                    {% else %}
-                        <img id="imgProfileImage" src="{% static "img/ProfileImageDummy.jpg" %}">
-                    {% endif %}
-                </figure>
-                <div class="competitionsHeaderTitle">
-                    <h2>{{ competition.title }}</h2>
-                    {% if not competition.published %}
-                    <label>Secret url: <a href="{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}">http://{{ site }}{% url "competitions:view" pk=competition.pk %}?secret_key={{ competition.secret_key }}</a></label>
-                    {% endif %}
-                    <label id="lblLastModifiedDate"> Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</label>
-                    <input type="hidden" id="competitionId" value="{{competition.id}}" />
-                    <input type="hidden" id="cstoken" value="{{csrf_token}}" />
+<div class="competition-view">
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="img-container">
+                {% if competition.image_url %}
+                    <img class="img-responsive" src="{{ competition.image_url }}">
+                {% else %}
+                    <img class="img-responsive" src="{% static "img/ProfileImageDummy.jpg" %}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <h2>{{ competition.title }}</h2>
+            {% if not competition.published %}
+                <code>Secret url: <a href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">http://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a></code>
+            {% endif %}
+            <div class="organizer">Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</div>
+            <input type="hidden" id="competitionId" value="{{competition.id}}" />
+            <input type="hidden" id="cstoken" value="{{csrf_token}}" />
+            <div class="phase-container">
+                <div class="row">
 
-                    <div class="StatusStripContainer">
-                        <div class="challStatusStripTxt">
-                            <div class="dataStatusHolder">
-                                <span></span>
+                    {% if previous_phase and active_phase %}
+                        <div class="col-sm-4">
+                            <div class="phase">
+                                <h4>Previous</h4>
+                                <span class="phase-label label phase-label-{% if previous_phase.color %}{{ previous_phase.color }}{% else %}default{% endif %}">{{previous_phase.label}}</span>
+                                <div class="date">{{previous_phase.start_date|utc}} UTC</div>
                             </div>
                         </div>
-                        <div class="challStatusStrip">
-                            <div class="challStatusStripLevel">
+                    {% endif %}
+
+                    {% if active_phase %}
+                        <div class="col-sm-4">
+                            <div class="phase current">
+                                <h4><span class="glyphicon glyphicon-play"></span> Current</h4>
+                                <span class="phase-label label phase-label-{% if active_phase.color %}{{ active_phase.color }}{% else %}default{% endif %}">{{active_phase.label}}</span>
+                                <div class="date">{{active_phase.start_date|utc}} UTC</div>
                             </div>
-                            <section class="challStatusStripSection">
-                                {% if previous_phase and active_phase %}
-                                <section>
-                                    <h4>Previous</h4>
-                                    <span class="phaseLabel phase-label-{{ previous_phase.color }}">{{previous_phase.label}}</span>
-                                    <br>
-                                    <span>{{previous_phase.start_date|utc}} UTC</span>
-                                </section>
-                                {% endif %}
+                        </div>
+                    {% endif %}
 
-                                {% if active_phase %}
-                                <section class="currentPhase">
-                                    <h4>Current</h4>
-                                    <span class="phaseLabel phase-label-{{ active_phase.color }}">{{active_phase.label}}</span>
-                                    <br>
-                                    <span>{{active_phase.start_date|utc}} UTC</span>
-                                </section>
-                                {% endif %}
-
-                                {# If we haven't begun the competition yet, show the first phase #}
-                                {% if not active_phase %}
-                                <section>
+                    {# If we haven't begun the competition yet, show the first phase #}
+                    {% if not active_phase %}
+                        <div class="col-sm-4">
+                            <div class="phase">
                                 <h4>First phase</h4>
-                                <span class="phaseLabel phase-label-{{ first_phase.color }}">{{first_phase.label}}</span>
-                                <br>
-                                <span>{{first_phase.start_date|utc}} UTC</span>
-                                </section>
-                                {% endif %}
-
-                                {% if next_phase %}
-                                <section>
-                                    <h4>Next</h4>
-                                    <span class="phaseLabel phase-label-{{ next_phase.color }}">{{next_phase.label}}</span>
-                                    <br>
-                                    <span>{{next_phase.start_date|utc}} UTC</span>
-                                </section>
-                                {% else %}
-
-                                <section>
-                                    <h4>End</h4>
-                                    <span class="phaseLabel competition-end">Competition Ends</span>
-                                    <br>
-                                    <span>{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</span>
-                                </section>
-                                {% endif %}
-
-                            </section>
+                                <span class="phase-label label phase-label-{% if first_phase.color %}{{ first_phase.color }}{% else %}default{% endif %}">{{first_phase.label}}</span>
+                                <div class="date">{{first_phase.start_date|utc}} UTC</div>
+                            </div>
                         </div>
+                    {% endif %}
 
-                        <a href="#phases" style="font-size: 12px;">View all phases</a>
-                    </div>
+                    {% if next_phase %}
+                        <div class="col-sm-4">
+                            <div class="phase">
+                                <h4>Next</h4>
+                                <span class="phase-label label phase-label-{% if next_phase.color %}{{ next_phase.color }}{% else %}default{% endif %}">{{next_phase.label}}</span>
+                                <div class="date">{{next_phase.start_date|utc}} UTC</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-sm-4">
+                            <div class="phase">
+                                <h4>End</h4>
+                                <span class="phase-label label competition-end">Competition Ends</span>
+                                <div class="date">{% if competition.end_date %}{{competition.end_date|utc}} UTC{% else %}Never{% endif %}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
                 </div>
-            </section>
-            <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true" id="sections">
-                {% for tab, contents in tabs.items %}
-
+                <button id="view_all_phases" class="btn btn-default btn-sm pull-right">View all phases</button>
+            </div>
+        </div>
+    </div>
+    <section class="competition-tabs">
+        <ul class="nav nav-tabs" id="competition_tab_nav">
+            {% for tab, contents in tabs.items %}
+                {% if tab.codename == "participate" %}
+                    <li class=""><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                {% endif %}
+                <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for tab, contents in tabs.items %}
                 {# Let's insert the "phases" tab just before participate #}
                 {% if tab.codename == "participate" %}
-                    <section id="phases-section">
-                        <p class="title" data-section-title width="100%" height="100%">
-                            <a href="#phases">Phases</a>
-                        </p>
-                        <div class="content" data-slug="phases" data-section-content>
-                            {% for phase in competition.phases.all %}
-                                <div class="phaseListContainer phase-list-item-{{ phase.color }}">
-                                    <h3 class="phaseList">{{ phase.label }}</h3>
-                                    <p><b>Start: </b> {{ phase.start_date }}</p>
-                                    {% if phase.description %}
-                                    <p><b>Description: </b> {{ phase.description }}</p>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </section>
-                {% endif %}
-
-                <section id="{{tab.name}}-section">
-                    <p class="title" id="{{tab.name}}" data-section-title width="100%" height="100%">
-                        <a href="#{{tab.codename}}">{{tab.name}}</a>
-                    </p>
-                    <div class="content" data-slug="{{tab.codename}}" data-section-content>
-                        {% if tab.codename == "participate" %}
-                            {% if not user.is_authenticated %}
-                            <div class="participateInfoBlock">
-                                <div class="infoStatusBar"></div>
-                                <div class="labelArea">
-                                    <p class="regApprovLabel">You must be logged in to participate in competitions.</p>
-                                    <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data"><button class="button">Sign In</button></a>
-                                </div>
-                            </div>
-                            {% else %}
-                                {% if my_status == "unknown" %}
-                                <form id="participate_form">
-                                    {% csrf_token %}
-                                    <div class="participateInfoBlock">
-                                        <div class="infoStatusBar"></div>
-                                        <div class="labelArea">
-                                            <p class="regApprovLabel">You have not yet registered for this competition.</p>
-                                            <p></p>
-                                            <p>
-                                                To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.
-                                            </p>
-                                            <p id="terms" for="checkbox">
-                                                <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
-                                                <span class="custom checkbox"></span>
-                                                I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
-                                            </p>
-                                            <input type="submit" id="participateButton disabledStatus" class="button" value="Register" />
+                    <div class="tab-pane" id="phases">
+                        <div class="tab-inner">
+                            <div class="phase-list">
+                                {% for phase in competition.phases.all %}
+                                    <div class="phase-list-item panel phase-list-item-{% if phase.color %}{{ phase.color }}{% else %}default{% endif %}">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{ phase.label }}</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            {% if phase.description %}
+                                                <p><strong>Description:</strong> {{ phase.description }}</p>
+                                            {% endif %}
                                         </div>
                                     </div>
-                                </form>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="tab-pane" id="{{ tab.codename|slugify }}">
+                    <div class="tab-inner">
+                        {% if tab.codename == "participate" %}
+                            {% if not user.is_authenticated %}
+                                <p>You must be logged in to participate in competitions.</p>
+                                <a href="{% url 'account_login' %}?next=/competitions/{{ competition.id }}%23participate-get-data" class="btn btn-primary">Sign In</a>
+                            {% else %}
+                                {% if my_status == "unknown" %}
+                                    <form id="participate_form">
+                                        {% csrf_token %}
+                                        <p>You have not yet registered for this competition.</p>
+                                        <p>To participate in this competition, you must accept its specific terms and conditions. After you register, the competition organizer will review your application and notify you when your participation is approved.</p>
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" name="agreed_terms" id="checkbox" required onclick="Competition.registationCanProceed();">
+                                                I accept the <a href="#learn_the_details-terms_and_conditions">terms and conditions</a> of the competition.
+                                            </label>
+                                        </div>
+                                        <input type="submit" id="participateButton" class="disabledStatus btn btn-primary margin-top" value="Register" />
+                                    </form>
                                 {% elif my_status == "pending" %}
-                                <div class="participateInfoBlock pendingApproval">
-                                    <div class="infoStatusBar"></div>
-                                    <div class="labelArea">
-                                        <p class="regApprovLabel">Your request to participate in this challenge has been received and a decision is pending.</p>
-                                        <p></p>
-                                    </div>
-                                </div>
+                                    <p>Your request to participate in this challenge has been received and a decision is pending.</p>
                                 {% elif my_status == "denied" %}
-                                <div class="participateInfoBlock rejectedApproval">
-                                    <div class="infoStatusBar"></div>
-                                    <div class="labelArea">
-                                        <p class="regApprovLabel">Your request to participate in this competition was denied or your privileges have been suspended.</p>
+                                    <p>Your request to participate in this competition was denied or your privileges have been suspended.</p>
+                                    {% if my_participant.reason %}
                                         <p>Reason: {{my_participant.reason}}</p>
-                                    </div>
-                                </div>
+                                    {% endif %}
                                 {% endif %}
                                 {% if my_status == "approved" %}
                                     {% include "web/competitions/_innertabs.html" %}
@@ -171,10 +152,30 @@
                             {% include "web/competitions/_innertabs.html" %}
                         {% endif %}
                     </div>
-                </section>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
-    </div>
+    </section>
 </div>
 {% endblock content %}
+
+{% block jsincludes %}
+    <script>
+        $('#view_all_phases').on('click', function(e){
+            $('#competition_tab_nav a[href="#phases"]').tab('show')
+        });
+        $(function(){
+            if(location.hash !== ''){
+                var main_tab = location.hash.split('-')[0];
+                var sub_tab = location.hash.split('-')[1];
+                $('#competition_tab_nav a[href="' + main_tab + '"]').tab('show');
+                $(main_tab + ' .innertabs a[href="' + main_tab + '-' + sub_tab + '"]').tab('show');
+            }else {
+                $('#competition_tab_nav a:first').tab('show')
+            }
+            $('#competition_tab_nav a, .innertabs a').on('show.bs.tab', function(e){
+                return location.hash = $(e.target).attr('href').substr(1);
+            });
+        });
+    </script>
+{% endblock %}

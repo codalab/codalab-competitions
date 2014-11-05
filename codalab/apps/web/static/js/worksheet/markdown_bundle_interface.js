@@ -64,7 +64,7 @@ var MarkdownBundle = React.createClass({
     },
     render: function() {
         var content = this.props.item.state.interpreted;
-        var className = 'type-markup' + (this.props.focused ? ' focused' : '');
+        var className = 'type-markup' + (this.props.focused ? ' focused' : '') + (this.props.editing ? ' form-control' : '');
         //if we can edit show checkbox if not show nothing(null)
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 

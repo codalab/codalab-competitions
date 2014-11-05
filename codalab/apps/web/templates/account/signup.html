@@ -8,25 +8,31 @@
 
 {% block content %}
 <div class="row">
-    <div class="large-6 columns">
+    <div class="col-md-6">
 	    <p>
 	        {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in.</a>{% endblocktrans %}
 	    </p>
 
 	    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
 		    {% csrf_token %}
-            {{ form.as_p }} 
-		    {% if redirect_field_value %}
-		    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-		    {% endif %}
-		    <button class="button" type="submit">{% trans "Sign Up" %} </button>
+            <div class="form-group">
+                <label for="id_email">E-mail:</label>
+                <input id="id_email" class="form-control" name="email" placeholder="E-mail address" type="text">
+            </div>
+            <div class="form-group">
+                <label for="id_password1">Password:</label>
+                <input id="id_password1" class="form-control" name="password1" placeholder="Password" type="password">
+            </div>
+            <div class="form-group">
+                <label for="id_password2">Password (again):</label>
+                <input id="id_password2" class="form-control" name="password2" placeholder="Password" type="password">
+                <input id="id_confirmation_key" name="confirmation_key" type="hidden">
+            </div>
+            {% if redirect_field_value %}
+		      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            <button class="btn btn-primary margin-top" type="submit">{% trans "Sign Up" %}</button>
 	    </form>
-    </div>
-    <div class="large-6 columns">
     </div>
 </div>
 {% endblock %}
-
-{% block js %}
-$("#id_email").focus();
-{% endblock js %}

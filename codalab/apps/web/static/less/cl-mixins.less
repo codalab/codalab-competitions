@@ -1,0 +1,265 @@
+.btn-secondary {
+  .button-variant(@btn-secondary-color; @btn-secondary-bg; @btn-secondary-border);
+}
+.btn {
+    &:active,
+    &.active {
+        .box-shadow(inset 0 1px 1px fade(black, 12.5%));
+    }
+}
+.alt-bullet {
+    list-style-type:none;
+    li {
+        position:relative;
+        &:before {
+            content:'\00BB';
+            position:absolute;
+            font-size: 1.25em;
+            left: -.95em;
+            top: -.25em;
+        }
+    }
+}
+.pad-top {
+    padding-top:24px;
+}
+.pad-bottom {
+    padding-bottom:24px;
+}
+.margin-top {
+    margin-top:12px;
+}
+.margin-bottom {
+    margin-bottom:12px;
+}
+.alert-error {
+    .alert-danger;
+}
+.hidden {
+    .hide;
+}
+.cl-tile {
+    .clearfix;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    border: 1px #CCC solid;
+    border-left: 10px #739CB9 solid;
+    background: #FFF;
+    .box-shadow(0 0 5px fadeout(black, 85%));
+}
+.competition-tile {
+    .cl-tile;
+    .img-container {
+        max-height:120px;
+        overflow-y:hidden;
+        img {
+            .img-responsive;
+        }
+    }
+    h3 {
+        font-size:@font-size-large;
+        margin:0 0 5px 0;
+        padding:0;
+        font-weight:normal;
+    }
+    p.organizer {
+        font-size:@font-size-med;
+        color:@gray;
+        font-weight:bold;
+        margin-bottom:6px;
+    }
+    &:hover {
+        cursor: pointer;
+        .box-shadow(0 0 5px @blue-light);
+        border-color:@blue;
+        h3 {
+            color:@link-hover-color;
+        }
+    }
+}
+.ws-search {
+   margin:10px 0 20px;
+   height:auto;
+   &:focus {
+      background:white;
+   }
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.bundle-icon-sm {
+    background: url('../img/icon_bundle_sm.png') no-repeat 5px 10px;
+    padding-left:50px;
+}
+.bundle-icon {
+    background: url('../img/icon_bundle.png') no-repeat 5px 10px;
+    padding-left:65px;
+}
+.icon-excel {
+    background-image: url('../img/icon_excel.png');
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left:36px;
+    &.btn {
+        background-position:6px center;
+        background-size:28px;
+        padding-left:42px;
+    }
+}
+.radio.radio-with-label {
+    margin-top:0;
+    margin-bottom:20px;
+}
+.form-controller {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+        .form-control;
+    }
+    textarea {
+        height:100px;
+    }
+}
+.table {
+    > thead,
+    > tbody,
+    > tfoot {
+        > tr {
+            > th,
+            > td {
+                line-height: @line-height-small;
+            }
+            > th {
+                a .glyphicon {
+                    font-size:@font-size-med;
+                    padding-top:3px;
+                }
+            }
+        }
+    }
+}
+.cl-table-style {
+    margin-top:20px;
+    line-height:1.2;
+    th {
+        text-transform:uppercase;
+        background:@blue;
+        text-align:left;
+        color:white;
+        cursor: auto;
+        &.text-center {
+            text-align:center;
+        }
+        a {
+            color:white;
+            &:hover {
+                text-decoration:underline;
+            }
+        }
+    }
+    &.table-bordered > thead > tr > th,
+    &.table-bordered > thead > tr > td {
+        border-bottom-width:1px;
+    }
+}
+
+.btn:focus {
+    outline:none;
+}
+.phase-label-default, .competition-end {
+    .label-default;
+}
+.phase-label-white {
+    .label-variant(#FAFAFA);
+    color:@gray-dark;
+}
+.phase-label-orange {
+    .label-warning;
+}
+.phase-label-yellow {
+    .label-variant(@yellow);
+    color:@gray-dark;
+}
+.phase-label-green {
+    .label-success;
+}
+.phase-label-blue {
+    .label-primary
+}
+.phase-label-purple {
+    .label-variant(@purple-light);
+}
+
+.label-pending {
+    .label-warning;
+}
+.label-approved {
+    .label-success;
+}
+.label-denied {
+    .label-danger;
+}
+
+.phase-list-item {
+    border-left-width:10px;
+}
+.phase-list-item-default {
+  .panel-variant(@panel-default-border; @panel-default-text; @panel-default-heading-bg; @panel-default-border);
+}
+.phase-list-item-white {
+  .panel-variant(@white-dark; @panel-default-text; white; @white-dark);
+}
+.phase-list-item-orange {
+  .panel-warning;
+  border-left-color:@orange;
+}
+.phase-list-item-yellow {
+  .panel-variant(@yellow; @panel-default-text; lighten(@yellow, 25%); @yellow);
+}
+.phase-list-item-green {
+  .panel-success;
+  border-left-color:@green;
+}
+.phase-list-item-blue {
+  .panel-variant(@panel-primary-border; @panel-default-text; lighten(@blue, 35%); @panel-primary-border);
+}
+.phase-list-item-purple {
+  .panel-variant(@purple-light; @purple; lighten(@purple-light, 25%); @purple-light);
+}
+
+.phase-btn-default, .phase-btn-white {
+    .btn-default;
+}
+.phase-btn-orange {
+    .btn-warning;
+}
+.phase-btn-yellow {
+    .button-variant(@btn-default-color; @yellow; darken(@yellow, 5%));
+}
+.phase-btn-green {
+    .btn-success;
+}
+.phase-btn-blue {
+    .btn-primary;
+}
+.phase-btn-purple {
+    .button-variant(@btn-default-color; @purple-light; darken(@purple-light, 5%));
+    &:hover, &.active {
+        color:white;
+    }
+}

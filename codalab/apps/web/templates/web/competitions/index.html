@@ -4,74 +4,81 @@
 {% block content %}
 
 {% load static %}
-
 <div class="row">
-    <!-- Main Content Section -->
-    <!-- This has been source ordered to come first in the markup (and on small devices) but to be to the right of the nav on larger screens -->
-    <div class="large-9 columns competitions">
-        <dl class="sub-nav">
-            <!-- ////////////////  Commented out until we have sorting  /////////////////
-            <dt>Sort by:</dt>
-            <dd class="active"><a href="#">Most Recent</a></dd>
-            <dd><a href="#">Most Active</a></dd>
-            -->
-        </dl>
-        <form id="search_form" action="." method="GET">
-            <input id="search_query_input" name="q" placeholder="Search..." style="margin-bottom: 10px; padding: 3px;">
-            <input type="submit" value="Search">
-            <br>
-            <input name="is_active" type="checkbox"> Is active
-            <input name="is_finished" type="checkbox" style="margin-left: 10px;"> Is finished
-            <input name="medical_image_viewer" type="checkbox" style="margin-left: 10px;"> Medical image viewer
-        </form>
-
-        {% if not competitions %}
-        <p>There are no competitions.</p>
-        {% else %}
-        {% for item in competitions %}
-        <a href="/competitions/{{item.id}}#learn_the_details">
-            <div class="competition-tile">
-                <article class="subContainer">
-                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
-                    <div class="competitionTileLftStrip"></div>
-                    <div class="articleImageContainer">
-                        <div class="subContainerPadding">
-                            {% if item.image_url == None %}
-                            <img src="{% static "img/ProfileImageDummy.jpg" %}">
-                            {% else %}
-                            <img src="{{ item.image_url }}">
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="articleTextArea">
-                        <div class="subContainerPadding">
-                            <div class="articleHeadingContainer">
-                                <h3>{{ item.title }}</h3>
-                                <label>Organized by {{ item.creator }}</label>
-                            </div>
-                            <div class="competition-paragraph">
-                            {{ item.description|safe }}
-                            </div>
-                        </div>
-                    </div>
-                </article>
+    <div class="col-md-6">
+        {% comment commenting out until we have sorting %}
+            <div class="sort margin-bottom">
+                Sort by:
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default btn-sm active">
+                        <input type="radio" name="sortby" id="recent"> Most Recent
+                    </label>
+                    <label class="btn btn-default btn-sm">
+                        <input type="radio" name="sortby" id="active"> Most Active
+                    </label>
+                </div>
             </div>
-        </a>
-        {% endfor %}
+        {% endcomment %}
+        <form id="search_form" action="." method="GET">
+            <div class="input-group margin-bottom">
+                <input id="search_query_input" class="form-control" type="search" name="q" placeholder="Search...">
+                <span class="input-group-btn">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </span>
+            </div>
+            <div class="checkbox-inline">
+                <label>
+                    <input name="is_active" type="checkbox"> Is active
+                </label>
+            </div>
+            <div class="checkbox-inline">
+                <label>
+                    <input name="is_finished" type="checkbox"> Is finished
+                </label>
+            </div>
+            <div class="checkbox-inline">
+                <label>
+                    <input name="medical_image_viewer" type="checkbox"> Medical image viewer
+                </label>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row pad-top">
+    <div class="col-md-9 competition-list">
+        {% if not competitions %}
+            <p><em>There are no competitions.</em></p>
+        {% else %}
+            {% for item in competitions %}
+                <div class="competition-tile">
+                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                    <div class="row">
+                        <div class="col-sm-3 col-md-2">
+                            <div class="img-container">
+                                {% if item.image_url == None %}
+                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
+                                {% else %}
+                                    <img src="{{ item.image_url }}" class="img-responsive">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-sm-9 col-md-10">
+                            <h3>{{ item.title }}</h3>
+                            <p class="organizer">Organized by {{ item.creator }}</p>
+                            <p>{{ item.description|safe }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         {% endif %}
     </div>
-    <div class="large-3 columns ">
+    <div class="col-sm-3">
         <!-- This is where statistic were in the mockup. -->
     </div>
 </div>
 {% endblock content%}
 
 {% block js %}
-    $(function () {
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liCompetitions").addClass("active");
-    });
-
     function populate(frm, data) {
         $.each(data, function(key, value){
             var $ctrl = $('[name='+key+']', frm);
@@ -94,6 +101,10 @@
             }
         });
     }
+    $('.competition-tile').on('click',function(){
+        var competitionID = $(this).find('#competitionID').val();
+        window.location.href = '/competitions/' + competitionID + '#learn_the_details';
+    });
 
     var params = {}
     location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
