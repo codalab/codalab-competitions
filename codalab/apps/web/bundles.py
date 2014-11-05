@@ -16,6 +16,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         GROUP_OBJECT_PERMISSION_READ,
     )
 
+    from codalab.bundles import (
+        get_bundle_subclass
+    )
+
 
     def _call_with_retries(f, retry_count=0):
         try:
@@ -35,8 +39,27 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def items(self):
             return _call_with_retries(lambda: self.client.search())
 
-        def item(self, uuid):
-            return _call_with_retries(lambda: self.client.get_bundle_info(uuid))
+        def get_bundle_info(self, uuid):
+            bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid))
+
+            metadata = bundle_info['metadata']
+
+            cls = get_bundle_subclass(bundle_info['bundle_type'])
+            # format based on specs from the cli
+            for spec in cls.METADATA_SPECS:
+                key = spec.key
+                if key not in metadata:
+                    continue
+                if metadata[key] == '' or metadata[key] == []:
+                    continue
+                value = worksheet_util.apply_func(spec.formatting, metadata.get(key))
+                # if isinstance(value, list):
+                #     value = ', '.join(value)
+                metadata[key] = value
+
+            bundle_info['metadata'] = metadata
+
+            return bundle_info
 
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())

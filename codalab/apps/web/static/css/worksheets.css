@@ -33,6 +33,7 @@
   position:absolute;
   left:-1.5em;
   top:0.25em;
+  font-size:16px;
 }
 #worksheet_content .empty-worksheet {
   color:#a4a4a4;
@@ -86,7 +87,7 @@
   font-size:1.25em;
 }
 #worksheet_content .ws-item > .focused {
-  background:#FFFEF4;
+  background-color:#FFFEF4;
   box-shadow:0 0 3px #739cb9;
 }
 #worksheet_content table.focused  {
@@ -111,9 +112,15 @@
   margin-top:-1px;
 }
 #worksheet_content .type-markup,
-#worksheet_content .type-inline {
+#worksheet_content .type-inline,
+#worksheet_content .type-worksheet,
+#worksheet_content .type-image {
   min-height:1.5em;
   margin-bottom:20px;
+}
+#worksheet_content .type-image img{
+  width:98%;
+  margin:1%
 }
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
@@ -144,20 +151,17 @@
 
 }
 #worksheet_content .type-contents blockquote p {
-  white-space: pre;
   color:#555;
   margin:0;
   font-size:14px;
   line-height:1.5em;
 }
-#worksheet_content .type-worksheet a {
-  display:block;
+#worksheet_content .type-worksheet {
   height:2.5em;
   line-height:2.5em;
   padding:0 .5em 0 2.5em;
   background: url('../img/icon_worksheet.png') no-repeat .25em #fcfcfc;
   background-size:2em;
-
 }
 table.table {
   border-collapse: separate;
@@ -166,8 +170,13 @@ table.table {
 table.table th {
   font-weight:bold;
 }
-table.table tr th, table.table tr td {
+table.table tr th,
+table.table tr td {
   color:#555;
+}
+table.table tr th.checkbox input,
+table.table tr td.checkbox input {
+  margin:0;
 }
 table.table-responsive {
   width:100%;
@@ -248,6 +257,7 @@ table.table-responsive > tfoot > tr > td {
   background-image: none;
   border:none;
   border-radius:0;
+  padding:5px 5px 5px 18px;
 }
 #save_progress, #save_error, #update_progress {
   display:none;
@@ -332,4 +342,13 @@ table.table-responsive > tfoot > tr > td {
 #glossaryModal dt code {
   padding:4px;
   text-align:center;
+}
+.alert-box.alert a:not(.close) {
+  color:#fff;
+  text-decoration: underline;
+}
+.alert-box.alert code {
+  font-weight:normal;
+  color:white;
+  background-color:transparent;
 }

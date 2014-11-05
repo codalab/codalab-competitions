@@ -28,9 +28,9 @@ var MarkdownBundle = React.createClass({
                         break;
                     }
                 case 'enter':  // save or add a new line
-                    if(event.ctrlKey || event.metaKey){ // ctrl/meta on mac for saving item
+                    if(event.ctrlKey || event.metaKey && this.props.editing){ // ctrl/meta on mac for saving item
                         event.preventDefault();
-                        this.saveEditedItem(event.target);
+                        this.saveEditedItem(event.target.value);
                         return false;
                     }
                     break;
@@ -41,8 +41,8 @@ var MarkdownBundle = React.createClass({
             return true;
         }
     },
-    saveEditedItem: function(textarea){
-        this.props.handleSave(textarea);
+    saveEditedItem: function(interpreted){
+        this.props.handleSave(this.props.key, interpreted);
     },
     componentDidMount: function() {
         MathJax.Hub.Queue([
@@ -60,13 +60,13 @@ var MarkdownBundle = React.createClass({
         }
     },
     handleClick: function(){
-        this.props.setFocus(this);
+        this.props.setFocus(this.props.key);
     },
     render: function() {
         var content = this.props.item.state.interpreted;
         var className = 'type-markup' + (this.props.focused ? ' focused' : '');
         //if we can edit show checkbox if not show nothing(null)
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} /> : null;
+        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 
         if (this.props.editing){ // are we editing show a text area
             var lines = Math.max(this.props.item.state.interpreted.split(/\r\n|\r|\n/).length, 3);
