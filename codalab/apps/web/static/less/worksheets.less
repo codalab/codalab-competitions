@@ -1,10 +1,22 @@
 #worksheet-message {
-   margin:20px 0;
+   padding:20px 0;
    .ws-detail {
-      margin-top:32px;
+      padding-top:32px;
    }
 }
+#worksheet .ws-search {
+   position:fixed;
+   top:52px;
+   width:100%;
+   margin:0;
+   padding:10px 0;
+   z-index:@zindex-navbar;
+   background-color:fade(#eaeaea, 90%);
+   border-bottom:2px solid @navbar-default-border;
+   .box-shadow(0 2px 8px @gray-dark);
+}
 #worksheet_content {
+   margin-top:12px;
    line-height:1.2;
    min-height:480px;
    hr {
@@ -238,7 +250,7 @@
       background-image: none;
       border:none;
       border-radius:0;
-      padding:4px 4px 4px 16px;
+      // padding:4px 4px 4px 16px;
    }
    .select2-search-field input {
       font-family:@font-family-base;
@@ -252,7 +264,7 @@
    border-color:@input-border;
 }
 .select2-results {
-   font-size:14px;
+   // font-size:14px;
    .select2-highlighted {
       background-color: fade(@brand-primary, 50%);
    }

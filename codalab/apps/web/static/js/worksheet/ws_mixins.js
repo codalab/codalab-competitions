@@ -60,7 +60,7 @@ var Select2SearchMixin = {
         if(ws_actions.hasOwnProperty(input)){
             ws_actions[input](command);
         } else {
-            console.error('The command \'' + command[i] + '\' was not recognized');
+            console.error('The command \'' + command[0] + '\' was not recognized');
         }
     }
 };   // end of Select2SearchMixin
