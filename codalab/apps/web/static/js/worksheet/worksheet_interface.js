@@ -15,12 +15,6 @@ var keyMap = {
     191: "fslash"
 };
 
-// Dictionary of terms that can be entered into the search bar and the names of
-// functions they call. See search_actions.js
-var clActions = {
-    add: 'doAdd',
-};
-
 var Worksheet = React.createClass({
     // master parent that controls the page
     getInitialState: function(){
@@ -111,7 +105,7 @@ var WorksheetSearch = React.createClass({
         return (
             <div className="ws-search">
                 <div className="container">
-                    <input id="search" type="text" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                    <input id="search" type="hidden" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
                 </div>
             </div>
         )
