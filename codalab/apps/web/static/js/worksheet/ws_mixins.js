@@ -34,13 +34,18 @@ var Select2SearchMixin = {
         }
         $('#search').select2(commandOptions).on('change', function(){
             var input = $(this).val();
-            for(var i=0; i < clActions.length; i++){
-                if(input == clActions[i].id){
-                    console.log(input);
-                    console.log(clActions[i].api);
-                    getDynamicOptions(clActions[i].api);
-                    break;
+            if(input.length > 0){
+                for(var i=0; i < clActions.length; i++){
+                    if(input == clActions[i].id){
+                        console.log(input);
+                        console.log(clActions[i].api);
+                        getDynamicOptions(clActions[i].api);
+                        break;
+                    }
                 }
+            } else {
+                // reset to intial commands
+                optionsList = clActions;
             }
         });
         //https://github.com/ivaynberg/select2/issues/967
