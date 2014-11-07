@@ -1,10 +1,22 @@
 #worksheet-message {
-   margin:20px 0;
+   padding:20px 0;
    .ws-detail {
-      margin-top:32px;
+      padding-top:32px;
    }
 }
+#worksheet .ws-search {
+   position:fixed;
+   top:52px;
+   width:100%;
+   margin:0;
+   padding:10px 0;
+   z-index:@zindex-navbar;
+   background-color:fade(#eaeaea, 90%);
+   border-bottom:2px solid @navbar-default-border;
+   .box-shadow(0 2px 8px @gray-dark);
+}
 #worksheet_content {
+   margin-top:12px;
    line-height:1.2;
    min-height:480px;
    hr {
@@ -238,7 +250,7 @@
       background-image: none;
       border:none;
       border-radius:0;
-      padding:4px 4px 4px 16px;
+      // padding:4px 4px 4px 16px;
    }
    .select2-search-field input {
       font-family:@font-family-base;
@@ -252,7 +264,7 @@
    border-color:@input-border;
 }
 .select2-results {
-   font-size:14px;
+   // font-size:14px;
    .select2-highlighted {
       background-color: fade(@brand-primary, 50%);
    }
@@ -331,7 +343,7 @@
          line-height:@font-size-h3;
          h2 {
             margin:0;
-            background-position:0 15px;
+            background-position-y:8px;
          }
          .bundle-download,
          .bundle-uuid {
@@ -371,8 +383,11 @@
       .bundle-file-view-container {
          border-top:1px solid @gray-light;
          margin-bottom:24px;
-         .breadcrumb {
-            margin-bottom:12px;
+         .panel-heading {
+            span {
+               cursor:pointer;
+               color:@link-color;
+            }
          }
          .file-browser-table {
             .table;
@@ -388,16 +403,24 @@
                      font-size:@font-size-med;
                      border-width:0;
                      a, span {
-                        font-weight:bold;
                         cursor:pointer;
+                     }
+                     .directory {
+                        font-weight:bold;
+                     }
+                     .file {
+                        font-weight:normal;
                      }
                   }
                }
             }
             .glyphicon {
                font-size:@font-size-med;
-               color:@gray;
+               color:@link-color;
                margin-right:6px;
+               &.glyphicon-file {
+                  color:@gray;
+               }
             }
          }
       }
@@ -410,16 +433,15 @@
    .modal-header h4 {
       margin:0;
    }
-   dl {
-      margin-bottom:0;
+   h5 {
+      margin-top:0;
    }
-   dt {
-      float:left;
-      margin-right:16px;
-      font-weight:normal;
-      code {
-         padding:4px;
-         text-align:center;
+   .table{
+      // background-color:white;
+      > tbody > tr > td {
+         padding:5px 6px 8px 6px;
+         border-color:#eee;
+         border-bottom:1px solid #eee;
       }
    }
 }

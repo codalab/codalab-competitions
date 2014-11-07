@@ -15,7 +15,7 @@ var TableBundle = React.createClass({
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d','i','a'];
+        return['up','k','down','j','x','d','i','a','enter'];
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -66,7 +66,7 @@ var TableBundle = React.createClass({
                     // passing the keyboard action
                     if(!this.hasOwnProperty('deleteCheckedRows')){
                         this.setState({checked: !this.state.checked});
-                    }else if(event.ctrlKey || event.metaKey){
+                    }else if(event.shiftKey){
                         // this gets tricky. if the user is holding ctrl or cmd, check the whole table
                         this.setState({checked: !this.state.checked});
                     }else {
@@ -107,12 +107,18 @@ var TableBundle = React.createClass({
                         }
                     }
                     break;
+                case 'enter': // go to highlighted bundle's detail page
+                    event.preventDefault();
+                    this.goToBundlePage();
                 default:
                     return true;
                 }
             } else {
                 return true;
             }
+    },
+    goToBundlePage: function(){
+        window.location = this.refs['row' + this.state.rowFocusIndex].props.bundleURL;
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
@@ -155,17 +161,22 @@ var TableBundle = React.createClass({
                 interpreted_row_indexes.push(reactRows[k].props.key);
             }
         }
-        //delete and get our new interpreted. raw is handeled by ws_obj
-        new_interpreted_rows = ws_obj.deleteTableRow(this.state, interpreted_row_indexes);
-        //uncheck so we don't get any weird checked state hanging around
-        this.unCheckRows();
-        // go through and uncheck all the rows to get rid of lingering states
-        this.setState({
-            interpreted: new_interpreted_rows,
-            rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
-        });
-        // TODO: REMOVE _OWNER
-        this._owner.saveAndUpdateWorksheet();
+        var confirm_string = interpreted_row_indexes.length === 1 ? 'this row?' : interpreted_row_indexes.length + ' rows?'
+        if(interpreted_row_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
+            //delete and get our new interpreted. raw is handeled by ws_obj
+            new_interpreted_rows = ws_obj.deleteTableRow(this.props.item.state, interpreted_row_indexes);
+            //uncheck so we don't get any weird checked state hanging around
+            this.unCheckRows();
+            // go through and uncheck all the rows to get rid of lingering states
+            this.setState({
+                interpreted: new_interpreted_rows,
+                rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
+            });
+            // TODO: REMOVE _OWNER
+            this._owner.saveAndUpdateWorksheet();
+        } else {
+            return false;
+        }
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
