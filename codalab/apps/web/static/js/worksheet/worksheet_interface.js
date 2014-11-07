@@ -164,11 +164,11 @@ var WorksheetItemList = React.createClass({
     fetch_and_update: function(){
         ws_obj.fetch({
             success: function(data){
-                $("#worksheet-message").hide().removeClass('alert-danger alert');
                 if(this.isMounted()){
                     this.setState({worksheet: ws_obj.getState()});
                 }
-                $('#update_progress').hide();
+                $('#update_progress, #worksheet-message').hide();
+                $('#worksheet_content').show();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
