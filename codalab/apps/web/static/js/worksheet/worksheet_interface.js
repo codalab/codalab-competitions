@@ -31,6 +31,8 @@ var Worksheet = React.createClass({
     },
     componentDidMount: function() {
         this.bindEvents();
+        // ATL remove search bar for demo
+        // $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
@@ -63,7 +65,9 @@ var Worksheet = React.createClass({
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
             return false;
-        }else if(key === 'e' && (event.metaKey || event.ctrlKey)){
+        }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
+            $('#glossaryModal').modal('hide');
+        }else if(key === 'e' && (event.shiftKey)){
             this.toggleEditing();
             return false;
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
@@ -77,12 +81,25 @@ var Worksheet = React.createClass({
     toggleEditing: function(){
         this.setState({editMode:!this.state.editMode});
     },
-    render: function(){
+    // ATL remove search bar for demo
+    // render: function(){
+    //     var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+    //     return (
+    //         <div id="worksheet">
+    //             <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
+    //             <div className="container">
+    //                 <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+    //             </div>
+    //         </div>
+    //     )
+    // }
+        render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         return (
             <div id="worksheet">
-                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-                <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                <div className="container">
+                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                </div>
             </div>
         )
     }
@@ -107,7 +124,9 @@ var WorksheetSearch = React.createClass({
     render: function(){
         return (
             <div className="ws-search">
-                <input id="search" type="text" placeholder="General search" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                <div className="container">
+                    <input id="search" type="text" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                </div>
             </div>
         )
     }
@@ -199,6 +218,7 @@ var WorksheetItemList = React.createClass({
                         if(fIndex <= 0){
                             // if we're already at the top of the worksheet, we can't go higher
                             fIndex = -1;
+                            $('body').stop(true).animate({scrollTop: 0}, 250);
                         }else {
                             fIndex = Math.max(this.state.focusIndex - 1, 0);
                         }
@@ -331,7 +351,8 @@ var WorksheetItemList = React.createClass({
                 // when called gets a edited flag, when you getState
             }
         }
-        if(item_indexes.length){
+        var confirm_string = item_indexes.length === 1 ? 'this item?' : item_indexes.length + ' items?'
+        if(item_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
             // only proceed if it turns out that one or more items were actually checked
             ws_obj.deleteItems(item_indexes)
             // does a clean before setting it's state and updating
@@ -378,15 +399,20 @@ var WorksheetItemList = React.createClass({
         }
     },
     setFocus: function(index){
-        this.setState({focusIndex: index});
-        if(index >= 0){
-            var mode = ws_obj.state.items[index].state.mode;
-            if(mode === 'table'){
-                this.toggleCheckboxEnable(false);
-            }else {
-                this.toggleCheckboxEnable(true);
+        if(index < this.state.worksheet.items.length){
+            this.setState({focusIndex: index});
+            if(index >= 0){
+                var mode = ws_obj.state.items[index].state.mode;
+                if(mode === 'table'){
+                    this.toggleCheckboxEnable(false);
+                }else {
+                    this.toggleCheckboxEnable(true);
+                }
+                this.scrollToItem(index);
             }
-            this.scrollToItem(index);
+        }
+        else {
+            return false;
         }
     },
     toggleRawMode: function(){

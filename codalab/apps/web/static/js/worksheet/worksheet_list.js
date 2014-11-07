@@ -168,7 +168,7 @@ var WorksheetList = React.createClass({
             <div id="worksheet-list">
                 <div className="checkbox">
                     <label className="my-worksheets-toggle">
-                        <input type="checkbox" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
+                        <input type="checkbox" tabIndex="-1" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
                         Show my worksheets only
                     </label>
                 </div>
