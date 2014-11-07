@@ -339,7 +339,8 @@ var WorksheetItemList = React.createClass({
                 // when called gets a edited flag, when you getState
             }
         }
-        if(item_indexes.length){
+        var confirm_string = item_indexes.length === 1 ? 'this item?' : item_indexes.length + ' items?'
+        if(item_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
             // only proceed if it turns out that one or more items were actually checked
             ws_obj.deleteItems(item_indexes)
             // does a clean before setting it's state and updating
