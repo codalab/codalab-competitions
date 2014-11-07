@@ -386,15 +386,20 @@ var WorksheetItemList = React.createClass({
         }
     },
     setFocus: function(index){
-        this.setState({focusIndex: index});
-        if(index >= 0){
-            var mode = ws_obj.state.items[index].state.mode;
-            if(mode === 'table'){
-                this.toggleCheckboxEnable(false);
-            }else {
-                this.toggleCheckboxEnable(true);
+        if(index < this.state.worksheet.items.length){
+            this.setState({focusIndex: index});
+            if(index >= 0){
+                var mode = ws_obj.state.items[index].state.mode;
+                if(mode === 'table'){
+                    this.toggleCheckboxEnable(false);
+                }else {
+                    this.toggleCheckboxEnable(true);
+                }
+                this.scrollToItem(index);
             }
-            this.scrollToItem(index);
+        }
+        else {
+            return false;
         }
     },
     toggleRawMode: function(){
