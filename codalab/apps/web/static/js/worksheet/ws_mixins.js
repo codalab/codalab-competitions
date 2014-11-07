@@ -1,62 +1,46 @@
 /** @jsx React.DOM */
 
-// Dictionary of terms that can be entered into the search bar and the names of
-// functions they call. See ws_actions.js
-var clActions = [
-    {   id: 'add',
-        functionName: 'doAdd',
-        text: 'add - ask for a bundle uuid',
-        api: 'bundle'
-    },
-    {   id: 'info',
-        functionName: 'doInfo',
-        text: 'info - go to a bundle\'s info page',
-    }
-];
-var optionsList = clActions;
 var Select2SearchMixin = {
     componentDidMount: function(){
         // when the component has mounted, init the select2 plugin on the
         // general search input (http://ivaynberg.github.io/select2/)
         _this = this;
-        var commandOptions = {
+        // get our static list of commands and store it in this var
+        var optionsList = ws_actions.getCommands();
+        $('#search').select2({
             multiple:true,
             data: function(){
                 return {results: optionsList};
+                // data represents the list of possible autocomplete matches.
+                // We make this a function returning the contents of optionsList
+                // so we can dynamically change those contents later.
             },
             formatSelection: function(item){
                 return item.id
+                // When you search for a command, you should see its name and a description of what it
+                // does. This comes from the command's helpText in the command dict.
+                // But after you make a selection, we only want to show the relevant command in the command line
             },
-            tokenSeparators: [":", " ", ","], // Define token separators for the tokenizer function
-            createSearchChoicePosition: 'bottom' // Users can enter their own commands (not autocompleted)
-                                                 // but these will show up at the bottom. This allows a user
-                                                 // to hit 'tab' to select the first highlighted option
-        }
-        $('#search').select2(commandOptions).on('change', function(){
+         }).on('change', function(){
+            // Select2 is masking the actual #search field. Its value only changes when something new is entered
+            // via select2. So when the value of #search changes, we know we need to reevaluate the context
+            // in which select2 is being used (eg, we've gone from entering a command to looking up a bundle)
             var input = $(this).val();
-            if(input.length > 0){
-                for(var i=0; i < clActions.length; i++){
-                    if(input == clActions[i].id){
-                        console.log(input);
-                        console.log(clActions[i].api);
-                        getDynamicOptions(clActions[i].api);
-                        break;
-                    }
+            if(input.length){ // if there's something in the commandline...
+                // if the last thing entered in the command line is in our known list of commands
+                if(ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
+                    // we need to update the data source for the autocomplete, based on the command entered
+                    loadDynamicOptions(ws_actions.commands[input]);
                 }
             } else {
-                // reset to intial commands
-                optionsList = clActions;
+                // reset to intial list of commands
+                optionsList = ws_actions.getCommands();
             }
         });
         //https://github.com/ivaynberg/select2/issues/967
-        function getDynamicOptions(val) { // called by a changeEvent on another element)
-            console.log('getDynamicOptions with')
-            console.log(val)
-            return queryDynamicOptions(val)
-                .done( function(data) {
-                    console.log('return queryDynamicOptions with data')
-                    console.log(data)
-                // Empty your existing data before populating a new list
+        function loadDynamicOptions(command) {
+            // first go make the call to get the list of options, then process it for select2 consumption
+            return fetchDynamicOptions(command).done(function(data){
                 optionsList = [];
                 data.map(function(item){
                     optionsList.push({
@@ -64,44 +48,39 @@ var Select2SearchMixin = {
                         'text': item.name + ' | ' + item.uuid
                     });
                 });
-                // // see comment on for queryDynamicOptions() - on what's going on w/ my data
-                // $.each(data, function(item) {
-                //     // Finally update your optionsList with the data
-                //     optionsList.push({ id: vData[0], text: vData[1] });
-                //     });
-                // });
             });
         }
-        function queryDynamicOptions(optionVal) {
-            console.log('queryDynamicOptions with')
-            console.log(optionVal);
+        function fetchDynamicOptions(command) {
+            // command is the object from ws_actions.commands. It knows what api endpoint (url) it needs to hit
+            // to get a list of options relevant to its command. For instance, the "add" command knows it needs
+            // to look for bundles.
             return $.ajax({
-                url: '/api/worksheets/',
+                url: command.url,
                 type: 'get',
-                data: { option: optionVal },
                 dataType: 'json'
+                // data: { option: command }, // if we need to send something to the API, we can do it here
             });
         }
-        // $('#s2id_search').on('keydown', '.select2-input', function(e){
-        //     // add some custom key events for working with the search bar
-        //     switch(e.keyCode){
-        //         case 9:
-        //             // usually the Tab key would move focus off the search input, so
-        //             // we want to prevent that
-        //             e.preventDefault();
-        //             break;
-        //         case 13:
-        //             // cmd-enter or ctrl-enter triggers execution of whatever is
-        //             // in the search input
-        //             if(e.ctrlKey || e.metaKey){
-        //                 e.preventDefault();
-        //                 _this.executeCommands();
-        //             }
-        //             break;
-        //         default:
-        //             return true;
-        //     }
-        // });
+        $('#s2id_search').on('keydown', '.select2-input', function(e){
+            // add some custom key events for working with the search bar
+            switch(e.keyCode){
+                case 9:
+                    // usually the Tab key would move focus off the search input, so
+                    // we want to prevent that
+                    e.preventDefault();
+                    break;
+                case 13:
+                    // cmd-enter or ctrl-enter triggers execution of whatever is
+                    // in the search input
+                    if(e.ctrlKey || e.metaKey){
+                        e.preventDefault();
+                        _this.executeCommands();
+                    }
+                    break;
+                default:
+                    return true;
+            }
+        });
     },
     componentWillUnmount: function(){
         // when the component unmounts, destroy the select2 instance
@@ -116,14 +95,14 @@ var Select2SearchMixin = {
     },
     executeCommands: function(){
         // parse and execute the contents of the search input
-        var command = $('#search').select2('val'); // this comes in as an array
+        var input = $('#search').select2('val'); // this comes in as an array
         // customization can be done here, depending on the desired syntax of commands.
         // currently, this just calls all of the functions named in the input
-        var input = clActions[command[0]];
-        if(ws_actions.hasOwnProperty(input)){
-            ws_actions[input](command);
+        var command = input[0];
+        if(ws_actions.commands.hasOwnProperty(command)){
+            ws_actions[ws_actions.commands[command].functionName](input);
         } else {
-            console.error('The command \'' + command[0] + '\' was not recognized');
+            console.error('The command \'' + command + '\' was not recognized');
         }
     }
 };   // end of Select2SearchMixin
