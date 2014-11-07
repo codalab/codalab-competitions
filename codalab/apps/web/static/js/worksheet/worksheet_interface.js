@@ -64,7 +64,9 @@ var Worksheet = React.createClass({
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
             return false;
-        }else if(key === 'e' && (event.metaKey || event.ctrlKey)){
+        }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
+            $('#glossaryModal').modal('hide');
+        }else if(key === 'e' && (event.shiftKey)){
             this.toggleEditing();
             return false;
         }else if(activeComponent.hasOwnProperty('handleKeydown')){

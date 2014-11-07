@@ -15,7 +15,7 @@ var TableBundle = React.createClass({
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d','i','a'];
+        return['up','k','down','j','x','d','i','a','enter'];
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -66,7 +66,7 @@ var TableBundle = React.createClass({
                     // passing the keyboard action
                     if(!this.hasOwnProperty('deleteCheckedRows')){
                         this.setState({checked: !this.state.checked});
-                    }else if(event.ctrlKey || event.metaKey){
+                    }else if(event.shiftKey){
                         // this gets tricky. if the user is holding ctrl or cmd, check the whole table
                         this.setState({checked: !this.state.checked});
                     }else {
@@ -107,12 +107,18 @@ var TableBundle = React.createClass({
                         }
                     }
                     break;
+                case 'enter': // go to highlighted bundle's detail page
+                    event.preventDefault();
+                    this.goToBundlePage();
                 default:
                     return true;
                 }
             } else {
                 return true;
             }
+    },
+    goToBundlePage: function(){
+        window.location = this.refs['row' + this.state.rowFocusIndex].props.bundleURL;
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
