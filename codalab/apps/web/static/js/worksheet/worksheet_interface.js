@@ -31,7 +31,8 @@ var Worksheet = React.createClass({
     },
     componentDidMount: function() {
         this.bindEvents();
-        $('body').addClass('ws-interface');
+        // ATL remove search bar for demo
+        // $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
@@ -80,11 +81,22 @@ var Worksheet = React.createClass({
     toggleEditing: function(){
         this.setState({editMode:!this.state.editMode});
     },
-    render: function(){
+    // ATL remove search bar for demo
+    // render: function(){
+    //     var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+    //     return (
+    //         <div id="worksheet">
+    //             <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
+    //             <div className="container">
+    //                 <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+    //             </div>
+    //         </div>
+    //     )
+    // }
+        render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         return (
             <div id="worksheet">
-                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
                 <div className="container">
                     <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
                 </div>
