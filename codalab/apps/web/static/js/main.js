@@ -304,7 +304,7 @@ var CodaLab;
                     }
                 },
                 uploadProgress: function(file, bytesUploaded, bytesTotal) {
-                    var pct = (100 * bytesUploaded) / bytesTotal
+                    var pct = (100 * bytesUploaded) / bytesTotal;
                     pct = pct.toFixed(0);
                     $('#details').html('<div class="alert alert-info">Uploading file <strong>' + file.name + '</strong>: ' + pct +
                         '% complete.</div><div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' +
