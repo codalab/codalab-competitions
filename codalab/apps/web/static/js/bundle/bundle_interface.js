@@ -166,7 +166,7 @@ var Bundle = React.createClass({
             );
 
         var edit = ''
-        if(!this.state.edit_permission){
+        if(this.state.edit_permission){
             edit = (
                 <button className="btn btn-primary btn-sm" onClick={this.toggleEditing}>
                     {editButtonText}
@@ -312,17 +312,17 @@ var FileBrowserBreadCrumbs = React.createClass({
         var currentDirectory = '';
 
         // Generate list of breadcrumbs separated by ' / '
-        for(var i=0; i<splitDirs.length; i++) {
+        for(var i=0; i < splitDirs.length; i++) {
             if(i == 0) {
                 currentDirectory += splitDirs[i];
             } else {
                 currentDirectory += "/" + splitDirs[i];
             }
-            links.push(<a key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</a>);
+            links.push(<span key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
         }
 
         return (
-            <div className="panel-heading">{links} </div>
+            <div className="panel-heading">{links}</div>
         );
     }
 });
@@ -346,12 +346,12 @@ var FileBrowserItem = React.createClass({
             file_location = this.props.key;
         }
 
-        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location + '/';
+        var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
 
         return (
             <tr>
                 <td>
-                    <div onClick={this.props.type != 'file' ? this.browseToFolder : null}>
+                    <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
                         <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.key}</a>
                     </div>
