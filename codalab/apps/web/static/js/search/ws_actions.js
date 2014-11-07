@@ -9,11 +9,15 @@ function WorksheetActions() {
     instance = new WorksheetActions();
     instance.constructor = WorksheetActions();
 
-    instance.doAdd = function(params){
+    instance.doAdd = function(params, command){
         var bundleID = params[1];
         var worksheetID = ws_obj.state.uuid;
         alert('Make a call to the cli to add the bundle with UUID ' + bundleID +
             ' to this worksheet, which has the UUID ' + worksheetID);
+    };
+    instance.doInfo = function(params, command){
+        // ATL replace with 'bundle' link
+        window.location = '/worksheets/' + params[1] + '/';
     };
     // Dictionary of terms that can be entered into the search bar and the names of
     // functions they call.

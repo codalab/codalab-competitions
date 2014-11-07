@@ -100,7 +100,7 @@ var Select2SearchMixin = {
         // currently, this just calls all of the functions named in the input
         var command = input[0];
         if(ws_actions.commands.hasOwnProperty(command)){
-            ws_actions[ws_actions.commands[command].functionName](input);
+            ws_actions[ws_actions.commands[command].functionName](input, ws_actions.commands[command]);
         } else {
             console.error('The command \'' + command + '\' was not recognized');
         }
