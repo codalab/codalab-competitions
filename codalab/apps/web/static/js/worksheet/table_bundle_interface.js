@@ -164,7 +164,7 @@ var TableBundle = React.createClass({
         var confirm_string = interpreted_row_indexes.length === 1 ? 'this row?' : interpreted_row_indexes.length + ' rows?'
         if(interpreted_row_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
             //delete and get our new interpreted. raw is handeled by ws_obj
-            new_interpreted_rows = ws_obj.deleteTableRow(this.state, interpreted_row_indexes);
+            new_interpreted_rows = ws_obj.deleteTableRow(this.props.item.state, interpreted_row_indexes);
             //uncheck so we don't get any weird checked state hanging around
             this.unCheckRows();
             // go through and uncheck all the rows to get rid of lingering states
