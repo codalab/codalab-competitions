@@ -201,7 +201,7 @@ var Bundle = React.createClass({
                 <div className="row">
                     <div className="col-sm-6">
                         <div className="metadata-table">
-                            <table className={tableClassName}>
+                            <table id="metadata_table" className={tableClassName}>
                                 <tbody>
                                     {bundleAttrs}
                                 </tbody>
