@@ -61,6 +61,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
             return bundle_info
 
+        def search_bundles(self, search_text, worksheet_uuid=None):
+            # search_bundle_uuids(worksheet_uuid, search_text, max_results, show_counts_only)
+            bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid,search_text, 30, False)
+            bundle_infos = self.client.get_bundle_infos(bundle_uuids)
+            return bundle_infos
+
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())
 
