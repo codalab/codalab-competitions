@@ -850,6 +850,30 @@ class BundleInfoApi(views.APIView):
             logging.debug('-------------------------')
             return Response({'error': smart_str(e)})
 
+class BundleSearchApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        search_string = request.GET.get('search_string', '')
+        worksheet_uuid = request.GET.get('worksheet_uuid', None) #if you want to filter it down to worksheet
+        logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            bundle_infos = service.search_bundles(search_string, worksheet_uuid)
+            print bundle_infos
+            return Response(bundle_infos, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
 class BundleContentApi(views.APIView):
     """
     Provides a web API to browse the content of a bundle.
