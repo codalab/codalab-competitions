@@ -19,7 +19,7 @@ function WorksheetActions() {
         'info': {
             functionName: 'doInfo',
             helpText: 'info - go to a bundle\'s info page',
-            url: '/api/worksheets/'
+            url: '/api/bundles/search/'
         }
     };
 
@@ -45,8 +45,7 @@ function WorksheetActions() {
     };
 
     instance.doInfo = function(params, command){
-        // ATL replace with 'bundle' link
-        window.location = '/worksheets/' + params[1] + '/';
+        window.location = '/bundles/' + params[1] + '/';
     };
 
     return instance;
