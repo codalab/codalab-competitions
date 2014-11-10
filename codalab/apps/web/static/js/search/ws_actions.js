@@ -14,7 +14,7 @@ function WorksheetActions() {
         'add': {
             functionName: 'doAdd',
             helpText: 'add - add a bundle to this worksheet name or uuid',
-            url: '/api/worksheets/'
+            url: '/api/bundles/search/'
         },
         'info': {
             functionName: 'doInfo',

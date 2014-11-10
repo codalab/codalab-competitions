@@ -44,12 +44,12 @@ var Select2SearchMixin = {
             // first go make the call to get the list of options, then process it for select2 consumption
             return fetchDynamicOptions(command).done(function(data){
                 optionsList = [];
-                data.map(function(item){
+                for(var k in data){
                     optionsList.push({
-                        'id': item.uuid,
-                        'text': item.name + ' | ' + item.uuid
+                        'id': k,
+                        'text': data[k].metadata.name + ' | ' + k
                     });
-                });
+                };
             });
         }
         function fetchDynamicOptions(command) {
