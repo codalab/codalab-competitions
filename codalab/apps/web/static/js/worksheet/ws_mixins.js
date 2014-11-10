@@ -36,6 +36,8 @@ var Select2SearchMixin = {
                 // reset to intial list of commands
                 optionsList = ws_actions.getCommands();
             }
+        }).on('select2-open', function(){
+            _this.props.handleFocus();
         });
         //https://github.com/ivaynberg/select2/issues/967
         function loadDynamicOptions(command) {
