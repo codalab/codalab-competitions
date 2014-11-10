@@ -44,12 +44,15 @@ var MarkdownBundle = React.createClass({
     saveEditedItem: function(interpreted){
         this.props.handleSave(this.props.key, interpreted);
     },
-    componentDidMount: function() {
+    processMathJax: function(){
         MathJax.Hub.Queue([
             'Typeset',
             MathJax.Hub,
             this.getDOMNode()
         ]);
+    },
+    componentDidMount: function() {
+        this.processMathJax();
         if(this.props.editing){
             $(this.getDOMNode()).find('textarea').focus();
         }
@@ -57,6 +60,10 @@ var MarkdownBundle = React.createClass({
     componentDidUpdate: function(){
         if(this.props.editing){
             $(this.getDOMNode()).find('textarea').focus();
+        }else {
+            // TODO: there may be a more efficient way to do this,
+            // but for now this seems logical
+            this.processMathJax();
         }
     },
     handleClick: function(){
