@@ -94,60 +94,82 @@ var WorksheetSearch = React.createClass({
         var optionsList = ws_actions.getCommands();
         $('#search').select2({
             multiple:true,
-            data: function(){
-                return {results: optionsList};
-                // data represents the list of possible autocomplete matches.
-                // We make this a function returning the contents of optionsList
-                // so we can dynamically change those contents later.
-            },
+            minimumInputLength: 3,
+            // Note: it's totally possible to dynamically change the minimum input length, ie, for it to be zero
+            // initially and 3 when we're going to make an ajax call, but it requires changing or
+            // overwriting the select2 plugin code.
             formatSelection: function(item){
                 return item.id
                 // When you search for a command, you should see its name and a description of what it
                 // does. This comes from the command's helpText in the command dict.
                 // But after you make a selection, we only want to show the relevant command in the command line
             },
-         }).on('change', function(){
-            // Select2 is masking the actual #search field. Its value only changes when something new is entered
-            // via select2. So when the value of #search changes, we know we need to reevaluate the context
-            // in which select2 is being used (eg, we've gone from entering a command to looking up a bundle)
-            var input = $(this).val();
-            if(input.length){ // if there's something in the commandline...
-                // if the last thing entered in the command line is in our known list of commands
-                if(ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
-                    // we need to update the data source for the autocomplete, based on the command entered
-                    loadDynamicOptions(ws_actions.commands[input]);
+            // custom query method, called on every keystroke over the min length
+            // see http://ivaynberg.github.io/select2/#doc-query
+            query: function(query){
+
+                // Select2 is masking the actual #search field. Its value only changes when something new is entered
+                // via select2. So when the value of #search changes, we know we need to reevaluate the context
+                // in which select2 is being used (eg, we've gone from entering a command to looking up a bundle)
+                var input = query.element.val();
+
+                // if there's something in the commandline AND
+                // if the last thing entered in the command line is in our known list of commands,
+                // we know we need to start hitting the API for results
+                if(input.length && ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
+                    // get our action object that tells us what to do (ajax url)
+                    var command = ws_actions.commands[input];
+                    $.ajax({
+                        type:'GET',
+                        url: command.url,
+                        dataType: 'json',
+                        data: {
+                            search_string: query.term // built into the query object
+                        },
+                        success: function(data, status, jqXHR){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            newOptions = [];
+                            for(var k in data){
+                                newOptions.push({
+                                    'id': k,
+                                    'text': data[k].metadata.name + ' | ' + k
+                                });
+                            };
+                            // callback is also built into the query object. It expects a list of
+                            // results. See http://ivaynberg.github.io/select2/#doc-query again.
+                            query.callback({
+                                results: newOptions
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                }else {
+                    // either a command hasn't been entered or it wasn't one we support, so
+                    // let's make a list of our known commands
+                    var matchedOptions = []
+                    optionsList.map(function(item){
+                        // we need to make our own matcher function because we're doing this
+                        // custom thing. This is just a reimplementation of select2's default
+                        // matcher. See http://ivaynberg.github.io/select2/#doc-matcher
+                        if(item.id.toUpperCase().indexOf(query.term.toUpperCase())>=0){
+                            matchedOptions.push(item);
+                        }
+                    });
+                    // now pass back these results the same way we did the ajax ones
+                    query.callback({
+                        results: matchedOptions
+                    });
                 }
-            } else {
-                // reset to intial list of commands
-                optionsList = ws_actions.getCommands();
             }
         }).on('select2-open', function(){
+            // because select2 is masking the actual #search field, we need to manually trigger
+            // its focus event when select2 is invoked
             _this.props.handleFocus();
         });
-        //https://github.com/ivaynberg/select2/issues/967
-        function loadDynamicOptions(command) {
-            // first go make the call to get the list of options, then process it for select2 consumption
-            return fetchDynamicOptions(command).done(function(data){
-                optionsList = [];
-                for(var k in data){
-                    optionsList.push({
-                        'id': k,
-                        'text': data[k].metadata.name + ' | ' + k
-                    });
-                };
-            });
-        }
-        function fetchDynamicOptions(command) {
-            // command is the object from ws_actions.commands. It knows what api endpoint (url) it needs to hit
-            // to get a list of options relevant to its command. For instance, the "add" command knows it needs
-            // to look for bundles.
-            return $.ajax({
-                url: command.url,
-                type: 'get',
-                dataType: 'json'
-                // data: { option: command }, // if we need to send something to the API, we can do it here
-            });
-        }
+
         $('#s2id_search').on('keydown', '.select2-input', function(e){
             // add some custom key events for working with the search bar
             switch(e.keyCode){
