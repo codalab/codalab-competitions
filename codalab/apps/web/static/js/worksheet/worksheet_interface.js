@@ -119,6 +119,7 @@ var WorksheetSearch = React.createClass({
                 if(input.length && ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
                     // get our action object that tells us what to do (ajax url)
                     var command = ws_actions.commands[input];
+                    console.log('searching for options related to the "' + input + '" command with the term "' + query.term + '"');
                     $.ajax({
                         type:'GET',
                         url: command.url,
@@ -136,6 +137,7 @@ var WorksheetSearch = React.createClass({
                                     'text': data[k].metadata.name + ' | ' + k
                                 });
                             };
+                            console.log(newOptions.length + ' results');
                             // callback is also built into the query object. It expects a list of
                             // results. See http://ivaynberg.github.io/select2/#doc-query again.
                             query.callback({
@@ -149,6 +151,7 @@ var WorksheetSearch = React.createClass({
                 }else {
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
+                    console.log('searching commands...');
                     var matchedOptions = []
                     optionsList.map(function(item){
                         // we need to make our own matcher function because we're doing this
@@ -158,6 +161,7 @@ var WorksheetSearch = React.createClass({
                             matchedOptions.push(item);
                         }
                     });
+                    console.log(matchedOptions.length + ' results');
                     // now pass back these results the same way we did the ajax ones
                     query.callback({
                         results: matchedOptions
