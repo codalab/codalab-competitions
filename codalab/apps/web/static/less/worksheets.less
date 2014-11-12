@@ -1,5 +1,9 @@
 #worksheet-message {
    padding:20px 0;
+   &.alert {
+      padding:10px;
+      margin-top:20px;
+   }
    .ws-detail {
       padding-top:32px;
    }
@@ -26,6 +30,7 @@
    }
 }
 #worksheet_content {
+   display:none;
    margin-top:12px;
    line-height:1.2;
    min-height:480px;
@@ -353,7 +358,7 @@
          line-height:@font-size-h3;
          h2 {
             margin:0;
-            background-position:0 15px;
+            background-position-y:8px;
          }
          .bundle-download,
          .bundle-uuid {
@@ -386,6 +391,8 @@
             &.editing {
                tr td,
                tr th {
+                  vertical-align: middle;
+                  line-height:inherit;
                }
             }
          }
@@ -393,8 +400,11 @@
       .bundle-file-view-container {
          border-top:1px solid @gray-light;
          margin-bottom:24px;
-         .breadcrumb {
-            margin-bottom:12px;
+         .panel-heading {
+            span {
+               cursor:pointer;
+               color:@link-color;
+            }
          }
          .file-browser-table {
             .table;
@@ -410,16 +420,24 @@
                      font-size:@font-size-med;
                      border-width:0;
                      a, span {
-                        font-weight:bold;
                         cursor:pointer;
+                     }
+                     .directory {
+                        font-weight:bold;
+                     }
+                     .file {
+                        font-weight:normal;
                      }
                   }
                }
             }
             .glyphicon {
                font-size:@font-size-med;
-               color:@gray;
+               color:@link-color;
                margin-right:6px;
+               &.glyphicon-file {
+                  color:@gray;
+               }
             }
          }
       }
@@ -432,16 +450,15 @@
    .modal-header h4 {
       margin:0;
    }
-   dl {
-      margin-bottom:0;
+   h5 {
+      margin-top:0;
    }
-   dt {
-      float:left;
-      margin-right:16px;
-      font-weight:normal;
-      code {
-         padding:4px;
-         text-align:center;
+   .table{
+      // background-color:white;
+      > tbody > tr > td {
+         padding:5px 6px 8px 6px;
+         border-color:#eee;
+         border-bottom:1px solid #eee;
       }
    }
 }

@@ -27,7 +27,8 @@ var Worksheet = React.createClass({
     },
     componentDidMount: function() {
         this.bindEvents();
-        $('body').addClass('ws-interface');
+        // ATL remove search bar for demo
+        // $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
@@ -60,7 +61,9 @@ var Worksheet = React.createClass({
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
             return false;
-        }else if(key === 'e' && (event.metaKey || event.ctrlKey)){
+        }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
+            $('#glossaryModal').modal('hide');
+        }else if(key === 'e' && (event.shiftKey)){
             this.toggleEditing();
             return false;
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
@@ -146,11 +149,11 @@ var WorksheetItemList = React.createClass({
     fetch_and_update: function(){
         ws_obj.fetch({
             success: function(data){
-                $("#worksheet-message").hide().removeClass('alert-danger alert');
                 if(this.isMounted()){
                     this.setState({worksheet: ws_obj.getState()});
                 }
-                $('#update_progress').hide();
+                $('#update_progress, #worksheet-message').hide();
+                $('#worksheet_content').show();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
@@ -338,7 +341,8 @@ var WorksheetItemList = React.createClass({
                 // when called gets a edited flag, when you getState
             }
         }
-        if(item_indexes.length){
+        var confirm_string = item_indexes.length === 1 ? 'this item?' : item_indexes.length + ' items?'
+        if(item_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
             // only proceed if it turns out that one or more items were actually checked
             ws_obj.deleteItems(item_indexes)
             // does a clean before setting it's state and updating
@@ -385,15 +389,20 @@ var WorksheetItemList = React.createClass({
         }
     },
     setFocus: function(index){
-        this.setState({focusIndex: index});
-        if(index >= 0){
-            var mode = ws_obj.state.items[index].state.mode;
-            if(mode === 'table'){
-                this.toggleCheckboxEnable(false);
-            }else {
-                this.toggleCheckboxEnable(true);
+        if(index < this.state.worksheet.items.length){
+            this.setState({focusIndex: index});
+            if(index >= 0){
+                var mode = ws_obj.state.items[index].state.mode;
+                if(mode === 'table'){
+                    this.toggleCheckboxEnable(false);
+                }else {
+                    this.toggleCheckboxEnable(true);
+                }
+                this.scrollToItem(index);
             }
-            this.scrollToItem(index);
+        }
+        else {
+            return false;
         }
     },
     toggleRawMode: function(){

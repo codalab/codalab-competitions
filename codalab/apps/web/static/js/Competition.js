@@ -282,7 +282,7 @@ var Competition;
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
 
-        if(description) {
+        if (description) {
             $(elemTr).attr('data-description', description);
         }
 
@@ -360,11 +360,11 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
-            if($(nTr).attr('data-description')) {
-                elem.find('.submission_description').html("Description: <br><pre>" + $(nTr).attr('data-description') + "</pre>");
+            if ($(nTr).attr('data-description')) {
+                elem.find('.submission_description').html('Description: <br><pre>' + $(nTr).attr('data-description') + '</pre>');
             }
-            if($(nTr).attr('data-exception')) {
-                elem.find('.traceback').html("Error: <br><pre>" + $(nTr).attr('data-exception') + "</pre>");
+            if ($(nTr).attr('data-exception')) {
+                elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
             }
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
@@ -444,8 +444,8 @@ var Competition;
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass('hide');
                     $(obj).parent().parent().find('a').removeClass('hide');
-                    if(data.exception_details) {
-                        $("a[href='traceback/" + submissionId + "/']").parent().html("Error: <br><pre>" + data.exception_details + "</pre>");
+                    if (data.exception_details) {
+                        $('a[href="traceback/' + submissionId + '/"]').parent().html('Error: <br><pre>' + data.exception_details + '</pre>');
                     }
                 }
                 $('.competitionPreloader').hide();
@@ -555,7 +555,7 @@ var Competition;
                        console.log('Unpublished competition.');
                        $(competition_actions).children('#competition-publish-button').show();
                        $(competition_actions).children('#competition-delete-button').show();
-                       $(competition_actions).children('#competition-unpublish-button').hide()
+                       $(competition_actions).children('#competition-unpublish-button').hide();
                    },
                    error: function(jsXHR, textStatus, errorThrown) {
                        console.log('Error unpublishing competition!');
