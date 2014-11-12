@@ -4,16 +4,26 @@
       padding-top:32px;
    }
 }
-#worksheet .ws-search {
-   position:fixed;
-   top:52px;
-   width:100%;
-   margin:0;
-   padding:10px 0;
-   z-index:@zindex-navbar;
-   background-color:fade(#eaeaea, 90%);
-   border-bottom:2px solid @navbar-default-border;
-   .box-shadow(0 2px 8px @gray-dark);
+#worksheet {
+   .transition(margin-top .35s ease);
+   .ws-search {
+      position:fixed;
+      top:52px;
+      width:100%;
+      margin:0;
+      padding:10px 0;
+      z-index:@zindex-navbar;
+      background-color:fade(#eaeaea, 90%);
+      border-bottom:2px solid @navbar-default-border;
+      .box-shadow(0 2px 8px @gray-dark);
+      .transition(top .35s ease);
+   }
+   &.search-hidden {
+      margin-top:-61px;
+      .ws-search {
+         top:-7px;
+      }
+   }
 }
 #worksheet_content {
    margin-top:12px;
