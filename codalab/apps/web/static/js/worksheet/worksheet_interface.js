@@ -7,6 +7,7 @@ var keyMap = {
     38: "up",
     40: "down",
     65: "a",
+    66: "b",
     68: "d",
     73: "i",
     74: "j",
@@ -20,7 +21,8 @@ var Worksheet = React.createClass({
     getInitialState: function(){
         return {
             activeComponent: 'list',
-            editMode: false
+            editMode: false,
+            showSearchBar: true
         }
     },
     componentDidMount: function() {
@@ -72,13 +74,18 @@ var Worksheet = React.createClass({
     toggleEditing: function(){
         this.setState({editMode:!this.state.editMode});
     },
+    toggleSearchBar: function(){
+        this.setState({showSearchBar:!this.state.showSearchBar});
+    },
     render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        var searchHidden = !this.state.showSearchBar;
+        var className = searchHidden ? 'search-hidden' : '';
         return (
-            <div id="worksheet">
-                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
+            <div id="worksheet" className={className}>
+                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'} show={this.state.showSearchBar} />
                 <div className="container">
-                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} toggleSearchBar={this.toggleSearchBar} />
                 </div>
             </div>
         )
@@ -412,6 +419,10 @@ var WorksheetItemList = React.createClass({
                     if(event.shiftKey && this.props.canEdit){
                         this.insertItem(key);
                     }
+                    break;
+                case 'b': // show/hide the search bar
+                    event.preventDefault();
+                    this.props.toggleSearchBar();
                     break;
                 default:
                     return true;
