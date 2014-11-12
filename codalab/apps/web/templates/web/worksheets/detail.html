@@ -4,12 +4,12 @@
 {% block subheader %}{% endblock subheader %}
 
 {% block content %}
-
-</div><!-- close .container from base.html -->
+<!-- ATL remove search bar for demo -->
+<!-- </div> -->
+<div id="worksheet-message" class="ws-detail container">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
+</div>
 <div id="worksheet_container">
-    <div id="worksheet-message" class="ws-detail container">
-        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
-    </div>
     <!-- worksheet html wil go here-->
 </div>
 </div>
@@ -22,7 +22,7 @@
 <div id="save_error" class="progress-message">
     <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
 </div>
-<div id="glossaryModal" class="modal fade">
+<div id="glossaryModal" class="modal fade" data-keyboard="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -30,38 +30,69 @@
                 <h4>Keyboard Shortcuts</h4>
             </div>
             <div class="modal-body">
-                <dl>
-                    <dt><code>/</code></dt>
-                        <dd>jump to search bar</dd>
-                    <dt><code>ctrl + e</code> or <code>⌘ + e</code></dt>
-                        <dd>toggle editing mode (if user has permission)</dd>
-                    <dt><code>j</code> or <code>↓</code></dt>
-                        <dd>next worksheet item or table row</dd>
-                    <dt><code>shift + j</code> or <code>shift + ↓</code></dt>
-                        <dd>move focused item down</dd>
-                    <dt><code>k</code> or <code>↑</code></dt>
-                        <dd>previous worksheet item or table row</dd>
-                    <dt><code>shift + k</code> or <code>shift + ↑</code></dt>
-                        <dd>move focused item up</dd>
-                    <dt><code>e</code></dt>
-                        <dd>edit highlighted item (markup bundles only)</dd>
-                    <dt><code>esc</code></dt>
-                        <dd>exit edit mode</dd>
-                    <dt><code>ctrl + enter</code> or <code>⌘ + enter</code></dt>
-                        <dd>save edits to markup item</dd>
-                    <dt><code>x</code></dt>
-                        <dd>select highlighted item</dd>
-                    <dt><code>d</code></dt>
-                        <dd>delete selected items</dd>
-                    <dt><code>i</code></dt>
-                        <dd>insert markup before highlighted item</dd>
-                    <dt><code>A</code></dt>
-                        <dd>insert markup after highlighted item</dd>
-                    <dt><code>?</code></dt>
-                        <dd>show this glossary</dd>
-                </dl>
-            </div>
-            <div class="modal-footer">
+                <h5>General</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>/</kbd> jump to search bar</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + e</kbd> toggle editing mode (if user has permission)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>j</kbd> or <kbd>↓</kbd> next worksheet item or table row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + j</kbd> or <kbd>shift + ↓</kbd> move focused item down</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>k</kbd> or <kbd>↑</kbd> previous worksheet item or table row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + k</kbd> or <kbd>shift + ↑</kbd> move focused item up</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>x</kbd> select highlighted item (if in edit mode)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>d</kbd> delete selected items</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>i</kbd> insert markup before highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>A</kbd> insert markup after highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>?</kbd> show this glossary</td>
+                    </tr>
+                </table>
+                <h5>Editing Markup</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>e</kbd> edit highlighted item (markup bundles only)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + enter</kbd> or <kbd>⌘ + enter</kbd> save edits to markup item</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>esc</kbd> exit edit mode</td>
+                    </tr>
+                </table>
+                <h5>Tables and Bundles</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>enter</kbd> go to details page of highlighted bundle</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + x</kbd> select parent table of highlighted row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> move highlighted row down</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> move highlighted row up</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
