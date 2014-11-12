@@ -1,3 +1,5 @@
+/** @jsx React.DOM */
+
 var WorksheetSearch = React.createClass({
     componentDidMount: function(){
         // when the component has mounted, init the select2 plugin on the
@@ -25,7 +27,7 @@ var WorksheetSearch = React.createClass({
                 }
             },
             formatSelection: function(item){
-                return item.id
+                return item.id;
                 // When you search for a command, you should see its name and a description of what it
                 // does. This comes from the command's helpText in the command dict.
                 // But after you make a selection, we only want to show the relevant command in the command line
@@ -37,7 +39,7 @@ var WorksheetSearch = React.createClass({
                     return {
                         id: term,
                         text: 'New worksheet name: ' + term
-                    }
+                    };
                 }
             },
             query: function(query){
@@ -94,7 +96,7 @@ var WorksheetSearch = React.createClass({
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
                     console.log('searching commands...');
-                    var matchedOptions = []
+                    var matchedOptions = [];
                     optionsList.map(function(item){
                         // we need to make our own matcher function because we're doing this
                         // custom thing. This is just a reimplementation of select2's default
