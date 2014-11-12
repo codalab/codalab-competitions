@@ -77,15 +77,35 @@ var Worksheet = React.createClass({
     toggleSearchBar: function(){
         this.setState({showSearchBar:!this.state.showSearchBar});
     },
+    showSearchBar: function(){
+        this.setState({showSearchBar:true});
+    },
+    hidSearchBar: function(){
+        this.setState({showSearchBar:true});
+    },
     render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         var searchHidden = !this.state.showSearchBar;
         var className = searchHidden ? 'search-hidden' : '';
         return (
             <div id="worksheet" className={className}>
-                <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'} show={this.state.showSearchBar} />
+                <WorksheetSearch
+                    ref={"search"}
+                    handleFocus={this.handleSearchFocus}
+                    handleBlur={this.handleSearchBlur}
+                    active={this.state.activeComponent=='search'}
+                    show={this.state.showSearchBar}
+                />
                 <div className="container">
-                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} toggleSearchBar={this.toggleSearchBar} />
+                    <WorksheetItemList
+                        ref={"list"}
+                        active={this.state.activeComponent=='list'}
+                        canEdit={canEdit}
+                        toggleEditing={this.toggleEditing}
+                        toggleSearchBar={this.toggleSearchBar}
+                        hidSearchBar={this.hidSearchBar}
+                        showSearchBar={this.showSearchBar}
+                    />
                 </div>
             </div>
         )
@@ -168,6 +188,7 @@ var WorksheetItemList = React.createClass({
             switch (key) {
                 case 'fslash': // Move focus to search bar
                     event.preventDefault();
+                    this.props.showSearchBar();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
                     break;

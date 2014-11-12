@@ -25,7 +25,7 @@ function WorksheetActions() {
         },
         'wnew': {
             functionName: 'doNewWorksheet',
-            helpText: 'wnew - add a new worksheet by naming it'
+            helpText: 'wnew - add and go to a new worksheet by naming it'
         }
     };
 
@@ -53,6 +53,7 @@ function WorksheetActions() {
     instance.doInfo = function(params, command){
         window.location = '/bundles/' + params[1] + '/';
     };
+
     instance.doNewWorksheet = function(params, command){
         if(params.length === 2 && params[0] === 'wnew'){
             var postdata = {
