@@ -94,10 +94,23 @@ var WorksheetSearch = React.createClass({
         var optionsList = ws_actions.getCommands();
         $('#search').select2({
             multiple:true,
-            minimumInputLength: 3,
-            // Note: it's totally possible to dynamically change the minimum input length, ie, for it to be zero
-            // initially and 3 when we're going to make an ajax call, but it requires changing or
-            // overwriting the select2 plugin code.
+            minimumInputLength: function(){
+                var input = $('#search').val();
+                switch(input){
+                    case '':
+                        return 0;
+                    break;
+                    case 'add':
+                    case 'info':
+                        return 3;
+                    break;
+                    case 'wnew':
+                        return 0
+                    break;
+                    default:
+                        return 3;
+                }
+            },
             formatSelection: function(item){
                 return item.id
                 // When you search for a command, you should see its name and a description of what it
@@ -106,6 +119,14 @@ var WorksheetSearch = React.createClass({
             },
             // custom query method, called on every keystroke over the min length
             // see http://ivaynberg.github.io/select2/#doc-query
+            createSearchChoice: function(term){
+                if($('#search').val() === 'wnew'){
+                    return {
+                        id: term,
+                        text: 'New worksheet name: ' + term
+                    }
+                }
+            },
             query: function(query){
 
                 // Select2 is masking the actual #search field. Its value only changes when something new is entered
@@ -119,35 +140,43 @@ var WorksheetSearch = React.createClass({
                 if(input.length && ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
                     // get our action object that tells us what to do (ajax url)
                     var command = ws_actions.commands[input];
-                    console.log('searching for options related to the "' + input + '" command with the term "' + query.term + '"');
-                    $.ajax({
-                        type:'GET',
-                        url: command.url,
-                        dataType: 'json',
-                        data: {
-                            search_string: query.term // built into the query object
-                        },
-                        success: function(data, status, jqXHR){
-                            // select2 wants its options in a certain format, so let's make a new
-                            // list it will like
-                            newOptions = [];
-                            for(var k in data){
-                                newOptions.push({
-                                    'id': k,
-                                    'text': data[k].metadata.name + ' | ' + k
+                    if(command.url){
+                        console.log('searching for options related to the "' + input + '" command with the term "' + query.term + '"');
+                        $.ajax({
+                            type: command.type,
+                            url: command.url,
+                            dataType: 'json',
+                            data: {
+                                search_string: query.term // built into the query object
+                            },
+                            success: function(data, status, jqXHR){
+                                // select2 wants its options in a certain format, so let's make a new
+                                // list it will like
+                                newOptions = [];
+                                for(var k in data){
+                                    newOptions.push({
+                                        'id': k,
+                                        'text': data[k].metadata.name + ' | ' + k
+                                    });
+                                };
+                                console.log(newOptions.length + ' results');
+                                // callback is also built into the query object. It expects a list of
+                                // results. See http://ivaynberg.github.io/select2/#doc-query again.
+                                query.callback({
+                                    results: newOptions
                                 });
-                            };
-                            console.log(newOptions.length + ' results');
-                            // callback is also built into the query object. It expects a list of
-                            // results. See http://ivaynberg.github.io/select2/#doc-query again.
-                            query.callback({
-                                results: newOptions
-                            });
-                        },
-                        error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
-                        }
-                    });
+                            },
+                            error: function(jqHXR, status, error){
+                                console.error(status + ': ' + error);
+                            }
+                        });
+                    }else {
+                        query.callback({
+                            results: [
+
+                            ]
+                        });
+                    }
                 }else {
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
