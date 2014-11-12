@@ -14,12 +14,18 @@ function WorksheetActions() {
         'add': {
             functionName: 'doAdd',
             helpText: 'add - add a bundle to this worksheet name or uuid',
-            url: '/api/bundles/search/'
+            url: '/api/bundles/search/',
+            type: 'GET'
         },
         'info': {
             functionName: 'doInfo',
             helpText: 'info - go to a bundle\'s info page',
-            url: '/api/bundles/search/'
+            url: '/api/bundles/search/',
+            type: 'GET'
+        },
+        'wnew': {
+            functionName: 'doNewWorksheet',
+            helpText: 'wnew - add a new worksheet by naming it'
         }
     };
 
@@ -46,6 +52,29 @@ function WorksheetActions() {
 
     instance.doInfo = function(params, command){
         window.location = '/bundles/' + params[1] + '/';
+    };
+    instance.doNewWorksheet = function(params, command){
+        if(params.length === 2 && params[0] === 'wnew'){
+            var postdata = {
+                'name': params[1]
+            };
+            $.ajax({
+                type:'POST',
+                cache: false,
+                url:'/api/worksheets/',
+                contentType:"application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(postdata),
+                success: function(data, status, jqXHR){
+                    window.location = '/worksheets/' + data.uuid + '/';
+                },
+                error: function(jqHXR, status, error){
+                    console.error(status + ': ' + error);
+                }
+            });
+        }else {
+            alert('wnew command syntax must be "wnew [worksheetname]"');
+        }
     };
 
     return instance;
