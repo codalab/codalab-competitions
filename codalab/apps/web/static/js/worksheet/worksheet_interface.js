@@ -27,8 +27,7 @@ var Worksheet = React.createClass({
     },
     componentDidMount: function() {
         this.bindEvents();
-        // ATL remove search bar for demo
-        // $('body').addClass('ws-interface');
+        $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
