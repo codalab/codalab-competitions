@@ -49,7 +49,7 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
     filename = serializers.Field(source="get_filename")
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details')
+        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description')
         read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
 
 class PhaseSerial(serializers.ModelSerializer):

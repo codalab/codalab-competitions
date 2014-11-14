@@ -792,7 +792,7 @@ class CompetitionSubmission(models.Model):
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
