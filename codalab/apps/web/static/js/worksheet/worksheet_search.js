@@ -1,27 +1,35 @@
 /** @jsx React.DOM */
 
 var WorksheetSearch = React.createClass({
+    // ********************************************
+    // please see ws_actions the goal of WorksheetSearch
+    // is to be a generic front end for all actions and select2
+    // for all new actions please add in ws_actions.
+    // ********************************************
     componentDidMount: function(){
         // when the component has mounted, init the select2 plugin on the
         // general search input (http://ivaynberg.github.io/select2/)
         _this = this;
         // get our static list of commands and store it in this var
-        var optionsList = ws_actions.getCommands();
+        var commands = ws_actions.getCommands();
         $('#search').select2({
             multiple:true,
             minimumInputLength: function(){
                 var input = $('#search').val();
+                var command = ws_actions.checkAnReturnCommand(input);
+                if(command){
+                    var min_length = command.hasOwnProperty('minimumInputLength');
+                    if(min_length){
+                        return command.minimumInputLength
+                    }else{
+                        return 0;
+                    }
+
+                }
+                //sane defaults
                 switch(input){
                     case '':
                         return 0;
-                    break;
-                    case 'add':
-                    case 'info':
-                        return 3;
-                    break;
-                    case 'wnew':
-                        return 0
-                    break;
                     default:
                         return 3;
                 }
@@ -32,14 +40,18 @@ var WorksheetSearch = React.createClass({
                 // does. This comes from the command's helpText in the command dict.
                 // But after you make a selection, we only want to show the relevant command in the command line
             },
+
             // custom query method, called on every keystroke over the min length
             // see http://ivaynberg.github.io/select2/#doc-query
             createSearchChoice: function(term){
-                if($('#search').val() === 'wnew'){
-                    return {
-                        id: term,
-                        text: 'New worksheet name: ' + term
-                    };
+                var input = $('#search').val();
+                var command = ws_actions.checkAnReturnCommand(input); // will return undefined if doesnt exist.
+                if(command){
+                    var fn = command.hasOwnProperty('searchChoice');
+                    if(fn){
+                        // { id: term, text: 'helper text you"ve entered term' };
+                        return command.searchChoice(command, term)
+                    }
                 }
             },
             query: function(query){
@@ -52,18 +64,17 @@ var WorksheetSearch = React.createClass({
                 // if there's something in the commandline AND
                 // if the last thing entered in the command line is in our known list of commands,
                 // we know we need to start hitting the API for results
-                if(input.length && ws_actions.commands.hasOwnProperty(_.last(input.split(',')))){
+                var command = ws_actions.checkAnReturnCommand( _.last(input.split(',')) )
+                if(input.length && command ){
                     // get our action object that tells us what to do (ajax url)
-                    var command = ws_actions.commands[input];
-                    if(command.url){
+                    if(command.data_url){
+                        var get_data = command.get_data(query);
                         console.log('searching for options related to the "' + input + '" command with the term "' + query.term + '"');
                         $.ajax({
-                            type: command.type,
-                            url: command.url,
+                            type: 'GET',
+                            url: command.data_url,
                             dataType: 'json',
-                            data: {
-                                search_string: query.term // built into the query object
-                            },
+                            data: get_data,
                             success: function(data, status, jqXHR){
                                 // select2 wants its options in a certain format, so let's make a new
                                 // list it will like
@@ -97,7 +108,7 @@ var WorksheetSearch = React.createClass({
                     // let's make a list of our known commands
                     console.log('searching commands...');
                     var matchedOptions = [];
-                    optionsList.map(function(item){
+                    commands.map(function(item){
                         // we need to make our own matcher function because we're doing this
                         // custom thing. This is just a reimplementation of select2's default
                         // matcher. See http://ivaynberg.github.io/select2/#doc-matcher
@@ -121,12 +132,12 @@ var WorksheetSearch = React.createClass({
         $('#s2id_search').on('keydown', '.select2-input', function(e){
             // add some custom key events for working with the search bar
             switch(e.keyCode){
-                case 9:
+                case 9: // tab
                     // usually the Tab key would move focus off the search input, so
                     // we want to prevent that
                     e.preventDefault();
                     break;
-                case 13:
+                case 13: // enter
                     // cmd-enter or ctrl-enter triggers execution of whatever is
                     // in the search input
                     if(e.ctrlKey || e.metaKey){
@@ -155,11 +166,13 @@ var WorksheetSearch = React.createClass({
         var input = $('#search').select2('val'); // this comes in as an array
         // customization can be done here, depending on the desired syntax of commands.
         // currently, this just calls all of the functions named in the input
-        var command = input[0];
-        if(ws_actions.commands.hasOwnProperty(command)){
-            ws_actions[ws_actions.commands[command].functionName](input, ws_actions.commands[command]);
+        var entered_command = input[0];
+        var command = ws_actions.checkAnReturnCommand(entered_command);
+        if(command){
+            var fn = command.executefunctionName
+            ws_actions[fn](input, ws_actions.commands[entered_command]);
         } else {
-            console.error('The command \'' + command + '\' was not recognized');
+            console.error('The command \'' + entered_command + '\' was not recognized');
         }
     },
     handleKeydown: function(event){
