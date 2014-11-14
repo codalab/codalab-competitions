@@ -44,10 +44,30 @@ function WorksheetActions() {
     };
 
     instance.doAdd = function(params, command){
-        var bundleID = params[1];
-        var worksheetID = ws_obj.state.uuid;
-        alert('Make a call to the cli to add the bundle with UUID ' + bundleID +
-            ' to this worksheet, which has the UUID ' + worksheetID);
+        var bundle_uuid = params[1];
+        var worksheet_uuid = ws_obj.state.uuid;
+        if(params.length === 2 && params[0] === 'add'){
+            var postdata = {
+                'bundle_uuid': bundle_uuid,
+                'worksheet_uuid': worksheet_uuid
+            };
+            $.ajax({
+                type:'POST',
+                cache: false,
+                url:'/api/worksheets/add/',
+                contentType:"application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(postdata),
+                success: function(data, status, jqXHR){
+                    WorksheetItemList.fetch_and_update();
+                },
+                error: function(jqHXR, status, error){
+                    console.error("error: " + status + ': ' + error);
+                }
+            });
+        }else {
+            alert('wnew command syntax must be "wnew [worksheetname]"');
+        }
     };
 
     instance.doInfo = function(params, command){
