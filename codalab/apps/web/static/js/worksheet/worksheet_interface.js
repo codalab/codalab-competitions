@@ -187,12 +187,20 @@ var WorksheetItemList = React.createClass({
                 ){
             focusedItem.handleKeydown(event);
         }else { // we have failed the other tests, let the worksheet handle the key
+            console.log(key)
             switch (key) {
                 case 'fslash': // Move focus to search bar
                     event.preventDefault();
                     this.props.showSearchBar();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
+                    break;
+                case 'r':
+                    console.log("r")
+                    console.log(event.shiftKey)
+                    if(event.shiftKey && this.props.canEdit){
+                        this.toggleRawMode();
+                    }
                     break;
                 case 'up': // move up
                 case 'k':
@@ -470,7 +478,9 @@ var WorksheetItemList = React.createClass({
                 var ref = 'item' + i;
                 var focused = i === focusIndex;
                 var editing = i === editingIndex;
-                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled))
+                //create the item of the correct type and add it to the list.
+                worksheet_items.push(
+                    WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled))
             });
         }else {
             $('.empty-worksheet').fadeIn();
@@ -512,28 +522,104 @@ var WorksheetItemList = React.createClass({
 var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <MarkdownBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+
+                        handleSave={handleSave}
+                />
             break;
         case 'inline':
-            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <InlineBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'table':
-            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <TableBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+
+                        handleSave={handleSave}
+                    />
             break;
         case 'contents':
-            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <ContentsBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'html':
-            return <HTMLBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <HTMLBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'record':
-            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <RecordBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'image':
-            return <ImageBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <ImageBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'worksheet':
-            return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <WorksheetBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         default:  // something new or something we dont yet handle
             return (
