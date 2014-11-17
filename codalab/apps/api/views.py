@@ -724,7 +724,7 @@ class WorksheetsAddApi(views.APIView):
         if not user.id:
             return Response(None, status=401)
         data = json.loads(request.body)
-        if not (data['worksheet_uuid'] and data['bundle_uuid']):
+        if not (data.get('worksheet_uuid', None) and data.get('bundle_uuid', None)):
             return Response("Must have worksheet uuid and bundle uuid", status=status.HTTP_400_BAD_REQUEST)
         logger.debug("WorksheetAdd: user=%s; name=%s", user.id, data['worksheet_uuid'])
         service = BundleService(self.request.user)
@@ -740,6 +740,33 @@ class WorksheetsAddApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
+
+class WorksheetsDeleteApi(views.APIView):
+    """
+    Provides a web API to add a bundle to a worksheet
+    """
+    def post(self, request):
+        user = self.request.user
+        if not user.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        if not data.get('worksheet_uuid', None):
+            return Response("Must have worksheet uuid", status=status.HTTP_400_BAD_REQUEST)
+        logger.debug("Worksheetdelete: user=%s; name=%s", user.id, data['worksheet_uuid'])
+        service = BundleService(self.request.user)
+        try:
+            data = service.delete_worksheet(data['worksheet_uuid'])
+            return Response(data)
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
 
 class WorksheetContentApi(views.APIView):
     """
