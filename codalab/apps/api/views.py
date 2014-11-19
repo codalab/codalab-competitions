@@ -730,7 +730,10 @@ class WorksheetsAddApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             data = service.add_worksheet_item(data['worksheet_uuid'], data['bundle_uuid'])
-            return Response(data)
+            return Response({
+                'success': True,
+                'data': data
+                })
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
@@ -756,7 +759,10 @@ class WorksheetsDeleteApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             data = service.delete_worksheet(data['worksheet_uuid'])
-            return Response(data)
+            return Response({
+                'success': True,
+                'data': data
+                })
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
