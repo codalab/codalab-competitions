@@ -242,16 +242,17 @@ class Competition(models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
-                new_submission = CompetitionSubmission.objects.create(
+                new_submission = CompetitionSubmission(
                     participant=participant,
                     file=submission.file,
                     phase=current_phase
                 )
+                new_submission.save(ignore_submission_limits=True)
 
                 evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
         except PhaseLeaderBoard.DoesNotExist:
             pass
-
+        
         current_phase.is_migrated = True
         current_phase.save()
 
@@ -792,41 +793,42 @@ class CompetitionSubmission(models.Model):
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
-    def save(self, *args, **kwargs):
+    def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
         # only at save on object creation should it be submitted
         if not self.pk:
-            print "This is a new submission, getting the submission number."
-            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
-            if subnum is not None:
-                self.submission_number = subnum + 1
-            else:
-                self.submission_number = 1
-            print "This is submission number %d" % self.submission_number
+            if not ignore_submission_limits:
+                print "This is a new submission, getting the submission number."
+                subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+                if subnum is not None:
+                    self.submission_number = subnum + 1
+                else:
+                    self.submission_number = 1
+                print "This is submission number %d" % self.submission_number
 
-            if (self.submission_number > self.phase.max_submissions):
-                print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
-                raise PermissionDenied("The maximum number of submissions has been reached.")
-            else:
-                print "Submission number below maximum."
+                if (self.submission_number > self.phase.max_submissions):
+                    print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
+                    raise PermissionDenied("The maximum number of submissions has been reached.")
+                else:
+                    print "Submission number below maximum."
 
-            if hasattr(self.phase, 'max_submissions_per_day'):
-                print 'Checking submissions per day count'
+                if hasattr(self.phase, 'max_submissions_per_day'):
+                    print 'Checking submissions per day count'
 
-                submissions_from_today_count = len(CompetitionSubmission.objects.filter(
-                    phase__competition=self.phase.competition,
-                    participant=self.participant,
-                    submitted_at__gte=datetime.date.today()
-                ))
+                    submissions_from_today_count = len(CompetitionSubmission.objects.filter(
+                        phase__competition=self.phase.competition,
+                        participant=self.participant,
+                        submitted_at__gte=datetime.date.today()
+                    ))
 
-                print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
+                    print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
-                    print 'PERMISSION DENIED'
-                    raise PermissionDenied("The maximum number of submissions this day have been reached.")
+                    if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                        print 'PERMISSION DENIED'
+                        raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
