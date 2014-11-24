@@ -123,8 +123,9 @@ class BaseWorker(object):
         while True:
             try:
                 self.logger.debug("Waiting for message.")
+                queue.put('waiting for message')
                 msg = self.queue.receive_message()
-                queue.put(1)
+                queue.put('received message')
                 if msg is not None:
                     self.logger.debug("Received message: %s", msg.get_body())
                     data = decode_message_body(msg)
@@ -160,6 +161,7 @@ class BaseWorker(object):
             self.logger.debug("Process thread status result: %s" % result)
 
             if result is None:
+                self.logger.debug("Restarting worker thread")
                 worker.terminate()
                 worker = multiprocessing.Process(target=self._message_receive_listen, args=(queue,))
                 worker.start()
