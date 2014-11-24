@@ -295,7 +295,6 @@ def get_run_func(config):
                 else:
                     time.sleep(1)
 
-
             stdout.write(stdout_buffer)
             stderr.write(stderr_buffer)
             stdout.close()
