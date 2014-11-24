@@ -242,7 +242,7 @@ var Worksheet = React.createClass({
                     <div className="worksheet-inner">
                         <h3><a href={ws_url}>{ws.name}</a></h3>
                         <div>{byline}</div>
-                        <button type="button" onClick={this.handleDelete} className="btn btn-danger btn-sm delete-worksheet">Delete</button>
+                        <button type="button" onClick={this.handleDelete} className="btn btn-link btn-sm delete-worksheet">Delete</button>
                     </div>
                 </div>
             );
