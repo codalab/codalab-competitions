@@ -252,7 +252,7 @@ class Competition(models.Model):
                 evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
         except PhaseLeaderBoard.DoesNotExist:
             pass
-        
+
         current_phase.is_migrated = True
         current_phase.save()
 
