@@ -97,7 +97,7 @@ function WorksheetActions() {
                 dataType: 'json',
                 data: JSON.stringify(postdata),
                 success: function(data, status, jqXHR){
-                    WorksheetItemList.fetch_and_update();
+                    ws_obj.fetch();
                 },
                 error: function(jqHXR, status, error){
                     console.error("error: " + status + ': ' + error);
