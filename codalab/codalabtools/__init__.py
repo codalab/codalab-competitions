@@ -148,21 +148,24 @@ class BaseWorker(object):
         """
         self.logger.debug("BaseWorker entering worker loop.")
 
+        last_message = None
         queue = multiprocessing.Queue(8)
         worker = multiprocessing.Process(target=self._message_receive_listen, args=(queue,))
         worker.start()
 
         while True:
             try:
-                # 100 minute default timeout
-                result = queue.get(True, 60 * 100)
+                result = queue.get(True, 65)
             except Empty:
                 result = None
 
             self.logger.debug("Process thread status result: %s" % result)
 
-            if result is None:
+            # We don't want to shut off submissions in process, so only terminate if we're waiting for a message
+            if last_message == 'waiting for message' and result is None:
                 self.logger.debug("Restarting worker thread")
                 worker.terminate()
                 worker = multiprocessing.Process(target=self._message_receive_listen, args=(queue,))
                 worker.start()
+
+            last_message = result
