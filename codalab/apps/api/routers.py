@@ -33,10 +33,13 @@ urlpatterns += (
 
     url(r'^worksheets/$', views.WorksheetsListApi.as_view(), name='api_worksheets'),
     url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets'),
+    url(r'^worksheets/add/$', views.WorksheetsAddApi.as_view(), name='api_worksheets'),
+    url(r'^worksheets/delete/$', views.WorksheetsDeleteApi.as_view(), name='api_worksheets'),
     url(r'^worksheets/(?P<uuid>[A-Za-z0-9]+)/$', views.WorksheetContentApi.as_view(), name='api_worksheet_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/filecontent/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleFileContentApi.as_view(), name='api_bundle_filecontent'),
+    url(r'^bundles/search/$', views.BundleSearchApi.as_view(), name='api_bundle_search'),
     url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleInfoApi.as_view(), name='api_bundle_info'),
 
 )
