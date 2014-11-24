@@ -4,8 +4,8 @@
 {% block subheader %}{% endblock subheader %}
 
 {% block content %}
-<!-- ATL remove search bar for demo -->
-<!-- </div> -->
+
+</div>
 <div id="worksheet-message" class="ws-detail container">
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
 </div>
@@ -103,7 +103,6 @@
 {% block js %}
     {# moved below because the script tag is in base making this block not color code in editors #}
     {{ block.super }}
-    ws_actions = new WorksheetActions();
 {% endblock js %}
 
 {% block jsincludes %}
@@ -116,9 +115,10 @@
     <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    {#  JSX FILES #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
-
+    {# ------- JSX FILES  ------- #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_search.js"></script>
+    {# bundle type renders/actions #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_bundle_interface.js"></script>
@@ -127,8 +127,9 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
+    {# main entrance point for the worksheet and it's items/bundles #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
-
+    {# ------- END JSX FILES  ------- #}
 
 <script>
 MathJax.Hub.Config({
@@ -140,11 +141,10 @@ MathJax.Hub.Config({
 
 
 $(function () {
-    //                           /api/worksheets/0x706<...>d5b66e
+    //                              /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    ws_actions = new WorksheetActions(); // Search bar actions
 
-    $(".top-bar-section ul > li").removeClass("active");
-    $("#liWorksheets").addClass("active");
 });
 </script>
 {% endblock jsincludes %}
