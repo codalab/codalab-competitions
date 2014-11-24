@@ -6,7 +6,7 @@ from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
-    from codalab.common import UsageError
+    from codalab.common import UsageError, PermissionError
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from apps.authenz.oauth import get_user_token
     from codalab.lib import worksheet_util
@@ -74,13 +74,15 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.new_worksheet(name))
 
         def worksheet(self, uuid, interpreted=False):
-            worksheet_info  = _call_with_retries(
-                    lambda: self.client.get_worksheet_info(
-                            uuid,
-                            True,  #fetch_items
-                            True,  # get_permissions
-                    )
-                )
+            try:
+                worksheet_info  = self.client.get_worksheet_info(
+                                            uuid,
+                                            True,  #fetch_items
+                                            True,  # get_permissions
+
+                                )
+            except PermissionError:
+                raise UsageError # forces a not found
             worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
             # set permissions
             worksheet_info['edit_permission'] = False

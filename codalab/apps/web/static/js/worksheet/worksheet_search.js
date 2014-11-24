@@ -20,7 +20,7 @@ var WorksheetSearch = React.createClass({
                 if(command){
                     var min_length = command.hasOwnProperty('minimumInputLength');
                     if(min_length){
-                        return command.minimumInputLength
+                        return command.minimumInputLength;
                     }else{
                         return 0;
                     }
@@ -50,7 +50,7 @@ var WorksheetSearch = React.createClass({
                     var fn = command.hasOwnProperty('searchChoice');
                     if(fn){
                         // { id: term, text: 'helper text you"ve entered term' };
-                        return command.searchChoice(command, term)
+                        return command.searchChoice(command, term);
                     }
                 }
             },
@@ -64,7 +64,7 @@ var WorksheetSearch = React.createClass({
                 // if there's something in the commandline AND
                 // if the last thing entered in the command line is in our known list of commands,
                 // we know we need to start hitting the API for results
-                var command = ws_actions.checkAnReturnCommand( _.last(input.split(',')) )
+                var command = ws_actions.checkAnReturnCommand( _.last(input.split(',')) );
                 if(input.length && command ){
                     // get our action object that tells us what to do (ajax url)
                     if(command.data_url){
