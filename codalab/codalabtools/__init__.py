@@ -154,7 +154,8 @@ class BaseWorker(object):
 
         while True:
             try:
-                result = queue.get(True, 65)
+                # 100 minute default timeout
+                result = queue.get(True, 60 * 100)
             except Empty:
                 result = None
 
