@@ -4,6 +4,7 @@ var keyMap = {
     13: "enter",
     27: "esc",
     69: "e",
+    70: "f",
     38: "up",
     40: "down",
     65: "a",
@@ -12,6 +13,7 @@ var keyMap = {
     73: "i",
     74: "j",
     75: "k",
+    79: "o",
     88: "x",
     191: "fslash"
 };
@@ -55,14 +57,14 @@ var Worksheet = React.createClass({
         var activeComponent = this.refs[this.state.activeComponent];
         // At this top level, the only keypress the parent cares about is ? to open
         // the keyboard shortcuts modal, and then only if we're not actively editing something
-        if(key === 'fslash' && event.shiftKey){
+        if(key === 'fslash' && event.shiftKey && !this.state.editMode){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
             return false;
         }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
             $('#glossaryModal').modal('hide');
-        }else if(key === 'e' && (event.shiftKey)){
+        }else if(key === 'f' && (event.shiftKey)){
             this.toggleEditing();
             return false;
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
@@ -167,9 +169,6 @@ var WorksheetItemList = React.createClass({
     },
     handleKeydown: function(event){
         // No keyboard shortcuts are active in raw mode
-        if(this.state.rawMode){
-            return true;
-        }
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
@@ -187,7 +186,6 @@ var WorksheetItemList = React.createClass({
                 ){
             focusedItem.handleKeydown(event);
         }else { // we have failed the other tests, let the worksheet handle the key
-            console.log(key)
             switch (key) {
                 case 'fslash': // Move focus to search bar
                     event.preventDefault();
@@ -243,28 +241,31 @@ var WorksheetItemList = React.createClass({
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
-                case 'd': // delete selected items
+                case 'f': // delete selected items
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.deleteChecked();
                     }
                     break;
-                case 'i': //insert
+                case 'o': //insert
                     event.preventDefault();
                     if(this.props.canEdit){
-                        this.insertItem(key);
-                    }
-                    break;
-                case 'a': // really a cap A for instert After, like vi
-                    event.preventDefault();
-                    if(event.shiftKey && this.props.canEdit){
-                        this.insertItem(key);
+                        if(event.shiftKey){
+                            this.insertItem(0);
+                        } else {
+                            this.insertItem(1);
+                        }
                     }
                     break;
                 case 'b': // show/hide the search bar
                     event.preventDefault();
                     this.props.toggleSearchBar();
                     break;
+                case 'enter': //save and exit raw mode if applicable
+                    if(this.state.rawMode && (event.ctrlKey || event.metaKey)){
+                        event.preventDefault();
+                        this.toggleRawMode();
+                    }
                 default:
                     return true;
             }
@@ -363,9 +364,7 @@ var WorksheetItemList = React.createClass({
             reactItems[k].setState({checked: false});
         }
     },
-    insertItem: function(keyPressed){
-        // insert before or after?
-        var pos = keyPressed === 'i' ? 0 : 1;
+    insertItem: function(pos){
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
         ws_obj.insertItem(newIndex, newItem);
@@ -395,7 +394,7 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index){
+    setFocus: function(index, event){
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});
             if(index >= 0){
@@ -405,7 +404,9 @@ var WorksheetItemList = React.createClass({
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
-                this.scrollToItem(index);
+                if(typeof(event) !== 'undefined' && event.type !== 'click'){
+                    this.scrollToItem(index);
+                }
             }
         }
         else {
