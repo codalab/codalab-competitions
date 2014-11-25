@@ -22,9 +22,27 @@ var WorksheetActions =  function() {
             'add': {
                 helpText: 'add - add a bundle to this worksheet name or uuid',
                 minimumInputLength: 3,
-                data_url: '/api/bundles/search/',
-                type: 'GET',
-                get_data: function(query){ return { search_string: query.term }; },
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxBundleDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
                 executefn: function(params, command){
                     var bundle_uuid = params[1];
                     var worksheet_uuid = ws_obj.state.uuid;
@@ -55,9 +73,27 @@ var WorksheetActions =  function() {
             'info': {
                 helpText: 'info - go to a bundle\'s info page',
                 minimumInputLength: 3,
-                data_url: '/api/bundles/search/',
-                type: 'GET',
-                get_data: function(query){ return { search_string: query.term }; },
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxBundleDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
                 executefn: function(params, command){
                     window.location = '/bundles/' + params[1] + '/';
                 },
@@ -93,7 +129,7 @@ var WorksheetActions =  function() {
                     }else {
                         alert('wnew command syntax must be "wnew [worksheetname]"');
                     }
-                },
+                }, // end of executefn
             },// end of wnew
             'run': {
                 helpText: 'run - Create a run bundle INPROGRESS',
@@ -130,6 +166,7 @@ var WorksheetActions =  function() {
         };// end of commands
     }// endof worksheetActions() init
 
+    //helper commands
     WorksheetActions.prototype.getCommands = function(){
         // The select2 autocomplete expects its data in a certain way, so we'll turn
         // relevant parts of the command dict into an array it can work with
@@ -144,13 +181,31 @@ var WorksheetActions =  function() {
         return commandList;
     };
 
-    WorksheetActions.prototype.checkAnReturnCommand = function(command){
+    WorksheetActions.prototype.checkAnReturnCommand = function(input){
         var command_dict;
+        var command = _.last(input.split(','));
         if(this.commands.hasOwnProperty(command)){
             command_dict = ws_actions.commands[command];
         }
         return command_dict;
     };
+
+    WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
+        var newOptions = [];
+        for(var k in data){
+            newOptions.push({
+                'id': k, // UUID
+                'text': data[k].metadata.name + ' | ' + k
+            });
+        }
+        console.log(newOptions.length + ' results');
+        return newOptions;
+    };
+
+
+        // callback is also built into the query object. It expects a list of
+        // results. See http://ivaynberg.github.io/select2/#doc-query again.
+
 
     return WorksheetActions;
 }();
