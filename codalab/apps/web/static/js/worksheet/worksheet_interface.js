@@ -64,9 +64,11 @@ var Worksheet = React.createClass({
             return false;
         }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
             $('#glossaryModal').modal('hide');
-        }else if(key === 'f' && (event.shiftKey)){
+        }else if(key === 'e' && event.shiftKey){
             this.toggleEditing();
             return false;
+        }else if(key === 'f' && event.shiftKey){
+            this.refs.list.toggleRawMode();
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
             // pass the event along to children
             activeComponent.handleKeydown(event);
