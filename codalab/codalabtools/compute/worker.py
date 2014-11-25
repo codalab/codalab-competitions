@@ -291,7 +291,7 @@ def get_run_func(config):
                 logger.debug("Checking process, exit_code = %s" % exit_code)
 
                 time_difference = time.time() - startTime
-                
+
                 signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
 
                 try:
