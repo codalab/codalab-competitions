@@ -183,7 +183,7 @@ var WorksheetActions =  function() {
 
     WorksheetActions.prototype.checkAnReturnCommand = function(input){
         var command_dict;
-        var command = _.last(input.split(','));
+        var command = _.first(input.split(','))
         if(this.commands.hasOwnProperty(command)){
             command_dict = ws_actions.commands[command];
         }
