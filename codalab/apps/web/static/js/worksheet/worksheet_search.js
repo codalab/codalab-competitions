@@ -18,8 +18,7 @@ var WorksheetSearch = React.createClass({
                 var input = $('#search').val();
                 var command = ws_actions.checkAnReturnCommand(input);
                 if(command){
-                    var min_length = command.hasOwnProperty('minimumInputLength');
-                    if(min_length){
+                    if(command.hasOwnProperty('minimumInputLength')){
                         return command.minimumInputLength;
                     }else{
                         return 0;
@@ -47,8 +46,7 @@ var WorksheetSearch = React.createClass({
                 var input = $('#search').val();
                 var command = ws_actions.checkAnReturnCommand(input); // will return undefined if doesnt exist.
                 if(command){
-                    var fn = command.hasOwnProperty('searchChoice');
-                    if(fn){
+                    if(command.hasOwnProperty('searchChoice')){
                         // { id: term, text: 'helper text you"ve entered term' };
                         return command.searchChoice(command, term);
                     }
@@ -64,46 +62,17 @@ var WorksheetSearch = React.createClass({
                 // if there's something in the commandline AND
                 // if the last thing entered in the command line is in our known list of commands,
                 // we know we need to start hitting the API for results
-                var command = ws_actions.checkAnReturnCommand( _.last(input.split(',')) );
+                var command = ws_actions.checkAnReturnCommand(input);
                 if(input.length && command ){
                     // get our action object that tells us what to do (ajax url)
-                    if(command.data_url){
-                        var get_data = command.get_data(query);
-                        console.log('searching for options related to the "' + input + '" command with the term "' + query.term + '"');
-                        $.ajax({
-                            type: 'GET',
-                            url: command.data_url,
-                            dataType: 'json',
-                            data: get_data,
-                            success: function(data, status, jqXHR){
-                                // select2 wants its options in a certain format, so let's make a new
-                                // list it will like
-                                newOptions = [];
-                                for(var k in data){
-                                    newOptions.push({
-                                        'id': k,
-                                        'text': data[k].metadata.name + ' | ' + k
-                                    });
-                                };
-                                console.log(newOptions.length + ' results');
-                                // callback is also built into the query object. It expects a list of
-                                // results. See http://ivaynberg.github.io/select2/#doc-query again.
-                                query.callback({
-                                    results: newOptions
-                                });
-                            },
-                            error: function(jqHXR, status, error){
-                                console.error(status + ': ' + error);
-                            }
-                        });
-                    }else {
+                    if(command.hasOwnProperty('queryfn')){
+                        command.queryfn(query);
+                    }else{ // no query fn, just fall back to nothing
                         query.callback({
-                            results: [
-
-                            ]
+                            results: []
                         });
                     }
-                }else {
+                }else{
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
                     console.log('searching commands...');
@@ -121,7 +90,7 @@ var WorksheetSearch = React.createClass({
                     query.callback({
                         results: matchedOptions
                     });
-                }
+                }// end of else
             }
         }).on('select2-open', function(){
             // because select2 is masking the actual #search field, we need to manually trigger
