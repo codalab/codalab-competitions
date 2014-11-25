@@ -122,11 +122,28 @@ var TableBundle = React.createClass({
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
-        var offsetTop = 0;
+        var navbarHeight = parseInt($('body').css('padding-top'));
+        var distance, scrollTo;
         if(index > -1){
-            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 200;
+            var scrollPos = $(window).scrollTop();
+            var table = this.getDOMNode();
+            var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
+            var tablePos = table.getBoundingClientRect().top;
+            var rowPos = tablePos + (index * rowHeight);
+            var distanceFromBottom = window.innerHeight - rowPos;
+            var distanceFromTop = rowPos - navbarHeight;
+            if(keyMap[event.keyCode] == 'k' ||
+               keyMap[event.keyCode] == 'up'){
+                distance = distanceFromTop;
+                scrollTo = scrollPos - rowHeight - 50;
+            }else {
+                distance = distanceFromBottom;
+                scrollTo = scrollPos + rowHeight + 50;
+            }
         }
-        $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
+        if(distance < 50){
+            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+        }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
