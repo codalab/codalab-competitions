@@ -273,20 +273,32 @@ var WorksheetItemList = React.createClass({
     },
     scrollToItem: function(index){
         // scroll the window to keep the focused element in view
-        var offsetTop = 0;
+        var distanceFromBottom = window.innerHeight;
+        var distanceFromTop = 0;
+        var navbarHeight = parseInt($('body').css('padding-top'));
+        var distance, scrollTo;
         if(index > -1){
+            var scrollPos = $(window).scrollTop();
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
-            var offset = node.offsetTop;
-            if(this.state.worksheet.items[index].state.mode === 'table' &&
-                keyMap[event.keyCode] == 'k' ||
-                keyMap[event.keyCode] == 'up' ){
-                offset += ($(node).innerHeight() - 30);
+            var nodePos = node.getBoundingClientRect(); // get all measurements for node
+            var distanceFromBottom = window.innerHeight - nodePos.bottom; // how far node is from bottom of viewport
+            var distanceFromTop = nodePos.top - navbarHeight; // how far node is from top of viewport
+            if (keyMap[event.keyCode] == 'k' ||
+                keyMap[event.keyCode] == 'up' ){ // if scrolling up
+                distance = distanceFromTop; // use the top measurement
+                scrollTo = scrollPos - nodePos.height - 50; // scroll to top of node plus 50px buffer
+                if(this.state.worksheet.items[index].state.mode === 'table'){
+                    scrollTo += nodePos.height - 30;
+                }
+            }else{ // scrolling down
+                distance = distanceFromBottom; // use the bottom measurement
+                scrollTo = scrollPos + nodePos.height + 50; // scroll to bottom of node plus 5px buffer
             }
-            // find the item's position on the page, and offset it from the top of the viewport
-            offsetTop = offset - 200;
         }
-        $('body').stop(true).animate({scrollTop: offsetTop}, 250);
+        if(distance < 50){ // if we're within 50px of going off screen
+            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+        }
     },
     saveItem: function(index, interpreted){ // aka handleSave
         if(typeof index !== 'undefined' && typeof interpreted !== 'undefined'){
@@ -404,7 +416,7 @@ var WorksheetItemList = React.createClass({
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
-                if(typeof(event) !== 'undefined' && event.type !== 'click'){
+                if(typeof(event) == 'undefined'){
                     this.scrollToItem(index);
                 }
             }
