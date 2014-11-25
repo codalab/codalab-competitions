@@ -75,8 +75,12 @@ var Worksheet = React.createClass({
             return true;
         }
     },
-    toggleEditing: function(){
-        this.setState({editMode:!this.state.editMode});
+    toggleEditing: function(arg){
+        if(typeof(arg) !== 'undefined'){
+            this.setState({editMode:arg});
+        }else {
+          this.setState({editMode:!this.state.editMode});
+        }
     },
     toggleSearchBar: function(){
         this.setState({showSearchBar:!this.state.showSearchBar});
@@ -430,7 +434,19 @@ var WorksheetItemList = React.createClass({
             ws_obj.state.raw = $("#raw-textarea").val().split('\n');
             this.saveAndUpdateWorksheet();
         }
-        this.setState({rawMode: !this.state.rawMode})
+        this.setState({rawMode: !this.state.rawMode});
+    },
+    viewMode: function(){
+        this.props.toggleEditing(false);
+        this.setState({rawMode:false});
+    },
+    editMode: function(){
+        this.props.toggleEditing(true);
+        this.setState({rawMode:false});
+    },
+    rawMode: function(){
+        this.props.toggleEditing(false);
+        this.setState({rawMode:true});
     },
     toggleCheckboxEnable: function(enabled){
         this.setState({checkboxEnabled: enabled})
@@ -470,19 +486,18 @@ var WorksheetItemList = React.createClass({
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
         var getRaw = ws_obj.getRaw();
+        var viewClass = !canEdit && !this.state.rawMode ? 'active' : '';
+        var editClass = canEdit && !this.state.rawMode? 'active' : '';
+        var rawClass = this.state.rawMode ? 'active' : '';
         if(editPermission){
             var editStatus = canEdit ? 'on' : 'off';
             var editFeatures =
                     <div className="edit-features">
-                        <div>
-                            <label htmlFor="editing">
-                                <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} /> Editing {editStatus}
-                            </label>
-                        </div>
-                        <div>
-                            <label htmlFor="rawMode">
-                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
-                            </label>
+                        <label>Mode:</label>
+                        <div className="btn-group">
+                            <button className={viewClass} onClick={this.viewMode}>View</button>
+                            <button className={editClass} onClick={this.editMode}>Edit</button>
+                            <button className={rawClass} onClick={this.rawMode}>Raw Edit</button>
                         </div>
                     </div>
         }
