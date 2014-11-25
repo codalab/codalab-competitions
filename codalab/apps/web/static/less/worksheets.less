@@ -44,7 +44,7 @@
    .controls label {
       font-weight:normal;
       font-size:@font-size-small;
-      display:inline;
+      display:block;
       &:hover {
          text-decoration: none;
       }
@@ -81,6 +81,27 @@
       .controls {
          text-align:right;
          padding-top:12px;
+         .edit-features {
+            margin-top:8px;
+            label {
+               display:inline-block;
+               vertical-align:-1px;
+            }
+            .btn-group {
+               margin-left:8px;
+               button {
+                  .btn;
+                  .btn-default;
+                  .btn-sm;
+                  & + button {
+                     margin-left: -1px;
+                  }
+                  &.active {
+                     .btn-primary;
+                  }
+               }
+            }
+         }
          input, label {
             font-weight:normal;
             margin:0;
