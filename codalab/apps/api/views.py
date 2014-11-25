@@ -930,6 +930,29 @@ class BundleSearchApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+class BundleCreateApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def post(self, request):
+        user_id = self.request.user.id
+        data = json.loads(request.body)
+        # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            new_bundle_uuid = service.derive_bundle('run', 'my_worksheet_uuid', 'the command')
+            return Response({'uuid': new_bundle_uuid}, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
+
 class BundleContentApi(views.APIView):
     """
     Provides a web API to browse the content of a bundle.

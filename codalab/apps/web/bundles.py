@@ -100,6 +100,17 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
+        def derive_bundle(self, bundle_type, worksheet_uuid, command):
+            # test stuff remove ----------------------
+            bundle_type = 'run'
+            worksheet_uuid = '0x100d688cdcb142179608fe1ee0b020c3'
+            command =  'sleep 10; date'
+            targets = {}
+            metadata = {'name': 'garbage', 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
+            # ----------------------------------------
+            new_bundle_uuid = self.client.derive_bundle(bundle_type, targets, command, metadata, worksheet_uuid)
+            return new_bundle_uuid
+
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
 

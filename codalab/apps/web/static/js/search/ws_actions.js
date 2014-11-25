@@ -94,7 +94,39 @@ var WorksheetActions =  function() {
                         alert('wnew command syntax must be "wnew [worksheetname]"');
                     }
                 },
-            }// end of wnew
+            },// end of wnew
+            'run': {
+                helpText: 'run - Create a run bundle INPROGRESS',
+                minimumInputLength: 0,
+                searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: 'temp: ' + term
+                    };
+                },
+                executefn: function(params, command){
+                    console.log("createing run bundle");
+                    console.log(params);
+                    var postdata = {
+                        'data': params
+                    };
+                    $.ajax({
+                        type:'POST',
+                        cache: false,
+                        url:'/api/bundles/create/',
+                        contentType:"application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: JSON.stringify(postdata),
+                        success: function(data, status, jqXHR){
+                            console.log('run bundles');
+                            console.log(data);
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+            }, // end of run
         };// end of commands
     }// endof worksheetActions() init
 
