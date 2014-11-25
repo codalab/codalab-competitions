@@ -169,8 +169,7 @@ var WorksheetSearch = React.createClass({
         var entered_command = input[0];
         var command = ws_actions.checkAnReturnCommand(entered_command);
         if(command){
-            var fn = command.executefunctionName
-            ws_actions[fn](input, ws_actions.commands[entered_command]);
+            command.executefn(input, ws_actions.commands[entered_command]);
         } else {
             console.error('The command \'' + entered_command + '\' was not recognized');
         }
