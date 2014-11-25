@@ -66,8 +66,8 @@ var MarkdownBundle = React.createClass({
             this.processMathJax();
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     render: function() {
         var content = this.props.item.state.interpreted;
