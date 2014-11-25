@@ -8,14 +8,14 @@ var TableBundle = React.createClass({
             checked: false
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     componentDidMount: function(){
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d','i','a','enter'];
+        return['up','k','down','j','x','f','i','a','enter'];
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -74,7 +74,7 @@ var TableBundle = React.createClass({
                         this.refs['row' + index].toggleChecked();
                     }
                     break;
-                case 'd':
+                case 'f':
                     event.preventDefault();
                     // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
                     // perform actions outside the table, so refer it back to the parent
@@ -118,15 +118,32 @@ var TableBundle = React.createClass({
             }
     },
     goToBundlePage: function(){
-        window.location = this.refs['row' + this.state.rowFocusIndex].props.bundleURL;
+        window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
-        var offsetTop = 0;
+        var navbarHeight = parseInt($('body').css('padding-top'));
+        var distance, scrollTo;
         if(index > -1){
-            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 200;
+            var scrollPos = $(window).scrollTop();
+            var table = this.getDOMNode();
+            var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
+            var tablePos = table.getBoundingClientRect().top;
+            var rowPos = tablePos + (index * rowHeight);
+            var distanceFromBottom = window.innerHeight - rowPos;
+            var distanceFromTop = rowPos - navbarHeight;
+            if(keyMap[event.keyCode] == 'k' ||
+               keyMap[event.keyCode] == 'up'){
+                distance = distanceFromTop;
+                scrollTo = scrollPos - rowHeight - 50;
+            }else {
+                distance = distanceFromBottom;
+                scrollTo = scrollPos + rowHeight + 50;
+            }
         }
-        $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
+        if(distance < 50){
+            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+        }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
@@ -252,7 +269,7 @@ var TableRow = React.createClass({
             if(index == 0){
                 return (
                     <td key={index}>
-                        <a href={bundle_url} className="bundle-link">
+                        <a href={bundle_url} className="bundle-link" target="_blank">
                             {row_item[header_key]}
                         </a>
                     </td>

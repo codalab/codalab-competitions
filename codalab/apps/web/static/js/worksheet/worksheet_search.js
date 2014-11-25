@@ -130,6 +130,7 @@ var WorksheetSearch = React.createClass({
         });
 
         $('#s2id_search').on('keydown', '.select2-input', function(e){
+            console.log(e.keyCode);
             // add some custom key events for working with the search bar
             switch(e.keyCode){
                 case 9: // tab
@@ -138,12 +139,11 @@ var WorksheetSearch = React.createClass({
                     e.preventDefault();
                     break;
                 case 13: // enter
+                    console.log('enter')
                     // cmd-enter or ctrl-enter triggers execution of whatever is
                     // in the search input
-                    if(e.ctrlKey || e.metaKey){
-                        e.preventDefault();
-                        _this.executeCommands();
-                    }
+                    e.preventDefault();
+                    _this.executeCommands();
                     break;
                 default:
                     return true;
@@ -195,7 +195,7 @@ var WorksheetSearch = React.createClass({
                     <div className="input-group">
                         <input id="search" type="hidden" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
                         <span className="input-group-btn">
-                            <button className="btn btn-default" type="button" onClick={this.executeCommands}>Execute</button>
+                            <button className="btn btn-default" type="button" onClick={this.executeCommands}>Go</button>
                         </span>
                     </div>
                 </div>
