@@ -281,7 +281,7 @@ def get_run_func(config):
 
                     stdout_buffer += evaluator_process_out
                     stderr_buffer += evaluator_process_err
-                except ValueError:
+                except (ValueError, OSError):
                     pass # tried to communicate with dead process
 
                 # time in seconds
