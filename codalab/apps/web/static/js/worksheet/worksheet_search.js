@@ -58,7 +58,6 @@ var WorksheetSearch = React.createClass({
                 // via select2. So when the value of #search changes, we know we need to reevaluate the context
                 // in which select2 is being used (eg, we've gone from entering a command to looking up a bundle)
                 var input = query.element.val();
-
                 // if there's something in the commandline AND
                 // if the last thing entered in the command line is in our known list of commands,
                 // we know we need to start hitting the API for results
