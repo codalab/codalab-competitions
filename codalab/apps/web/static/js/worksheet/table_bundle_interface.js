@@ -8,14 +8,14 @@ var TableBundle = React.createClass({
             checked: false
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     componentDidMount: function(){
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d','i','a','enter'];
+        return['up','k','down','j','x','f','i','a','enter'];
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -74,7 +74,7 @@ var TableBundle = React.createClass({
                         this.refs['row' + index].toggleChecked();
                     }
                     break;
-                case 'd':
+                case 'f':
                     event.preventDefault();
                     // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
                     // perform actions outside the table, so refer it back to the parent
@@ -118,7 +118,7 @@ var TableBundle = React.createClass({
             }
     },
     goToBundlePage: function(){
-        window.location = this.refs['row' + this.state.rowFocusIndex].props.bundleURL;
+        window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
@@ -252,7 +252,7 @@ var TableRow = React.createClass({
             if(index == 0){
                 return (
                     <td key={index}>
-                        <a href={bundle_url} className="bundle-link">
+                        <a href={bundle_url} className="bundle-link" target="_blank">
                             {row_item[header_key]}
                         </a>
                     </td>
