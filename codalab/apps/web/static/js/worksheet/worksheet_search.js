@@ -23,7 +23,6 @@ var WorksheetSearch = React.createClass({
                     }else{
                         return 0;
                     }
-
                 }
                 //sane defaults
                 switch(input){

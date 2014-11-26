@@ -135,15 +135,67 @@ var WorksheetActions =  function() {
                 helpText: 'run - Create a run bundle INPROGRESS',
                 minimumInputLength: 0,
                 searchChoice: function(input, term){
-                    return {
-                        id: term,
-                        text: 'temp: ' + term
+                    if(term.lastIndexOf('\'', 0) === 0){
+                        return {
+                            id: term,
+                            text: 'Command: ' + term
+                        };
+                    }
+                    if(term.lastIndexOf(":", 0) === -1){
+                        return {
+                            id: term,
+                            text: 'Some sort of help text ' + term
+                        };
+                    }
+                },
+                queryfn: function(query){
+                    console.log('query.term')
+                    console.log(query.term)
+                    if(query.term.lastIndexOf('\'', 0) === 0){
+                        query.callback({
+                                results: []
+                            });
+                        return;
+                    }else if(query.term.lastIndexOf(":") === -1){
+                        query.callback({
+                                results: []
+                            });
+                        return;
+                    }
+                    // we are after a command
+                    var get_data = {
+                        search_string: query.term
                     };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            var newOptions = [];
+                            for(var k in data){
+                                newOptions.push({
+                                    'id': query.term + ":" + k, // UUID
+                                    'text': data[k].metadata.name + ' | ' + k
+                                });
+                            }
+                            query.callback({
+                                results: newOptions
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
                 },
                 executefn: function(params, command){
                     console.log("createing run bundle");
                     console.log(params);
+                    worksheet_uuid = ws_obj.state.uuid;
                     var postdata = {
+                        'worksheet_uuid': worksheet_uuid,
                         'data': params
                     };
                     $.ajax({
@@ -183,7 +235,7 @@ var WorksheetActions =  function() {
 
     WorksheetActions.prototype.checkAnReturnCommand = function(input){
         var command_dict;
-        var command = _.first(input.split(','))
+        var command = _.first(input.split(','));
         if(this.commands.hasOwnProperty(command)){
             command_dict = ws_actions.commands[command];
         }
