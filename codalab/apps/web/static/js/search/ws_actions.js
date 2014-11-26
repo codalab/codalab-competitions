@@ -43,7 +43,7 @@ var WorksheetActions =  function() {
                         }
                     });
                 },
-                executefn: function(params, command){
+                executefn: function(params, command, callback){
                     var bundle_uuid = params[1];
                     var worksheet_uuid = ws_obj.state.uuid;
                     if(params.length === 2 && params[0] === 'add'){
@@ -59,7 +59,7 @@ var WorksheetActions =  function() {
                             dataType: 'json',
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
-                                ws_obj.fetch();
+                                callback();
                             },
                             error: function(jqHXR, status, error){
                                 console.error("error: " + status + ': ' + error);
@@ -181,7 +181,7 @@ var WorksheetActions =  function() {
         return commandList;
     };
 
-    WorksheetActions.prototype.checkAnReturnCommand = function(input){
+    WorksheetActions.prototype.checkAndReturnCommand = function(input){
         var command_dict;
         var command = _.first(input.split(','))
         if(this.commands.hasOwnProperty(command)){

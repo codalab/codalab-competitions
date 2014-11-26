@@ -93,6 +93,9 @@ var Worksheet = React.createClass({
     hidSearchBar: function(){
         this.setState({showSearchBar:true});
     },
+    refreshList: function(){
+        this.refs.list.fetch_and_update();
+    },
     render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
         var searchHidden = !this.state.showSearchBar;
@@ -105,6 +108,7 @@ var Worksheet = React.createClass({
                     handleBlur={this.handleSearchBlur}
                     active={this.state.activeComponent=='search'}
                     show={this.state.showSearchBar}
+                    refreshList={this.refreshList}
                 />
                 <div className="container">
                     <WorksheetItemList
