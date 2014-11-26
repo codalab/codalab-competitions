@@ -16,7 +16,7 @@ var WorksheetSearch = React.createClass({
             multiple:true,
             minimumInputLength: function(){
                 var input = $('#search').val();
-                var command = ws_actions.checkAnReturnCommand(input);
+                var command = ws_actions.checkAndReturnCommand(input);
                 if(command){
                     if(command.hasOwnProperty('minimumInputLength')){
                         return command.minimumInputLength;
@@ -43,7 +43,7 @@ var WorksheetSearch = React.createClass({
             // see http://ivaynberg.github.io/select2/#doc-query
             createSearchChoice: function(term){
                 var input = $('#search').val();
-                var command = ws_actions.checkAnReturnCommand(input); // will return undefined if doesnt exist.
+                var command = ws_actions.checkAndReturnCommand(input); // will return undefined if doesnt exist.
                 if(command){
                     if(command.hasOwnProperty('searchChoice')){
                         // { id: term, text: 'helper text you"ve entered term' };
@@ -60,7 +60,7 @@ var WorksheetSearch = React.createClass({
                 // if there's something in the commandline AND
                 // if the last thing entered in the command line is in our known list of commands,
                 // we know we need to start hitting the API for results
-                var command = ws_actions.checkAnReturnCommand(input);
+                var command = ws_actions.checkAndReturnCommand(input);
                 if(input.length && command ){
                     // get our action object that tells us what to do (ajax url)
                     if(command.hasOwnProperty('queryfn')){
@@ -97,7 +97,6 @@ var WorksheetSearch = React.createClass({
         });
 
         $('#s2id_search').on('keydown', '.select2-input', function(e){
-            console.log(e.keyCode);
             // add some custom key events for working with the search bar
             switch(e.keyCode){
                 case 9: // tab
@@ -128,15 +127,19 @@ var WorksheetSearch = React.createClass({
             $('#s2id_autogen1').blur();
         }
     },
+    refreshAndClear: function(){
+        this.props.refreshList();
+        $('#search').select2('val','').val('');
+    },
     executeCommands: function(){
         // parse and execute the contents of the search input
         var input = $('#search').select2('val'); // this comes in as an array
         // customization can be done here, depending on the desired syntax of commands.
         // currently, this just calls all of the functions named in the input
         var entered_command = input[0];
-        var command = ws_actions.checkAnReturnCommand(entered_command);
+        var command = ws_actions.checkAndReturnCommand(entered_command);
         if(command){
-            command.executefn(input, ws_actions.commands[entered_command]);
+            command.executefn(input, ws_actions.commands[entered_command], this.refreshAndClear);
         } else {
             console.error('The command \'' + entered_command + '\' was not recognized');
         }
