@@ -103,8 +103,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def derive_bundle(self, bundle_type, worksheet_uuid, command):
             # test stuff remove ----------------------
             bundle_type = 'run'
-            worksheet_uuid = '0x100d688cdcb142179608fe1ee0b020c3'
-            command =  'sleep 10; date'
+            command = 'sleep 10; date; sleep 10; date'
             targets = {}
             metadata = {'name': 'garbage', 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
             # ----------------------------------------

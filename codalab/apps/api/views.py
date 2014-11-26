@@ -940,7 +940,7 @@ class BundleCreateApi(views.APIView):
         # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            new_bundle_uuid = service.derive_bundle('run', 'my_worksheet_uuid', 'the command')
+            new_bundle_uuid = service.derive_bundle('run', data['worksheet_uuid'], 'the command')
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
