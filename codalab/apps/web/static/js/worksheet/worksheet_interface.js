@@ -7,6 +7,7 @@ var keyMap = {
     38: "up",
     40: "down",
     65: "a",
+    66: "b",
     68: "d",
     73: "i",
     74: "j",
@@ -15,24 +16,18 @@ var keyMap = {
     191: "fslash"
 };
 
-// Dictionary of terms that can be entered into the search bar and the names of
-// functions they call. See search_actions.js
-var clActions = {
-    add: 'doAdd',
-};
-
 var Worksheet = React.createClass({
     // master parent that controls the page
     getInitialState: function(){
         return {
             activeComponent: 'list',
-            editMode: false
+            editMode: false,
+            showSearchBar: true
         }
     },
     componentDidMount: function() {
         this.bindEvents();
-        // ATL remove search bar for demo
-        // $('body').addClass('ws-interface');
+        $('body').addClass('ws-interface');
     },
     componentWillUnmount: function(){
         this.unbindEvents();
@@ -81,56 +76,45 @@ var Worksheet = React.createClass({
     toggleEditing: function(){
         this.setState({editMode:!this.state.editMode});
     },
-    // ATL remove search bar for demo
-    // render: function(){
-    //     var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
-    //     return (
-    //         <div id="worksheet">
-    //             <WorksheetSearch handleFocus={this.handleSearchFocus} handleBlur={this.handleSearchBlur} ref={"search"} active={this.state.activeComponent=='search'}/>
-    //             <div className="container">
-    //                 <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
-    //             </div>
-    //         </div>
-    //     )
-    // }
-        render: function(){
+    toggleSearchBar: function(){
+        this.setState({showSearchBar:!this.state.showSearchBar});
+    },
+    showSearchBar: function(){
+        this.setState({showSearchBar:true});
+    },
+    hidSearchBar: function(){
+        this.setState({showSearchBar:true});
+    },
+    render: function(){
         var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        var searchHidden = !this.state.showSearchBar;
+        var className = searchHidden ? 'search-hidden' : '';
         return (
-            <div id="worksheet">
+            <div id="worksheet" className={className}>
+                <WorksheetSearch
+                    ref={"search"}
+                    handleFocus={this.handleSearchFocus}
+                    handleBlur={this.handleSearchBlur}
+                    active={this.state.activeComponent=='search'}
+                    show={this.state.showSearchBar}
+                />
                 <div className="container">
-                    <WorksheetItemList ref={"list"} active={this.state.activeComponent=='list'} canEdit={canEdit} toggleEditing={this.toggleEditing} />
+                    <WorksheetItemList
+                        ref={"list"}
+                        active={this.state.activeComponent=='list'}
+                        canEdit={canEdit}
+                        toggleEditing={this.toggleEditing}
+                        toggleSearchBar={this.toggleSearchBar}
+                        hidSearchBar={this.hidSearchBar}
+                        showSearchBar={this.showSearchBar}
+                    />
                 </div>
             </div>
         )
     }
 });
 
-var WorksheetSearch = React.createClass({
-    mixins: [Select2SearchMixin],
-    handleKeydown: function(event){
-        // the only key the searchbar cares about is esc. Otherwise we're just typing in the input.
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'esc':
-                    event.preventDefault();
-                    this.props.handleBlur();
-                    break;
-                default:
-                    return true;
-            }
-        }
-    },
-    render: function(){
-        return (
-            <div className="ws-search">
-                <div className="container">
-                    <input id="search" type="text" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
-                </div>
-            </div>
-        )
-    }
-});
+
 
 var WorksheetItemList = React.createClass({
     getInitialState: function(){
@@ -203,11 +187,20 @@ var WorksheetItemList = React.createClass({
                 ){
             focusedItem.handleKeydown(event);
         }else { // we have failed the other tests, let the worksheet handle the key
+            console.log(key)
             switch (key) {
                 case 'fslash': // Move focus to search bar
                     event.preventDefault();
+                    this.props.showSearchBar();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
+                    break;
+                case 'r':
+                    console.log("r")
+                    console.log(event.shiftKey)
+                    if(event.shiftKey && this.props.canEdit){
+                        this.toggleRawMode();
+                    }
                     break;
                 case 'up': // move up
                 case 'k':
@@ -267,6 +260,10 @@ var WorksheetItemList = React.createClass({
                     if(event.shiftKey && this.props.canEdit){
                         this.insertItem(key);
                     }
+                    break;
+                case 'b': // show/hide the search bar
+                    event.preventDefault();
+                    this.props.toggleSearchBar();
                     break;
                 default:
                     return true;
@@ -481,7 +478,9 @@ var WorksheetItemList = React.createClass({
                 var ref = 'item' + i;
                 var focused = i === focusIndex;
                 var editing = i === editingIndex;
-                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled))
+                //create the item of the correct type and add it to the list.
+                worksheet_items.push(
+                    WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled))
             });
         }else {
             $('.empty-worksheet').fadeIn();
@@ -523,28 +522,104 @@ var WorksheetItemList = React.createClass({
 var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled){
     switch (item.state.mode) {
         case 'markup':
-            return <MarkdownBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <MarkdownBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+
+                        handleSave={handleSave}
+                />
             break;
         case 'inline':
-            return <InlineBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <InlineBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'table':
-            return <TableBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} handleSave={handleSave} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <TableBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+
+                        handleSave={handleSave}
+                    />
             break;
         case 'contents':
-            return <ContentsBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <ContentsBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'html':
-            return <HTMLBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <HTMLBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'record':
-            return <RecordBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <RecordBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'image':
-            return <ImageBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <ImageBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         case 'worksheet':
-            return <WorksheetBundle key={i} item={item} ref={ref} focused={focused} editing={editing} canEdit={canEdit} setFocus={setFocus} checkboxEnabled={checkboxEnabled} />
+            return <WorksheetBundle
+                        key={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
             break;
         default:  // something new or something we dont yet handle
             return (

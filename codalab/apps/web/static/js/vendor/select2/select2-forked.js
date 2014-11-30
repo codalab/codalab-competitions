@@ -1353,8 +1353,13 @@ the specific language governing permissions and limitations under the Apache Lic
             this.opts.element.trigger(event);
             return !event.isDefaultPrevented();
         },
-
         // abstract
+
+        getMinimumInputLength: function() {
+            return evaluate(this.opts.minimumInputLength);
+        },
+        // abstract
+
         clearDropdownAlignmentPreference: function() {
             // clear the classes used to figure out the preference of where the dropdown should be opened
             this.container.removeClass("select2-drop-above");
@@ -1734,9 +1739,10 @@ the specific language governing permissions and limitations under the Apache Lic
                 }
             }
 
-            if (search.val().length < opts.minimumInputLength) {
+            var minInpLen = this.getMinimumInputLength();
+            if (search.val().length < minInpLen) {
                 if (checkFormatter(opts.formatInputTooShort, "formatInputTooShort")) {
-                    render("<li class='select2-no-results'>" + evaluate(opts.formatInputTooShort, opts.element, search.val(), opts.minimumInputLength) + "</li>");
+                    render("<li class='select2-no-results'>" + evaluate(opts.formatInputTooShort, opts.element, search.val(), minInpLen) + "</li>");
                 } else {
                     render("");
                 }

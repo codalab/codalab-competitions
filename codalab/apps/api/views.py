@@ -710,6 +710,66 @@ class WorksheetsListApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+
+class WorksheetsAddApi(views.APIView):
+    """
+    Provides a web API to add a bundle to a worksheet
+    """
+    def post(self, request):
+        user = self.request.user
+        if not user.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        if not (data.get('worksheet_uuid', None) and data.get('bundle_uuid', None)):
+            return Response("Must have worksheet uuid and bundle uuid", status=status.HTTP_400_BAD_REQUEST)
+        logger.debug("WorksheetAdd: user=%s; name=%s", user.id, data['worksheet_uuid'])
+        service = BundleService(self.request.user)
+        try:
+            data = service.add_worksheet_item(data['worksheet_uuid'], data['bundle_uuid'])
+            return Response({
+                'success': True,
+                'data': data
+                })
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
+class WorksheetsDeleteApi(views.APIView):
+    """
+    Provides a web API to add a bundle to a worksheet
+    """
+    def post(self, request):
+        user = self.request.user
+        if not user.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        if not data.get('worksheet_uuid', None):
+            return Response("Must have worksheet uuid", status=status.HTTP_400_BAD_REQUEST)
+        logger.debug("Worksheetdelete: user=%s; name=%s", user.id, data['worksheet_uuid'])
+        service = BundleService(self.request.user)
+        try:
+            data = service.delete_worksheet(data['worksheet_uuid'])
+            return Response({
+                'success': True,
+                'data': data
+                })
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
+
 class WorksheetContentApi(views.APIView):
     """
     Provides a web API to fetch the content of a worksheet.
@@ -845,6 +905,30 @@ class BundleInfoApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response({'error': smart_str(e)})
+
+class BundleSearchApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        search_string = request.GET.get('search_string', '')
+        worksheet_uuid = request.GET.get('worksheet_uuid', None) #if you want to filter it down to worksheet
+        logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            bundle_infos = service.search_bundles(search_string, worksheet_uuid)
+            print bundle_infos
+            return Response(bundle_infos, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
 
 class BundleContentApi(views.APIView):
     """
