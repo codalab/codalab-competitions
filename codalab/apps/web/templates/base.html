@@ -1,6 +1,7 @@
 {% load url from future %}
 {% load account %}
 {% load analytical %}
+{% load codalab_tags %}
 
 <!DOCTYPE html>
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
@@ -10,9 +11,8 @@
     <meta name="globalsign-domain-verification" content="1lsowFdlUrrtcRyvAiFS11btFe-ChVU8h2FmxHw7sD" />
 
     <!-- Set the viewport width to device width for mobile -->
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="image/x-icon" rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
-
     {% block meta %}
     {% endblock %}
 
@@ -22,13 +22,17 @@
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
+
+        <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/foundation-icons.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css"> -->
 
+        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+
+        <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
-
         <!-- IE Fix for HTML5 Tags -->
         <!--[if lt IE 9]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -41,155 +45,130 @@
     {% analytical_head_top %}
     {% analytical_head_bottom %}
 
-    <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
-
     {% block extra_scripts %}
     {% endblock extra_scripts %}
 
     <!-- From Charles Sterling for Analytics -->
     <script type="text/javascript">
     var _daAnalytics = _daAnalytics || {}; _daAnalytics.init = function (d) {_daAnalytics.Commands = _daAnalytics.Commands || []; for (var a = function (a) { return function () { _daAnalytics.Commands.push([a].concat(Array.prototype.slice.call(arguments, 0))) } }, b = "siteId trackLinkClicks setUserId setProperty setView trackPage trackAction trackEvent trackView setAppId setAccountId setUserId".split(" "), c = 0; c < b.length; c++) _daAnalytics[b[c]] = a(b[c]); _daAnalytics.setAppId(d); var a = document.createElement("script"); a.type = "text/javascript"; a.src = "//az416426.vo.msecnd.net/scripts/da.js"; a.async = !0; var b = document.getElementsByTagName("script")[0]; b.parentNode.insertBefore(a, b); };
-
     _daAnalytics.init("e6ba8776-eeeb-46ab-b810-5b7cb34533d1");
     _daAnalytics.trackPage();
     </script>
     <!-- End of Analytics from Charles -->
 </head>
 
-<body class="body" {% block custom_body_attributes %} {% endblock %}>
-
-    <!-- Main Page Content and Sidebar -->
-    <div class="container" id="layout">
-        <!-- Nav Bar -->
-        <div class="header">
-          <nav class="top-bar">
-            <ul class="title-area">
-              <!-- Title Area -->
-              {% block title %}
-              <li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
-              {% endblock title %}
-              <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-              <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-            </ul>
-            <section class="top-bar-section">
-              {% block top_bar_right_menus %}
-              <!-- Left Nav Section -->
-
-              <!-- Right Nav Section -->
-              <ul class="right">
-                {% if BETA %}
-                <li class="has-form">
-                    <form action="/search" method="get">
-                    <input class="round" name="q" type="search" placeholder="Search">
-                    </form>
-                </li>
-                {% endif %}
-                {%if PREVIEW_WORKSHEETS %}
-                <li id="liWorksheets"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
-                {% endif %}
-                <li id="liCompetitions"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
-                {% if user.is_authenticated %}
-                    <li id="liMyCodalab"><a href="/my" tabindex=4 target="_self">My CodaLab</a></li>
-                    <li id="liMyCodalab"><a href="{% url "my_datasets" %}" tabindex=4 target="_self">My Datasets</a></li>
-                {% else %}
-                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
-                {% endif %}
-                <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
-                {% if user.is_authenticated %}
-                    <li class="has-dropdown">
-                      <a href="#profile"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}"> {{user.username}}</a>
-                      <ul class="dropdown">
-                          <!-- <li><a href="#">My Profile</a></li> -->
-                          <li><a href="{% url "user_settings" %}">Settings</a></li>
-                          <li class="divider"></li>
-                          <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
-                      </ul>
-                    </li>
-                    {% else %}
-                        <li class="menu-icon">
-
-                    <a href="{% url "account_login" %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>
-                {% endif %}
+<body {% block custom_body_attributes %}{% endblock %}>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                {% block title %}
+                    <a class="navbar-brand" href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo.png" alt="Home"></a>
+                {% endblock title %}
+            </div>
+            {% block top_bar_right_menus %}
+                <div class="collapse navbar-collapse" id="navbar_collapse">
+                    {% if BETA %}
+                        <form action="/search" method="get" class="navbar-form navbar-left" role="search">
+                            <div class="form-group">
+                                <input class="form-control" name="q" type="search" placeholder="Search">
+                            </div>
+                        </form>
+                    {% endif %}
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if PREVIEW_WORKSHEETS %}
+                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
+                        {% endif %}
+                        <li class="dropdown {% active request '/competitions/' %}">
+                            <a href="/competitions">Competitions <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                {% if user.is_authenticated %}
+                                    <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'my_datasets' %}" tabindex=4 target="_self">My Datasets</a></li>
+                                {% else %}
+                                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
+                        {% if user.is_authenticated %}
+                            <li class="dropdown {% active request '/accounts/' %}">
+                                <a href="{% url 'user_settings' %}">
+                                    <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'user_settings' %}">Settings</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url 'account_login' %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
+                            </li>
+                        {% endif %}
                     </ul>
-                {% endblock top_bar_right_menus %}
-                </section>
-            </nav>
+                </div>
+            {% endblock top_bar_right_menus %}
         </div>
-        {% block header_space %}
-        <div class="header-space"></div>
-        {% endblock header_space %}
-        <!-- End Nav -->
+    </nav>
 
-        {% block nosubheader %}
+    {% block nosubheader %}
         {% block subheader %}
-        <div class="header-title-bg">
-            <div class="large-12 columns">
-                <div class="row">
-                    <div class="large-12 columns">
-                        <h1> {% block page_title %}{% endblock page_title %} </h1>
-                    </div>
+            <div class="page-header">
+                <div class="container">
+                    <h1>{% block page_title %}{% endblock page_title %}</h1>
                 </div>
             </div>
-        </div>
         {% endblock subheader %}
-        {% endblock nosubheader %}
-        {% block hero_subheader %}
-        {% endblock hero_subheader %}
-        {% block content_wrapper %}
-        <div class="large-12 large-centered columns content">
+    {% endblock nosubheader %}
+
+    {% block hero_subheader %}
+    {% endblock hero_subheader %}
+
+    {% block content_wrapper %}
+        <div class="container">
             {% block content %}
             {% endblock content %}
         </div>
         {% endblock content_wrapper %}
-
-        <div id="layout_footer">
-        </div>
     </div>
-    <!-- End Main Content and Sidebar -->
 
-    <!-- Footer -->
-    <footer id="footer">
-        <div class="small-6 columns">
-            <ul class="inline-list left">
-            <li>
-                <span>
-                  <a href="http://research.microsoft.com/" target="_blank"><img src="{{ STATIC_URL }}img/msr_footer.png" border="0"/></a>&nbsp;
-                  <a href="https://github.com/codalab/codalab" target="_blank"><img src="{{ STATIC_URL }}img/github.png" border="0"/></a>
-                </span>
-            </li>
-            <li>
-                <span>
-                  <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
-                </span>
-            </li>
-            </ul>
-        </div>
-        <div class="small-6 columns">
-            <ul class="inline-list right">
+    <footer class="navbar-fixed-bottom">
+        <div class="container-fluid">
+            <p class="navbar-text navbar-left">
+                <a href="http://research.microsoft.com/" target="_blank"><img src="{{ STATIC_URL }}img/msr_footer.png" alt="Microsoft Research" /></a>&nbsp;
+                <a href="https://github.com/codalab/codalab" target="_blank"><img src="{{ STATIC_URL }}img/github.png" alt="Fork me on GitHub" /></a>
+                <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
+            </p>
+            <ul class="nav navbar-nav navbar-right">
                 <!-- <li>CodaLab v.0 ()</li> -->
-                <li><a href="http://codalab.github.io/codalab/about.html" target="_self">About</a></li>
-                <li><a href="http://codalab.github.io/codalab/forum.html" target="_self">Forum</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
+                <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
                 <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
-                <li><a href="http://codalab.github.io/codalab/notices.html" target="_self">Notices</a></li>
-                <li><a href="http://codalab.github.io/codalab/terms.html" target="_self">Terms of Use</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Project_Privacy_Policy" target="_blank">Privacy</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Project_Terms_and_Conditions" target="_blank">Terms of Use</a></li>
             </ul>
         </div>
     </footer>
 
-    <!-- Check for Zepto support, load jQuery if necessary -->
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 
-    <!-- Included JS Files (Compressed) -->
-    <script src="{{ STATIC_URL }}js/vendor/foundation.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/select2/select2.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
+    <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
     <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
     <script>
-        $(document).foundation();
-        Competition.initialize();
-        ws_actions = new WorksheetActions();
     {% block js %}
+        Competition.initialize();
     {% endblock js %}
     </script>
 

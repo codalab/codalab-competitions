@@ -7,86 +7,89 @@
 {% block head_title %}Submissions{% endblock %}
 
 {% block content %}
-
-<div class="row">
-    <div class="large-12 large-centered columns submissions content">
-        <div class="challStatusStrip">
-            <select id="phase_selector">
-                {% for phase in competition.phases.all %}
-                    <option {% if phase.id == selected_phase_id %}selected{% endif %} value="{{ phase.id }}">{{ phase.label }} - {{phase.start_date|utc}} UTC</option>
-                {% endfor %}
-            </select>
-
-            <div class="small-12 columns" style="margin-top: 20px;">
-                <b>Selected phase description</b>
-                {% if phase.description %}
-                    <p>{{ phase.description }}</p>
-                {% else %}
-                    <p>None</p>
-                {% endif %}
-            </div>
-
-            <!--<section class="challStatusStripSection">
+<div class="submissions">
+    <div class="well submission-phase-select">
+        <h4>
+            Phase
+        </h4>
+        <select id="phase_selector" class="form-control">
             {% for phase in competition.phases.all %}
-                {% if phase.id == selected_phase_id %}
-                <section class="currentPhase">
-                {% else %}
-                <section>
-                {% endif %}
-                    <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a>
-                    <br>
-                    <span>{{phase.start_date|utc}} UTC</span>
-                </section>
+                <option {% if phase.id == selected_phase_id %}selected{% endif %} value="{{ phase.id }}">{{ phase.label }} - {{phase.start_date|utc}} UTC</option>
             {% endfor %}
-            </section>-->
-        </div>
-        <br>
-        {% if not submission_info_list %}
-        <p>There are no submissions.</p>
+        </select>
+    </div>
+
+    <h4>Select phase description</h4>
+    {% if phase.description %}
+        <p>{{ phase.description }}</p>
+    {% else %}
+        <p>None</p>
+    {% endif %}
+
+    <h4>Submissions</h4>
+    {% if submission_info_list|length > 0 %}
+        <a class="btn btn-default icon-excel" href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
+    {% endif %}
+
+    <!--<section class="challStatusStripSection">
+    {% for phase in competition.phases.all %}
+        {% if phase.id == selected_phase_id %}
+        <section class="currentPhase">
         {% else %}
+        <section>
+        {% endif %}
+            <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a>
+            <br>
+            <span>{{phase.start_date|utc}} UTC</span>
+        </section>
+    {% endfor %}
+    </section>-->
+    {% if not submission_info_list %}
+        <p>There are no submissions.</p>
+    {% else %}
         <table class="resultsTable dataTable">
             <thead>
                 <tr>
                     {% for column in columns %}
-                    <th>
-                        <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
-                            {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
-                        </a>
-                    </th>
+                        <th>
+                            <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                {{column.label}} <span class="glyphicon {% if order == column.name %}{% if direction == 'asc'%}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
+                            </a>
+                        </th>
                     {% endfor %}
-                    <th width="40px"></th>
-                    <th width="40px"></th>
+                    <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for submission in submission_info_list %}
-                <tr id="{{submission.id}}">
-                    {% for column in columns %}
-                    {% if column.name == 'filename' %}
-                        <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
-                    {% else %}
-                        <td>{{submission|get_item:column.name}}</td>
-                    {% endif %}
-                    {% endfor %}
-                    <td><i class="fi-plus" onclick="Competition.showOrHideSubmissionDetails(this)"></i></td>
-                    <td><a href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
-                </tr>
+                    <tr id="{{submission.id}}"
+                        {% if submission.exception_details %}
+                            data-exception="{{ submission.exception_details|escape }}"
+                        {% endif %}
+                        data-description="{{ submission.description|default_if_none:""|escape }}">
+                        {% for column in columns %}
+                            {% if column.name == 'filename' %}
+                                <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                            {% else %}
+                                <td>{{submission|get_item:column.name}}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
+                        <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% endif %}
-    </div>
+    {% endif %}
+
+    {% include "web/common/_submission_details_template.html" %}
+
 </div>
-
-{% include "web/common/_submission_details_template.html" %}
-
 {% endblock %}
 
 {% block js %}
     $(function () {
-        $(".top-bar-section ul > li").removeClass("active");
-        $("#liMyCodalab").addClass("active");
-
         $("#phase_selector").change(function(){
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
         });

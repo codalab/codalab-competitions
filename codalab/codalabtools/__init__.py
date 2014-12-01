@@ -4,8 +4,12 @@ Package containing the CodaLab client tools.
 
 import json
 import logging
+import multiprocessing
 import os
 import yaml
+import time
+
+from Queue import Empty
 
 class BaseConfig(object):
     """
@@ -115,15 +119,13 @@ class BaseWorker(object):
         self.logger = logger
         self.vtable = vtable
 
-    def start(self):
-        """
-        Starts the worker loop on the current thread.
-        """
-        self.logger.debug("BaseWorker entering worker loop.")
+    def _message_receive_listen(self, queue):
         while True:
             try:
                 self.logger.debug("Waiting for message.")
+                queue.put('waiting for message')
                 msg = self.queue.receive_message()
+                queue.put('received message')
                 if msg is not None:
                     self.logger.debug("Received message: %s", msg.get_body())
                     data = decode_message_body(msg)
@@ -139,3 +141,31 @@ class BaseWorker(object):
             # catch all non-"system exiting" exceptions
             except Exception:
                 self.logger.exception("An error has occurred.")
+
+    def start(self):
+        """
+        Starts the worker loop on the current thread.
+        """
+        self.logger.debug("BaseWorker entering worker loop.")
+
+        last_message = None
+        queue = multiprocessing.Queue(8)
+        worker = multiprocessing.Process(target=self._message_receive_listen, args=(queue,))
+        worker.start()
+
+        while True:
+            try:
+                result = queue.get(True, 65)
+            except Empty:
+                result = None
+
+            self.logger.debug("Process thread status result: %s" % result)
+
+            # We don't want to shut off submissions in process, so only terminate if we're waiting for a message
+            if last_message == 'waiting for message' and result is None:
+                self.logger.debug("Restarting worker thread")
+                worker.terminate()
+                worker = multiprocessing.Process(target=self._message_receive_listen, args=(queue,))
+                worker.start()
+
+            last_message = result

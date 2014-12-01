@@ -242,11 +242,12 @@ class Competition(models.Model):
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
 
-                new_submission = CompetitionSubmission.objects.create(
+                new_submission = CompetitionSubmission(
                     participant=participant,
                     file=submission.file,
                     phase=current_phase
                 )
+                new_submission.save(ignore_submission_limits=True)
 
                 evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
         except PhaseLeaderBoard.DoesNotExist:
@@ -396,6 +397,12 @@ def submission_stdout_filename(instance, filename="stdout.txt"):
 
 def submission_stderr_filename(instance, filename="stderr.txt"):
     return os.path.join(submission_root(instance), "run", filename)
+
+def predict_submission_stdout_filename(instance, filename="prediction_stdout_file.txt"):
+    return os.path.join(submission_root(instance), "pred", "run", filename)
+
+def predict_submission_stderr_filename(instance, filename="prediction_stderr_file.txt"):
+    return os.path.join(submission_root(instance), "pred", "run", filename)
 
 def submission_prediction_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), "pred", filename)
@@ -557,7 +564,7 @@ class CompetitionPhase(models.Model):
             pass
         return ("{:." + str(p) + "f}").format(v)
 
-    def scores(self,**kwargs):
+    def scores(self, include_scores_not_on_leaderboard=False, **kwargs):
         score_filters = kwargs.pop('score_filters',{})
 
         # Get the list of submissions in this leaderboard
@@ -565,11 +572,18 @@ class CompetitionPhase(models.Model):
         result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
-            qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
-            for entry in qs:
-                result_location.append(entry.result.file.name)
-            for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
-                submissions.append((rid,  name))
+            if include_scores_not_on_leaderboard:
+                qs = CompetitionSubmission.objects.filter(phase=self)
+                for submission in qs:
+                    result_location.append(submission.file.name)
+                    submissions.append((submission.pk,  submission.participant.user.username))
+            else:
+                qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
+                for entry in qs:
+                    result_location.append(entry.result.file.name)
+
+                for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
+                    submissions.append((rid,  name))
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -578,8 +592,13 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk,name) in submissions:
-                scores[pk] = {'username': name, 'id': pk, 'values': [], 'resultLocation': result_location[count]}
+            for (pk, name) in submissions:
+                scores[pk] = {
+                    'username': name,
+                    'id': pk,
+                    'values': [],
+                    'resultLocation': result_location[count]
+                }
 
             scoreDefs = []
             columnKeys = {} # maps a column key to its index in headers list
@@ -764,6 +783,9 @@ class CompetitionSubmission(models.Model):
                                           storage=BundleStorage, null=True, blank=True)
     prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
                                               storage=BundleStorage, null=True, blank=True)
+    exception_details = models.TextField(blank=True, null=True)
+    prediction_stdout_file = models.FileField(upload_to=predict_submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
+    prediction_stderr_file = models.FileField(upload_to=predict_submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -771,41 +793,42 @@ class CompetitionSubmission(models.Model):
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
-    def save(self,*args,**kwargs):
+    def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
 
         # only at save on object creation should it be submitted
         if not self.pk:
-            print "This is a new submission, getting the submission number."
-            subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
-            if subnum is not None:
-                self.submission_number = subnum + 1
-            else:
-                self.submission_number = 1
-            print "This is submission number %d" % self.submission_number
+            if not ignore_submission_limits:
+                print "This is a new submission, getting the submission number."
+                subnum = CompetitionSubmission.objects.filter(phase=self.phase, participant=self.participant).aggregate(Max('submission_number'))['submission_number__max']
+                if subnum is not None:
+                    self.submission_number = subnum + 1
+                else:
+                    self.submission_number = 1
+                print "This is submission number %d" % self.submission_number
 
-            if (self.submission_number > self.phase.max_submissions):
-                print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
-                raise PermissionDenied("The maximum number of submissions has been reached.")
-            else:
-                print "Submission number below maximum."
+                if (self.submission_number > self.phase.max_submissions):
+                    print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
+                    raise PermissionDenied("The maximum number of submissions has been reached.")
+                else:
+                    print "Submission number below maximum."
 
-            if hasattr(self.phase, 'max_submissions_per_day'):
-                print 'Checking submissions per day count'
+                if hasattr(self.phase, 'max_submissions_per_day'):
+                    print 'Checking submissions per day count'
 
-                submissions_from_today_count = len(CompetitionSubmission.objects.filter(
-                    phase__competition=self.phase.competition,
-                    participant=self.participant,
-                    submitted_at__gte=datetime.date.today()
-                ))
+                    submissions_from_today_count = len(CompetitionSubmission.objects.filter(
+                        phase__competition=self.phase.competition,
+                        participant=self.participant,
+                        submitted_at__gte=datetime.date.today()
+                    ))
 
-                print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
+                    print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
-                    print 'PERMISSION DENIED'
-                    raise PermissionDenied("The maximum number of submissions this day have been reached.")
+                    if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                        print 'PERMISSION DENIED'
+                        raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
@@ -849,6 +872,8 @@ class CompetitionSubmission(models.Model):
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
             'stdout.txt': ('stdout_file', 'txt', True),
             'stderr.txt': ('stderr_file', 'txt', False),
+            'predict_stdout.txt': ('prediction_stdout_file', 'txt', True),
+            'predict_stderr.txt': ('prediction_stderr_file', 'txt', True),
             'detailed_results.html': ('detailed_results_file', 'html', True),
         }
         if key not in downloadable_files:
@@ -950,6 +975,20 @@ class CompetitionDefBundle(models.Model):
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
         yaml_contents = zf.open(comp_spec_file).read()
+
+        # Forcing YAML to interpret the file while maintaining the original order things are in
+        from collections import OrderedDict
+        _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+        def dict_representer(dumper, data):
+            return dumper.represent_dict(data.iteritems())
+
+        def dict_constructor(loader, node):
+            return OrderedDict(loader.construct_pairs(node))
+
+        yaml.add_representer(OrderedDict, dict_representer)
+        yaml.add_constructor(_mapping_tag, dict_constructor)
+
         comp_spec = yaml.load(yaml_contents)
         comp_base = comp_spec.copy()
         for block in ['html', 'phases', 'leaderboard']:

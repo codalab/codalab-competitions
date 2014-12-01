@@ -30,26 +30,27 @@ var Worksheets = React.createClass({
     },
     bindEvents: function(){
         // listen for ALL keyboard events at the top leve
-        window.addEventListener('keydown', this.handleKeyboardShortcuts);
+        window.addEventListener('keydown', this.handleKeydown);
     },
     unbindEvents: function(){
-        window.removeEventListener('keydown', this.handleKeyboardShortcuts);
+        window.removeEventListener('keydown', this.handleKeydown);
     },
     setFilter: function(event){
         // all this does is store and update the string we're filter worksheet names by
         this.setState({filter:event.target.value})
     },
-    handleKeyboardShortcuts: function(event){
+    handleKeydown: function(event){
         // the only key this guy cares about is \, because that's the shortcut to focus on the search bar
         if(keyMap[event.keyCode] == 'fslash'){
             event.preventDefault();
+            $('html,body').animate({scrollTop: 0}, 250);
             this.refs.search.getDOMNode().focus();
         }
         // otherwise, try to pass off the event to the active component
         var activeComponent = this.refs[this.state.activeComponent];
-        if(activeComponent.hasOwnProperty('handleKeyboardShortcuts')){
+        if(activeComponent.hasOwnProperty('handleKeydown')){
             // if it has a method to handle keyboard shortcuts, pass it
-            activeComponent.handleKeyboardShortcuts(event);
+            activeComponent.handleKeydown(event);
         }else {
             // otherwise watch it go by
             return true;
@@ -79,7 +80,7 @@ var WorksheetList = React.createClass({
             myWorksheets: false
         };
     },
-    componentDidMount: function() {
+    fetchWorksheetList: function(focusIndex){
         // get the list of worksheets and store it in this.state.worksheets
         $.ajax({
             type: "GET",
@@ -88,7 +89,9 @@ var WorksheetList = React.createClass({
             cache: false,
             success: function(data) {
                 if(this.isMounted()){
-                    this.setState({worksheets: data});
+                    this.setState({
+                        worksheets: data
+                    });
                 }
                 $("#worksheet-message").hide().removeClass('alert-box alert');
             }.bind(this),
@@ -99,32 +102,55 @@ var WorksheetList = React.createClass({
             }.bind(this)
         });
     },
-    componentDidUpdate: function(){
-        if(this.state.worksheets.length){
-            // scroll the window to keep the focused element in view
-            var itemNode = this.refs['ws' + this.state.focusIndex].getDOMNode();
-            if(itemNode.offsetTop > window.innerHeight / 2){
-                window.scrollTo(0, itemNode.offsetTop - (window.innerHeight / 2));
-            }
-        }
+    componentDidMount: function() {
+        this.fetchWorksheetList();
     },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
-        window.location.href += this.state.worksheets[this.state.focusIndex].uuid;
+        window.location.href += this.refs['ws' + this.state.focusIndex].props.details.uuid;
     },
     toggleMyWorksheets: function(){
         // filter by MY worksheets?
         this.setState({myWorksheets: !this.state.myWorksheets});
     },
-    handleKeyboardShortcuts: function(event) {
+    deleteWorksheet: function(worksheet){
+        var postdata = {
+            'worksheet_uuid': worksheet.props.details.uuid
+        }
+        var deleteFocused = worksheet.props.focused;
+        var currentFocused = this.state.focusIndex;
+        if(currentFocused === this.state.worksheets.length - 1){
+            currentFocused = this.state.worksheets.length - 2;
+        }
+        var self = this;
+        $.ajax({
+            type:'POST',
+            cache: false,
+            url:'/api/worksheets/delete/',
+            contentType:"application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(postdata),
+            success: function(data, status, jqXHR){
+                self.fetchWorksheetList(currentFocused);
+            },
+            error: function (data) {
+                console.error(data);
+            }
+        });
+    },
+    handleKeydown: function(event) {
         // this guy has shortcuts for going up and down, and selecting (essentially, clicking on it)
         var key = keyMap[event.keyCode];
         if(typeof key !== 'undefined'){
             event.preventDefault();
             if(key == 'k' || key == 'up'){
-                this.setState({focusIndex: Math.max(this.state.focusIndex - 1, 0)});
+                var newFI = Math.max(this.state.focusIndex - 1, 0);
+                this.setState({focusIndex: newFI});
+                this.scrollToItem(newFI);
             }else if (key == 'j' || key == 'down'){
-                this.setState({focusIndex: Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1)});
+                var newFI = Math.min(this.state.focusIndex + 1, this.state.worksheets.length - 1);
+                this.setState({focusIndex: newFI});
+                this.scrollToItem(newFI);
             }else if (key == 'x' || key == 'enter'){
                 this.goToFocusedWorksheet();
             }else {
@@ -140,32 +166,43 @@ var WorksheetList = React.createClass({
         }
         if(this.props.filter.length){
             console.log('filtering by: ' + filter);
-            worksheets = worksheets.filter(function(ws){ 
+            worksheets = worksheets.filter(function(ws){
                 return (ws.name.indexOf(filter) > -1);
             });
         }
         return worksheets;
+    },
+    scrollToItem: function(index){
+        if(this.state.worksheets.length){
+            // scroll the window to keep the focused element in view
+            var itemNode = this.refs['ws' + index].getDOMNode();
+            $('html,body').animate({scrollTop: itemNode.offsetTop - 100}, 250);
+            return false;
+        }
     },
     render: function() {
         // filter the worksheets by whatever
         var worksheets = this.filterWorksheets(this.props.filter);
         // if there's only one worksheet, it should always be focused
         var focusIndex = worksheets.length > 1 ? this.state.focusIndex : 0;
+        var self = this;
         if(worksheets.length){
             var worksheetList = worksheets.map(function(worksheet, index){
                 var wsID = 'ws' + index;
                 var focused = focusIndex === index;
-                return <Worksheet details={worksheet} focused={focused} ref={wsID} key={index} />
+                return <Worksheet details={worksheet} focused={focused} ref={wsID} key={index} deleteWorksheet={self.deleteWorksheet} />
             });
         } else {
             worksheetList = 'No worksheets matched your criteria'
         }
         return (
             <div id="worksheet-list">
-                <label className="my-worksheets-toggle">
-                    <input type="checkbox" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
-                    Show my worksheets only
-                </label>
+                <div className="checkbox">
+                    <label className="my-worksheets-toggle">
+                        <input type="checkbox" tabIndex="-1" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
+                        Show my worksheets only
+                    </label>
+                </div>
                 {worksheetList}
             </div>
         );
@@ -174,12 +211,22 @@ var WorksheetList = React.createClass({
 
 var Worksheet = React.createClass({
     // a single worksheet in the list
-    goToWorksheet: function(){
-        // in case you click on one that isn't focused. this is essentially the same as making the whole thing an <a href="">
-        window.location.href += this.props.details.uuid;
+    getInitialState: function(){
+        return {
+            display: true
+        }
+    },
+    handleDelete: function(){
+        if(window.confirm('Are you sure you want to delete this worksheet?')){
+            this.setState({ display:false });
+            this.props.deleteWorksheet(this);
+        }else {
+            return false;
+        }
     },
     render: function(){
         var ws = this.props.details;
+        var ws_url = this.props.details.uuid;
         var focused = this.props.focused ? ' focused' : '';
         var classString = 'worksheet-tile' + focused;
         var byline = '';
@@ -189,14 +236,21 @@ var Worksheet = React.createClass({
                 byline += ' (read-only)';
             }
         }
-        return (
-            <div className={classString} onClick={this.goToWorksheet}>
-                <div className="worksheet-inner">
-                    <h3>{ws.name}</h3>
-                    <div>{byline}</div>
+        if(this.state.display){
+            return (
+                <div className={classString}>
+                    <div className="worksheet-inner">
+                        <h3><a href={ws_url}>{ws.name}</a></h3>
+                        <div>{byline}</div>
+                        <button type="button" onClick={this.handleDelete} className="btn btn-link btn-sm delete-worksheet">Delete</button>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }else {
+            return (
+                <div></div>
+            )
+        }
     }
 });
 
@@ -206,11 +260,11 @@ var WorksheetSearch = React.createClass({
     //   2. if it's blurred, make the other component active
     //   3. pass the value of the input up to the parent to use for filtering
     render: function(){
-        return (      
-            <input id="search" className="ws-search" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
+        return (
+            <input id="search" className="ws-search form-control" type="text" placeholder="Search worksheets" onChange={this.props.setFilter} onFocus={this.props.handleFocus} onBlur={this.props.handleFocus}/>
         )
     }
 });
 
-React.renderComponent(<Worksheets />, document.getElementById('container'));
+React.renderComponent(<Worksheets />, document.getElementById('ws_list_container'));
 

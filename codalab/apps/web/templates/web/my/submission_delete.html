@@ -8,15 +8,10 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="large-12 columns">
-        <form action="" method="post">
-            {% csrf_token %}
-            <p>Are you sure you want to delete this submission?</p>
-
-            <input type="submit" value="Confirm" class="button alert confirm-button"/>
-            <a href="{% url "my_datasets" %}" class="button">Cancel</a>
-        </form>
-    </div>
-</div>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to delete this submission?</p>
+    <input type="submit" value="Confirm" class="button alert confirm-button btn btn-primary"/>
+    <a href="{% url "my_datasets" %}" class="button btn btn-default">Cancel</a>
+</form>
 {% endblock %}

@@ -148,6 +148,24 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.assertFalse(do_migration_mock.called)
 
+    def test_phase_migrations_works_even_with_max_submissions(self):
+        self.phase_1.max_submissions_per_day = 3
+        self.phase_1.save()
+        self.phase_2.max_submissions_per_day = 1
+        self.phase_2.save()
+
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+
+        # The submissions still made it
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_1)
+        CompetitionSubmission.objects.get(phase=self.phase_2, participant=self.participant_2)
+
+        # And the competition is not stuck migrating
+        self.assertEquals(self.competition.last_phase_migration, 2)
+        self.assertTrue(CompetitionPhase.objects.get(pk=self.phase_2.pk).is_migrated)
+        self.assertFalse(self.competition.is_migrating)
+
 
 class CompetitionTest(TestCase):
 

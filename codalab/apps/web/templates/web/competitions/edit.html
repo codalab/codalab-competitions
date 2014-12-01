@@ -10,152 +10,225 @@
 {% endblock extra_headers %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
-    <script src="{% static "js/vendor/select2/select2.min.js" %}"></script>
-    <link rel="stylesheet" href="{% static "js/vendor/select2/select2.css" %}" />
 {% endblock extra_scripts %}
 
 {% block content %}
-<div class="row">
-  <div class="large-12 columns">
-    <a class="helpLinkIcon right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" title="Get help with creating a competition" target="_blank"></a>
-  </div>
-</div>
-
-<div class="row">
-  <div id="edit_competition" class="content" data-slug="#overview" data-section-content>
-    <a href="{% url "competitions:download_yaml" competition_pk=competition.pk %}">Download original YAML file</a>
-
-    <form data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
-        <fieldset>
+<a class="pull-right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" title="Get help with creating a competition" target="_blank"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
+<a class="btn btn-secondary" href="{% url 'competitions:download_yaml' competition_pk=competition.pk %}">Download original YAML file</a>
+<form id="competition_edit_form" class="form-horizontal form-controller margin-top" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+    <fieldset>
         <legend>General Information</legend>
         {% for field in form %}
-            <div class="fieldWrapper">
-                <div class="row">
-                    {{ field.errors }}
-                    <div class="large-3 columns">
-                        <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
+            <div class="fieldWrapper form-group {% field_type field %}">
+                {% if field|is_checkbox %}
+                    <div class="col-sm-9 col-sm-offset-3">
+                        <div class="checkbox">
+                            <label>
+                                {{ field }}
+                                {{field.label}}
+                            </label>
+                            {{ field.errors }}
+                        </div>
                     </div>
-                    <div class="large-9 columns">
+                {% else %}
+                <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                <div class="col-sm-9">
+                    <div class="field-container">
                         {{ field }}
+                        {{ field.errors }}
                     </div>
                 </div>
+                {% endif %}
             </div>
         {% endfor %}
-        </fieldset>
-
-        <ul id="pages">
-        {{ Pages.management_form }}
-        {{ Pages.non_form_errors }}
-        <li class="empty-page-form">
-            <fieldset class="page">
-                <legend>Web Page</legend>
-                {% for field in Pages.empty_form %}
-                    <div class="fieldWrapper">
-                        <div class="row">
-                            {{ field.errors }}
-                            {% if not field.is_hidden %}
-                                <div class="large-3 columns">
-                                    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-                                </div>
-                        {% endif %}
-                            <div class="large-9 columns">{{ field }}</div>
-                        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Web Pages</legend>
+        <ul id="pages" class="list-unstyled">
+            {{ Pages.management_form }}
+            {{ Pages.non_form_errors }}
+            <li class="empty-page-form">
+                <div class="panel panel-primary page">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Web Page
+                        </h3>
                     </div>
-                {% endfor %}
-            </fieldset>
-        </li>
-        {% for page in Pages %}
-           <li>
-            <fieldset class="page">
-                <legend>Web Page</legend>
-                {% for field in page %}
-                        <div class="fieldWrapper">
-                            <div class="row">
-                            {{ field.errors }}
-                            {% if not field.is_hidden %}
-                                <div class="large-3 columns">
-                                    <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-                                </div>
-                                    {% endif %}
-                            <div class="large-9 columns">{{ field }}</div>
-                                </div>
-                                </div>
-                {% endfor %}
-            </fieldset>
-          </li>
-        {% endfor %}
-        </ul>
-
-        <div class="row">
-            <div class="large-12 columns">
-                <button type="button" class="medium blue button add-page right">Add Page</button>
-                            </div>
-                        </div>
-
-        <ul id="phases">
-            {{ Phases.management_form }}
-            {{ Phases.non_form_errors }}
-            <li class="empty-phase-form">
-                 <fieldset class="phase">
-                    <legend>Phase</legend>
-                    {% for field in Phases.empty_form %}
-                        <div class="fieldWrapper">
-                            <div class="row">
-                                {{ field.errors }}
-                                {% if not field.is_hidden %}
-                                    <div class="large-3 columns">
-                                        <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
-                                    </div>
-                                {% endif %}
-                                <div class="large-9 columns">{{ field }}</div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </fieldset>
-            </li>
-            {% for form in Phases %}
-                <li>
-                    <fieldset class="phase">
-                        <legend>Competition Phase</legend>
-                        {% for field in form %}
-                            {% if field.name == "input_data_organizer_dataset" %}
-                                <div class="fieldWrapper" style="padding: 30px 0; text-align: center;">
-                                    <div class="row clearfix">
-                                        You can add, remove, and modify datasets in the <a href="{% url "my_datasets" %}">My Datasets</a> section
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                            <div class="fieldWrapper">
-                                <div class="row clearfix">
-                                    {{ field.errors }}
-                                    {% if not field.is_hidden %}
-                                        <div class="large-3 columns">
-                                            <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{field.label_suffix}}</label>
+                    <div class="panel-body">
+                        {% for field in Pages.empty_form %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% else %}
+                                <div class="fieldWrapper form-group {% field_type field %}">
+                                    {% if field|is_checkbox %}
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            {% if field.name == 'DELETE' %}
+                                                {{ field }}
+                                            {% else %}
+                                                <div class="checkbox">
+                                                    <label>
+                                                        {{ field }}
+                                                        {{ field.label }}
+                                                    </label>
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                                        <div class="col-sm-9">
+                                            <div class="field-container">
+                                                {{ field }}
+                                                {{ field.errors }}
+                                            </div>
                                         </div>
                                     {% endif %}
-                                    <div class="large-9 columns">{{ field }}</div>
                                 </div>
-                            </div>
+                            {% endif %}
                         {% endfor %}
-                    </fieldset>
+                    </div>
+                </div>
+            </li>
+            {% for page in Pages %}
+            <li>
+                <div class="panel panel-default page">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Web Page
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for field in page %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% else %}
+                                <div class="fieldWrapper form-group {% field_type field %}">
+                                    {% if field|is_checkbox %}
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            {{ field }}
+                                            {{ field.errors }}
+                                        </div>
+                                    {% else %}
+                                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                                        <div class="col-sm-9">
+                                            <div class="field-container">
+                                                {{ field }}
+                                                {{ field.errors }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </li>
             {% endfor %}
         </ul>
-        <div class="row">
-            <div class="large-12 columns">
-                <button type="button" class="medium blue button add-phase right">Add Phase</button>
+        <button type="button" class="button add-page btn btn-secondary pull-right">Add Page</button>
+    </fieldset>
+    <fieldset>
+        <legend>Phases</legend>
+        <ul id="phases" class="list-unstyled">
+            {{ Phases.management_form }}
+            {{ Phases.non_form_errors }}
+            <li class="empty-phase-form">
+                <div class="phase panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Phase
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for field in Phases.empty_form %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% else %}
+                                <div class="fieldWrapper form-group {% field_type field %}">
+                                    {% if field|is_checkbox %}
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            <div class="checkbox">
+                                                <label>
+                                                    {{ field }}
+                                                    {{field.label}}
+                                                </label>
+                                                {{ field.errors }}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                                        <div class="col-sm-9">
+                                            <div class="field-container">
+                                                {{ field }}
+                                                {{ field.errors }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </li>
+        {% for form in Phases %}
+            <li>
+                <div class="phase panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Competition Phase
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for field in form %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% else %}
+                                {% if field.name == "input_data_organizer_dataset" %}
+                                <div class="form-group">
+                                    <div class="col-sm-9 col-sm-offset-3">
+                                        <p>You can add, remove, and modify datasets in the <a href="{% url 'my_datasets' %}">My Datasets</a> section</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="fieldWrapper form-group {% field_type field %}">
+                                    {% if field|is_checkbox %}
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            {% if field.name == 'DELETE' %}
+                                                {{ field }}
+                                            {% else %}
+                                                <div class="checkbox">
+                                                    <label>
+                                                        {{ field }}
+                                                        {{ field.label }}
+                                                    </label>
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                                        <div class="col-sm-9">
+                                            <div class="field-container">
+                                                {{ field }}
+                                                {{ field.errors }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="medium blue button add-phase btn btn-secondary pull-right">Add Phase</button>
+    </fieldset>
+    <hr />
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <button type="submit" class="medium button blue btn btn-primary btn-block">Submit</button>
         </div>
-        </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <button type="submit" class="medium button blue">Submit</button>
-          </div>
-          <div class="spacer500">&nbsp;</div>
-        </div>
-  </form>
-</div>
-</div>
+    </div>
+</form>
 {% endblock content %}
 
 {% block jsincludes %}
@@ -183,7 +256,6 @@ $('document').ready(function () {
     });
 
     // This helps make sections appear with Foundation
-    $(this).foundation('section', 'reflow');
 
     $(document).find("input[name*='_date']").datetimepicker({
         format: 'Y-m-d H:i:s',

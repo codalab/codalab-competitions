@@ -295,9 +295,9 @@ var CodaLab;
                     if (valid === false) {
                         if (info.files.length > 0) {
                             if (info.files[0].errors[0].kind === 'type-error') {
-                                $('#details').html('Please select a valid file. Only ZIP files are accepted.');
+                                $('#details').html('<div class="alert alert-error">Please select a valid file. Only ZIP files are accepted.</div>');
                             } else {
-                                $('#details').html('The files that you selected is too large. There is a 1GB size limit.');
+                                $('#details').html('<div class="alert alert-error">The files that you selected is too large. There is a 1GB size limit.</div>');
                             }
                         }
                         $('#uploadButton').removeClass('disabled');
@@ -305,14 +305,17 @@ var CodaLab;
                 },
                 uploadProgress: function(file, bytesUploaded, bytesTotal) {
                     var pct = (100 * bytesUploaded) / bytesTotal;
-                    $('#details').html('Uploading file <em>' + file.name + '</em>: ' + pct.toFixed(0) + '% complete.');
+                    pct = pct.toFixed(0);
+                    $('#details').html('<div class="alert alert-info">Uploading file <strong>' + file.name + '</strong>: ' + pct +
+                        '% complete.</div><div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' +
+                        pct + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + pct + '%"></div></div>');
                 },
                 uploadError: function(info) {
-                    $('#details').html('There was an error uploading the file. Please try again.');
+                    $('#details').html('<div class="alert alert-error">There was an error uploading the file. Please try again.</div>');
                     $('#uploadButton').removeClass('disabled');
                 },
                 uploadSuccess: function(file, trackingId) {
-                    $('#details').html('Creating competition... This may take a while. Please be patient.');
+                    $('#details').html('<div class="alert alert-info alert-waiting">Creating competition... This may take a while. Please be patient.</div>');
                     $.ajax({
                         url: '/api/competition/create',
                         type: 'post',
@@ -333,19 +336,19 @@ var CodaLab;
                                     );
                                     $('#uploadButton').removeClass('disabled');
                                 } else if (data.status == 'failed') {
-                                    $('#details').html('Oops! There was a problem creating the competition: <br><pre>' + data.error + '</pre>');
+                                    $('#details').html('<div class="alert alert-error">Oops! There was a problem creating the competition: <br><pre>' + data.error + '</pre></div>');
                                     $('#uploadButton').removeClass('disabled');
                                 } else {
                                     setTimeout(wait_for_competition, 1000);
                                 }
                             }).fail(function() {
-                                $('#details').html('An unexpected error occurred.');
+                                $('#details').html('<div class="alert alert-error">An unexpected error occurred.</div>');
                                 $('#uploadButton').removeClass('disabled');
                             });
                         };
                         wait_for_competition();
                     }).fail(function() {
-                        $('#details').html('An unexpected error occurred.');
+                        $('#details').html('<div class="alert alert-error">An unexpected error occurred.</div>');
                         $('#uploadButton').removeClass('disabled');
                     });
                 }

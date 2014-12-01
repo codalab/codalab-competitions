@@ -23,7 +23,7 @@ class PageSerial(serializers.ModelSerializer):
 
     def validate_container(self,attr,source):
         ## The container, if not supplied will be supplied by the view
-        ## based on url kwargs. 
+        ## based on url kwargs.
         if 'container' in self.context:
             attr['container'] = self.context['container']
         return attr
@@ -34,7 +34,7 @@ class CompetitionDatasetSerial(serializers.ModelSerializer):
     source_address_info = serializers.CharField()
     competition_id = serializers.IntegerField()
     phase_id = serializers.IntegerField()
-    
+
     def validata_phase_id(self,attr,source):
         if not attr[source]:
             attr[source] = None
@@ -49,12 +49,12 @@ class CompetitionSubmissionSerial(serializers.ModelSerializer):
     filename = serializers.Field(source="get_filename")
     class Meta:
         model = webmodels.CompetitionSubmission
-        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename')
-        read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number')
+        fields = ('id','status','status_details','submitted_at','submission_number', 'file', 'filename', 'exception_details', 'description')
+        read_only_fields = ('participant', 'phase', 'id','status_details','submitted_at','submission_number', 'exception_details')
 
 class PhaseSerial(serializers.ModelSerializer):
     start_date = serializers.DateField(format='%Y-%m-%d')
-    
+
     class Meta:
         model = webmodels.CompetitionPhase
         read_only_fields = ['datasets']
@@ -95,7 +95,7 @@ class PhaseRel(serializers.RelatedField):
             args.append(instance)
             print instance
         o = PhaseSerial(*args,**kw)
-        
+
         if o.is_valid():
             return o.object
         else:
@@ -105,10 +105,10 @@ class CompetitionSerial(serializers.ModelSerializer):
     phases = PhaseRel(many=True,read_only=False)
     image_url = serializers.CharField(source='image_url',read_only=True)
     pages = PageSerial(source='pagecontent.pages', read_only=True)
-    
+
     class Meta:
         model = webmodels.Competition
-        read_only_fields = ['image_url_base']        
+        read_only_fields = ['image_url_base']
 
 class CompetitionFilter(django_filters.FilterSet):
     creator = django_filters.CharFilter(name="creator__username")

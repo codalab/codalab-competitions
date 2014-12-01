@@ -6,55 +6,33 @@
 {% block page_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock page_title %}
 {% block head_title %}Dataset {% if "update" not in request.path %}Create{% else %}Update{% endif %}{% endblock %}
 
-{% block extra_scripts %}
-<script src="{% static "js/vendor/select2/select2.min.js" %}"></script>
-<link rel="stylesheet" href="{% static "js/vendor/select2/select2.css" %}" />
-{% endblock %}
-
 {% block content %}
 <div class="row">
-    <div class="large-12 columns">
-        <style>
-            .error {
-                color: red;
-            }
-
-            #data_file-clear_id, label[for="data_file-clear_id"] {
-                opacity: 0;
-            }
-        </style>
-        <form id="dataset_form" action="#" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
+    <div class="col-sm-9">
+        <form id="dataset_form" action="#" method="POST" enctype="multipart/form-data" class="form-controller">{% csrf_token %}
             <fieldset>
                 <legend>{% if "update" not in request.path %}Create{% else %}Update{% endif %} Dataset</legend>
-
                 {% for field in form %}
                     {% if field.name == "data_file" %}
-                    <br><br>
-                        <span id="single_dataset_button" class="button">Single new dataset</span>
-                        <span id="multiple_dataset_button" class="button">Many existing datasets bundled into one new dataset</span>
-                    {% endif %}
-
-                    <div class="fieldWrapper {% if field.name == "data_file" or field.name == "sub_data_files" %}hide{% endif %}" id="{{field.name}}-field-container">
-                        <div class="row">
-                            <div class="large-3 columns {% if field.errors %}error{% endif %}">
-                                <label for="{{field.id_for_label}}" class="inline">{{field.label}}{{form.label_suffix}}</label>
-                                {{ field.errors }}
-                            </div>
-                            <div class="large-9 columns">
-                                <!--{% if field.name == "data_file" and form.instance.sub_data_files.all %}
-                                <p>INFO: This data_file is a helper containing all of the sub-bundles, replacing it replaces all of the sub-bundles!</p>
-                                {% endif %}-->
-
-                                {{ field }}
-                            </div>
+                        <div class="btn-group margin-top margin-bottom">
+                            <button type="button" id="single_dataset_button" class="button btn btn-default btn-secondary active">Single new dataset</button>
+                            <button type="button" id="multiple_dataset_button" class="button btn btn-default">Many existing datasets bundled into one new dataset</span>
                         </div>
+                    {% endif %}
+                    <div class="form-group {% if field.name == 'data_file' or field.name == 'sub_data_files' %}hide{% endif %}{% if field.errors%} has-error{% endif %}" id="{{field.name}}-field-container">
+                        <label for="{{field.id_for_label}}" class="control-label">
+                            {{field.label}}{{form.label_suffix}}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span class="help-block">
+                                {{ field.errors }}
+                            </span>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </fieldset>
-
-            <input id="dataset_submit_button" type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button">
+            <input id="dataset_submit_button" type="submit" value="{% if "update" in request.path %}Save changes{% else %}Upload{% endif %}" class="button btn btn-primary">
         </form>
     </div>
 </div>
@@ -64,15 +42,15 @@
 $(function () {
     $("#single_dataset_button").click(function() {
         $("#data_file-field-container").removeClass("hide");
-        $("#multiple_dataset_button").removeClass("disabled");
-        $("#single_dataset_button").addClass("disabled");
+        $("#multiple_dataset_button").removeClass("active btn-secondary");
+        $(this).addClass("active btn-secondary");
         $("#sub_data_files-field-container").addClass("hide");
     });
 
     $("#multiple_dataset_button").click(function() {
         $("#data_file-field-container").addClass("hide");
-        $("#multiple_dataset_button").addClass("disabled");
-        $("#single_dataset_button").removeClass("disabled");
+        $(this).addClass("active btn-secondary");
+        $("#single_dataset_button").removeClass("active btn-secondary");
         $("#sub_data_files-field-container").removeClass("hide");
     });
 
