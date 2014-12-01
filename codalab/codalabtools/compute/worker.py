@@ -201,7 +201,7 @@ def get_run_func(config):
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
-        is_predict_step = task_args["predict"]
+        is_predict_step = task_args.get("predict", False)
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
                                      config.getAzureServiceBusKey(),
                                      config.getAzureServiceBusIssuer(),
