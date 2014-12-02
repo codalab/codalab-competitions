@@ -132,7 +132,7 @@ var WorksheetActions =  function() {
                 }, // end of executefn
             },// end of wnew
             'run': {
-                helpText: 'run - Create a run bundle INPROGRESS',
+                helpText: 'run - Create a run bundle ',
                 minimumInputLength: 0,
                 maximumSelectionSize: function(){
                     // jquery isnt supposed to be in here but there is no other way way to get the value in this function
