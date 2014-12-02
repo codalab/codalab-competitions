@@ -2,6 +2,7 @@
 {% load account %}
 {% load analytical %}
 {% load codalab_tags %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
@@ -21,17 +22,14 @@
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
-
-        <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css"> -->
         {% if compile_less %}
-            <link rel="stylesheet" href="{{ STATIC_URL }}css/imports.css">
+            {% compress css %}
+                <link rel="stylesheet" type="text/less" href="{{ STATIC_URL }}less/imports.less">
+            {% endcompress %}
         {% else %}
             <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
             <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
         {% endif %}
-
 
         <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
