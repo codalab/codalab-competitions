@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^bundles/', include('apps.web.urls.bundles')),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^health/', include('apps.health.urls')),
+    url(r'^analytics/', include('apps.analytics.urls')),
 )
 
 
