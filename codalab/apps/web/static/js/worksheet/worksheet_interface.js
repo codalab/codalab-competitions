@@ -158,6 +158,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     fetch_and_update: function(){
+        $('#update_progress').show();
         ws_obj.fetch({
             success: function(data){
                 if(this.isMounted()){
