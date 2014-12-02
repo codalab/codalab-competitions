@@ -134,7 +134,16 @@ var WorksheetActions =  function() {
             'run': {
                 helpText: 'run - Create a run bundle INPROGRESS',
                 minimumInputLength: 0,
+                maximumSelectionSize: function(){
+                    // jquery isnt supposed to be in here but there is no other way way to get the value in this function
+                    $('#search').val();
+                    //TODO
+                },
                 searchChoice: function(input, term){
+                    // jquery isnt supposed to be in here but there is no other way way to get the value in this function
+                    if(ws_actions.checkRunCommandDone($('#search').val())){
+                        return {};
+                    }
                     if(term.lastIndexOf('\'', 0) === 0){
                         return {
                             id: term,
@@ -144,13 +153,14 @@ var WorksheetActions =  function() {
                     if(term.lastIndexOf(":", 0) === -1){
                         return {
                             id: term,
-                            text: 'Some sort of help text ' + term
+                            text: 'target_spec  [<key>:](<uuid>|<name>)  ' + term
                         };
                     }
                 },
                 queryfn: function(query){
-                    console.log('query.term')
-                    console.log(query.term)
+                    if(ws_actions.checkRunCommandDone(query.element.val())){
+                        return;
+                    }
                     if(query.term.lastIndexOf('\'', 0) === 0){
                         query.callback({
                                 results: []
@@ -164,7 +174,8 @@ var WorksheetActions =  function() {
                     }
                     // we are after a command
                     var get_data = {
-                        search_string: query.term
+                        // only get stuff after the :
+                        search_string: query.term.slice(query.term.lastIndexOf(':')+1)
                     };
                     $.ajax({
                         type: 'GET',
@@ -177,7 +188,7 @@ var WorksheetActions =  function() {
                             var newOptions = [];
                             for(var k in data){
                                 newOptions.push({
-                                    'id': query.term + ":" + k, // UUID
+                                    'id': query.term + k, // UUID
                                     'text': data[k].metadata.name + ' | ' + k
                                 });
                             }
@@ -196,7 +207,7 @@ var WorksheetActions =  function() {
                     worksheet_uuid = ws_obj.state.uuid;
                     var postdata = {
                         'worksheet_uuid': worksheet_uuid,
-                        'data': params
+                        'data': params.splice(1)
                     };
                     $.ajax({
                         type:'POST',
@@ -254,10 +265,15 @@ var WorksheetActions =  function() {
         return newOptions;
     };
 
-
-        // callback is also built into the query object. It expects a list of
-        // results. See http://ivaynberg.github.io/select2/#doc-query again.
-
+    WorksheetActions.prototype.checkRunCommandDone = function(val){
+        var current_values = val.split(',');
+        console.log('current_values.length')
+        console.log(current_values.length);
+        if(val.lastIndexOf('\'', 4) !== -1){
+            return true;
+        }
+        return false;
+    };
 
     return WorksheetActions;
 }();

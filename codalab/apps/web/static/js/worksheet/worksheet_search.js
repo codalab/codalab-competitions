@@ -32,6 +32,23 @@ var WorksheetSearch = React.createClass({
                         return 3;
                 }
             },
+            maximumSelectionSize:function(){
+                var input = $('#search').val();
+                var command = ws_actions.checkAndReturnCommand(input);
+                if(command){
+                    if(command.hasOwnProperty('maximumSelectionSize')){
+                        if($.isFunction(command.maximumSelectionSize)){
+                            return command.maximumSelectionSize();
+                        }else{
+                            return command.maximumSelectionSize;
+                        }
+                    }else{
+                        return 0;
+                    }
+                }
+                //sane defaults
+                return 0;
+            },
             formatSelection: function(item){
                 return item.id;
                 // When you search for a command, you should see its name and a description of what it

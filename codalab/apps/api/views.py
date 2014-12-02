@@ -936,11 +936,20 @@ class BundleCreateApi(views.APIView):
     """
     def post(self, request):
         user_id = self.request.user.id
-        data = json.loads(request.body)
+        postdata = json.loads(request.body)
         # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            new_bundle_uuid = service.derive_bundle('run', data['worksheet_uuid'], 'the command')
+            command = postdata['data'][-1].strip("'")
+            items = postdata['data'][:-1]
+            targets = {}
+            for item in items:
+                (key, target) = item.split(':', 1)
+                if key == '':
+                    key = target  # Set default key to be same as target
+                targets[key] = [target, ''] # TODO PATH
+            #     targets[key] = self.parse_target(client, worksheet_uuid, target)
+            new_bundle_uuid = service.derive_bundle('run', targets, postdata['worksheet_uuid'], command)
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())

@@ -1,8 +1,9 @@
+from time import sleep
 
 from django.conf import settings
-from time import sleep
-from xmlrpclib import Fault, ProtocolError
+from django.template.defaultfilters import slugify
 
+from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
@@ -100,13 +101,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
-        def derive_bundle(self, bundle_type, worksheet_uuid, command):
-            # test stuff remove ----------------------
-            bundle_type = 'run'
-            command = 'sleep 10; date; sleep 10; date'
-            targets = {}
-            metadata = {'name': 'garbage', 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
-            # ----------------------------------------
+        def derive_bundle(self, bundle_type, targets, worksheet_uuid, command):
+            name = str(slugify(command))
+            metadata = {'name': name, 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
             new_bundle_uuid = self.client.derive_bundle(bundle_type, targets, command, metadata, worksheet_uuid)
             return new_bundle_uuid
 
