@@ -68,7 +68,9 @@ var Worksheet = React.createClass({
             this.toggleEditing();
             return false;
         }else if(key === 'f' && event.shiftKey){
+            event.preventDefault();
             this.refs.list.toggleRawMode();
+            return false;
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
             // pass the event along to children
             activeComponent.handleKeydown(event);
@@ -156,6 +158,9 @@ var WorksheetItemList = React.createClass({
         if(!this.state.worksheet.items.length){
             $('.empty-worksheet').fadeIn('fast');
         }
+        if(this.state.rawMode){
+            $('#raw-textarea').trigger('focus');
+        }
     },
     fetch_and_update: function(){
         $('#update_progress').show();
@@ -179,13 +184,21 @@ var WorksheetItemList = React.createClass({
         });
     },
     handleKeydown: function(event){
-        // No keyboard shortcuts are active in raw mode
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
+        // No keyboard shortcuts are active in raw mode
+        if(this.state.rawMode){
+            if(key == 'enter' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                this.toggleRawMode();
+            }else {
+             return true;
+            }
+        }
         // if the focused item wants to handle certain keys, and this is one of them, pass it along
-        if( focusedItem &&
+        else if( focusedItem &&
             focusedItem.hasOwnProperty('keysToHandle') &&
             focusedItem.keysToHandle().indexOf(key) != -1
             ){
