@@ -107,6 +107,21 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             new_bundle_uuid = self.client.derive_bundle(bundle_type, targets, command, metadata, worksheet_uuid)
             return new_bundle_uuid
 
+        def upload_bundle_url(self, url, info, worksheet_uuid):
+            file_name = url.split("/")[-1]
+            info = {
+                'bundle_type': 'dataset',
+                'metadata': {
+                    'description': 'Upload %s' % url,
+                    'tags': [],
+                    'name': '%s' % file_name,
+                    'license': '',
+                    'source_url': '%s' % url,
+                }
+            }
+            new_bundle_uuid = self.client.upload_bundle_url(url, info, worksheet_uuid, True)
+            return new_bundle_uuid
+
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
 
@@ -157,6 +172,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def update_bundle_metadata(self, uuid, new_metadata):
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
+
 
 else:
 

@@ -82,7 +82,7 @@ var WorksheetActions =  function() {
                         url: '/api/bundles/search/',
                         dataType: 'json',
                         data: get_data,
-                        success: function(data, status, jqXHR){
+                        success: function(data, status, jqXHR, callback){
                             // select2 wants its options in a certain format, so let's make a new
                             // list it will like
                             query.callback({
@@ -94,7 +94,7 @@ var WorksheetActions =  function() {
                         }
                     });
                 },
-                executefn: function(params, command){
+                executefn: function(params, command, callback){
                     window.location = '/bundles/' + params[1] + '/';
                 },
             }, // end off info
@@ -107,7 +107,7 @@ var WorksheetActions =  function() {
                         text: 'New worksheet name: ' + term
                     };
                 },
-                executefn: function(params, command){
+                executefn: function(params, command, callback){
                     if(params.length === 2 && params[0] === 'wnew'){
                         var postdata = {
                             'name': params[1]
@@ -201,7 +201,7 @@ var WorksheetActions =  function() {
                         }
                     });
                 },
-                executefn: function(params, command){
+                executefn: function(params, command, callback){
                     console.log("createing run bundle");
                     console.log(params);
                     worksheet_uuid = ws_obj.state.uuid;
@@ -219,6 +219,7 @@ var WorksheetActions =  function() {
                         success: function(data, status, jqXHR){
                             console.log('run bundles');
                             console.log(data);
+                            callback();
                         },
                         error: function(jqHXR, status, error){
                             console.error(status + ': ' + error);
@@ -226,6 +227,41 @@ var WorksheetActions =  function() {
                     });
                 },
             }, // end of run
+            'upload': {
+                helpText: 'upload - upload a dataset via a url',
+                minimumInputLength: 0,
+                searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: 'dataset url: ' + term
+                    };
+                },
+                executefn: function(params, command, callback){
+                    if(params.length === 2 && params[0] === 'upload'){
+                        worksheet_uuid = ws_obj.state.uuid;
+                        var postdata = {
+                            'worksheet_uuid': worksheet_uuid,
+                            'url': params[1]
+                        };
+                        $.ajax({
+                            type:'POST',
+                            cache: false,
+                            url:'/api/bundles/upload_url/',
+                            contentType:"application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify(postdata),
+                            success: function(data, status, jqXHR){
+                                callback();
+                            },
+                            error: function(jqHXR, status, error){
+                                console.error(status + ': ' + error);
+                            }
+                        });
+                    }else {
+                        alert('wnew command syntax must be "upload http://example.com/file"');
+                    }
+                }, // end of executefn
+            },// end of wnew
         };// end of commands
     }// endof worksheetActions() init
 

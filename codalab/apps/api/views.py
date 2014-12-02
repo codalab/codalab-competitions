@@ -940,6 +940,7 @@ class BundleCreateApi(views.APIView):
         # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
+            #TODO CHECKING
             command = postdata['data'][-1].strip("'")
             items = postdata['data'][:-1]
             targets = {}
@@ -950,6 +951,30 @@ class BundleCreateApi(views.APIView):
                 targets[key] = [target, ''] # TODO PATH
             #     targets[key] = self.parse_target(client, worksheet_uuid, target)
             new_bundle_uuid = service.derive_bundle('run', targets, postdata['worksheet_uuid'], command)
+            return Response({'uuid': new_bundle_uuid}, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
+class BundleUploadApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def post(self, request):
+        user_id = self.request.user.id
+        postdata = json.loads(request.body)
+        # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            #TODO CHECKING
+            info = {}
+            new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
