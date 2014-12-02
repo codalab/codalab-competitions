@@ -25,10 +25,13 @@
         <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css"> -->
+        {% if compile_less %}
+            <link rel="stylesheet" href="{{ STATIC_URL }}css/imports.css">
+        {% else %}
+            <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
+            <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+        {% endif %}
 
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
-
-        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
 
         <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
