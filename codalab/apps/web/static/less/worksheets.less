@@ -21,6 +21,20 @@
       border-bottom:2px solid @navbar-default-border;
       .box-shadow(0 2px 8px @gray-dark);
       .transition(top .35s ease);
+      > .container {
+         display:table;
+         > .input-group {
+            display:table-row;
+            .select2-container, .input-group-btn {
+               display:table-cell;
+            }
+            #search_execute {
+               position:absolute;
+               top:0;
+               bottom:0;
+            }
+         }
+      }
    }
    &.search-hidden {
       margin-top:-61px;
