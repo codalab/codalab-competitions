@@ -155,7 +155,7 @@ class BaseWorker(object):
 
         while True:
             try:
-                result = queue.get(True, 65)
+                result = queue.get(True, 120)
             except Empty:
                 result = None
 

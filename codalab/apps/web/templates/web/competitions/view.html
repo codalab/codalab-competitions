@@ -163,11 +163,18 @@
             $('#competition_tab_nav a[href="#phases"]').tab('show')
         });
         $(function(){
-            if(location.hash !== ''){
-                var main_tab = location.hash.split('-')[0];
-                var sub_tab = location.hash.split('-')[1];
+            var show_location = function(hash) {
+                var main_tab = hash.split('-')[0];
+                var sub_tab = hash.split('-')[1];
+
+                console.log('main_tab: ' + main_tab + ' sub_tab: ' + sub_tab);
+
                 $('#competition_tab_nav a[href="' + main_tab + '"]').tab('show');
                 $(main_tab + ' .innertabs a[href="' + main_tab + '-' + sub_tab + '"]').tab('show');
+            };
+
+            if(location.hash !== ''){
+                show_location(location.hash);
             }else {
                 $('#competition_tab_nav a:first').tab('show')
             }
@@ -184,6 +191,10 @@
             });
             $('a[href="#results"]').on('shown.bs.tab', function(e){
                 $($(e.target).attr('href') + ' .active').click();
+            });
+
+            $('#learn_the_details .col-sm-9 a').on('click', function() {
+                show_location('#' + $(this).attr('href').split('#')[1]);
             });
         });
     </script>
