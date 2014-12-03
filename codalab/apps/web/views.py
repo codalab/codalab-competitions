@@ -296,35 +296,34 @@ class CompetitionDetailView(DetailView):
         submissions = dict()
         all_submissions = dict()
         try:
+            context["previous_phase"] = None
+            context["next_phase"] = None
+            context["first_phase"] = None
+            phase_iterator = iter(competition.phases.all())
+            for phase in phase_iterator:
+                if context["first_phase"] is None:
+                    # Set the first phase if it hasn't been saved yet
+                    context["first_phase"] = phase
+
+                if phase.is_active:
+                    context['active_phase'] = phase
+                    # Set next phase if available
+                    try:
+                        context["next_phase"] = next(phase_iterator)
+                    except StopIteration:
+                        pass
+                elif "active_phase" not in context:
+                    # Set trailing phase since active one hasn't been found yet
+                    context["previous_phase"] = phase
+
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
                 context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
-
-                context["previous_phase"] = None
-                context["next_phase"] = None
-                context["first_phase"] = None
-
                 phase_iterator = iter(competition.phases.all())
                 for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
-
-                    if context["first_phase"] is None:
-                        # Set the first phase if it hasn't been saved yet
-                        context["first_phase"] = phase
-
                     if phase.is_active:
-                        context['active_phase'] = phase
                         context['my_active_phase_submissions'] = submissions[phase]
-
-                        # Set next phase if available
-                        try:
-                            context["next_phase"] = next(phase_iterator)
-                        except StopIteration:
-                            pass
-                    elif "active_phase" not in context:
-                        # Set trailing phase since active one hasn't been found yet
-                        context["previous_phase"] = phase
-
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
