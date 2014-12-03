@@ -195,6 +195,9 @@ var TableBundle = React.createClass({
             return false;
         }
     },
+    focusOnRow: function(rowIndex){
+        this.setState({rowFocusIndex: rowIndex})
+    },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
     },
@@ -211,6 +214,7 @@ var TableBundle = React.createClass({
         }
     },
     render: function() {
+        var self = this;
         var focused = this.props.focused;
         var item = this.props.item.state;
         var canEdit = this.props.canEdit;
@@ -228,7 +232,7 @@ var TableBundle = React.createClass({
             var row_ref = 'row' + index;
             var rowFocused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused}/>
+            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused} handleClick={self.focusOnRow} />
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>
@@ -259,6 +263,9 @@ var TableRow = React.createClass({
     toggleChecked: function(){
         this.setState({checked: !this.state.checked});
     },
+    handleClick: function(){
+        this.props.handleClick(this.props.key);
+    },
     render: function(){
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_item = this.props.item;
@@ -279,7 +286,7 @@ var TableRow = React.createClass({
             }
         });
         return (
-            <tr className={focusedClass}>
+            <tr className={focusedClass} onClick={this.handleClick}>
                 {checkbox}
                 {row_cells}
             </tr>
