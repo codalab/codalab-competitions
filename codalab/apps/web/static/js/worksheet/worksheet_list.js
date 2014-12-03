@@ -162,7 +162,7 @@ var WorksheetList = React.createClass({
         // internal method for filtering the list, called from render() below
         var worksheets = this.state.worksheets;
         if(this.state.myWorksheets){
-            worksheets = worksheets.filter(function(ws){ return parseInt(ws.owner_id) === parseInt(user_id); });
+            worksheets = worksheets.filter(function(ws){ return String(ws.owner_id) === String(user_id) });
         }
         if(this.props.filter.length){
             console.log('filtering by: ' + filter);
@@ -241,7 +241,7 @@ var Worksheet = React.createClass({
                 <div className={classString}>
                     <div className="worksheet-inner">
                         <h3><a href={ws_url}>{ws.name}</a></h3>
-                        <div>{byline}</div>
+                        <div className="byline">{byline}</div>
                         <button type="button" onClick={this.handleDelete} className="btn btn-link btn-sm delete-worksheet">Delete</button>
                     </div>
                 </div>
