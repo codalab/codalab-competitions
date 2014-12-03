@@ -162,7 +162,7 @@ var WorksheetList = React.createClass({
         // internal method for filtering the list, called from render() below
         var worksheets = this.state.worksheets;
         if(this.state.myWorksheets){
-            worksheets = worksheets.filter(function(ws){ return ws.owner_id === user_id; });
+            worksheets = worksheets.filter(function(ws){ return parseInt(ws.owner_id) === parseInt(user_id); });
         }
         if(this.props.filter.length){
             console.log('filtering by: ' + filter);
