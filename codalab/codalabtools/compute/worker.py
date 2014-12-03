@@ -4,9 +4,12 @@ Defines the worker process which handles computations.
 """
 import azure
 import json
+import datetime
 import logging
 import logging.config
 import os
+import signal
+import math
 import shutil
 import sys
 import tempfile
@@ -169,6 +172,15 @@ def _upload(blob_service, container, blob_id, blob_file, content_type = None):
         blob = f.read()
         blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
 
+
+class ExecutionTimeLimitExceeded(Exception):
+    pass
+
+
+def alarm_handler(signum, frame):
+    raise ExecutionTimeLimitExceeded
+
+
 def get_run_func(config):
     """
     Returns the function to invoke in order to do a run given the specified configuration.
@@ -189,7 +201,7 @@ def get_run_func(config):
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
-        is_predict_step = task_args["predict"]
+        is_predict_step = task_args.get("predict", False)
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
                                      config.getAzureServiceBusKey(),
                                      config.getAzureServiceBusIssuer(),
@@ -271,17 +283,24 @@ def get_run_func(config):
             stdout_buffer = ''
             stderr_buffer = ''
 
+            signal.signal(signal.SIGALRM, alarm_handler)
+
             while exit_code is None:
                 exit_code = evaluator_process.poll()
 
                 logger.debug("Checking process, exit_code = %s" % exit_code)
 
+                time_difference = time.time() - startTime
+
+                signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+
                 try:
                     (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
+                    signal.alarm(0) # reset alarm
 
                     stdout_buffer += evaluator_process_out
                     stderr_buffer += evaluator_process_err
-                except ValueError:
+                except (ValueError, OSError, ExecutionTimeLimitExceeded):
                     pass # tried to communicate with dead process
 
                 # time in seconds
