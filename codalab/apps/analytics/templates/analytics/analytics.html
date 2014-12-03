@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block head_title %}Analytics{% endblock head_title %}
+{% block page_title %}Analytics{% endblock page_title %}
+
+{% block extra_headers %}
+    <style>
+        table thead tr td {
+            font-weight: bold;
+        }
+
+        .metric_header {
+            width: 200px;
+        }
+    </style>
+{% endblock extra_headers %}
+
+{% block content %}
+    <div class="row">
+        <div class="large-12 large-centered columns">
+            <div class="panel">
+                <div class="panel-heading">
+                    <b>Basic Analytics</b>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <td class="metric_header">Metric</td>
+                                <td>Measurement</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Registered users</td>
+                                <td>{{ registered_user_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>Competitions</td>
+                                <td>{{ competition_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>Competition's published</td>
+                                <td>{{ competitions_published_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
