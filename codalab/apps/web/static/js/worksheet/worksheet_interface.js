@@ -40,6 +40,9 @@ var Worksheet = React.createClass({
     unbindEvents: function(){
         window.removeEventListener('keydown');
     },
+    canEdit: function(){
+        return ws_obj.getState().edit_permission;
+    },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
         // just scroll to the top of the page.
@@ -65,12 +68,17 @@ var Worksheet = React.createClass({
         }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
             $('#glossaryModal').modal('hide');
         }else if(key === 'e' && event.shiftKey){
-            this.toggleEditing();
-            return false;
+            if(this.canEdit()){
+                event.preventDefault();
+                this.toggleEditing();
+                return false;
+            }
         }else if(key === 'f' && event.shiftKey){
-            event.preventDefault();
-            this.refs.list.toggleRawMode();
-            return false;
+            if(this.canEdit()){
+                event.preventDefault();
+                this.refs.list.toggleRawMode();
+                return false;
+            }
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
             // pass the event along to children
             activeComponent.handleKeydown(event);
@@ -99,7 +107,7 @@ var Worksheet = React.createClass({
         this.refs.list.fetch_and_update();
     },
     render: function(){
-        var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        var canEdit = this.canEdit() && this.state.editMode;
         var searchHidden = !this.state.showSearchBar;
         var className = searchHidden ? 'search-hidden' : '';
         return (
@@ -216,13 +224,6 @@ var WorksheetItemList = React.createClass({
                     this.props.showSearchBar();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
-                    break;
-                case 'r':
-                    console.log("r")
-                    console.log(event.shiftKey)
-                    if(event.shiftKey && this.props.canEdit){
-                        this.toggleRawMode();
-                    }
                     break;
                 case 'up': // move up
                 case 'k':
