@@ -450,24 +450,32 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    toggleRawMode: function(){
-        if(this.state.rawMode){
-            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-            this.saveAndUpdateWorksheet();
+    toggleRawMode: function(val){
+        if(typeof(val)=='undefined'){
+            if(this.state.rawMode){
+                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+                this.saveAndUpdateWorksheet();
+            }
+            this.setState({rawMode: !this.state.rawMode});
+        }else {
+            if(val==false){
+                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+                this.saveAndUpdateWorksheet();
+            }
+            this.setState({rawMode: val});
         }
-        this.setState({rawMode: !this.state.rawMode});
     },
     viewMode: function(){
         this.props.toggleEditing(false);
-        this.setState({rawMode:false});
+        this.toggleRawMode(false);
     },
     editMode: function(){
         this.props.toggleEditing(true);
-        this.setState({rawMode:false});
+        this.toggleRawMode(false);
     },
     rawMode: function(){
         this.props.toggleEditing(false);
-        this.setState({rawMode:true});
+        this.toggleRawMode(true);
     },
     toggleCheckboxEnable: function(enabled){
         this.setState({checkboxEnabled: enabled})
