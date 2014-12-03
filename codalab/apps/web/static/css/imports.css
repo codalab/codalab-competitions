@@ -6164,22 +6164,22 @@ button.close {
 }
 @font-face {
   font-family: 'Segoe UI';
-  src: url('../fonts/segoe-ui_light.eot');
-  src: local('Segoe UI Light'), local('SegoeUILight'), url('../fonts/segoe-ui_light.eot?#iefix') format('embedded-opentype'), url('../fonts/segoe-ui_light.woff') format('woff'), url('../fonts/segoe-ui_light.ttf') format('truetype'), url('../fonts/segoe-ui_light.svg#web') format('svg');
+  src: url('/static/fonts/segoe-ui_light.eot');
+  src: local('Segoe UI Light'), local('SegoeUILight'), url('/static/fonts/segoe-ui_light.eot?#iefix') format('embedded-opentype'), url('/static/fonts/segoe-ui_light.woff') format('woff'), url('/static/fonts/segoe-ui_light.ttf') format('truetype'), url('/static/fonts/segoe-ui_light.svg#web') format('svg');
   font-weight: 200;
   font-style: normal;
 }
 @font-face {
   font-family: 'Segoe UI';
-  src: url('../fonts/segoe-ui_normal.eot');
-  src: local('Segoe UI'), local('SegoeUI'), url('../fonts/segoe-ui_normal.eot?#iefix') format('embedded-opentype'), url('../fonts/segoe-ui_normal.woff') format('woff'), url('../fonts/segoe-ui_normal.ttf') format('truetype'), url('../fonts/segoe-ui_normal.svg#web') format('svg');
+  src: url('/static/fonts/segoe-ui_normal.eot');
+  src: local('Segoe UI'), local('SegoeUI'), url('/static/fonts/segoe-ui_normal.eot?#iefix') format('embedded-opentype'), url('/static/fonts/segoe-ui_normal.woff') format('woff'), url('/static/fonts/segoe-ui_normal.ttf') format('truetype'), url('/static/fonts/segoe-ui_normal.svg#web') format('svg');
   font-weight: 400;
   font-style: normal;
 }
 @font-face {
   font-family: 'Segoe UI';
-  src: url('../fonts/segoe-ui_semibold.eot');
-  src: local('Segoe UI Semibold'), local('SegoeUISemibold'), url('../fonts/segoe-ui_semibold.eot?#iefix') format('embedded-opentype'), url('../fonts/segoe-ui_semibold.woff') format('woff'), url('../fonts/segoe-ui_semibold.ttf') format('truetype'), url('../fonts/segoe-ui_semibold.svg#web') format('svg');
+  src: url('/static/fonts/segoe-ui_semibold.eot');
+  src: local('Segoe UI Semibold'), local('SegoeUISemibold'), url('/static/fonts/segoe-ui_semibold.eot?#iefix') format('embedded-opentype'), url('/static/fonts/segoe-ui_semibold.woff') format('woff'), url('/static/fonts/segoe-ui_semibold.ttf') format('truetype'), url('/static/fonts/segoe-ui_semibold.svg#web') format('svg');
   font-weight: 600;
   font-style: normal;
 }
@@ -6364,19 +6364,19 @@ fieldset[disabled] .btn-secondary.active {
 }
 .worksheet-icon {
   text-indent: 75px;
-  background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+  background: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
   line-height: 65px;
 }
 .bundle-icon-sm {
-  background: url('../img/icon_bundle_sm.png') no-repeat 5px 10px;
+  background: url('/static/img/icon_bundle_sm.png') no-repeat 5px 10px;
   padding-left: 50px;
 }
 .bundle-icon {
-  background: url('../img/icon_bundle.png') no-repeat 5px 10px;
+  background: url('/static/img/icon_bundle.png') no-repeat 5px 10px;
   padding-left: 65px;
 }
 .icon-excel {
-  background-image: url('../img/icon_excel.png');
+  background-image: url('/static/img/icon_excel.png');
   background-repeat: no-repeat;
   background-position: left center;
   padding-left: 36px;
@@ -7732,7 +7732,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   height: 40px;
   line-height: 40px;
   padding: 0 8px 0 40px;
-  background: url('../img/icon_worksheet.png') no-repeat 4px #fcfcfc;
+  background: url('/static/img/icon_worksheet.png') no-repeat 4px #fcfcfc;
   background-size: 32px;
 }
 #worksheet_content .type-table,
@@ -8011,7 +8011,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet-list .worksheet-tile .worksheet-inner {
   border-left: 10px solid #739cb9;
   padding: 10px 10px 10px 58px;
-  background: url('../img/icon_worksheet.png') no-repeat 5px 10px;
+  background: url('/static/img/icon_worksheet.png') no-repeat 5px 10px;
   min-height: 48px;
 }
 #worksheet-list .worksheet-tile .worksheet-inner h3 {
