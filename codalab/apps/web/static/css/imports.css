@@ -7009,18 +7009,18 @@ fieldset[disabled] .phase-btn-green.active {
   background-color: #ffffff;
 }
 .phase-btn-blue {
-  color: #ffffff;
-  background-color: #676278;
-  border-color: #4f4b5c;
+  color: #333333;
+  background-color: #a6c0d3;
+  border-color: #6290b1;
 }
 .phase-btn-blue:hover,
 .phase-btn-blue:focus,
 .phase-btn-blue:active,
 .phase-btn-blue.active,
 .open > .dropdown-toggle.phase-btn-blue {
-  color: #ffffff;
-  background-color: #4f4b5c;
-  border-color: #32303a;
+  color: #333333;
+  background-color: #84a8c2;
+  border-color: #47718e;
 }
 .phase-btn-blue:active,
 .phase-btn-blue.active,
@@ -7042,12 +7042,12 @@ fieldset[disabled] .phase-btn-blue:active,
 .phase-btn-blue.disabled.active,
 .phase-btn-blue[disabled].active,
 fieldset[disabled] .phase-btn-blue.active {
-  background-color: #676278;
-  border-color: #4f4b5c;
+  background-color: #a6c0d3;
+  border-color: #6290b1;
 }
 .phase-btn-blue .badge {
-  color: #676278;
-  background-color: #ffffff;
+  color: #a6c0d3;
+  background-color: #333333;
 }
 .phase-btn-purple {
   color: #333333;
@@ -7405,6 +7405,21 @@ input[type="checkbox"] {
   -o-transition: top 0.35s ease;
   transition: top 0.35s ease;
 }
+#worksheet .ws-search > .container {
+  display: table;
+}
+#worksheet .ws-search > .container > .input-group {
+  display: table-row;
+}
+#worksheet .ws-search > .container > .input-group .select2-container,
+#worksheet .ws-search > .container > .input-group .input-group-btn {
+  display: table-cell;
+}
+#worksheet .ws-search > .container > .input-group #search_execute {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
 #worksheet.search-hidden {
   margin-top: -61px;
 }
@@ -7427,7 +7442,6 @@ input[type="checkbox"] {
 #worksheet_content .controls label {
   font-weight: normal;
   font-size: 13px;
-  display: block;
 }
 #worksheet_content .glossary-link:hover,
 #worksheet_content .controls label:hover {
@@ -8012,11 +8026,14 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-left: 10px solid #739cb9;
   padding: 10px 10px 10px 58px;
   background: url('/static/img/icon_worksheet.png') no-repeat 5px 10px;
-  min-height: 48px;
+  min-height: 68px;
 }
 #worksheet-list .worksheet-tile .worksheet-inner h3 {
   margin: 0;
-  padding-bottom: 0.5em;
+  padding-bottom: 0;
+}
+#worksheet-list .worksheet-tile .worksheet-inner .byline {
+  padding-bottom: 0.25em;
 }
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet {
   position: absolute;
