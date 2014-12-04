@@ -4,6 +4,7 @@ var keyMap = {
     13: "enter",
     27: "esc",
     69: "e",
+    70: "f",
     38: "up",
     40: "down",
     65: "a",
@@ -12,6 +13,7 @@ var keyMap = {
     73: "i",
     74: "j",
     75: "k",
+    79: "o",
     88: "x",
     191: "fslash"
 };
@@ -22,7 +24,8 @@ var Worksheet = React.createClass({
         return {
             activeComponent: 'list',
             editMode: false,
-            showSearchBar: true
+            showSearchBar: true,
+            editingText: false
         }
     },
     componentDidMount: function() {
@@ -37,6 +40,9 @@ var Worksheet = React.createClass({
     },
     unbindEvents: function(){
         window.removeEventListener('keydown');
+    },
+    canEdit: function(){
+        return ws_obj.getState().edit_permission;
     },
     handleSearchFocus: function(event){
         this.setState({activeComponent:'search'});
@@ -55,16 +61,25 @@ var Worksheet = React.createClass({
         var activeComponent = this.refs[this.state.activeComponent];
         // At this top level, the only keypress the parent cares about is ? to open
         // the keyboard shortcuts modal, and then only if we're not actively editing something
-        if(key === 'fslash' && event.shiftKey){
+        if(key === 'fslash' && event.shiftKey && !this.state.editingText){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
             return false;
         }else if(key === 'esc' && $('#glossaryModal').hasClass('in')){
             $('#glossaryModal').modal('hide');
-        }else if(key === 'e' && (event.shiftKey)){
-            this.toggleEditing();
-            return false;
+        }else if(key === 'e' && event.shiftKey){
+            if(this.canEdit()){
+                event.preventDefault();
+                this.toggleEditing();
+                return false;
+            }
+        }else if(key === 'f' && event.shiftKey){
+            if(this.canEdit()){
+                event.preventDefault();
+                this.refs.list.toggleRawMode();
+                return false;
+            }
         }else if(activeComponent.hasOwnProperty('handleKeydown')){
             // pass the event along to children
             activeComponent.handleKeydown(event);
@@ -73,8 +88,15 @@ var Worksheet = React.createClass({
             return true;
         }
     },
-    toggleEditing: function(){
-        this.setState({editMode:!this.state.editMode});
+    toggleEditingText: function(arg){
+        this.setState({editingText: arg});
+    },
+    toggleEditing: function(arg){
+        if(typeof(arg) !== 'undefined'){
+            this.setState({editMode:arg});
+        }else {
+          this.setState({editMode:!this.state.editMode});
+        }
     },
     toggleSearchBar: function(){
         this.setState({showSearchBar:!this.state.showSearchBar});
@@ -85,8 +107,11 @@ var Worksheet = React.createClass({
     hidSearchBar: function(){
         this.setState({showSearchBar:true});
     },
+    refreshList: function(){
+        this.refs.list.fetch_and_update();
+    },
     render: function(){
-        var canEdit = ws_obj.getState().edit_permission && this.state.editMode;
+        var canEdit = this.canEdit() && this.state.editMode;
         var searchHidden = !this.state.showSearchBar;
         var className = searchHidden ? 'search-hidden' : '';
         return (
@@ -97,6 +122,7 @@ var Worksheet = React.createClass({
                     handleBlur={this.handleSearchBlur}
                     active={this.state.activeComponent=='search'}
                     show={this.state.showSearchBar}
+                    refreshList={this.refreshList}
                 />
                 <div className="container">
                     <WorksheetItemList
@@ -107,6 +133,7 @@ var Worksheet = React.createClass({
                         toggleSearchBar={this.toggleSearchBar}
                         hidSearchBar={this.hidSearchBar}
                         showSearchBar={this.showSearchBar}
+                        toggleEditingText={this.toggleEditingText}
                     />
                 </div>
             </div>
@@ -144,8 +171,12 @@ var WorksheetItemList = React.createClass({
         if(!this.state.worksheet.items.length){
             $('.empty-worksheet').fadeIn('fast');
         }
+        if(this.state.rawMode){
+            $('#raw-textarea').trigger('focus');
+        }
     },
     fetch_and_update: function(){
+        $('#update_progress').show();
         ws_obj.fetch({
             success: function(data){
                 if(this.isMounted()){
@@ -153,6 +184,9 @@ var WorksheetItemList = React.createClass({
                 }
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
+                if(this.state.worksheet.items.length === 0){
+                    this.setState({focusIndex: -1});
+                }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
@@ -166,16 +200,21 @@ var WorksheetItemList = React.createClass({
         });
     },
     handleKeydown: function(event){
-        // No keyboard shortcuts are active in raw mode
-        if(this.state.rawMode){
-            return true;
-        }
         var key = keyMap[event.keyCode];
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
+        // No keyboard shortcuts are active in raw mode
+        if(this.state.rawMode){
+            if(key == 'enter' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                this.toggleRawMode();
+            }else {
+             return true;
+            }
+        }
         // if the focused item wants to handle certain keys, and this is one of them, pass it along
-        if( focusedItem &&
+        else if( focusedItem &&
             focusedItem.hasOwnProperty('keysToHandle') &&
             focusedItem.keysToHandle().indexOf(key) != -1
             ){
@@ -187,20 +226,12 @@ var WorksheetItemList = React.createClass({
                 ){
             focusedItem.handleKeydown(event);
         }else { // we have failed the other tests, let the worksheet handle the key
-            console.log(key)
             switch (key) {
                 case 'fslash': // Move focus to search bar
                     event.preventDefault();
                     this.props.showSearchBar();
                     // reach back up and change to search bar
                     this._owner.setState({activeComponent: 'search'});
-                    break;
-                case 'r':
-                    console.log("r")
-                    console.log(event.shiftKey)
-                    if(event.shiftKey && this.props.canEdit){
-                        this.toggleRawMode();
-                    }
                     break;
                 case 'up': // move up
                 case 'k':
@@ -235,6 +266,7 @@ var WorksheetItemList = React.createClass({
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.setState({editingIndex: fIndex});
+                        this.props.toggleEditingText(true);
                     }
                     break;
                 case 'x': // select item
@@ -243,28 +275,31 @@ var WorksheetItemList = React.createClass({
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
-                case 'd': // delete selected items
+                case 'f': // delete selected items
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.deleteChecked();
                     }
                     break;
-                case 'i': //insert
+                case 'o': //insert
                     event.preventDefault();
                     if(this.props.canEdit){
-                        this.insertItem(key);
-                    }
-                    break;
-                case 'a': // really a cap A for instert After, like vi
-                    event.preventDefault();
-                    if(event.shiftKey && this.props.canEdit){
-                        this.insertItem(key);
+                        if(event.shiftKey){
+                            this.insertItem(0);
+                        } else {
+                            this.insertItem(1);
+                        }
                     }
                     break;
                 case 'b': // show/hide the search bar
                     event.preventDefault();
                     this.props.toggleSearchBar();
                     break;
+                case 'enter': //save and exit raw mode if applicable
+                    if(this.state.rawMode && (event.ctrlKey || event.metaKey)){
+                        event.preventDefault();
+                        this.toggleRawMode();
+                    }
                 default:
                     return true;
             }
@@ -272,20 +307,32 @@ var WorksheetItemList = React.createClass({
     },
     scrollToItem: function(index){
         // scroll the window to keep the focused element in view
-        var offsetTop = 0;
+        var distanceFromBottom = window.innerHeight;
+        var distanceFromTop = 0;
+        var navbarHeight = parseInt($('body').css('padding-top'));
+        var distance, scrollTo;
         if(index > -1){
+            var scrollPos = $(window).scrollTop();
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
-            var offset = node.offsetTop;
-            if(this.state.worksheet.items[index].state.mode === 'table' &&
-                keyMap[event.keyCode] == 'k' ||
-                keyMap[event.keyCode] == 'up' ){
-                offset += ($(node).innerHeight() - 30);
+            var nodePos = node.getBoundingClientRect(); // get all measurements for node
+            var distanceFromBottom = window.innerHeight - nodePos.bottom; // how far node is from bottom of viewport
+            var distanceFromTop = nodePos.top - navbarHeight; // how far node is from top of viewport
+            if (keyMap[event.keyCode] == 'k' ||
+                keyMap[event.keyCode] == 'up' ){ // if scrolling up
+                distance = distanceFromTop; // use the top measurement
+                scrollTo = scrollPos - nodePos.height - 50; // scroll to top of node plus 50px buffer
+                if(this.state.worksheet.items[index].state.mode === 'table'){
+                    scrollTo += nodePos.height - 30;
+                }
+            }else{ // scrolling down
+                distance = distanceFromBottom; // use the bottom measurement
+                scrollTo = scrollPos + nodePos.height + 50; // scroll to bottom of node plus 5px buffer
             }
-            // find the item's position on the page, and offset it from the top of the viewport
-            offsetTop = offset - 200;
         }
-        $('body').stop(true).animate({scrollTop: offsetTop}, 250);
+        if(distance < 50){ // if we're within 50px of going off screen
+            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+        }
     },
     saveItem: function(index, interpreted){ // aka handleSave
         if(typeof index !== 'undefined' && typeof interpreted !== 'undefined'){
@@ -313,6 +360,7 @@ var WorksheetItemList = React.createClass({
                 editingIndex: -1,
                 worksheet: ws_obj.getState()
             });
+            this.props.toggleEditingText(false);
             //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
             this.refs['item' + this.state.editingIndex].setState({new_item:false});
         }
@@ -363,9 +411,7 @@ var WorksheetItemList = React.createClass({
             reactItems[k].setState({checked: false});
         }
     },
-    insertItem: function(keyPressed){
-        // insert before or after?
-        var pos = keyPressed === 'i' ? 0 : 1;
+    insertItem: function(pos){
         var newIndex = this.state.focusIndex + pos;
         var newItem = new WorksheetItem('', {}, 'markup');
         ws_obj.insertItem(newIndex, newItem);
@@ -374,6 +420,7 @@ var WorksheetItemList = React.createClass({
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+        this.props.toggleEditingText(true);
         // Set the new_item flag so we know to add it to raw on save
         this.refs['item' + newIndex].setState({new_item: true});
         // we are inserting the item and switching to edit mode. The markup interface will handle
@@ -395,7 +442,7 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index){
+    setFocus: function(index, event){
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});
             if(index >= 0){
@@ -405,19 +452,41 @@ var WorksheetItemList = React.createClass({
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
-                this.scrollToItem(index);
+                if(typeof(event) == 'undefined'){
+                    this.scrollToItem(index);
+                }
             }
         }
         else {
             return false;
         }
     },
-    toggleRawMode: function(){
-        if(this.state.rawMode){
-            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-            this.saveAndUpdateWorksheet();
+    toggleRawMode: function(val){
+        if(typeof(val)=='undefined'){
+            if(this.state.rawMode){
+                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+                this.saveAndUpdateWorksheet();
+            }
+            this.setState({rawMode: !this.state.rawMode});
+        }else {
+            if(val==false){
+                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+                this.saveAndUpdateWorksheet();
+            }
+            this.setState({rawMode: val});
         }
-        this.setState({rawMode: !this.state.rawMode})
+    },
+    viewMode: function(){
+        this.props.toggleEditing(false);
+        this.toggleRawMode(false);
+    },
+    editMode: function(){
+        this.props.toggleEditing(true);
+        this.toggleRawMode(false);
+    },
+    rawMode: function(){
+        this.props.toggleEditing(false);
+        this.toggleRawMode(true);
     },
     toggleCheckboxEnable: function(enabled){
         this.setState({checkboxEnabled: enabled})
@@ -457,19 +526,18 @@ var WorksheetItemList = React.createClass({
         var handleSave = this.saveItem;
         var setFocus = this.setFocus;
         var getRaw = ws_obj.getRaw();
+        var viewClass = !canEdit && !this.state.rawMode ? 'active' : '';
+        var editClass = canEdit && !this.state.rawMode? 'active' : '';
+        var rawClass = this.state.rawMode ? 'active' : '';
         if(editPermission){
             var editStatus = canEdit ? 'on' : 'off';
             var editFeatures =
                     <div className="edit-features">
-                        <div>
-                            <label htmlFor="editing">
-                                <input type="checkbox" checked={this.props.canEdit} name="editing" id="editing" onChange={this.props.toggleEditing} /> Editing {editStatus}
-                            </label>
-                        </div>
-                        <div>
-                            <label htmlFor="rawMode">
-                                <input type="checkbox" checked={this.state.rawMode} name="rawMode" id="rawMode" onChange={this.toggleRawMode} /> Raw mode
-                            </label>
+                        <label>Mode:</label>
+                        <div className="btn-group">
+                            <button className={viewClass} onClick={this.viewMode}>View</button>
+                            <button className={editClass} onClick={this.editMode}>Edit</button>
+                            <button className={rawClass} onClick={this.rawMode}>Raw Edit</button>
                         </div>
                     </div>
         }
@@ -485,11 +553,11 @@ var WorksheetItemList = React.createClass({
         }else {
             $('.empty-worksheet').fadeIn();
         }
-        var worksheet_items_display;
+        var worksheet_items_display = <p className="empty-worksheet">This worksheet is empty</p>
         if(this.state.rawMode){
             // http://facebook.github.io/react/docs/forms.html#why-textarea-value
             worksheet_items_display = <textarea id="raw-textarea" className="form-control" defaultValue={getRaw.content} rows={getRaw.lines} ref="textarea" />;
-        }else {
+        }else if(worksheet_items.length > 0) {
             worksheet_items_display = worksheet_items;
         }
         return (
@@ -512,7 +580,6 @@ var WorksheetItemList = React.createClass({
                     <hr />
                 </div>
                 {worksheet_items_display}
-                <p className="empty-worksheet">This worksheet is empty</p>
             </div>
         )
     }

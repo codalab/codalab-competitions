@@ -25,6 +25,7 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
+    COMPILE_LESS = False
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -164,7 +165,8 @@ class Base(Settings):
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
         "apps.web.context_processors.beta",
-        'django.core.context_processors.request',
+        "django.core.context_processors.request",
+        "codalab.context_processors.common_settings",
     )
 
     AUTHENTICATION_BACKENDS = (
