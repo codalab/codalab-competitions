@@ -21,6 +21,31 @@
       border-bottom:2px solid @navbar-default-border;
       .box-shadow(0 2px 8px @gray-dark);
       .transition(top .35s ease);
+      > .container {
+         display:table;
+         > .input-group {
+            display:table-row;
+            .select2-container, .input-group-btn {
+               display:table-cell;
+            }
+            .btn {
+               position:absolute;
+               top:0;
+               bottom:0;
+            }
+         }
+      }
+      .select2-container-multi .select2-choices {
+         padding:1px 5px 3px 0;
+         .select2-search-choice {
+            margin:3px 0 1px 4px;
+         }
+         .select2-search-field input {
+            margin-top:3px;
+            padding:3px 5px;
+            line-height:inherit;
+         }
+      }
    }
    &.search-hidden {
       margin-top:-61px;
@@ -44,7 +69,6 @@
    .controls label {
       font-weight:normal;
       font-size:@font-size-small;
-      display:inline;
       &:hover {
          text-decoration: none;
       }
@@ -81,6 +105,27 @@
       .controls {
          text-align:right;
          padding-top:12px;
+         .edit-features {
+            margin-top:8px;
+            label {
+               display:inline-block;
+               vertical-align:-1px;
+            }
+            .btn-group {
+               margin-left:8px;
+               button {
+                  .btn;
+                  .btn-default;
+                  .btn-sm;
+                  & + button {
+                     margin-left: -1px;
+                  }
+                  &.active {
+                     .btn-primary;
+                  }
+               }
+            }
+         }
          input, label {
             font-weight:normal;
             margin:0;
@@ -189,7 +234,7 @@
       height:40px;
       line-height:40px;
       padding:0 8px 0 40px;
-      background: url('../img/icon_worksheet.png') no-repeat 4px #fcfcfc;
+      background: url('/static/img/icon_worksheet.png') no-repeat 4px #fcfcfc;
       background-size:32px;
    }
    .type-table, .type-record {
@@ -337,11 +382,14 @@
       .worksheet-inner {
          border-left: 10px solid @brand-primary;
          padding:10px 10px 10px 58px;
-         background:url('../img/icon_worksheet.png') no-repeat 5px 10px;
-         min-height:48px;
+         background:url('/static/img/icon_worksheet.png') no-repeat 5px 10px;
+         min-height:68px;
          h3 {
             margin:0;
-            padding-bottom: 0.5em;
+            padding-bottom: 0;
+         }
+         .byline {
+            padding-bottom:0.25em;
          }
          button.delete-worksheet {
             position:absolute;

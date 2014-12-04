@@ -6,8 +6,10 @@
 {% block content %}
 
 </div>
-<div id="worksheet-message" class="ws-detail container">
-    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
+<div class="container">
+    <div id="worksheet-message" class="ws-detail">
+        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
+    </div>
 </div>
 <div id="worksheet_container">
     <!-- worksheet html wil go here-->
@@ -22,7 +24,7 @@
 <div id="save_error" class="progress-message">
     <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
 </div>
-<div id="glossaryModal" class="modal fade" data-keyboard="true">
+<div id="glossaryModal" class="modal" data-keyboard="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -36,7 +38,10 @@
                         <td><kbd>/</kbd> jump to search bar</td>
                     </tr>
                     <tr>
-                        <td><kbd>shift + e</kbd> toggle editing mode (if user has permission)</td>
+                        <td><kbd>E</kbd> toggle editing mode (if user has permission)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>F</kbd> toggle raw editing mode (if user has permission)</td>
                     </tr>
                     <tr>
                         <td><kbd>j</kbd> or <kbd>↓</kbd> next worksheet item or table row</td>
@@ -54,13 +59,13 @@
                         <td><kbd>x</kbd> select highlighted item (if in edit mode)</td>
                     </tr>
                     <tr>
-                        <td><kbd>d</kbd> delete selected items</td>
+                        <td><kbd>f</kbd> forget selected items</td>
                     </tr>
                     <tr>
-                        <td><kbd>i</kbd> insert markup before highlighted item or row</td>
+                        <td><kbd>O</kbd> insert markup before highlighted item or row</td>
                     </tr>
                     <tr>
-                        <td><kbd>A</kbd> insert markup after highlighted item or row</td>
+                        <td><kbd>o</kbd> insert markup after highlighted item or row</td>
                     </tr>
                     <tr>
                         <td><kbd>?</kbd> show this glossary</td>

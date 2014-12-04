@@ -1,8 +1,9 @@
+from time import sleep
 
 from django.conf import settings
-from time import sleep
-from xmlrpclib import Fault, ProtocolError
+from django.template.defaultfilters import slugify
 
+from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
@@ -61,9 +62,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
             return bundle_info
 
-        def search_bundles(self, search_text, worksheet_uuid=None):
-            # search_bundle_uuids(worksheet_uuid, search_text, max_results, show_counts_only)
-            bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid,search_text, 30, False)
+        def search_bundles(self, keywords, worksheet_uuid=None):
+            # search_bundle_uuids(worksheet_uuid, keywords, max_results, show_counts_only)
+            bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid, keywords, 30, False)
             bundle_infos = self.client.get_bundle_infos(bundle_uuids)
             return bundle_infos
 
@@ -99,6 +100,27 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 return worksheet_info
             else:
                 return worksheet_info
+
+        def derive_bundle(self, bundle_type, targets, worksheet_uuid, command):
+            name = str(slugify(command))
+            metadata = {'name': name, 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
+            new_bundle_uuid = self.client.derive_bundle(bundle_type, targets, command, metadata, worksheet_uuid)
+            return new_bundle_uuid
+
+        def upload_bundle_url(self, url, info, worksheet_uuid):
+            file_name = url.split("/")[-1]
+            info = {
+                'bundle_type': 'dataset',
+                'metadata': {
+                    'description': 'Upload %s' % url,
+                    'tags': [],
+                    'name': '%s' % file_name,
+                    'license': '',
+                    'source_url': '%s' % url,
+                }
+            }
+            new_bundle_uuid = self.client.upload_bundle_url(url, info, worksheet_uuid, True)
+            return new_bundle_uuid
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
@@ -150,6 +172,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def update_bundle_metadata(self, uuid, new_metadata):
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
+
 
 else:
 

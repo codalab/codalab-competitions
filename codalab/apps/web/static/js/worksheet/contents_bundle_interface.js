@@ -1,13 +1,13 @@
 /** @jsx React.DOM */
 
 var ContentsBundle = React.createClass({
-    mixins: [CheckboxMixin],
+    mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function(){
         this.props.item.state.checked = false;
         return this.props.item.state;
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
