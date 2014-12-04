@@ -188,7 +188,7 @@ var WorksheetActions =  function() {
                             var newOptions = [];
                             for(var k in data){
                                 newOptions.push({
-                                    'id': query.term + k, // UUID
+                                    'id': query.term.split(':')[0] + ":" + k, // UUID
                                     'text': data[k].metadata.name + ' | ' + k
                                 });
                             }
@@ -303,8 +303,6 @@ var WorksheetActions =  function() {
 
     WorksheetActions.prototype.checkRunCommandDone = function(val){
         var current_values = val.split(',');
-        console.log('current_values.length')
-        console.log(current_values.length);
         if(val.lastIndexOf('\'', 4) !== -1){
             return true;
         }
