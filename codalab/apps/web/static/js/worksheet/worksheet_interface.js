@@ -24,7 +24,8 @@ var Worksheet = React.createClass({
         return {
             activeComponent: 'list',
             editMode: false,
-            showSearchBar: true
+            showSearchBar: true,
+            editingText: false
         }
     },
     componentDidMount: function() {
@@ -60,7 +61,7 @@ var Worksheet = React.createClass({
         var activeComponent = this.refs[this.state.activeComponent];
         // At this top level, the only keypress the parent cares about is ? to open
         // the keyboard shortcuts modal, and then only if we're not actively editing something
-        if(key === 'fslash' && event.shiftKey && !this.state.editMode){
+        if(key === 'fslash' && event.shiftKey && !this.state.editingText){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
@@ -86,6 +87,9 @@ var Worksheet = React.createClass({
         }else {
             return true;
         }
+    },
+    toggleEditingText: function(arg){
+        this.setState({editingText: arg});
     },
     toggleEditing: function(arg){
         if(typeof(arg) !== 'undefined'){
@@ -129,6 +133,7 @@ var Worksheet = React.createClass({
                         toggleSearchBar={this.toggleSearchBar}
                         hidSearchBar={this.hidSearchBar}
                         showSearchBar={this.showSearchBar}
+                        toggleEditingText={this.toggleEditingText}
                     />
                 </div>
             </div>
@@ -261,6 +266,7 @@ var WorksheetItemList = React.createClass({
                     event.preventDefault();
                     if(this.props.canEdit){
                         this.setState({editingIndex: fIndex});
+                        this.props.toggleEditingText(true);
                     }
                     break;
                 case 'x': // select item
@@ -354,6 +360,7 @@ var WorksheetItemList = React.createClass({
                 editingIndex: -1,
                 worksheet: ws_obj.getState()
             });
+            this.props.toggleEditingText(false);
             //reset the 'new_item' flag to false so it doesn't get added again if we edit and save it later
             this.refs['item' + this.state.editingIndex].setState({new_item:false});
         }
@@ -413,6 +420,7 @@ var WorksheetItemList = React.createClass({
             focusIndex: newIndex,
             editingIndex: newIndex
         });
+        this.props.toggleEditingText(true);
         // Set the new_item flag so we know to add it to raw on save
         this.refs['item' + newIndex].setState({new_item: true});
         // we are inserting the item and switching to edit mode. The markup interface will handle
