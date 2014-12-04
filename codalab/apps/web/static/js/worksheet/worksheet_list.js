@@ -217,7 +217,7 @@ var Worksheet = React.createClass({
         }
     },
     handleDelete: function(){
-        if(window.confirm('Are you sure you want to delete this worksheet?')){
+        if(window.confirm('Are you sure you want to forget this worksheet?')){
             this.setState({ display:false });
             this.props.deleteWorksheet(this);
         }else {
