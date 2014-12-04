@@ -179,6 +179,9 @@ var WorksheetItemList = React.createClass({
                 }
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
+                if(this.state.worksheet.items.length === 0){
+                    this.setState({focusIndex: -1});
+                }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
@@ -542,11 +545,11 @@ var WorksheetItemList = React.createClass({
         }else {
             $('.empty-worksheet').fadeIn();
         }
-        var worksheet_items_display;
+        var worksheet_items_display = <p className="empty-worksheet">This worksheet is empty</p>
         if(this.state.rawMode){
             // http://facebook.github.io/react/docs/forms.html#why-textarea-value
             worksheet_items_display = <textarea id="raw-textarea" className="form-control" defaultValue={getRaw.content} rows={getRaw.lines} ref="textarea" />;
-        }else {
+        }else if(worksheet_items.length > 0) {
             worksheet_items_display = worksheet_items;
         }
         return (
@@ -569,7 +572,6 @@ var WorksheetItemList = React.createClass({
                     <hr />
                 </div>
                 {worksheet_items_display}
-                <p className="empty-worksheet">This worksheet is empty</p>
             </div>
         )
     }

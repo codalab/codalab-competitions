@@ -214,11 +214,11 @@ var WorksheetContent = function() {
         var below_item = items[index+1];
         // because this is a new item has been inserted into this.state.items,
         // we can't trust the raw_index of this item so we need to derive it from its neighbors
-        var raw_index = -1;
+        var raw_index = 0;
         if(below_item){
             // its' easiest to do this using the next item, because we're going to take its place
             raw_index = below_item.state.raw_index;
-        }else {
+        }else if(above_item){
             // but if we're at the end of the worksheet, we need to use the preceeding item to calculate the raw index
             raw_index = above_item.state.raw_index + above_item.state.raw_size + 1;
         }
