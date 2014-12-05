@@ -18,6 +18,7 @@ var MarkdownBundle = React.createClass({
                 case 'esc': // cancel
                     //telling WorksheetItemList to stop editing
                     this._owner.setState({editingIndex: -1});
+                    this._owner.props.toggleEditingText(false);
                     if(this.props.editing){
                         if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
                             //calling WorksheetItemList unInsert
@@ -66,8 +67,8 @@ var MarkdownBundle = React.createClass({
             this.processMathJax();
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     render: function() {
         var content = this.props.item.state.interpreted;

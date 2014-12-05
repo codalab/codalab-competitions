@@ -1,14 +1,14 @@
 /** @jsx React.DOM */
 
 var RecordBundle = React.createClass({
-    mixins: [CheckboxMixin],
+    mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function(){
         return {
             checked: false
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     render: function() {
         var item = this.props.item.state;

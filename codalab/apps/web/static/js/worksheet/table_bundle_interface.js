@@ -8,14 +8,14 @@ var TableBundle = React.createClass({
             checked: false
         }
     },
-    handleClick: function(){
-        this.props.setFocus(this.props.key);
+    handleClick: function(event){
+        this.props.setFocus(this.props.key, event);
     },
     componentDidMount: function(){
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
     keysToHandle: function(){
-        return['up','k','down','j','x','d','i','a','enter'];
+        return['up','k','down','j','x','f','i','a','enter'];
     },
     handleKeydown: function(event){
         var item = this.props.item.state;
@@ -74,7 +74,7 @@ var TableBundle = React.createClass({
                         this.refs['row' + index].toggleChecked();
                     }
                     break;
-                case 'd':
+                case 'f':
                     event.preventDefault();
                     // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
                     // perform actions outside the table, so refer it back to the parent
@@ -118,15 +118,32 @@ var TableBundle = React.createClass({
             }
     },
     goToBundlePage: function(){
-        window.location = this.refs['row' + this.state.rowFocusIndex].props.bundleURL;
+        window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
     scrollToRow: function(index){
         // scroll the window to keep the focused row in view
-        var offsetTop = 0;
+        var navbarHeight = parseInt($('body').css('padding-top'));
+        var distance, scrollTo;
         if(index > -1){
-            offsetTop = this.getDOMNode().offsetTop + (this.refs.row0.getDOMNode().offsetHeight * index) - 200;
+            var scrollPos = $(window).scrollTop();
+            var table = this.getDOMNode();
+            var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
+            var tablePos = table.getBoundingClientRect().top;
+            var rowPos = tablePos + (index * rowHeight);
+            var distanceFromBottom = window.innerHeight - rowPos;
+            var distanceFromTop = rowPos - navbarHeight;
+            if(keyMap[event.keyCode] == 'k' ||
+               keyMap[event.keyCode] == 'up'){
+                distance = distanceFromTop;
+                scrollTo = scrollPos - rowHeight - 50;
+            }else {
+                distance = distanceFromBottom;
+                scrollTo = scrollPos + rowHeight + 50;
+            }
         }
-        $('html,body').stop(true).animate({scrollTop: offsetTop}, 250);
+        if(distance < 50){
+            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+        }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
@@ -162,7 +179,7 @@ var TableBundle = React.createClass({
             }
         }
         var confirm_string = interpreted_row_indexes.length === 1 ? 'this row?' : interpreted_row_indexes.length + ' rows?'
-        if(interpreted_row_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
+        if(interpreted_row_indexes.length && window.confirm("Are you sure you want to forget " + confirm_string)){
             //delete and get our new interpreted. raw is handeled by ws_obj
             new_interpreted_rows = ws_obj.deleteTableRow(this.props.item.state, interpreted_row_indexes);
             //uncheck so we don't get any weird checked state hanging around
@@ -177,6 +194,9 @@ var TableBundle = React.createClass({
         } else {
             return false;
         }
+    },
+    focusOnRow: function(rowIndex){
+        this.setState({rowFocusIndex: rowIndex})
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
@@ -194,6 +214,7 @@ var TableBundle = React.createClass({
         }
     },
     render: function() {
+        var self = this;
         var focused = this.props.focused;
         var item = this.props.item.state;
         var canEdit = this.props.canEdit;
@@ -211,7 +232,7 @@ var TableBundle = React.createClass({
             var row_ref = 'row' + index;
             var rowFocused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused}/>
+            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused} handleClick={self.focusOnRow} />
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>
@@ -242,6 +263,9 @@ var TableRow = React.createClass({
     toggleChecked: function(){
         this.setState({checked: !this.state.checked});
     },
+    handleClick: function(){
+        this.props.handleClick(this.props.key);
+    },
     render: function(){
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_item = this.props.item;
@@ -252,7 +276,7 @@ var TableRow = React.createClass({
             if(index == 0){
                 return (
                     <td key={index}>
-                        <a href={bundle_url} className="bundle-link">
+                        <a href={bundle_url} className="bundle-link" target="_blank">
                             {row_item[header_key]}
                         </a>
                     </td>
@@ -262,7 +286,7 @@ var TableRow = React.createClass({
             }
         });
         return (
-            <tr className={focusedClass}>
+            <tr className={focusedClass} onClick={this.handleClick}>
                 {checkbox}
                 {row_cells}
             </tr>

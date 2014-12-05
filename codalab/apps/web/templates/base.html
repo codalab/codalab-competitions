@@ -2,6 +2,7 @@
 {% load account %}
 {% load analytical %}
 {% load codalab_tags %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
@@ -22,14 +23,12 @@
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
-
-        <!-- <link rel="stylesheet" href="{{ STATIC_URL }}css/Main.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/codalab.css">
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/worksheets.css"> -->
-
-        <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
-
-        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+        {% if compile_less %}
+            <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
+        {% else %}
+            <link rel="stylesheet/less" type="text/css" href="{{ STATIC_URL }}less/imports.less">
+            <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.5/less.min.js"></script>
+        {% endif %}
 
         <script src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.10.2.min.js"></script>
         <script src="{{ STATIC_URL }}js/vendor/custom.modernizr.js"></script>
@@ -142,18 +141,12 @@
 
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
-            <p class="navbar-text navbar-left">
-                <a href="http://research.microsoft.com/" target="_blank"><img src="{{ STATIC_URL }}img/msr_footer.png" alt="Microsoft Research" /></a>&nbsp;
-                <a href="https://github.com/codalab/codalab" target="_blank"><img src="{{ STATIC_URL }}img/github.png" alt="Fork me on GitHub" /></a>
-                <!-- <a href="{{last_commit}}">{{app_version}}</a> -->
-            </p>
             <ul class="nav navbar-nav navbar-right">
                 <!-- <li>CodaLab v.0 ()</li> -->
                 <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
                 <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
                 <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Project_Privacy_Policy" target="_blank">Privacy</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Project_Terms_and_Conditions" target="_blank">Terms of Use</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
             </ul>
         </div>
     </footer>
