@@ -280,6 +280,7 @@ def deploy_web():
         run('rm -rf %s' % env.deploy_dir)
     run('tar -xvzf %s' % env.build_archive)
     run('mv %s deploy' % env.git_tag)
+
     run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv venv')
     env.SHELL_ENV = dict(
         DJANGO_SETTINGS_MODULE=env.django_settings_module,
@@ -400,6 +401,8 @@ def supervisor_stop():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
+    # since worker is muli threaded, we need to kill all running processes
+    run('pkill -9 -f worker.py')
 
 @roles('web')
 @task
