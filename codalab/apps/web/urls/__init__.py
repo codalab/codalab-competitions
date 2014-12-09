@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.sites.models import Site
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.contrib import admin
 
 from apps.web.models import Competition
@@ -19,6 +19,9 @@ urlpatterns = patterns('',
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^health/', include('apps.health.urls')),
     url(r'^analytics/', include('apps.analytics.urls')),
+
+    # Direct URL redirects
+    url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),
 )
 
 
