@@ -5,66 +5,56 @@
 
 {% block content %}
     <div class="row">
-        <div class="large-12 large-centered columns">
-            <div class="CompetitionsDetailContainer">
-                <div class="section-container auto competitionsDetailTabArea" data-section data-section-resized data-options="deep_linking:true" id="sections">
-                    <section style="text-align: center;">
-                        <p class="title" data-section-title width="100%" height="100%">
-                            <a href="#health">Health</a>
-                        </p>
-                        <div class="content" data-slug="health" data-section-content>
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <canvas class="meter" data-value="{{ jobs_pending_count }}" data-max="500"></canvas>
-                                    <p>Jobs pending: {{ jobs_pending_count }}</p>
+        <p class="title" data-section-title width="100%" height="100%">
+            <h1><a href="#health">Health</a></h1>
+        </p>
+        <div class="content" data-slug="health" data-section-content>
+            <div class="row">
+                <div class="col-sm-4">
+                    <canvas class="meter" data-value="{{ jobs_pending_count }}" data-max="500"></canvas>
+                    <p>Jobs pending: {{ jobs_pending_count }}</p>
 
-                                    <canvas class="meter" data-value="{{ jobs_finished_in_last_2_days_avg }}" data-max="600"></canvas>
-                                    <p>Average job length: {{ jobs_finished_in_last_2_days_avg }}s</p>
-                                </div>
+                    <canvas class="meter" data-value="{{ jobs_finished_in_last_2_days_avg }}" data-max="600"></canvas>
+                    <p>Average job length: {{ jobs_finished_in_last_2_days_avg }}s</p>
+                </div>
 
-                                <div class="small-offset-1 small-7 columns" style="text-align: left;">
-                                    <br><br>
+                <div class="col-sm-offset-1 col-sm-7" style="text-align: left;">
+                    <br><br>
 
-                                    <b>Most recent failed jobs:</b>
-                                    <ol>
-                                        {% for job in jobs_failed %}
-                                            <li>{{ job }}</li>
-                                        {% empty %}
-                                            <li><i>None</i></li>
-                                        {% endfor %}
-                                    </ol>
+                    <b>Most recent failed jobs:</b>
+                    <ol>
+                        {% for job in jobs_failed %}
+                            <li>{{ job }}</li>
+                        {% empty %}
+                            <li><i>None</i></li>
+                        {% endfor %}
+                    </ol>
 
-                                    <br><br>
+                    <br><br>
 
-                                    <b>Jobs lasting longer than 10 minutes:</b>
-                                    <ol>
-                                        {% for job in jobs_lasting_longer_than_10_minutes %}
-                                            <li>{{ job }}</li>
-                                        {% empty %}
-                                            <li><i>None</i></li>
-                                        {% endfor %}
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <p class="title" data-section-title width="100%" height="100%">
-                            <a href="#settings">Settings</a>
-                        </p>
-                        <div class="content" data-slug="settings" data-section-content>
-                            List of emails to notify on error, separated by commas
-                            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com</label>
-                            <textarea id="email_settings_textarea" name="email_settings_textarea" style="resize:vertical;">{{ alert_emails }}</textarea>
-                            <input id="email_settings_submit_button" type="submit" class="button" value="Save">
-
-                            <div id="email_settings_submit_status"></div>
-                        </div>
-                    </section>
+                    <b>Jobs lasting longer than 10 minutes:</b>
+                    <ol>
+                        {% for job in jobs_lasting_longer_than_10_minutes %}
+                            <li>{{ job }}</li>
+                        {% empty %}
+                            <li><i>None</i></li>
+                        {% endfor %}
+                    </ol>
                 </div>
             </div>
         </div>
+        <p class="title" data-section-title width="100%" height="100%">
+            <h1><a href="#settings">Settings</a></h1>
+        </p>
+        <div class="content" data-slug="settings" data-section-content>
+            List of emails to notify on error, separated by commas<br><br>
+            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com</label><br>
+            <textarea id="email_settings_textarea" name="email_settings_textarea" style="resize:vertical; display: block;">{{ alert_emails }}</textarea><br>
+            <input id="email_settings_submit_button" type="submit" class="button" value="Save">
+
+            <div id="email_settings_submit_status"></div>
+        </div>
+
     </div>
 {% endblock %}
 
