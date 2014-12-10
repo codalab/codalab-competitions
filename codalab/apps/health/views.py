@@ -74,8 +74,8 @@ def check_thresholds(request):
     if email_string:
         emails = [s.strip() for s in email_string.split(",")]
 
-        if metrics["jobs_pending_count"] > 500:
-            send_mail("Codalab Warning: Jobs pending > 500!", "There are > 500 jobs pending for processing right now", settings.DEFAULT_FROM_EMAIL, emails)
+        if metrics["jobs_pending_count"] > 25:
+            send_mail("Codalab Warning: Jobs pending > 25!", "There are > 25 jobs pending for processing right now", settings.DEFAULT_FROM_EMAIL, emails)
 
         if metrics["jobs_lasting_longer_than_10_minutes"] and len(metrics["jobs_lasting_longer_than_10_minutes"]) > 10:
             send_mail("Codalab Warning: Many jobs taking > 10 minutes!", "There are many jobs taking longer than 10 minutes to process", settings.DEFAULT_FROM_EMAIL, emails)
