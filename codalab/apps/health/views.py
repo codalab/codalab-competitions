@@ -72,15 +72,15 @@ def email_settings(request):
 
 def check_thresholds(request):
     metrics = get_health_metrics()
-    settings = HealthSettings.objects.get_or_create(pk=1)[0]
-    email_string = settings.emails
+    health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
+    email_string = health_settings.emails
     if email_string:
         emails = [s.strip() for s in email_string.split(",")]
 
-        if metrics["jobs_pending_count"] > settings.threshold:
+        if metrics["jobs_pending_count"] > health_settings.threshold:
             send_mail(
-                "Codalab Warning: Jobs pending > %s!" % settings.threshold,
-                "There are > %s jobs pending for processing right now" % settings.threshold,
+                "Codalab Warning: Jobs pending > %s!" % health_settings.threshold,
+                "There are > %s jobs pending for processing right now" % health_settings.threshold,
                 settings.DEFAULT_FROM_EMAIL,
                 emails
             )
