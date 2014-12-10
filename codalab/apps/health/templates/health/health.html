@@ -47,7 +47,12 @@
             <h1><a href="#settings">Settings</a></h1>
         </p>
         <div class="content" data-slug="settings" data-section-content>
-            List of emails to notify on error, separated by commas<br><br>
+            Stuck job threshold<br>
+            <input id="alert_threshold" name="alert_threshold" value="{{ alert_threshold }}">
+
+            <br><br>
+
+            List of emails to notify on error, separated by commas<br>
             <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com</label><br>
             <textarea id="email_settings_textarea" name="email_settings_textarea" style="resize:vertical; display: block;">{{ alert_emails }}</textarea><br>
             <input id="email_settings_submit_button" type="submit" class="button" value="Save">
@@ -61,12 +66,12 @@
 {% block js %}
     $(function () {
         $("#email_settings_submit_button").click(function(){
-            $.post("{% url "health_status_email_settings" %}", {"emails": $("#email_settings_textarea").val()})
+            $.post("{% url "health_status_email_settings" %}", {"alert_threshold": $("#alert_threshold").val(), "emails": $("#email_settings_textarea").val()})
                 .success(function() {
-                    $("#email_settings_submit_status").html("<p style='color: #258033;'>Emails saved successfully!</p>");
+                    $("#email_settings_submit_status").html("<p style='color: #258033;'>Settings saved successfully!</p>");
                 })
                 .error(function() {
-                    alert("Couldn't save emails, something went wrong");
+                    alert("Couldn't save settings, something went wrong");
                 });
         });
 

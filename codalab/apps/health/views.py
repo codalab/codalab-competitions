@@ -48,6 +48,7 @@ def get_health_metrics():
         "jobs_failed": jobs_failed,
         "jobs_failed_count": len(jobs_failed),
         "alert_emails": alert_emails,
+        "alert_threshold": health_settings.threshold
     }
 
 
@@ -64,18 +65,25 @@ def email_settings(request):
         return HttpResponse(status=404)
     health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
     health_settings.emails = request.POST.get("emails")
+    health_settings.threshold = request.POST.get("alert_threshold")
     health_settings.save()
     return HttpResponse()
 
 
 def check_thresholds(request):
     metrics = get_health_metrics()
-    email_string = HealthSettings.objects.get_or_create(pk=1)[0].emails
+    settings = HealthSettings.objects.get_or_create(pk=1)[0]
+    email_string = settings.emails
     if email_string:
         emails = [s.strip() for s in email_string.split(",")]
 
-        if metrics["jobs_pending_count"] > 25:
-            send_mail("Codalab Warning: Jobs pending > 25!", "There are > 25 jobs pending for processing right now", settings.DEFAULT_FROM_EMAIL, emails)
+        if metrics["jobs_pending_count"] > settings.threshold:
+            send_mail(
+                "Codalab Warning: Jobs pending > %s!" % settings.threshold,
+                "There are > %s jobs pending for processing right now" % settings.threshold,
+                settings.DEFAULT_FROM_EMAIL,
+                emails
+            )
 
         if metrics["jobs_lasting_longer_than_10_minutes"] and len(metrics["jobs_lasting_longer_than_10_minutes"]) > 10:
             send_mail("Codalab Warning: Many jobs taking > 10 minutes!", "There are many jobs taking longer than 10 minutes to process", settings.DEFAULT_FROM_EMAIL, emails)
