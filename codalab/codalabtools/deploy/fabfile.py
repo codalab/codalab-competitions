@@ -402,7 +402,7 @@ def supervisor_stop():
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
     # since worker is muli threaded, we need to kill all running processes
-    #run('pkill -9 -f worker.py')
+    run('pkill -9 -f worker.py')
 
 @roles('web')
 @task
