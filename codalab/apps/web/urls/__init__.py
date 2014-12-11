@@ -22,6 +22,8 @@ urlpatterns = patterns('',
 
     # Direct URL redirects
     url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),
+    url(r'^(?i)ChalearnLAP_Pose/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2231')),
+    url(r'^(?i)ChalearnLAP_Action/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2241')),
 )
 
 
