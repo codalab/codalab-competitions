@@ -53,7 +53,7 @@ def competition_index(request):
     is_finished = request.GET.get('is_finished', False)
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
-    competitions = models.Competition.objects.filter(published=True)
+    competitions = models.Competition.objects.filter(published=True).order_by('-end_date')
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
