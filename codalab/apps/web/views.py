@@ -78,7 +78,7 @@ def my_index(request):
     context = RequestContext(request, {
         'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied),
-        'published_competitions': models.Competition.objects.filter(published=True),
+        'published_competitions': models.Competition.objects.filter(published=True).order_by('-end_date'),
         'my_datasets': models.OrganizerDataSet.objects.filter()
         })
     return HttpResponse(template.render(context))
