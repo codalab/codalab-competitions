@@ -53,7 +53,7 @@ def competition_index(request):
     is_finished = request.GET.get('is_finished', False)
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
-    competitions = models.Competition.objects.filter(published=True)
+    competitions = models.Competition.objects.filter(published=True).order_by('-end_date')
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
@@ -78,7 +78,7 @@ def my_index(request):
     context = RequestContext(request, {
         'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied),
-        'published_competitions': models.Competition.objects.filter(published=True),
+        'published_competitions': models.Competition.objects.filter(published=True).order_by('-end_date'),
         'my_datasets': models.OrganizerDataSet.objects.filter()
         })
     return HttpResponse(template.render(context))
