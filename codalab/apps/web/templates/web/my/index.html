@@ -6,7 +6,7 @@
 {% block page_title %}My CodaLab{% endblock page_title %}
 
 {% block content %}
-<section class="my-codalab">
+
     <ul class="nav nav-tabs" id="my_competition_tab_nav">
         <li class="active">
             <a href="#competitions" role="tab" data-toggle="tab">Competitions</a>
@@ -88,5 +88,23 @@
         var competitionID = $(this).find('#competitionID').val();
         window.location.href = '/competitions/' + competitionID;
     });
+
+    // Disable scrolling to tab
+    if (location.hash) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 1);
+    }
+
+    // Javascript to enable link to tab
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show') ;
+    }
+
+    // Change hash for page-reload
+    $('.nav-tabs a').on('shown', function (e) {
+        window.location.hash = e.target.hash;
+    })
 </script>
 {% endblock %}
