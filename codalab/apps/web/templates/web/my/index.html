@@ -1,25 +1,65 @@
 {% extends 'base.html' %}
+
+{% load static %}
+
 {% block head_title %}My CodaLab{% endblock head_title %}
 {% block page_title %}My CodaLab{% endblock page_title %}
 
 {% block content %}
-<section class="my-codalab">
+
     <ul class="nav nav-tabs" id="my_competition_tab_nav">
         <li class="active">
-            <a href="#my_participating" role="tab"  data-toggle="tab">Competitions I'm In</a>
+            <a href="#competitions" role="tab" data-toggle="tab">Competitions</a>
         </li>
         <li>
-            <a href="#my_managing" role="tab"  data-toggle="tab">Competitions I'm Running</a>
+            <a href="#my_participating" role="tab" data-toggle="tab">Competitions I'm In</a>
+        </li>
+        <li>
+            <a href="#my_managing" role="tab" data-toggle="tab">Competitions I'm Running</a>
+        </li>
+        <li>
+            <a href="{% url 'my_datasets' %}">My Datasets</a>
         </li>
     </ul>
     <div class="tab-content">
-        <div id="my_participating" class="tab-pane active">
+        <div id="competitions" class="tab-pane active">
             <div class="tab-inner">
                 <div class="row">
-                    <div class="col-sm-3">
-                        <a class="btn btn-primary" target="_self" href="/competitions">View Competitions</a>
+                    <div class="col-sm-12 kill-newlines">
+                        {% if not published_competitions %}
+                            <p><em>There are no competitions.</em></p>
+                        {% else %}
+                            {% for item in published_competitions %}
+                                <div class="competition-tile">
+                                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2">
+                                            <div class="img-container">
+                                                {% if item.image_url == None %}
+                                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
+                                                {% else %}
+                                                    <img src="{{ item.image_url }}" class="img-responsive">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9 col-md-10">
+                                            <h3>{{ item.title }}</h3>
+                                            <p class="organizer">Organized by {{ item.creator }}</p>
+                                            <p>{{ item.description|safe }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
-                    <div class="col-sm-9 kill-newlines">
+                </div>
+            </div>
+        </div>
+
+        <div id="my_participating" class="tab-pane">
+            <div class="tab-inner">
+                <div class="row">
+                    <div class="col-sm-12 kill-newlines">
                         {% include "web/my/_entered.html" with participations=competitions_im_in %}
                     </div>
                 </div>
@@ -29,10 +69,11 @@
         <div id="my_managing" class="tab-pane">
             <div class="tab-inner">
                 <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-12 kill-newlines">
                         <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">Create Competition</a>
-                    </div>
-                    <div class="col-sm-9 kill-newlines">
+
+                        <br><br>
+
                         {% include "web/my/_managed.html" with competitions=my_competitions %}
                     </div>
                 </div>
@@ -47,5 +88,23 @@
         var competitionID = $(this).find('#competitionID').val();
         window.location.href = '/competitions/' + competitionID;
     });
+
+    // Disable scrolling to tab
+    if (location.hash) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 1);
+    }
+
+    // Javascript to enable link to tab
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show') ;
+    }
+
+    // Change hash for page-reload
+    $('.nav-tabs a').on('shown', function (e) {
+        window.location.hash = e.target.hash;
+    })
 </script>
 {% endblock %}
