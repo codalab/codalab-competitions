@@ -107,7 +107,7 @@ var WorksheetList = React.createClass({
     },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
-        window.location.href += this.refs['ws' + this.state.focusIndex].props.details.uuid;
+        window.open(this.refs['ws' + this.state.focusIndex].props.details.uuid);
     },
     toggleMyWorksheets: function(){
         // filter by MY worksheets?
@@ -240,7 +240,7 @@ var Worksheet = React.createClass({
             return (
                 <div className={classString}>
                     <div className="worksheet-inner">
-                        <h3><a href={ws_url}>{ws.name}</a></h3>
+                        <h3><a href={ws_url} target="_blank">{ws.name}</a></h3>
                         <div className="byline">{byline}</div>
                         <button type="button" onClick={this.handleDelete} className="btn btn-link btn-sm delete-worksheet">Delete</button>
                     </div>
