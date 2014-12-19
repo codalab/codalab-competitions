@@ -75,17 +75,21 @@ var TableBundle = React.createClass({
                     }
                     break;
                 case 'f':
-                    event.preventDefault();
                     // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
                     // perform actions outside the table, so refer it back to the parent
-                    if(this.state.checked || event.ctrlKey || event.metaKey){
-                        this._owner.deleteChecked();
-                    }else {
+                    // if(this.state.checked || event.ctrlKey || event.metaKey){
+                    //     event.preventDefault();
+                    //     this._owner.deleteChecked();
+                    // }else {
                         // otherwise assume its an inside-the-table action and pass it along
                         if (this.hasOwnProperty('deleteCheckedRows')){
-                            this.deleteCheckedRows();
+                            if(!event.ctrlKey && !event.metaKey){
+                                event.preventDefault();
+                                this.deleteCheckedRows();
+                            }
                         }
-                    }
+                    // }
+
                     break;
                 case 'i': //insert row before
                     event.preventDefault();
