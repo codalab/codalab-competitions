@@ -61,7 +61,11 @@ var Worksheet = React.createClass({
         var activeComponent = this.refs[this.state.activeComponent];
         // At this top level, the only keypress the parent cares about is ? to open
         // the keyboard shortcuts modal, and then only if we're not actively editing something
-        if(key === 'fslash' && event.shiftKey && !this.state.editingText && this.state.activeComponent !== 'search'){
+        if(key === 'fslash' &&
+            event.shiftKey &&
+            !this.state.editingText &&
+            this.state.activeComponent !== 'search' &&
+            !this.refs.list.state.rawMode){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
