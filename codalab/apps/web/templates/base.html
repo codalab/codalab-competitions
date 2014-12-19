@@ -82,8 +82,13 @@
                         {% if PREVIEW_WORKSHEETS %}
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
                         {% endif %}
-                        <li class="dropdown {% active request '/competitions/' %}">
-                            <a href="/competitions">Competitions <span class="caret"></span></a>
+                        <li class="{% active request '/my/' %}">
+                            {% if user.is_authenticated %}
+                                <a href="/my">Competitions</a>
+                            {% else %}
+                                <a href="/competitions/">Competitions</a>
+                            {% endif %}
+                            <!--
                             <ul class="dropdown-menu" role="menu">
                                 {% if user.is_authenticated %}
                                     <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
@@ -93,6 +98,7 @@
                                     <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
                                 {% endif %}
                             </ul>
+                            -->
                         </li>
                         <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                         {% if user.is_authenticated %}
@@ -145,7 +151,7 @@
                 <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
                 <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
                 <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy</a></li>
+                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
             </ul>
         </div>
     </footer>
