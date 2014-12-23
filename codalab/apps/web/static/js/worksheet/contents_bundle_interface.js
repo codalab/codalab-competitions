@@ -12,10 +12,12 @@ var ContentsBundle = React.createClass({
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /> : null;
-        var contents = this.state.interpreted.map(function(item){
-            return item.replace(/%\s/, '');
+        var contents = this.state.interpreted.map(function(item) {
+            return item.replace(/%\s/, '');  // TODO: why removing %?
         });
-        contents = contents.join('');
+        console.log(contents);
+        contents = contents.join('<br>');
+        // TODO: make this a monospace font
         // contents = contents.replace(/%\s/g, '');
         return(
             <div className="ws-item" onClick={this.handleClick}>
