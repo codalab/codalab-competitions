@@ -37,6 +37,12 @@ Update the database schema:
     ./manage syncdb --migrate
     ./manage config_gen
 
+In development, CodaLab uses Less to generate CSS, which can be painfully slow.
+To turn this off, edit `codalab/codalab/settings/base.py` and make the
+following change:
+
+    COMPILE_LESS = True
+
 Start the web server:
 
     cd codalab
@@ -47,7 +53,8 @@ clicking `Sign In`, and Sign Up.  Use any email address starting with
 `codalab@`.  This account is just used so we can run the following script:
 
     source venv/bin/activate
-    python codalab/scripts/sample_cl_server_config.py 
+    cd codalab
+    python scripts/sample_cl_server_config.py 
 
 This script should print out a fragment of a JSON file with the appropriate
 keys, which should be added to the codalab-cli config file (usually
