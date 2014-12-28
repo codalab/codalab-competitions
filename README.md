@@ -41,7 +41,7 @@ In development, CodaLab uses Less to generate CSS, which can be painfully slow.
 To turn this off, edit `codalab/codalab/settings/base.py` and make the
 following change:
 
-    COMPILE_LESS = False
+    COMPILE_LESS = True
 
 Start the web server:
 
