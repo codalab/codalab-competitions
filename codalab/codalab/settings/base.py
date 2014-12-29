@@ -25,7 +25,7 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = False
+    COMPILE_LESS = True
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -231,6 +231,7 @@ class Base(Settings):
 
     OAUTH2_PROVIDER = {
         'OAUTH2_VALIDATOR_CLASS': 'apps.authenz.oauth.Validator',
+        'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
 
     # Email Configuration
