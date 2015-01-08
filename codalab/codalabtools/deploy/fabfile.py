@@ -28,10 +28,14 @@ from fabric.api import (cd,
                         shell_env,
                         sudo)
 from fabric.contrib.files import exists
+from fabric.network import ssh
 from codalabtools.deploy import DeploymentConfig, Deployment
 
 
 logger = logging.getLogger('codalabtools')
+
+# Uncomment for extra logging
+# ssh.util.log_to_file("paramiko.log", 10)
 
 #
 # Internal helpers
@@ -468,3 +472,8 @@ def enable_cors():
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     dep = Deployment(cfg)
     dep.ensureStorageHasCorsConfiguration()
+
+@task
+def install_packages_compute_workers():
+    # --yes and --force-yes accepts the Y/N question when installing the package
+    sudo('apt-get --yes --force-yes install libsm6')
