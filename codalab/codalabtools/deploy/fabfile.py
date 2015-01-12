@@ -476,4 +476,9 @@ def enable_cors():
 @task
 def install_packages_compute_workers():
     # --yes and --force-yes accepts the Y/N question when installing the package
-    sudo('apt-get --yes --force-yes install libsm6')
+    sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+
+    # check for khiops dir if not, put
+    if not exists("/home/azureuser/khiops/"):
+        run('mkdir -p /home/azureuser/khiops/')
+        put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
