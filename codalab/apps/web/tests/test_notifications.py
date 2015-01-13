@@ -184,7 +184,7 @@ class AccountSettingsTests(TestCase):
         resp = self.client.get(reverse("user_settings"))
         self.assertEquals(resp.status_code, 302)
 
-    def test_account_settings_view_returns_200_on_valid_POST(self):
+    def test_account_settings_view_returns_302_on_valid_POST(self):
         resp = self.client.post(
             reverse("user_settings"),
             {
@@ -193,25 +193,10 @@ class AccountSettingsTests(TestCase):
                 'organizer_direct_message_updates': True
             }
         )
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, 302)
 
         updated_user = User.objects.get(pk=self.user.pk)
         self.assertFalse(updated_user.organizer_status_updates)
-
-    def test_account_settings_view_returns_400_on_no_data(self):
-        resp = self.client.post(
-            reverse("user_settings"),
-        )
-        self.assertEquals(resp.status_code, 400)
-
-    def test_account_settings_view_returns_400_on_bad_data(self):
-        resp = self.client.post(
-            reverse("user_settings"),
-            {
-                "test": "test"
-            }
-        )
-        self.assertEquals(resp.status_code, 400)
 
 
 class SendMassEmailTests(TestCase):
