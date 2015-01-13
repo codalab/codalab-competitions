@@ -482,3 +482,9 @@ def install_packages_compute_workers():
     if not exists("/home/azureuser/khiops/"):
         run('mkdir -p /home/azureuser/khiops/')
         put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
+
+@task
+def print_machine_name_and_id():
+    sudo("hostname")
+    sudo("cat /sys/class/dmi/id/product_uuid")
+
