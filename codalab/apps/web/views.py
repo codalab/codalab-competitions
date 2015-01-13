@@ -36,6 +36,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
+from django.contrib.auth import get_user_model
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 from extra_views import generic
@@ -46,6 +47,10 @@ except ImportError:
     raise ImproperlyConfigured(
         "Could not load Azure bindings. "
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
+
+
+User = get_user_model()
+
 
 def competition_index(request):
     query = request.GET.get('q')
@@ -958,32 +963,14 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
         return obj
 
 
-@login_required
-def user_settings(request):
-    if request.method == "POST":
-        fields = [
-            'participation_status_updates',
-            'organizer_status_updates',
-            'organizer_direct_message_updates'
-        ]
+class UserSettingsView(LoginRequiredMixin, UpdateView):
+    template_name = "web/my/settings.html"
+    form_class = forms.UserSettingsForm
+    model = User
+    success_url = "/my/settings/"
 
-        for f in fields:
-            if f not in request.POST:
-                return render(request, "web/my/settings.html", {"errors": True}, status=400)
-
-        for f in fields:
-            value = request.POST.get(f)
-
-            bool_value = True if value == "true" else False
-            #try:
-            setattr(request.user, f, bool_value)
-            #except:
-            #    return render(request, "web/my/settings.html", {"errors": True}, status=400)
-
-        request.user.save()
-        return render(request, "web/my/settings.html", {"saved_successfully": True})
-
-    return render(request, "web/my/settings.html")
+    def get_object(self, queryset=None):
+        return self.request.user
 
 
 def download_dataset(request, dataset_key):
