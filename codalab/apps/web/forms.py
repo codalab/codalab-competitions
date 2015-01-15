@@ -144,3 +144,13 @@ class OrganizerDataSetModelForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
+
+class UserSettingsForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('participation_status_updates',
+                  'organizer_status_updates',
+                  'organizer_direct_message_updates',
+                  'organization_or_affiliation',)
