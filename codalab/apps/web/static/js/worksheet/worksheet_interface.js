@@ -61,7 +61,11 @@ var Worksheet = React.createClass({
         var activeComponent = this.refs[this.state.activeComponent];
         // At this top level, the only keypress the parent cares about is ? to open
         // the keyboard shortcuts modal, and then only if we're not actively editing something
-        if(key === 'fslash' && event.shiftKey && !this.state.editingText){
+        if(key === 'fslash' &&
+            event.shiftKey &&
+            !this.state.editingText &&
+            this.state.activeComponent !== 'search' &&
+            !this.refs.list.state.rawMode){
             event.preventDefault();
             this.handleSearchBlur(); // blur the search bar to avoid select2 z-index conflicts
             $('#glossaryModal').modal('show');
@@ -235,15 +239,17 @@ var WorksheetItemList = React.createClass({
                     break;
                 case 'up': // move up
                 case 'k':
-                    event.preventDefault();
                     if(event.shiftKey && this.props.canEdit){
+                        event.preventDefault();
                         this.moveItem(-1);
                     }else {
                         if(fIndex <= 0){
+                            event.preventDefault();
                             // if we're already at the top of the worksheet, we can't go higher
                             fIndex = -1;
                             $('body').stop(true).animate({scrollTop: 0}, 250);
                         }else {
+                            event.preventDefault();
                             fIndex = Math.max(this.state.focusIndex - 1, 0);
                         }
                         this.setFocus(fIndex);
@@ -263,27 +269,29 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'e':  // edit item
-                    event.preventDefault();
                     if(this.props.canEdit){
+                        event.preventDefault();
                         this.setState({editingIndex: fIndex});
                         this.props.toggleEditingText(true);
                     }
                     break;
                 case 'x': // select item
-                    event.preventDefault();
                     if(focusedItem && this.props.canEdit){
+                        event.preventDefault();
                         focusedItem.setState({checked: !focusedItem.state.checked});
                     }
                     break;
                 case 'f': // delete selected items
-                    event.preventDefault();
                     if(this.props.canEdit){
-                        this.deleteChecked();
+                        if(!event.ctrlKey && !event.metaKey){
+                            event.preventDefault();
+                            this.deleteChecked();
+                        }
                     }
                     break;
                 case 'o': //insert
-                    event.preventDefault();
                     if(this.props.canEdit){
+                        event.preventDefault();
                         if(event.shiftKey){
                             this.insertItem(0);
                         } else {
@@ -292,8 +300,8 @@ var WorksheetItemList = React.createClass({
                     }
                     break;
                 case 'b': // show/hide the search bar
-                    event.preventDefault();
                     this.props.toggleSearchBar();
+                    event.preventDefault();
                     break;
                 case 'enter': //save and exit raw mode if applicable
                     if(this.state.rawMode && (event.ctrlKey || event.metaKey)){

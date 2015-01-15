@@ -164,6 +164,7 @@ class Competition(models.Model):
     enable_medical_image_viewer = models.BooleanField(default=False)
     enable_detailed_results = models.BooleanField(default=False)
     original_yaml_file = models.TextField(default='', blank=True, null=True)
+    show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
 
     @property
     def pagecontent(self):
@@ -1397,7 +1398,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
+    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), "data.zip")
 
 
 class OrganizerDataSet(models.Model):

@@ -27,7 +27,7 @@ var WorksheetBundle = React.createClass({
         this.props.setFocus(this.props.key, event);
     },
     goToWorksheet: function(){
-        window.location.href = window.location.origin + '/worksheets/' + this.props.item.state.interpreted.uuid;
+        window.open('/worksheets/' + this.props.item.state.interpreted.uuid);
     },
     render: function() {
         var item = this.props.item.state.interpreted;
@@ -38,7 +38,7 @@ var WorksheetBundle = React.createClass({
             <div className="ws-item" onClick={this.handleClick}>
                 {checkbox}
                 <div className={className}>
-                    <a href={ws_url}>
+                    <a href={ws_url} target="_blank">
                         {item.name}
                     </a>
                 </div>

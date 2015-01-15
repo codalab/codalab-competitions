@@ -28,10 +28,14 @@ from fabric.api import (cd,
                         shell_env,
                         sudo)
 from fabric.contrib.files import exists
+from fabric.network import ssh
 from codalabtools.deploy import DeploymentConfig, Deployment
 
 
 logger = logging.getLogger('codalabtools')
+
+# Uncomment for extra logging
+# ssh.util.log_to_file("paramiko.log", 10)
 
 #
 # Internal helpers
@@ -468,3 +472,35 @@ def enable_cors():
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     dep = Deployment(cfg)
     dep.ensureStorageHasCorsConfiguration()
+
+@task
+def install_packages_compute_workers():
+    # --yes and --force-yes accepts the Y/N question when installing the package
+    sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+
+    # check for khiops dir if not, put
+    if not exists("/home/azureuser/khiops/"):
+        run('mkdir -p /home/azureuser/khiops/')
+        put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
+        sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+
+@task
+def khiops_print_machine_name_and_id():
+    sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+    sudo("chmod +x /home/azureuser/khiops/get_license_info.sh")
+    with cd('/home/azureuser/khiops/'):
+        run("./get_license_info.sh")
+
+
+@roles('web')
+@task
+def verify_all_emails():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,)
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+            with cd('codalab'):
+                run('python manage.py verify_all_current_emails')

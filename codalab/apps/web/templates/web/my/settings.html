@@ -25,41 +25,18 @@
         </div>
     {% endif %}
 
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {% for field, msg in form.errors.items %}
+                <b>{{ field }}</b> {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% csrf_token %}
 
-    <label><strong>Receive updates about your participation status in competitions<strong></label>
-    <div class="radio radio-with-label">
-        <label>
-            <input type="radio" name="participation_status_updates" value="true"  {% if request.user.participation_status_updates %}checked{% endif %}>
-            Yes
-        </label>
-        <label>
-            <input type="radio" name="participation_status_updates" value="false"  {% if not request.user.participation_status_updates %}checked{% endif %}>
-            No
-        </label>
-    </div>
-    <label><strong>Receive updates about participants in your competitions<strong></label>
-    <div class="radio radio-with-label">
-        <label>
-            <input type="radio" name="organizer_status_updates" value="true" {% if request.user.organizer_status_updates %}checked{% endif %}>
-            Yes
-        </label>
-        <label>
-            <input type="radio" name="organizer_status_updates" value="false"  {% if not request.user.organizer_status_updates %}checked{% endif %}>
-            No
-        </label>
-    </div>
-    <label><strong>Receive messages from competiton organizers<strong></label>
-    <div class="radio radio-with-label">
-        <label>
-            <input type="radio" name="organizer_direct_message_updates" value="true"  {% if request.user.organizer_direct_message_updates %}checked{% endif %}>
-            Yes
-        </label>
-        <label>
-            <input type="radio" name="organizer_direct_message_updates" value="false"  {% if not request.user.organizer_direct_message_updates %}checked{% endif %}>
-            No
-        </label>
-    </div>
+    {{ form.as_p }}
+
     <input type="submit" class="btn btn-primary margin-top" value="Save">
 </form>
 
