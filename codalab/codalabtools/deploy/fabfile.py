@@ -492,6 +492,7 @@ def khiops_print_machine_name_and_id():
         run("./get_license_info.sh")
 
 
+@roles('web')
 @task
 def verify_all_emails():
     env.SHELL_ENV = dict(
