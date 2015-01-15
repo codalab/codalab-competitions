@@ -482,9 +482,11 @@ def install_packages_compute_workers():
     if not exists("/home/azureuser/khiops/"):
         run('mkdir -p /home/azureuser/khiops/')
         put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
+        sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
 
 @task
-def print_machine_name_and_id():
-    sudo("hostname")
-    sudo("cat /sys/class/dmi/id/product_uuid")
-
+def khiops_print_machine_name_and_id():
+    sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+    sudo("chmod +x /home/azureuser/khiops/get_license_info.sh")
+    with cd('/home/azureuser/khiops/'):
+        run("./get_license_info.sh")
