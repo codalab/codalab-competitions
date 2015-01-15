@@ -490,3 +490,16 @@ def khiops_print_machine_name_and_id():
     sudo("chmod +x /home/azureuser/khiops/get_license_info.sh")
     with cd('/home/azureuser/khiops/'):
         run("./get_license_info.sh")
+
+
+@task
+def verify_all_emails():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,)
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+            with cd('codalab'):
+                run('python manage.py verify_all_current_emails')
