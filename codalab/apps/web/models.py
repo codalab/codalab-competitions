@@ -808,10 +808,16 @@ class CompetitionSubmission(models.Model):
                     self.submission_number = subnum + 1
                 else:
                     self.submission_number = 1
-                print "This is submission number %d" % self.submission_number
 
-                if (self.submission_number > self.phase.max_submissions):
-                    print "Checking to see if the submission number (%d) is greater than the maximum allowed (%d)" % (self.submission_number, self.phase.max_submissions)
+                failed_count = CompetitionSubmission.objects.filter(phase=self.phase,
+                                                                    participant=self.participant,
+                                                                    status__name=CompetitionSubmissionStatus.FAILED).count()
+
+                print "This is submission number %d, and %d submissions have failed" % (self.submission_number, failed_count)
+                offset_submission_count = self.submission_number - failed_count
+
+                if (offset_submission_count > self.phase.max_submissions):
+                    print "Checking to see if the offset_submission_count (%d) is greater than the maximum allowed (%d)" % (offset_submission_count, self.phase.max_submissions)
                     raise PermissionDenied("The maximum number of submissions has been reached.")
                 else:
                     print "Submission number below maximum."
@@ -827,7 +833,7 @@ class CompetitionSubmission(models.Model):
 
                     print 'Count is %s and maximum is %s' % (submissions_from_today_count, self.phase.max_submissions_per_day)
 
-                    if submissions_from_today_count + 1 > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
+                    if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
 
