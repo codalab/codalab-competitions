@@ -36,6 +36,7 @@ class CompetitionSubmissionTests(TestCase):
         )
 
         submission_finished = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
+        CompetitionSubmissionStatus.objects.create(name="failed", codename="failed")
 
         self.submission_1 = CompetitionSubmission.objects.create(
             participant=self.participant_1,
@@ -72,3 +73,18 @@ class CompetitionSubmissionTests(TestCase):
     def test_delete_view_returns_302_if_not_logged_in(self):
         resp = self.client.post(reverse("competitions:submission_delete", kwargs={"pk": self.submission_1.pk}))
         self.assertEquals(resp.status_code, 302)
+
+    def test_failed_submissions_not_counted_when_saving_submissions(self):
+        for _ in range(0, 3):
+            sub = CompetitionSubmission.objects.create(
+                participant=self.participant_1,
+                phase=self.phase_1,
+                submitted_at=datetime.datetime.now()
+            )
+            sub.status = CompetitionSubmissionStatus.objects.get(name=CompetitionSubmissionStatus.FAILED)
+            sub.save()
+
+        failed_count = CompetitionSubmission.objects.filter(phase=self.phase_1,
+                                                            participant=self.participant_1,
+                                                            status__name=CompetitionSubmissionStatus.FAILED).count()
+        self.assertEquals(failed_count, 3)
