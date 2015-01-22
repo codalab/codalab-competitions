@@ -2,6 +2,7 @@
 Defines deployment commands.
 """
 
+import datetime
 import logging
 import logging.config
 import os
@@ -29,6 +30,7 @@ from fabric.api import (cd,
                         sudo)
 from fabric.contrib.files import exists
 from fabric.network import ssh
+from fabric.utils import fastprint
 from codalabtools.deploy import DeploymentConfig, Deployment
 
 
@@ -504,3 +506,28 @@ def verify_all_emails():
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
             with cd('codalab'):
                 run('python manage.py verify_all_current_emails')
+
+
+@roles('web')
+@task
+def get_database_dump():
+    '''Saves backups to $CODALAB_MYSQL_BACKUP_DIR/launchdump-year-month-day-hour-min-second.sql.gz'''
+    require('configuration')
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_host = "localhost"
+    db_name = configuration.getDatabaseName()
+    db_user = configuration.getDatabaseUser()
+    db_password = configuration.getDatabasePassword()
+
+    dump_file_name = 'launchdump-%s.sql.gz' % datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+
+    run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
+        db_host,
+        db_user,
+        db_password,
+        db_name,
+        dump_file_name)
+    )
+
+    backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
+    get('/tmp/%s' % dump_file_name, backup_dir)
