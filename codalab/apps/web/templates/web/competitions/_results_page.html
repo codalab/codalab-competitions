@@ -42,7 +42,7 @@
                         {% endif %}
                     {% endfor %}
                     {% if phase.competition.enable_detailed_results %}
-                        <th>Detailed Results</th>
+                        <th style="padding: 4px 0;">Detailed Results</th>
                     {% endif %}
                     {% if phase.competition.enable_medical_image_viewer %}
                         <th>Image Viewer</th>
@@ -79,7 +79,9 @@
                             {% endfor %}
                             {% if phase.competition.enable_detailed_results %}
                                 <td>
-                                    <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">HTML report</a></br>
+                                    <a href="/my/competition/submission/{{scoredata.id}}/detailed_results" target="_blank">
+                                        View
+                                    </a></br>
                                 </td>
                             {% endif %}
                             {% if phase.competition.enable_medical_image_viewer %}
