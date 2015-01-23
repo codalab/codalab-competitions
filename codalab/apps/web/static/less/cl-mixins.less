@@ -57,6 +57,29 @@
     border-left: 10px #739CB9 solid;
     background: #FFF;
     .box-shadow(0 0 5px fadeout(black, 85%));
+    position: relative;
+
+    .right-panel {
+        color: #000;
+        background-color: #CCC;
+        height: 100%;
+        min-height: 100%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        text-align: center;
+        padding-top: 35px;
+        line-height: 35px;
+
+        @media only screen and (max-width: 767px) {
+            display: block;
+            position: relative;
+            margin: -1px;
+            margin-bottom: -12px;
+            padding: 20px 15px;
+        }
+    }
 }
 .competition-tile {
     .cl-tile;
