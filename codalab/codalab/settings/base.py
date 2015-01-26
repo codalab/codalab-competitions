@@ -184,6 +184,7 @@ class Base(Settings):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
+        'django.contrib.humanize',
 
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
