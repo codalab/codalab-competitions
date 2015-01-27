@@ -9,117 +9,104 @@ var TableBundle = React.createClass({
         }
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     componentDidMount: function(){
         this.slowSave = _.debounce(this.props.handleSave, 1000);
     },
-    keysToHandle: function(){
-        return['up','k','down','j','x','f','i','a','enter'];
-    },
-    handleKeydown: function(event){
-        var item = this.props.item.state;
-        var key = keyMap[event.keyCode];
-        var index = this.state.rowFocusIndex;
-        var rowsInTable = item.interpreted[1].length;
-        var parentFocusIndex = this._owner.state.focusIndex;
-        if(typeof key !== 'undefined'){
-            event.preventDefault();
-            switch (key) {
-                case 'up':
-                case 'k':
-                    event.preventDefault();
-                    if(event.shiftKey && this.props.canEdit){
-                        this._owner.moveItem(-1);
-                    }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
-                        this.moveRow(-1);
-                    }else{
-                        index--;
-                        if(index < 0){
-                            this._owner.setFocus(parentFocusIndex - 1);
-                        }else {
-                            this.setState({rowFocusIndex: index});
-                            this.scrollToRow(index);
-                        }
-                    }
-                    break;
-                case 'down':
-                case 'j':
-                    event.preventDefault();
-                    if(event.shiftKey && this.props.canEdit){
-                        this._owner.moveItem(1);
-                    }else if((event.metaKey || event.ctrlKey) && this.props.canEdit){
-                        this.moveRow(1);
-                    }else {
-                        index = Math.min(index + 1, rowsInTable);
-                        if(index == rowsInTable){
-                            this._owner.setFocus(parentFocusIndex + 1);
-                        }else {
-                            this.setState({rowFocusIndex: index});
-                            this.scrollToRow(index);
-                        }
-                    }
-                    break;
-                case 'x':
-                    event.preventDefault();
-                    // if it doesn't have a method for deleting its own rows, we don't care about
-                    // passing the keyboard action
-                    if(!this.hasOwnProperty('deleteCheckedRows')){
-                        this.setState({checked: !this.state.checked});
-                    }else if(event.shiftKey){
-                        // this gets tricky. if the user is holding ctrl or cmd, check the whole table
-                        this.setState({checked: !this.state.checked});
-                    }else {
-                        // otherwise check whatever row is focused
-                        this.refs['row' + index].toggleChecked();
-                    }
-                    break;
-                case 'f':
-                    // again, tricky. if the user is holding ctrl or cmd, assume their intent is to
-                    // perform actions outside the table, so refer it back to the parent
-                    // if(this.state.checked || event.ctrlKey || event.metaKey){
-                    //     event.preventDefault();
-                    //     this._owner.deleteChecked();
-                    // }else {
-                        // otherwise assume its an inside-the-table action and pass it along
-                        if (this.hasOwnProperty('deleteCheckedRows')){
-                            if(!event.ctrlKey && !event.metaKey){
-                                event.preventDefault();
-                                this.deleteCheckedRows();
-                            }
-                        }
-                    // }
+    capture_keys: function(event){
+        // list of all keys for this interface
+        Mousetrap.bind(['enter'], function(e){
+            this.goToBundlePage();
+        }.bind(this), 'keydown');
 
-                    break;
-                case 'i': //insert row before
-                    event.preventDefault();
-                    if(this.props.canEdit){
-                        if(index > 0){
-                            this.insertBetweenRows(index);
-                        }else if(index === 0){
-                            this._owner.insertItem('i');
-                        }
-                    }
-                    break;
-                case 'a': // cap A instert row After, like vi
-                    event.preventDefault();
-                    if(event.shiftKey && this.props.canEdit){
-                        if(index < this.props.item.state.interpreted[1].length - 1){
-                            this.insertBetweenRows(index + 1);
-                        }else if(index == this.state.interpreted[1].length - 1){
-                            this._owner.insertItem('a');
-                        }
-                    }
-                    break;
-                case 'enter': // go to highlighted bundle's detail page
-                    event.preventDefault();
-                    this.goToBundlePage();
-                default:
-                    return true;
-                }
-            } else {
-                return true;
+        //move your focus up a row
+        Mousetrap.bind(['up', 'k'], function(e){
+            console.log("focus up");
+            var index = this.state.rowFocusIndex - 1; // moving up the array
+            var parentFocusIndex = this._owner.state.focusIndex;
+            if(index < 0){
+                this._owner.setFocus(parentFocusIndex - 1);
+            }else {
+                this.setState({rowFocusIndex: index});
+                this.scrollToRow(index);
             }
+        }.bind(this), 'keydown');
+
+        Mousetrap.bind(['shift+up', 'shift+k'], function(e){
+            if(this.props.canEdit){
+                this.moveRow(-1);
+            }
+        }.bind(this), 'keydown');
+
+
+        Mousetrap.bind(['down', 'j'], function(e){
+            console.log("focus down");
+            var item = this.props.item.state;
+            var index = this.state.rowFocusIndex;
+            var parentFocusIndex = this._owner.state.focusIndex;
+            var rowsInTable = item.interpreted[1].length;
+            index = Math.min(index + 1, rowsInTable);
+            if(index == rowsInTable){
+                this._owner.setFocus(parentFocusIndex + 1);
+            }else {
+                this.setState({rowFocusIndex: index});
+                this.scrollToRow(index);
+            }
+        }.bind(this), 'keydown');
+
+        Mousetrap.bind(['shift+down', 'shift+j'], function(e){
+            if(this.props.canEdit){
+                this.moveRow(1);
+            }
+        }.bind(this), 'keydown');
+
+
+        Mousetrap.bind(['x'], function(e){
+            var index = this.state.rowFocusIndex;
+            if(!this.hasOwnProperty('forgetCheckedRows')){
+                this.setState({checked: !this.state.checked});
+            }else{
+                // otherwise check whatever row is focused
+                this.refs['row' + index].toggleChecked();
+            }
+        }.bind(this), 'keydown');
+
+        Mousetrap.bind(['shift+x'], function(e){
+            this.setState({checked: !this.state.checked});
+        }.bind(this), 'keydown');
+
+
+        Mousetrap.bind(['f'], function(e){
+            if (this.hasOwnProperty('forgetCheckedRows')){
+                    this.forgetCheckedRows();
+            }
+        }.bind(this), 'keydown');
+
+
+        //TODO? O o
+        //  Mousetrap.bind([''], function(e){
+        // }.bind(this), 'keydown');
+        // case 'i': //insert row before
+        //     event.preventDefault();
+        //     if(this.props.canEdit){
+        //         if(index > 0){
+        //             this.insertBetweenRows(index);
+        //         }else if(index === 0){
+        //             this._owner.insertItem('i');
+        //         }
+        //     }
+        //     break;
+        // case 'a': // cap A instert row After, like vi
+        //     event.preventDefault();
+        //     if(event.shiftKey && this.props.canEdit){
+        //         if(index < this.props.item.state.interpreted[1].length - 1){
+        //             this.insertBetweenRows(index + 1);
+        //         }else if(index == this.state.interpreted[1].length - 1){
+        //             this._owner.insertItem('a');
+        //         }
+        //     }
+        //     break;
     },
     goToBundlePage: function(){
         window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
@@ -160,7 +147,7 @@ var TableBundle = React.createClass({
         this.slowSave();
     },
     insertBetweenRows: function(rowIndex){
-        var key = this.props.key;
+        var key = this.props.index;
         var new_key = key + 1;
         ws_obj.insertBetweenRows(this.props.item.state, rowIndex, key);
         // TODO: remove _owner
@@ -171,7 +158,7 @@ var TableBundle = React.createClass({
         this._owner.setFocus(new_key);
         this._owner.refs['item' + (new_key)].setState({new_item: true});
     },
-    deleteCheckedRows: function(){
+    forgetCheckedRows: function(){
         var reactRows = this.refs; // react components
         var interpreted_row_indexes = []; // what indexes of the data do we want gone
 
@@ -268,7 +255,7 @@ var TableRow = React.createClass({
         this.setState({checked: !this.state.checked});
     },
     handleClick: function(){
-        this.props.handleClick(this.props.key);
+        this.props.handleClick(this.props.index);
     },
     render: function(){
         var focusedClass = this.props.focused ? 'focused' : '';
