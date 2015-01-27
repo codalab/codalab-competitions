@@ -6282,6 +6282,7 @@ fieldset[disabled] .btn-secondary.active {
   background: #FFF;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 .cl-tile:before,
 .cl-tile:after {
@@ -6298,6 +6299,28 @@ fieldset[disabled] .btn-secondary.active {
 }
 .cl-tile:after {
   clear: both;
+}
+.cl-tile .right-panel {
+  color: #efefef;
+  background-color: #1371FB;
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 35px;
+  line-height: 35px;
+}
+@media only screen and (max-width: 767px) {
+  .cl-tile .right-panel {
+    display: block;
+    position: relative;
+    margin: -1px;
+    margin-bottom: -12px;
+    padding: 20px 15px;
+  }
 }
 .competition-tile {
   margin-bottom: 24px;
@@ -6307,6 +6330,7 @@ fieldset[disabled] .btn-secondary.active {
   background: #FFF;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 .competition-tile:before,
 .competition-tile:after {
@@ -6323,6 +6347,28 @@ fieldset[disabled] .btn-secondary.active {
 }
 .competition-tile:after {
   clear: both;
+}
+.competition-tile .right-panel {
+  color: #efefef;
+  background-color: #1371FB;
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 35px;
+  line-height: 35px;
+}
+@media only screen and (max-width: 767px) {
+  .competition-tile .right-panel {
+    display: block;
+    position: relative;
+    margin: -1px;
+    margin-bottom: -12px;
+    padding: 20px 15px;
+  }
 }
 .competition-tile .img-container {
   max-height: 120px;
@@ -7213,7 +7259,7 @@ footer .navbar-nav.navbar-right:last-child {
 }
 body {
   padding-top: 52px;
-  padding-bottom: 25px;
+  padding-bottom: 50px;
 }
 body > .container {
   padding-bottom: 36px;
@@ -7415,10 +7461,21 @@ input[type="checkbox"] {
 #worksheet .ws-search > .container > .input-group .input-group-btn {
   display: table-cell;
 }
-#worksheet .ws-search > .container > .input-group #search_execute {
+#worksheet .ws-search > .container > .input-group .btn {
   position: absolute;
   top: 0;
   bottom: 0;
+}
+#worksheet .ws-search .select2-container-multi .select2-choices {
+  padding: 1px 5px 3px 0;
+}
+#worksheet .ws-search .select2-container-multi .select2-choices .select2-search-choice {
+  margin: 3px 0 1px 4px;
+}
+#worksheet .ws-search .select2-container-multi .select2-choices .select2-search-field input {
+  margin-top: 3px;
+  padding: 3px 5px;
+  line-height: inherit;
 }
 #worksheet.search-hidden {
   margin-top: -61px;
@@ -7431,6 +7488,7 @@ input[type="checkbox"] {
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
+  padding-bottom: 50px;
 }
 #worksheet_content hr {
   margin: 12px 0;
@@ -7725,6 +7783,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-left: 4px solid #dddddd;
 }
 #worksheet_content .type-contents blockquote p {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   color: #666666;
   margin: 0;
   font-size: 14px;
@@ -8009,6 +8068,28 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet-list .worksheet-tile:after {
   clear: both;
 }
+#worksheet-list .worksheet-tile .right-panel {
+  color: #efefef;
+  background-color: #1371FB;
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 35px;
+  line-height: 35px;
+}
+@media only screen and (max-width: 767px) {
+  #worksheet-list .worksheet-tile .right-panel {
+    display: block;
+    position: relative;
+    margin: -1px;
+    margin-bottom: -12px;
+    padding: 20px 15px;
+  }
+}
 #worksheet-list .worksheet-tile:hover {
   cursor: pointer;
 }
@@ -8098,6 +8179,7 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   background: #FFF;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 #bundle-content .bundle-tile:before,
 #bundle-content .bundle-tile:after {
@@ -8114,6 +8196,28 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 }
 #bundle-content .bundle-tile:after {
   clear: both;
+}
+#bundle-content .bundle-tile .right-panel {
+  color: #efefef;
+  background-color: #1371FB;
+  height: 100%;
+  min-height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 35px;
+  line-height: 35px;
+}
+@media only screen and (max-width: 767px) {
+  #bundle-content .bundle-tile .right-panel {
+    display: block;
+    position: relative;
+    margin: -1px;
+    margin-bottom: -12px;
+    padding: 20px 15px;
+  }
 }
 #bundle-content .bundle-tile .bundle-header {
   border-bottom: 1px solid #cccccc;
