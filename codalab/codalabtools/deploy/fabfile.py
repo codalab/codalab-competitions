@@ -2,6 +2,7 @@
 Defines deployment commands.
 """
 
+import datetime
 import logging
 import logging.config
 import os
@@ -28,10 +29,15 @@ from fabric.api import (cd,
                         shell_env,
                         sudo)
 from fabric.contrib.files import exists
+from fabric.network import ssh
+from fabric.utils import fastprint
 from codalabtools.deploy import DeploymentConfig, Deployment
 
 
 logger = logging.getLogger('codalabtools')
+
+# Uncomment for extra logging
+# ssh.util.log_to_file("paramiko.log", 10)
 
 #
 # Internal helpers
@@ -468,3 +474,60 @@ def enable_cors():
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     dep = Deployment(cfg)
     dep.ensureStorageHasCorsConfiguration()
+
+@task
+def install_packages_compute_workers():
+    # --yes and --force-yes accepts the Y/N question when installing the package
+    sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+
+    # check for khiops dir if not, put
+    if not exists("/home/azureuser/khiops/"):
+        run('mkdir -p /home/azureuser/khiops/')
+        put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
+        sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+
+@task
+def khiops_print_machine_name_and_id():
+    sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+    sudo("chmod +x /home/azureuser/khiops/get_license_info.sh")
+    with cd('/home/azureuser/khiops/'):
+        run("./get_license_info.sh")
+
+
+@roles('web')
+@task
+def verify_all_emails():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,)
+    with cd(env.deploy_dir):
+        with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
+            with cd('codalab'):
+                run('python manage.py verify_all_current_emails')
+
+
+@roles('web')
+@task
+def get_database_dump():
+    '''Saves backups to $CODALAB_MYSQL_BACKUP_DIR/launchdump-year-month-day-hour-min-second.sql.gz'''
+    require('configuration')
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_host = "localhost"
+    db_name = configuration.getDatabaseName()
+    db_user = configuration.getDatabaseUser()
+    db_password = configuration.getDatabasePassword()
+
+    dump_file_name = 'launchdump-%s.sql.gz' % datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+
+    run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
+        db_host,
+        db_user,
+        db_password,
+        db_name,
+        dump_file_name)
+    )
+
+    backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
+    get('/tmp/%s' % dump_file_name, backup_dir)

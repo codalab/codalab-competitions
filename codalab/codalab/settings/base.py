@@ -184,6 +184,7 @@ class Base(Settings):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
+        'django.contrib.humanize',
 
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
@@ -249,8 +250,8 @@ class Base(Settings):
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=False
-    ACCOUNT_EMAIL_VERIFICATION='none'
+    ACCOUNT_USERNAME_REQUIRED=True
+    ACCOUNT_EMAIL_VERIFICATION='mandatory'
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
