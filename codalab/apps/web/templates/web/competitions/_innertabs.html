@@ -14,7 +14,7 @@
                         {% include "web/competitions/_submit_results.html" with competition=competition user=user %}
                     {% else %}
                         {{content.html|safe}}
-                        {% if content.codename == "get_data" %}
+                        {% if content.codename == "get_data" and competition.show_datasets_from_yaml %}
                             <!-- Include data for each phase if appropriate -->
                             <ul>
                                 {% for phase in competition.phases.all %}
