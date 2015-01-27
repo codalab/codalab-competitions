@@ -7,7 +7,7 @@ var InlineBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     render: function() {
         var className = 'type-inline' + (this.props.focused ? ' focused' : '');

@@ -5,45 +5,36 @@ var MarkdownBundle = React.createClass({
     getInitialState: function(){
         return {
             checked: false,
-            new_item: false
+            new_item: false,
+            editing: false,
         };
     },
-    keysToHandle: function(){
-        return['esc','enter'];
-    },
-    handleKeydown: function(event){
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'esc': // cancel
-                    //telling WorksheetItemList to stop editing
-                    this._owner.setState({editingIndex: -1});
-                    this._owner.props.toggleEditingText(false);
-                    if(this.props.editing){
-                        if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
-                            //calling WorksheetItemList unInsert
-                            this.setState({new_item: false});
-                            this._owner.unInsert();
-                        }
-                        event.stopPropagation();
-                        break;
-                    }
-                case 'enter':  // save or add a new line
-                    if(event.ctrlKey || event.metaKey && this.props.editing){ // ctrl/meta on mac for saving item
-                        event.preventDefault();
-                        this.saveEditedItem(event.target.value);
-                        return false;
-                    }
-                    break;
-                default:
-                    return true;
+    capture_keys: function(event){
+        if(this.props.editing){
+            console.log("setting up markdown keys");
+            Mousetrap.reset(); // since we are editing reset and only let you save
+            Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
+                console.log("ctrl+enter  meta+enter'")
+                this.saveEditedItem(e.target.value);
+            }.bind(this));
+
+            Mousetrap.bind(['esc'], function(e){
+            // TODO remove _owner feels like a hack
+            this._owner.setState({editingIndex: -1});
+            this._owner.props.toggleEditingText(false);
+            if(this.props.editing){
+                if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
+                    //calling WorksheetItemList unInsert
+                    this.setState({new_item: false});
+                    this._owner.unInsert();
+                }
             }
-        } else {
-            return true;
+        }.bind(this), 'keydown');
         }
+
     },
     saveEditedItem: function(interpreted){
-        this.props.handleSave(this.props.key, interpreted);
+        this.props.handleSave(this.props.index, interpreted);
     },
     processMathJax: function(){
         MathJax.Hub.Queue([
@@ -68,11 +59,11 @@ var MarkdownBundle = React.createClass({
         }
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     render: function() {
         var content = this.props.item.state.interpreted;
-        var className = 'type-markup' + (this.props.focused ? ' focused' : '') + (this.props.editing ? ' form-control' : '');
+        var className = 'type-markup ' + (this.props.focused ? ' focused' : '') + (this.props.editing ? ' form-control mousetrap' : '');
         //if we can edit show checkbox if not show nothing(null)
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 

@@ -266,5 +266,5 @@ var WorksheetSearch = React.createClass({
     }
 });
 
-React.renderComponent(<Worksheets />, document.getElementById('ws_list_container'));
+React.render(<Worksheets />, document.getElementById('ws_list_container'));
 

@@ -145,7 +145,7 @@ var WorksheetSearch = React.createClass({
         }
     },
     refreshAndClear: function(){
-        this.props.refreshList();
+        this.props.refreshWorksheet();
         $('#search').select2('val','').val('');
     },
     executeCommands: function(){

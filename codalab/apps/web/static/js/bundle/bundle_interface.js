@@ -361,4 +361,4 @@ var FileBrowserItem = React.createClass({
     }
 });
 
-React.renderComponent(<Bundle />, document.getElementById('bundle-content'));
+React.render(<Bundle />, document.getElementById('bundle-content'));
