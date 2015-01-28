@@ -291,13 +291,17 @@ var WorksheetActions =  function() {
 
     WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
         var newOptions = [];
-        for(var k in data){
+        for(var uuid in data){
+            var bundle = data[uuid];
+            var user = bundle.owner.split("(")[0]; //cli formate is Username (id)
+            var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
+            created_date.setUTCSeconds(bundle.metadata.created);
+            created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
             newOptions.push({
-                'id': k, // UUID
-                'text': data[k].metadata.name + ' | ' + k
+                'id': uuid, // UUID
+                'text':bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
             });
         }
-        console.log(newOptions.length + ' results');
         return newOptions;
     };
 
