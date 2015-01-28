@@ -193,6 +193,26 @@ var Bundle = React.createClass({
                 <p>
                     {this.state.metadata.description}
                 </p>
+                    <div className="metadata-table">
+                        <table>
+                            <tr>
+                                <th width="33%">
+                                    State
+                                </th>
+                                <td>
+                                    {this.state.state}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th width="33%">
+                                    Command
+                                </th>
+                                <td>
+                                    {this.state.command || "<none>"}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 <h3>
                     Metadata
                     {edit}
