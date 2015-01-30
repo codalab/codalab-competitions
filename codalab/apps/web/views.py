@@ -6,6 +6,7 @@ import zipfile
 import os
 import sys
 import traceback
+import yaml
 
 from os.path import splitext
 
@@ -1044,3 +1045,75 @@ def download_competition_yaml(request, competition_pk):
         return response
     except ObjectDoesNotExist:
         return HttpResponse(status=404)
+
+
+@login_required
+def download_competition_bundle(request, competition_pk):
+    if not request.user.is_staff:
+        return HttpResponse(status=403)
+
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+    except ObjectDoesNotExist:
+        return Http404()
+
+    try:
+        zip_buffer = StringIO.StringIO()
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+        yaml_data = yaml.load(competition.original_yaml_file)
+
+        # Grab logo
+        zip_file.writestr(yaml_data["image"], competition.image.file.read())
+
+        # Grab html pages
+        for p in competition.pagecontent.pages.all():
+            if p.codename in yaml_data["html"].keys() or p.codename == 'terms_and_conditions' or p.codename == 'get_data':
+                if p.codename == 'terms_and_conditions':
+                    # overwrite this for consistency
+                    p.codename = 'terms'
+                if p.codename == 'get_data':
+                    # overwrite for consistency
+                    p.codename = 'data'
+                zip_file.writestr(yaml_data["html"][p.codename], p.html.encode("utf-8"))
+
+        # Grab input data, reference data, scoring program
+        file_name_cache = []
+
+        for phase in competition.phases.all():
+            for phase_index, phase_yaml in yaml_data["phases"].items():
+                if phase_yaml["phasenumber"] == phase.phasenumber:
+                    if phase.reference_data and phase.reference_data.file.name not in file_name_cache:
+                        yaml_data["phases"][phase_index]["reference_data"] = phase.reference_data.file.name
+                        file_name_cache += phase.reference_data.file.name
+                        zip_file.writestr(phase.reference_data.file.name, phase.reference_data.file.read())
+
+                    if phase.input_data and phase.input_data.file.name not in file_name_cache:
+                        yaml_data["phases"][phase_index]["input_data"] = phase.input_data.file.name
+                        file_name_cache += phase.input_data.file.name
+                        zip_file.writestr(phase.input_data.file.name, phase.input_data.file.read())
+
+                    if phase.scoring_program and phase.scoring_program.file.name not in file_name_cache:
+                        yaml_data["phases"][phase_index]["scoring_program"] = phase.scoring_program.file.name
+                        file_name_cache += phase.scoring_program.file.name
+                        zip_file.writestr(phase.scoring_program.file.name, phase.scoring_program.file.read())
+
+        zip_file.writestr("competition.yaml", yaml.dump(yaml_data))
+
+        zip_file.close()
+
+        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        return resp
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
