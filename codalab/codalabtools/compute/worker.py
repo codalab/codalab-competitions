@@ -227,14 +227,20 @@ def get_run_func(config):
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:
                 raise Exception("Program bundle is not available.")
+
             prog_info = bundles[prog_rel_path]
             if prog_info is None:
                 raise Exception("Program metadata is not available.")
-            prog_cmd = ""
+
+            prog_cmd_list = []
             if 'command' in prog_info:
-                prog_cmd = prog_info['command'].strip()
-            if len(prog_cmd) <= 0:
+                if isinstance(prog_info['command'], type([])):
+                    prog_cmd_list = [_.strip() for _ in prog_info['command']]
+                else:
+                    prog_cmd_list = [prog_info['command'].strip()]
+            if len(prog_cmd_list) <= 0:
                 raise Exception("Program command is not specified.")
+
             # Create output folder
             output_dir = join(root_dir, 'run', 'output')
             if os.path.exists(output_dir) == False:
@@ -250,15 +256,6 @@ def get_run_func(config):
             os.chdir(run_dir)
             os.environ["PATH"] += os.pathsep + run_dir + "/program"
             logger.debug("Execution directory: %s", run_dir)
-            # Update command-line with the real paths
-            logger.debug("CMD: %s", prog_cmd)
-            prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
-                                .replace("$input", join('.', 'input')) \
-                                .replace("$output", join('.', 'output')) \
-                                .replace("$tmp", join('.', 'temp')) \
-                                .replace("/", os.path.sep) \
-                                .replace("\\", os.path.sep)
-            logger.debug("Invoking program: %s", prog_cmd)
 
             if is_predict_step:
                 stdout_file_name = 'prediction_stdout_file.txt'
@@ -269,65 +266,94 @@ def get_run_func(config):
 
             stdout_file = join(run_dir, stdout_file_name)
             stderr_file = join(run_dir, stderr_file_name)
-            startTime = time.time()
-            exit_code = None
-            timed_out = False
-
             stdout = open(stdout_file, "a+")
             stderr = open(stderr_file, "a+")
-
-            evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
-
-            logger.debug("Started process, pid=%s" % evaluator_process.pid)
-
             stdout_buffer = ''
             stderr_buffer = ''
+            prog_status = []
 
-            signal.signal(signal.SIGALRM, alarm_handler)
+            for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
+                # Update command-line with the real paths
+                logger.debug("CMD: %s", prog_cmd)
+                prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
+                                    .replace("$input", join('.', 'input')) \
+                                    .replace("$output", join('.', 'output')) \
+                                    .replace("$tmp", join('.', 'temp')) \
+                                    .replace("/", os.path.sep) \
+                                    .replace("\\", os.path.sep)
+                logger.debug("Invoking program: %s", prog_cmd)
 
-            while exit_code is None:
-                exit_code = evaluator_process.poll()
+                startTime = time.time()
+                exit_code = None
+                timed_out = False
 
-                logger.debug("Checking process, exit_code = %s" % exit_code)
+                evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
 
-                time_difference = time.time() - startTime
+                logger.debug("Started process, pid=%s" % evaluator_process.pid)
 
-                signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+                signal.signal(signal.SIGALRM, alarm_handler)
 
-                try:
-                    (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
-                    signal.alarm(0) # reset alarm
+                while exit_code is None:
+                    exit_code = evaluator_process.poll()
 
-                    stdout_buffer += evaluator_process_out
-                    stderr_buffer += evaluator_process_err
-                except (ValueError, OSError, ExecutionTimeLimitExceeded):
-                    pass # tried to communicate with dead process
+                    logger.debug("Checking process, exit_code = %s" % exit_code)
 
-                # time in seconds
-                if exit_code is None and time.time() - startTime > execution_time_limit:
-                    exit_code = -1
-                    logger.info("Killed process for running too long!")
-                    stderr.write("Execution time limit exceeded!")
-                    evaluator_process.kill()
-                    timed_out = True
-                    break
+                    time_difference = time.time() - startTime
+
+                    signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+
+                    try:
+                        (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
+                        signal.alarm(0) # reset alarm
+
+                        stdout_buffer += evaluator_process_out
+                        stderr_buffer += evaluator_process_err
+                    except (ValueError, OSError, ExecutionTimeLimitExceeded):
+                        pass # tried to communicate with dead process
+
+                    # time in seconds
+                    if exit_code is None and time.time() - startTime > execution_time_limit:
+                        exit_code = -1
+                        logger.info("Killed process for running too long!")
+                        stderr.write("Execution time limit exceeded!")
+                        evaluator_process.kill()
+                        timed_out = True
+                        break
+                    else:
+                        time.sleep(1)
+
+                stdout.write(stdout_buffer)
+                stderr.write(stderr_buffer)
+
+                logger.debug("Exit Code: %d", exit_code)
+
+                endTime = time.time()
+                elapsedTime = endTime - startTime
+
+                if len(prog_cmd_list) > 1:
+                    # Overwrite prog_status array with dict
+                    prog_status = {
+                        'exitCode': exit_code,
+                        'elapsedTime': elapsedTime
+                    }
                 else:
-                    time.sleep(1)
+                    prog_status.append({
+                        'exitCode': exit_code,
+                        'elapsedTime': elapsedTime
+                    })
+                with open(join(output_dir, 'metadata'), 'w') as f:
+                    f.write(yaml.dump(prog_status, default_flow_style=False))
 
-            stdout.write(stdout_buffer)
-            stderr.write(stderr_buffer)
+
+
+
+
+
             stdout.close()
             stderr.close()
 
-            logger.debug("Exit Code: %d", exit_code)
-            endTime = time.time()
-            elapsedTime = endTime - startTime
-            prog_status = {
-                'exitCode': exit_code,
-                'elapsedTime': elapsedTime
-            }
-            with open(join(output_dir, 'metadata'), 'w') as f:
-                f.write(yaml.dump(prog_status, default_flow_style=False))
+
+
 
             logger.debug("Saving output files")
             stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
