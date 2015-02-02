@@ -96,8 +96,9 @@ var Worksheet = React.createClass({
             }
         });
 
-        Mousetrap.bind(['shift+r'], function(e){
+        Mousetrap.bind(['shift+r',], function(e){
             this.refreshWorksheet()
+            return false;
         }.bind(this));
 
         //toggle search bar - B
@@ -114,6 +115,7 @@ var Worksheet = React.createClass({
         //toggle raw - F
         Mousetrap.bind(['shift+f'], function(e){
             this.toggleRawMode();
+            return false;
         }.bind(this));
 
         //turn on edit mode or turn it off - E
@@ -158,6 +160,7 @@ var Worksheet = React.createClass({
         //
         if(this.state.rawMode){
             this.setState({activeComponent:'textarea'});
+            $("#raw-textarea").focus();
         }
 
     },

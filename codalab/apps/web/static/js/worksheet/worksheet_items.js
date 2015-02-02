@@ -16,7 +16,7 @@ var WorksheetItemList = React.createClass({
                 edit_permission: false,
                 raw: []
             }
-        }
+        };
     },
     componentDidMount: function() {
         this.props.refreshWorksheet();
@@ -290,7 +290,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     toggleCheckboxEnable: function(enabled){
-        this.setState({checkboxEnabled: enabled})
+        this.setState({checkboxEnabled: enabled});
     },
     render: function(){
         this.capture_keys(); //each item capture keys are handled dynamically after this call

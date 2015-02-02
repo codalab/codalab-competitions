@@ -224,7 +224,18 @@ var TableBundle = React.createClass({
             var row_ref = 'row' + index;
             var rowFocused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} index={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused} handleClick={self.focusOnRow} />
+            return <TableRow
+                            ref={row_ref}
+                            item={row_item}
+                            key={index}
+                            index={index}
+                            focused={rowFocused}
+                            bundleURL={bundle_url}
+                            headerItems={header_items}
+                            canEdit={canEdit}
+                            checkboxEnabled={focused}
+                            handleClick={self.focusOnRow}
+                    />
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>
