@@ -6,7 +6,7 @@ var TableBundle = React.createClass({
         return {
             rowFocusIndex: 0,
             checked: false
-        }
+        };
     },
     handleClick: function(event){
         this.props.setFocus(this.props.index, event);
@@ -22,11 +22,11 @@ var TableBundle = React.createClass({
 
         //move your focus up a row
         Mousetrap.bind(['up', 'k'], function(e){
-            console.log("focus up");
             var index = this.state.rowFocusIndex - 1; // moving up the array
             var parentFocusIndex = this._owner.state.focusIndex;
             if(index < 0){
                 this._owner.setFocus(parentFocusIndex - 1);
+                this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
                 this.scrollToRow(index);
@@ -41,14 +41,15 @@ var TableBundle = React.createClass({
 
 
         Mousetrap.bind(['down', 'j'], function(e){
-            console.log("focus down");
             var item = this.props.item.state;
             var index = this.state.rowFocusIndex;
             var parentFocusIndex = this._owner.state.focusIndex;
             var rowsInTable = item.interpreted[1].length;
             index = Math.min(index + 1, rowsInTable);
+
             if(index == rowsInTable){
                 this._owner.setFocus(parentFocusIndex + 1);
+                this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
                 this.scrollToRow(index);
@@ -187,7 +188,7 @@ var TableBundle = React.createClass({
         }
     },
     focusOnRow: function(rowIndex){
-        this.setState({rowFocusIndex: rowIndex})
+        this.setState({rowFocusIndex: rowIndex});
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);
@@ -223,7 +224,7 @@ var TableBundle = React.createClass({
             var row_ref = 'row' + index;
             var rowFocused = index === focusIndex;
             var bundle_url = '/bundles/' + bundle_info[index].uuid;
-            return <TableRow ref={row_ref} item={row_item} key={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused} handleClick={self.focusOnRow} />
+            return <TableRow ref={row_ref} item={row_item} key={index} index={index} focused={rowFocused} bundleURL={bundle_url} headerItems={header_items} canEdit={canEdit} checkboxEnabled={focused} handleClick={self.focusOnRow} />
         });
         return(
             <div className="ws-item" onClick={this.handleClick}>

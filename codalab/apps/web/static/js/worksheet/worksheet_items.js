@@ -66,7 +66,7 @@ var WorksheetItemList = React.createClass({
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
             this.setFocus(fIndex);
-            console.log('moving down')
+            // console.log('moving down');
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+down', 'meta+down', 'ctrl+j', 'meta+j'], function(e){
@@ -87,8 +87,6 @@ var WorksheetItemList = React.createClass({
         Mousetrap.bind(['e'], function(e){
             if(this.props.canEdit){
                 this.setState({editingIndex: fIndex});
-                console.log("setting teh editing index");
-                console.log(fIndex);
                 this.props.toggleEditingText(true);
                 return false;
             }
