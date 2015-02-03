@@ -219,7 +219,7 @@ var WorksheetItemList = React.createClass({
             if(reactItems[k].state.checked){
                 // we know the key of the item is the same as the index. We set it.
                 // see WorksheetItemFactory. This will change but always match.
-                var index = reactItems[k].props.key;
+                var index = reactItems[k].props.index;
                 item_indexes.push(index)
                 // when called gets a edited flag, when you getState
             }
