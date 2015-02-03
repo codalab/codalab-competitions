@@ -167,7 +167,7 @@ var TableBundle = React.createClass({
         for(var k in reactRows){
             if(reactRows[k].state.checked){
                 //get the raw bundle info, since they are in the same order we can take the same index
-                interpreted_row_indexes.push(reactRows[k].props.key);
+                interpreted_row_indexes.push(reactRows[k].props.index);
             }
         }
         var confirm_string = interpreted_row_indexes.length === 1 ? 'this row?' : interpreted_row_indexes.length + ' rows?'
@@ -182,7 +182,7 @@ var TableBundle = React.createClass({
                 rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
             });
             // TODO: REMOVE _OWNER
-            this._owner.saveAndUpdateWorksheet();
+            this._owner.props.saveAndUpdateWorksheet();
         } else {
             return false;
         }

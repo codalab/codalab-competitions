@@ -113,7 +113,7 @@ var WorksheetSearch = React.createClass({
             self.props.handleFocus();
         }).on('select2-close', function(){
             // because select2 is masking the actual #search field, we need to manually trigger
-            // its focus event when select2 is invoked
+            // its blur event when select2 is invoked
             self.props.handleBlur();
         });
 
@@ -126,12 +126,19 @@ var WorksheetSearch = React.createClass({
                     e.preventDefault();
                     break;
                 case 13: // enter
-                    console.log('enter');
                     // cmd-enter or ctrl-enter triggers execution of whatever is
                     // in the search input
                     e.preventDefault();
                     self.executeCommands();
                     break;
+                case 27:
+                    var input = $('#search').select2('val');
+                    if(input.length){
+                        return
+                    }else{ // nothing blur it
+                        this.blur();
+                    }
+
                 default:
                     return true;
             }
@@ -163,20 +170,6 @@ var WorksheetSearch = React.createClass({
             command.executefn(input, ws_actions.commands[entered_command], this.refreshAndClear);
         } else {
             console.error('The command \'' + entered_command + '\' was not recognized');
-        }
-    },
-    handleKeydown: function(event){
-        // the only key the searchbar cares about is esc. Otherwise we're just typing in the input.
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'esc':
-                    event.preventDefault();
-                    this.props.handleBlur();
-                    break;
-                default:
-                    return true;
-            }
         }
     },
     render: function(){

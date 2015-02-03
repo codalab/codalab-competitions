@@ -72,6 +72,13 @@ var Worksheet = React.createClass({
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
+        // if(this.state.activeComponent == 'search'){
+        //     console.log("you've got the search bar");
+        // }
+        // if(this.state.activeComponent == "list"){
+        //     console.log("you've got the list");
+        // }
+
         // No keyboard shortcuts are active in raw mode
         if(this.state.rawMode){
             Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
