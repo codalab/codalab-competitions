@@ -32,6 +32,8 @@ class Dev(DevBase):
     SBS_RESPONSE_QUEUE = '<enter queue name>' # incoming queue for site worker
     SBS_COMPUTE_QUEUE = '<enter queue name>'  # incoming queue for Windows compute worker
 
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
     ############################################################
     ### For worksheets
 
