@@ -12,6 +12,7 @@ import django.dispatch
 import time
 import string
 import uuid
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
@@ -205,7 +206,7 @@ class Competition(models.Model):
         if len(phases) > 0:
             return phases[0].start_date
         else:
-            return None
+            return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y')
 
     @property
     def is_active(self):
