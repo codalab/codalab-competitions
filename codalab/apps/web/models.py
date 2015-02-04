@@ -205,7 +205,7 @@ class Competition(models.Model):
         if len(phases) > 0:
             return phases[0].start_date
         else:
-            return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y')
+            return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y').replace(tzinfo=None)
 
     @property
     def is_active(self):
