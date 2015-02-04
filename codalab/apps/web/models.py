@@ -203,7 +203,7 @@ class Competition(models.Model):
     def get_start_date(self):
         phases = self.phases.all().order_by('-start_date')
         if len(phases) > 0:
-            return phases[0].start_date
+            return phases[0].start_date.replace(tzinfo=None)
         else:
             return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y').replace(tzinfo=None)
 
