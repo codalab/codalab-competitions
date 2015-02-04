@@ -12,7 +12,6 @@ import django.dispatch
 import time
 import string
 import uuid
-from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Max
