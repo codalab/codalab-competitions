@@ -201,7 +201,11 @@ class Competition(models.Model):
         return None
 
     def get_start_date(self):
-        return self.phases.all().order_by('-start_date')[0].start_date
+        phases = self.phases.all().order_by('-start_date')
+        if len(phases) > 0:
+            return phases[0].start_date
+        else:
+            return None
 
     @property
     def is_active(self):
