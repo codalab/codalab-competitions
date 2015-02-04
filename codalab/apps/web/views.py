@@ -82,7 +82,7 @@ def my_index(request):
     competitions_owner = models.Competition.objects.filter(creator=request.user)
     competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
     published_competitions = models.Competition.objects.filter(published=True)
-    published_competitions = sorted(published_competitions, key=lambda c: c.get_start_date())
+    published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date()))
     context = RequestContext(request, {
         'my_competitions' : competitions_owner | competitions_admin,
         'competitions_im_in' : request.user.participation.all().exclude(status=denied),
