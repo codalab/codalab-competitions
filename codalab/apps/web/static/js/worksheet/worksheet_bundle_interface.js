@@ -24,7 +24,7 @@ var WorksheetBundle = React.createClass({
         }
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     goToWorksheet: function(){
         window.open('/worksheets/' + this.props.item.state.interpreted.uuid);

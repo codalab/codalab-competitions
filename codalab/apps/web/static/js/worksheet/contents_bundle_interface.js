@@ -7,7 +7,7 @@ var ContentsBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
@@ -15,7 +15,6 @@ var ContentsBundle = React.createClass({
         var contents = this.state.interpreted.map(function(item) {
             return item.replace(/%\s/, '');  // TODO: why removing %?
         });
-        console.log(contents);
         contents = contents.join('<br>');
         // TODO: make this a monospace font
         // contents = contents.replace(/%\s/g, '');

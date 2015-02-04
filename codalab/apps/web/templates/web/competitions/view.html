@@ -5,6 +5,12 @@
 {% block page_title %}Competition{% endblock page_title %}
 
 {% block content %}
+
+{% if request.user.is_staff %}
+    <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
+{% endif %}
+
+
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">

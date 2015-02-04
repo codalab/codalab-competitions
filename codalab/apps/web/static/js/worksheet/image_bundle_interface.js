@@ -7,7 +7,7 @@ var ImageBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.key, event);
+        this.props.setFocus(this.props.index, event);
     },
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');

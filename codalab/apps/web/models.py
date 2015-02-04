@@ -165,6 +165,7 @@ class Competition(models.Model):
     enable_detailed_results = models.BooleanField(default=False)
     original_yaml_file = models.TextField(default='', blank=True, null=True)
     show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
+    reward = models.PositiveIntegerField(null=True, blank=True)
 
     @property
     def pagecontent(self):
@@ -198,6 +199,9 @@ class Competition(models.Model):
         if self.image:
             return os.path.join(self.image_url_base,self.image.name)
         return None
+
+    def get_start_date(self):
+        return self.phases.all().order_by('-start_date')[0].start_date
 
     @property
     def is_active(self):

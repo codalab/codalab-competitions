@@ -45,11 +45,11 @@ var Bundle = React.createClass({
             dataType:"json",
             data: JSON.stringify(postdata),
             success: function(data) {
-                console.log('success')
-                console.log(data)
+                console.log('success');
+                console.log(data);
                 if('error' in data){
                     $("#bundle-message").html(data['error']).addClass('alert-danger alert');
-                    $("#bundle-message").show()
+                    $("#bundle-message").show();
                 }else{
                     this.setState(data);
                     this.setState({
@@ -61,7 +61,7 @@ var Bundle = React.createClass({
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
                 $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
-                $("#bundle-message").show()
+                $("#bundle-message").show();
             }.bind(this)
         });
     },
@@ -155,7 +155,7 @@ var Bundle = React.createClass({
             saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
         }
         for(var k in metadata) {
-            bundleAttrs.push(<BundleAttr key={k} val={metadata[k]} editing={editing} />);
+            bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
         }
 
         var fileBrowser = (
@@ -193,6 +193,26 @@ var Bundle = React.createClass({
                 <p>
                     {this.state.metadata.description}
                 </p>
+                    <div className="metadata-table">
+                        <table>
+                            <tr>
+                                <th width="33%">
+                                    State
+                                </th>
+                                <td>
+                                    {this.state.state}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th width="33%">
+                                    Command
+                                </th>
+                                <td>
+                                    {this.state.command || "<none>"}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 <h3>
                     Metadata
                     {edit}
@@ -220,11 +240,11 @@ var Bundle = React.createClass({
 var BundleAttr = React.createClass({
     render: function(){
         var defaultVal = this.props.val;
-        if(this.props.key !== 'description' && !this.props.editing){
+        if(this.props.index !== 'description' && !this.props.editing){
             return (
                 <tr>
                     <th width="33%">
-                        {this.props.key}
+                        {this.props.index}
                     </th>
                     <td>
                         {defaultVal}
@@ -235,10 +255,10 @@ var BundleAttr = React.createClass({
             return (
                 <tr>
                     <th width="33%">
-                        {this.props.key}
+                        {this.props.index}
                     </th>
                     <td>
-                        <input className="form-control" name={this.props.key} type="text" defaultValue={defaultVal} />
+                        <input className="form-control" name={this.props.index} type="text" defaultValue={defaultVal} />
                     </td>
                 </tr>
             )
@@ -256,14 +276,14 @@ var FileBrowser = React.createClass({
         if(this.props.fileBrowserData.contents) {
             // .. special item, only on inside dirs (current directory not '')
             if(this.props.currentWorkingDirectory) {
-                items.push(<FileBrowserItem key=".." type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
+                items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
             }
 
             // One loop for folders so they are on the top of the list
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type == 'directory') {
-                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -271,7 +291,7 @@ var FileBrowser = React.createClass({
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -318,7 +338,7 @@ var FileBrowserBreadCrumbs = React.createClass({
             } else {
                 currentDirectory += "/" + splitDirs[i];
             }
-            links.push(<span key={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
+            links.push(<span key={splitDirs[i]} index={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
         }
 
         return (
@@ -329,7 +349,7 @@ var FileBrowserBreadCrumbs = React.createClass({
 
 var FileBrowserItem = React.createClass({
     browseToFolder: function(type) {
-        this.props.updateFileBrowser(this.props.key);
+        this.props.updateFileBrowser(this.props.index);
     },
     render: function() {
         // Type can be 'file' or 'folder'
@@ -341,9 +361,9 @@ var FileBrowserItem = React.createClass({
 
         var file_location = '';
         if(this.props.currentWorkingDirectory) {
-            file_location = this.props.currentWorkingDirectory + '/' + this.props.key;
+            file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
         } else {
-            file_location = this.props.key;
+            file_location = this.props.index;
         }
 
         var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
@@ -353,7 +373,7 @@ var FileBrowserItem = React.createClass({
                 <td>
                     <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
-                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.key}</a>
+                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
                     </div>
                 </td>
             </tr>
@@ -361,4 +381,4 @@ var FileBrowserItem = React.createClass({
     }
 });
 
-React.renderComponent(<Bundle />, document.getElementById('bundle-content'));
+React.render(<Bundle />, document.getElementById('bundle-content'));

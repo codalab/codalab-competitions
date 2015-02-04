@@ -29,26 +29,8 @@
                         {% if not published_competitions %}
                             <p><em>There are no competitions.</em></p>
                         {% else %}
-                            {% for item in published_competitions %}
-                                <div class="competition-tile">
-                                    <input id="competitionID" type="hidden" value="{{ item.id }}" />
-                                    <div class="row">
-                                        <div class="col-sm-3 col-md-2">
-                                            <div class="img-container">
-                                                {% if item.image_url == None %}
-                                                    <img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
-                                                {% else %}
-                                                    <img src="{{ item.image_url }}" class="img-responsive">
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-9 col-md-10">
-                                            <h3>{{ item.title }}</h3>
-                                            <p class="organizer">Organized by {{ item.creator }}</p>
-                                            <p>{{ item.description|safe }}</p>
-                                        </div>
-                                    </div>
-                                </div>
+                            {% for competition in published_competitions %}
+                                {% include "web/my/_competition_tile.html" with competition=competition %}
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -74,7 +56,9 @@
 
                         <br><br>
 
-                        {% include "web/my/_managed.html" with competitions=my_competitions %}
+                        {% for competition in my_competitions %}
+                            {% include "web/my/_competition_tile.html" with competition=competition managed=True %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>

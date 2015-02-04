@@ -47,13 +47,13 @@
                         <td><kbd>j</kbd> or <kbd>↓</kbd> next worksheet item or table row</td>
                     </tr>
                     <tr>
-                        <td><kbd>shift + j</kbd> or <kbd>shift + ↓</kbd> move focused item down</td>
+                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd>  move focused item down</td>
                     </tr>
                     <tr>
                         <td><kbd>k</kbd> or <kbd>↑</kbd> previous worksheet item or table row</td>
                     </tr>
                     <tr>
-                        <td><kbd>shift + k</kbd> or <kbd>shift + ↑</kbd> move focused item up</td>
+                        <td><<kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> move focused item up</td>
                     </tr>
                     <tr>
                         <td><kbd>x</kbd> select highlighted item (if in edit mode)</td>
@@ -66,6 +66,15 @@
                     </tr>
                     <tr>
                         <td><kbd>o</kbd> insert markup after highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>G</kbd> Jump to end of worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>1 G</kbd> Jump to beginning of worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>R</kbd> Refresh Worksheet</td>
                     </tr>
                     <tr>
                         <td><kbd>?</kbd> show this glossary</td>
@@ -92,10 +101,10 @@
                         <td><kbd>shift + x</kbd> select parent table of highlighted row</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> move highlighted row down</td>
+                        <td><kbd>shift + j</kbd>  move highlighted row down</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> move highlighted row up</td>
+                        <td><kbd>shift + k</kbd> move highlighted row up</td>
                     </tr>
                 </table>
             </div>
@@ -111,15 +120,18 @@
 {% endblock js %}
 
 {% block jsincludes %}
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
-    <script src="http://fb.me/react-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
-    <script src="http://fb.me/JSXTransformer-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
+    <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
+
+
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     {# ------- JSX FILES  ------- #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_search.js"></script>
@@ -133,7 +145,9 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
     {# main entrance point for the worksheet and it's items/bundles #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
+
     {# ------- END JSX FILES  ------- #}
 
 <script>
@@ -143,6 +157,11 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
+
+    // gmail style sequences
+    Mousetrap.bind('g', function() { console.log('just g'); });
+    Mousetrap.bind('1 g', function() { console.log('go to inbox'); });
+
 
 
 $(function () {
