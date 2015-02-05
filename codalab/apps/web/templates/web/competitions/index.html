@@ -51,8 +51,8 @@
         {% if not competitions %}
             <p><em>There are no competitions.</em></p>
         {% else %}
-            {% for item in competitions %}
-                {% include "web/my/_competition_tile.html" with item=item %}
+            {% for competition in competitions %}
+                {% include "web/my/_competition_tile.html" with competition=competition %}
             {% endfor %}
         {% endif %}
     </div>
