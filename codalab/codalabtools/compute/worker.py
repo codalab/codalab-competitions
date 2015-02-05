@@ -344,16 +344,8 @@ def get_run_func(config):
                 with open(join(output_dir, 'metadata'), 'w') as f:
                     f.write(yaml.dump(prog_status, default_flow_style=False))
 
-
-
-
-
-
             stdout.close()
             stderr.close()
-
-
-
 
             logger.debug("Saving output files")
             stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
