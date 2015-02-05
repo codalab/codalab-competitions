@@ -166,6 +166,7 @@ class Competition(models.Model):
     original_yaml_file = models.TextField(default='', blank=True, null=True)
     show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
     reward = models.PositiveIntegerField(null=True, blank=True)
+    reverse_leaderboard_sorting = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -687,7 +688,10 @@ class CompetitionPhase(models.Model):
             ranks = {}
             for (sdef_id, v) in values.iteritems():
                 sdef = not_computed_scoredefs[sdef_id]
-                ranks[sdef_id] = self.rank_values(submission_ids, v, sort_ascending=sdef.sorting=='asc')
+                sort_ascending = sdef.sorting=='asc'
+                if self.competition.reverse_leaderboard_sorting:
+                    sort_ascending = not sort_ascending
+                ranks[sdef_id] = self.rank_values(submission_ids, v, sort_ascending=sort_ascending)
 
             # compute values for computed scoredefs
             for result in results:
