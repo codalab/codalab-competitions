@@ -29,8 +29,8 @@
                         {% if not published_competitions %}
                             <p><em>There are no competitions.</em></p>
                         {% else %}
-                            {% for item in published_competitions %}
-                                {% include "web/my/_competition_tile.html" with item=item %}
+                            {% for competition in published_competitions %}
+                                {% include "web/my/_competition_tile.html" with competition=competition %}
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -56,7 +56,9 @@
 
                         <br><br>
 
-                        {% include "web/my/_managed.html" with competitions=my_competitions %}
+                        {% for competition in my_competitions %}
+                            {% include "web/my/_competition_tile.html" with competition=competition managed=True %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
