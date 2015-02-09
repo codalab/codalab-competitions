@@ -118,6 +118,13 @@ class PagesInline(InlineFormSet):
     form_class = forms.PageForm
     extra = 0
 
+
+class LeaderboardInline(InlineFormSet):
+    model = models.SubmissionScoreDef
+    form_class = forms.LeaderboardForm
+    extra = 0
+
+
 class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
@@ -125,8 +132,8 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):
     model = models.Competition
     form_class = forms.CompetitionForm
-    inlines = [PagesInline, PhasesInline]
-    inlines_names = ['Pages', 'Phases']
+    inlines = [PagesInline, PhasesInline, LeaderboardInline]
+    inlines_names = ['Pages', 'Phases', 'Leaderboards']
     template_name = 'web/competitions/edit.html'
 
     def forms_valid(self, form, inlines):
