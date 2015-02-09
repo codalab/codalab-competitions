@@ -20,5 +20,6 @@ urlpatterns = patterns(
     url(r'^check_phase_migrations', views.CompetitionCheckMigrations.as_view(), name="competition_check_phase_migrations"),
     url(r'^message_participants/(?P<competition_id>\d+)', views.competition_message_participants, name="competition_message_participants"),
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
-    url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml")
+    url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml"),
+    url(r'^download/(?P<competition_pk>\d+)', views.download_competition_bundle, name="download"),
 )
