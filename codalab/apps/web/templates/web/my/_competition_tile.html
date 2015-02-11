@@ -36,9 +36,9 @@
 					<a class="btn btn-sm btn-danger" id="competition-delete-button" href="{% url 'competitions:delete' pk=competition.pk %}">Delete</a>
 				{% endif %}
 				<a class="btn btn-sm btn-primary" href="{% url 'competitions:edit' pk=competition.pk %}">Edit</a>
-				<a class="btn btn-sm btn-success" href="{% url 'competition-publish' pk=competition.pk %}" id="competition-publish-button">Publish</a>
-				<a class="btn btn-sm btn-warning" href="{% url 'competition-unpublish' pk=competition.pk %}" id="competition-unpublish-button">Unpublish</a>
-				<a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
+				<a class="btn btn-sm btn-success competition-publish-button {% if competition.published %}hide{% endif %}" href="{% url 'competition-publish' pk=competition.pk %}">Publish</a>
+				<a class="btn btn-sm btn-warning competition-unpublish-button {% if not competition.published %}hide{% endif %}" href="{% url 'competition-unpublish' pk=competition.pk %}">Unpublish</a>
+                <a class="btn btn-sm btn-primary" href="{% url 'my_competition_participants' competition_id=competition.pk %}">Participants</a>
 				<a class="btn btn-sm btn-primary" href="{% url 'my_competition_submissions' competition_id=competition.pk %}">Submissions</a>
 				<a class="btn btn-sm btn-primary" href="/competitions/{{competition.pk}}#results">Leaderboard</a>
 			</div>
