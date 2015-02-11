@@ -3,10 +3,14 @@ View-related customatizations for auth.
 """
 
 import json
+import logging
+import traceback
 
+from django.conf import settings
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
+from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
 from allauth.account.signals import user_signed_up
@@ -18,10 +22,12 @@ from oauth2_provider.views.generic import ScopedProtectedResourceView
 from apps.authenz.models import ClUser
 from apps.authenz.oauth import get_or_create_cli_client
 
+
+logger = logging.getLogger(__name__)
+
 #
 # Implements hooks for additional processing post sign-up and post log-in.
 #
-
 @receiver(user_signed_up)
 def new_user_signup(sender, **kwargs):
     """
@@ -29,6 +35,22 @@ def new_user_signup(sender, **kwargs):
     """
     user = kwargs['user']
     get_or_create_cli_client(user)
+    if len(settings.BUNDLE_SERVICE_URL) > 0:
+        from apps.web.bundles import BundleService
+        service = BundleService(user)
+        try:
+            #clean up there name and make sure nothing sneaks in
+            worksheet_name = smart_str(user.username.strip())
+            uuid = service.create_worksheet(worksheet_name)
+        except Exception as e:
+            logging.error("create_default_worksheet")
+            logging.error(smart_str(e))
+            logging.error('Error Creating default worksheet for new user')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            raise e
 
 @receiver(user_logged_in)
 def on_user_logged_in(sender, **kwargs):
