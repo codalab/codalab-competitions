@@ -27,6 +27,15 @@
 	    {% endif %}
 	    <form class="login" method="POST" action="{% url 'account_login' %}">
 		    {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-error">
+                    {% for field, msg in form.errors.items %}
+                        {% if field != "__all__" %}<b>{{ field }}</b>{% endif %}
+                        {{ msg }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="form-group">
                 <label for="id_login">Login:</label>
                 <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text">
