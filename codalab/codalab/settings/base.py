@@ -25,7 +25,7 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = False
+    COMPILE_LESS = True
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
