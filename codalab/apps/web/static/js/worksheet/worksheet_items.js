@@ -79,7 +79,7 @@ var WorksheetItemList = React.createClass({
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
             this.setFocus(fIndex);
-            $('body').stop(true).animate({scrollTop: $(document).height()-$(window).height()}, 50);
+            $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
         ////

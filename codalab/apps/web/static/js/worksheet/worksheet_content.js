@@ -280,9 +280,10 @@ var WorksheetContent = function() {
 
         // if it's a table or a record bundle, add a blank line of padding so bundles don't get
         // automatically consolidated
-        if(this.state.items[oldIndex].state.mode == 'table' || this.state.items[oldIndex].state.mode == 'record'){
-            raw_items = ['---'].concat(raw_items, ['---']);
-        }
+        // removed should not be here will add --- on each move
+        // if(this.state.items[oldIndex].state.mode == 'table' || this.state.items[oldIndex].state.mode == 'record'){
+        //     raw_items = ['---'].concat(raw_items, ['---']);
+        // }
         // split the list where we want to reinsert
         var raw1 = this.state.raw.slice(0,newPos);
         var raw2 = this.state.raw.slice(newPos);
