@@ -25,7 +25,7 @@ var TableBundle = React.createClass({
             var index = this.state.rowFocusIndex - 1; // moving up the array
             var parentFocusIndex = this._owner.state.focusIndex;
             if(index < 0){
-                this._owner.setFocus(parentFocusIndex - 1);
+                this._owner.setFocus(parentFocusIndex - 1, e);
                 this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
@@ -48,7 +48,7 @@ var TableBundle = React.createClass({
             index = Math.min(index + 1, rowsInTable);
 
             if(index == rowsInTable){
-                this._owner.setFocus(parentFocusIndex + 1);
+                this._owner.setFocus(parentFocusIndex + 1, e);
                 this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});

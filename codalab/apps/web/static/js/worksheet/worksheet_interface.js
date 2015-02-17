@@ -104,17 +104,17 @@ var Worksheet = React.createClass({
         });
 
         Mousetrap.bind(['shift+r',], function(e){
-            this.refreshWorksheet()
+            this.refreshWorksheet();
             return false;
         }.bind(this));
 
         //toggle search bar - B
         Mousetrap.bind(['shift+b'], function(e){
-            this.toggleSearchBar()
+            this.toggleSearchBar();
         }.bind(this));
 
          Mousetrap.bind(['/'], function(e){
-                this.showSearchBar()
+                this.showSearchBar();
                 this.setState({activeComponent: 'search'});
         }.bind(this));
 

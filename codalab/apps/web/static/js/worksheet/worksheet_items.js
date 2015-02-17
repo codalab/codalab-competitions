@@ -44,7 +44,7 @@ var WorksheetItemList = React.createClass({
             }else {
                 fIndex = Math.max(this.state.focusIndex - 1, 0);
             }
-            this.setFocus(fIndex);
+            this.setFocus(fIndex, e);
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+up', 'meta+up', 'ctrl+k', 'meta+k'], function(e){
@@ -55,7 +55,7 @@ var WorksheetItemList = React.createClass({
         //jump to the top - 1 G
         Mousetrap.bind(['1 shift+g'], function(e){
             $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0);
+            this.setFocus(0, e);
         }.bind(this), 'keydown');
 
         ////
@@ -65,7 +65,7 @@ var WorksheetItemList = React.createClass({
             // not be the same as the number of item objects because of editing/inserting/whatever,
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex);
+            this.setFocus(fIndex, e);
             // console.log('moving down');
         }.bind(this), 'keydown');
 
@@ -78,7 +78,7 @@ var WorksheetItemList = React.createClass({
         // jump to the bottom - G
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex);
+            this.setFocus(fIndex, e);
             $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
