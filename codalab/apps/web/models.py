@@ -465,6 +465,7 @@ class CompetitionPhase(models.Model):
     phasenumber = models.PositiveIntegerField(verbose_name="Number")
     label = models.CharField(max_length=50, blank=True, verbose_name="Name")
     start_date = models.DateTimeField(verbose_name="Start Date (UTC)")
+    end_date = models.DateTimeField(verbose_name="End Date (UTC)", blank=True, null=True)
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
     max_submissions_per_day = models.PositiveIntegerField(default=999, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
@@ -495,7 +496,7 @@ class CompetitionPhase(models.Model):
         if (next_phase is not None) and (len(next_phase) > 0):
             # there is a phase following this phase, thus this phase is active if the current date
             # is between the start of this phase and the start of the next phase
-            return self.start_date <= now() and (now() < next_phase[0].start_date)
+            return self.start_date <= now() and (now() < self.get_end_date())
         else:
             # there is no phase following this phase, thus this phase is active if the current data
             # is after the start date of this phase and the competition is "active"
@@ -517,6 +518,16 @@ class CompetitionPhase(models.Model):
         Indicates whether results are always hidden from participants.
         """
         return self.leaderboard_management_mode == LeaderboardManagementMode.HIDE_RESULTS
+
+    def get_end_date(self):
+        if self.end_date:
+            return self.end_date
+        else:
+            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+            if next_phase:
+                return next_phase[0].start_date - datetime.timedelta(minutes=1)
+            else:
+                return None
 
     @staticmethod
     def rank_values(ids, id_value_pairs, sort_ascending=True, eps=1.0e-12):

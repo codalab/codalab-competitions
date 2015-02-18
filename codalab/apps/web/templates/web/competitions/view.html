@@ -108,6 +108,7 @@
                                         </div>
                                         <div class="panel-body">
                                             <p><strong>Start:</strong> {{ phase.start_date }}</p>
+                                            <p><strong>End:</strong> {{ phase.get_end_date | default_if_none:"Never" }}</p>
                                             {% if phase.description %}
                                                 <p><strong>Description:</strong> {{ phase.description }}</p>
                                             {% endif %}

@@ -41,6 +41,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'description',
             'label',
             'start_date',
+            'end_date',
             'max_submissions',
             'max_submissions_per_day',
             'execution_time_limit',
