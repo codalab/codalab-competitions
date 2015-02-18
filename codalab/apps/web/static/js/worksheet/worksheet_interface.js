@@ -303,13 +303,18 @@ var Worksheet = React.createClass({
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
-
+        var worksheet_side_panel = (
+                <WorksheetSidePanel
+                    ref={"panel"}
+                />
+            )
         //simple switch out if raw or items
         var worksheet_display = this.state.rawMode ? raw_display : items_display
 
         return (
             <div id="worksheet" className={serachClassName}>
                 {search_display}
+                {worksheet_side_panel}
                 <div className="container">
                     <div id="worksheet_content" className={editableClassName}>
                         <div className="header-row">
