@@ -187,6 +187,12 @@ var TableBundle = React.createClass({
             return false;
         }
     },
+    focusOnLast: function(){
+        var item = this.props.item.state;
+        var last_index = item.interpreted[1].length - 1;
+        this.setState({rowFocusIndex: last_index});
+        this.scrollToRow(last_index);
+    },
     focusOnRow: function(rowIndex){
         this.setState({rowFocusIndex: rowIndex});
     },
