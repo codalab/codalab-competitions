@@ -7465,6 +7465,7 @@ input[type="checkbox"] {
   position: absolute;
   top: 0;
   bottom: 0;
+  line-height: 1;
 }
 #worksheet .ws-search .select2-container-multi .select2-choices {
   padding: 1px 5px 3px 0;
@@ -7982,6 +7983,11 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   width: auto;
   max-width: 100%;
 }
+.select2-drop,
+.select2-container {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
 .select2-container {
   width: 100%;
 }
@@ -8000,7 +8006,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-radius: 0;
 }
 .select2-container-multi .select2-choices .select2-search-field input {
-  font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
 }
 .select2-drop,
 .select2-drop-active {
@@ -8734,11 +8741,11 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
     max-height: none;
   }
 }
-.my-codalab #my_managing .competition-tile {
+.competition-tile {
   padding-bottom: 0;
 }
-.my-codalab #my_managing .competition-tile .competition-actions {
-  margin: 16px -16px 0 -16px;
+.competition-tile .competition-actions {
+  margin: 16px -16px -12px -16px;
 }
 .my-datasets table {
   margin-top: 20px;
