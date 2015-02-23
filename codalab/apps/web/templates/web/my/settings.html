@@ -11,33 +11,82 @@
 {% endblock %}
 
 {% block content %}
-
-<form method="POST" action=".">
-    {% if errors %}
-        <div class="alert alert-error">
-            There were errors processing the form, please try reloading the page!
+    <h2>{{ user.username }}</h2>
+    <div class="row">
+        <div class="col-sm-6">
+            <h4>My Account {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</h4>
+            <table class="table table-striped account">
+                <tbody>
+                    <tr>
+                        <th>First name</th>
+                        <td>{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last name</th>
+                        <td>{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>User since</th>
+                        <td>{{ user.date_joined }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    {% endif %}
+        <div class="col-sm-6">
+            <form method="POST" action=".">{% csrf_token %}
+                <h4>My subscription settings</h4>
 
-    {% if saved_successfully %}
-        <div class="alert alert-success">
-            Saved successfully!
+                {% if errors %}
+                    <div class="alert alert-error">
+                        There were errors processing the form, please try reloading the page!
+                    </div>
+                {% endif %}
+
+                {% if saved_successfully %}
+                    <div class="alert alert-success">
+                        Saved successfully!
+                    </div>
+                {% endif %}
+
+                {% if form.errors %}
+                    <div class="alert alert-error">
+                        {% for field, msg in form.errors.items %}
+                            <b>{{ field }}</b> {{ msg }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <table class="table table-striped subscriptions">
+                    <tbody>
+                        <tr>
+                            <th>{{ form.participation_status_updates.label }}</th>
+                            <td>{{ form.participation_status_updates }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.organizer_status_updates.label }}</th>
+                            <td>{{ form.organizer_status_updates}}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.organizer_direct_message_updates.label }}</th>
+                            <td>{{ form.organizer_direct_message_updates }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>My organization/affiliation</h4>
+                <table class="table table-striped affiliation">
+                    <tbody>
+                        <tr>
+                            <th>{{ form.organization_or_affiliation.label }}</th>
+                            <td>{{ form.organization_or_affiliation }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
         </div>
-    {% endif %}
-
-    {% if form.errors %}
-        <div class="alert alert-error">
-            {% for field, msg in form.errors.items %}
-                <b>{{ field }}</b> {{ msg }}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% csrf_token %}
-
-    {{ form.as_p }}
-
-    <input type="submit" class="btn btn-primary margin-top" value="Save">
 </form>
 
 {% endblock %}
