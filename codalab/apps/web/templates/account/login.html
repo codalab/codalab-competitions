@@ -6,7 +6,15 @@
 
 {% block head_title %}Sign In{% endblock head_title %}
 {% block page_title %}Sign In{% endblock page_title %}
-
+{% block extra_head %}
+    <script>
+        $(document).ready(function() {
+            if (!("autofocus" in document.createElement("input"))) {
+                $("#id_login").focus();
+            }
+        });
+    </script>
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-6">
@@ -38,7 +46,7 @@
 
             <div class="form-group">
                 <label for="id_login">Login:</label>
-                <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text">
+                <input id="id_login" class="form-control" name="login" placeholder="Username or e-mail" type="text" autofocus>
             </div>
             <div class="form-group">
                 <label for="id_password">Password:</label>
