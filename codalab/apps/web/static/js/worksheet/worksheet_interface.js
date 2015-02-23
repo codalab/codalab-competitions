@@ -315,28 +315,31 @@ var Worksheet = React.createClass({
             <div id="worksheet" className={serachClassName}>
                 {search_display}
                 {worksheet_side_panel}
-                <div className="container">
-                    <div id="worksheet_content" className={editableClassName}>
-                        <div className="header-row">
-                            <div className="row">
-                                <div className="col-sm-6">
-                                    <div className="worksheet-name">
-                                        <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                                        <div className="worksheet-author">{ws_obj.state.owner}</div>
+                <div className="ws-container">
+                    <div class="container-fluid">
+                        <div id="worksheet_content" className={editableClassName}>
+                            <div className="header-row">
+                                <div className="row">
+                                    <div className="col-sm-6">
+                                        <div className="worksheet-name">
+                                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                                            <div className="worksheet-author">{ws_obj.state.owner}</div>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="controls">
+                                            <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                            {editFeatures}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-sm-6">
-                                    <div className="controls">
-                                        <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                        {editFeatures}
-                                    </div>
-                                </div>
+                                <hr />
                             </div>
-                            <hr />
+                            {worksheet_display}
                         </div>
-                        {worksheet_display}
                     </div>
                 </div>
+                <div id="dragbar"></div>
             </div>
         )
     }

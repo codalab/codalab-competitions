@@ -1,3 +1,12 @@
+@initial-panel-width: 25%;
+
+.panel-frame {
+   margin-top:12px;
+   line-height:1.2;
+   min-height:480px;
+}
+
+html, body, #worksheet_container {height:100%;}
 #worksheet-message {
    padding:20px 0;
    &.alert {
@@ -10,6 +19,8 @@
 }
 #worksheet {
    .transition(margin-top .35s ease);
+   position:relative;
+   height:100%;
    .ws-search {
       position:fixed;
       top:52px;
@@ -54,13 +65,41 @@
          top:-7px;
       }
    }
+   #dragbar {
+      background-color:@gray-light;
+      position:absolute;
+      height:100%;
+      right:@initial-panel-width;
+      width: 2px;
+      cursor: col-resize;
+   }
+   .ws-container {
+      position: absolute;
+      left: 0;
+      right:@initial-panel-width;
+      padding: 0 @grid-gutter-width;
+      height:100%;
+      overflow:auto;
+   }
+   .ws-panel {
+      width:@initial-panel-width;
+      position: absolute;
+      right:0;
+      height:100%;
+      overflow:auto;
+      padding: 0 @grid-gutter-width/2;
+      background:white;
+      #panel_content {
+         .panel-frame;
+         h3:first-child {
+            margin-top:0;
+         }
+      }
+   }
 }
 #worksheet_content {
+   .panel-frame;
    display:none;
-   margin-top:12px;
-   line-height:1.2;
-   min-height:480px;
-   padding-bottom: 50px;
    hr {
       margin:12px 0;
    }
