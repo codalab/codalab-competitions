@@ -290,7 +290,7 @@ var WorksheetItemList = React.createClass({
                         react_el.focusOnLast();
                     }
                 }
-                if(typeof(event) == 'undefined'){
+                if(typeof(event) !== 'undefined'){
                     this.scrollToItem(index);
                 }
             }
