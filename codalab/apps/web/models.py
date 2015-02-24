@@ -223,11 +223,13 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
-        logger.info("Checking for submissions that may still be running")
+        logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
 
-        if current_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+        if last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
             logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
             return
+        else:
+            logger.info("No submissions running for competition pk=%s" % self.pk)
 
         logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
                     (self.pk, last_phase.phasenumber, current_phase.phasenumber))
