@@ -987,7 +987,7 @@ def download_dataset(request, dataset_key):
     try:
         dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
     except ObjectDoesNotExist:
-        return Http404()
+        raise Http404()
 
     try:
         if dataset.sub_data_files.count() > 0:
@@ -1062,7 +1062,7 @@ def download_competition_bundle(request, competition_pk):
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
     except ObjectDoesNotExist:
-        return Http404()
+        raise Http404()
 
     try:
         zip_buffer = StringIO.StringIO()
@@ -1110,6 +1110,48 @@ def download_competition_bundle(request, competition_pk):
 
         resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
         resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        return resp
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+
+@login_required
+def download_leaderboard_results(request, competition_pk, phase_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            raise Http404()
+
+        phase = models.CompetitionPhase.objects.get(pk=phase_pk)
+        leaderboard_entries = models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    try:
+        zip_buffer = StringIO.StringIO()
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        for entry in leaderboard_entries:
+            submission = entry.result
+            file_name = "%s - %s.zip" % (submission.participant.user.username, submission.submission_number)
+            zip_file.writestr(file_name, submission.file.read())
+
+        zip_file.close()
+
+        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s-results.zip' % (competition.title, competition.pk)
         return resp
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
