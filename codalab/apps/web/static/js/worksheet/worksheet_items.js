@@ -132,16 +132,16 @@ var WorksheetItemList = React.createClass({
     },
     scrollToItem: function(index){
         // scroll the window to keep the focused element in view
-        var distanceFromBottom = window.innerHeight;
+        var distanceFromBottom = $('.ws-container').innerHeight();
         var distanceFromTop = 0;
         var navbarHeight = parseInt($('body').css('padding-top'));
         var distance, scrollTo;
         if(index > -1){
-            var scrollPos = $(window).scrollTop();
+            var scrollPos = $('.ws-container').scrollTop();
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
             var nodePos = node.getBoundingClientRect(); // get all measurements for node
-            var distanceFromBottom = window.innerHeight - nodePos.bottom; // how far node is from bottom of viewport
+            var distanceFromBottom = $('.ws-container').innerHeight() - nodePos.bottom; // how far node is from bottom of viewport
             var distanceFromTop = nodePos.top - navbarHeight; // how far node is from top of viewport
             if (keyMap[event.keyCode] == 'k' ||
                 keyMap[event.keyCode] == 'up' ){ // if scrolling up
@@ -156,7 +156,7 @@ var WorksheetItemList = React.createClass({
             }
         }
         if(distance < 50){ // if we're within 50px of going off screen
-            $('body').stop(true).animate({scrollTop: scrollTo}, 50);
+            $('.ws-container').stop(true).animate({scrollTop: scrollTo}, 50);
         }
     },
     resetFocusIndex: function(){
@@ -290,7 +290,7 @@ var WorksheetItemList = React.createClass({
                         react_el.focusOnLast();
                     }
                 }
-                if(typeof(event) == 'undefined'){
+                if(typeof(event) !== 'undefined'){
                     this.scrollToItem(index);
                 }
             }
