@@ -95,8 +95,8 @@ var WorksheetDetailSidePanel = React.createClass({
         return (
             <div id="panel_content">
                 <h3>{worksheet.name}</h3>
-                <p>{worksheet.uuid}</p>
-                <p>{worksheet.owner}</p>
+                <p className="ws-uuid">{worksheet.uuid}</p>
+                <p className="ws-owner">{worksheet.owner}</p>
             </div>
         )
     }
@@ -119,10 +119,14 @@ var BundleDetailSidePanel = React.createClass({
         }else{ // content/images/ect. are not
             bundle_info = item.bundle_info
         }
-
-
         var bundle_url = '/bundles/' + bundle_info.uuid;
         var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
+        bundle_info.name = "Wyle E Coyoted";
+        var bundle_name;
+        if(bundle_info.name){
+            bundle_name = <h3 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">{ bundle_info.name }</h3>
+        }
+        var bundle_state_class = 'bundle-state state-' + bundle_info.state
         // "uuid": "",
         // "hard_dependencies": [],
         // "state": "ready",
@@ -139,30 +143,44 @@ var BundleDetailSidePanel = React.createClass({
         return (
             <div id="panel_content">
                 <div className="bundle-header">
-                    <div className="row">
-                        <div className="">
-                            <h2 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
-                                {bundle_info.name}
-                            </h2>
-                            <h3><a href={bundle_url} className="bundle-link" target="_blank"> {bundle_info.uuid} </a></h3>
-                        </div>
-                        <div className="c">
-                            <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
-                                Download <span className="glyphicon glyphicon-download-alt"></span>
-                            </a>
-                            <div className="bundle-uuid">{bundle_info.uuid}</div>
-                        </div>
+                    {bundle_name}
+                    <div className="bundle-links">
+                        <a href={bundle_url} className="bundle-link" target="_blank">{bundle_info.uuid}</a>
+                        <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+                            <span className="glyphicon glyphicon-download-alt"></span>
+                        </a>
                     </div>
                 </div>
-
-
-                <p>state: {bundle_info.state}</p>
-                <p>command: {bundle_info.command}</p>
-                <hr></hr>
-                <div class="well">
+                <table className="bundle-meta table">
+                    <tbody>
+                        <tr>
+                            <th>
+                                state:
+                            </th>
+                            <td>
+                                <span className={bundle_state_class}>
+                                    {bundle_info.state}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                command:
+                            </th>
+                            <td>
+                                {bundle_info.command}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div className="panel-box">
                     <strong> dependencies </strong>
                     <ul>
                         {dependencies_list_html}
+                        <li>something | weoiuasdj0</li>
+                        <li>something | weoiuasdj0</li>
+                        <li>something | weoiuasdj0</li>
+                        <li>something | weoiuasdj0</li>
                     </ul>
                 </div>
             </div>
