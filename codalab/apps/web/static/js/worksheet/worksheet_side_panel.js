@@ -113,14 +113,58 @@ var BundleDetailSidePanel = React.createClass({
     },
     render: function(){
         var item = this.props.item;
-        var bundle_info = item.bundle_info[this.props.subFocusIndex]
-        var bundle_url = '/bundles/' + bundle_info.uuid;
+        var bundle_info;
+        if(item.bundle_info instanceof Array){ //tables are arrays
+            bundle_info = item.bundle_info[this.props.subFocusIndex]
+        }else{ // content/images/ect. are not
+            bundle_info = item.bundle_info
+        }
 
+
+        var bundle_url = '/bundles/' + bundle_info.uuid;
+        var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
+        // "uuid": "",
+        // "hard_dependencies": [],
+        // "state": "ready",
+        // "dependencies": [],
+        // "command": null,
+        // "bundle_type": "",
+        // "metadata": {},
+        // "files": {},
+        dependencies = bundle_info.dependencies
+        dependencies_list_html = dependencies.map(function(d, index) {
+            return <li>{d.parent_name} | {d.parent_uuid}</li>
+        });
+        // <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
         return (
             <div id="panel_content">
-                <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
-                <h2>{bundle_info.uuid}</h2>
-                <a target="_blank" href="{bundle_url}">{bundle_info.uuid}</a>
+                <div className="bundle-header">
+                    <div className="row">
+                        <div className="">
+                            <h2 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
+                                {bundle_info.name}
+                            </h2>
+                            <h3><a href={bundle_url} className="bundle-link" target="_blank"> {bundle_info.uuid} </a></h3>
+                        </div>
+                        <div className="c">
+                            <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+                                Download <span className="glyphicon glyphicon-download-alt"></span>
+                            </a>
+                            <div className="bundle-uuid">{bundle_info.uuid}</div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <p>state: {bundle_info.state}</p>
+                <p>command: {bundle_info.command}</p>
+                <hr></hr>
+                <div class="well">
+                    <strong> dependencies </strong>
+                    <ul>
+                        {dependencies_list_html}
+                    </ul>
+                </div>
             </div>
         )
     }
