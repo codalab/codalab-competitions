@@ -276,6 +276,8 @@ var WorksheetItemList = React.createClass({
         // last_sub_el: True/False force a focus on the last sub element
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});
+            //pass back up to workshet interface so the app knows which item is slected
+            this.props.updateWorksheetFocusIndex(index)
             if(index >= 0){
                 var mode = ws_obj.state.items[index].state.mode;
                 var react_el = this.refs['item'+index]

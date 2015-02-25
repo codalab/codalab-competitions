@@ -6265,6 +6265,10 @@ fieldset[disabled] .btn-secondary.active {
 .alert-error .alert-link {
   color: #843534;
 }
+.alert-error ul.errorlist {
+  padding-left: 0;
+  list-style: none;
+}
 .hidden {
   display: none !important;
 }
@@ -7259,13 +7263,13 @@ footer .navbar-nav.navbar-right:last-child {
 }
 body {
   padding-top: 52px;
-  padding-bottom: 50px;
+  padding-bottom: 25px;
 }
 body > .container {
   padding-bottom: 36px;
 }
 body.ws-interface {
-  padding-top: 113px;
+  padding-top: 110px;
 }
 body.ws-interface > .container {
   padding-bottom: 0;
@@ -7421,6 +7425,16 @@ input[type="checkbox"] {
     padding-top: 4px;
   }
 }
+.panel-frame {
+  margin-top: 12px;
+  line-height: 1.2;
+  min-height: 480px;
+}
+html,
+body,
+#worksheet_container {
+  height: 100%;
+}
 #worksheet-message {
   padding: 20px 0;
 }
@@ -7435,6 +7449,8 @@ input[type="checkbox"] {
   -webkit-transition: margin-top 0.35s ease;
   -o-transition: margin-top 0.35s ease;
   transition: margin-top 0.35s ease;
+  position: relative;
+  height: 100%;
 }
 #worksheet .ws-search {
   position: fixed;
@@ -7453,6 +7469,7 @@ input[type="checkbox"] {
 }
 #worksheet .ws-search > .container {
   display: table;
+  padding-right: 65px;
 }
 #worksheet .ws-search > .container > .input-group {
   display: table-row;
@@ -7466,6 +7483,7 @@ input[type="checkbox"] {
   top: 0;
   bottom: 0;
   line-height: 1;
+  width: 50px;
 }
 #worksheet .ws-search .select2-container-multi .select2-choices {
   padding: 1px 5px 3px 0;
@@ -7484,12 +7502,44 @@ input[type="checkbox"] {
 #worksheet.search-hidden .ws-search {
   top: -7px;
 }
-#worksheet_content {
-  display: none;
+#worksheet #dragbar {
+  background-color: #cccccc;
+  position: absolute;
+  height: 100%;
+  right: 25%;
+  width: 2px;
+  cursor: col-resize;
+}
+#worksheet .ws-container {
+  position: absolute;
+  left: 0;
+  right: 25%;
+  padding: 0 30px;
+  height: 100%;
+  overflow: auto;
+}
+#worksheet .ws-panel {
+  width: 25%;
+  position: absolute;
+  right: 0;
+  height: 100%;
+  overflow: auto;
+  padding: 0 15px;
+  background: #FBFBFB;
+}
+#worksheet .ws-panel #panel_content {
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
-  padding-bottom: 50px;
+}
+#worksheet .ws-panel #panel_content h3:first-child {
+  margin-top: 0;
+}
+#worksheet_content {
+  margin-top: 12px;
+  line-height: 1.2;
+  min-height: 480px;
+  display: none;
 }
 #worksheet_content hr {
   margin: 12px 0;
@@ -8770,4 +8820,61 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 .my-datasets table.table-bordered > thead > tr > th,
 .my-datasets table.table-bordered > thead > tr > td {
   border-bottom-width: 1px;
+}
+.table.affiliation > tbody > tr > th,
+.table.affiliation > tbody > tr > td {
+  vertical-align: middle;
+}
+.table.affiliation > tbody > tr > th input,
+.table.affiliation > tbody > tr > td input {
+  display: block;
+  width: 100%;
+  height: 39px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #999999;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.table.affiliation > tbody > tr > th input:focus,
+.table.affiliation > tbody > tr > td input:focus {
+  border-color: #699ec3;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+}
+.table.affiliation > tbody > tr > th input::-moz-placeholder,
+.table.affiliation > tbody > tr > td input::-moz-placeholder {
+  color: #cccccc;
+  opacity: 1;
+}
+.table.affiliation > tbody > tr > th input:-ms-input-placeholder,
+.table.affiliation > tbody > tr > td input:-ms-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input::-webkit-input-placeholder,
+.table.affiliation > tbody > tr > td input::-webkit-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input[disabled],
+.table.affiliation > tbody > tr > td input[disabled],
+.table.affiliation > tbody > tr > th input[readonly],
+.table.affiliation > tbody > tr > td input[readonly],
+fieldset[disabled] .table.affiliation > tbody > tr > th input,
+fieldset[disabled] .table.affiliation > tbody > tr > td input {
+  cursor: not-allowed;
+  background-color: #dddddd;
+  opacity: 1;
+}
+textarea.table.affiliation > tbody > tr > th input,
+textarea.table.affiliation > tbody > tr > td input {
+  height: auto;
 }
