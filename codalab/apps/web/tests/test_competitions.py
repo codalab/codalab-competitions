@@ -175,6 +175,10 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="finished", codename="finished")[0]
         self.submission_1.save()
+        PhaseLeaderBoardEntry.objects.create(
+            board=self.leader_board,
+            result=self.submission_1
+        )
         with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
             self.competition.check_trailing_phase_submissions()
         self.assertTrue(evaluate_mock.called)
