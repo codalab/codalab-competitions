@@ -29,6 +29,7 @@ var WorksheetSidePanel = React.createClass({
             <div className="ws-panel">
                 <div id="panel_content">
                     <h3>Here</h3>
+                    <p>{this.props.focusIndex}</p>
                 </div>
             </div>
         )

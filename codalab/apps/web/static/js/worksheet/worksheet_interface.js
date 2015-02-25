@@ -27,7 +27,11 @@ var Worksheet = React.createClass({
             rawMode: false,
             showSearchBar: false,
             editingText: false,
+            focusIndex: -1,
         };
+    },
+    _setfocusIndex: function(index){
+        this.setState({focusIndex: index});
     },
     componentDidMount: function() {
         this.bindEvents();
@@ -117,7 +121,6 @@ var Worksheet = React.createClass({
                 this.showSearchBar();
                 this.setState({activeComponent: 'search'});
         }.bind(this));
-
 
         //toggle raw - F
         Mousetrap.bind(['shift+f'], function(e){
@@ -266,7 +269,7 @@ var Worksheet = React.createClass({
         }
 
         // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-        raw_display = (
+        var raw_display = (
                     <textarea
                         id="raw-textarea"
                         className="form-control mousetrap"
@@ -276,7 +279,7 @@ var Worksheet = React.createClass({
                     />
             )
 
-        items_display = (
+        var items_display = (
                 <WorksheetItemList
                     ref={"list"}
                     active={this.state.activeComponent=='list'}
@@ -286,12 +289,12 @@ var Worksheet = React.createClass({
                     toggleRawMode={this.toggleRawMode}
                     toggleSearchBar={this.toggleSearchBar}
                     hideSearchBar={this.hideSearchBar}
+                    updateWorksheetFocusIndex={this._setfocusIndex}
                     showSearchBar={this.showSearchBar}
                     toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
                 />
-                )
-
+            )
 
         var search_display = (
                 <WorksheetSearch
@@ -306,6 +309,8 @@ var Worksheet = React.createClass({
         var worksheet_side_panel = (
                 <WorksheetSidePanel
                     ref={"panel"}
+                    active={this.state.activeComponent=='side_panel'}
+                    focusIndex={this.state.focusIndex}
                 />
             )
         //simple switch out if raw or items
