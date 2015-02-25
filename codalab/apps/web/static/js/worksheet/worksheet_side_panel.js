@@ -12,7 +12,6 @@ var WorksheetSidePanel = React.createClass({
         $(document).mouseup(function(e){
             $(this).unbind('mousemove');
         });
-        console.log("componentDidMount WorksheetSidePanel")
     },
     current_focus: function(){
         var focus = ''
@@ -60,6 +59,7 @@ var WorksheetSidePanel = React.createClass({
             case 'bundle':
                 side_panel_details = <BundleDetailSidePanel
                                         item={current_focus}
+                                        subFocusIndex={this.props.subFocusIndex}
                                     />
                 break;
             default:
@@ -112,12 +112,15 @@ var BundleDetailSidePanel = React.createClass({
 
     },
     render: function(){
-        bundle = this.props.item;
+        var item = this.props.item;
+        var bundle_info = item.bundle_info[this.props.subFocusIndex]
+        var bundle_url = '/bundles/' + bundle_info.uuid;
 
         return (
             <div id="panel_content">
-                <h2>{bundle.name}</h2>
-                <h3>{bundle.uuid}</h3>
+                <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
+                <h2>{bundle_info.uuid}</h2>
+                <a target="_blank" href="{bundle_url}">{bundle_info.uuid}</a>
             </div>
         )
     }

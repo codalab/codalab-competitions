@@ -26,9 +26,12 @@ var TableBundle = React.createClass({
             var parentFocusIndex = this._owner.state.focusIndex;
             if(index < 0){
                 this._owner.setFocus(parentFocusIndex - 1, e);
-                this.setState({rowFocusIndex: 0});
+                this.focusOnRow(0);
+                this.props.updateWorksheetSubFocusIndex(0);
             }else {
-                this.setState({rowFocusIndex: index});
+                console.log("setting up the index", index)
+                this.focusOnRow(index);
+                this.props.updateWorksheetSubFocusIndex(index);
                 this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
@@ -49,8 +52,11 @@ var TableBundle = React.createClass({
 
             if(index == rowsInTable){
                 this._owner.setFocus(parentFocusIndex + 1, event);
+                this.props.updateWorksheetSubFocusIndex(0);
             }else {
-                this.setState({rowFocusIndex: index});
+                console.log("setting up the index", index)
+                this.focusOnRow(index);
+                this.props.updateWorksheetSubFocusIndex(index);
                 this.scrollToRow(index, event);
             }
         }.bind(this), 'keydown');
@@ -123,14 +129,14 @@ var TableBundle = React.createClass({
             var rowPos = tablePos + (index * rowHeight);
             var distanceFromBottom = $('.ws-container').innerHeight() - rowPos;
             var distanceFromTop = rowPos - navbarHeight;
-            if(keyMap[event.keyCode] == 'k' ||
-               keyMap[event.keyCode] == 'up'){
-                distance = distanceFromTop;
-                scrollTo = scrollPos - rowHeight - 50;
-            }else {
-                distance = distanceFromBottom;
-                scrollTo = scrollPos + rowHeight + 50;
-            }
+            // if(keyMap[event.keyCode] == 'k' ||
+            //    keyMap[event.keyCode] == 'up'){
+            //     distance = distanceFromTop;
+            //     scrollTo = scrollPos - rowHeight - 50;
+            // }else {
+            //     distance = distanceFromBottom;
+            //     scrollTo = scrollPos + rowHeight + 50;
+            // }
         }
         if(distance < 50){
             $('.ws-container').stop(true).animate({scrollTop: scrollTo}, 50);

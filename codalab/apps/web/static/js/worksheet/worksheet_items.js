@@ -311,11 +311,13 @@ var WorksheetItemList = React.createClass({
         this.capture_keys(); //each item capture keys are handled dynamically after this call
         // shortcut naming
         var canEdit         = this.props.canEdit;
+        var updateWSFI      = this.props.updateWorksheetSubFocusIndex; //when on a complex item type (table) understand which bundle user has selectd
         var checkboxEnabled = this.state.checkboxEnabled;
         var editingIndex    = this.state.editingIndex;
         var focusIndex      = this.state.focusIndex;
         var handleSave      = this.saveItem;
         var setFocus        = this.setFocus;
+
 
         var worksheet_items = [];
         // console.log(ws_obj.state.items);
@@ -328,7 +330,7 @@ var WorksheetItemList = React.createClass({
                 var editing = i === editingIndex;
                 //create the item of the correct type and add it to the list.
                 worksheet_items.push(
-                        WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled)
+                        WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWSFI)
                     )
             });
             items_display = worksheet_items
@@ -348,7 +350,7 @@ var WorksheetItemList = React.createClass({
 
 
 
-var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled){
+var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWorksheetSubFocusIndex){
     switch (item.state.mode) {
         case 'markup':
             return <MarkdownBundle
@@ -361,6 +363,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
 
                         handleSave={handleSave}
                 />
@@ -376,6 +379,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'table':
@@ -389,6 +393,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
 
                         handleSave={handleSave}
                     />
@@ -404,6 +409,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'html':
@@ -417,6 +423,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'record':
@@ -430,6 +437,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'image':
@@ -443,6 +451,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'worksheet':
@@ -456,6 +465,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         default:  // something new or something we dont yet handle

@@ -28,10 +28,14 @@ var Worksheet = React.createClass({
             showSearchBar: false,
             editingText: false,
             focusIndex: -1,
+            subFocusIndex: 0,
         };
     },
     _setfocusIndex: function(index){
         this.setState({focusIndex: index});
+    },
+    _setWorksheetSubFocusIndex: function(index){
+        this.setState({subFocusIndex: index});
     },
     componentDidMount: function() {
         this.bindEvents();
@@ -290,6 +294,7 @@ var Worksheet = React.createClass({
                     toggleSearchBar={this.toggleSearchBar}
                     hideSearchBar={this.hideSearchBar}
                     updateWorksheetFocusIndex={this._setfocusIndex}
+                    updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
                     showSearchBar={this.showSearchBar}
                     toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
@@ -311,6 +316,7 @@ var Worksheet = React.createClass({
                     ref={"panel"}
                     active={this.state.activeComponent=='side_panel'}
                     focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
                 />
             )
         //simple switch out if raw or items
