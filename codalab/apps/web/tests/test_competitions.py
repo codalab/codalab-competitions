@@ -192,6 +192,15 @@ class CompetitionPhaseToPhase(TestCase):
             self.competition.check_trailing_phase_submissions()
         self.assertTrue(evaluate_mock.called)
 
+    def test_phase_migrations_delayed_marks_competition(self):
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.save()
+        self.assertFalse(self.competition.is_migrating_delayed)
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertTrue(self.competition.is_migrating_delayed)
+
+
 
 class CompetitionTest(TestCase):
 

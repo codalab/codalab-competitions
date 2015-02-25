@@ -166,6 +166,7 @@ class Competition(models.Model):
     original_yaml_file = models.TextField(default='', blank=True, null=True)
     show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
     reward = models.PositiveIntegerField(null=True, blank=True)
+    is_migrating_delayed = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -225,8 +226,13 @@ class Competition(models.Model):
         '''
         logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
 
-        if last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+        if self.is_migrating_delayed:
+            logger.info("Migrations have already been delayed, still waiting for competition pk=%s" % self.pk)
+            return
+        elif last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
             logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
+            self.is_migrating_delayed = True
+            self.save()
             return
         else:
             logger.info("No submissions running for competition pk=%s" % self.pk)
