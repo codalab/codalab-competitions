@@ -29,7 +29,7 @@ var TableBundle = React.createClass({
                 this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
-                this.scrollToRow(index);
+                this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
 
@@ -40,7 +40,7 @@ var TableBundle = React.createClass({
         }.bind(this), 'keydown');
 
 
-        Mousetrap.bind(['down', 'j'], function(e){
+        Mousetrap.bind(['down', 'j'], function(event){
             var item = this.props.item.state;
             var index = this.state.rowFocusIndex;
             var parentFocusIndex = this._owner.state.focusIndex;
@@ -48,11 +48,10 @@ var TableBundle = React.createClass({
             index = Math.min(index + 1, rowsInTable);
 
             if(index == rowsInTable){
-                this._owner.setFocus(parentFocusIndex + 1, e);
-                this.setState({rowFocusIndex: 0});
+                this._owner.setFocus(parentFocusIndex + 1, event);
             }else {
                 this.setState({rowFocusIndex: index});
-                this.scrollToRow(index);
+                this.scrollToRow(index, event);
             }
         }.bind(this), 'keydown');
 
@@ -112,17 +111,17 @@ var TableBundle = React.createClass({
     goToBundlePage: function(){
         window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
-    scrollToRow: function(index){
+    scrollToRow: function(index, event){
         // scroll the window to keep the focused row in view
         var navbarHeight = parseInt($('body').css('padding-top'));
         var distance, scrollTo;
         if(index > -1){
-            var scrollPos = $(window).scrollTop();
+            var scrollPos = $('.ws-container').scrollTop();
             var table = this.getDOMNode();
             var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
             var tablePos = table.getBoundingClientRect().top;
             var rowPos = tablePos + (index * rowHeight);
-            var distanceFromBottom = window.innerHeight - rowPos;
+            var distanceFromBottom = $('.ws-container').innerHeight() - rowPos;
             var distanceFromTop = rowPos - navbarHeight;
             if(keyMap[event.keyCode] == 'k' ||
                keyMap[event.keyCode] == 'up'){
@@ -134,7 +133,7 @@ var TableBundle = React.createClass({
             }
         }
         if(distance < 50){
-            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+            $('.ws-container').stop(true).animate({scrollTop: scrollTo}, 50);
         }
     },
     moveRow: function(delta){

@@ -316,7 +316,7 @@ var Worksheet = React.createClass({
                 {search_display}
                 {worksheet_side_panel}
                 <div className="ws-container">
-                    <div class="container-fluid">
+                    <div className="container-fluid">
                         <div id="worksheet_content" className={editableClassName}>
                             <div className="header-row">
                                 <div className="row">

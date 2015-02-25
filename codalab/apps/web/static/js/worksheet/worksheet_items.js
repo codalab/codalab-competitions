@@ -44,7 +44,7 @@ var WorksheetItemList = React.createClass({
             }else {
                 fIndex = Math.max(this.state.focusIndex - 1, 0);
             }
-            this.setFocus(fIndex, e);
+            this.setFocus(fIndex, e, null, 'up');
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+up', 'meta+up', 'ctrl+k', 'meta+k'], function(e){
@@ -55,7 +55,7 @@ var WorksheetItemList = React.createClass({
         //jump to the top - 1 G
         Mousetrap.bind(['1 shift+g'], function(e){
             $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0, e);
+            this.setFocus(0, e, null, null);
         }.bind(this), 'keydown');
 
         ////
@@ -65,7 +65,7 @@ var WorksheetItemList = React.createClass({
             // not be the same as the number of item objects because of editing/inserting/whatever,
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex, e);
+            this.setFocus(fIndex, e, null, 'down');
             // console.log('moving down');
         }.bind(this), 'keydown');
 
@@ -78,7 +78,7 @@ var WorksheetItemList = React.createClass({
         // jump to the bottom - G
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex, e, true);
+            this.setFocus(fIndex, e, null, true);
             $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
@@ -126,11 +126,11 @@ var WorksheetItemList = React.createClass({
 
 
         if(focusedItem && focusedItem.hasOwnProperty('capture_keys')){
-                // pass the event along to the element
-                focusedItem.capture_keys();
+            // pass the event along to the element
+            focusedItem.capture_keys();
         }
     },
-    scrollToItem: function(index){
+    scrollToItem: function(index, event){
         // scroll the window to keep the focused element in view
         var distanceFromBottom = $('.ws-container').innerHeight();
         var distanceFromTop = 0;
@@ -270,7 +270,7 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index, event, last_sub_el){
+    setFocus: function(index, event, last_sub_el, direction){
         // index : what item index we want to focus on
         // event : the JS click event or keyboar event
         // last_sub_el: True/False force a focus on the last sub element
@@ -282,16 +282,19 @@ var WorksheetItemList = React.createClass({
 
                 if(mode === 'table'){
                     this.toggleCheckboxEnable(false);
+                    if(direction == 'up'){
+                        last_sub_el = true;
+                    }
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
                 if(react_el && last_sub_el){ //we have a react item and wish to force last sub item (usefulll for tables)
                     if(react_el.hasOwnProperty('focusOnLast')){
-                        react_el.focusOnLast();
+                        react_el.focusOnLast(event);
                     }
                 }
                 if(typeof(event) !== 'undefined'){
-                    this.scrollToItem(index);
+                    this.scrollToItem(index, event);
                 }
             }
         }
