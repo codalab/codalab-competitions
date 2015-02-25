@@ -177,10 +177,6 @@ var BundleDetailSidePanel = React.createClass({
                     <strong> dependencies </strong>
                     <ul>
                         {dependencies_list_html}
-                        <li>something | weoiuasdj0</li>
-                        <li>something | weoiuasdj0</li>
-                        <li>something | weoiuasdj0</li>
-                        <li>something | weoiuasdj0</li>
                     </ul>
                 </div>
             </div>
