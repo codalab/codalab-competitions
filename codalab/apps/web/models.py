@@ -226,10 +226,7 @@ class Competition(models.Model):
         '''
         logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
 
-        if self.is_migrating_delayed:
-            logger.info("Migrations have already been delayed, still waiting for competition pk=%s" % self.pk)
-            return
-        elif last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+        if last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
             logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
             self.is_migrating_delayed = True
             self.save()
@@ -281,6 +278,7 @@ class Competition(models.Model):
 
         # TODO: ONLY IF SUCCESSFUL
         self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
+        self.is_migrating_delayed = False
         self.last_phase_migration = current_phase.phasenumber
         self.save()
 
