@@ -94,7 +94,7 @@ var WorksheetDetailSidePanel = React.createClass({
 
         return (
             <div id="panel_content">
-                <h3>{worksheet.name}</h3>
+                <h3 className="ws-name">{worksheet.name}</h3>
                 <p className="ws-uuid">{worksheet.uuid}</p>
                 <p className="ws-owner">{worksheet.owner}</p>
             </div>
@@ -124,7 +124,7 @@ var BundleDetailSidePanel = React.createClass({
         // bundle_info.name = "Wyle E Coyoted";
         var bundle_name;
         if(bundle_info.metadata.name){
-            bundle_name = <h3 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">{ bundle_info.metadata.name }</h3>
+            bundle_name = <h3 className="bundle-name">{ bundle_info.metadata.name }</h3>
         }
         var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready')
         // "uuid": "",
@@ -135,6 +135,7 @@ var BundleDetailSidePanel = React.createClass({
         // "bundle_type": "",
         // "metadata": {},
         // "files": {},
+        var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
         var dependencies = bundle_info.dependencies
         var dependencies_list_html = dependencies.map(function(d, index) {
             var dep_bundle_url = '/bundles/' + d.parent_uuid;
@@ -180,9 +181,7 @@ var BundleDetailSidePanel = React.createClass({
                             <span className="glyphicon glyphicon-download-alt"></span>
                         </a>
                     </div>
-                    <p>
-                        {bundle_info.metadata.description}
-                    </p>
+                    { bundle_description }
                 </div>
                 <table className="bundle-meta table">
                     <tbody>
@@ -206,21 +205,18 @@ var BundleDetailSidePanel = React.createClass({
                         </tr>
                     </tbody>
                 </table>
-                <h4> Metadata </h4>
+                <h4>metadata </h4>
                 <table className="bundle-meta table">
                     <tbody>
                         {metadata_list_html}
                     </tbody>
                 </table>
-                <div className="panel-box">
-                    <h4> dependencies </h4>
-                    <table className="bundle-meta table">
-                        <tbody>
-                            {dependencies_list_html}
-                        </tbody>
-                    </table>
-
-                </div>
+                <h4>dependencies</h4>
+                <table className="bundle-meta table">
+                    <tbody>
+                        {dependencies_list_html}
+                    </tbody>
+                </table>
             </div>
         )
     }
