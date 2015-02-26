@@ -121,12 +121,12 @@ var BundleDetailSidePanel = React.createClass({
         }
         var bundle_url = '/bundles/' + bundle_info.uuid;
         var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
-        bundle_info.name = "Wyle E Coyoted";
+        // bundle_info.name = "Wyle E Coyoted";
         var bundle_name;
-        if(bundle_info.name){
-            bundle_name = <h3 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">{ bundle_info.name }</h3>
+        if(bundle_info.metadata.name){
+            bundle_name = <h3 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">{ bundle_info.metadata.name }</h3>
         }
-        var bundle_state_class = 'bundle-state state-' + bundle_info.state
+        var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready')
         // "uuid": "",
         // "hard_dependencies": [],
         // "state": "ready",
@@ -135,10 +135,40 @@ var BundleDetailSidePanel = React.createClass({
         // "bundle_type": "",
         // "metadata": {},
         // "files": {},
-        dependencies = bundle_info.dependencies
-        dependencies_list_html = dependencies.map(function(d, index) {
-            return <li>{d.parent_name} | {d.parent_uuid}</li>
+        var dependencies = bundle_info.dependencies
+        var dependencies_list_html = dependencies.map(function(d, index) {
+            var dep_bundle_url = '/bundles/' + d.parent_uuid;
+            return (
+                    <tr>
+                        <th>
+                            {d.parent_name}
+                        </th>
+                        <td>
+                            <a href={dep_bundle_url} className="bundle-link" target="_blank">
+                                {d.parent_uuid}
+                            </a>
+                        </td>
+                    </tr>
+                )
         });
+        var metadata = bundle_info.metadata
+        var metadata_list_html = [];
+        for (var property in metadata) {
+            if (metadata.hasOwnProperty(property)) {
+                metadata_list_html.push(
+                    <tr>
+                        <th>
+                            {property}
+                        </th>
+                        <td>
+                            <span >
+                                {metadata[property]}
+                            </span>
+                        </td>
+                    </tr>
+                )
+            }
+        }
         // <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
         return (
             <div id="panel_content">
@@ -150,6 +180,9 @@ var BundleDetailSidePanel = React.createClass({
                             <span className="glyphicon glyphicon-download-alt"></span>
                         </a>
                     </div>
+                    <p>
+                        {bundle_info.metadata.description}
+                    </p>
                 </div>
                 <table className="bundle-meta table">
                     <tbody>
@@ -159,7 +192,7 @@ var BundleDetailSidePanel = React.createClass({
                             </th>
                             <td>
                                 <span className={bundle_state_class}>
-                                    {bundle_info.state}
+                                    {bundle_info.state || 'ready'}
                                 </span>
                             </td>
                         </tr>
@@ -168,16 +201,25 @@ var BundleDetailSidePanel = React.createClass({
                                 command:
                             </th>
                             <td>
-                                {bundle_info.command}
+                                {bundle_info.command || "<none>"}
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                <h4> Metadata </h4>
+                <table className="bundle-meta table">
+                    <tbody>
+                        {metadata_list_html}
+                    </tbody>
+                </table>
                 <div className="panel-box">
-                    <strong> dependencies </strong>
-                    <ul>
-                        {dependencies_list_html}
-                    </ul>
+                    <h4> dependencies </h4>
+                    <table className="bundle-meta table">
+                        <tbody>
+                            {dependencies_list_html}
+                        </tbody>
+                    </table>
+
                 </div>
             </div>
         )
