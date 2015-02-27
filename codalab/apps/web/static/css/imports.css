@@ -8795,7 +8795,10 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   padding-bottom: 0;
 }
 .competition-tile .competition-actions {
-  margin: 16px -16px -12px -16px;
+  margin: 16px -1px -12px -11px;
+}
+.competition-tile .competition-actions .btn-group-justified {
+  display: initial;
 }
 .my-datasets table {
   margin-top: 20px;
