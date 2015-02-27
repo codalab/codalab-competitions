@@ -6265,6 +6265,10 @@ fieldset[disabled] .btn-secondary.active {
 .alert-error .alert-link {
   color: #843534;
 }
+.alert-error ul.errorlist {
+  padding-left: 0;
+  list-style: none;
+}
 .hidden {
   display: none !important;
 }
@@ -8745,7 +8749,10 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   padding-bottom: 0;
 }
 .competition-tile .competition-actions {
-  margin: 16px -16px -12px -16px;
+  margin: 16px -1px -12px -11px;
+}
+.competition-tile .competition-actions .btn-group-justified {
+  display: initial;
 }
 .my-datasets table {
   margin-top: 20px;
@@ -8770,4 +8777,61 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 .my-datasets table.table-bordered > thead > tr > th,
 .my-datasets table.table-bordered > thead > tr > td {
   border-bottom-width: 1px;
+}
+.table.affiliation > tbody > tr > th,
+.table.affiliation > tbody > tr > td {
+  vertical-align: middle;
+}
+.table.affiliation > tbody > tr > th input,
+.table.affiliation > tbody > tr > td input {
+  display: block;
+  width: 100%;
+  height: 39px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #999999;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.table.affiliation > tbody > tr > th input:focus,
+.table.affiliation > tbody > tr > td input:focus {
+  border-color: #699ec3;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+}
+.table.affiliation > tbody > tr > th input::-moz-placeholder,
+.table.affiliation > tbody > tr > td input::-moz-placeholder {
+  color: #cccccc;
+  opacity: 1;
+}
+.table.affiliation > tbody > tr > th input:-ms-input-placeholder,
+.table.affiliation > tbody > tr > td input:-ms-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input::-webkit-input-placeholder,
+.table.affiliation > tbody > tr > td input::-webkit-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input[disabled],
+.table.affiliation > tbody > tr > td input[disabled],
+.table.affiliation > tbody > tr > th input[readonly],
+.table.affiliation > tbody > tr > td input[readonly],
+fieldset[disabled] .table.affiliation > tbody > tr > th input,
+fieldset[disabled] .table.affiliation > tbody > tr > td input {
+  cursor: not-allowed;
+  background-color: #dddddd;
+  opacity: 1;
+}
+textarea.table.affiliation > tbody > tr > th input,
+textarea.table.affiliation > tbody > tr > td input {
+  height: auto;
 }
