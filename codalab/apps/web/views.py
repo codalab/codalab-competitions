@@ -1143,9 +1143,23 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         zip_buffer = StringIO.StringIO()
         zip_file = zipfile.ZipFile(zip_buffer, "w")
 
+        # Add teach team name in an easy to read way
+        team_name_cache = {}
+        team_name_string = ""
+        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False):
+            user_on_team = result.result.participant.user
+            team_name_cache[user_on_team.team_name] = user_on_team.team_members
+        for name, members in team_name_cache.items():
+            team_name_string += "Team: %s; members: %s\n" % (name, members)
+
+        if team_name_string:
+            zip_file.writestr("team_names_and_members.txt", team_name_string.encode('utf8'))
+
+        # Add each submission
         for entry in leaderboard_entries:
             submission = entry.result
-            file_name = "%s - %s.zip" % (submission.participant.user.username, submission.submission_number)
+            username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
+            file_name = "%s - %s.zip" % (username_or_team_name, submission.submission_number)
             zip_file.writestr(file_name, submission.file.read())
 
         zip_file.close()
