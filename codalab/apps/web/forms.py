@@ -26,6 +26,7 @@ class CompetitionForm(forms.ModelForm):
             'admins',
             'show_datasets_from_yaml',
             'reward',
+            'allow_teams',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
@@ -166,7 +167,11 @@ class UserSettingsForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('participation_status_updates',
-                  'organizer_status_updates',
-                  'organizer_direct_message_updates',
-                  'organization_or_affiliation',)
+        fields = (
+            'participation_status_updates',
+            'organizer_status_updates',
+            'organizer_direct_message_updates',
+            'organization_or_affiliation',
+            'team_name',
+            'team_members',
+        )
