@@ -49,7 +49,6 @@ var TableBundle = React.createClass({
 
             if(index == rowsInTable){
                 this._owner.setFocus(parentFocusIndex + 1, e);
-                this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
                 this.scrollToRow(index);
