@@ -406,8 +406,19 @@ class BundleContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             target = (uuid, path)
-            items = service.get_target_info(target, 2) # 2 is the depth to retrieve
-            return Response(items)
+            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            info['stdout'] = None
+            info['stderr'] = None
+            #if we have std out or err update it.
+            contents = info.get('contents')
+            if contents:
+                for item in contents:
+                    if item['name'] in ['stdout', 'stderr']:
+                        lines = service.head_target((uuid, item['name']), 100)
+                        if lines:
+                            lines = ' '.join(lines)
+                            info[item['name']] = lines
+            return Response(info)
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))

@@ -65,6 +65,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             bundle_info['metadata'] = metadata
 
             return bundle_info
+        def head_target(self, target, maxlines=100):
+            return self.client.head_target(target, maxlines)
 
         def search_bundles(self, keywords, worksheet_uuid=None):
             # search_bundle_uuids(worksheet_uuid, keywords, max_results, show_counts_only)
