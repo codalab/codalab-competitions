@@ -9,3 +9,5 @@ class ClUser(auth_models.AbstractUser):
 
     organization_or_affiliation = models.CharField(max_length=255, null=True, blank=True)
 
+    team_name = models.CharField(max_length=64, null=True, blank=True)
+    team_members = models.TextField(null=True, blank=True)

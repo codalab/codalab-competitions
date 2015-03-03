@@ -32,11 +32,14 @@
         {% for group in groups %}
             <table class="resultsTable dataTable">
                 <tr class="table-title">
-                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
+                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
                 </tr>
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2"></th>
                     <th rowspan="2">User</th>
+                    {% if phase.competition.allow_teams %}
+                    <th rowspan="2">Team Name</th>
+                    {% endif %}
                     {% for head in group.headers %}
                         {% if head.subs %}
                             <th colspan="{{head.subs|length}}">{{head.label}}</th>
@@ -69,6 +72,9 @@
                         <tr>
                             <td class="row-position">{{pk}}</td>
                             <td>{{scoredata.username}}</td>
+                            {% if phase.competition.allow_teams %}
+                            <td>{{scoredata.team_name|default_if_none:""}}</td>
+                            {% endif %}
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
                                     {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
