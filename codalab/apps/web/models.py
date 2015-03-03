@@ -167,6 +167,7 @@ class Competition(models.Model):
     show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
     reward = models.PositiveIntegerField(null=True, blank=True)
     is_migrating_delayed = models.BooleanField(default=False)
+    allow_teams = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -597,14 +598,14 @@ class CompetitionPhase(models.Model):
                 qs = CompetitionSubmission.objects.filter(phase=self)
                 for submission in qs:
                     result_location.append(submission.file.name)
-                    submissions.append((submission.pk,  submission.participant.user.username))
+                    submissions.append((submission.pk, submission.participant.user))
             else:
                 qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
                 for entry in qs:
                     result_location.append(entry.result.file.name)
 
-                for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
-                    submissions.append((rid,  name))
+                for entry in qs:
+                    submissions.append((entry.result.id, entry.result.participant.user))
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -613,9 +614,10 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk, name) in submissions:
+            for (pk, user) in submissions:
                 scores[pk] = {
-                    'username': name,
+                    'username': user.username,
+                    'team_name': user.team_name,
                     'id': pk,
                     'values': [],
                     'resultLocation': result_location[count]
