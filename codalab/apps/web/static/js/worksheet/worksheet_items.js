@@ -130,7 +130,7 @@ var WorksheetItemList = React.createClass({
                 focusedItem.capture_keys();
         }
     },
-    scrollToItem: function(index){
+    scrollToItem: function(index, event){
         // scroll the window to keep the focused element in view
         var distanceFromBottom = window.innerHeight;
         var distanceFromTop = 0;
@@ -156,7 +156,7 @@ var WorksheetItemList = React.createClass({
             }
         }
         if(distance < 50){ // if we're within 50px of going off screen
-            $('body').stop(true).animate({scrollTop: scrollTo}, 50);
+            $('html,body').stop(true).animate({scrollTop: scrollTo}, 50);
         }
     },
     resetFocusIndex: function(){
@@ -279,7 +279,6 @@ var WorksheetItemList = React.createClass({
             if(index >= 0){
                 var mode = ws_obj.state.items[index].state.mode;
                 var react_el = this.refs['item'+index]
-
                 if(mode === 'table'){
                     this.toggleCheckboxEnable(false);
                 }else {
@@ -291,7 +290,7 @@ var WorksheetItemList = React.createClass({
                     }
                 }
                 if(typeof(event) !== 'undefined'){
-                    this.scrollToItem(index);
+                    this.scrollToItem(index, event);
                 }
             }
         }
