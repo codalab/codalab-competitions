@@ -29,7 +29,7 @@ var TableBundle = React.createClass({
                 this.setState({rowFocusIndex: 0});
             }else {
                 this.setState({rowFocusIndex: index});
-                this.scrollToRow(index);
+                this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
 
@@ -51,7 +51,7 @@ var TableBundle = React.createClass({
                 this._owner.setFocus(parentFocusIndex + 1, e);
             }else {
                 this.setState({rowFocusIndex: index});
-                this.scrollToRow(index);
+                this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
 
@@ -111,7 +111,7 @@ var TableBundle = React.createClass({
     goToBundlePage: function(){
         window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
-    scrollToRow: function(index){
+    scrollToRow: function(index, event){
         // scroll the window to keep the focused row in view
         var navbarHeight = parseInt($('body').css('padding-top'));
         var distance, scrollTo;
@@ -126,14 +126,14 @@ var TableBundle = React.createClass({
             if(keyMap[event.keyCode] == 'k' ||
                keyMap[event.keyCode] == 'up'){
                 distance = distanceFromTop;
-                scrollTo = scrollPos - rowHeight - 50;
+                scrollTo = scrollPos - rowHeight - 55;
             }else {
                 distance = distanceFromBottom;
-                scrollTo = scrollPos + rowHeight + 50;
+                scrollTo = scrollPos + rowHeight + 55;
             }
         }
         if(distance < 50){
-            $('body').stop(true).animate({scrollTop: scrollTo}, 250);
+            $('html,body').stop(true).animate({scrollTop: scrollTo}, 250);
         }
     },
     moveRow: function(delta){
