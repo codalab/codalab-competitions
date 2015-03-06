@@ -281,7 +281,6 @@ var WorksheetItemList = React.createClass({
             if(index >= 0){
                 var mode = ws_obj.state.items[index].state.mode;
                 var react_el = this.refs['item'+index]
-
                 if(mode === 'table'){
                     this.toggleCheckboxEnable(false);
                     if(direction == 'up'){
