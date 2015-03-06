@@ -72,7 +72,7 @@
                         <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
                             {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
                         </a>
-                </th>
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
