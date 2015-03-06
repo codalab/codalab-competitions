@@ -549,6 +549,10 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         # create column definition
         columns = [
             {
+                'label': '#',
+                'name': 'number'
+            },
+            {
                 'label': 'NAME',
                 'name': 'name'
             },
@@ -572,12 +576,13 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
-        for participant in competition_participants:
+        for number, participant in enumerate(competition_participants):
             participant_entry = {
                 'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
                 'status': participant.status.codename,
+                'number': number + 1,
                 # equivalent to assigning participant.submissions.count() but without several multiple db queires
                 'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions))
             }
