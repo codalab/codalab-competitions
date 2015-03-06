@@ -14,23 +14,24 @@ var WorksheetSidePanel = React.createClass({
         });
     },
     current_focus: function(){
-        var focus = ''
+        var focus = '';
         if(this.props.focusIndex > -1){
             focus = ws_obj.state.items[this.props.focusIndex].state;
-            if(focus.mode == "markup"){
+            //focus.mode == "worksheet" #TODO render correct worksheet stuff when selected not just generic ws
+            if(focus.mode == "markup" || focus.mode == "worksheet"){
                 // this.focustype = undefined;
                 //for now lets default it back to showing worksheet info
                 focus = ws_obj.state;
-                this.focustype = 'worksheet'
+                this.focustype = 'worksheet';
             }
             else{
-                this.focustype = 'bundle'
+                this.focustype = 'bundle';
             }
         }else{
             focus = ws_obj.state;
-            this.focustype = 'worksheet'
+            this.focustype = 'worksheet';
         }
-        return  focus
+        return  focus;
     },
     componentWillUnmount: function(){
 
@@ -152,6 +153,9 @@ var BundleDetailSidePanel = React.createClass({
                     </tr>
                 )
         });
+        if(dependencies_list_html.length == 0){
+            dependencies_list_html = <li> none </li>
+        }
         var metadata = bundle_info.metadata
         var metadata_list_html = [];
         for (var property in metadata) {
@@ -171,6 +175,34 @@ var BundleDetailSidePanel = React.createClass({
             }
         }
         // <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
+        var stdout_html = ''
+        if(bundle_info.stdout){
+            //had to add span since react elm must be wrapped
+            stdout_html = (
+                <span>
+                    <h4>stdout</h4>
+                    <div className="bundle-meta">
+                        <pre>
+                            {bundle_info.stdout}
+                        </pre>
+                    </div>
+                </span>
+            )
+        }
+        var stderr_html = ''
+        if(bundle_info.stderr){
+            //had to add span since react elm must be wrapped
+            stderr_html = (
+                <span>
+                    <h4>stderr</h4>
+                    <div className="bundle-meta">
+                        <pre>
+                            {bundle_info.stderr}
+                        </pre>
+                    </div>
+                </span>
+            )
+        }
         return (
             <div id="panel_content">
                 <div className="bundle-header">
@@ -217,6 +249,8 @@ var BundleDetailSidePanel = React.createClass({
                         {dependencies_list_html}
                     </tbody>
                 </table>
+                {stdout_html}
+                {stderr_html}
             </div>
         )
     }
