@@ -9,7 +9,6 @@ To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 ## Documentation
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
-- [CodaLab Online Help](http://www.codalab.org/help)
 
 ## Community
 
