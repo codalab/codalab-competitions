@@ -601,6 +601,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
+                'user_pk': participant.user.pk,
                 'status': participant.status.codename,
                 'number': number + 1,
                 # equivalent to assigning participant.submissions.count() but without several multiple db queires
@@ -782,6 +783,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 submission_info = {
                     'id': submission.id,
                     'submitted_by': submission.participant.user.username,
+                    'user_pk': submission.participant.user.pk,
                     'number': submission.submission_number,
                     'filename': submission.get_filename(),
                     'submitted_at': submission.submitted_at,
