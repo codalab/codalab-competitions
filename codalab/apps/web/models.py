@@ -617,6 +617,7 @@ class CompetitionPhase(models.Model):
             for (pk, user) in submissions:
                 scores[pk] = {
                     'username': user.username,
+                    'user_pk': user.pk,
                     'team_name': user.team_name,
                     'id': pk,
                     'values': [],

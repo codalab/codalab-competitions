@@ -68,10 +68,12 @@
                         <td colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.enable_detailed_results}}">No data available in table</td>
                     </tr>
                 {% else %}
-                    {% for pk,scoredata in group.scores %}
+                    {% for pk, scoredata in group.scores %}
                         <tr>
                             <td class="row-position">{{pk}}</td>
-                            <td>{{scoredata.username}}</td>
+                            <td>
+                                <a href="{% url 'user_details' pk=scoredata.user_pk %}">{{scoredata.username}}</a>
+                            </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{scoredata.team_name|default_if_none:""}}</td>
                             {% endif %}
