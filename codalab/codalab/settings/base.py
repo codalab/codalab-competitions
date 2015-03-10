@@ -252,6 +252,7 @@ class Base(Settings):
     ACCOUNT_EMAIL_REQUIRED=True
     ACCOUNT_USERNAME_REQUIRED=True
     ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]

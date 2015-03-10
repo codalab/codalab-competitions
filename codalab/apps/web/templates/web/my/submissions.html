@@ -71,6 +71,10 @@
                         {% for column in columns %}
                             {% if column.name == 'filename' %}
                                 <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                            {% elif column.name == 'submitted_by' %}
+                                <td>
+                                    <a href="{% url 'user_details' pk=submission.user_pk %}">{{submission|get_item:column.name}}</a>
+                                </td>
                             {% else %}
                                 <td>{{submission|get_item:column.name}}</td>
                             {% endif %}
