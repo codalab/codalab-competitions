@@ -279,6 +279,26 @@ def competition_message_participants(request, competition_id):
     return HttpResponse(status=200)
 
 
+class UserDetailView(DetailView):
+    model = User
+    template_name = 'web/user_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(UserDetailView, self).get_context_data(**kwargs)
+        context_data['information'] = {
+            'Organization': self.object.organization_or_affiliation,
+            'Team Name': self.object.team_name,
+            'Team Members': self.object.team_members,
+            'Method Name': self.object.method_name,
+            'Method Description': self.object.method_description,
+            'Contact Email': self.object.contact_email,
+            'Project URL': self.object.project_url,
+            'Publication URL': self.object.publication_url,
+            'Bibtex': self.object.bibtex,
+        }
+        return context_data
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition

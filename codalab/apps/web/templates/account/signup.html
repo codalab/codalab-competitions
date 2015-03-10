@@ -25,21 +25,61 @@
             {% endif %}
 
             <div class="form-group">
-                <label for="id_username">Username:</label>
+                <label for="id_username">*Username:</label>
                 <input id="id_username" class="form-control" name="username" placeholder="Username" type="text" value="{{ form.username.value|default_if_none:"" }}">
             </div>
             <div class="form-group">
-                <label for="id_email">E-mail:</label>
+                <label for="id_email">*E-mail:</label>
                 <input id="id_email" class="form-control" name="email" placeholder="E-mail address" type="text" value="{{ form.email.value|default_if_none:"" }}">
             </div>
             <div class="form-group">
-                <label for="id_password1">Password:</label>
+                <label for="id_password1">*Password:</label>
                 <input id="id_password1" class="form-control" name="password1" placeholder="Password" type="password" value="{{ form.password1.value|default_if_none:"" }}">
             </div>
             <div class="form-group">
-                <label for="id_password2">Password (again):</label>
+                <label for="id_password2">*Password (again):</label>
                 <input id="id_password2" class="form-control" name="password2" placeholder="Password" type="password" value="{{ form.password2.value|default_if_none:"" }}">
                 <input id="id_confirmation_key" name="confirmation_key" type="hidden">
+            </div>
+
+            <div class="form-group">
+                <label for="id_team_name">Team Name:</label>
+                <input id="id_team_name" class="form-control" name="team_name" placeholder="Team name" type="text" value="{{ form.team_name.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_method_name">Method Name:</label>
+                <input id="id_method_name" class="form-control" name="method_name" placeholder="Method Name" type="text" value="{{ form.method_name.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_method_description">Method description:</label>
+                <textarea id="id_method_description" class="form-control" name="method_description">{{ form.method_description.value|default_if_none:"" }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="id_contact_email">Contact E-mail:</label>
+                <input id="id_contact_email" class="form-control" name="contact_email" placeholder="Contact E-mail address" type="text" value="{{ form.contact_email.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_project_url">Project URL:</label>
+                <input id="id_project_url" class="form-control" name="project_url" placeholder="http://example.com" type="text" value="{{ form.project_url.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_publication_url">Publication URL:</label>
+                <input id="id_publication_url" class="form-control" name="publication_url" placeholder="http://example.com" type="text" value="{{ form.publication_url.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_organization_or_affiliation">Organization or affiliation:</label>
+                <input id="id_organization_or_affiliation" class="form-control" name="organization_or_affiliation" placeholder="Organization or affiliation" type="text" value="{{ form.organization_or_affiliation.value|default_if_none:"" }}">
+            </div>
+
+            <div class="form-group">
+                <label for="id_bibtex">Bibtex:</label>
+                <textarea id="id_bibtex" class="form-control" name="bibtex">{{ form.bibtex.value|default_if_none:"" }}</textarea>
             </div>
             {% if redirect_field_value %}
 		      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
