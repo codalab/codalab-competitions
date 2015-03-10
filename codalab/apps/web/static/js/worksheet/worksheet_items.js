@@ -131,33 +131,35 @@ var WorksheetItemList = React.createClass({
         }
     },
     scrollToItem: function(index, event){
-        // scroll the window to keep the focused element in view
-        var distanceFromBottom = window.innerHeight;
-        var distanceFromTop = 0;
-        var navbarHeight = parseInt($('body').css('padding-top'));
-        var distance, scrollTo;
-        if(index > -1){
-            var scrollPos = $(window).scrollTop();
+        // scroll the window to keep the focused element in view if needed
+        var __innerScrollToItem = function(index, event){
+            var navbarHeight = parseInt($('body').css('padding-top'));
+            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
-            var nodePos = node.getBoundingClientRect(); // get all measurements for node
-            var distanceFromBottom = window.innerHeight - nodePos.bottom; // how far node is from bottom of viewport
-            var distanceFromTop = nodePos.top - navbarHeight; // how far node is from top of viewport
-            if (keyMap[event.keyCode] == 'k' ||
-                keyMap[event.keyCode] == 'up' ){ // if scrolling up
-                distance = distanceFromTop; // use the top measurement
-                scrollTo = scrollPos - nodePos.height - 50; // scroll to top of node plus 50px buffer
-                if(this.state.worksheet.items[index].state.mode === 'table'){
-                    scrollTo += nodePos.height - 30;
-                }
-            }else{ // scrolling down
-                distance = distanceFromBottom; // use the bottom measurement
-                scrollTo = scrollPos + nodePos.height + 50; // scroll to bottom of node plus 5px buffer
+            var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
+             // where is the top of the elm on the page and does it fit in the the upper forth of the page
+            var scrollTo = $(window).scrollTop() + nodePos.top - navbarHeight - (viewportHeight/4);
+            // how far node top is from top of viewport
+            var distanceFromTopViewPort = nodePos.top - navbarHeight;
+            // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
+            // the elm is down the page and we should scrol to put it more in focus
+            if(distanceFromTopViewPort > viewportHeight/3){
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 100);
+                return;
             }
-        }
-        if(distance < 50){ // if we're within 50px of going off screen
-            $('html,body').stop(true).animate({scrollTop: scrollTo}, 50);
-        }
+            // if the elment is not in the viewport (way up top), just scroll
+            if(distanceFromTopViewPort < 0){
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 100);
+                return;
+            }
+        } // end of __innerScrollToItem
+
+        //throttle it becasue of keydown and holding keys
+        var throttledScrollToItem = _.throttle(__innerScrollToItem, 250).bind(this);
+        throttledScrollToItem(index, event);
+
     },
     resetFocusIndex: function(){
         this.setState({focusIndex: -1});
