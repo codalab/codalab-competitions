@@ -18,6 +18,7 @@ var WorksheetItemList = React.createClass({
             }
         };
     },
+    throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
         this.props.refreshWorksheet();
         // Set up the debounced version of the save method here so we can call it later
@@ -134,7 +135,7 @@ var WorksheetItemList = React.createClass({
         // scroll the window to keep the focused element in view if needed
         var __innerScrollToItem = function(index, event){
             var navbarHeight = parseInt($('body').css('padding-top'));
-            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
@@ -145,20 +146,24 @@ var WorksheetItemList = React.createClass({
             var distanceFromTopViewPort = nodePos.top - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
+            console.log('scrolling');
             if(distanceFromTopViewPort > viewportHeight/3){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 100);
+
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
             // if the elment is not in the viewport (way up top), just scroll
             if(distanceFromTopViewPort < 0){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 100);
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
-        } // end of __innerScrollToItem
+        }; // end of __innerScrollToItem
 
         //throttle it becasue of keydown and holding keys
-        var throttledScrollToItem = _.throttle(__innerScrollToItem, 250).bind(this);
-        throttledScrollToItem(index, event);
+        if(this.throttledScrollToItem === undefined){ //create if we dont already have it.
+            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 75).bind(this);
+        }
+        this.throttledScrollToItem(index, event);
 
     },
     resetFocusIndex: function(){
@@ -292,7 +297,10 @@ var WorksheetItemList = React.createClass({
                     }
                 }
                 if(typeof(event) !== 'undefined'){
-                    this.scrollToItem(index, event);
+                    // var throttledScrollToItem = _.throttle(this.scrollToItem, 1000).bind(this);
+                    // console.log("again?")
+                    // throttledScrollToItem(index, event);
+                    this.scrollToItem(index, event)
                 }
             }
         }
