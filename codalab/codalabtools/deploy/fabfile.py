@@ -480,6 +480,7 @@ def install_packages_compute_workers():
     # --yes and --force-yes accepts the Y/N question when installing the package
     sudo('apt-get update')
     sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+    sudo('apt-get --yes --force-yes install r-base')
     sudo('apt-get --yes --force-yes --fix-missing install mono-runtime libmono-system-web-extensions4.0-cil libmono-system-io-compression4.0-cil')
 
     # check for khiops dir if not, put
