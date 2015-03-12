@@ -13,6 +13,26 @@
 {% block content %}
 <form method="POST" action=".">{% csrf_token %}
     <h2>{{ user.username }}</h2>
+    {% if errors %}
+        <div class="alert alert-error">
+            There were errors processing the form, please try reloading the page!
+        </div>
+    {% endif %}
+
+    {% if saved_successfully %}
+        <div class="alert alert-success">
+            Saved successfully!
+        </div>
+    {% endif %}
+
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {% for field, msg in form.errors.items %}
+                <b>{{ field }}</b> {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-12">
             <h4>My Account {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</h4>
@@ -62,25 +82,6 @@
 
             <h4>My subscription settings</h4>
 
-            {% if errors %}
-                <div class="alert alert-error">
-                    There were errors processing the form, please try reloading the page!
-                </div>
-            {% endif %}
-
-            {% if saved_successfully %}
-                <div class="alert alert-success">
-                    Saved successfully!
-                </div>
-            {% endif %}
-
-            {% if form.errors %}
-                <div class="alert alert-error">
-                    {% for field, msg in form.errors.items %}
-                        <b>{{ field }}</b> {{ msg }}
-                    {% endfor %}
-                </div>
-            {% endif %}
             <table class="table table-striped subscriptions">
                 <tbody>
                     <tr>
@@ -102,12 +103,36 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <h4>My organization/affiliation</h4>
+            <h4>Profile information</h4>
             <table class="table table-striped affiliation">
                 <tbody>
                     <tr>
                         <th>{{ form.organization_or_affiliation.label }}</th>
                         <td>{{ form.organization_or_affiliation }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.method_name.label }}</th>
+                        <td>{{ form.method_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.method_description.label }}</th>
+                        <td>{{ form.method_description }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.contact_email.label }}</th>
+                        <td>{{ form.contact_email }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.project_url.label }}</th>
+                        <td>{{ form.project_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.publication_url.label }}</th>
+                        <td>{{ form.publication_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.bibtex.label }}</th>
+                        <td>{{ form.bibtex }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -72,7 +72,7 @@
                         <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
                             {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
                         </a>
-                </th>
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -82,9 +82,13 @@
                     {% for column in columns %}
                     <td>
                         {% if column.label == "STATUS" %}
-                            <span class="label label-{{participant|get_item:column.name}}">{{participant|get_item:column.name}}</span>
+                            <span class="label label-{{participant|get_item:column.name}}">
+                                {{participant|get_item:column.name}}
+                            </span>
                             <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</button>
                             <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</button>
+                        {% elif column.label == "NAME" %}
+                            <a href="{% url 'user_details' pk=participant.user_pk %}">{{ participant|get_item:column.name }}</a>
                         {% else %}
                             {{ participant|get_item:column.name }}
                         {% endif %}

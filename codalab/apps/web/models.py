@@ -617,6 +617,7 @@ class CompetitionPhase(models.Model):
             for (pk, user) in submissions:
                 scores[pk] = {
                     'username': user.username,
+                    'user_pk': user.pk,
                     'team_name': user.team_name,
                     'id': pk,
                     'values': [],
@@ -1426,7 +1427,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), "data.zip")
+    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
 
 
 class OrganizerDataSet(models.Model):

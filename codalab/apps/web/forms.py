@@ -174,4 +174,15 @@ class UserSettingsForm(forms.ModelForm):
             'organization_or_affiliation',
             'team_name',
             'team_members',
+            'method_name',
+            'method_description',
+            'contact_email',
+            'project_url',
+            'publication_url',
+            'bibtex',
         )
+        widgets = {
+            'team_members': forms.Textarea(attrs={"class": "form-control"}),
+            'method_description': forms.Textarea(attrs={"class": "form-control"}),
+            'bibtex': forms.Textarea(attrs={"class": "form-control"})
+        }
