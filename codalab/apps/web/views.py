@@ -1173,7 +1173,8 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         # Add teach team name in an easy to read way
         team_name_cache = {}
         team_name_string = ""
-        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False):
+        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False,
+                                                                  result__participant__competition=competition):
             user_on_team = result.result.participant.user
             team_name_cache[user_on_team.team_name] = user_on_team.team_members
         for name, members in team_name_cache.items():
