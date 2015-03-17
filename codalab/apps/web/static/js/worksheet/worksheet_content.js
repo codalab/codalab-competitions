@@ -496,7 +496,6 @@ var WorksheetContent = function() {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
-        console.log('------ save the worksheet here ------');
         var postdata = {
             'name': this.state.name,
             'uuid': this.state.uuid,
@@ -518,8 +517,6 @@ var WorksheetContent = function() {
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
-                $('#update_progress').hide();
-                $('#save_error').show();
                 props.error(xhr, status, err);
             }.bind(this)
         });
