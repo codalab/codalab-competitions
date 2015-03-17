@@ -378,7 +378,7 @@ var FileBrowser = React.createClass({
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} size={item.size} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -454,13 +454,22 @@ var FileBrowserItem = React.createClass({
         }
 
         var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
-
+        var size = '';
+        if(this.props.hasOwnProperty('size')){
+           if(this.props.size == 0)
+                size = "0"
+           var k = 1000;
+           var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+           var i = Math.floor(Math.log(this.props.size) / Math.log(k));
+           size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+        }
         return (
             <tr>
                 <td>
                     <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
                         <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
+                        <span className="pull-right"> {size} </span>
                     </div>
                 </td>
             </tr>
