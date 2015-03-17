@@ -213,7 +213,7 @@ class WorksheetContentApi(views.APIView):
             return Response(status=service.http_status_from_exception(e))
 
     """
-    Provides a web API to update a worksheet.
+    Provides a web API to update/save a worksheet.
     """
     def post(self, request, uuid):
         user = self.request.user
@@ -227,7 +227,6 @@ class WorksheetContentApi(views.APIView):
         lines = data['lines']
 
         if not (worksheet_uuid == uuid):
-            print "uui"
             return Response(None, status=403)
 
         logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner_id, worksheet_name, uuid)
@@ -237,12 +236,12 @@ class WorksheetContentApi(views.APIView):
             return Response({})
         except Exception as e:
             logging.error(self.__str__())
+            logging.error('ERROR')
             logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
+            logging.error('-------------------------')
             tb = traceback.format_exc()
             logging.error(tb)
-            logging.debug('-------------------------')
+            logging.error('-------------------------')
             return Response({'error': smart_str(e)})
 
 
