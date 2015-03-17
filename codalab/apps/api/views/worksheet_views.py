@@ -255,7 +255,20 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_info = service.get_bundle_info(uuid)
-            print bundle_info
+            target = (uuid, '')
+            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            bundle_info['stdout'] = None
+            bundle_info['stderr'] = None
+            #if we have std out or err update it.
+            contents = info.get('contents')
+            if contents:
+                for item in contents:
+                    if item['name'] in ['stdout', 'stderr']:
+                        lines = service.head_target((uuid, item['name']), 100)
+                        if lines:
+                            lines = ' '.join(lines)
+                            bundle_info[item['name']] = lines
+
             bundle_info['edit_permission'] = False
             if bundle_info['owner_id'] == str(self.request.user.id):
                 bundle_info['edit_permission'] = True
