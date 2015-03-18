@@ -10,16 +10,19 @@
     <div class="row">
         <div class="col-lg-12">
             <h1>Details for {{ object }}</h1>
-            <table class="table table-striped account">
-                <tbody>
-                    {% for key, value in information.items %}
-                    <tr>
-                        <td width="170px"><b>{{ key }}</b></td>
-                        <td>{{ value|default_if_none:"" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+            <h3><i>Details are currently hidden</i></h3>
+            {# Hidden for now #}
+{#            <table class="table table-striped account">#}
+{#                <tbody>#}
+{#                    {% for key, value in information.items %}#}
+{#                    <tr>#}
+{#                        <td width="170px"><b>{{ key }}</b></td>#}
+{#                        <td>{{ value|default_if_none:"" }}</td>#}
+{#                    </tr>#}
+{#                    {% endfor %}#}
+{#                </tbody>#}
+{#            </table>#}
         </div>
     </div>
 </div>
