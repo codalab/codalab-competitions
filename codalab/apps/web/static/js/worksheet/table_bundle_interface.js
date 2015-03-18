@@ -96,7 +96,7 @@ var TableBundle = React.createClass({
         // scroll the window to keep the focused element in view if needed
         var __innerScrollToRow = function(index, event){
             var navbarHeight = parseInt($('body').css('padding-top'));
-            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            var viewportHeight = Math.max($(".ws-container").innerHeight() || 0);
 
             var node = this.getDOMNode();
             var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
@@ -105,18 +105,18 @@ var TableBundle = React.createClass({
             var tablePos = nodePos.top;
             var rowPos = tablePos + (index * rowHeight);
              // where is the top of the elm on the page and does it fit in the the upper forth of the page
-            var scrollTo = $(window).scrollTop() + rowPos - navbarHeight - (viewportHeight/4);
+            var scrollTo = $(".ws-container").scrollTop() + rowPos - navbarHeight - (viewportHeight/4);
             // how far node top is from top of viewport
             var distanceFromTopViewPort = rowPos - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
             if(distanceFromTopViewPort > viewportHeight/3){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
             // if the elment is not in the viewport (way up top), just scroll
             if(distanceFromTopViewPort < 0){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
 
