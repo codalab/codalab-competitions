@@ -72,7 +72,7 @@
                         <tr>
                             <td class="row-position">{{pk}}</td>
                             <td>
-                                <a href="{% url 'user_details' pk=scoredata.user_pk %}">{{scoredata.username}}</a>
+                                {{scoredata.username}}
                             </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{scoredata.team_name|default_if_none:""}}</td>
