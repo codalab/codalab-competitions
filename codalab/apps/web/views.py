@@ -415,9 +415,12 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
 
-        last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
-        context['last_submission_method_name'] = last_submission.method_name
-        context['last_submission_method_description'] = last_submission.method_description
+        try:
+            last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+            context['last_submission_method_name'] = last_submission.method_name
+            context['last_submission_method_description'] = last_submission.method_description
+        except ObjectDoesNotExist:
+            pass
 
         return context
 
