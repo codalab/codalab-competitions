@@ -953,7 +953,7 @@ class Deployment(object):
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
-            "    ADMINS = (('CodaLab', 'codalab@live.com'),)",
+            "    ADMINS = (('Eric', 'eric.carmichael@%s'),)" % "tivix.com",
             "    MANAGERS = ADMINS",
             "",
             "    DATABASES = {",
