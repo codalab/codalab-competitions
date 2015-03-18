@@ -27,6 +27,7 @@ class CompetitionForm(forms.ModelForm):
             'show_datasets_from_yaml',
             'reward',
             'allow_teams',
+            'enable_per_submission_metadata',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
