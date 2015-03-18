@@ -530,7 +530,9 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise ParseError(detail='Invalid or missing tracking ID.')
         obj.file.name = blob_name
 
-        obj.description = self.request.QUERY_PARAMS.get('description', None)
+        obj.description = self.request.QUERY_PARAMS.get('description', "")
+        obj.method_name = self.request.QUERY_PARAMS.get('method_name', "")
+        obj.method_description = self.request.QUERY_PARAMS.get('method_description', "")
 
     def post_save(self, obj, created):
         if created:

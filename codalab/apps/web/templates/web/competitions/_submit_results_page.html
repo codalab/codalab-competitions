@@ -26,6 +26,11 @@
         <div class="form-group">
             <label class="control-label">Click the Submit button to upload a new submission.</label>
             <textarea id="submission_description_textarea" class="form-control" placeholder="Optionally add more information about this submission"></textarea>
+
+            {% if phase.competition.enable_per_submission_metadata %}
+                <br><input id="submission_method_name" class="form-control" placeholder="Method name" value="{{ last_submission_method_name|default_if_none:""|escape }}">
+                <br><textarea id="submission_method_description" class="form-control" placeholder="Method description">{{ last_submission_method_description|default_if_none:""|escape }}</textarea>
+            {% endif %}
         </div>
         <button id="fileUploadButton" class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
                         {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
@@ -68,7 +73,9 @@
                         {% if submission_info.exception_details %}
                             data-exception="{{ submission_info.exception_details|escape }}"
                         {% endif %}
-                        data-description="{{ submission_info.description|default_if_none:""|escape }}">
+                        data-description="{{ submission_info.description|default_if_none:""|escape }}"
+                        data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
+                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}">
                         {% if submission_info.is_finished %}
                             <input type="hidden" name="state" value='1' />
                         {% else %}

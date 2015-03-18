@@ -408,10 +408,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
                         'description': submission.description,
+                        'method_name': submission.method_name,
+                        'method_description': submission.method_description,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+
+        last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+        context['last_submission_method_name'] = last_submission.method_name
+        context['last_submission_method_description'] = last_submission.method_description
+
         return context
 
 class CompetitionResultsPage(TemplateView):
@@ -1189,6 +1196,26 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
             file_name = "%s - %s.zip" % (username_or_team_name, submission.submission_number)
             zip_file.writestr(file_name, submission.file.read())
+
+            profile_data_file_name = "%s - %s profile.txt" % (username_or_team_name, submission.submission_number)
+            user_profile_data = {
+                'Organization': submission.participant.user.organization_or_affiliation,
+                'Team Name': submission.participant.user.team_name,
+                'Team Members': submission.participant.user.team_members,
+                'Method Name': submission.participant.user.method_name,
+                'Method Description': submission.participant.user.method_description,
+                'Contact Email': submission.participant.user.contact_email,
+                'Project URL': submission.participant.user.project_url,
+                'Publication URL': submission.participant.user.publication_url,
+                'Bibtex': submission.participant.user.bibtex,
+            }
+            user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in user_profile_data.items()])
+            zip_file.writestr(profile_data_file_name, user_profile_data_string.encode('utf-8'))
+
+            submission_method_file_name = "%s - %s method.txt" % (username_or_team_name, submission.submission_number)
+            submission_method_file_string = "Method: %s\nDescription:\n%s" % (submission.method_name,
+                                                                              submission.method_description)
+            zip_file.writestr(submission_method_file_name, submission_method_file_string.encode('utf-8'))
 
         zip_file.close()
 
