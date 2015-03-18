@@ -87,8 +87,6 @@
                             </span>
                             <button type="button" class="pull-right btn btn-danger btn-sm revoke_button button {% if participant.status == "denied" %}hide{% endif %}" participant_id="{{ participant.pk }}">Revoke</button>
                             <button type="button" class="pull-right btn btn-success btn-sm reinstate_button button {% if participant.status == "approved" %}hide{% endif %}" participant_id="{{ participant.pk }}">Reinstate</button>
-                        {% elif column.label == "NAME" %}
-                            <a href="{% url 'user_details' pk=participant.user_pk %}">{{ participant|get_item:column.name }}</a>
                         {% else %}
                             {{ participant|get_item:column.name }}
                         {% endif %}
