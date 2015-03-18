@@ -74,6 +74,7 @@ var Competition;
     }
 
     Competition.getPhaseSubmissions = function(competitionId, phaseId, cstoken) {
+
         $('.competition_submissions').html('').append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = '/competitions/' + competitionId + '/submissions/' + phaseId;
         $.ajax({
@@ -117,16 +118,21 @@ var Competition;
                         uploadSuccess: function(file, trackingId) {
                             $('#details').html('Creating new submission...');
                             var description = $('#submission_description_textarea').val();
+                            var method_name = $('#submission_method_name').val();
+                            var method_description = $('#submission_method_description').val();
+
                             $('#submission_description_textarea').val('');
                             $.ajax({
-                                url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description),
+                                url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
+                                                                                      '&method_name=' + encodeURIComponent(method_name) +
+                                                                                      '&method_description=' + encodeURIComponent(method_description),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response, description));
+                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description));
                                 $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
@@ -277,13 +283,19 @@ var Competition;
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
     }
 
-    Competition.displayNewSubmission = function(response, description) {
+    Competition.displayNewSubmission = function(response, description, method_name, method_description) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
 
         if (description) {
             $(elemTr).attr('data-description', description);
+        }
+        if (method_name) {
+            $(elemTr).attr('data-method-name', method_name);
+        }
+        if (method_description) {
+            $(elemTr).attr('data-method-description', method_description);
         }
 
         $(elemTr).children().each(function(index) {
@@ -361,7 +373,13 @@ var Competition;
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
             if ($(nTr).attr('data-description')) {
-                elem.find('.submission_description').html('Description: <br><pre>' + $(nTr).attr('data-description') + '</pre>');
+                elem.find('.submission_description').html('<b>Description:</b> <br><pre>' + $(nTr).attr('data-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-method-name')) {
+                elem.find('.submission_method_name').html('<b>Method name:</b> ' + $(nTr).attr('data-method-name'));
+            }
+            if ($(nTr).attr('data-method-description')) {
+                elem.find('.submission_method_description').html('<b>Method description:</b><br><pre>' + $(nTr).attr('data-method-description') + '</pre>');
             }
             if ($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
