@@ -168,6 +168,7 @@ class Competition(models.Model):
     reward = models.PositiveIntegerField(null=True, blank=True)
     is_migrating_delayed = models.BooleanField(default=False)
     allow_teams = models.BooleanField(default=False)
+    enable_per_submission_metadata = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -617,6 +618,7 @@ class CompetitionPhase(models.Model):
             for (pk, user) in submissions:
                 scores[pk] = {
                     'username': user.username,
+                    'user_pk': user.pk,
                     'team_name': user.team_name,
                     'id': pk,
                     'values': [],
@@ -809,6 +811,9 @@ class CompetitionSubmission(models.Model):
     exception_details = models.TextField(blank=True, null=True)
     prediction_stdout_file = models.FileField(upload_to=predict_submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     prediction_stderr_file = models.FileField(upload_to=predict_submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+
+    method_name = models.CharField(max_length=20, null=True, blank=True)
+    method_description = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -1426,7 +1431,7 @@ class PhaseLeaderBoardEntry(models.Model):
 
 
 def dataset_data_file(dataset, filename="data.zip"):
-    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), "data.zip")
+    return os.path.join("datasets", str(dataset.pk), str(uuid.uuid4()), filename)
 
 
 class OrganizerDataSet(models.Model):

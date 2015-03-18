@@ -8,6 +8,7 @@ var TableBundle = React.createClass({
             checked: false
         };
     },
+    throttledScrollToRow: undefined,
     handleClick: function(event){
         this.props.setFocus(this.props.index, event);
     },
@@ -87,59 +88,71 @@ var TableBundle = React.createClass({
                     this.forgetCheckedRows();
             }
         }.bind(this), 'keydown');
-
-
-        //TODO? O o
-        //  Mousetrap.bind([''], function(e){
-        // }.bind(this), 'keydown');
-        // case 'i': //insert row before
-        //     event.preventDefault();
-        //     if(this.props.canEdit){
-        //         if(index > 0){
-        //             this.insertBetweenRows(index);
-        //         }else if(index === 0){
-        //             this._owner.insertItem('i');
-        //         }
-        //     }
-        //     break;
-        // case 'a': // cap A instert row After, like vi
-        //     event.preventDefault();
-        //     if(event.shiftKey && this.props.canEdit){
-        //         if(index < this.props.item.state.interpreted[1].length - 1){
-        //             this.insertBetweenRows(index + 1);
-        //         }else if(index == this.state.interpreted[1].length - 1){
-        //             this._owner.insertItem('a');
-        //         }
-        //     }
-        //     break;
     },
     goToBundlePage: function(){
         window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
     scrollToRow: function(index, event){
-        // scroll the window to keep the focused row in view
-        var navbarHeight = parseInt($('body').css('padding-top'));
-        var distance, scrollTo;
-        if(index > -1){
-            var scrollPos = $('.ws-container').scrollTop();
-            var table = this.getDOMNode();
+        // scroll the window to keep the focused element in view if needed
+        var __innerScrollToRow = function(index, event){
+            var navbarHeight = parseInt($('body').css('padding-top'));
+            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+            var node = this.getDOMNode();
+            var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
+
             var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
-            var tablePos = table.getBoundingClientRect().top;
+            var tablePos = nodePos.top;
             var rowPos = tablePos + (index * rowHeight);
-            var distanceFromBottom = $('.ws-container').innerHeight() - rowPos;
-            var distanceFromTop = rowPos - navbarHeight;
-            if(keyMap[event.keyCode] == 'k' ||
-               keyMap[event.keyCode] == 'up'){
-                distance = distanceFromTop;
-                scrollTo = scrollPos - rowHeight - 55;
-            }else {
-                distance = distanceFromBottom;
-                scrollTo = scrollPos + rowHeight + 55;
+             // where is the top of the elm on the page and does it fit in the the upper forth of the page
+            var scrollTo = $(window).scrollTop() + rowPos - navbarHeight - (viewportHeight/4);
+            // how far node top is from top of viewport
+            var distanceFromTopViewPort = rowPos - navbarHeight;
+            // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
+            // the elm is down the page and we should scrol to put it more in focus
+            if(distanceFromTopViewPort > viewportHeight/3){
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                return;
             }
+            // if the elment is not in the viewport (way up top), just scroll
+            if(distanceFromTopViewPort < 0){
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                return;
+            }
+
+        }; // end of __innerScrollToRow
+
+        //throttle it becasue of keydown and holding keys
+        if(this.throttledScrollToRow === undefined){
+            this.throttledScrollToRow = _.throttle(__innerScrollToRow, 50).bind(this);
         }
-        if(distance < 50){
-            $('html,body').stop(true).animate({scrollTop: scrollTo}, 50);
-        }
+        this.throttledScrollToRow(index, event);
+
+
+        // var navbarHeight = parseInt($('body').css('padding-top'));
+        // var distance, scrollTo;
+        // //get hight and seee if can fit on page
+
+        // if(index > -1){
+        //     var scrollPos = $(window).scrollTop();
+        //     var table = this.getDOMNode();
+        //     var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
+        //     var tablePos = table.getBoundingClientRect().top;
+        //     var rowPos = tablePos + (index * rowHeight);
+        //     var distanceFromBottom = window.innerHeight - rowPos;
+        //     var distanceFromTop = rowPos - navbarHeight;
+        //     if(keyMap[event.keyCode] == 'k' ||
+        //        keyMap[event.keyCode] == 'up'){
+        //         distance = distanceFromTop;
+        //         scrollTo = scrollPos - rowHeight - 55;
+        //     }else {
+        //         distance = distanceFromBottom;
+        //         scrollTo = scrollPos + rowHeight + 55;
+        //     }
+        // }
+        // if(distance < 50){
+        //     $('html,body').stop(true).animate({scrollTop: scrollTo}, 250);
+        // }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;

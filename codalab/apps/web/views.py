@@ -279,6 +279,26 @@ def competition_message_participants(request, competition_id):
     return HttpResponse(status=200)
 
 
+class UserDetailView(DetailView):
+    model = User
+    template_name = 'web/user_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(UserDetailView, self).get_context_data(**kwargs)
+        context_data['information'] = {
+            'Organization': self.object.organization_or_affiliation,
+            'Team Name': self.object.team_name,
+            'Team Members': self.object.team_members,
+            'Method Name': self.object.method_name,
+            'Method Description': self.object.method_description,
+            'Contact Email': self.object.contact_email,
+            'Project URL': self.object.project_url,
+            'Publication URL': self.object.publication_url,
+            'Bibtex': self.object.bibtex,
+        }
+        return context_data
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
@@ -388,10 +408,20 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
                         'description': submission.description,
+                        'method_name': submission.method_name,
+                        'method_description': submission.method_description,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+
+        try:
+            last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+            context['last_submission_method_name'] = last_submission.method_name
+            context['last_submission_method_description'] = last_submission.method_description
+        except ObjectDoesNotExist:
+            pass
+
         return context
 
 class CompetitionResultsPage(TemplateView):
@@ -549,6 +579,10 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         # create column definition
         columns = [
             {
+                'label': '#',
+                'name': 'number'
+            },
+            {
                 'label': 'NAME',
                 'name': 'name'
             },
@@ -572,12 +606,14 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
-        for participant in competition_participants:
+        for number, participant in enumerate(competition_participants):
             participant_entry = {
                 'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
+                'user_pk': participant.user.pk,
                 'status': participant.status.codename,
+                'number': number + 1,
                 # equivalent to assigning participant.submissions.count() but without several multiple db queires
                 'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions))
             }
@@ -757,6 +793,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 submission_info = {
                     'id': submission.id,
                     'submitted_by': submission.participant.user.username,
+                    'user_pk': submission.participant.user.pk,
                     'number': submission.submission_number,
                     'filename': submission.get_filename(),
                     'submitted_at': submission.submitted_at,
@@ -1146,7 +1183,8 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         # Add teach team name in an easy to read way
         team_name_cache = {}
         team_name_string = ""
-        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False):
+        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False,
+                                                                  result__participant__competition=competition):
             user_on_team = result.result.participant.user
             team_name_cache[user_on_team.team_name] = user_on_team.team_members
         for name, members in team_name_cache.items():
@@ -1161,6 +1199,26 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
             file_name = "%s - %s.zip" % (username_or_team_name, submission.submission_number)
             zip_file.writestr(file_name, submission.file.read())
+
+            profile_data_file_name = "%s - %s profile.txt" % (username_or_team_name, submission.submission_number)
+            user_profile_data = {
+                'Organization': submission.participant.user.organization_or_affiliation,
+                'Team Name': submission.participant.user.team_name,
+                'Team Members': submission.participant.user.team_members,
+                'Method Name': submission.participant.user.method_name,
+                'Method Description': submission.participant.user.method_description,
+                'Contact Email': submission.participant.user.contact_email,
+                'Project URL': submission.participant.user.project_url,
+                'Publication URL': submission.participant.user.publication_url,
+                'Bibtex': submission.participant.user.bibtex,
+            }
+            user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in user_profile_data.items()])
+            zip_file.writestr(profile_data_file_name, user_profile_data_string.encode('utf-8'))
+
+            submission_method_file_name = "%s - %s method.txt" % (username_or_team_name, submission.submission_number)
+            submission_method_file_string = "Method: %s\nDescription:\n%s" % (submission.method_name,
+                                                                              submission.method_description)
+            zip_file.writestr(submission_method_file_name, submission_method_file_string.encode('utf-8'))
 
         zip_file.close()
 

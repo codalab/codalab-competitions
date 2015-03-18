@@ -151,13 +151,72 @@ var Bundle = React.createClass({
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
         var editButtonText = editing ? 'cancel' : 'edit';
+        /// ------------------------------------------------------------------
         if(editing){
             saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
         }
+        /// ------------------------------------------------------------------
         for(var k in metadata) {
             bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
         }
-
+        /// ------------------------------------------------------------------
+        var dependencies_table = []
+        var dep_bundle_url = ''
+        this.state.dependencies.forEach(function(dep, i){
+            dep_bundle_url = "/bundles/" + dep.parent_uuid;
+            dependencies_table.push(
+                <tr>
+                    <td>
+                        <a href={dep_bundle_url}>{dep.parent_uuid}</a>
+                    </td>
+                    <td>
+                        {dep.child_path}
+                    </td>
+                </tr>
+                )
+        })
+        if(dependencies_table.length == 0){
+            dependencies_table.push(
+                <tr>
+                    <td>
+                        None
+                    </td>
+                    <td>
+                        None
+                    </td>
+                </tr>
+                )
+        }
+        /// ------------------------------------------------------------------
+        var stdout_html = ''
+        if(this.state.stdout){
+            //had to add span since react elm must be wrapped
+            stdout_html = (
+                <span>
+                    <h3>Stdout</h3>
+                    <div className="bundle-meta">
+                        <pre>
+                            {this.state.stdout}
+                        </pre>
+                    </div>
+                </span>
+            )
+        }
+        var stderr_html = ''
+        if(this.state.stderr){
+            //had to add span since react elm must be wrapped
+            stderr_html = (
+                <span>
+                    <h3>Stderr</h3>
+                    <div className="bundle-meta">
+                        <pre>
+                            {this.state.stderr}
+                        </pre>
+                    </div>
+                </span>
+            )
+        }
+        /// ------------------------------------------------------------------
         var fileBrowser = (
                 <FileBrowser
                     fileBrowserData={this.state.fileBrowserData}
@@ -165,6 +224,7 @@ var Bundle = React.createClass({
                     currentWorkingDirectory={this.state.currentWorkingDirectory} />
             );
 
+        /// ------------------------------------------------------------------
         var edit = ''
         if(this.state.edit_permission){
             edit = (
@@ -232,6 +292,33 @@ var Bundle = React.createClass({
                 <div className="bundle-file-view-container">
                     {this.state.fileBrowserData.contents ? fileBrowser : null}
                 </div>
+                <h3>
+                    Dependencies
+                </h3>
+                <div className="row">
+                    <div className="col-sm-10">
+                        <div className="dependencies-table">
+                            <table id="dependencies_table" >
+                                <thead>
+                                    <tr>
+                                        <th>UUID</th>
+                                        <th>Path</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dependencies_table}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-sm-10">
+                        {stdout_html}
+                        {stderr_html}
+                    </div>
+                </div>
+
             </div>
         );
     }
@@ -291,7 +378,7 @@ var FileBrowser = React.createClass({
             for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
                 item = this.props.fileBrowserData.contents[i];
                 if (item.type != 'directory') {
-                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+                    items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} size={item.size} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
                 }
             }
 
@@ -367,13 +454,22 @@ var FileBrowserItem = React.createClass({
         }
 
         var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
-
+        var size = '';
+        if(this.props.hasOwnProperty('size')){
+           if(this.props.size == 0)
+                size = "0"
+           var k = 1000;
+           var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+           var i = Math.floor(Math.log(this.props.size) / Math.log(k));
+           size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+        }
         return (
             <tr>
                 <td>
                     <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
                         <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
+                        <span className="pull-right"> {size} </span>
                     </div>
                 </td>
             </tr>

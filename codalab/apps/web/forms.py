@@ -27,6 +27,7 @@ class CompetitionForm(forms.ModelForm):
             'show_datasets_from_yaml',
             'reward',
             'allow_teams',
+            'enable_per_submission_metadata',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
@@ -174,4 +175,15 @@ class UserSettingsForm(forms.ModelForm):
             'organization_or_affiliation',
             'team_name',
             'team_members',
+            'method_name',
+            'method_description',
+            'contact_email',
+            'project_url',
+            'publication_url',
+            'bibtex',
         )
+        widgets = {
+            'team_members': forms.Textarea(attrs={"class": "form-control"}),
+            'method_description': forms.Textarea(attrs={"class": "form-control"}),
+            'bibtex': forms.Textarea(attrs={"class": "form-control"})
+        }

@@ -160,14 +160,14 @@ var Worksheet = React.createClass({
             if(this.state.rawMode){
                 ///TODO grab val the react way
                 ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet();
+                this.saveAndUpdateWorksheet(true);
             }
             this.setState({rawMode: !this.state.rawMode});
         }else {
             if(val==false){
                 ///TODO grab val the react way
                 ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet();
+                this.saveAndUpdateWorksheet(true);
             }
             this.setState({rawMode: val});
         }
@@ -215,17 +215,24 @@ var Worksheet = React.createClass({
             }.bind(this)
         });
     },
-    saveAndUpdateWorksheet: function(){
+    saveAndUpdateWorksheet: function(from_raw){
         $("#worksheet-message").hide();
         // does a save and a update
         this.setState({updating:true});
         ws_obj.saveWorksheet({
             success: function(data){
-                this.refreshWorksheet();
                 this.setState({updating:false});
                 if('error' in data){ // TEMP REMOVE FDC
-                     $("#worksheet-message").html(data['error']).addClass('alert-danger alert');
+                    $('#update_progress').hide();
+                    $('#save_error').show();
+                    $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
+                    if(from_raw){
+                        this.toggleRawMode(true);
+                    }
+                }else{
+                    this.refreshWorksheet();
                 }
+                // debugger;
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err);
@@ -235,7 +242,7 @@ var Worksheet = React.createClass({
                 } else if (xhr.status == 401){
                     $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
                 } else {
-                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-danger alert').show();
+                    $("#worksheet-message").html("A save error occurred: <em>" + err.string() + "</em> <br /> Please try refreshing the page or saving again.").addClass('alert-danger alert').show();
                 }
             }
         });
