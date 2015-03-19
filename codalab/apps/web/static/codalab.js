@@ -640,6 +640,11 @@ var Competition;
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
                         validateBeforeFilePrompt: function() {
+                            if($('#submission_method_name').length == 0) {
+                                // if we dont have submision method field, just skip this check
+                                return true;
+                            }
+
                             var method_name = $('#submission_method_name').val();
                             var method_description = $('#submission_method_description').val();
 
