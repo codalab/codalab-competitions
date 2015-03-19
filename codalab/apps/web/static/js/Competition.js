@@ -120,19 +120,25 @@ var Competition;
                             var description = $('#submission_description_textarea').val();
                             var method_name = $('#submission_method_name').val();
                             var method_description = $('#submission_method_description').val();
+                            var project_url = $('#submission_project_url').val();
+                            var publication_url = $('#submission_publication_url').val();
+                            var bibtex = $('#submission_bibtex').val();
 
                             $('#submission_description_textarea').val('');
                             $.ajax({
                                 url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
                                                                                       '&method_name=' + encodeURIComponent(method_name) +
-                                                                                      '&method_description=' + encodeURIComponent(method_description),
+                                                                                      '&method_description=' + encodeURIComponent(method_description) +
+                                                                                      '&project_url=' + encodeURIComponent(project_url) +
+                                                                                      '&publication_url=' + encodeURIComponent(publication_url) +
+                                                                                      '&bibtex=' + encodeURIComponent(bibtex),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description));
+                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex));
                                 $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
@@ -283,19 +289,28 @@ var Competition;
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
     }
 
-    Competition.displayNewSubmission = function(response, description, method_name, method_description) {
+    Competition.displayNewSubmission = function(response, description, method_name, method_description, project_url, publication_url, bibtex) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
 
         if (description) {
-            $(elemTr).attr('data-description', description);
+            $(elemTr).attr('data-description', $(description).text());
         }
         if (method_name) {
-            $(elemTr).attr('data-method-name', method_name);
+            $(elemTr).attr('data-method-name', $(method_name).text());
         }
         if (method_description) {
-            $(elemTr).attr('data-method-description', method_description);
+            $(elemTr).attr('data-method-description', $(method_description).text());
+        }
+        if (project_url) {
+            $(elemTr).attr('data-project-url', $(project_url).text());
+        }
+        if (publication_url) {
+            $(elemTr).attr('data-publication-url', $(publication_url).text());
+        }
+        if (bibtex) {
+            $(elemTr).attr('data-bibtex', $(bibtex).text());
         }
 
         $(elemTr).children().each(function(index) {
@@ -380,6 +395,15 @@ var Competition;
             }
             if ($(nTr).attr('data-method-description')) {
                 elem.find('.submission_method_description').html('<b>Method description:</b><br><pre>' + $(nTr).attr('data-method-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-project-url')) {
+                elem.find('.submission_project_url').html('<b>Project URL:</b> <a href="' + $(nTr).attr('data-project-url') + '">' + $(nTr).attr('data-project-url') + '</a>');
+            }
+            if ($(nTr).attr('data-publication-url')) {
+                elem.find('.submission_publication_url').html('<b>Publication URL:</b> <a href="' + $(nTr).attr('data-publication-url') + '">' + $(nTr).attr('data-publication-url') + '</a>');
+            }
+            if ($(nTr).attr('data-bibtex')) {
+                elem.find('.submission_bibtex').html('<b>Bibtex:</b><br><pre>' + $(nTr).attr('data-bibtex') + '</pre>');
             }
             if ($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');

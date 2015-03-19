@@ -27,6 +27,8 @@ from django.template import Context
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_str
+from django.utils.html import escape
+
 
 from apps.api import serializers
 from apps.authenz.models import ClUser
@@ -530,9 +532,12 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise ParseError(detail='Invalid or missing tracking ID.')
         obj.file.name = blob_name
 
-        obj.description = self.request.QUERY_PARAMS.get('description', "")
-        obj.method_name = self.request.QUERY_PARAMS.get('method_name', "")
-        obj.method_description = self.request.QUERY_PARAMS.get('method_description', "")
+        obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
+        obj.method_name = escape(self.request.QUERY_PARAMS.get('method_name', ""))
+        obj.method_description = escape(self.request.QUERY_PARAMS.get('method_description', ""))
+        obj.project_url = escape(self.request.QUERY_PARAMS.get('project_url', ""))
+        obj.publication_url = escape(self.request.QUERY_PARAMS.get('publication_url', ""))
+        obj.bibtex = escape(self.request.QUERY_PARAMS.get('bibtex', ""))
 
     def post_save(self, obj, created):
         if created:
@@ -559,12 +564,15 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(detail='Competition phase does not allow participants to modify the leaderboard.')
         if submission.participant.user != self.request.user:
             raise ParseError(detail='Invalid submission')
-        response = dict()
-        lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
-        lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
-        lbe.delete()
-        response['status'] = lbe.id
-        return Response(response, status=response['status'], content_type="application/json")
+        try:
+            response = dict()
+            lb = webmodels.PhaseLeaderBoard.objects.get(phase=submission.phase)
+            lbe = webmodels.PhaseLeaderBoardEntry.objects.get(board=lb, result=submission)
+            lbe.delete()
+            response['status'] = lbe.id
+            return Response(response, status=response['status'], content_type="application/json")
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
 
     @action(methods=["POST"])
     def addToLeaderboard(self, request, pk=None, competition_id=None):
