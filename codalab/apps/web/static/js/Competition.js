@@ -92,6 +92,12 @@ var Competition;
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        validateBeforeFilePrompt: function() {
+                            var method_name = $('#submission_method_name').val();
+                            var method_description = $('#submission_method_description').val();
+
+                            return (method_name && method_name !== '') && (method_description && method_description !== '');
+                        },
                         beforeSelection: function(info, valid) {
                             $('#fileUploadButton').addClass('disabled');
                         },
