@@ -11,8 +11,8 @@
 {% endblock %}
 
 {% block content %}
-
-<form method="POST" action=".">
+<form method="POST" action=".">{% csrf_token %}
+    <h2>{{ user.username }}</h2>
     {% if errors %}
         <div class="alert alert-error">
             There were errors processing the form, please try reloading the page!
@@ -33,13 +33,116 @@
         </div>
     {% endif %}
 
-    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>My Account {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</h4>
+            <table class="table table-striped account">
+                <tbody>
+                    <tr>
+                        <th>First name</th>
+                        <td>{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last name</th>
+                        <td>{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>User since</th>
+                        <td>{{ user.date_joined }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    {{ form.as_p }}
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Team</h4>
+            <table class="table table-striped affiliation">
+                <tbody>
+                    <tr>
+                        <th>{{ form.team_name.label }}</th>
+                        <td>{{ form.team_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.team_members.label }}<br><i style="font-weight: normal;">(each member on a new line)</i></th>
+                        <td>{{ form.team_members }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <input type="submit" class="btn btn-primary margin-top" value="Save">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <h4>My subscription settings</h4>
+
+            <table class="table table-striped subscriptions">
+                <tbody>
+                    <tr>
+                        <th>{{ form.participation_status_updates.label }}</th>
+                        <td>{{ form.participation_status_updates }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.organizer_status_updates.label }}</th>
+                        <td>{{ form.organizer_status_updates}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.organizer_direct_message_updates.label }}</th>
+                        <td>{{ form.organizer_direct_message_updates }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Profile information</h4>
+            <table class="table table-striped affiliation">
+                <tbody>
+                    <tr>
+                        <th>{{ form.organization_or_affiliation.label }}</th>
+                        <td>{{ form.organization_or_affiliation }}</td>
+                    </tr>
+                    <!--
+                    <tr>
+                        <th>{{ form.method_name.label }}</th>
+                        <td>{{ form.method_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.method_description.label }}</th>
+                        <td>{{ form.method_description }}</td>
+                    </tr>
+                    -->
+                    <tr>
+                        <th>{{ form.contact_email.label }}</th>
+                        <td>{{ form.contact_email }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.project_url.label }}</th>
+                        <td>{{ form.project_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.publication_url.label }}</th>
+                        <td>{{ form.publication_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.bibtex.label }}</th>
+                        <td>{{ form.bibtex }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
+        </div>
+    </div>
 </form>
-
 {% endblock %}
 
 {% block js %}

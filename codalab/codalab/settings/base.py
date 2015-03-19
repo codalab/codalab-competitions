@@ -25,7 +25,7 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = False
+    COMPILE_LESS = True
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -252,6 +252,7 @@ class Base(Settings):
     ACCOUNT_EMAIL_REQUIRED=True
     ACCOUNT_USERNAME_REQUIRED=True
     ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]

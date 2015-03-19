@@ -213,7 +213,7 @@ class WorksheetContentApi(views.APIView):
             return Response(status=service.http_status_from_exception(e))
 
     """
-    Provides a web API to update a worksheet.
+    Provides a web API to update/save a worksheet.
     """
     def post(self, request, uuid):
         user = self.request.user
@@ -227,7 +227,6 @@ class WorksheetContentApi(views.APIView):
         lines = data['lines']
 
         if not (worksheet_uuid == uuid):
-            print "uui"
             return Response(None, status=403)
 
         logger.debug("WorksheetUpdate: owner=%s; name=%s; uuid=%s", owner_id, worksheet_name, uuid)
@@ -237,12 +236,12 @@ class WorksheetContentApi(views.APIView):
             return Response({})
         except Exception as e:
             logging.error(self.__str__())
+            logging.error('ERROR')
             logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
+            logging.error('-------------------------')
             tb = traceback.format_exc()
             logging.error(tb)
-            logging.debug('-------------------------')
+            logging.error('-------------------------')
             return Response({'error': smart_str(e)})
 
 
@@ -256,7 +255,20 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_info = service.get_bundle_info(uuid)
-            print bundle_info
+            target = (uuid, '')
+            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            bundle_info['stdout'] = None
+            bundle_info['stderr'] = None
+            #if we have std out or err update it.
+            contents = info.get('contents')
+            if contents:
+                for item in contents:
+                    if item['name'] in ['stdout', 'stderr']:
+                        lines = service.head_target((uuid, item['name']), 100)
+                        if lines:
+                            lines = ' '.join(lines)
+                            bundle_info[item['name']] = lines
+
             bundle_info['edit_permission'] = False
             if bundle_info['owner_id'] == str(self.request.user.id):
                 bundle_info['edit_permission'] = True
@@ -358,14 +370,8 @@ class BundleCreateApi(views.APIView):
             #TODO CHECKING
             command = postdata['data'][-1].strip("'")
             items = postdata['data'][:-1]
-            targets = {}
-            for item in items:
-                (key, target) = item.split(':', 1)
-                if key == '':
-                    key = target  # Set default key to be same as target
-                targets[key] = [target, ''] # TODO PATH
-            #     targets[key] = self.parse_target(client, worksheet_uuid, target)
-            new_bundle_uuid = service.derive_bundle('run', targets, postdata['worksheet_uuid'], command)
+            args = items.append(command)
+            new_bundle_uuid = service.create_run_bundle(args, command, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
@@ -412,8 +418,19 @@ class BundleContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             target = (uuid, path)
-            items = service.get_target_info(target, 2) # 2 is the depth to retrieve
-            return Response(items)
+            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            info['stdout'] = None
+            info['stderr'] = None
+            #if we have std out or err update it.
+            contents = info.get('contents')
+            if contents:
+                for item in contents:
+                    if item['name'] in ['stdout', 'stderr']:
+                        lines = service.head_target((uuid, item['name']), 100)
+                        if lines:
+                            lines = ' '.join(lines)
+                            info[item['name']] = lines
+            return Response(info)
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))

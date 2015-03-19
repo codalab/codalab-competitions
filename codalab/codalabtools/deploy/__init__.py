@@ -189,6 +189,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the database engine type."""
         return self._svc['database']['engine']
 
+    def getAdminEmail(self):
+        """Gets the database engine type."""
+        return self._svc['django']['admin-email']
+
     def getDatabaseName(self):
         """Gets the Django site database name."""
         return self._svc['database']['name']
@@ -953,7 +957,7 @@ class Deployment(object):
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
-            "    ADMINS = (('CodaLab', 'codalab@live.com'),)",
+            "    ADMINS = (('Admin', '{0}'),)".format(self.config.getAdminEmail()),
             "    MANAGERS = ADMINS",
             "",
             "    DATABASES = {",

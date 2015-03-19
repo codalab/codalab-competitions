@@ -9,7 +9,7 @@ var WorksheetSearch = React.createClass({
     componentDidMount: function(){
         // when the component has mounted, init the select2 plugin on the
         // general search input (http://ivaynberg.github.io/select2/)
-        _this = this;
+        var self = this;
         // get our static list of commands and store it in this var
         var commands = ws_actions.getCommands();
         $('#search').select2({
@@ -90,7 +90,7 @@ var WorksheetSearch = React.createClass({
                 }else{
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
-                    console.log('searching commands...');
+                    // console.log('searching commands...');
                     var matchedOptions = [];
                     commands.map(function(item){
                         // we need to make our own matcher function because we're doing this
@@ -110,7 +110,11 @@ var WorksheetSearch = React.createClass({
         }).on('select2-open', function(){
             // because select2 is masking the actual #search field, we need to manually trigger
             // its focus event when select2 is invoked
-            _this.props.handleFocus();
+            self.props.handleFocus();
+        }).on('select2-close', function(){
+            // because select2 is masking the actual #search field, we need to manually trigger
+            // its blur event when select2 is invoked
+            self.props.handleBlur();
         });
 
         $('#s2id_search').on('keydown', '.select2-input', function(e){
@@ -122,12 +126,19 @@ var WorksheetSearch = React.createClass({
                     e.preventDefault();
                     break;
                 case 13: // enter
-                    console.log('enter')
                     // cmd-enter or ctrl-enter triggers execution of whatever is
                     // in the search input
                     e.preventDefault();
-                    _this.executeCommands();
+                    self.executeCommands();
                     break;
+                case 27:
+                    var input = $('#search').select2('val');
+                    if(input.length){
+                        return
+                    }else{ // nothing blur it
+                        this.blur();
+                    }
+
                 default:
                     return true;
             }
@@ -161,26 +172,12 @@ var WorksheetSearch = React.createClass({
             console.error('The command \'' + entered_command + '\' was not recognized');
         }
     },
-    handleKeydown: function(event){
-        // the only key the searchbar cares about is esc. Otherwise we're just typing in the input.
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            switch (key) {
-                case 'esc':
-                    event.preventDefault();
-                    this.props.handleBlur();
-                    break;
-                default:
-                    return true;
-            }
-        }
-    },
     render: function(){
         return (
             <div className="ws-search">
                 <div className="container">
                     <div className="input-group">
-                        <input id="search" type="hidden" placeholder="General search/command line" onFocus={this.props.handleFocus} onBlur={this.props.handleBlur} />
+                        <input id="search" type="hidden" placeholder="General search/command line" />
                         <span className="input-group-btn">
                             <button className="btn btn-default" type="button" onClick={this.executeCommands}>Go</button>
                         </span>

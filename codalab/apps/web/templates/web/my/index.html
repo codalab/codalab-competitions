@@ -89,6 +89,34 @@
     // Change hash for page-reload
     $('.nav-tabs a').on('shown', function (e) {
         window.location.hash = e.target.hash;
-    })
+    });
+
+
+    $('.competition-publish-button').on('click', function(event) {
+        event.preventDefault();
+        var button = $(this);
+        $.get($(this).prop('href'))
+            .success(function() {
+                button.siblings('.competition-unpublish-button').removeClass('hide');
+                button.addClass('hide');
+            })
+            .error(function() {
+                alert('Error publishing competition, check your Internet connection. If problem persists contact an administrator.');
+            });
+        return false;
+    });
+    $('.competition-unpublish-button').on('click', function(event) {
+        event.preventDefault();
+        var button = $(this);
+        $.get($(this).prop('href'))
+            .success(function() {
+                button.siblings('.competition-publish-button').removeClass('hide');
+                button.addClass('hide');
+            })
+            .error(function() {
+                alert('Error unpublishing competition, check your Internet connection. If problem persists contact an administrator.');
+            });
+        return false;
+    });
 </script>
 {% endblock %}

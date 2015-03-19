@@ -118,6 +118,13 @@ class PagesInline(InlineFormSet):
     form_class = forms.PageForm
     extra = 0
 
+
+class LeaderboardInline(InlineFormSet):
+    model = models.SubmissionScoreDef
+    form_class = forms.LeaderboardForm
+    extra = 0
+
+
 class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
@@ -125,8 +132,8 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):
     model = models.Competition
     form_class = forms.CompetitionForm
-    inlines = [PagesInline, PhasesInline]
-    inlines_names = ['Pages', 'Phases']
+    inlines = [PagesInline, PhasesInline, LeaderboardInline]
+    inlines_names = ['Pages', 'Phases', 'Leaderboards']
     template_name = 'web/competitions/edit.html'
 
     def forms_valid(self, form, inlines):
@@ -272,6 +279,26 @@ def competition_message_participants(request, competition_id):
     return HttpResponse(status=200)
 
 
+class UserDetailView(DetailView):
+    model = User
+    template_name = 'web/user_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(UserDetailView, self).get_context_data(**kwargs)
+        context_data['information'] = {
+            'Organization': self.object.organization_or_affiliation,
+            'Team Name': self.object.team_name,
+            'Team Members': self.object.team_members,
+            'Method Name': self.object.method_name,
+            'Method Description': self.object.method_description,
+            'Contact Email': self.object.contact_email,
+            'Project URL': self.object.project_url,
+            'Publication URL': self.object.publication_url,
+            'Bibtex': self.object.bibtex,
+        }
+        return context_data
+
+
 class CompetitionDetailView(DetailView):
     queryset = models.Competition.objects.all()
     model = models.Competition
@@ -381,10 +408,26 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
                         'description': submission.description,
+                        'method_name': submission.method_name,
+                        'method_description': submission.method_description,
+                        'project_url': submission.project_url,
+                        'publication_url': submission.publication_url,
+                        'bibtex': submission.bibtex,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+
+        try:
+            last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+            context['last_submission_method_name'] = last_submission.method_name
+            context['last_submission_method_description'] = last_submission.method_description
+            context['last_submission_project_url'] = last_submission.project_url
+            context['last_submission_publication_url'] = last_submission.publication_url
+            context['last_submission_bibtex'] = last_submission.bibtex
+        except ObjectDoesNotExist:
+            pass
+
         return context
 
 class CompetitionResultsPage(TemplateView):
@@ -542,6 +585,10 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         # create column definition
         columns = [
             {
+                'label': '#',
+                'name': 'number'
+            },
+            {
                 'label': 'NAME',
                 'name': 'name'
             },
@@ -565,12 +612,14 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
-        for participant in competition_participants:
+        for number, participant in enumerate(competition_participants):
             participant_entry = {
                 'pk': participant.pk,
                 'name': participant.user.username,
                 'email': participant.user.email,
+                'user_pk': participant.user.pk,
                 'status': participant.status.codename,
+                'number': number + 1,
                 # equivalent to assigning participant.submissions.count() but without several multiple db queires
                 'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions))
             }
@@ -750,6 +799,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 submission_info = {
                     'id': submission.id,
                     'submitted_by': submission.participant.user.username,
+                    'user_pk': submission.participant.user.pk,
                     'number': submission.submission_number,
                     'filename': submission.get_filename(),
                     'submitted_at': submission.submitted_at,
@@ -980,7 +1030,7 @@ def download_dataset(request, dataset_key):
     try:
         dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
     except ObjectDoesNotExist:
-        return Http404()
+        raise Http404()
 
     try:
         if dataset.sub_data_files.count() > 0:
@@ -1055,7 +1105,7 @@ def download_competition_bundle(request, competition_pk):
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
     except ObjectDoesNotExist:
-        return Http404()
+        raise Http404()
 
     try:
         zip_buffer = StringIO.StringIO()
@@ -1103,6 +1153,86 @@ def download_competition_bundle(request, competition_pk):
 
         resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
         resp['Content-Disposition'] = 'attachment; filename=%s-%s.zip' % (competition.title, competition.pk)
+        return resp
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print "*** print_tb:"
+        traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+        print "*** print_exception:"
+        traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                  limit=2, file=sys.stdout)
+        print "*** print_exc:"
+        traceback.print_exc()
+        print "*** format_exc, first and last line:"
+        formatted_lines = traceback.format_exc().splitlines()
+        msg = "There was an error retrieving the file. Please try again later or report the issue."
+        return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+
+@login_required
+def download_leaderboard_results(request, competition_pk, phase_pk):
+    try:
+        competition = models.Competition.objects.get(pk=competition_pk)
+        if competition.creator != request.user and request.user not in competition.admins.all():
+            raise Http404()
+
+        phase = models.CompetitionPhase.objects.get(pk=phase_pk)
+        leaderboard_entries = models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    try:
+        zip_buffer = StringIO.StringIO()
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        # Add teach team name in an easy to read way
+        team_name_cache = {}
+        team_name_string = ""
+        for result in models.PhaseLeaderBoardEntry.objects.filter(result__participant__user__team_name__isnull=False,
+                                                                  result__participant__competition=competition):
+            user_on_team = result.result.participant.user
+            team_name_cache[user_on_team.team_name] = user_on_team.team_members
+        for name, members in team_name_cache.items():
+            team_name_string += "Team: %s; members: %s\n" % (name, members)
+
+        if team_name_string:
+            zip_file.writestr("team_names_and_members.txt", team_name_string.encode('utf8'))
+
+        # Add each submission
+        for entry in leaderboard_entries:
+            submission = entry.result
+            username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
+            file_name = "%s - %s submission.zip" % (username_or_team_name, submission.submission_number)
+            zip_file.writestr(file_name, submission.file.read())
+
+            output_file_name = "%s - %s output.zip" % (username_or_team_name, submission.submission_number)
+            zip_file.writestr(output_file_name, submission.output_file.read())
+
+            profile_data_file_name = "%s - %s profile.txt" % (username_or_team_name, submission.submission_number)
+            user_profile_data = {
+                'Organization': submission.participant.user.organization_or_affiliation,
+                'Team Name': submission.participant.user.team_name,
+                'Team Members': submission.participant.user.team_members,
+                'Method Name': submission.participant.user.method_name,
+                'Method Description': submission.participant.user.method_description,
+                'Contact Email': submission.participant.user.contact_email,
+                'Project URL': submission.participant.user.project_url,
+                'Publication URL': submission.participant.user.publication_url,
+                'Bibtex': submission.participant.user.bibtex,
+            }
+            user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in user_profile_data.items()])
+            zip_file.writestr(profile_data_file_name, user_profile_data_string.encode('utf-8'))
+
+            metadata_fields = ['method_name', 'method_description', 'project_url', 'publication_url', 'bibtex']
+            submission_metadata_file_name = "%s - %s method.txt" % (username_or_team_name, submission.submission_number)
+            submission_metadata_file_string = "\n".join(["%s: %s" % (field, getattr(submission, field)) for field in metadata_fields])
+            zip_file.writestr(submission_metadata_file_name, submission_metadata_file_string.encode('utf-8'))
+
+        zip_file.close()
+
+        resp = HttpResponse(zip_buffer.getvalue(), mimetype = "application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s-%s-results.zip' % (competition.title, competition.pk)
         return resp
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()

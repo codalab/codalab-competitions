@@ -166,6 +166,9 @@ class Competition(models.Model):
     original_yaml_file = models.TextField(default='', blank=True, null=True)
     show_datasets_from_yaml = models.BooleanField(default=True, blank=True)
     reward = models.PositiveIntegerField(null=True, blank=True)
+    is_migrating_delayed = models.BooleanField(default=False)
+    allow_teams = models.BooleanField(default=False)
+    enable_per_submission_metadata = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -223,6 +226,16 @@ class Competition(models.Model):
         current_phase: The new phase object we are entering
         last_phase: The phase object to transfer submissions from
         '''
+        logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
+
+        if last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+            logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
+            self.is_migrating_delayed = True
+            self.save()
+            return
+        else:
+            logger.info("No submissions running for competition pk=%s" % self.pk)
+
         logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
                     (self.pk, last_phase.phasenumber, current_phase.phasenumber))
 
@@ -267,6 +280,7 @@ class Competition(models.Model):
 
         # TODO: ONLY IF SUCCESSFUL
         self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
+        self.is_migrating_delayed = False
         self.last_phase_migration = current_phase.phasenumber
         self.save()
 
@@ -585,14 +599,14 @@ class CompetitionPhase(models.Model):
                 qs = CompetitionSubmission.objects.filter(phase=self)
                 for submission in qs:
                     result_location.append(submission.file.name)
-                    submissions.append((submission.pk,  submission.participant.user.username))
+                    submissions.append((submission.pk, submission.participant.user))
             else:
                 qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
                 for entry in qs:
                     result_location.append(entry.result.file.name)
 
-                for (rid, name) in qs.values_list('result_id', 'result__participant__user__username'):
-                    submissions.append((rid,  name))
+                for entry in qs:
+                    submissions.append((entry.result.id, entry.result.participant.user))
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -601,9 +615,11 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk, name) in submissions:
+            for (pk, user) in submissions:
                 scores[pk] = {
-                    'username': name,
+                    'username': user.username,
+                    'user_pk': user.pk,
+                    'team_name': user.team_name,
                     'id': pk,
                     'values': [],
                     'resultLocation': result_location[count]
@@ -795,6 +811,12 @@ class CompetitionSubmission(models.Model):
     exception_details = models.TextField(blank=True, null=True)
     prediction_stdout_file = models.FileField(upload_to=predict_submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     prediction_stderr_file = models.FileField(upload_to=predict_submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+
+    method_name = models.CharField(max_length=20, null=True, blank=True)
+    method_description = models.TextField(null=True, blank=True)
+    project_url = models.URLField(null=True, blank=True)
+    publication_url = models.URLField(null=True, blank=True)
+    bibtex = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)

@@ -22,4 +22,5 @@ urlpatterns = patterns(
     url(r'^submission_delete/(?P<pk>\d+)', views.SubmissionDelete.as_view(), name="submission_delete"),
     url(r'^download_yaml/(?P<competition_pk>\d+)', views.download_competition_yaml, name="download_yaml"),
     url(r'^download/(?P<competition_pk>\d+)', views.download_competition_bundle, name="download"),
+    url(r'^download_leaderboard_results/(?P<competition_pk>\d+)/(?P<phase_pk>\d+)', views.download_leaderboard_results, name="download_leaderboard_results")
 )

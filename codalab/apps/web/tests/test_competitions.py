@@ -166,6 +166,45 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertTrue(CompetitionPhase.objects.get(pk=self.phase_2.pk).is_migrated)
         self.assertFalse(self.competition.is_migrating)
 
+    def test_phase_migrations_delayed_until_submissions_not_marked_running(self):
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.save()
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertFalse(evaluate_mock.called)
+
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="finished", codename="finished")[0]
+        self.submission_1.save()
+        PhaseLeaderBoardEntry.objects.create(
+            board=self.leader_board,
+            result=self.submission_1
+        )
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertTrue(evaluate_mock.called)
+
+    def test_phase_migrations_handles_delay_with_failed_submissions(self):
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.save()
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertFalse(evaluate_mock.called)
+
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="failed", codename="failed")[0]
+        self.submission_1.save()
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertTrue(evaluate_mock.called)
+
+    def test_phase_migrations_delayed_marks_competition(self):
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.save()
+        self.assertFalse(self.competition.is_migrating_delayed)
+        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+            self.competition.check_trailing_phase_submissions()
+        self.assertTrue(self.competition.is_migrating_delayed)
+
+
 
 class CompetitionTest(TestCase):
 

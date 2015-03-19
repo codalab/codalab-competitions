@@ -6265,6 +6265,10 @@ fieldset[disabled] .btn-secondary.active {
 .alert-error .alert-link {
   color: #843534;
 }
+.alert-error ul.errorlist {
+  padding-left: 0;
+  list-style: none;
+}
 .hidden {
   display: none !important;
 }
@@ -7465,6 +7469,7 @@ input[type="checkbox"] {
   position: absolute;
   top: 0;
   bottom: 0;
+  line-height: 1;
 }
 #worksheet .ws-search .select2-container-multi .select2-choices {
   padding: 1px 5px 3px 0;
@@ -7982,6 +7987,11 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   width: auto;
   max-width: 100%;
 }
+.select2-drop,
+.select2-container {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
 .select2-container {
   width: 100%;
 }
@@ -8000,7 +8010,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-radius: 0;
 }
 .select2-container-multi .select2-choices .select2-search-field input {
-  font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
 }
 .select2-drop,
 .select2-drop-active {
@@ -8322,6 +8333,75 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 #bundle-content .bundle-tile .metadata-table table.editing tr th {
   vertical-align: middle;
   line-height: inherit;
+}
+#bundle-content .bundle-tile .dependencies-table {
+  margin-bottom: 24px;
+}
+#bundle-content .bundle-tile .dependencies-table table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 25px;
+  border: 1px solid #dddddd;
+  margin-bottom: 0;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
+  padding: 4px 6px;
+  line-height: 1.6;
+  vertical-align: top;
+  border-top: 1px solid #dddddd;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dddddd;
+}
+#bundle-content .bundle-tile .dependencies-table table > caption + thead > tr:first-child > th,
+#bundle-content .bundle-tile .dependencies-table table > colgroup + thead > tr:first-child > th,
+#bundle-content .bundle-tile .dependencies-table table > thead:first-child > tr:first-child > th,
+#bundle-content .bundle-tile .dependencies-table table > caption + thead > tr:first-child > td,
+#bundle-content .bundle-tile .dependencies-table table > colgroup + thead > tr:first-child > td,
+#bundle-content .bundle-tile .dependencies-table table > thead:first-child > tr:first-child > td {
+  border-top: 0;
+}
+#bundle-content .bundle-tile .dependencies-table table > tbody + tbody {
+  border-top: 2px solid #dddddd;
+}
+#bundle-content .bundle-tile .dependencies-table table .table {
+  background-color: #f7f7f7;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
+  line-height: 1.34;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th a .glyphicon,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th a .glyphicon,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th a .glyphicon {
+  font-size: 14px;
+  padding-top: 3px;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
+#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
+  border: 1px solid #dddddd;
+}
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
+#bundle-content .bundle-tile .dependencies-table table > thead > tr > td {
+  border-bottom-width: 2px;
+}
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr:nth-child(odd) > td,
+#bundle-content .bundle-tile .dependencies-table table > tbody > tr:nth-child(odd) > th {
+  background-color: white;
 }
 #bundle-content .bundle-tile .bundle-file-view-container {
   border-top: 1px solid #cccccc;
@@ -8734,11 +8814,14 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
     max-height: none;
   }
 }
-.my-codalab #my_managing .competition-tile {
+.competition-tile {
   padding-bottom: 0;
 }
-.my-codalab #my_managing .competition-tile .competition-actions {
-  margin: 16px -16px 0 -16px;
+.competition-tile .competition-actions {
+  margin: 16px -1px -12px -11px;
+}
+.competition-tile .competition-actions .btn-group-justified {
+  display: initial;
 }
 .my-datasets table {
   margin-top: 20px;
@@ -8763,4 +8846,61 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 .my-datasets table.table-bordered > thead > tr > th,
 .my-datasets table.table-bordered > thead > tr > td {
   border-bottom-width: 1px;
+}
+.table.affiliation > tbody > tr > th,
+.table.affiliation > tbody > tr > td {
+  vertical-align: middle;
+}
+.table.affiliation > tbody > tr > th input,
+.table.affiliation > tbody > tr > td input {
+  display: block;
+  width: 100%;
+  height: 39px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #999999;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.table.affiliation > tbody > tr > th input:focus,
+.table.affiliation > tbody > tr > td input:focus {
+  border-color: #699ec3;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+}
+.table.affiliation > tbody > tr > th input::-moz-placeholder,
+.table.affiliation > tbody > tr > td input::-moz-placeholder {
+  color: #cccccc;
+  opacity: 1;
+}
+.table.affiliation > tbody > tr > th input:-ms-input-placeholder,
+.table.affiliation > tbody > tr > td input:-ms-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input::-webkit-input-placeholder,
+.table.affiliation > tbody > tr > td input::-webkit-input-placeholder {
+  color: #cccccc;
+}
+.table.affiliation > tbody > tr > th input[disabled],
+.table.affiliation > tbody > tr > td input[disabled],
+.table.affiliation > tbody > tr > th input[readonly],
+.table.affiliation > tbody > tr > td input[readonly],
+fieldset[disabled] .table.affiliation > tbody > tr > th input,
+fieldset[disabled] .table.affiliation > tbody > tr > td input {
+  cursor: not-allowed;
+  background-color: #dddddd;
+  opacity: 1;
+}
+textarea.table.affiliation > tbody > tr > th input,
+textarea.table.affiliation > tbody > tr > td input {
+  height: auto;
 }

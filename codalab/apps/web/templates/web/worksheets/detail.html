@@ -158,12 +158,6 @@ MathJax.Hub.Config({
     }
 });
 
-    // gmail style sequences
-    Mousetrap.bind('g', function() { console.log('just g'); });
-    Mousetrap.bind('1 g', function() { console.log('go to inbox'); });
-
-
-
 $(function () {
     //                              /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent("/api" + document.location.pathname);

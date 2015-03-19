@@ -20,7 +20,7 @@
         <div class="large-12 large-centered columns">
             <div class="panel">
                 <div class="panel-heading">
-                    <b>Basic Analytics</b>
+                    <h1>Basic Analytics</h1>
                 </div>
                 <div class="panel-body">
                     <table class="table table-bordered">
@@ -45,6 +45,38 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="large-12 large-centered columns">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h1>Yearly Analytics</h1>
+                </div>
+                <div class="panel-body">
+                    {% for year, months in monthly_total_users_joined.items %}
+                        <h2>{{ year }}</h2>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <td class="metric_header">Month</td>
+                                    <td>How many users joined</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for month, total in months.items %}
+                                    <tr>
+                                        <td>{{ month }}</td>
+                                        <td>{{ total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endfor %}
                 </div>
             </div>
         </div>

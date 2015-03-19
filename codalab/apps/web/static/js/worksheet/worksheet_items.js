@@ -16,8 +16,9 @@ var WorksheetItemList = React.createClass({
                 edit_permission: false,
                 raw: []
             }
-        }
+        };
     },
+    throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
         this.props.refreshWorksheet();
         // Set up the debounced version of the save method here so we can call it later
@@ -44,7 +45,7 @@ var WorksheetItemList = React.createClass({
             }else {
                 fIndex = Math.max(this.state.focusIndex - 1, 0);
             }
-            this.setFocus(fIndex);
+            this.setFocus(fIndex, e);
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+up', 'meta+up', 'ctrl+k', 'meta+k'], function(e){
@@ -55,7 +56,7 @@ var WorksheetItemList = React.createClass({
         //jump to the top - 1 G
         Mousetrap.bind(['1 shift+g'], function(e){
             $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0);
+            this.setFocus(0, e);
         }.bind(this), 'keydown');
 
         ////
@@ -65,8 +66,8 @@ var WorksheetItemList = React.createClass({
             // not be the same as the number of item objects because of editing/inserting/whatever,
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex);
-            console.log('moving down')
+            this.setFocus(fIndex, e);
+            // console.log('moving down');
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+down', 'meta+down', 'ctrl+j', 'meta+j'], function(e){
@@ -78,8 +79,8 @@ var WorksheetItemList = React.createClass({
         // jump to the bottom - G
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex);
-            $('body').stop(true).animate({scrollTop: $(document).height()-$(window).height()}, 50);
+            this.setFocus(fIndex, e, true);
+            $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
         ////
@@ -87,8 +88,6 @@ var WorksheetItemList = React.createClass({
         Mousetrap.bind(['e'], function(e){
             if(this.props.canEdit){
                 this.setState({editingIndex: fIndex});
-                console.log("setting teh editing index");
-                console.log(fIndex);
                 this.props.toggleEditingText(true);
                 return false;
             }
@@ -132,34 +131,40 @@ var WorksheetItemList = React.createClass({
                 focusedItem.capture_keys();
         }
     },
-    scrollToItem: function(index){
-        // scroll the window to keep the focused element in view
-        var distanceFromBottom = window.innerHeight;
-        var distanceFromTop = 0;
-        var navbarHeight = parseInt($('body').css('padding-top'));
-        var distance, scrollTo;
-        if(index > -1){
-            var scrollPos = $(window).scrollTop();
+    scrollToItem: function(index, event){
+        // scroll the window to keep the focused element in view if needed
+        var __innerScrollToItem = function(index, event){
+            var navbarHeight = parseInt($('body').css('padding-top'));
+            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
-            var nodePos = node.getBoundingClientRect(); // get all measurements for node
-            var distanceFromBottom = window.innerHeight - nodePos.bottom; // how far node is from bottom of viewport
-            var distanceFromTop = nodePos.top - navbarHeight; // how far node is from top of viewport
-            if (keyMap[event.keyCode] == 'k' ||
-                keyMap[event.keyCode] == 'up' ){ // if scrolling up
-                distance = distanceFromTop; // use the top measurement
-                scrollTo = scrollPos - nodePos.height - 50; // scroll to top of node plus 50px buffer
-                if(this.state.worksheet.items[index].state.mode === 'table'){
-                    scrollTo += nodePos.height - 30;
-                }
-            }else{ // scrolling down
-                distance = distanceFromBottom; // use the bottom measurement
-                scrollTo = scrollPos + nodePos.height + 50; // scroll to bottom of node plus 5px buffer
+            var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
+             // where is the top of the elm on the page and does it fit in the the upper forth of the page
+            var scrollTo = $(window).scrollTop() + nodePos.top - navbarHeight - (viewportHeight/4);
+            // how far node top is from top of viewport
+            var distanceFromTopViewPort = nodePos.top - navbarHeight;
+            // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
+            // the elm is down the page and we should scrol to put it more in focus
+            console.log('scrolling');
+            if(distanceFromTopViewPort > viewportHeight/3){
+
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                return;
             }
+            // if the elment is not in the viewport (way up top), just scroll
+            if(distanceFromTopViewPort < 0){
+                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                return;
+            }
+        }; // end of __innerScrollToItem
+
+        //throttle it becasue of keydown and holding keys
+        if(this.throttledScrollToItem === undefined){ //create if we dont already have it.
+            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 75).bind(this);
         }
-        if(distance < 50){ // if we're within 50px of going off screen
-            $('body').stop(true).animate({scrollTop: scrollTo}, 50);
-        }
+        this.throttledScrollToItem(index, event);
+
     },
     resetFocusIndex: function(){
         this.setState({focusIndex: -1});
@@ -221,7 +226,7 @@ var WorksheetItemList = React.createClass({
             if(reactItems[k].state.checked){
                 // we know the key of the item is the same as the index. We set it.
                 // see WorksheetItemFactory. This will change but always match.
-                var index = reactItems[k].props.key;
+                var index = reactItems[k].props.index;
                 item_indexes.push(index)
                 // when called gets a edited flag, when you getState
             }
@@ -272,18 +277,30 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index, event){
+    setFocus: function(index, event, last_sub_el){
+        // index : what item index we want to focus on
+        // event : the JS click event or keyboar event
+        // last_sub_el: True/False force a focus on the last sub element
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});
             if(index >= 0){
                 var mode = ws_obj.state.items[index].state.mode;
+                var react_el = this.refs['item'+index]
                 if(mode === 'table'){
                     this.toggleCheckboxEnable(false);
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
-                if(typeof(event) == 'undefined'){
-                    this.scrollToItem(index);
+                if(react_el && last_sub_el){ //we have a react item and wish to force last sub item (usefulll for tables)
+                    if(react_el.hasOwnProperty('focusOnLast')){
+                        react_el.focusOnLast();
+                    }
+                }
+                if(typeof(event) !== 'undefined'){
+                    // var throttledScrollToItem = _.throttle(this.scrollToItem, 1000).bind(this);
+                    // console.log("again?")
+                    // throttledScrollToItem(index, event);
+                    this.scrollToItem(index, event)
                 }
             }
         }
@@ -292,7 +309,7 @@ var WorksheetItemList = React.createClass({
         }
     },
     toggleCheckboxEnable: function(enabled){
-        this.setState({checkboxEnabled: enabled})
+        this.setState({checkboxEnabled: enabled});
     },
     render: function(){
         this.capture_keys(); //each item capture keys are handled dynamically after this call

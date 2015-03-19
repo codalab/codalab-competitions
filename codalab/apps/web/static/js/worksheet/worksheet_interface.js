@@ -72,6 +72,13 @@ var Worksheet = React.createClass({
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
+        // if(this.state.activeComponent == 'search'){
+        //     console.log("you've got the search bar");
+        // }
+        // if(this.state.activeComponent == "list"){
+        //     console.log("you've got the list");
+        // }
+
         // No keyboard shortcuts are active in raw mode
         if(this.state.rawMode){
             Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
@@ -96,17 +103,18 @@ var Worksheet = React.createClass({
             }
         });
 
-        Mousetrap.bind(['shift+r'], function(e){
-            this.refreshWorksheet()
+        Mousetrap.bind(['shift+r',], function(e){
+            this.refreshWorksheet();
+            return false;
         }.bind(this));
 
         //toggle search bar - B
         Mousetrap.bind(['shift+b'], function(e){
-            this.toggleSearchBar()
+            this.toggleSearchBar();
         }.bind(this));
 
          Mousetrap.bind(['/'], function(e){
-                this.showSearchBar()
+                this.showSearchBar();
                 this.setState({activeComponent: 'search'});
         }.bind(this));
 
@@ -114,6 +122,7 @@ var Worksheet = React.createClass({
         //toggle raw - F
         Mousetrap.bind(['shift+f'], function(e){
             this.toggleRawMode();
+            return false;
         }.bind(this));
 
         //turn on edit mode or turn it off - E
@@ -144,20 +153,21 @@ var Worksheet = React.createClass({
             if(this.state.rawMode){
                 ///TODO grab val the react way
                 ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet();
+                this.saveAndUpdateWorksheet(true);
             }
             this.setState({rawMode: !this.state.rawMode});
         }else {
             if(val==false){
                 ///TODO grab val the react way
                 ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet();
+                this.saveAndUpdateWorksheet(true);
             }
             this.setState({rawMode: val});
         }
         //
         if(this.state.rawMode){
             this.setState({activeComponent:'textarea'});
+            $("#raw-textarea").focus();
         }
 
     },
@@ -198,17 +208,24 @@ var Worksheet = React.createClass({
             }.bind(this)
         });
     },
-    saveAndUpdateWorksheet: function(){
+    saveAndUpdateWorksheet: function(from_raw){
         $("#worksheet-message").hide();
         // does a save and a update
         this.setState({updating:true});
         ws_obj.saveWorksheet({
             success: function(data){
-                this.refreshWorksheet();
                 this.setState({updating:false});
                 if('error' in data){ // TEMP REMOVE FDC
-                     $("#worksheet-message").html(data['error']).addClass('alert-danger alert');
+                    $('#update_progress').hide();
+                    $('#save_error').show();
+                    $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
+                    if(from_raw){
+                        this.toggleRawMode(true);
+                    }
+                }else{
+                    this.refreshWorksheet();
                 }
+                // debugger;
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err);
@@ -218,7 +235,7 @@ var Worksheet = React.createClass({
                 } else if (xhr.status == 401){
                     $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
                 } else {
-                    $("#worksheet-message").html("An error occurred: " + err.string() + "<br /> Please try refreshing the page.").addClass('alert-danger alert').show();
+                    $("#worksheet-message").html("A save error occurred: <em>" + err.string() + "</em> <br /> Please try refreshing the page or saving again.").addClass('alert-danger alert').show();
                 }
             }
         });

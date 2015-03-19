@@ -32,6 +32,7 @@
                position:absolute;
                top:0;
                bottom:0;
+               line-height:1;
             }
          }
       }
@@ -298,6 +299,11 @@
 }
 
 // Select2 Overrides
+.select2-drop,
+.select2-container {
+   font-family:@font-family-monospace;
+   font-size:13px;
+}
 .select2-container {
    width:100%;
 }
@@ -315,7 +321,8 @@
       // padding:4px 4px 4px 16px;
    }
    .select2-search-field input {
-      font-family:@font-family-base;
+      font-family:@font-family-monospace;
+      font-size:13px;
    }
 }
 .select2-drop,
@@ -458,6 +465,15 @@
                   line-height:inherit;
                }
             }
+         }
+      }
+      .dependencies-table {
+         margin-bottom:24px;
+         table {
+            .table;
+            .table-bordered;
+            .table-striped;
+            margin-bottom:0;
          }
       }
       .bundle-file-view-container {

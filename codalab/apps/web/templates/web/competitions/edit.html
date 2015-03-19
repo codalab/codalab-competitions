@@ -222,6 +222,57 @@
         </ul>
         <button type="button" class="medium blue button add-phase btn btn-secondary pull-right">Add Phase</button>
     </fieldset>
+
+    <fieldset>
+        <legend>Leaderboard</legend>
+        <ul id="leaderboards" class="list-unstyled">
+            {{ Leaderboards.management_form }}
+            {{ Leaderboards.non_form_errors }}
+
+        {% for form in Leaderboards %}
+            <li>
+                <div class="leaderboard panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Leaderboard
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for field in form %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% else %}
+                                <div class="fieldWrapper form-group {% field_type field %}">
+                                    {% if field|is_checkbox %}
+                                        <div class="col-sm-9 col-sm-offset-3">
+                                            {% if field.name != 'DELETE' %}
+                                                <div class="checkbox">
+                                                    <label>
+                                                        {{ field }}
+                                                        {{ field.label }}
+                                                    </label>
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
+                                        <div class="col-sm-9">
+                                            <div class="field-container">
+                                                {{ field }}
+                                                {{ field.errors }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <!--<button type="button" class="medium blue button add-leaderboard btn btn-secondary pull-right">Add Leaderboard?</button>-->
+    </fieldset>
     <hr />
     <div class="row">
         <div class="col-sm-4 col-sm-offset-4">

@@ -7,10 +7,14 @@ from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
-    from codalab.common import UsageError, PermissionError
-    from codalab.client.remote_bundle_client import RemoteBundleClient
     from apps.authenz.oauth import get_user_token
-    from codalab.lib import worksheet_util
+    #imports from command line interface
+    from codalab.bundles.make_bundle import MakeBundle
+    from codalab.bundles.run_bundle import RunBundle
+    from codalab.bundles.uploaded_bundle import UploadedBundle
+    from codalab.client.remote_bundle_client import RemoteBundleClient
+    from codalab.common import UsageError, PermissionError
+    from codalab.lib import worksheet_util, bundle_cli, metadata_util
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -61,6 +65,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             bundle_info['metadata'] = metadata
 
             return bundle_info
+        def head_target(self, target, maxlines=100):
+            return self.client.head_target(target, maxlines)
 
         def search_bundles(self, keywords, worksheet_uuid=None):
             # search_bundle_uuids(worksheet_uuid, keywords, max_results, show_counts_only)
@@ -101,11 +107,26 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
-        def derive_bundle(self, bundle_type, targets, worksheet_uuid, command):
-            name = str(slugify(command))
-            metadata = {'name': name, 'tags': [], 'allowed_time': u'', 'allowed_memory': u'', 'allowed_disk': u'', 'description': ''}
-            new_bundle_uuid = self.client.derive_bundle(bundle_type, targets, command, metadata, worksheet_uuid)
+        def create_run_bundle(self, args, command, worksheet_uuid):
+            from codalab.lib.codalab_manager import CodaLabManager
+            #mimic the command line so we can parse targets and create the bundle
+            manager = CodaLabManager()
+            cli = bundle_cli.BundleCLI(manager)
+            parser = cli.create_parser('run')
+            parser.add_argument('target_spec', help=cli.TARGET_SPEC_FORMAT, nargs='*')
+            parser.add_argument('command', help='Command-line')
+            metadata_util.add_arguments(RunBundle, set(), parser)
+            metadata_util.add_edit_argument(parser)
+            args = parser.parse_args(args)
+
+            metadata = metadata_util.request_missing_metadata(RunBundle, args)
+            metadata['name'] = str(slugify(command))
+
+            targets = cli.parse_key_targets(self.client, worksheet_uuid, args.target_spec)
+
+            new_bundle_uuid = self.client.derive_bundle('run', targets, str(command), metadata, worksheet_uuid)
             return new_bundle_uuid
+
 
         def upload_bundle_url(self, url, info, worksheet_uuid):
             file_name = url.split("/")[-1]

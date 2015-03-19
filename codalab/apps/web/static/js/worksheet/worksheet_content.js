@@ -280,9 +280,10 @@ var WorksheetContent = function() {
 
         // if it's a table or a record bundle, add a blank line of padding so bundles don't get
         // automatically consolidated
-        if(this.state.items[oldIndex].state.mode == 'table' || this.state.items[oldIndex].state.mode == 'record'){
-            raw_items = ['---'].concat(raw_items, ['---']);
-        }
+        // removed should not be here will add --- on each move
+        // if(this.state.items[oldIndex].state.mode == 'table' || this.state.items[oldIndex].state.mode == 'record'){
+        //     raw_items = ['---'].concat(raw_items, ['---']);
+        // }
         // split the list where we want to reinsert
         var raw1 = this.state.raw.slice(0,newPos);
         var raw2 = this.state.raw.slice(newPos);
@@ -473,7 +474,7 @@ var WorksheetContent = function() {
                 this.state = data;
                 var ws_items = [];
                 data.items.map(function(item){
-                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode);
+                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode, item.properties);
                     ws_items.push(ws_item);
                 });
                 this.state.items = ws_items;
@@ -495,7 +496,6 @@ var WorksheetContent = function() {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
-        console.log('------ save the worksheet here ------');
         var postdata = {
             'name': this.state.name,
             'uuid': this.state.uuid,
@@ -517,8 +517,6 @@ var WorksheetContent = function() {
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
-                $('#update_progress').hide();
-                $('#save_error').show();
                 props.error(xhr, status, err);
             }.bind(this)
         });
@@ -532,10 +530,11 @@ var WorksheetContent = function() {
 // gets created in worksheet/details.html
 var WorksheetItem = function() {
     //init
-    function WorksheetItem(interpreted, bundle_info, mode) {
+    function WorksheetItem(interpreted, bundle_info, mode, properties) {
         this.state = {
             interpreted: interpreted,
             bundle_info: bundle_info,
+            properties: properties,
             mode: mode,
             raw_index: 0,
             raw_size: 0,
