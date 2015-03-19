@@ -7793,6 +7793,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  white-space: pre;
 }
 #worksheet_content .type-contents:not(.focused) blockquote {
   background-color: #f7f7f7;
