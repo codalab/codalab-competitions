@@ -639,6 +639,12 @@ var Competition;
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        validateBeforeFilePrompt: function() {
+                            var method_name = $('#submission_method_name').val();
+                            var method_description = $('#submission_method_description').val();
+
+                            return (method_name && method_name !== '') && (method_description && method_description !== '');
+                        },
                         beforeSelection: function(info, valid) {
                             $('#fileUploadButton').addClass('disabled');
                         },
@@ -1220,6 +1226,9 @@ var CodaLab;
             this.defaultOptions = {
                 buttonId: 'fileUploadButton',
                 disabledClassName: 'disabled',
+                validateBeforeFilePrompt: function() {
+                    return true;
+                },
                 beforeSelection: function() {
                 },
                 afterSelection: function(info, valid) {
@@ -1242,7 +1251,11 @@ var CodaLab;
             button.on('click', function(e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
-                    _this.fileInput.click();
+                    if(_this.options.validateBeforeFilePrompt()) {
+                        _this.fileInput.click();
+                    } else {
+                        alert('Please fill in all required fields first!');
+                    }
                 }
             });
         }
@@ -1457,6 +1470,7 @@ var CodaLab;
                 sasEndpoint: '/api/competition/create/sas',
                 allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                 maxFileSizeInBytes: 1024 * 1024 * 1024,
+
                 beforeSelection: function(info, valid) {
                     $('#uploadButton').addClass('disabled');
                 },
