@@ -1,0 +1,2898 @@
+/*css reset--------------------------------------*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,nav,figure,article {
+	margin:0;
+	padding:0;
+}
+*{
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:100%;
+	font-weight:normal;
+}
+table {
+	border-collapse:collapse;
+	border-spacing:0;
+}
+fieldset,img {
+	border:0;
+}
+address,caption,cite,code,dfn,em,strong,th,var {
+	font-style:normal;
+	font-weight:normal;
+}
+/*ol,ul,li {
+	list-style:none;
+}*/
+caption,th {
+	text-align:left;
+}
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:100%;
+	font-weight:lighter;
+    color:#777;
+}
+h4,h5,h6 {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:100%;
+    font-weight:bold;
+    color:#777;
+}
+q:before,q:after {
+	content:'';
+}
+abbr,acronym { border:0;
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+table, tr, td {
+    border-collapse:collapse;
+}
+/*css reset--------------------------------------*/
+
+/*common-----------------------------------------*/
+.lFloat {float:left !important}
+.rFloat {float:right !important}
+.lClear {clear:left !important}
+.rClear {clear:right !important}
+.bClear {clear:both !important}
+.container {overflow:hidden;clear:both}
+.containerSpace {overflow:hidden;clear:both; padding-top:10px;}
+.clearFix { width:100%;clear:left; clear:right; height:0px;}
+label{font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;color:#666;}
+.verticalTop
+{
+    vertical-align:top !important;
+}
+/*::-webkit-scrollbar
+{
+    width: 15px;
+}
+ ::-webkit-scrollbar-track {
+    background-color: #ccc;
+ }
+ ::-webkit-scrollbar-thumb {
+    background-color: #606060
+ }
+ ::-webkit-scrollbar-button {
+    background-color: #7c7c7c;
+ }
+ ::-webkit-scrollbar-corner {
+     background-color: black;
+ }*/
+body
+{
+    scrollbar-face-color: #7c7c7c;
+    scrollbar-highlight-color: #7c7c7c;
+    scrollbar-shadow-color: #7c7c7c;
+    scrollbar-3dlight-color: #7c7c7c;
+    scrollbar-arrow-color: #f5f5f5;
+    scrollbar-track-color: #ccc;
+    scrollbar-darkshadow-color: #7c7c7c;
+    min-width:1000px;
+    position:relative;
+    overflow-y:scroll;
+}
+.preloader, .buttonPreloader, .competitionPreloader {
+    background:url('../img/PreloaderTransp.gif') no-repeat center center;
+    width:30px;
+    height:30px;
+    margin:30% auto;
+    z-index:10;
+    display:none
+}
+.preloaderInput, .buttonPreloaderInput, .buttonPreloaderTxtArea, .preloaderInputImg {
+    background:url('../img/Preloader_Small.gif') no-repeat center center;
+    text-align:left;
+    width:22px;
+    height:22px;
+    z-index:10;
+    margin:0 0 0 10px;
+    vertical-align:top;
+    display:none
+}
+.preloaderInputImg {
+    position:relative;
+    top:4px;
+}
+.buttonPreloaderInput {
+    position:absolute;
+    left:-5px;
+    top:2px;
+}
+.buttonPreloaderTxtArea {
+    position:absolute;
+    left:45%;
+    top:55%;
+}
+.preloader {
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    left:50%;
+    top:80px;
+    width:50px;
+    height:50px;
+    position:absolute;
+    z-index:30;
+}
+.buttonPreloader {
+    position:absolute;
+    margin:0;
+    left:50%;
+    margin-left:-15px;
+    top:7px;
+}
+.competitionPreloader {
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    width:50px;
+    height:50px;
+    position:absolute;
+    z-index:10;
+    margin:-25px 0 0 -25px;
+    left:50%;
+    top:50%;
+    display:block;
+}
+h1
+{
+    font-size:20px;
+    color:#777;
+}
+h4
+{
+    font-size:11px;
+    color:#777;
+    padding:10px 0;
+}
+
+/*common-----------------------------------------*/
+
+/*Button----------------------------------------*/
+input[type="submit"],input[type="submit"][value="Delete"]
+{
+    /*margin-top:10px;*/
+    cursor:pointer;
+    text-decoration:none;
+}
+input[type="submit"][value="Delete"]
+{
+    background:#f1702f;
+}
+.globalBlueButton, .globalBlueButtonBig, .globalBlueButtonInput,.globalBlueButtonAtag > a,.globalBlueButtonSmallAtag > a,.globalBlueButtonSmall,.globalBlueButtonSmallFlexi,.buttonAccept{
+    height:32px;
+    padding:0 15px;
+    min-width:103px;
+    color:#fff !important;
+    text-align:center;
+    border:solid 1px #524E5F;
+    line-height:27px;
+    cursor:pointer;
+    margin-right:14px;
+    font-size:15px;
+    display:inline-block;
+    text-decoration:none !important;
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
+
+}
+.globalBlueButton:hover, .globalBlueButtonBig:hover, .globalBlueButtonInput:hover,.globalBlueButtonAtag > a:hover,.globalBlueButtonSmallAtag > a:hover,.globalBlueButtonSmall:hover,.globalBlueButtonSmallFlexi:hover,.buttonAccept:hover{
+    border-color:#a2cef7;
+    background: #62a9e5; /* Old browsers */
+    background: -moz-linear-gradient(top,  #7cbcf3 0%, #62a9e5 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7cbcf3), color-stop(100%,#62a9e5)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #7cbcf3 0%,#62a9e5 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #7cbcf3 0%,#62a9e5 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7cbcf3', endColorstr='#62a9e5',GradientType=0 ); /* IE6-9 */
+}
+.globalBlueButton:active, .globalBlueButtonBig:active, .globalBlueButtonInput:active,.globalBlueButtonAtag > a:active,.globalBlueButtonSmallAtag > a:active,.globalBlueButtonSmall:active,.globalBlueButtonSmallFlexi:active,.buttonAccept:active{
+    border-color:#4f98f8;
+    background: #676278; /* Old browsers */
+    background: -moz-linear-gradient(top,  #676278 0%, #676278 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#676278), color-stop(100%,#676278)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #676278 0%,#676278 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #676278 0%,#676278 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #676278 0%,#676278 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #676278 0%,#676278 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#676278', endColorstr='#676278',GradientType=0 ); /* IE6-9 */
+}
+.globalBlueButtonBig{
+
+}
+.globalBlueButtonInput{
+    height:36px;
+    min-width:126px;
+    margin-top:0px;
+}
+
+.globalYellowButton, .globalYellowButtonSmall, .globalYellowButtonInput,.globalYellowButtonAtag > a,.globalYellowButtonSmallAtag > a,.globalYellowButtonSmallFlex,.buttonReject{
+    height:32px;
+    padding:0 15px;
+    min-width:103px;
+    color:#fff !important;
+    text-align:center;
+    border:solid 1px #B8A87F;
+    line-height:27px;
+    cursor:pointer;
+    margin-right:14px;
+    font-size:15px;
+    display:inline-block;
+    text-decoration:none !important;
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
+
+}
+.globalYellowButton:hover, .globalYellowButtonSmall:hover, .globalYellowButtonInput:hover,.globalYellowButtonAtag > a:hover,.globalYellowButtonSmallAtag > a:hover,.globalYellowButtonSmallFlex:hover,.buttonReject:hover{
+    border-color:#D1BF90;
+    background: #EBD7A2; /* Old browsers */
+    background: -moz-linear-gradient(top,  #EBD7A2 0%, #EBD7A2 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#EBD7A2), color-stop(100%,#EBD7A2)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #EBD7A2 0%,#EBD7A2 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #EBD7A2 0%,#EBD7A2 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#EBD7A2', endColorstr='#EBD7A2',GradientType=0 ); /* IE6-9 */
+}
+.globalYellowButton:active, .globalYellowButtonSmall:active, .globalYellowButtonInput:active,.globalYellowButtonAtag > a:active,.globalYellowButtonSmallAtag > a:active,.globalYellowButtonSmallFlex:active,.buttonReject:active{
+    border-color:#B8A87F;
+    background: #D1BF90; /* Old browsers */
+    background: -moz-linear-gradient(top,  #D1BF90 0%, #D1BF90 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#D1BF90), color-stop(100%,#D1BF90)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #D1BF90 0%,#D1BF90 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #D1BF90 0%,#D1BF90 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#D1BF90', endColorstr='#D1BF90',GradientType=0 ); /* IE6-9 */
+
+}
+.globalYellowButtonSmall,.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
+    line-height:18px;
+    float:none !important;
+    font-size:12px;
+    min-width:100px;
+}
+.globalYellowButtonSmallAtag > a,.globalBlueButtonSmallAtag > a,.globalYellowButtonSmallFlex,.globalBlueButtonSmallFlexi,.buttonAccept,.buttonReject,.globalBlueButtonSmall{
+    margin-right:0px !important;
+    min-width:56px !important;
+    padding:2px 15px !important;
+}
+.globalYellowButtonInput{
+    height:36px;
+    min-width:126px;
+    position:relative;
+    top:2px !important;
+}
+.button1 {
+    font:bold 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#2f3903;
+    padding:8px 20px;
+    float:left;
+    background:#D1D974;
+    cursor:pointer;
+}
+.button2,.button3,.button2Small,.button3Small,.saveBtnHolder a,.saveContainer a,.saveContainer input[type="submit"] {
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    padding:17px;
+    float:left;
+    background:#F25022;
+    cursor:pointer;
+    min-width:180px;
+    border:0;
+    margin-right:10px;
+    text-align:center;
+    text-decoration:none;
+    margin-top:0;
+}
+.button3,.button3Small,.saveBtnHolder a {
+    background:#07A1EB;
+}
+.commonBlueButton{
+    background:#07A1EB !important;
+}
+.button2Small, .button3Small
+{
+    padding:10px;
+    width:100px;
+}
+.saveContainer a,.saveContainer input[type="submit"]
+{
+    background:#74d825;
+    height:40px;/*Issue due to non unique Button tag*/
+    padding:0 10px;
+    min-width:142px;
+}
+.saveContainer a{
+    min-width:122px;
+    line-height:42px;
+}
+.loginButton, #login a{
+    font:bold 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    padding:12px 0px 0 20px;
+    float:right;
+    cursor:pointer;
+    text-decoration:none;
+}
+.competitionUserBtnBlock
+{
+    float:right;
+    position:absolute;
+    right:10px;
+    top:16px;
+}
+/*.buttonAccept,.buttonReject
+{
+    padding:5px 11px;
+    background:#74d825;
+    float:left;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display:inline-block;
+    color:#fff !important;
+    cursor:pointer;
+    margin-left:10px;
+}
+.buttonReject
+{
+    background:#f1702f;
+}*/
+.tabButton{
+    background:#d57900 ;
+    padding:10px 35px;
+    float:right;
+    cursor:pointer;
+    position:relative;
+    margin-left:10px;
+}
+.tabButton a{
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    text-decoration:none;
+}
+.tabButton input
+{
+    margin:0;
+    padding:0;
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background:none;
+}
+/*Button----------------------------------------*/
+
+/*Banner----------------------------------------*/
+.banner {
+    background:#787878 url('../img/BnrImg_1.jpg') no-repeat center top;
+    height:340px;
+}
+/*Banner----------------------------------------*/
+
+.CompetitionsDetailContainer .CompetitionsDetailLft h3 {
+    padding:0 10px 10px 0;
+    font-size:17px;
+    color:#535353;
+}
+.CompetitionsDetailContainer .CompetitionsDetailLft p {
+    font:normal 11px/16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /*color:#7c7c7c;*/
+    text-align:left;
+    padding:10px 10px 0 0;
+    clear:left;
+    float:left;
+}
+.containerTextS {
+    font:normal 12px/14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    padding:10px 10px 0 0;
+}
+.readMore {
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    padding:10px 10px 0 0;
+    color:#07b4db;
+}
+.CompetitionsDetailLft nav {
+    padding:20px 0;
+    clear:both;
+}
+.CompetitionsDetailLft nav ul{
+    margin-bottom:50px;
+}
+.CompetitionsDetailLft nav ul li {
+    display:block;
+    position:relative;
+    width:186px;
+}
+.CompetitionsDetailLft nav ul li a{
+    font:normal 16px/20px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#739CB9;
+    display:block;
+    text-align:right;
+    padding:0 5px;
+    cursor:pointer;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.CompetitionsDetailLft nav ul li:hover a {
+    color:#ffac31;
+}
+.CompetitionsDetailLft nav ul li.active a{
+    color:#666;
+}
+
+/*Container----------------------------------------*/
+/*compBlock----------------------------------------*/
+.compBlockTbl
+{
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+.compBlockLeftContainer
+{
+    display:table-cell;
+    vertical-align:top;
+    padding-right:10px;
+    width:290px;
+}
+.compBlockLeftContainer > .grayGradientBtn, .buttonRegisterCompetition ,.competitionUserBlock
+{
+    overflow:hidden;
+    border:solid 1px #ccc;
+    padding:20px;
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top,  #ffffff 1%, #efefef 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#ffffff), color-stop(100%,#efefef)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #ffffff 1%,#efefef 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #ffffff 1%,#efefef 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #ffffff 1%,#efefef 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #ffffff 1%,#efefef 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#efefef',GradientType=0 ); /* IE6-9 */
+}
+.compProfileContainer{
+    margin-bottom:15px;
+}
+.compProfileContainer h3{
+    font-size:19px;
+    color:#333;
+}
+.compProfileContainer > .container{
+    background:#fafafa;
+    border:solid 1px #ccc;
+    padding:10px;
+    display:table;
+}
+.compProfileContainer .profileImage{
+    width:100px;
+    display:table-cell;
+    vertical-align:top;
+}
+.compProfileContainer .profileContentArea{
+    display:table-cell;
+    vertical-align:top;
+}
+.compProfileContainer .ProjectDetailArea{
+    width:200px;
+    display:table-cell;
+    vertical-align:top;
+    border:solid 1px #ccc;
+    background:#fff;
+}
+.compProfileContainer .ProjectDetailArea > div{
+    display:block;
+    border-bottom:solid 1px #ccc;
+}
+.compProfileContainer .ProjectDetailArea > div:last-child{
+    border:0;
+}
+.compProfileContainer .ProjectDetailArea > div > label{
+    display:table-cell;
+    padding:8px 15px;
+    font-size:13px;
+}
+.compProfileContainer .ProjectDetailArea > div > label:first-child{
+    width:70%
+}
+.compProfileBlock {
+    display:table;
+    width:100%;
+}
+.compBlockLeftContainer > .grayGradientBtn, .buttonRegisterCompetition {
+    cursor:pointer;
+}
+.grayGradientBtn {
+    height:20px;
+    position:relative;
+}
+.grayGradientBtn.compBlockFilter,.buttonRegisterCompetition
+{
+    padding:12px;
+    text-align:center;
+    margin-top:12px;
+}
+.buttonRegisterCompetition {
+    margin-right:10px;
+}
+.grayGradientBtn a,.buttonRegisterCompetition a
+{
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#07b4db;
+    text-decoration:none;
+}
+.blueRegButton,.blueSubmitButton {
+    background:#3abdda ;
+    padding:10px 35px;
+    float:right;
+    cursor:pointer;
+    position:relative;
+}
+.blueRegButton a ,.blueSubmitButton a{
+    font:normal 17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    text-decoration:none;
+}
+.compBlockRightContainer .container
+{
+    border:0;
+}
+.compBlockRightContainer .competition-tile,.competitionTilePreload
+{
+    border:solid 1px #ccc;
+    margin-bottom:10px;
+    min-height:110px;
+    background:#fafafa;
+}
+.compBlockRightContainer .competition-tile {
+    border:0;
+}
+.competitionTilePreload
+{
+    position:relative;
+    display:none;
+}
+.competitionUserBlock h3
+{
+    font:normal 17px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#0b9fc1;
+    font-weight: lighter;
+}
+.competitionUserBlock .subContainerPadding p {
+    padding-bottom:0;
+}
+/*Container----------------------------------------*/
+.bodyContainer{
+
+    overflow:hidden;
+    clear:both;
+}
+.mainContainer {
+    width:1024px;
+    margin:auto;
+    padding:30px 0;
+}
+.mainContainer h2
+{
+    font: 20px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+    padding-bottom:15px;
+    font-weight: lighter;
+}
+.mainContainer p
+{
+    font:normal 13px/18px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+    padding-bottom:10px;
+}
+.subContainerPadding
+{
+    overflow:hidden;
+    padding:15px;
+}
+.competitionTileLftStrip {
+    background:#739CB9;
+    display:table-cell;
+    width:10px;
+    padding:0 !important;
+}
+.subContainerMain {
+    background:#f5f5f5;
+    overflow:hidden;
+    margin-bottom:35px;
+    display:table;
+}
+.subContainerMain > div {
+    display:table-cell;
+    vertical-align:top;
+    padding:25px 30px;
+}
+.subContainerMain .articleImage {
+    width:220px;
+    height:150px;
+    background:#D1D974;
+}
+.subContainerMain .CompetitionDetail {
+    width:185px;
+    display:table-cell;
+}
+.subContainerMain .CompetitionDetailBox {
+    height:80px;
+    width:165px;
+    background:#e9e9e9;
+    position:relative;
+    padding:10px;
+}
+.subContainerMain .btnStrip {
+    background:#f18e2f;
+    position:absolute;
+    display:block;
+    bottom:10px;
+    font:normal 11px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    right:10px;
+    left:10px;
+    text-align:center;
+    cursor:pointer;
+}
+.subContainerMain .articleTextArea {
+    margin-left:260px;
+    min-height:100px;
+    margin-right:206px;
+    padding:25px 40px 0 0;
+}
+.subContainerMain h3 {
+    font:normal 25px 'Segoe UI Light', 'Segoe Light','Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#535353;
+    padding-bottom:20px;
+}
+.subContainerMain p {
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#787878;
+    padding-bottom:4px;
+}
+.CompetitionDetailTbl {
+    display:table;
+    width:100%;
+}
+.CompetitionDetailTbl > label {
+    width:50%;
+    height:30px;
+    text-align:left;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display:table-cell;
+    color:#666;
+}
+.CompetitionDetailTbl > label:nth-child(2) {
+    text-align:right;
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+/*Container----------------------------------------*/
+.subContainer {
+    display:table;
+    table-layout:fixed;
+    width:100%;
+    min-height: 140px;
+}
+
+.subContainer .articleTextArea p
+{
+    min-height:43px;
+}
+.subContainer figure.articleImage {
+    background:url('../img/DummyImage.jpg') no-repeat center top;
+    margin-bottom:0;
+
+    /*background:#50E0FB;
+    color:#fff;
+    text-align:center;
+    font:lighter 25px/85px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+}
+figure.userImage {
+    background:#50E0FB;
+    width:80px;
+    height:80px;
+}
+.userSocialNetworkBlock {
+    display:inline;
+}
+.userSocialNetworkBlock .twitIcon,.userSocialNetworkBlock .fBIcon,.userSocialNetworkBlock .linkedIcon {
+    background:url('../img/FBIcon.jpg') no-repeat center top;
+    width:20px;
+    height:20px;
+    float:left;
+    margin-right:6px;
+    cursor:pointer;
+    margin-top:4px;
+}
+.userSocialNetworkBlock .fBIcon {
+    background:url('../img/twitIcon.jpg') no-repeat center top;
+}
+.userSocialNetworkBlock .linkedIcon {
+    background:url('../img/twitIcon.jpg') no-repeat center top;
+}
+.userSocialNetworkBlock > div:last-child{ margin-right:0;}
+.subContainer:nth-child(2) figure.articleImage {
+    background:url('../img/xray2.jpg');
+}
+.subContainer > div {
+    display:table-cell;
+    vertical-align:top;
+    padding:0 20px 0 0;
+}
+.subContainer > div:last-child{
+}
+.subContainer .articleImage {
+    width:220px;
+    height:150px;
+    background:#D1D974;
+}
+.subContainer .CompetitionDetail {
+    width:185px;
+    display:table-cell;
+    padding-right:0;
+    background:#ebf2fb !important;
+}
+.subContainer .CompetitionDetailBox {
+    height:80px;
+    width:165px;
+    position:relative;
+    padding:10px;
+}
+.subContainer .btnStrip {
+    background:#f18e2f;
+    position:absolute;
+    display:block;
+    bottom:10px;
+    font:normal 11px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    right:10px;
+    left:10px;
+    text-align:center;
+    cursor:pointer;
+}
+.subContainer .articleTextArea {
+    margin-left:260px;
+    min-height:100px;
+    margin-right:206px;
+}
+.subContainer h3 {
+    font:normal 25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#535353;
+    padding-bottom:20px;
+}
+.subContainer p {
+    font:normal 1em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #666;
+    padding-bottom:4px;
+    line-height: 1.6em;
+}
+.articleHeadingContainer h3
+{
+    font-size: x-large;
+    display:inline-block;
+    color:#739CB9;
+    padding-bottom: 5px;
+}
+/*SubPage----------------------------------------*/
+.compBlockRightContainer {
+    padding:0 0 40px;
+}
+.compBlockRightContainer h2 {
+    font:normal 20px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#535353;
+    padding:0 0 10px 0;
+}
+.compBlockRightContainer .subContainer .articleImage  {
+    width:115px;
+    height:90px;
+}
+.compBlockRightContainer .subContainer .articleTextArea {
+    margin-left:145px;
+}
+.compBlockRightContainer .subContainer h3 {
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding-bottom:5px;
+}
+.compBlockRightContainer .subContainer .articleHeadingContainer label {
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin-left:13px;
+    color:#333;
+}
+.compBlockRightContainer .subContainer p {
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#333;
+    padding-bottom:5px;
+}
+.compBlockFilter .container
+{
+    margin-top:10px;
+}
+.competitionActions a
+{
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#f1702f;
+    text-decoration:none;
+}
+.competitionActions a:hover
+{
+    color:#ce4804;
+}
+.competitionActions label
+{
+    font-size:12px;
+    color:#222;
+    padding:2px 5px;
+    display:inline-block;
+    border-radius:3px;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+}
+.competitionActions label.statusDenied {
+   color: #dd1122;
+}
+
+.compBlockFilter{ background:#ebf2fb; padding:10px; min-height:270px;}
+.compBlockFilter input[type="text"]
+{
+    width:95%;
+    padding:5px;
+    border:solid 1px #a0a0a0;
+    color:#ccc;
+}
+.compBlockFilter select
+{
+    width:100%;
+    padding:5px;
+    border:solid 1px #a0a0a0;
+    color:#07b4db;
+}
+.compBlockFilter label
+{
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+}
+.compBlockFilter h3
+{
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+    padding-bottom:5px;
+}
+.gradient
+{
+    background: #efefef; /* Old browsers */
+    background: -moz-linear-gradient(top,  #efefef 1%, #ffffff 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#efefef), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #efefef 1%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #efefef 1%,#ffffff 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #efefef 1%,#ffffff 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #efefef 1%,#ffffff 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+
+}
+
+.articleImageContainer,.articleTextArea
+{
+    cursor:pointer;
+}
+div.articleImageContainer
+{
+    padding-right:0;
+    width:140px;
+    display:table-cell;
+    vertical-align:top;
+}
+.articleTextAreaContainer{
+    display:table;
+    width:100%;
+}
+.articleTextAreaContainer .subContainerPadding{
+    vertical-align:top;
+}
+.articleTextArea .globalYellowButtonSmallAtag{
+    padding:0 10px 10px 10px;
+}
+.articleButtonsArea {
+    float: right;
+    margin: 10px;
+}
+/*CompetitionProcess-------------------------------*/
+.ui-tabs-hide
+{
+    display:none;
+}
+.Competitionprocess {
+    padding:20px 0 40px;
+}
+.CompetitionProcessTab {
+    overflow:hidden;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul {
+    width:1024px;
+    margin:auto;
+    margin-top:25px;
+}
+.competitionProcessHeader {
+    position:absolute;
+    /*top:86px;*/
+    left:0;
+    right:0;
+    padding:6px;
+    background:#ebf2fb;
+    height:61px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li{
+    display:inline-block;
+    float:left;
+    margin:0;
+    cursor:pointer;
+    background:url('../img/TabSprite.png') no-repeat left top;
+    position:relative;
+    min-width:55px;
+    padding-left:10px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li a{
+    background:url('../img/TabSprite.png') repeat-x left -34px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li div
+{
+    height:16px;
+    width:16px;
+    position:absolute;
+    background:url('../img/notification.png') no-repeat left center;
+    left:25px;
+    top:-8px;
+}
+#competitionTabButtonContainer{
+    float:right !important;
+    background:none !important;
+}
+.ui-state-default a
+{
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    text-decoration:none;
+    display:block;
+    padding:0 40px 0;
+    height:30px;
+    font-size:13px;
+    line-height:30px;
+}
+.ui-tabs-hide
+{
+    display:none;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li:hover{
+    background:url('../img/TabSprite.png') no-repeat left -220px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li:hover a{
+    background:url('../img/TabSprite.png') repeat-x left -254px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li.compleate, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-state-active {
+    background:url('../img/TabSprite.png') repeat-x left -108px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li span,.ui-state-default span{
+    background:url('../img/TabSprite.png') no-repeat left -69px;
+    position:absolute;
+    right:-20px;
+    width:20px;
+    height:30px;
+    top:0;
+    z-index:1;
+    display:block;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li:hover  span {
+    background:url('../img/TabSprite.png') no-repeat left -289px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li.compleate a, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected a{
+    background:url('../img/TabSprite.png') repeat-x left -145px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li.compleate span, .CompetitionProcessTab .competitionProcessHeader > ul > li.ui-tabs-selected span{
+    background:url('../img/TabSprite.png') no-repeat left -181px;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li:first-child {
+    margin-left:0;
+}
+.CompetitionProcessTab .competitionProcessHeader > ul > li:last-child {
+    margin-right:0;
+}
+.CompetitionProcessContainer {
+    padding:40px 0 30px;
+    margin-top:10px;
+}
+.CompetitionProcessContainer input,.CompetitionProcessContainer textarea {
+    font-size:14px;
+}
+.CompetitionTypeDetailTBLHolder
+{
+    overflow:hidden;
+}
+.CompetitionTypeDetailTBL {
+    display:table;
+    width:100%;
+}
+.CompetitionTypeDetailrow {
+    display:table-row;
+}
+.CompetitionTypeDetailrow > div {
+    display:table-cell;
+    padding:5px 0 10px;
+    vertical-align:top;
+}
+.CompetitionTypeDetailrow > div:first-child {
+    width:100px;
+    padding-right:10px;
+    /*text-align:right;*/
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+}
+.CompetitionTypeDetailrow > div:first-child label {
+    white-space:nowrap;
+    vertical-align:top;
+}
+.CompetitionTypeDetailrow > div:last-child label {
+    font-size:13px;
+}
+.CompetitionTypeDetailrow > div:last-child {
+    padding-right:10px;
+    text-align:left;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+}
+.CompetitionTypeDetailrow input[type="text"], .CompetitionTypeDetailrow textarea {
+    padding:5px 10px;
+    width:70%;
+    border:solid 1px #ccc;
+    color:#666;
+}
+
+.Description
+{
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+}
+
+.CompetitionTypeDetailrow select {
+    padding:5px 10px;
+    width:73%;
+}
+.CompetitionTypeDetailrow .thumbView {
+    background:url('../img/thumbIcon.png') no-repeat right center;
+    width:53px;
+    height:42px;
+    float:left;
+}
+.CompetitionTypeDetailrow .thumbViewUpload {
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#666;
+    margin:10px 0 0 10px;
+    float:left;
+}
+.CompetitionTypeDetailrow .typeOption{
+    display:table;
+    width:40%;
+    table-layout:fixed;
+    float:left;
+}
+.CompetitionTypeDetailrow .typeOption .content {
+    display:table-cell;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.CompetitionTypeDetailrow .typeOption .content:first-child {
+    width:20px;
+}
+.CompetitionTypeDetailrow .typeOption .content em{
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+/*CompetitionProcess-----------------------------*/
+/*SaveContainer------------------------------------*/
+.saveContainer {
+    /*padding: 10px 0 20px;*/
+    height: 30px;
+    width: 100%;
+    /*position:fixed;*/
+    padding-bottom: 25px;
+    bottom:0px;
+    /*background:#2A2A2C;*/
+;
+}
+.saveBtnHolder {
+    margin:auto;
+    display:table;
+}
+.saveBtnHolderColm
+{
+    display:table-cell;
+    vertical-align:top;
+}
+/*SaveContainer------------------------------------*/
+.delLabel
+{
+    overflow:hidden;
+}
+.delLabel label:nth-child(2)
+{
+    font-size:13px;
+    color:#999;
+}
+.CompetitionsDetailContainer {
+    overflow:hidden;
+}
+.CompetitionsDetailContainer h2 {
+    padding:0;
+    font:normal 1.5em 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.CompetitionsDetailContainer label {
+    font:normal 13px arial;
+    color:#adadad;
+    /*padding-bottom:40px;*/
+    padding-top:10px;
+}
+.container.tabArea > label {
+    padding:10px 0 10px;
+    display:block;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.CompetitionsDetailContainer p {
+    font:normal 16px/19px 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+}
+
+.CompetitionsDetailLft {
+    display:table-cell;
+    vertical-align:top;
+    position:relative;
+    width:90px;
+}
+.CompetitionsDetailRit {
+    display:table-cell;
+    vertical-align:top;
+    padding:20px;
+}
+.CompetitionsDetailRit figure {
+    height:115px;
+    background:url('../img/contentImg.jpg') left -170px;
+    margin-bottom:20px;
+}
+.CompetitionsDetailImg {
+    height:238px;
+    width:238px;
+    background:url('../img/demoImageDetail.jpg');
+    margin-right:10px;
+    float:right;
+    clear:both;
+}
+.challStatusStripTxt {
+    height:16px;
+    position:relative;
+    top:13px;
+}
+.challStatusStrip {
+    position:relative;
+    background: #E5E5E5;
+    padding: 5px 5px 10px 5px;
+}
+.challStatusStrip section > label {
+    z-index:2;
+    font-size:11px;
+    color:#535353;
+    padding:0;
+}
+.challStatusStripLevel {
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:1;
+}
+.challStatusStripSection {
+    display:table;
+    width:100%;
+    position:relative;
+    z-index:1;
+    table-layout:fixed;
+}
+.challStatusStripSection > section {
+    display:table-cell;
+    padding:3px 10px !important;
+    vertical-align:middle;
+    text-align:left;
+    width:33%;
+    overflow-x: hidden;
+    overflow-y: visible;
+    text-overflow:ellipsis;
+}
+.challStatusStripSection > section span {
+    font-size: .7em;
+    white-space:nowrap;
+    width:100%;
+    text-align:left;
+}
+.phaseLabel {
+    font-weight: bold;
+    padding: 3px;
+    border-radius: 6px !important;
+}
+.phaseLabel.competition-end, .phase-label-None {
+    padding: 0;
+}
+.currentPhase {
+    color: #739cb9 !important;
+    text-indent: 12px;
+    background: url('../img/triangle_phase.png') no-repeat 10px 15px;
+}
+
+/* Configurable button colors for phases */
+.phaseListContainer {
+    margin-top: 5px;
+    margin-bottom: 45px;
+    padding-left: 5px;
+    border-radius: 4px;
+}
+.phaseList {
+    margin-top: 5px;
+    display: table;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.phase-list-item-None { border-left: 5px solid #ddd; }
+
+.phase-list-item-white { border-left: 5px solid #FAFAFA; }
+.phase-label-white { background-color: #FAFAFA !important; color: #615555 !important; }
+.phase-btn-white { background-color: #FAFAFA !important; color: #615555 !important; }
+
+.phase-list-item-orange { border-left: 5px solid #fa963f; }
+.phase-label-orange { background-color: #fa963f !important; color: #615555 !important; }
+.phase-btn-orange { background-color: #fa963f !important; color: #615555 !important; }
+
+.phase-list-item-yellow { border-left: 5px solid #F0F575; }
+.phase-label-yellow { background-color: #F0F575 !important; color: #615555 !important; }
+.phase-btn-yellow { background-color: #F0F575 !important; color: #615555 !important; }
+
+.phase-list-item-green { border-left: 5px solid #92D053; }
+.phase-label-green { background-color: #92D053 !important; color: #615555 !important; }
+.phase-btn-green { background-color: #92D053 !important; color: #615555 !important; }
+
+.phase-list-item-blue { border-left: 5px solid #88D0E9; }
+.phase-label-blue { background-color: #88D0E9 !important; color: #615555 !important; }
+.phase-btn-blue { background-color: #88D0E9 !important; color: #615555 !important; }
+
+.phase-list-item-purple { border-left: 5px solid #D496D9; }
+.phase-label-purple { background-color: #D496D9 !important; color: #615555 !important; }
+.phase-btn-purple { background-color: #D496D9 !important; color: #615555 !important; }
+
+.active.phase-btn-white,
+.active.phase-btn-orange,
+.active.phase-btn-yellow,
+.active.phase-btn-green,
+.active.phase-btn-blue,
+.active.phase-btn-purple
+{
+    border: 3px solid rgb(83, 132, 166);
+}
+
+.testingStarts {
+    float:right;
+    position:absolute;
+    z-index:2;
+    font-size:11px;
+    color:#535353;
+    padding:8px 10px 0 10px !important;
+    left:25%;
+}
+.testingStarts span {
+    margin-left:40px;
+}
+.dataStatusHolder {
+    position:absolute;
+    height:25px;
+    left:50%;
+    z-index:1;
+}
+.dataStatusHolder label {
+    display:block;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#7c7c7c;
+    padding:0px;
+}
+
+.challStatusStripTxt .dataStatusHolder:nth-child(2) {
+    left:500px;
+}
+.challStatusStripTxt .dataStatusHolder:nth-child(3) {
+    left:550px;
+}
+.contentScroll
+{
+    height:600px;
+    overflow:auto;
+    padding-right:10px;
+}
+.tempImage{
+    background:#50E0FB !important;
+    color:#fff;
+    text-align:center;
+    font:lighter 25px/115px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+/*.myCodalabBlock h2{ using for .myCodalabTabArea li a
+    font:normal 18px arial;
+    color:#404040;
+}*/
+.container.myCodalabBlock > .container {
+    padding-bottom:20px;
+}
+
+/*ul.myCodalabTabContent li {
+    display:none;
+}
+ul.myCodalabTabContent li.tab1 {
+    display:block;
+}*/
+
+/*Competitions details*/
+.competitionsDetailHeader {
+    display:table;
+    width:100%;
+}
+
+.competitionsDetailTabArea {
+    overflow:hidden;
+    margin-top:17px;
+}
+.CompetitionsDetailLftUl {
+    padding: 3px 0;
+}
+.section-container.vertical-tabs > section.active > .title a {
+    font-weight: bold !important;
+}
+.section-container.auto > section.active > .title a {
+    font-weight: normal !important;
+}
+.competitionsProfileImage {
+    width: 175px;
+    height: 175px;
+    display:table-cell;
+    vertical-align:top;
+}
+#imgProfileImage {
+    max-height: 175px;
+    max-width: 175px;
+}
+.competitionsHeaderTitle {
+    display:table-cell;
+    vertical-align:top;
+    padding: 0 0 0 15px;
+}
+.competitionsHeaderTitle label {
+    display:block;
+    padding:10px 0 0 0;
+}
+.StatusStripContainer {
+    overflow:hidden;
+    text-align: center;
+}
+.StatusStripContainer h4 {
+    line-height: .9em;
+}
+
+.competitionsDetailTab {
+    display:table;
+    width:100%;
+}
+ul.competitionsDetailTabTop, .myCodalabTabArea {
+    display:block;
+    margin-bottom:-1px;
+}
+ul.competitionsDetailTabTop li, .myCodalabTabArea li{
+    display:inline-block;
+    font:normal 19px/50px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding:0 40px;
+    color:#739CB9;
+    cursor:pointer;
+    border:solid 1px #ccc;
+    border-bottom:0;
+    background:#fff;
+    margin-bottom:1px;
+    vertical-align:bottom;
+}
+ul.competitionsDetailTabTop li:hover, .myCodalabTabArea li:hover {
+    color:#ffac31;
+}
+ul.competitionsDetailTabTop li.active, .myCodalabTabArea li.highlightactive{
+    color:#666;
+    cursor:pointer;
+    border:solid 1px #ccc;
+    border-bottom:0;
+    background:#f8f8f8;
+    margin-bottom:0 !important;
+}
+.competitionsDetailTabBlock,.myCodalabTabContent {
+    overflow:hidden;
+    background:#f8f8f8;
+    border:solid 1px #ccc;
+}
+.competitionsDetailTabBlock > li, .myCodalabTabContent > li {
+    min-height:300px;
+    display:none;
+    padding:35px;
+    position:relative;
+}
+.competitionsDetailTabBlock > .tab1, .myCodalabTabContent > .tab1{
+    display:block;
+}
+/*Competitions details*/
+.participateInfoBlock {
+    overflow:hidden;
+    background:#ebf2fb;
+}
+.participateInfoBlock .infoStatusBar {
+    height:18px;
+    background:#739CB9;
+}
+.unResisted .infoStatusBar {
+    background:#8BC7BF;
+}
+.pendingApproval .infoStatusBar {
+    background:#D1BF90;
+}
+.rejectedApproval .infoStatusBar {
+    background:#477473;
+}
+.approvedApproval .infoStatusBar {
+    background:#739CB9;
+}
+.participateInfoBlock .labelArea {
+    overflow:hidden;
+    min-height:45px;
+    padding:10px 25px;
+}
+.CompetitionsDetailContainer .regApprovLabel {
+    font:bold 14px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#535353;
+    padding-bottom:0;
+    display:block;
+}
+.noBold
+{
+font-weight:normal !important;
+}
+
+/*result table--------------*/
+.resultsTable {
+    margin-top:20px;
+    width:100%;
+    table-layout:fixed;
+}
+.resultsTable.dataTable th {
+    text-transform:uppercase;
+    background:#739CB9;
+    padding:13px 10px;
+    text-align:left;
+    font-size:13px;
+    color:#fff;
+    cursor: auto;
+}
+.resultsTable th a {
+    color:#fff;
+}
+.resultsTable th a:hover {
+    text-decoration:underline;
+}
+.resultsTable > tr:nth-child(odd) td {
+    background:#EBF2FB;
+}
+.resultsTable td {
+    padding:8px 10px;
+    color:#5c5c5c;
+    text-align:left;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    border: #DDD 1px solid;
+}
+/*result table--------------*/
+.chkRegisterContainer {
+    overflow:hidden;
+    padding:20px 0;
+}
+.chkRegisterContainer span{
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    color:#666;
+    float:left;
+    margin:0 8px;
+}
+.chkRegisterContainer span a
+{
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    color:#739CB9;
+}
+.chkRegisterContainer input {
+    float:left;
+}
+.chkRegisterContainer a, participateInfoBlock a {
+    color:#07b4db;
+    font:normal 11px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    cursor:pointer;
+}
+
+.participateInfoBlock .blueRegButton {
+    margin-bottom:30px;
+}
+.thumbnailContainer > div:first-child {
+    vertical-align:top;
+    padding-top:10px;
+}
+.thumbnailContainer > div:last-child figure {
+    display:inline-block;
+}
+.thumbnailContainer > div:last-child {
+    vertical-align:bottom;
+    padding-bottom:10px;
+}
+.thumbnailContainer > div:last-child label {
+    color:#666;
+    font:normal 12px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display:inline-block;
+    vertical-align:bottom;
+}
+.thumbnailContainer > div:last-child label label {
+    text-decoration:underline;
+    color:#07b4db;
+    cursor:pointer;
+}
+.thumbnailContainer > div:last-child label span {
+    color:#9c9c9c;
+    font:normal 10px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.textEditor
+{
+    overflow:hidden;
+    position:relative;
+}
+.textEditorBtnBlock
+{
+    height:40px;
+}
+.textEditorTxtArea
+{
+    height:300px;
+    border:solid 1px #ccc;
+    width:95%;
+    max-width:95%;
+    padding:10px;
+}
+.competitionsDetailTab.textEditorLftTabContainer > div
+{
+    padding-top:0;
+}
+.textEditorLftTabContainer .CompetitionsDetailLft
+{
+    padding-left:0;
+    width:110px;
+}
+.textEditorLftTab
+{
+    margin-top:20px;
+}
+.CompetitionsDetailLft .textEditorLftTab > li
+{
+    border:solid 1px #ccc;
+    border-radius:2px;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    overflow:hidden;
+    margin-bottom:6px;
+    width:130px;
+    background:#fff;
+}
+.textEditorLftTab > li a
+{
+    cursor:pointer;
+    float:left;
+    padding:0 8px !important;
+    width:10px;
+    height:25px;
+    border-left:solid 1px #ccc;
+}
+.textEditorLftTab > li div
+{
+    float:right;
+}
+.textEditorLftTab > li a
+{
+    background:url('../img/IconSpriteImage.png') no-repeat 2px 5px;
+}
+.textEditorLftTab > li label,.textEditorLftTab > li.active label
+{
+    color:#303030;
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    cursor:pointer;
+    float:left;
+    padding:0 4px 0 8px !important;
+    width:90px;
+    text-align:left;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.textEditorLftTab > li input {
+    border:0;
+    background:none;
+    cursor:text;
+    padding:0 8px !important;
+    width:76px;
+    color:#303030;
+    font:normal 12px/25px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    text-align:left;
+    height:25px;
+}
+.textEditorLftTab > li.active label
+{
+    color:#07b4db;
+}
+.textEditorLftTab > li:hover label
+{
+    color:#50E0FB;
+}
+.viewStateOff,.viewStateDisabled {
+    opacity:.2;
+    filter: alpha(opacity=20);
+    cursor:default;
+}
+.viewStateOff label,.viewStateDisabled label{
+    color: #303030 !important;
+    cursor:default !important;
+}
+/*.offViewDetailTab a{
+    opacity:.2;
+    filter: alpha(opacity=20);
+}*/
+.viewStateAlwaysOn a
+{
+    display:none !important;
+}
+.makePublicContainer > div{
+    padding-top:20px;
+    padding-bottom:10px;
+}
+.makePublicContainer div:first-child {
+    width:300px;
+}
+.uploadImage
+{
+    display:inline-block;
+    vertical-align:bottom;
+    height:22px;
+    border:solid 1px #07b4db;
+    background:none;
+    position:relative;
+    bottom:3px;
+    opacity:.01;
+    filter: alpha(opacity=01);
+    height:0;
+    width:0;
+}
+.uploadLabel {
+    text-decoration:underline;
+    color:#07b4db !important;
+    font-size:12px;
+    text-decoration:none;
+    padding-top:5px;
+    cursor:pointer;
+}
+.pContentArea
+{
+    color:#666 !important;
+    font:normal 16px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+.saveBtnContainer
+{
+    overflow:hidden;
+    margin-top:-12px;
+}
+.CompetitionsDetailRit p{
+    font:normal 13px/22px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding-bottom:10px;
+    color:#3b3b3b;
+}
+.CompetitionsDetailRit ol{
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#777777;
+}
+.CompetitionsDetailRit ol li{
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#3b3b3b;
+    padding-bottom:5px;
+    list-style:decimal;
+}
+.CompetitionsDetailRit strong {
+    font-weight:bold;
+    font-size:16px;
+}
+.CompetitionsDetailRit h1 {
+    font-size:26px;
+    padding-bottom:10px;
+}
+.CompetitionsDetailRit h2 {
+    font-size:18px;
+    padding-bottom:10px;
+}
+.CompetitionsDetailRit h3 {
+    font-size:14px;
+    color:#535353;
+    padding-bottom:5px;
+    font-weight:bold;
+}
+.CompetitionsDetailRit ul,.CompetitionsDetailRit ol {
+    padding-left:20px;
+}
+.CompetitionsDetailRit ul li{
+    font:normal 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#3b3b3b;
+    padding-bottom:5px;
+    list-style:disc;
+}
+.CompetitionsDetailRit dt {
+    font:normal 16px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#535353;
+    padding-bottom:5px;
+}
+.CompetitionsDetailRit a:hover {
+    text-decoration:underline;
+}
+.CompetitionsDetailRit dd {
+    font:italic 13px/17px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#777777;
+    padding-bottom:15px;
+    margin-left:40px;
+}
+code {
+    color:#3b3b3b;
+    background-color: rgb(235, 242, 251);
+    font:normal 12px/0px Menlo,Consolas,"Andale Mono","Lucida Console","Nimbus Mono L","DejaVu Sans Mono",monospace,"Courier New"
+}
+.competitionTileNoRecord
+{
+    background:#fff2c0;
+    padding:10px 10px 0 20px;
+    border:solid 1px #ffd531;
+    overflow:hidden;
+    margin-bottom:17px;
+}
+.competitionTileNoRecord p
+{
+    color:#e95408 !important;
+    font:normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding-bottom:10px;
+}
+
+.resultSubResultsContainer {
+    width:100%;
+    table-layout:fixed;
+}
+.resultSubResultsContainer > tr > td {
+    padding:0 !important;
+}
+.resultSubResultsContainer td:nth-child(1),.resultSubResultsContainer th:nth-child(1) {
+    width:16%;
+}
+.resultSubResultsContainer td:nth-child(2),.resultSubResultsContainer th:nth-child(2) {
+    width:16%;
+}
+.resultSubResultsContainer td:nth-child(3),.resultSubResultsContainer th:nth-child(3) {
+    width:17%;
+}
+.resultSubResultsContainer td:nth-child(4),.resultSubResultsContainer th:nth-child(4) {
+    width:16%;
+}
+.resultSubResultsContainer .ticked {
+    width:25px;
+}
+.resultSubResultsContainer .expColl {
+    width:25px;
+}
+.toggleIconExp,.toggleIconColp,.leaderboardOk {
+    height:24px;
+    width:24px;
+    vertical-align:top;
+    background:url('../img/collapse.png') no-repeat -5px -5px;
+    cursor:pointer;
+}
+.toggleIconColp{
+    background:url('../img/expand.png') no-repeat -5px -5px;
+}
+.leaderboardOk {
+    background:url('../img/statusIconOk.png') no-repeat center center;
+    cursor:default;
+}
+.leaderboardHidden{
+    display:none;
+}
+
+.leaderboardbuttonHidden{
+    display:none;
+}
+.preSubmissionToggle, .preSubmissionToggleView {
+    padding:10px;
+    display:none;
+    width:100%;
+}
+.preSubmissionToggleView {
+    display:table;
+}
+.preSubmissionToggle .linkBlock,.preSubmissionToggleView .linkBlock{
+    display:table-cell;
+    vertical-align:top;
+    padding:0 10px 10px;
+}
+.preSubmissionToggle .linkBlock a,.preSubmissionToggleView .linkBlock a{
+    display:inline-block;
+    float:left;
+    margin:2px 0;
+    clear:both;
+    min-width:100px;
+    padding:2px 0px;
+    font-size:11px;
+    color:#07b4db;
+}
+.preSubmissionToggle .linkBlock a:hover, .preSubmissionToggleView .linkBlock a:hover {
+    text-decoration:none;
+}
+.preSubmissionToggle .linkSubmitBtn,.preSubmissionToggleView .linkSubmitBtn  {
+     display:table-cell;
+     vertical-align:bottom;
+     padding:10px;
+}
+.preSubmissionToggle .blueSubmitButton,.preSubmissionToggleView .blueSubmitButton{
+    vertical-align:bottom;
+    color:#fff;
+    text-decoration:none;
+}
+.dateSelectBlock {
+    display:block;
+}
+.dateSelectBlock .calIcon{
+    height:16px;
+    width:16px;
+    float:left;
+    background:url('../img/calendar.png') no-repeat center center;
+    position:relative;
+    left:-30px;
+    top:6px;
+    margin-left:-16px;
+}
+.dateSelectBlock .inputTxt{
+    height:16px;
+    width:100px !important;
+    float:left;
+    margin-right:20px;
+    font-size:12px;
+}
+.CompetitionTypeDetailrow .phaseTitle
+{
+    width:190% !important;
+    font-size:13px;
+}
+.dateSelectBlock label {
+    font-size:12px;
+    line-height:25px;
+    float:left;
+    position:relative;
+}
+.dateSelectBlock .inputSubmissionLmt{
+    height:16px;
+    width:25px !important;
+    float:left;
+    margin-left:20px;
+    font-size:13px;
+}
+.headLabel {
+    padding-bottom:10px;
+    padding-top:10px;
+    font-size:18px !important;
+    color:#07b4db;
+    width:100%;
+    float:left;
+}
+.txtBoxLabel {
+    position:relative;
+    left:10px !important;
+    color:#ccc;
+    top:2px;
+    padding-right:20px;
+}
+.phaseToggleBtnContainer {
+    position:absolute;
+    top:10px;
+    right:20px;
+}
+.phaseLegendContainer {
+    position:absolute;
+    top:25px;
+    height:100px;
+    left:35px;
+}
+.phaseLegendContainer .legend{
+    background:url('../img/selectedRowBlue.png') no-repeat left center;
+    font-size:13px;
+    padding-left:25px;
+    height:22px;
+    line-height:22px;
+}
+/*.phaseToggleBtn {
+    background:#739CB9 ;
+    padding:8px 15px 4px;
+    float:right;
+    position:relative;
+    margin-right:15px;
+    height:20px;
+    cursor:default;
+}
+.phaseToggleBtn a{
+    font:normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:#fff;
+    text-decoration:none;
+    float:left;
+}*/
+.phaseToggleBtn span{
+    height:16px;
+    width:16px;
+    float:left;
+    background:url('../img/aciveimg.png') no-repeat center center;
+    margin-left:5px;
+    margin-top:6px;
+}
+.phaseToggleBtnContainer .disabledStatus
+{
+    background:#78ade6;
+    opacity:1;
+    opacity:.8;
+    filter: alpha(opacity=80);
+    cursor:pointer !important;
+}
+/*Callander*/
+#ui-datepicker-div.ui-widget-content
+{
+    background:#fff;
+    border:solid 1px #3abdda;
+}
+#ui-datepicker-div .ui-widget-header{
+    background:#3abdda;
+    border:0;
+    color:#FFF;
+}
+#ui-datepicker-div .ui-state-default, #ui-datepicker-div .ui-widget-content .ui-state-default, #ui-datepicker-div .ui-widget-header .ui-state-default{
+    background:#3abdda;
+    border:0;
+    color: #fff;
+    font: normal 13px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+#ui-datepicker-div .ui-state-highlight, #ui-datepicker-div .ui-widget-content .ui-state-highlight, #ui-datepicker-div .ui-widget-header .ui-state-highlight{
+    background:#50E0FB;
+}
+#ui-datepicker-div.ui-widget-content .ui-state-default:hover{
+    background:#0799ba !important;
+}
+.ui-datepicker td {
+    border: 0 none;
+    padding: 1px;
+}
+.ui-datepicker th
+{
+    color:#3b3b3b;
+    font: bold 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+body .ui-datepicker table {
+    border-collapse: collapse;
+    font-size: 0.9em;
+    margin: 0 0 0.4em;
+    width: 100%;
+}
+body .ui-datepicker td span, body .ui-datepicker td a {
+    display: block;
+    padding: 0.2em;
+    text-align: right;
+    text-decoration: none;
+}
+.ui-datepicker {
+    display: none;
+    padding: 0.2em 0.2em 0;
+    width: 17em;
+}
+body .ui-datepicker-next span{
+    background:url('../img/next.png') no-repeat center center;
+    text-indent:-99999px;
+    height: 16px;
+    width: 16px;
+    cursor:pointer;
+}
+body .ui-datepicker-prev span{
+    background:url('../img/prev.png') no-repeat center center;
+    text-indent:-99999px;
+    height: 16px;
+    width: 16px;
+    cursor:pointer;
+}
+.ui-datepicker-title span
+{
+    color: #fff;
+    font: normal 15px 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+#resultStatus
+{
+    color:#f1702f;
+    font-size:14px;
+    display:none;
+}
+.errorLabel
+{
+    color:#f1702f;
+    font-size:12px;
+    display:none;
+    padding-left:5px;
+}
+.CompetitionTypeDetailrowDate {
+    margin:18px 0 25px 0;
+    border:solid 1px #ccc;
+    padding:25px;
+    position:relative;
+    background:#fbfbfb
+}
+/*.CompetitionTypeDetailrowAdd{
+    position:absolute;
+    right:0;
+    top:110px;
+}*/
+.stepNotification,.stepNotificationDone{
+    background:url('../img/StepTodo.png') no-repeat center center;
+    height:45px;
+    width:45px;
+    margin-left:-36px;
+    margin-top:-36px;
+}
+.stepNotificationDone {
+    background:url('../img/StepDone.png') no-repeat center center;
+}
+.CompetitionTypeDetailrowDate > section{
+    display:table;
+}
+.CompetitionTypeDetailrowDate .CompetitionTypeDetailrow > div{
+    vertical-align:middle;
+}
+.CompetitionTypeDetailrowDate .CompetitionTypeDetailrow:first-child > div{
+    padding-bottom:10px;
+    margin-top:-50px;
+}
+.CompetitionTypeDetailrowDate .CompetitionTypeDetailrow > div > label{
+    font-size:12px;
+}
+#savePhaseProcess
+{
+    display:none;
+}
+.expCollDatasetExp,.expCollDatasetColl
+{
+    background:url('../img/expand_colapse.png');
+    height:26px;
+    width:26px;
+    display:inline-block;
+    vertical-align:middle;
+    margin-left:10px;
+    cursor:pointer;
+}
+.expCollDatasetColl
+{
+    background:url('../img/expand_colapse_Coll.png');
+}
+.downloadedDataset th,.downloadedDataset td{
+    padding:8px 10px;
+}
+.downloadedDataset > tbody > tr > td
+{
+    padding:0;
+}
+.downloadedDataset th:first-child,.downloadedDataset td:first-child{width:36px;}
+.downloadedDataset th:nth-child(2),.downloadedDataset td:nth-child(2){width:27%;}
+.downloadedDataset th:nth-child(3),.downloadedDataset td:nth-child(3){width:16%;}
+.downloadedDataset th:nth-child(4),.downloadedDataset td:nth-child(4){width:30%;}
+.downloadedDataset .resultSubResultsContainer
+{
+    padding:0;
+}
+.downloadedDataset a
+{
+    color:#07b4db;
+}
+.phaseDatasetDetails{ display:table; width:100%;position:relative;}
+.phaseDatasetDetails > div > div{ display:table-row;}
+.phaseDatasetDetails > div > div > label{ display:table-cell; width:100px; font-size:12px;}
+.phaseDatasetDetails > div > div > div{ display:table-cell; padding:5px;}
+.phaseDatasetDetails > div > div > div input[type="text"],.phaseDatasetDetails > div > div select{
+        border: 1px solid #CCCCCC;
+        color: #666666;
+        padding: 5px 10px;
+        width:190px;
+    }
+.phaseDatasetDetails > div > div > div select{ width:310px;}
+.phaseDatasetDetails >  div > div  a{color:#07b4db; font-size:13px; cursor:pointer; font-family:'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;}
+.phaseDatasetDetailsContainer{ border-top:dotted 1px #666; padding:20px 0 15px; display:table; width:100%; margin-top:10px;}
+.CompetitionTypeDetailrowDate.detailsUpload > div{width:100%}
+.CompetitionTypeDetailrowDate.detailsUpload .CompetitionTypeDetailrow textarea{width:98% !important; margin-top:10px; height:64px !important;}
+.CompetitionTypeDetailrowDate.detailsUpload .CompetitionTypeDetailrow input[type="text"]{width:98%}
+.phaseDatasetDetailsContainer input[type="text"][readonly="true"]{background:#ddd;width:70%;}
+.detailsUpload{position:relative;}
+.detailsUpload .preloaderInput{position:absolute; right:5px; top:35px;}
+.detailsUpload .CompetitionTypeDetailTBL{table-layout:fixed; margin-top:17px;}
+.detailsUpload .CompetitionTypeDetailTBL .thumbnailContainer{width:150px;}
+.downloadedContainer .preloader{ top:-47%; left:47%;display:none;}
+#publishNotoficationdiv, #publishNotoficationIcon,#applyChanges,#applyChangesparticep,#divAdd
+{
+    display:none;
+}
+.manageUSerBlock{
+    display:table;
+    width:100%;
+    margin-bottom:50px;
+}
+.manageUserListBlock{
+    min-height:30px;
+    max-height:100px;
+    overflow-y:auto;
+    border:solid 1px #ccc;
+    display:table-cell;
+    width:200px;
+    vertical-align:top;
+}
+.manageUser{
+    background:#07b4db;
+    color:#fff;
+    display:block;
+    margin:2px;
+    font:normal 14px arial;
+    padding:8px;
+    border-radius:2px;
+    -webkit-border-radius:2px;
+    -moz-border-radius:2px;
+    cursor:move;
+}
+.manageUser span{
+    color:#fff;
+    padding:0 5px;
+    font-weight:bold;
+    cursor:pointer;
+    float:right;
+    display:none;
+}
+.manageUserListAddedBlock{
+    height:200px;
+    border:solid 1px #ccc;
+    display:table-cell;
+    vertical-align:top;
+}
+.manageUserListButton{
+    display:table-cell;
+    width:130px;
+    padding:20px;
+}
+.manageUserListButton .button3{
+    padding:10px;
+    min-width:90px;
+    margin-right:10px;
+}
+.checkbox{display:inline-block !important;}
+.manageUser input [type="checkbox"]{}
+.manageUserListAddedBlock .manageUser{
+    display:inline-block;
+}
+.manageUserListAddedBlock .manageUser span{display:block}
+.manageUserListAddedBlock .manageUser input [type="checkbox"]{ display:none}
+.selectedColoumHeader {
+    background: #739CB9 !important;
+}
+.selectedColoumRow{
+    background: #f2faff !important;
+}
+tr:nth-child(even) .selectedColoumRow{
+    background: #e7f5ff !important;
+}
+.rightContentArea{
+    display:table-cell;
+    vertical-align:top;
+    font-size:12px;
+}
+.leftNavigationMenu{
+    width:256px;
+    padding-right:10px;
+    display:table-cell;
+    vertical-align:top;
+    padding-left:10px;
+}
+.generalContainer{
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+ul.leftNavigation {
+    width:226px;
+    float:right;
+    margin-right:30px;
+}
+ul.leftNavigation li {
+    overflow:hidden;
+}
+ul.leftNavigation a{
+    float:right;
+    text-align:right;
+    cursor:pointer;
+    color:#739CB9;
+    font-size:15px;
+}
+ul.leftNavigation li.active a{
+    color:#ffac31;
+    font-weight:bold;
+}
+.mainPageContainer .rightContentArea h1{
+    font-size:13px;
+    font-weight:bold;
+    color:#666;
+    padding-bottom:10px;
+}
+.mainPageContainer .rightContentArea h4,.mainPageContainer .rightContentArea p{
+    font-size:12px;
+    line-height:15px;
+    padding-top:0px;
+}
+.selectedColoumHeader span{
+    height:20px;
+    width:20px;
+    float:right;
+    background:url('../img/selectedRow.png') no-repeat center center;
+    margin-right:5px;
+}
+.mainPageContainer .rightContentArea ul,.mainPageContainer .rightContentArea ol{
+    display:block;
+    padding-top:0;
+    padding-left:10px;
+    margin-left:15px;
+    padding-bottom:10px;
+}
+.mainPageContainer .rightContentArea ul li,.mainPageContainer .rightContentArea ol li{
+    font-size:12px;
+    color:#666;
+    padding-bottom:10px;
+    list-style-type:disc;
+}
+.mainPageContainer .rightContentArea ol li{
+    list-style-type:decimal;
+}
+.mainPageContainer .rightContentArea b{
+    font-weight:bold;
+    color:#666;
+}
+.mainPageContainer .rightContentArea i{
+    font-style:italic;
+}
+.mainPageContainer .rightContentArea h2{
+    font-size:12px;
+    font-weight:bold;
+    color:#666;
+    padding-bottom:10px;
+}
+.mainPageContainer .rightContentArea h3{
+    font-size:11px;
+    font-weight:bold;
+    color:#666;
+}
+.mainPageContainer .rightContentArea a{
+    color:#739CB9;
+    text-decoration:none;
+}
+.mainPageContainer .rightContentArea pre{
+    font-size:12px;
+    color:#666;
+    padding:10px;
+    background:#ebf2fb;
+    margin-bottom:15px;
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+.breadcrumb{
+    height:30px;
+    width:1000px;
+    margin:auto;
+}
+.breadcrumb label,.breadcrumb span{
+    font-size:15px;
+    color:#739CB9;
+    padding-right:10px;
+}
+.breadcrumb label{
+    cursor:pointer;
+}
+.homepageBanner{
+    min-height:255px;
+    background:#ebf2fb;
+}
+.loginpageBG{
+    background:#ebf2fb;
+    padding:35px 0;
+}
+.bannerBlock{
+    width:50%;
+    padding-left:85px;
+    display:table-cell;
+    padding-top:60px;
+    height:200px;
+    padding-right:20px;
+}
+.bannerBlockContainer{
+    width:1000px;
+    display:table;
+    margin:auto;
+}
+.bannerBlockHead{
+    font-size:60px;
+    color:#454545;
+    display:table-row;
+    vertical-align:top;
+    line-height:65px;
+}
+.bannerBlocklabl{
+    font-size:30px;
+    color:#454545;
+    display:table-row;
+    vertical-align:top;
+}
+.regBlockHead{
+    font-size:40px;
+    font-weight:bold;
+    color:#454545;
+    line-height:45px;
+    display:block;
+}
+.regBlocklabl{
+    font-size:25px;
+    font-weight:bold;
+    color:#454545;
+    display:block;
+}
+.bannertxtBlock{
+    display:inline-block;
+    vertical-align:top;
+    padding-left:20px;
+}
+.regIconImage{
+    margin-left:80px;
+}
+.myCodalabTabContent .CompetitionsDetailLft{
+    width:229px;
+    padding-left:0;
+    padding-top:0;
+}
+.myCodalabTabContent .CompetitionsDetailRit{
+    padding-right:0;
+    padding-top:0;
+}
+.CompetitionsDetailLft .globalBlueButtonAtag .HelpLink {
+    display:inline-block;
+    position:relative;
+    top:-8px;
+    float:right;
+}
+.CompetitionsDetailLft .globalBlueButtonAtag a{
+   margin-right:0;
+}
+.helpLinkIcon,.helpLinkEdit{
+    background:url('../img/helpicon2.png') no-repeat center center;
+    height:18px;
+    width:18px;
+    display:inline-block;
+    margin: 5px 0 5px 0;
+}
+.helpLinkIcon:hover {
+    background: url('../img/helpicon.png') no-repeat center center;
+}
+.helpLinkEdit{
+    position:relative;
+    top:-45px;
+    left:38px;
+}
+.helpLinkBlock{
+    display:inline-block;
+    padding-left:10px;
+    padding-top:5px;
+}
+.startHelp{
+    position:relative;
+    top:2px;
+    left:-8px;
+}
+.compManageHelp{
+    position:relative;
+    top:4px;
+    left:-3px;
+}
+.publishHelp{
+    position:relative;
+    top:4px;
+    left:-6px;
+}
+.rankHeader
+{
+    cursor:pointer;
+}
+.focusOutline{
+    border-color:#ffac31
+}
+.publicLabel
+{
+    line-height:10px;
+}
+
+
+/*  /////  TEMP STYLES  /////  */
+.content p, .content p a {
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+}
+.cl-logo  {
+    padding: 9px 50px 0 14px;
+}
+.button a, .button a:hover {
+    color: #FFF;
+}
+.stats_placeholder {
+    padding-top: 39px;
+}
+#footer a {
+    font-weight: normal;
+}
+.cursor-default {
+    cursor: default;
+}
+.noData td {
+    padding: 30px !important;
+    text-align: center;
+}
+.section-container.auto > section.active > .title a, .section-container.auto > .section.active > .title a {
+    height: 65px;
+    text-decoration: none;
+}
+div.auto.section-container > section > .title a, .auto.section-container > .section > .title a {
+    height: 65px !important;
+    text-decoration: none;
+}
+.pad15 {
+    padding: 15px;
+}
+.slider {     /* Temporary homepage slider background */
+    background: url('../img/slider_exp_comp.gif') /* repeat-x top left */ !important;
+}
+.header-title-bg {
+    background: url('../img/tiled-header-bg.gif') repeat-x top left;
+    height: 80px;
+    margin: 0 0 30px 0;
+    display: block;
+}
+.header-title-bg h1 {
+    color: #FFF;
+    font-size: 44px;
+    line-height:80px;
+    margin:0;
+}
+.side-nav a {
+    font-weight: normal;
+}
+.slider h1 {
+    font-family: 'Segoe UI Light', 'Segoe Light', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    color: #FFF;
+    font-size: 1.1em;
+    letter-spacing: -2px;
+    margin: 0;
+}
+.mini_avatar {
+    margin: -6px 6px 0 30px;
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    -webkit-border-radius: 18px;
+    -moz-border-radius: 18px;
+    border-radius: 18px;
+    border: 1px #CCC solid;
+    display: inline-block;
+    float: none;
+    overflow: hidden;
+}
+.homepage_featured p {
+    padding-right: 10px;
+    margin-bottom: 0;
+}
+.homepage_featured h2 {
+    display: inline-block;
+}
+.spacer500 {
+    height: 500px;
+}
+.myCompetitionButtons  {
+    height: 50px;
+    margin: 10px 0 0 0;
+}
+.myCompetitionButtons button {
+    margin-left: 3px;
+}
+#edit_competition {
+    padding-left: 0.9375em;
+    padding-right: 0.9375em;
+}
+#edit_competition label {
+    font-family: 'Segoe UI Light', 'Segoe Light', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+    font-size: 1.3em;
+    padding: 0;
+    cursor: default;
+    display: inline-block;
+}
+
+#edit_competition .fieldWrapper {
+    margin-bottom: 5px;
+}
+
+#edit_competition input, #edit_competition textarea, #edit_competition p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.4em;
+}
+
+#edit_competition textarea {
+    resize: none;
+    padding: 10px;
+    margin: 0;
+    overflow-y: scroll;
+}
+
+#edit_competition a, #edit_competition a:hover {
+    font-size: 1em;
+    font-weight: bold;
+    color: #676278;
+}
+#edit_competition a:hover {
+    color: #739CB9;
+}
+#edit_competition .helptext {
+    font-size: .8em;
+}
+#edit_competition input[type=file], #edit_competition input[type=checkbox]  {
+    cursor: pointer;
+}
+.icon_excel {
+    background: url('../img/icon_excel.png') no-repeat 15px;
+    min-height: 32px;
+    padding-top: 8px;
+    margin-bottom: 15px;
+}
+.icon_excel a {
+    margin-left: 38px;
+}
+.scrolling {
+    position: fixed;
+    top: 81px;
+}
+#dockable, #dockable__inner {
+    height: 200px;
+}
+.side-nav--fullwidth {
+    overflow: visible;
+    white-space: nowrap;
+}
+.anchor {
+    position: relative;
+    margin-top:-81px;
+    float:left;
+}
+.h-caps {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.bundle-tile, .worksheet-tile {
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    border: 1px #CCC solid;
+    border-left: 10px #739CB9 solid;
+    border-radius: 3px;
+    background: #FFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+.bundle-meta, .bundle-meta a, .bundle span {
+    color: #999;
+    font-size: 14px;
+}
+.bundle-meta p {
+    line-height: 20px;
+    display: block;
+}
+.bundle-meta p strong {
+    min-width: 100px;
+    display: inline-block;
+}
+.bundle-meta p em a, .bundle-meta p span a {
+    font-weight: normal;
+}
+.bundle-meta p span {
+    display: inline-block;
+    vertical-align: text-top;
+}
+.bundle-name, .worksheet-name {
+    padding:0;
+    color:#535353;
+}
+.bundle-name {
+    font-size: 20px;
+    margin:0;
+}
+.worksheet-name label, .worksheet-author, .bundle-tile .bundle-uuid {
+    color: #a4a4a4;
+    margin-top: 4px;
+    margin-bottom: 14px;
+    font-size: 12px;
+}
+.bundle-tile .bundle-uuid {
+    float: right;
+    margin:0;
+    line-height:50px;
+}
+.worksheet-name button {
+    margin: 20px 0 0 0;
+}
+.worksheet-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.worksheet-icon {
+    text-indent: 75px;
+    background: url('../img/icon_worksheet.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.worksheet-animate:focus .competitionTileLftStrip {
+    background:#08ac33;
+}
+.worksheet-animate, .worksheet-animate .worksheet-animate-child {
+  -webkit-transition:0.3s linear height;
+  transition:0.3s linear height;
+}
+.worksheet-animate.ng-enter .worksheet-animate-child,
+.worksheet-animate.ng-leave.ng-leave-active .worksheet-animate-child {
+  height:0px;
+}
+.worksheet-animate.ng-leave .worksheet-animate-child,
+.worksheet-animate.ng-enter.ng-enter-active .worksheet-animate-child {
+  height:140px;
+}
+.bundle-icon-sm {
+    text-indent: 50px;
+    background: url('../img/icon_bundle_sm.png') no-repeat 0 10px;
+    line-height: 50px;
+}
+.bundle-icon {
+    text-indent: 75px;
+    background: url('../img/icon_bundle.png') no-repeat 0 10px;
+    line-height: 65px;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running, .bundle-status--ready, .bundle-status--failed {
+    height: 32px;
+    width: 32px;
+    display: inline-block;
+    margin: -7px 0 0 0;
+}
+.bundle-status--created, .bundle-status--staged, .bundle-status--running {
+    background: url('../img/icon_yellowlight.png') no-repeat;
+}
+.bundle-status--ready {
+    background: url('../img/icon_greenlight.png') no-repeat;
+}
+.bundle-status--failed {
+    background: url('../img/icon_redlight.png') no-repeat;
+}
+.med.button {
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+li > a, .title a {
+   text-decoration: none;
+}
+.submission_details {
+    padding-top: 17px;
+}
+.submission_upload_details {
+    margin-top: 10px;
+}
+p i {
+    color: #739cb9;
+}
+th > i {
+color: #FFF;
+}
+a i {
+    cursor: pointer;
+}
+.bundle-header {
+    border-bottom:1px solid #ddd;
+    padding-bottom:10px;
+    margin-bottom:20px;
+    overflow:hidden;
+}
+.bundle-download {
+    display:block;
+    float: right;
+    line-height:50px;
+    padding: 0 0 0 20px;
+}
+.bundle-download .button {
+    margin-bottom:0;
+}
+.competition-tile a, .competitions a {
+    text-decoration: none;
+    display:inline-block;
+}
+.bundle__meta__desc {
+    padding: 0 10px;
+    white-space: normal;
+}
+.bundle__meta_type {
+    font-weight: bold;
+    min-width: 100px;
+}
+table.bundle__meta_table, table.bundle__meta_table tr, table.bundle__meta_table .row, table.bundle__meta_table td {
+    color: #777;
+    border: none;
+    background-color: #FFF;
+    vertical-align: top;
+    margin: 0;
+    font-size: 14px;
+    font-family: 'Segoe UI', Segoe, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: block;
+}
+.bundle__expand_button {
+    float: right;
+    font-size: 11px;
+    cursor: pointer;
+}
+.bundle__expand_button.expanded img {
+    -webkit-transform: rotate(180deg);
+     -moz-transform: rotate(180deg);
+     -ms-transform: rotate(180deg);
+     -o-transform: rotate(180deg);
+     transform: rotate(180deg);
+}
+.bundle__file_view {
+    width: 100%;
+    display: none;
+}
+.bundle__file_view td {
+    padding: 8px;
+    height: 32px;
+}
+.bundle__file_view.expanded {
+    display: inline-table;
+}
+.file-browser-table {
+    width: 100%;
+}
+.file-browser-bread-crumbs {
+    padding: 0 0 15px 0;
+}
+.coda-jax {
+    background: transparent;
+    color: #3b3b3b;
+}
+.bundle__file_view__icon {
+    width: 32px;
+}
+.bundle-icon-sm-indent {
+    text-indent: 50px;
+}
+.bundle-icon-sm--program--created, .bundle-icon-sm--program--staged, .bundle-icon-sm--program--running {
+    background: url('../img/bundle_icon_program_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--program--ready {
+    background: url('../img/bundle_icon_program_sm.png') no-repeat;
+}
+.bundle-icon-sm--program--failed {
+    background: url('../img/bundle_icon_program_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--dataset--created, .bundle-icon-sm--dataset--staged, .bundle-icon-sm--dataset--running {
+    background: url('../img/bundle_icon_dataset_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--dataset--ready {
+    background: url('../img/bundle_icon_dataset_sm.png') no-repeat;
+}
+.bundle-icon-sm--dataset--failed {
+    background: url('../img/bundle_icon_dataset_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--macro--created, .bundle-icon-sm--macro--staged, .bundle-icon-sm--macro--running {
+    background: url('../img/bundle_icon_macro_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--macro--ready {
+    background: url('../img/bundle_icon_macro_sm.png') no-repeat;
+}
+.bundle-icon-sm--macro--failed {
+    background: url('../img/bundle_icon_macro_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--make--created, .bundle-icon-sm--make--staged, .bundle-icon-sm--make--running {
+    background: url('../img/bundle_icon_make_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--make--ready {
+    background: url('../img/bundle_icon_make_sm.png') no-repeat;
+}
+.bundle-icon-sm--make--failed {
+    background: url('../img/bundle_icon_make_sm-red.png') no-repeat;
+}
+.bundle-icon-sm--run--created, .bundle-icon-sm--run--staged, .bundle-icon-sm--run--running {
+    background: url('../img/bundle_icon_run_sm-yellow.png') no-repeat;
+}
+.bundle-icon-sm--run--ready {
+    background: url('../img/bundle_icon_run_sm.png') no-repeat;
+}
+.bundle-icon-sm--run--failed {
+    background: url('../img/bundle_icon_run_sm-red.png') no-repeat;
+}
+pre, .bundle__file_pre, .bundle__file_pre pre {
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+.nav-list li {
+    display: inline-block;
+}
+.keyboard-shorcut {
+    padding: 2px 4px;
+    color: #d14;
+    background-color: #f7f7f9;
+    border-color: #e1e1e8;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 12px;
+}
+.keyboard-text {
+		display: inline-block;
+}
+.bundleImage {
+    display: list-item;
+    padding-bottom: 20px;
+}

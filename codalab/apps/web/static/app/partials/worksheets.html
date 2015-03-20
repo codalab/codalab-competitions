@@ -1,0 +1,82 @@
+<!-- Add a header marker to enable scrolling to this element and prevent the floating header overlapping content -->
+<div class="header-space" scroll-into-view="{[{ 0==selectionIndex }]}"></div>
+<div class="header-title-bg">
+    <div class="large-12 columns">
+        <div class="row">
+            <div class="large-12 columns">
+                <h1>Worksheets</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="large-12 large-centered columns content">
+    <div class="row">
+        <div class="large-9 columns competitions">
+            <dl class="sub-nav"></dl>
+            <p ng-show="hasStatus(status)">{[{ statusMessage(status) }]}</p>
+            <div id="general_search"></div>
+            <a class="worksheet-animate"
+                ng-repeat="worksheet in worksheets"
+                ng-href="{[{ worksheet.url }]}"
+                target="{[{ worksheet.target }]}"
+                set-focus="{[{ $index==selectionIndex }]}"
+                ng-focus="gotFocus($index)"
+                ng-blur="lostFocus($index)"
+            >
+                <div class="worksheet-animate-child competition-tile" >
+                    <article class="subContainer">
+                        <input id="itemID" type="hidden" ng-value="worksheet.uuid" />
+                        <div class="competitionTileLftStrip"></div>
+                        <div class="articleImageContainer">
+                            <div class="subContainerPadding">
+                                <img class="repeat-item" src="/static/img/icon_worksheet.png">
+                            </div>
+                        </div>
+                        <div class="articleTextArea" ng-switch on="worksheet.editable">
+                            <div class="subContainerPadding" ng-switch-when="false">
+                                <div class="articleHeadingContainer">
+                                    <h3>{[{ worksheet.title }]}</h3>
+                                    <label ng-if="worksheet.permission == 1">{[{ worksheet.name }]} by {[{ worksheet.owner }]} (read-only)</label>
+                                    <label ng-if="worksheet.permission == 2">{[{ worksheet.name }]} by {[{ worksheet.owner }]}</label>
+                                </div>
+                                <p class="competition-paragraph">{[{ worksheet.description }]}</p>
+                            </div>
+                            <div class="subContainerPadding" ng-switch-when="true">
+                                <div class="articleHeadingContainer">
+                                    <input type="text" ng-model="worksheet.name" placeholder="Worksheet Name">
+                                </div>
+                            </div>
+                            <section class="articleButtonsArea" ng-switch-when="true">
+                                <input type="button"
+                                    value="save"
+                                    class="button"
+                                    ng-show="worksheetEnabled(worksheet) && !hasStatus(worksheet.status)"
+                                    ng-click="saveWorksheet(worksheet)"
+                                />
+                                <input type="button" value="save" class="button" disabled="disabled" ng-hide="worksheetEnabled(worksheet)" />
+                                <div ng-show="hasStatus(worksheet.status)">{[{ statusMessage(worksheet.status) }]}</div>
+                            </section>
+                        </div>
+                    </article>
+                </div>
+            </a>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="large-9 columns competitions">
+            <shortcut></shortcut>
+            <p class="keyboard-text">
+              It is possible to use the <code class="keyboard-shorcut">↑</code> <code class="keyboard-shorcut">↓</code> keys to navigate.
+            </p>
+            <p class="keyboard-text" ng-show="user.authenticated">
+              <code class="keyboard-shorcut">CTRL + ↑</code> <code class="keyboard-shorcut">CTRL + ↓</code> to insert a worksheet.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-9 columns competitions" ng-show="user.authenticated">
+            <input type="button" value="create" class="button right" ng-click="addWorksheet(selectionIndex, true)" />
+        </div>
+    </div>
+</div>
