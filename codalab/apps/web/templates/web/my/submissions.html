@@ -69,7 +69,10 @@
                         {% endif %}
                         data-description="{{ submission.description|default_if_none:""|escape }}"
                         data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
-                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}">
+                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
+                        data-project-url="{{ submission_info.project_url|default_if_none:""|escape }}"
+                        data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
+                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}">>
                         {% for column in columns %}
                             {% if column.name == 'filename' %}
                                 <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
