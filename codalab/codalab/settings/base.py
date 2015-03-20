@@ -25,7 +25,8 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = True
+    COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
+    LOCAL_MATHJAX = False # see prep_for_offline
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
