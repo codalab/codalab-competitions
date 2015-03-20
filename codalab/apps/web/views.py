@@ -373,6 +373,9 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
+        # Use this flag to trigger container-fluid for result table
+        context['on_competition_detail'] = True
+
         return context
 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
