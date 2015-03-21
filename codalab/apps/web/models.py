@@ -817,6 +817,8 @@ class CompetitionSubmission(models.Model):
     project_url = models.URLField(null=True, blank=True)
     publication_url = models.URLField(null=True, blank=True)
     bibtex = models.TextField(null=True, blank=True)
+    organization_or_affiliation = models.CharField(max_length=255, null=True, blank=True)
+    team_name = models.CharField(max_length=64, null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)

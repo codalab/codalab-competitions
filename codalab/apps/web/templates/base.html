@@ -138,7 +138,7 @@
     {% endblock hero_subheader %}
 
     {% block content_wrapper %}
-        <div class="container">
+        <div class="{% if not on_competition_detail %}container{% else %}container-fluid{% endif %}">
             {% block content %}
             {% endblock content %}
         </div>
