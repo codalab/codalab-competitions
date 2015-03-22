@@ -411,11 +411,13 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'is_in_leaderboard': submission.id == id_of_submission_in_leaderboard,
                         'exception_details': submission.exception_details,
                         'description': submission.description,
+                        'team_name': submission.team_name,
                         'method_name': submission.method_name,
                         'method_description': submission.method_description,
                         'project_url': submission.project_url,
                         'publication_url': submission.publication_url,
                         'bibtex': submission.bibtex,
+                        'organization_or_affiliation': submission.organization_or_affiliation,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -423,11 +425,13 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+            context['last_submission_team_name'] = last_submission.team_name
             context['last_submission_method_name'] = last_submission.method_name
             context['last_submission_method_description'] = last_submission.method_description
             context['last_submission_project_url'] = last_submission.project_url
             context['last_submission_publication_url'] = last_submission.publication_url
             context['last_submission_bibtex'] = last_submission.bibtex
+            context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
         except ObjectDoesNotExist:
             pass
 
@@ -1227,7 +1231,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
             user_profile_data_string = '\n'.join(['%s: %s' % (k, v) for k, v in user_profile_data.items()])
             zip_file.writestr(profile_data_file_name, user_profile_data_string.encode('utf-8'))
 
-            metadata_fields = ['method_name', 'method_description', 'project_url', 'publication_url', 'bibtex']
+            metadata_fields = ['method_name', 'method_description', 'project_url', 'publication_url', 'bibtex', 'team_name', 'organization_or_affiliation']
             submission_metadata_file_name = "%s - %s method.txt" % (username_or_team_name, submission.submission_number)
             submission_metadata_file_string = "\n".join(["%s: %s" % (field, getattr(submission, field)) for field in metadata_fields])
             zip_file.writestr(submission_metadata_file_name, submission_metadata_file_string.encode('utf-8'))
