@@ -120,7 +120,12 @@
 {% endblock js %}
 
 {% block jsincludes %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    {% if local_mathjax %}
+            <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% else %}
+            <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% endif %}
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
