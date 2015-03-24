@@ -162,10 +162,14 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
-
+// mixing django and javascript to get uuid if not a normal worksheet page
+var worksheet_url = '/api' + document.location.pathname
+{% if worksheet_uuid %}
+    worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
+{% endif %}
 $(function () {
-    //                              /api/worksheets/0x706<...>d5b66e
-    ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    //                           /api/worksheets/0x706<...>d5b66e
+    ws_obj = new WorksheetContent(worksheet_url);
     ws_actions = new WorksheetActions(); // Search bar actions
 
 });
