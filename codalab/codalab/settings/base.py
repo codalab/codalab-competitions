@@ -289,6 +289,7 @@ class Base(Settings):
     }
 
     BUNDLE_SERVICE_URL = ""
+    LANDING_PAGE_WORKSHEET_UUID = '';
 
     # Currently the search bar is hidden using this flag
     SHOW_BETA_FEATURES = False

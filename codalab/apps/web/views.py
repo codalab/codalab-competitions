@@ -902,6 +902,21 @@ def BundleDownload(request, uuid):
     return response
 
 # Worksheets
+class WorksheetLandingView(TemplateView):
+    """
+    Displays worksheets as a list.
+    """
+    template_name = 'web/worksheets/detail.html'
+    def get(self, request, *args, **kwargs):
+        if(len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1):
+            return HttpResponseRedirect(reverse("ws_list"))
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(WorksheetLandingView, self).get_context_data(**kwargs)
+        context['worksheet_uuid'] = settings.LANDING_PAGE_WORKSHEET_UUID
+        return context
 
 class WorksheetListView(TemplateView):
     """
