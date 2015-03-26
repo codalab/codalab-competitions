@@ -70,7 +70,9 @@
                 {% else %}
                     {% for pk, scoredata in group.scores %}
                         <tr>
-                            <td class="row-position">{{pk}}</td>
+                            <td class="row-position">
+                                {{ forloop.counter }}
+                            </td>
                             <td>
                                 {{scoredata.username}}
                             </td>
