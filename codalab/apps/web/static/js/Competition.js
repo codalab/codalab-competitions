@@ -411,6 +411,7 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+
             if ($(nTr).attr('data-description') !== undefined) {
                 elem.find('.submission_description').html('<b>Description:</b> <br><pre>' + $(nTr).attr('data-description') + '</pre>');
             }

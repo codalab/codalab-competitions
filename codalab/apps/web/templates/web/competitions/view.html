@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load codalab_tags %}
 {% load tz %}
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
@@ -89,9 +90,14 @@
         <ul class="nav nav-tabs" id="competition_tab_nav">
             {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
+                    {# Put this before participate tab #}
                     <li class=""><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
                 {% endif %}
                 <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
+                {% if tab.codename == "results" %}
+                    {# Put this after results tab #}
+                    <li class=""><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
+                {% endif %}
             {% endfor %}
         </ul>
         <div class="tab-content">
@@ -155,6 +161,51 @@
                         {% else %}
                             {% include "web/competitions/_innertabs.html" %}
                         {% endif %}
+                    </div>
+                </div>
+                <div class="tab-pane" id="public_submissions">
+                    <div class="tab-inner">
+                        <table class="resultsTable dataTable">
+                            <thead>
+                                <tr>
+                                    {% for column in columns %}
+                                        <th>
+                                            <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                                {{column.label}} <span class="glyphicon {% if order == column.name %}{% if direction == 'asc'%}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
+                                            </a>
+                                        </th>
+                                    {% endfor %}
+                                    <th width="40"></th>
+                                    <th width="40"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in submission_info_list %}
+                                    <tr id="{{submission.id}}"
+                                        {% if submission.exception_details %}
+                                            data-exception="{{ submission.exception_details|escape }}"
+                                        {% endif %}
+                                        data-description="{{ submission.description|default_if_none:""|escape }}"
+                                        data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
+                                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
+                                        data-project-url="{{ submission_info.project_url|default_if_none:""|escape }}"
+                                        data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
+                                        data-team-name="{{ submission_info.team_name|default_if_none:""|escape }}"
+                                        data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
+                                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}">>
+                                        {% for column in columns %}
+                                            {% if column.name == 'filename' %}
+                                                <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
+                                            {% else %}
+                                                <td>{{submission|get_item:column.name}}</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
+                                        <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             {% endfor %}

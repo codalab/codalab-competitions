@@ -330,6 +330,8 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
+        context['submissions'] = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                             is_public=True)
         submissions = dict()
         all_submissions = dict()
         try:
@@ -698,6 +700,22 @@ class MySubmissionResultsPartial(TemplateView):
         ctx['my_active_phase_submissions'] = phase.submissions.filter(participant=participant)
 
         return ctx
+
+
+class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+
+            if request.user == submission.participant.user:
+                submission.is_public = not submission.is_public
+                submission.save()
+                return HttpResponse()
+            else:
+                raise Http404()
+        except ObjectDoesNotExist:
+            raise Http404()
+
 
 class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """

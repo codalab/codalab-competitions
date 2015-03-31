@@ -820,6 +820,8 @@ class CompetitionSubmission(models.Model):
     organization_or_affiliation = models.CharField(max_length=255, null=True, blank=True)
     team_name = models.CharField(max_length=64, null=True, blank=True)
 
+    is_public = models.BooleanField(default=False)
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
