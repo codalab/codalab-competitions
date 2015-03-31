@@ -184,6 +184,28 @@ class WorksheetsDeleteApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+class WorksheetsSearchApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        search_string = request.GET.get('search_string', '')
+        logger.debug("WorksheetSearch: user_id=%s; search_string=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            worksheet_infos = service.search_worksheets(search_string.split(' '))
+            return Response(worksheet_infos, content_type="application/json")
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
 
 class WorksheetContentApi(views.APIView):
     """

@@ -35,6 +35,7 @@ urlpatterns += (
     url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets'),
     url(r'^worksheets/add/$', views.WorksheetsAddApi.as_view(), name='api_worksheets'),
     url(r'^worksheets/delete/$', views.WorksheetsDeleteApi.as_view(), name='api_worksheets'),
+    url(r'^worksheets/search/$', views.WorksheetsSearchApi.as_view(), name='api_worksheet_search'),
     url(r'^worksheets/(?P<uuid>[A-Za-z0-9]+)/$', views.WorksheetContentApi.as_view(), name='api_worksheet_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),

@@ -98,6 +98,34 @@ var WorksheetActions =  function() {
                     window.location = '/bundles/' + params[1] + '/';
                 },
             }, // end off info
+            'work': {
+                helpText: 'work - go to a worksheet',
+                minimumInputLength: 1,
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/worksheets/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxWorksheetDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    window.location = '/worksheets/' + params[1] + '/';
+                },
+            }, // end off work
             'wnew': {
                 helpText: 'wnew - add and go to a new worksheet by naming it',
                 minimumInputLength: 0,
@@ -202,7 +230,7 @@ var WorksheetActions =  function() {
                     });
                 },
                 executefn: function(params, command, callback){
-                    console.log("createing run bundle");
+                    console.log("creating run bundle");
                     console.log(params);
                     worksheet_uuid = ws_obj.state.uuid;
                     var postdata = {
@@ -290,16 +318,31 @@ var WorksheetActions =  function() {
     };
 
     WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
+        // Render a bundle in the dropdown action bar
         var newOptions = [];
         for(var uuid in data){
             var bundle = data[uuid];
-            var user = bundle.owner.split("(")[0]; //cli formate is Username (id)
+            var user = bundle.owner_name; // owner is a string <username>(<user_id>)
             var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
             created_date.setUTCSeconds(bundle.metadata.created);
             created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
             newOptions.push({
                 'id': uuid, // UUID
-                'text':bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                'text': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+            });
+        }
+        return newOptions;
+    };
+
+    WorksheetActions.prototype.AjaxWorksheetDictToOptions = function(data) {
+        // Render a worksheet in the dropdown action bar
+        var newOptions = [];
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            var worksheet = data[i];
+            newOptions.push({
+                'id': worksheet.uuid, // UUID
+                'text': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
             });
         }
         return newOptions;
