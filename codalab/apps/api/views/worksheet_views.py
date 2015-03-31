@@ -344,7 +344,7 @@ class BundleSearchApi(views.APIView):
         logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            bundle_infos = service.search_bundles([search_string,], worksheet_uuid)
+            bundle_infos = service.search_bundles(search_string.split(' '), worksheet_uuid)
             print bundle_infos
             return Response(bundle_infos, content_type="application/json")
         except Exception as e:

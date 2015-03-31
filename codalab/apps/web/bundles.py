@@ -69,8 +69,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return self.client.head_target(target, maxlines)
 
         def search_bundles(self, keywords, worksheet_uuid=None):
-            # search_bundle_uuids(worksheet_uuid, keywords, max_results, show_counts_only)
-            bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid, keywords, 30, False)
+            bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid, keywords)
             bundle_infos = self.client.get_bundle_infos(bundle_uuids)
             return bundle_infos
 
