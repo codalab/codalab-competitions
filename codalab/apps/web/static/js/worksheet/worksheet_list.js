@@ -226,7 +226,7 @@ var Worksheet = React.createClass({
     },
     render: function(){
         var ws = this.props.details;
-        var ws_url = this.props.details.uuid;
+        var ws_url = '/worksheets/' + this.props.details.uuid + '/';
         var focused = this.props.focused ? ' focused' : '';
         var classString = 'worksheet-tile' + focused;
         var byline = '';

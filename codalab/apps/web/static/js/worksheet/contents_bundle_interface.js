@@ -15,7 +15,7 @@ var ContentsBundle = React.createClass({
         var contents = this.state.interpreted.map(function(item) {
             return item.replace(/%\s/, '');  // TODO: why removing %?
         });
-        contents = contents.join('<br>');
+        contents = contents.join('');
         // TODO: make this a monospace font
         // contents = contents.replace(/%\s/g, '');
         return(

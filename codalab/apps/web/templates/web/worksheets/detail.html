@@ -120,7 +120,12 @@
 {% endblock js %}
 
 {% block jsincludes %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    {% if local_mathjax %}
+            <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% else %}
+            <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% endif %}
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
@@ -157,10 +162,14 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
-
+// mixing django and javascript to get uuid if not a normal worksheet page
+var worksheet_url = '/api' + document.location.pathname
+{% if worksheet_uuid %}
+    worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
+{% endif %}
 $(function () {
-    //                              /api/worksheets/0x706<...>d5b66e
-    ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    //                           /api/worksheets/0x706<...>d5b66e
+    ws_obj = new WorksheetContent(worksheet_url);
     ws_actions = new WorksheetActions(); // Search bar actions
 
 });

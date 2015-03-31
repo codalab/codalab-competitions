@@ -37,9 +37,9 @@
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2"></th>
                     <th rowspan="2">User</th>
-{#                    {% if phase.competition.allow_teams %}#}
-{#                    <th rowspan="2">Team Name</th>#}
-{#                    {% endif %}#}
+                    {% if phase.competition.allow_teams %}
+                    <th rowspan="2">Team Name</th>
+                    {% endif %}
                     {% for head in group.headers %}
                         {% if head.subs %}
                             <th colspan="{{head.subs|length}}">{{head.label}}</th>
@@ -70,13 +70,15 @@
                 {% else %}
                     {% for pk, scoredata in group.scores %}
                         <tr>
-                            <td class="row-position">{{pk}}</td>
+                            <td class="row-position">
+                                {{ forloop.counter }}
+                            </td>
                             <td>
                                 {{scoredata.username}}
                             </td>
-{#                            {% if phase.competition.allow_teams %}#}
-{#                            <td>{{scoredata.team_name|default_if_none:""}}</td>#}
-{#                            {% endif %}#}
+                            {% if phase.competition.allow_teams %}
+                            <td>{{scoredata.team_name|default_if_none:""}}</td>
+                            {% endif %}
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
                                     {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
