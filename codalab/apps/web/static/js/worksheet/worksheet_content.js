@@ -89,6 +89,9 @@ var WorksheetContent = function() {
             // we are in the middle of a ws,
             // what are you? Then let's find where you begin and end
             switch (ws_item.state.mode) {
+                // case 'search':
+                //     // debugger;
+                //     break;
                 case 'markup':
                     // grab the first bundle's info following you.
                     switch (below_item.state.mode) {
@@ -116,6 +119,7 @@ var WorksheetContent = function() {
                             if(_.isArray(bundle)){
                                 bundle = bundle[0]
                             }
+                            // debugger; // for checking serach type
                             for(i=last_raw_index; i < raw.length; i++){
                                 // that bundle may be the start of the next non-markdown block
                                 // or a line that begins with %, which means another bundle display type
@@ -169,7 +173,7 @@ var WorksheetContent = function() {
                     // we default ws_item.state.raw_size to 0. worksheet is 1 line always aka size 0
                     break;
                 default:
-                    console.error("Got an item mode index does not handle.");
+                    console.error("Got an item mode index does not handle. Please update raw size for this item mode");
             }
         });
 

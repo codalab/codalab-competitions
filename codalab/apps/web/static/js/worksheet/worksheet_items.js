@@ -462,6 +462,19 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         checkboxEnabled={checkboxEnabled}
                 />
             break;
+        case 'search':
+            return <SearchBundle
+                        key={i}
+                        index={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
+                />
+            break;
         default:  // something new or something we dont yet handle
             return (
                 <div>
