@@ -146,9 +146,8 @@ var WorksheetItemList = React.createClass({
             var distanceFromTopViewPort = nodePos.top - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
-            console.log('scrolling');
+            // console.log('scrolling');
             if(distanceFromTopViewPort > viewportHeight/3){
-
                 $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
