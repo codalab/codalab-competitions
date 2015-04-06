@@ -101,10 +101,10 @@ var WorksheetItemList = React.createClass({
             }
         }.bind(this), 'keydown');
 
-        //forget an item in this worksheet - f
-        Mousetrap.bind(['f'], function(e){
+        //detach an item in this worksheet - d
+        Mousetrap.bind(['d'], function(e){
             if(this.props.canEdit){
-                this.forgetChecked();
+                this.detachChecked();
                 return false;
             }
         }.bind(this), 'keydown');
@@ -218,7 +218,7 @@ var WorksheetItemList = React.createClass({
             focusIndex: newFocusIndex
         });
     },
-    forgetChecked: function(){
+    detachChecked: function(){
         var reactItems = this.refs;
         var worksheet = this.state.worksheet;
         var item_indexes =[];
@@ -232,7 +232,7 @@ var WorksheetItemList = React.createClass({
             }
         }
         var confirm_string = item_indexes.length === 1 ? 'this item?' : item_indexes.length + ' items?'
-        if(item_indexes.length && window.confirm("Do you really want to delete " + confirm_string)){
+        if(item_indexes.length && window.confirm("Do you really want to detach " + confirm_string)){
             // only proceed if it turns out that one or more items were actually checked
             ws_obj.deleteItems(item_indexes)
             // does a clean before setting it's state and updating

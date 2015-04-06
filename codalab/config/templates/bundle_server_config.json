@@ -25,9 +25,8 @@
     },
     "workers": {
         "q": {
-            "type": "remote",
             "verbose": 1,
-            "max_instances": 10,
+            "docker_image": "codalab/ubuntu:1.6",
             "dispatch_command": "{{VIRTUAL_ENV}}/bin/python {{BUNDLE_SERVICE_CODE_PATH}}/scripts/dispatch-q.py"
         }
     }
