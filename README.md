@@ -36,11 +36,13 @@ Update the database schema:
     ./manage syncdb --migrate
     ./manage config_gen
 
-In development, CodaLab uses Less to generate CSS, which can be painfully slow.
-To turn this off, edit `codalab/codalab/settings/base.py` and make the
-following change:
+If you want to use CodaLab in offline mode (this downloads MathJax):
 
-    COMPILE_LESS = True
+    ./manage prep_for_offline
+
+Add this to your `codalab/codalab/settings/local.py` file:
+
+    LOCAL_MATHJAX = True
 
 Start the web server:
 
@@ -53,7 +55,7 @@ clicking `Sign In`, and Sign Up.  Use any email address starting with
 
     source venv/bin/activate
     cd codalab
-    python scripts/sample_cl_server_config.py 
+    python scripts/sample_cl_server_config.py
 
 This script should print out a fragment of a JSON file with the appropriate
 keys, which should be added to the codalab-cli config file (usually
@@ -72,3 +74,15 @@ Then start the bundle server:
     ../codalab-cli/codalab/bin/cl server
 
 That is it!
+
+
+## Making codalab worksheets work offline
+
+Need codalab to be able to render worksheets offline. Simple just run this command:
+
+    python manage.py prep_for_offline
+
+This will download mathjax and install it in to the correct directories needed.
+Then simply add `LOCAL_MATHJAX = True` to your local settings.
+
+

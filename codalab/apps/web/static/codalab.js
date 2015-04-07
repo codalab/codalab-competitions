@@ -639,6 +639,20 @@ var Competition;
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        validateBeforeFilePrompt: function() {
+                            if($('#submission_method_name').length == 0) {
+                                // if we dont have submision method field, just skip this check
+                                return true;
+                            }
+
+                            var team_name = $('#submission_team_name').val();
+                            var method_name = $('#submission_method_name').val();
+                            var method_description = $('#submission_method_description').val();
+
+                            return (team_name && team_name !== '') &&
+                                   (method_name && method_name !== '') &&
+                                   (method_description && method_description !== '');
+                        },
                         beforeSelection: function(info, valid) {
                             $('#fileUploadButton').addClass('disabled');
                         },
@@ -664,22 +678,32 @@ var Competition;
                         },
                         uploadSuccess: function(file, trackingId) {
                             $('#details').html('Creating new submission...');
-                            var description = $('#submission_description_textarea').val();
-                            var method_name = $('#submission_method_name').val();
-                            var method_description = $('#submission_method_description').val();
+                            var description = $('#submission_description_textarea').val() || '';
+                            var method_name = $('#submission_method_name').val() || '';
+                            var method_description = $('#submission_method_description').val() || '';
+                            var project_url = $('#submission_project_url').val() || '';
+                            var publication_url = $('#submission_publication_url').val() || '';
+                            var bibtex = $('#submission_bibtex').val() || '';
+                            var team_name = $('#submission_team_name').val() || '';
+                            var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
 
                             $('#submission_description_textarea').val('');
                             $.ajax({
                                 url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
                                                                                       '&method_name=' + encodeURIComponent(method_name) +
-                                                                                      '&method_description=' + encodeURIComponent(method_description),
+                                                                                      '&method_description=' + encodeURIComponent(method_description) +
+                                                                                      '&project_url=' + encodeURIComponent(project_url) +
+                                                                                      '&publication_url=' + encodeURIComponent(publication_url) +
+                                                                                      '&team_name=' + encodeURIComponent(team_name) +
+                                                                                      '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
+                                                                                      '&bibtex=' + encodeURIComponent(bibtex),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description));
+                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
                                 $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
@@ -830,19 +854,34 @@ var Competition;
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
     }
 
-    Competition.displayNewSubmission = function(response, description, method_name, method_description) {
+    Competition.displayNewSubmission = function(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
 
-        if (description) {
+        if (description !== undefined && description !== '') {
             $(elemTr).attr('data-description', description);
         }
-        if (method_name) {
+        if (method_name !== undefined && method_name !== '') {
             $(elemTr).attr('data-method-name', method_name);
         }
-        if (method_description) {
+        if (method_description !== undefined && method_description !== '') {
             $(elemTr).attr('data-method-description', method_description);
+        }
+        if (project_url !== undefined && project_url !== '') {
+            $(elemTr).attr('data-project-url', project_url);
+        }
+        if (publication_url !== undefined && publication_url !== '') {
+            $(elemTr).attr('data-publication-url', publication_url);
+        }
+        if (bibtex !== undefined && bibtex !== '') {
+            $(elemTr).attr('data-bibtex', bibtex);
+        }
+        if (team_name !== undefined && team_name !== '') {
+            $(elemTr).attr('data-team-name', team_name);
+        }
+        if (organization_or_affiliation !== undefined && organization_or_affiliation !== '') {
+            $(elemTr).attr('data-organization-or-affiliation', organization_or_affiliation);
         }
 
         $(elemTr).children().each(function(index) {
@@ -919,14 +958,29 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
-            if ($(nTr).attr('data-description')) {
+            if ($(nTr).attr('data-description') !== undefined) {
                 elem.find('.submission_description').html('<b>Description:</b> <br><pre>' + $(nTr).attr('data-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-team-name')) {
+                elem.find('.submission_team_name').html('<b>Team name:</b> ' + $(nTr).attr('data-team-name'));
             }
             if ($(nTr).attr('data-method-name')) {
                 elem.find('.submission_method_name').html('<b>Method name:</b> ' + $(nTr).attr('data-method-name'));
             }
             if ($(nTr).attr('data-method-description')) {
                 elem.find('.submission_method_description').html('<b>Method description:</b><br><pre>' + $(nTr).attr('data-method-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-project-url')) {
+                elem.find('.submission_project_url').html('<b>Project URL:</b> <a href="' + $(nTr).attr('data-project-url') + '">' + $(nTr).attr('data-project-url') + '</a>');
+            }
+            if ($(nTr).attr('data-publication-url')) {
+                elem.find('.submission_publication_url').html('<b>Publication URL:</b> <a href="' + $(nTr).attr('data-publication-url') + '">' + $(nTr).attr('data-publication-url') + '</a>');
+            }
+            if ($(nTr).attr('data-bibtex')) {
+                elem.find('.submission_bibtex').html('<b>Bibtex:</b><br><pre>' + $(nTr).attr('data-bibtex') + '</pre>');
+            }
+            if ($(nTr).attr('data-organization-or-affiliation')) {
+                elem.find('.submission_organization_or_affiliation').html('<b>Organization/affiliation:</b> ' + $(nTr).attr('data-organization-or-affiliation'));
             }
             if ($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
@@ -1196,6 +1250,9 @@ var CodaLab;
             this.defaultOptions = {
                 buttonId: 'fileUploadButton',
                 disabledClassName: 'disabled',
+                validateBeforeFilePrompt: function() {
+                    return true;
+                },
                 beforeSelection: function() {
                 },
                 afterSelection: function(info, valid) {
@@ -1218,7 +1275,11 @@ var CodaLab;
             button.on('click', function(e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
-                    _this.fileInput.click();
+                    if(_this.options.validateBeforeFilePrompt()) {
+                        _this.fileInput.click();
+                    } else {
+                        alert('Please fill in all required fields first!');
+                    }
                 }
             });
         }
@@ -1433,6 +1494,7 @@ var CodaLab;
                 sasEndpoint: '/api/competition/create/sas',
                 allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                 maxFileSizeInBytes: 1024 * 1024 * 1024,
+
                 beforeSelection: function(info, valid) {
                     $('#uploadButton').addClass('disabled');
                 },

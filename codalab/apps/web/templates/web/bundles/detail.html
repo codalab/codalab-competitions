@@ -17,7 +17,6 @@
 {% endblock js %}
 
 {% block jsincludes %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
 
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
@@ -26,11 +25,6 @@
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/bundle/bundle_interface.js"></script>
 <script>
-MathJax.Hub.Config({
-    tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-        inlineMath: [['$','$']]
-    }
-});
+//
 </script>
 {% endblock jsincludes %}

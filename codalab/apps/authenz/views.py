@@ -5,6 +5,7 @@ View-related customatizations for auth.
 import json
 import logging
 import traceback
+import re
 
 from django.conf import settings
 from django.dispatch import receiver
@@ -40,8 +41,12 @@ def new_user_signup(sender, **kwargs):
         service = BundleService(user)
         try:
             #clean up there name and make sure nothing sneaks in
-            worksheet_name = smart_str(user.username.strip())
-            uuid = service.create_worksheet(worksheet_name)
+            ws_name = smart_str(user.username)
+            if "@" in ws_name:
+                ws_name = ws_name.split('@')[0]
+            rx = re.compile('\W+')
+            ws_name = rx.sub('', ws_name).strip()
+            uuid = service.create_worksheet(ws_name)
         except Exception as e:
             logging.error("create_default_worksheet")
             logging.error(smart_str(e))

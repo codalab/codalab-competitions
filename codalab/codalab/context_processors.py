@@ -12,5 +12,6 @@ def app_version_proc(request):
 def common_settings(request):
     "A context processor that returns dev settings"
     return {
-        'compile_less': codalab_settings.COMPILE_LESS
+        'compile_less': codalab_settings.COMPILE_LESS,
+        'local_mathjax': codalab_settings.LOCAL_MATHJAX
     }

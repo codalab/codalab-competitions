@@ -70,7 +70,7 @@ var TableBundle = React.createClass({
 
         Mousetrap.bind(['x'], function(e){
             var index = this.state.rowFocusIndex;
-            if(!this.hasOwnProperty('forgetCheckedRows')){
+            if(!this.hasOwnProperty('detachCheckedRows')){
                 this.setState({checked: !this.state.checked});
             }else{
                 // otherwise check whatever row is focused
@@ -83,9 +83,9 @@ var TableBundle = React.createClass({
         }.bind(this), 'keydown');
 
 
-        Mousetrap.bind(['f'], function(e){
-            if (this.hasOwnProperty('forgetCheckedRows')){
-                    this.forgetCheckedRows();
+        Mousetrap.bind(['d'], function(e){
+            if (this.hasOwnProperty('detachCheckedRows')){
+                    this.detachCheckedRows();
             }
         }.bind(this), 'keydown');
     },
@@ -176,7 +176,7 @@ var TableBundle = React.createClass({
         this._owner.setFocus(new_key);
         this._owner.refs['item' + (new_key)].setState({new_item: true});
     },
-    forgetCheckedRows: function(){
+    detachCheckedRows: function(){
         var reactRows = this.refs; // react components
         var interpreted_row_indexes = []; // what indexes of the data do we want gone
 
@@ -187,8 +187,8 @@ var TableBundle = React.createClass({
                 interpreted_row_indexes.push(reactRows[k].props.index);
             }
         }
-        var confirm_string = interpreted_row_indexes.length === 1 ? 'this row?' : interpreted_row_indexes.length + ' rows?'
-        if(interpreted_row_indexes.length && window.confirm("Are you sure you want to forget " + confirm_string)){
+        var confirm_string = interpreted_row_indexes.length === 1 ? 'this item?' : 'these ' + interpreted_row_indexes.length + ' items?'
+        if(interpreted_row_indexes.length && window.confirm("Are you sure you want to detach " + confirm_string)){
             //delete and get our new interpreted. raw is handeled by ws_obj
             new_interpreted_rows = ws_obj.deleteTableRow(this.props.item.state, interpreted_row_indexes);
             //uncheck so we don't get any weird checked state hanging around

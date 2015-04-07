@@ -9,6 +9,7 @@ var WorksheetActions =  function() {
             // 'commandname'{  // what the user enters
             //  *  executefn: function that happens when they hit execute or cmd/ctrl + enter,
             //  *  helpText: shows up when they are search commands
+            //  *  edit_enabled: is this a command that is only allowed when able to edit
             //
             //     data_url: does this command have an auto complete after it is entered
             //     type: type for above data_url call
@@ -22,6 +23,7 @@ var WorksheetActions =  function() {
             'add': {
                 helpText: 'add - add a bundle to this worksheet name or uuid',
                 minimumInputLength: 3,
+                edit_enabled: true,
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -73,6 +75,7 @@ var WorksheetActions =  function() {
             'info': {
                 helpText: 'info - go to a bundle\'s info page',
                 minimumInputLength: 3,
+                edit_enabled: false,
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -98,9 +101,39 @@ var WorksheetActions =  function() {
                     window.location = '/bundles/' + params[1] + '/';
                 },
             }, // end off info
+            'work': {
+                helpText: 'work - go to a worksheet',
+                minimumInputLength: 1,
+                edit_enabled: false,
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/worksheets/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxWorksheetDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    window.location = '/worksheets/' + params[1] + '/';
+                },
+            }, // end off work
             'wnew': {
                 helpText: 'wnew - add and go to a new worksheet by naming it',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
@@ -134,6 +167,7 @@ var WorksheetActions =  function() {
             'run': {
                 helpText: 'run - Create a run bundle ',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 maximumSelectionSize: function(){
                     // jquery isnt supposed to be in here but there is no other way way to get the value in this function
                     $('#search').val();
@@ -202,7 +236,7 @@ var WorksheetActions =  function() {
                     });
                 },
                 executefn: function(params, command, callback){
-                    console.log("createing run bundle");
+                    console.log("creating run bundle");
                     console.log(params);
                     worksheet_uuid = ws_obj.state.uuid;
                     var postdata = {
@@ -230,6 +264,7 @@ var WorksheetActions =  function() {
             'upload': {
                 helpText: 'upload - upload a dataset via a url',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
@@ -266,19 +301,33 @@ var WorksheetActions =  function() {
     }// endof worksheetActions() init
 
     //helper commands
-    WorksheetActions.prototype.getCommands = function(){
+    WorksheetActions.prototype.getCommands = function(can_edit){
         // The select2 autocomplete expects its data in a certain way, so we'll turn
         // relevant parts of the command dict into an array it can work with
+        can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
         var commandDict = this.commands;
         var commandList = [];
         for(var key in commandDict){
-            commandList.push({
-                'id': key,
-                'text': commandDict[key].helpText
-            });
+            if(can_edit){
+                //push everthing they have access
+                commandList.push({
+                    'id': key,
+                    'text': commandDict[key].helpText
+                });
+            }else{
+                //restrict to only non edit_endabled actions.
+                if(commandDict[key].edit_enabled){
+                    //pass
+                }else{
+                    commandList.push({
+                        'id': key,
+                        'text': commandDict[key].helpText
+                    });
+                }
+            }// end of if canedit
         }
         return commandList;
-    };
+    }; // end of getCommands
 
     WorksheetActions.prototype.checkAndReturnCommand = function(input){
         var command_dict;
@@ -290,16 +339,31 @@ var WorksheetActions =  function() {
     };
 
     WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
+        // Render a bundle in the dropdown action bar
         var newOptions = [];
         for(var uuid in data){
             var bundle = data[uuid];
-            var user = bundle.owner.split("(")[0]; //cli formate is Username (id)
+            var user = bundle.owner_name; // owner is a string <username>(<user_id>)
             var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
             created_date.setUTCSeconds(bundle.metadata.created);
             created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
             newOptions.push({
                 'id': uuid, // UUID
-                'text':bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                'text': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+            });
+        }
+        return newOptions;
+    };
+
+    WorksheetActions.prototype.AjaxWorksheetDictToOptions = function(data) {
+        // Render a worksheet in the dropdown action bar
+        var newOptions = [];
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            var worksheet = data[i];
+            newOptions.push({
+                'id': worksheet.uuid, // UUID
+                'text': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
             });
         }
         return newOptions;

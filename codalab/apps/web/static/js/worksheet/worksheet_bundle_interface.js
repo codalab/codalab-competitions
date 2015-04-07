@@ -6,22 +6,10 @@ var WorksheetBundle = React.createClass({
         this.props.item.state.checked = false;
         return this.props.item.state;
     },
-    keysToHandle: function(){
-        return['enter']
-    },
-    handleKeydown: function(){
-        var key = keyMap[event.keyCode];
-        if(typeof key !== 'undefined'){
-            event.preventDefault();
-            switch (key) {
-                case 'enter':
-                    event.preventDefault();
-                    this.goToWorksheet();
-                    break;
-                default:
-                    return true;
-            }
-        }
+    capture_keys: function(event){
+        Mousetrap.bind(['enter'], function(e){
+            this.goToWorksheet();
+        }.bind(this), 'keydown');
     },
     handleClick: function(event){
         this.props.setFocus(this.props.index, event);

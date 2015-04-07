@@ -25,7 +25,7 @@ var Worksheet = React.createClass({
             activeComponent: 'list',
             editMode: false,
             rawMode: false,
-            showSearchBar: false,
+            showSearchBar: true,
             editingText: false,
             focusIndex: -1,
             subFocusIndex: 0,
@@ -311,6 +311,7 @@ var Worksheet = React.createClass({
         var search_display = (
                 <WorksheetSearch
                     ref={"search"}
+                    canEdit={this.canEdit()}
                     handleFocus={this.handleSearchFocus}
                     handleBlur={this.handleSearchBlur}
                     active={this.state.activeComponent=='search'}
