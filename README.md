@@ -36,11 +36,13 @@ Update the database schema:
     ./manage syncdb --migrate
     ./manage config_gen
 
-In development, CodaLab uses Less to generate CSS, which can be painfully slow.
-To turn this off, edit `codalab/codalab/settings/base.py` and make the
-following change:
+If you want to use CodaLab in offline mode (this downloads MathJax):
 
-    COMPILE_LESS = True
+    ./manage prep_for_offline
+
+Add this to your `codalab/codalab/settings/local.py` file:
+
+    LOCAL_MATHJAX = True
 
 Start the web server:
 
