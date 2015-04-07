@@ -398,6 +398,27 @@ var Competition;
         return subStatus;
     };
 
+    Competition.toggleSubmissionPublic = function(event) {
+        event.preventDefault();
+
+        // Remove focus from link
+        this.blur();
+
+        var submissionId = $(this).attr('submission-id');
+        var linkElement = $(this);
+
+        $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
+            .success(function(data) {
+                var isPublic = data == 'True' ? 'private':'public';
+                linkElement.html('Make your submission ' + isPublic);
+            })
+            .error(function() {
+                alert('Error making submission public, is your Internet connection working?')
+            });
+
+        return false;
+    };
+
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
         if ($(obj).hasClass('glyphicon-minus')) {
@@ -439,6 +460,12 @@ var Competition;
             if ($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
             }
+
+            var isPublic = $(nTr).attr('data-is-public') ? 'private':'public';
+            elem.find('.public_link').html('Make your submission ' + isPublic);
+            elem.find('.public_link').click(Competition.toggleSubmissionPublic);
+            elem.find('.public_link').attr('submission-id', nTr.id);
+
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {

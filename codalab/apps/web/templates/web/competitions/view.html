@@ -165,44 +165,36 @@
                 </div>
                 <div class="tab-pane" id="public_submissions">
                     <div class="tab-inner">
-                        <table class="resultsTable dataTable">
+                        <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    {% for column in columns %}
-                                        <th>
-                                            <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
-                                                {{column.label}} <span class="glyphicon {% if order == column.name %}{% if direction == 'asc'%}glyphicon-arrow-down{% else %}glyphicon-arrow-up{% endif %}{% endif %} pull-right"></span>
-                                            </a>
-                                        </th>
-                                    {% endfor %}
-                                    <th width="40"></th>
-                                    <th width="40"></th>
+                                    <td width="50"><b>#</b></td>
+                                    <td width="125"><b>User</b></td>
+                                    <td width="125"><b>Date</b></td>
+                                    <td><b>Description</b></td>
+                                    <td width="250"><b>Downloads</b></td>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for submission in submission_info_list %}
-                                    <tr id="{{submission.id}}"
-                                        {% if submission.exception_details %}
-                                            data-exception="{{ submission.exception_details|escape }}"
-                                        {% endif %}
-                                        data-description="{{ submission.description|default_if_none:""|escape }}"
-                                        data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
-                                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
-                                        data-project-url="{{ submission_info.project_url|default_if_none:""|escape }}"
-                                        data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
-                                        data-team-name="{{ submission_info.team_name|default_if_none:""|escape }}"
-                                        data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
-                                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}">>
-                                        {% for column in columns %}
-                                            {% if column.name == 'filename' %}
-                                                <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
-                                            {% else %}
-                                                <td>{{submission|get_item:column.name}}</td>
+                                {% for submission in public_submissions %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><b>{{ submission.participant.user.username }}</b></td>
+                                    <td>{{ submission.submitted_at|date:"M d Y" }}</td>
+                                    <td>{{ submission.description|default_if_none:""|escape }}</td>
+                                    <td>
+                                        <ul class="list-unstyled">
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/input.zip">Download submission</a></li>
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/predict_stderr.txt" target="_blank">View predict error log</a></li>
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/stdout.txt" target="_blank">View scoring output log</a></li>
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/stderr.txt" target="_blank">View scoring error log</a></li>
+                                            {% if not submission.phase.is_scoring_only %}
+                                                <li><a href="/my/competition/submission/{{ submission.pk }}/prediction-output.zip">Download evaluation output from prediction step</a></li>
                                             {% endif %}
-                                        {% endfor %}
-                                        <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
-                                        <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
-                                    </tr>
+                                        </ul>
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -223,8 +215,6 @@
             var show_location = function(hash) {
                 var main_tab = hash.split('-')[0];
                 var sub_tab = hash.split('-')[1];
-
-                console.log('main_tab: ' + main_tab + ' sub_tab: ' + sub_tab);
 
                 $('#competition_tab_nav a[href="' + main_tab + '"]').tab('show');
                 $(main_tab + ' .innertabs a[href="' + main_tab + '-' + sub_tab + '"]').tab('show');
