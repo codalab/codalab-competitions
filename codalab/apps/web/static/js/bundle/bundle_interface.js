@@ -469,12 +469,14 @@ var FileBrowserItem = React.createClass({
         var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
         var size = '';
         if(this.props.hasOwnProperty('size')){
-           if(this.props.size == 0)
-                size = "0"
-           var k = 1000;
-           var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-           var i = Math.floor(Math.log(this.props.size) / Math.log(k));
-           size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            if(this.props.size == 0 || this.props.size === undefined)
+                size = "0 bytes"
+            else{ // we have a real size create a nice human readable version
+                var k = 1000;
+                var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                var i = Math.floor(Math.log(this.props.size) / Math.log(k));
+                size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
         }
         return (
             <tr>
