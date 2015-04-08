@@ -169,10 +169,13 @@ var Bundle = React.createClass({
                 dependencies_table.push(
                     <tr>
                         <td>
+                            {dep.child_path}
+                        </td>
+                        <td>
                             <a href={dep_bundle_url}>{dep.parent_uuid}</a>
                         </td>
                         <td>
-                            {dep.child_path}
+                            {dep.parent_name}
                         </td>
                     </tr>
                     )
@@ -197,8 +200,9 @@ var Bundle = React.createClass({
                             <table id="dependencies_table" >
                                 <thead>
                                     <tr>
-                                        <th>UUID</th>
                                         <th>Path</th>
+                                        <th>UUID</th>
+                                        <th>Bundle Name</th>
                                     </tr>
                                 </thead>
                                 <tbody>
