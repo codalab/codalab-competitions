@@ -162,31 +162,55 @@ var Bundle = React.createClass({
         /// ------------------------------------------------------------------
         var dependencies_table = []
         var dep_bundle_url = ''
-        this.state.dependencies.forEach(function(dep, i){
-            dep_bundle_url = "/bundles/" + dep.parent_uuid;
-            dependencies_table.push(
-                <tr>
-                    <td>
-                        <a href={dep_bundle_url}>{dep.parent_uuid}</a>
-                    </td>
-                    <td>
-                        {dep.child_path}
-                    </td>
-                </tr>
-                )
-        })
-        if(dependencies_table.length == 0){
-            dependencies_table.push(
-                <tr>
-                    <td>
-                        None
-                    </td>
-                    <td>
-                        None
-                    </td>
-                </tr>
-                )
-        }
+        var dependencies_html = ''
+        if(this.state.dependencies.length){
+            this.state.dependencies.forEach(function(dep, i){
+                dep_bundle_url = "/bundles/" + dep.parent_uuid;
+                dependencies_table.push(
+                    <tr>
+                        <td>
+                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
+                        </td>
+                        <td>
+                            {dep.child_path}
+                        </td>
+                    </tr>
+                    )
+            }) // end of foreach
+            if(dependencies_table.length == 0){
+                dependencies_table.push(
+                    <tr>
+                        <td>
+                            None
+                        </td>
+                        <td>
+                            None
+                        </td>
+                    </tr>
+                    )
+            }
+
+            dependencies_html = (
+                <div className="row">
+                    <div className="col-sm-10">
+                        <div className="dependencies-table">
+                            <table id="dependencies_table" >
+                                <thead>
+                                    <tr>
+                                        <th>UUID</th>
+                                        <th>Path</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dependencies_table}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )
+        }// end of this.state.dependencies.length
+
         /// ------------------------------------------------------------------
         var stdout_html = ''
         if(this.state.stdout){
@@ -233,6 +257,9 @@ var Bundle = React.createClass({
                 </button>
             )
         }
+        /// ------------------------------------------------------------------
+
+
         return (
             <div className="bundle-tile">
                 <div className="bundle-header">
@@ -292,26 +319,8 @@ var Bundle = React.createClass({
                 <div className="bundle-file-view-container">
                     {this.state.fileBrowserData.contents ? fileBrowser : null}
                 </div>
-                <h3>
-                    Dependencies
-                </h3>
-                <div className="row">
-                    <div className="col-sm-10">
-                        <div className="dependencies-table">
-                            <table id="dependencies_table" >
-                                <thead>
-                                    <tr>
-                                        <th>UUID</th>
-                                        <th>Path</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {dependencies_table}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                {dependencies_html ? <h3> Dependencies</h3> : null}
+                {dependencies_html ? dependencies_html : null}
                 <div className="row">
                     <div className="col-sm-10">
                         {stdout_html}
