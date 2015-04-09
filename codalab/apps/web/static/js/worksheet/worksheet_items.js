@@ -267,7 +267,7 @@ var WorksheetItemList = React.createClass({
         var newIndex = oldIndex + delta;
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
             ws_obj.moveItem(oldIndex, newIndex);
-            this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
+            this.setState({focusIndex: newIndex, worksheet: ws_obj.getState(),}, this.scrollToItem(newIndex));
             // wrap save in a debouce to slow it down
             // will happen after they stop moving items
             this.slowSave();

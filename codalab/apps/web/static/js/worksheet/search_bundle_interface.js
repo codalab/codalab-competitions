@@ -67,7 +67,7 @@ var SearchBundle = React.createClass({
                 />
             )
         }
-        var search_items = this.state.interpreted.items;
+        var search_items = this.props.item.state.interpreted.items;
         var search_items_interpreted;
         var parentIndex = this.props.index;
         if(search_items.length){
