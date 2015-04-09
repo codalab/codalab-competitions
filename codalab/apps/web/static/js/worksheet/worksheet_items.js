@@ -337,7 +337,7 @@ var WorksheetItemList = React.createClass({
             items_display = worksheet_items
         }
 
-        return <span> {items_display} </span>
+        return <div id="worksheet_items">{items_display}</div>
     }
 });
 
