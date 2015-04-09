@@ -70,7 +70,7 @@ var WorksheetContent = function() {
                 // this is the first item. Let's get the index after the comments stop
                 // and the real worksheet begins
                 for(i=0; i < raw.length; i++){
-                    if(raw[i].lastIndexOf('//', 0) === 0 || raw[i].lastIndexOf('%', 0) === 0){
+                    if(raw[i].lastIndexOf('//', 0) === 0){
                         last_raw_index = i+1;
                     }else{
                         break; // break out, we are done with comments
