@@ -185,8 +185,52 @@ var WorksheetContent = function() {
                     break;
                 default:
                     console.error("Got an item mode index does not handle. Please update raw size for this item mode");
+            }// end of swtich statment
+            //debugging statements.
+            var j = 0
+            console.log("%c***** A single items raw index *****", "color: Red; font-size:15px;");
+            console.log("%cws_item", "color: #DC9E01; font-size:13px;");
+            console.log(ws_item.state);
+            console.log(ws_item.state.mode);
+            console.log(ws_item.state.raw_index);
+            console.log(ws_item.state.raw_size);
+            console.log("raw");
+            for(j=ws_item.state.raw_index; j < ws_item.state.raw_index + (ws_item.state.raw_size || 1); j++){
+                console.log(raw[j]);
             }
-        });
+            console.log("%cabove_item", "color: #60C5F8; font-size:12px;");
+            if(above_item){
+                console.log(above_item.state);
+                console.log(above_item.state.mode);
+                console.log(above_item.state.raw_index);
+                console.log(above_item.state.raw_size);
+                console.log("raw");
+                for(j=above_item.state.raw_index-1; j < above_item.state.raw_index + (above_item.state.raw_size || 1); j++){
+                    console.log(raw[j]);
+                }
+            }else{
+
+            }
+            console.log("-");
+
+            console.log("%cbelow_item ", "color: #42AA40; font-size:12px;");
+            if(below_item){
+                console.log(below_item.state);
+                console.log(below_item.state.mode);
+                // console.log(below_item.state.raw_index);
+                // console.log(below_item.state.raw_size);
+                // console.log("raw");
+                // for(j=below_item.state.raw_index; j < below_item.state.raw_index + below_item.state.raw_size; j++){
+                //     console.log(raw[j]);
+                // }
+            }else{
+
+            }
+            console.log('');
+            console.log('-');
+            console.log('');
+
+        });// end of  items.map(function(ws_item, index){
 
     };
 
