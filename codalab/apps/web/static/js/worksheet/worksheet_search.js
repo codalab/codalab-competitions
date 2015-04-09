@@ -11,7 +11,8 @@ var WorksheetSearch = React.createClass({
         // general search input (http://ivaynberg.github.io/select2/)
         var self = this;
         // get our static list of commands and store it in this var
-        var commands = ws_actions.getCommands();
+
+
         $('#search').select2({
             multiple:true,
             minimumInputLength: function(){
@@ -69,7 +70,6 @@ var WorksheetSearch = React.createClass({
                 }
             },
             query: function(query){
-
                 // Select2 is masking the actual #search field. Its value only changes when something new is entered
                 // via select2. So when the value of #search changes, we know we need to reevaluate the context
                 // in which select2 is being used (eg, we've gone from entering a command to looking up a bundle)
@@ -91,6 +91,7 @@ var WorksheetSearch = React.createClass({
                     // either a command hasn't been entered or it wasn't one we support, so
                     // let's make a list of our known commands
                     // console.log('searching commands...');
+                    var commands = ws_actions.getCommands(self.props.canEdit);
                     var matchedOptions = [];
                     commands.map(function(item){
                         // we need to make our own matcher function because we're doing this
@@ -134,7 +135,7 @@ var WorksheetSearch = React.createClass({
                 case 27:
                     var input = $('#search').select2('val');
                     if(input.length){
-                        return
+                        return;
                     }else{ // nothing blur it
                         this.blur();
                     }

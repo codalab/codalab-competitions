@@ -9,6 +9,7 @@ var WorksheetActions =  function() {
             // 'commandname'{  // what the user enters
             //  *  executefn: function that happens when they hit execute or cmd/ctrl + enter,
             //  *  helpText: shows up when they are search commands
+            //  *  edit_enabled: is this a command that is only allowed when able to edit
             //
             //     data_url: does this command have an auto complete after it is entered
             //     type: type for above data_url call
@@ -22,6 +23,7 @@ var WorksheetActions =  function() {
             'add': {
                 helpText: 'add - add a bundle to this worksheet name or uuid',
                 minimumInputLength: 3,
+                edit_enabled: true,
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -73,6 +75,7 @@ var WorksheetActions =  function() {
             'info': {
                 helpText: 'info - go to a bundle\'s info page',
                 minimumInputLength: 3,
+                edit_enabled: false,
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -101,6 +104,7 @@ var WorksheetActions =  function() {
             'work': {
                 helpText: 'work - go to a worksheet',
                 minimumInputLength: 1,
+                edit_enabled: false,
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -129,6 +133,7 @@ var WorksheetActions =  function() {
             'wnew': {
                 helpText: 'wnew - add and go to a new worksheet by naming it',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
@@ -162,6 +167,7 @@ var WorksheetActions =  function() {
             'run': {
                 helpText: 'run - Create a run bundle ',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 maximumSelectionSize: function(){
                     // jquery isnt supposed to be in here but there is no other way way to get the value in this function
                     $('#search').val();
@@ -258,6 +264,7 @@ var WorksheetActions =  function() {
             'upload': {
                 helpText: 'upload - upload a dataset via a url',
                 minimumInputLength: 0,
+                edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
@@ -294,19 +301,33 @@ var WorksheetActions =  function() {
     }// endof worksheetActions() init
 
     //helper commands
-    WorksheetActions.prototype.getCommands = function(){
+    WorksheetActions.prototype.getCommands = function(can_edit){
         // The select2 autocomplete expects its data in a certain way, so we'll turn
         // relevant parts of the command dict into an array it can work with
+        can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
         var commandDict = this.commands;
         var commandList = [];
         for(var key in commandDict){
-            commandList.push({
-                'id': key,
-                'text': commandDict[key].helpText
-            });
+            if(can_edit){
+                //push everthing they have access
+                commandList.push({
+                    'id': key,
+                    'text': commandDict[key].helpText
+                });
+            }else{
+                //restrict to only non edit_endabled actions.
+                if(commandDict[key].edit_enabled){
+                    //pass
+                }else{
+                    commandList.push({
+                        'id': key,
+                        'text': commandDict[key].helpText
+                    });
+                }
+            }// end of if canedit
         }
         return commandList;
-    };
+    }; // end of getCommands
 
     WorksheetActions.prototype.checkAndReturnCommand = function(input){
         var command_dict;
