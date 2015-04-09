@@ -241,7 +241,7 @@
       background: url('/static/img/icon_worksheet.png') no-repeat 4px #fcfcfc;
       background-size:32px;
    }
-   .type-table, .type-record {
+   .type-table, .type-record, .type-search {
       margin-bottom: 28px;
       table {
          .table;
@@ -295,6 +295,47 @@
       table.table {
          width:auto;
          max-width:100%;
+      }
+   }
+   .type-search {
+      .clearfix;
+      .result {
+         padding:8px;
+         position:relative;
+         background: @blue-bg;
+         &:before {
+            .iconic;
+            position:relative;
+            top:0;
+            content:"\e003";
+            color:#D9E2E9;
+            margin-right:5px;
+            font-size:12px;
+         }
+         &.empty {
+            color: @gray;
+         }
+      }
+      table {
+         border-left-width:24px;
+         border-color:@blue-bg;
+         background-color:darken(@blue-bg,1.25%);
+         &:before {
+            .iconic;
+            content:"\e003";
+            color:#D9E2E9;
+            font-size:12px;
+            position:absolute;
+            left:5px;
+            top:5px;
+         }
+         > tbody > tr > td,
+         > thead > tr > th  {
+            border-color:@blue-bg;
+         }
+         > tbody > tr:nth-child(odd) > td {
+            background-color:@blue-bg;
+         }
       }
    }
 }
