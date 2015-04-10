@@ -135,7 +135,7 @@ var WorksheetSearch = React.createClass({
                 case 27:
                     var input = $('#search').select2('val');
                     if(input.length){
-                        return
+                        return;
                     }else{ // nothing blur it
                         this.blur();
                     }

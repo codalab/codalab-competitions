@@ -36,11 +36,12 @@ Update the database schema:
     ./manage syncdb --migrate
     ./manage config_gen
 
-If you want to use CodaLab in offline mode (this downloads MathJax):
+If you want to use CodaLab in offline mode, run the following to download
+MathJax:
 
     ./manage prep_for_offline
 
-Add this to your `codalab/codalab/settings/local.py` file:
+and add this to your `codalab/codalab/settings/local.py` file:
 
     LOCAL_MATHJAX = True
 
@@ -74,15 +75,3 @@ Then start the bundle server:
     ../codalab-cli/codalab/bin/cl server
 
 That is it!
-
-
-## Making codalab worksheets work offline
-
-Need codalab to be able to render worksheets offline. Simple just run this command:
-
-    python manage.py prep_for_offline
-
-This will download mathjax and install it in to the correct directories needed.
-Then simply add `LOCAL_MATHJAX = True` to your local settings.
-
-
