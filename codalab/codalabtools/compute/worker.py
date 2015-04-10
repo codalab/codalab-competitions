@@ -303,6 +303,17 @@ def get_run_func(config):
                     signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
 
                     try:
+                        while True:
+                            new_stdout = evaluator_process.stdout.readline()
+                            if len(new_stdout) == 0:
+                                break
+                            stdout_buffer += new_stdout
+
+                            new_stderr = evaluator_process.stderr.readline()
+                            if len(new_stderr) == 0:
+                                break
+                            stderr_buffer += new_stderr
+
                         (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
                         signal.alarm(0) # reset alarm
 
