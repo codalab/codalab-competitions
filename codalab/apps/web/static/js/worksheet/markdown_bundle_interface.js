@@ -112,7 +112,7 @@ var MarkdownBundle = React.createClass({
                 break;
             }
             end++; // add 1 for later cutting
-            var MathText = text.slice(start,end+1)  // eg: "$\sum_z p_\theta$"
+            var MathText = text.slice(start,end)  // eg: "$\sum_z p_\theta$"
             this.conentMathjaxText.push(MathText);
             //cut out the string and replace with @pppppp@ //markdown doesnt care about @
             var firstHalf = text.slice(0, start)
