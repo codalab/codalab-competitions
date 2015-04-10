@@ -7,6 +7,8 @@ var Bundle = React.createClass({
             "hard_dependencies": [],
             "state": "ready",
             "dependencies": [],
+            "host_worksheets": [],
+            "group_permissions": [],
             "command": null,
             "bundle_type": "",
             "metadata": {},
@@ -14,7 +16,9 @@ var Bundle = React.createClass({
             "fileBrowserData": "",
             "currentWorkingDirectory": "",
             "editing": false,
-            "edit_permission": false
+            "edit_permission": false,
+            "permission": 0,
+            "permission_str": ''
         };
     },
     toggleEditing: function(){
@@ -262,6 +266,45 @@ var Bundle = React.createClass({
             )
         }
         /// ------------------------------------------------------------------
+        var host_worksheets_html = ''
+        if(this.state.host_worksheets.length){
+            var host_worksheets_url = ''
+            host_worksheets_rows = []
+            this.state.host_worksheets.forEach(function(worksheet, i){
+                host_worksheets_url = "/worksheet/" + worksheet.uuid;
+                host_worksheets_rows.push(
+                    <tr>
+                        <td>
+                            {worksheet.name}
+                        </td>
+                        <td>
+                            <a href={host_worksheets_url}>{worksheet.uuid}</a>
+                        </td>
+                    </tr>
+                );
+            }) // end of foreach
+            host_worksheets_html = (
+                        <div className="row">
+                            <div className="col-sm-10">
+                                <div className="dependencies-table">
+                                    <table id="dependencies_table" >
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>UUID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {host_worksheets_rows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+            )
+
+        }
+        /// ------------------------------------------------------------------
 
 
         return (
@@ -331,6 +374,9 @@ var Bundle = React.createClass({
                         {stderr_html}
                     </div>
                 </div>
+
+                {host_worksheets_html ? <h3>Host Worksheets</h3> : null}
+                {host_worksheets_html ? host_worksheets_html : null}
 
             </div>
         );
