@@ -337,6 +337,7 @@ def get_run_func(config):
                         'elapsedTime': elapsedTime
                     }
                 else:
+                    # otherwise we're doing multi-track and processing multiple commands so append to the array
                     prog_status.append({
                         'exitCode': exit_code,
                         'elapsedTime': elapsedTime
