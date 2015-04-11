@@ -10,6 +10,7 @@ import logging.config
 import os
 import signal
 import math
+import select
 import shutil
 import sys
 import tempfile
@@ -24,6 +25,7 @@ from zipfile import ZipFile
 # Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
+import async_process
 from azure.storage import BlobService
 from codalabtools import BaseWorker, BaseConfig
 from codalabtools.azure_extensions import AzureServiceBusQueue
@@ -289,39 +291,37 @@ def get_run_func(config):
 
                 evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
 
+                async_process.make_async(evaluator_process.stdout)
+                async_process.make_async(evaluator_process.stderr)
+
                 logger.debug("Started process, pid=%s" % evaluator_process.pid)
 
+                time_difference = time.time() - startTime
                 signal.signal(signal.SIGALRM, alarm_handler)
+                signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
 
-                while exit_code is None:
-                    exit_code = evaluator_process.poll()
+                exit_code = None
 
-                    logger.debug("Checking process, exit_code = %s" % exit_code)
+                logger.debug("Checking process, exit_code = %s" % exit_code)
 
-                    time_difference = time.time() - startTime
-
-                    signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
-
-                    try:
-                        (evaluator_process_out, evaluator_process_err) = evaluator_process.communicate()
-                        signal.alarm(0) # reset alarm
-
-                        stdout_buffer += evaluator_process_out
-                        stderr_buffer += evaluator_process_err
-                    except (ValueError, OSError, ExecutionTimeLimitExceeded):
-                        pass # tried to communicate with dead process
-
-                    # time in seconds
-                    if exit_code is None and time.time() - startTime > execution_time_limit:
-                        exit_code = -1
-                        logger.info("Killed process for running too long!")
-                        stderr.write("Execution time limit exceeded!")
-                        evaluator_process.kill()
-                        timed_out = True
-                        break
-                    else:
+                try:
+                    while exit_code == None:
+                        new_stdout = async_process.read_async(evaluator_process.stdout)
+                        new_stderr = async_process.read_async(evaluator_process.stderr)
+                        stdout_buffer += new_stdout
+                        stderr_buffer += new_stderr
                         time.sleep(1)
+                        exit_code = evaluator_process.poll()
+                except (ValueError, OSError):
+                    pass # tried to communicate with dead process
+                except ExecutionTimeLimitExceeded:
+                    exit_code = -1
+                    logger.info("Killed process for running too long!")
+                    stderr.write("Execution time limit exceeded!")
+                    evaluator_process.kill()
+                    timed_out = True
 
+                signal.alarm(0)
                 stdout.write(stdout_buffer)
                 stderr.write(stderr_buffer)
 
@@ -337,6 +337,7 @@ def get_run_func(config):
                         'elapsedTime': elapsedTime
                     }
                 else:
+                    # otherwise we're doing multi-track and processing multiple commands so append to the array
                     prog_status.append({
                         'exitCode': exit_code,
                         'elapsedTime': elapsedTime
