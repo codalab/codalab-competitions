@@ -53,7 +53,7 @@ var Competition;
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
                     row.html('<span class="glyphicon glyphicon-ok"></span>');
-                    $('#user_results button.leaderBoardRemove').each(function(index) {
+                    $('#user_results .leaderboard_button.leaderBoardRemove').each(function(index) {
                         decorateLeaderboardButton($(this), false);
                     });
                 } else {
@@ -469,7 +469,7 @@ var Competition;
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {
-                var btn = elem.find('button');
+                var btn = elem.find('.leaderboard_button');
                 btn.removeClass('hide');
                 var submitted = $(nTr).find('.status').hasClass('submitted');
                 var competition = $('#competitionId').val();
@@ -480,7 +480,7 @@ var Competition;
             }
             else {
                 var status = $.trim($(nTr).find('.statusName').html());
-                var btn = elem.find('button').addClass('hide');
+                var btn = elem.find('.leaderboard_button').addClass('hide');
                 if (status === 'Submitting' || status === 'Submitted' || status === 'Running') {
                     btn.removeClass('hide');
                     btn.text('Refresh status');
