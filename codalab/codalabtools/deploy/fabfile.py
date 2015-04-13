@@ -534,3 +534,10 @@ def get_database_dump():
 
     backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
     get('/tmp/%s' % dump_file_name, backup_dir)
+
+@task
+def update_compute_worker():
+    cd('codalab')
+    run('git pull --rebase')
+    sudo('stop codalab-compute-worker')
+    sudo('start codalab-compute-worker')
