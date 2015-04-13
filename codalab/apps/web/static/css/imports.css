@@ -7547,6 +7547,11 @@ input[type="checkbox"] {
   font-size: 14px;
   margin-top: 0;
 }
+#worksheet_content .worksheet-name .worksheet-permission {
+  text-indent: 65px;
+  font-size: 12px;
+  margin-top: 0;
+}
 #worksheet_content .header-row hr {
   margin-bottom: 30px;
 }
