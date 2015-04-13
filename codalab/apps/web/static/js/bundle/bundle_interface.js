@@ -304,6 +304,47 @@ var Bundle = React.createClass({
             )
 
         }
+        group_permissions_html = ''
+        if(this.state.edit_permission){
+            if(this.state.group_permissions.length){
+                group_permissions_rows = []
+                this.state.group_permissions.forEach(function(group, i){
+                    group_permissions_rows.push(
+                        <tr>
+                            <td>
+                                {group.group_name}
+                            </td>
+                            <td>
+                               {group.group_uuid}
+                            </td>
+                            <td>
+                               {group.permission_str}
+                            </td>
+                        </tr>
+                    );
+                }) // end of foreach
+                group_permissions_html = (
+                            <div className="row">
+                                <div className="col-sm-10">
+                                    <div className="dependencies-table">
+                                        <table id="dependencies_table" >
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>UUID</th>
+                                                    <th>Permissions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {group_permissions_rows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                )
+            } // end of if group_permissions.len
+        }// end of if edit.permission
         /// ------------------------------------------------------------------
 
         return (
@@ -386,6 +427,11 @@ var Bundle = React.createClass({
 
                 {host_worksheets_html ? <h3>Host Worksheets</h3> : null}
                 {host_worksheets_html ? host_worksheets_html : null}
+
+                {group_permissions_html ? <h3>Group Permissions</h3> : null}
+                {group_permissions_html ? group_permissions_html : null}
+
+
 
             </div>
         );
