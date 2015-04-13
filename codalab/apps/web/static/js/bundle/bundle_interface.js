@@ -306,7 +306,6 @@ var Bundle = React.createClass({
         }
         /// ------------------------------------------------------------------
 
-
         return (
             <div className="bundle-tile">
                 <div className="bundle-header">
@@ -315,6 +314,7 @@ var Bundle = React.createClass({
                             <h2 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
                                 {this.state.metadata.name}
                             </h2>
+                            <em> Owner: {this.state.owner_name}</em>
                         </div>
                         <div className="col-sm-6">
                             <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
@@ -345,6 +345,14 @@ var Bundle = React.createClass({
                                     {this.state.command || "<none>"}
                                 </td>
                             </tr>
+                             <tr>
+                                <th width="33%">
+                                    Data Hash
+                                </th>
+                                <td>
+                                    {this.state.data_hash || "<none>"}
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 <h3>
@@ -354,6 +362,7 @@ var Bundle = React.createClass({
                 </h3>
                 <div className="row">
                     <div className="col-sm-6">
+                        <em>Permission: {this.state.permission_str}</em>
                         <div className="metadata-table">
                             <table id="metadata_table" className={tableClassName}>
                                 <tbody>
@@ -414,6 +423,8 @@ var BundleAttr = React.createClass({
     }
 });
 
+
+
 var FileBrowser = React.createClass({
     render: function() {
         var items = [];
@@ -466,6 +477,8 @@ var FileBrowser = React.createClass({
             );
     }
 });
+
+
 
 var FileBrowserBreadCrumbs = React.createClass({
     breadCrumbClicked: function(path) {

@@ -70,6 +70,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             bundle_info['metadata'] = metadata
 
             return bundle_info
+
         def head_target(self, target, maxlines=100):
             return self.client.head_target(target, maxlines)
 
