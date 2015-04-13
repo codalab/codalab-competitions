@@ -135,7 +135,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
-        if (bundle_info is not None) and (depth < max_depth):
+        if (bundle_info is not None) and isinstance(bundle_info, dict) and (depth < max_depth):
             for (k, v) in bundle_info.items():
                 if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
                     if isinstance(v, str):
