@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load codalab_tags %}
 {% load tz %}
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
@@ -89,9 +90,16 @@
         <ul class="nav nav-tabs" id="competition_tab_nav">
             {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
+                    {# Put this before participate tab #}
                     <li class=""><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
                 {% endif %}
                 <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
+                {% if tab.codename == "results" %}
+                    {# Put this after results tab #}
+                    {% if competition.allow_public_submissions %}
+                    <li class=""><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
+                    {% endif %}
+                {% endif %}
             {% endfor %}
         </ul>
         <div class="tab-content">
@@ -157,23 +165,87 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="tab-pane" id="public_submissions">
+                    <div class="tab-inner">
+                        {% if not public_submissions %}
+                            <i>No submissions have been made public!</i>
+                        {% else %}
+                            <h3>Filters</h3>
+                            <p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
+
+                            <table id="public_submission_table" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <td width="40"><b>#</b></td>
+                                        <td width="125"><b>User</b></td>
+                                        <td width="125"><b>Date</b></td>
+                                        <td><b>Description</b></td>
+                                        <td width="250"><b>Downloads</b></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in public_submissions %}
+                                    <tr data-on-leaderboard="{% if submission.leaderboard_entry_result.count %}true{% endif %}">
+                                        <td>{{ forloop.counter }}</td>
+                                        <td><b>{{ submission.participant.user.username }}</b></td>
+                                        <td>{{ submission.submitted_at|date:"M d Y" }}</td>
+                                        <td>{{ submission.description|default_if_none:""|escape }}</td>
+                                        <td>
+                                            <button class="view_download_btn btn btn-default"
+                                                    data-submission-id="{{ submission.pk }}"
+                                                    data-toggle="modal"
+                                                    data-target="#public-submission-modal">
+                                                View downloads
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
         </div>
     </section>
+</div>
+
+<div class="modal fade" id="public-submission-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Submission details</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="download-list list-unstyled">
+                    <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
+                    <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                    <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
+                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
+                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">View scoring error log</a></li>
+                    {% if not submission.phase.is_scoring_only %}
+                        <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
 {% block jsincludes %}
     <script>
         $('#view_all_phases').on('click', function(e){
-            $('#competition_tab_nav a[href="#phases"]').tab('show')
+            $('#competition_tab_nav a[href="#phases"]').tab('show');
         });
         $(function(){
             var show_location = function(hash) {
                 var main_tab = hash.split('-')[0];
                 var sub_tab = hash.split('-')[1];
-
-                console.log('main_tab: ' + main_tab + ' sub_tab: ' + sub_tab);
 
                 $('#competition_tab_nav a[href="' + main_tab + '"]').tab('show');
                 $(main_tab + ' .innertabs a[href="' + main_tab + '-' + sub_tab + '"]').tab('show');
@@ -201,6 +273,32 @@
 
             $('#learn_the_details .col-sm-9 a').on('click', function() {
                 show_location('#' + $(this).attr('href').split('#')[1]);
+            });
+
+            /******************************************************************
+            Public submissions
+             *****************************************************************/
+            // Handle modal to download public submissions
+            $(".view_download_btn").click(function() {
+                var submission_id = $(this).attr('data-submission-id');
+                var regex = /\/my\/competition\/submission\/\d+\//g;
+                var download_list = $('#public-submission-modal .download-list');
+
+                // Replace id in links with new submission id
+                download_list.html(download_list.html().replace(regex, '/my/competition/submission/' + submission_id + '/'));
+            });
+
+            // Filter not on leaderboard
+            $("#public_submission_filter_only_leaderboard").change(function() {
+                if($(this).prop('checked')) {
+                    $("#public_submission_table tbody tr").each(function() {
+                        if(!$(this).attr('data-on-leaderboard')) {
+                            $(this).hide();
+                        }
+                    });
+                } else {
+                    $("#public_submission_table tbody tr").show();
+                }
             });
         });
     </script>
