@@ -11,6 +11,9 @@ User = get_user_model()
 class Forum(models.Model):
     competition = models.OneToOneField(Competition, unique=True, related_name="forum")
 
+    def threads_in_reverse_chronological(self):
+        return self.threads.all().annotate(latest_post=models.Max('posts__date_created')).order_by('-latest_post')
+
 
 class Thread(models.Model):
     forum = models.ForeignKey(Forum, related_name="threads")
@@ -22,6 +25,10 @@ class Thread(models.Model):
         if not self.id:
             self.date_created = datetime.datetime.today()
         return super(Thread, self).save(*args, **kwargs)
+
+    @property
+    def latest_post_date(self):
+        return self.posts.latest('date_created').date_created
 
 
 class Post(models.Model):

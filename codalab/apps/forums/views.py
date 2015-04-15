@@ -90,3 +90,4 @@ class ThreadDetailView(ForumBaseMixin, DetailView):
     model = Thread
     template_name = "forums/thread_detail.html"
     pk_url_kwarg = 'thread_pk'
+
