@@ -1,3 +1,4 @@
+{% load codalab_tags %}
     <div id="submission_details_template" class="hide">
         <table>
             <tr class="trDetails">
@@ -33,7 +34,7 @@
                                             <li><a href="/my/competition/submission/_/detailed_results" target="_blank">View detailed results</a></li>
                                         {% endif %}
                                             <li><a href="/my/competition/submission/_/output.zip">Download evaluation output from scoring step</a></li>
-                                        {% if user.id == competition.creator.id %}
+                                        {% if user.id == phase.competition.creator.id %}
                                             <li><a href="/my/competition/submission/_/private_output.zip">Download private output from scoring step</a></li>
                                         {% endif %}
                                     {% endif %}
@@ -41,7 +42,10 @@
                             </div>
                             <div class="col-sm-3 preloader-handler"></div>
                             <div class="col-sm-3">
-                                <button class="button btn btn-default pull-right hide"></button>
+                                <button class="leaderboard_button btn btn-default pull-right hide"></button><br>
+                                {% if phase.competition.allow_public_submissions %}
+                                <button class="public_link btn btn-danger pull-right">Make your submission public</button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
