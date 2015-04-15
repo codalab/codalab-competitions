@@ -1,0 +1,7 @@
+.forum-panel {
+    margin-top: 20px;
+    padding: 20px;
+}
+.forum-panel .table tbody tr {
+    background-color: #FFF;
+}

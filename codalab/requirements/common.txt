@@ -37,3 +37,5 @@ South==0.8.4
 SQLAlchemy==0.9.7
 watchdog==0.8.1
 wsgiref==0.1.2
+django-simple-captcha==0.4.5
+django-bootstrap-form==3.2

@@ -199,6 +199,8 @@ class Base(Settings):
         'compressor',
         'django_js_reverse',
         'guardian',
+        'captcha',
+        'bootstrapform',
 
         # Storage API
         'storages',
@@ -216,6 +218,7 @@ class Base(Settings):
         'apps.web',
         'apps.health',
         'apps.analytics',
+        'apps.forums',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -271,6 +274,10 @@ class Base(Settings):
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
         ),
+    }
+
+    SOUTH_MIGRATION_MODULES = {
+        'captcha': 'captcha.south_migrations',
     }
 
     #HAYSTACK_CONNECTIONS = {

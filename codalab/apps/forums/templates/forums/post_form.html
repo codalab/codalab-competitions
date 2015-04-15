@@ -1,0 +1,18 @@
+{% extends 'forums/base_forum.html' %}
+
+{% load bootstrap %}
+
+{% block content %}
+{#    {% if form.errors %}#}
+{#        {{ form.errors }}#}
+{#    {% endif %}#}
+
+    <form action="." method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+{% endblock content %}
