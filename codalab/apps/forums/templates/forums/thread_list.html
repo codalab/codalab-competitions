@@ -24,12 +24,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for thread in forum.threads_in_reverse_chronological %}
+            {% for thread in forum.threads.all %}
                 <tr>
                     <td><a href="{% url 'forum_thread_detail' forum_pk=forum.pk thread_pk=thread.pk %}">{{ thread.title }}</a></td>
                     <td>{{ thread.started_by }}</td>
                     <td>{{ thread.date_created|date:"M d, Y" }}</td>
-                    <td>{{ thread.latest_post_date|timesince }}</td> {# date:"g:iA M d" #}
+                    <td>{{ thread.last_post_date|timesince }}</td> {# date:"g:iA M d" #}
                     <td>{{ thread.posts.count }}</td>
                 </tr>
             {% endfor %}

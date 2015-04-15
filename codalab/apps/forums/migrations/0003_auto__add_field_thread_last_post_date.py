@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Thread.content'
-        db.add_column(u'forums_thread', 'content',
-                      self.gf('django.db.models.fields.TextField')(default=''),
+        # Adding field 'Thread.last_post_date'
+        db.add_column(u'forums_thread', 'last_post_date',
+                      self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Thread.content'
-        db.delete_column(u'forums_thread', 'content')
+        # Deleting field 'Thread.last_post_date'
+        db.delete_column(u'forums_thread', 'last_post_date')
 
 
     models = {
@@ -83,10 +83,10 @@ class Migration(SchemaMigration):
         },
         u'forums.thread': {
             'Meta': {'object_name': 'Thread'},
-            'content': ('django.db.models.fields.TextField', [], {}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {}),
             'forum': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'threads'", 'to': u"orm['forums.Forum']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_post_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'started_by': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },

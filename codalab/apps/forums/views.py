@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -13,16 +15,6 @@ from .models import Forum, Thread, Post
 
 User = get_user_model()
 
-
-# def forum_detail(request, competition_pk):
-#     competition = get_object_or_404(Competition, pk=competition_pk)
-#     return render(request, "forums/thread_list.html", {
-#         'competition': competition,
-#     })
-#
-#
-# def thread_detail(request, thread_pk):
-#     return render(request, "forums/base_forum.html", {})
 
 class ForumBaseMixin(object):
 
@@ -49,8 +41,6 @@ class ForumDetailView(DetailView, ForumBaseMixin):
 class RedirectToThreadMixin(object):
 
     def get_success_url(self):
-        # if self.thread:
-        #     thread_pk = self.thread.pk
         return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.thread.pk })
 
 
@@ -64,6 +54,9 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, CreateView):
         self.post.thread = self.thread
         self.post.posted_by = self.request.user
         self.post.save()
+
+        self.thread.last_post_date = datetime.datetime.now()
+        self.thread.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -76,6 +69,7 @@ class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, CreateView):
         self.thread = form.save(commit=False)
         self.thread.forum = self.forum
         self.thread.started_by = self.request.user
+        self.thread.last_post_date = datetime.datetime.now()
         self.thread.save()
 
         # Make first post in the thread with the content
