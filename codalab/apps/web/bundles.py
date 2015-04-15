@@ -15,6 +15,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from codalab.common import UsageError, PermissionError
     from codalab.lib import worksheet_util, bundle_cli, metadata_util
+    from codalab.objects.permission import permission_str, group_permissions_str
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -25,7 +26,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         get_bundle_subclass
     )
 
-
     def _call_with_retries(f, retry_count=0):
         try:
             return f()
@@ -34,7 +34,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 sleep(0.1)
                 return _call_with_retries(f, retry_count=retry_count+1)
             raise e
-
 
     class BundleService():
         def __init__(self, user=None):
@@ -45,7 +44,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.search())
 
         def get_bundle_info(self, uuid):
-            bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid))
+            ## def get_bundle_infos(self, uuids, get_children=False, get_host_worksheets=False, get_permissions=False):
+            bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid, True, True, True))
+            # format permission data
+            bundle_info['permission_str'] = permission_str(bundle_info['permission'])
+            # format each groups as well
+            for group_permission in bundle_info['group_permissions']:
+                group_permission['permission_str'] = permission_str(group_permission['permission'])
 
             metadata = bundle_info['metadata']
 
@@ -65,6 +70,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             bundle_info['metadata'] = metadata
 
             return bundle_info
+
         def head_target(self, target, maxlines=100):
             return self.client.head_target(target, maxlines)
 
@@ -97,6 +103,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             worksheet_info['edit_permission'] = False
             if worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL:
                 worksheet_info['edit_permission'] = True
+
+            worksheet_info['permission_str'] = permission_str(worksheet_info['permission'])
+            # format each groups as well
+            for group_permission in worksheet_info['group_permissions']:
+                group_permission['permission_str'] = permission_str(group_permission['permission'])
 
 
             if interpreted:

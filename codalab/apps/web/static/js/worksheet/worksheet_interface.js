@@ -193,6 +193,7 @@ var Worksheet = React.createClass({
         ws_obj.fetch({
             success: function(data){
                 console.log("fetch_and_update success");
+                // console.log("%c--------------------------------------------------------------", "color: Green; font-size:15px;");
                 if(this.isMounted()){
                     this.refs.list.setState({worksheet: ws_obj.getState()});
                 }
@@ -343,6 +344,7 @@ var Worksheet = React.createClass({
                                         <div className="worksheet-name">
                                             <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                                             <div className="worksheet-author">{ws_obj.state.owner}</div>
+                                            <div className="worksheet-permission">Permission: {ws_obj.state.permission_str}</div>
                                         </div>
                                     </div>
                                     <div className="col-sm-6">

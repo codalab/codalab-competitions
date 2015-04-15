@@ -147,7 +147,7 @@ var WorksheetItemList = React.createClass({
             var distanceFromTopViewPort = nodePos.top - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
-            console.log('scrolling');
+            // console.log('scrolling');
             if(distanceFromTopViewPort > viewportHeight/3){
                 $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
@@ -267,7 +267,7 @@ var WorksheetItemList = React.createClass({
         var newIndex = oldIndex + delta;
         if(0 <= newIndex && newIndex < this.state.worksheet.items.length){
             ws_obj.moveItem(oldIndex, newIndex);
-            this.setState({focusIndex: newIndex}, this.scrollToItem(newIndex));
+            this.setState({focusIndex: newIndex, worksheet: ws_obj.getState(),}, this.scrollToItem(newIndex));
             // wrap save in a debouce to slow it down
             // will happen after they stop moving items
             this.slowSave();
@@ -344,7 +344,7 @@ var WorksheetItemList = React.createClass({
             items_display = worksheet_items
         }
 
-        return <span> {items_display} </span>
+        return <div id="worksheet_items">{items_display}</div>
     }
 });
 
@@ -474,6 +474,19 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
                         updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                />
+            break;
+        case 'search':
+            return <SearchBundle
+                        key={i}
+                        index={i}
+                        item={item}
+                        ref={ref}
+                        focused={focused}
+                        editing={editing}
+                        canEdit={canEdit}
+                        setFocus={setFocus}
+                        checkboxEnabled={checkboxEnabled}
                 />
             break;
         default:  // something new or something we dont yet handle

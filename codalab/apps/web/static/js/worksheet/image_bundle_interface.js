@@ -12,7 +12,7 @@ var ImageBundle = React.createClass({
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
-        var src= "data:image/png;base64," + this.state.interpreted
+        var src= "data:image/png;base64," + this.props.item.state.interpreted;
         var styles = {};
         if(this.state.properties){
             if(this.state.properties.hasOwnProperty('height')){

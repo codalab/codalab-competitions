@@ -107,7 +107,9 @@ var WorksheetList = React.createClass({
     },
     goToFocusedWorksheet: function(){
         // navigate to the worksheet details page for the focused worksheet
-        window.open(this.refs['ws' + this.state.focusIndex].props.details.uuid);
+        var ws = this.refs['ws' + this.state.focusIndex]
+        var ws_url = '/worksheets/' + ws.props.details.uuid + '/';
+        window.open(ws_url);
     },
     toggleMyWorksheets: function(){
         // filter by MY worksheets?

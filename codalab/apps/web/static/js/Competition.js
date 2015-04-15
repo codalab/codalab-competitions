@@ -53,7 +53,7 @@ var Competition;
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
                     row.html('<span class="glyphicon glyphicon-ok"></span>');
-                    $('#user_results button.leaderBoardRemove').each(function(index) {
+                    $('#user_results .leaderboard_button.leaderBoardRemove').each(function(index) {
                         decorateLeaderboardButton($(this), false);
                     });
                 } else {
@@ -398,6 +398,27 @@ var Competition;
         return subStatus;
     };
 
+    Competition.toggleSubmissionPublic = function(event) {
+        event.preventDefault();
+
+        // Remove focus from link
+        this.blur();
+
+        var submissionId = $(this).attr('submission-id');
+        var linkElement = $(this);
+
+        $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
+            .success(function(data) {
+                var isPublic = data == 'True' ? 'private':'public';
+                linkElement.html('Make your submission ' + isPublic);
+            })
+            .error(function() {
+                alert('Error making submission public, is your Internet connection working?')
+            });
+
+        return false;
+    };
+
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
         if ($(obj).hasClass('glyphicon-minus')) {
@@ -411,6 +432,7 @@ var Competition;
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+
             if ($(nTr).attr('data-description') !== undefined) {
                 elem.find('.submission_description').html('<b>Description:</b> <br><pre>' + $(nTr).attr('data-description') + '</pre>');
             }
@@ -438,10 +460,16 @@ var Competition;
             if ($(nTr).attr('data-exception')) {
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
             }
+
+            var isPublic = $(nTr).attr('data-is-public') ? 'private':'public';
+            elem.find('.public_link').html('Make your submission ' + isPublic);
+            elem.find('.public_link').click(Competition.toggleSubmissionPublic);
+            elem.find('.public_link').attr('submission-id', nTr.id);
+
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {
-                var btn = elem.find('button');
+                var btn = elem.find('.leaderboard_button');
                 btn.removeClass('hide');
                 var submitted = $(nTr).find('.status').hasClass('submitted');
                 var competition = $('#competitionId').val();
@@ -452,7 +480,7 @@ var Competition;
             }
             else {
                 var status = $.trim($(nTr).find('.statusName').html());
-                var btn = elem.find('button').addClass('hide');
+                var btn = elem.find('.leaderboard_button').addClass('hide');
                 if (status === 'Submitting' || status === 'Submitted' || status === 'Running') {
                     btn.removeClass('hide');
                     btn.text('Refresh status');
