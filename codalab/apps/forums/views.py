@@ -36,7 +36,7 @@ class ForumBaseMixin(object):
     def get_context_data(self, **kwargs):
         context = super(ForumBaseMixin, self).get_context_data(**kwargs)
         context['forum'] = self.forum
-        context['thread'] = self.thread if self.thread else None
+        context['thread'] = self.thread if hasattr(self, 'thread') else None
         return context
 
 

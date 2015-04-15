@@ -7,14 +7,14 @@ from .models import Thread, Post
 
 class ThreadForm(forms.ModelForm):
     content = forms.CharField(widget=forms.Textarea)
-    captcha = CaptchaField()
+    #captcha = CaptchaField()
 
     class Meta:
         model = Thread
         fields = ('title',)
 
 class PostForm(forms.ModelForm):
-    captcha = CaptchaField()
+    #captcha = CaptchaField()
 
     class Meta:
         model = Post
