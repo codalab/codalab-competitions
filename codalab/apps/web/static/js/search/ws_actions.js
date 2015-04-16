@@ -26,99 +26,6 @@ var WorksheetActions =  function() {
             //     minimumInputLength: min length before doin get for search choices
             // }
             // ------------------------------------
-            'add': {
-                helpText: formatHelp('add <bundle keywords>', 'add bundle to this worksheet'),
-                minimumInputLength: 1,
-                edit_enabled: true,
-                /*searchChoice: function(input, term){
-                    return {
-                        id: term,
-                        text: bundleKeywordsHelp + ': ' + term
-                    };
-                },*/
-                queryfn: function(query){
-                    var get_data = {
-                        search_string: query.term
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/bundles/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR){
-                            // select2 wants its options in a certain format, so let's make a new
-                            // list it will like
-                            query.callback({
-                                results: ws_actions.AjaxBundleDictToOptions(data)
-                            });
-                        },
-                        error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                },
-                executefn: function(params, command, callback){
-                    var bundle_uuid = params[1];
-                    var worksheet_uuid = ws_obj.state.uuid;
-                    if(params.length === 2 && params[0] === 'add'){
-                        var postdata = {
-                            'bundle_uuid': bundle_uuid,
-                            'worksheet_uuid': worksheet_uuid
-                        };
-                        $.ajax({
-                            type:'POST',
-                            cache: false,
-                            url:'/api/worksheets/add/',
-                            contentType:"application/json; charset=utf-8",
-                            dataType: 'json',
-                            data: JSON.stringify(postdata),
-                            success: function(data, status, jqXHR){
-                                callback();
-                            },
-                            error: function(jqHXR, status, error){
-                                console.error("error: " + status + ': ' + error);
-                            }
-                        });
-                    }else {
-                        alert('invalid syntax');
-                    }
-                }
-            }, // end off add
-            'info': {
-                helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
-                minimumInputLength: 1,
-                edit_enabled: false,
-                /*searchChoice: function(input, term){
-                    return {
-                        id: term,
-                        text: bundleKeywordsHelp + ': ' + term
-                    };
-                },*/
-                queryfn: function(query){
-                    var get_data = {
-                        search_string: query.term
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/bundles/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR, callback){
-                            // select2 wants its options in a certain format, so let's make a new
-                            // list it will like
-                            query.callback({
-                                results: ws_actions.AjaxBundleDictToOptions(data)
-                            });
-                        },
-                        error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                },
-                executefn: function(params, command, callback){
-                    window.location = '/bundles/' + params[1] + '/';
-                },
-            }, // end off info
             'work': {
                 helpText: formatHelp('work <worksheet>', 'go to worksheet'),
                 minimumInputLength: 0,
@@ -187,7 +94,139 @@ var WorksheetActions =  function() {
                         alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of new
+            }, // end of new
+
+            'info': {
+                helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
+                minimumInputLength: 1,
+                edit_enabled: false,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxBundleDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    window.location = '/bundles/' + params[1] + '/';
+                },
+            }, // end off info
+
+            'add': {
+                helpText: formatHelp('add <bundle>', 'add bundle to this worksheet'),
+                minimumInputLength: 1,
+                edit_enabled: true,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxBundleDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    var bundle_uuid = params[1];
+                    var worksheet_uuid = ws_obj.state.uuid;
+                    if(params.length === 2 && params[0] === 'add'){
+                        var postdata = {
+                            'bundle_uuid': bundle_uuid,
+                            'worksheet_uuid': worksheet_uuid
+                        };
+                        $.ajax({
+                            type:'POST',
+                            cache: false,
+                            url:'/api/worksheets/add/',
+                            contentType:"application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify(postdata),
+                            success: function(data, status, jqXHR){
+                                callback();
+                            },
+                            error: function(jqHXR, status, error){
+                                console.error("error: " + status + ': ' + error);
+                            }
+                        });
+                    }else {
+                        alert('invalid syntax');
+                    }
+                }
+            }, // end off add
+
+            'upload': {
+                helpText: formatHelp('upload <url>', 'upload contents of URL as a dataset'),
+                minimumInputLength: 0,
+                edit_enabled: true,
+                searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: 'URL (http://...): ' + term
+                    };
+                },
+                executefn: function(params, command, callback){
+                    if(params.length === 2 && params[0] === 'upload'){
+                        worksheet_uuid = ws_obj.state.uuid;
+                        var postdata = {
+                            'worksheet_uuid': worksheet_uuid,
+                            'url': params[1]
+                        };
+                        $.ajax({
+                            type:'POST',
+                            cache: false,
+                            url:'/api/bundles/upload_url/',
+                            contentType:"application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify(postdata),
+                            success: function(data, status, jqXHR){
+                                callback();
+                            },
+                            error: function(jqHXR, status, error){
+                                console.error(status + ': ' + error);
+                            }
+                        });
+                    }else {
+                        alert('invalid syntax');
+                    }
+                }, // end of executefn
+            }, // end of upload
             'run': {
                 // TODO: support run targets
                 helpText: formatHelp('run <key>:<bundle> ... \'<command>\'', 'create a run bundle'),
@@ -286,31 +325,36 @@ var WorksheetActions =  function() {
                     });
                 },
             }, // end of run
-            'upload': {
-                helpText: formatHelp('upload <url>', 'upload contents of URL as a dataset'),
+            'cl': {
+                helpText: formatHelp('cl <command>', 'run CLI command'),
                 minimumInputLength: 0,
-                edit_enabled: true,
-                searchChoice: function(input, term){
+                edit_enabled: false,
+                searchChoice: function(input, term) {
                     return {
                         id: term,
-                        text: 'URL (http://...): ' + term
+                        text: 'Command: ' + term
                     };
                 },
                 executefn: function(params, command, callback){
-                    if(params.length === 2 && params[0] === 'upload'){
+                    if(params.length === 2 && params[0] === 'cl') {
                         worksheet_uuid = ws_obj.state.uuid;
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
-                            'url': params[1]
+                            'command': params[1]
                         };
                         $.ajax({
                             type:'POST',
                             cache: false,
-                            url:'/api/bundles/upload_url/',
+                            url:'/api/worksheets/command/',
                             contentType:"application/json; charset=utf-8",
                             dataType: 'json',
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
+                                console.log('===== Output of command: ' + params[1]);
+                                if (data.data.exception) alert(data.data.exception);
+                                if (data.data.stdout) alert(data.data.stdout);
+                                if (data.data.stderr) console.log(data.data.stderr);
+                                console.log('=====');
                                 callback();
                             },
                             error: function(jqHXR, status, error){
@@ -321,7 +365,7 @@ var WorksheetActions =  function() {
                         alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of upload
+            }, // end of upload
         };// end of commands
     }// endof worksheetActions() init
 
