@@ -9,6 +9,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView, CreateView
 
 from apps.web.models import Competition
+from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
 from .models import Forum, Thread, Post
 
@@ -44,7 +45,7 @@ class RedirectToThreadMixin(object):
         return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.thread.pk })
 
 
-class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, CreateView):
+class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
     model = Post
     template_name = "forums/post_form.html"
     form_class = PostForm
@@ -60,7 +61,7 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, CreateView):
+class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
     model = Thread
     template_name = "forums/post_form.html"
     form_class = ThreadForm
