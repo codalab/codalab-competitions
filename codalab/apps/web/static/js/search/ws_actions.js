@@ -1,5 +1,11 @@
 // Singleton class to manage actions triggered by the general search bar
 var WorksheetActions =  function() {
+    function formatHelp(usage, description) {
+      return usage + ' : ' + description;
+    }
+    var bundleKeywordsHelp = 'Bundle keywords (example: test name=nlp.* type=run state=running .mine .last ...)';
+    var worksheetKeywordsHelp = 'Worksheet keywords (example: test name=nlp.* .mine .last ...)';
+
     function WorksheetActions() {
         this.commands = {
             // Dictionary of terms that can be entered into the search bar
@@ -21,9 +27,15 @@ var WorksheetActions =  function() {
             // }
             // ------------------------------------
             'add': {
-                helpText: 'add - add a bundle to this worksheet name or uuid',
-                minimumInputLength: 3,
+                helpText: formatHelp('add <bundle keywords>', 'add bundle to this worksheet'),
+                minimumInputLength: 1,
                 edit_enabled: true,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -68,14 +80,20 @@ var WorksheetActions =  function() {
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "wnew [worksheetname]"');
+                        alert('invalid syntax');
                     }
                 }
-            },// end off add
+            }, // end off add
             'info': {
-                helpText: 'info - go to a bundle\'s info page',
-                minimumInputLength: 3,
+                helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
+                minimumInputLength: 1,
                 edit_enabled: false,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -102,9 +120,15 @@ var WorksheetActions =  function() {
                 },
             }, // end off info
             'work': {
-                helpText: 'work - go to a worksheet',
-                minimumInputLength: 1,
+                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
+                minimumInputLength: 0,
                 edit_enabled: false,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: worksheetKeywordsHelp + ': ' + term
+                    };
+                },*/
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -130,8 +154,8 @@ var WorksheetActions =  function() {
                     window.location = '/worksheets/' + params[1] + '/';
                 },
             }, // end off work
-            'wnew': {
-                helpText: 'wnew - add and go to a new worksheet by naming it',
+            'new': {
+                helpText: formatHelp('new <name>', 'create new worksheet with given name'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 searchChoice: function(input, term){
@@ -141,7 +165,7 @@ var WorksheetActions =  function() {
                     };
                 },
                 executefn: function(params, command, callback){
-                    if(params.length === 2 && params[0] === 'wnew'){
+                    if(params.length === 2 && params[0] === 'new'){
                         var postdata = {
                             'name': params[1]
                         };
@@ -160,12 +184,13 @@ var WorksheetActions =  function() {
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "wnew [worksheetname]"');
+                        alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of wnew
+            },// end of new
             'run': {
-                helpText: 'run - Create a run bundle ',
+                // TODO: support run targets
+                helpText: formatHelp('run <key>:<bundle> ... \'<command>\'', 'create a run bundle'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 maximumSelectionSize: function(){
@@ -187,7 +212,7 @@ var WorksheetActions =  function() {
                     if(term.lastIndexOf(":", 0) === -1){
                         return {
                             id: term,
-                            text: 'target_spec  [<key>:](<uuid>|<name>)  ' + term
+                            text: 'Dependencies (<key>:<bundle>) ' + term
                         };
                     }
                 },
@@ -262,13 +287,13 @@ var WorksheetActions =  function() {
                 },
             }, // end of run
             'upload': {
-                helpText: 'upload - upload a dataset via a url',
+                helpText: formatHelp('upload <url>', 'upload contents of URL as a dataset'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
-                        text: 'dataset url: ' + term
+                        text: 'URL (http://...): ' + term
                     };
                 },
                 executefn: function(params, command, callback){
@@ -293,10 +318,10 @@ var WorksheetActions =  function() {
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "upload http://example.com/file"');
+                        alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of wnew
+            },// end of upload
         };// end of commands
     }// endof worksheetActions() init
 
@@ -307,24 +332,13 @@ var WorksheetActions =  function() {
         can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
         var commandDict = this.commands;
         var commandList = [];
-        for(var key in commandDict){
-            if(can_edit){
-                //push everthing they have access
+        for(var key in commandDict) {
+            if (can_edit || !commandDict[key].edit_enabled) {
                 commandList.push({
                     'id': key,
                     'text': commandDict[key].helpText
                 });
-            }else{
-                //restrict to only non edit_endabled actions.
-                if(commandDict[key].edit_enabled){
-                    //pass
-                }else{
-                    commandList.push({
-                        'id': key,
-                        'text': commandDict[key].helpText
-                    });
-                }
-            }// end of if canedit
+            }
         }
         return commandList;
     }; // end of getCommands
