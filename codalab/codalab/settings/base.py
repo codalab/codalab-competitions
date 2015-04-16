@@ -47,7 +47,7 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = ''
 
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'codalab.test_runner.CodalabTestRunner'
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
