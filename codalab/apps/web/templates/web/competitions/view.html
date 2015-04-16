@@ -296,10 +296,17 @@
                             $(this).hide();
                         }
                     });
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', true);
                 } else {
                     $("#public_submission_table tbody tr").show();
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', false);
                 }
             });
+
+            var only_show_public_leaderboard_submissions = window.localStorage.getItem('only_show_public_leaderboard_submissions') == "true";
+            $("#public_submission_filter_only_leaderboard").attr('checked', only_show_public_leaderboard_submissions);
+            // Call change to force the change on page reload
+            $("#public_submission_filter_only_leaderboard").change();
         });
     </script>
 {% endblock %}
