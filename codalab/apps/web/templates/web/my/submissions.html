@@ -74,7 +74,8 @@
                         data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
                         data-team-name="{{ submission_info.team_name|default_if_none:""|escape }}"
                         data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
-                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}">>
+                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}"
+                        data-is-public="{% if submission_info.is_public %}True{% endif %}">
                         {% for column in columns %}
                             {% if column.name == 'filename' %}
                                 <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>

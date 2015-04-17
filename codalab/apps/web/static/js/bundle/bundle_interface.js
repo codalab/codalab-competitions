@@ -7,6 +7,8 @@ var Bundle = React.createClass({
             "hard_dependencies": [],
             "state": "ready",
             "dependencies": [],
+            "host_worksheets": [],
+            "group_permissions": [],
             "command": null,
             "bundle_type": "",
             "metadata": {},
@@ -14,7 +16,9 @@ var Bundle = React.createClass({
             "fileBrowserData": "",
             "currentWorkingDirectory": "",
             "editing": false,
-            "edit_permission": false
+            "edit_permission": false,
+            "permission": 0,
+            "permission_str": ''
         };
     },
     toggleEditing: function(){
@@ -162,31 +166,59 @@ var Bundle = React.createClass({
         /// ------------------------------------------------------------------
         var dependencies_table = []
         var dep_bundle_url = ''
-        this.state.dependencies.forEach(function(dep, i){
-            dep_bundle_url = "/bundles/" + dep.parent_uuid;
-            dependencies_table.push(
-                <tr>
-                    <td>
-                        <a href={dep_bundle_url}>{dep.parent_uuid}</a>
-                    </td>
-                    <td>
-                        {dep.child_path}
-                    </td>
-                </tr>
-                )
-        })
-        if(dependencies_table.length == 0){
-            dependencies_table.push(
-                <tr>
-                    <td>
-                        None
-                    </td>
-                    <td>
-                        None
-                    </td>
-                </tr>
-                )
-        }
+        var dependencies_html = ''
+        if(this.state.dependencies.length){
+            this.state.dependencies.forEach(function(dep, i){
+                dep_bundle_url = "/bundles/" + dep.parent_uuid;
+                dependencies_table.push(
+                    <tr>
+                        <td>
+                            {dep.child_path}
+                        </td>
+                        <td>
+                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
+                        </td>
+                        <td>
+                            {dep.parent_name}
+                        </td>
+                    </tr>
+                    )
+            }) // end of foreach
+            if(dependencies_table.length == 0){
+                dependencies_table.push(
+                    <tr>
+                        <td>
+                            None
+                        </td>
+                        <td>
+                            None
+                        </td>
+                    </tr>
+                    )
+            }
+
+            dependencies_html = (
+                <div className="row">
+                    <div className="col-sm-10">
+                        <div className="dependencies-table">
+                            <table id="dependencies_table" >
+                                <thead>
+                                    <tr>
+                                        <th>Path</th>
+                                        <th>UUID</th>
+                                        <th>Bundle Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {dependencies_table}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )
+        }// end of this.state.dependencies.length
+
         /// ------------------------------------------------------------------
         var stdout_html = ''
         if(this.state.stdout){
@@ -233,6 +265,88 @@ var Bundle = React.createClass({
                 </button>
             )
         }
+        /// ------------------------------------------------------------------
+        var host_worksheets_html = ''
+        if(this.state.host_worksheets.length){
+            var host_worksheets_url = ''
+            host_worksheets_rows = []
+            this.state.host_worksheets.forEach(function(worksheet, i){
+                host_worksheets_url = "/worksheet/" + worksheet.uuid;
+                host_worksheets_rows.push(
+                    <tr>
+                        <td>
+                            {worksheet.name}
+                        </td>
+                        <td>
+                            <a href={host_worksheets_url}>{worksheet.uuid}</a>
+                        </td>
+                    </tr>
+                );
+            }) // end of foreach
+            host_worksheets_html = (
+                        <div className="row">
+                            <div className="col-sm-10">
+                                <div className="dependencies-table">
+                                    <table id="dependencies_table" >
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>UUID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {host_worksheets_rows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+            )
+
+        }
+        group_permissions_html = ''
+        if(this.state.edit_permission){
+            if(this.state.group_permissions.length){
+                group_permissions_rows = []
+                this.state.group_permissions.forEach(function(group, i){
+                    group_permissions_rows.push(
+                        <tr>
+                            <td>
+                                {group.group_name}
+                            </td>
+                            <td>
+                               {group.group_uuid}
+                            </td>
+                            <td>
+                               {group.permission_str}
+                            </td>
+                        </tr>
+                    );
+                }) // end of foreach
+                group_permissions_html = (
+                            <div className="row">
+                                <div className="col-sm-10">
+                                    <div className="dependencies-table">
+                                        <table id="dependencies_table" >
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>UUID</th>
+                                                    <th>Permissions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {group_permissions_rows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                )
+            } // end of if group_permissions.len
+        }// end of if edit.permission
+        /// ------------------------------------------------------------------
+
         return (
             <div className="bundle-tile">
                 <div className="bundle-header">
@@ -241,6 +355,7 @@ var Bundle = React.createClass({
                             <h2 className="bundle-name bundle-icon-sm bundle-icon-sm-indent">
                                 {this.state.metadata.name}
                             </h2>
+                            <em> Owner: {this.state.owner_name}</em>
                         </div>
                         <div className="col-sm-6">
                             <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
@@ -271,6 +386,14 @@ var Bundle = React.createClass({
                                     {this.state.command || "<none>"}
                                 </td>
                             </tr>
+                             <tr>
+                                <th width="33%">
+                                    Data Hash
+                                </th>
+                                <td>
+                                    {this.state.data_hash || "<none>"}
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 <h3>
@@ -280,6 +403,7 @@ var Bundle = React.createClass({
                 </h3>
                 <div className="row">
                     <div className="col-sm-6">
+                        <em>Permission: {this.state.permission_str}</em>
                         <div className="metadata-table">
                             <table id="metadata_table" className={tableClassName}>
                                 <tbody>
@@ -292,32 +416,22 @@ var Bundle = React.createClass({
                 <div className="bundle-file-view-container">
                     {this.state.fileBrowserData.contents ? fileBrowser : null}
                 </div>
-                <h3>
-                    Dependencies
-                </h3>
-                <div className="row">
-                    <div className="col-sm-10">
-                        <div className="dependencies-table">
-                            <table id="dependencies_table" >
-                                <thead>
-                                    <tr>
-                                        <th>UUID</th>
-                                        <th>Path</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {dependencies_table}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                {dependencies_html ? <h3> Dependencies</h3> : null}
+                {dependencies_html ? dependencies_html : null}
                 <div className="row">
                     <div className="col-sm-10">
                         {stdout_html}
                         {stderr_html}
                     </div>
                 </div>
+
+                {host_worksheets_html ? <h3>Host Worksheets</h3> : null}
+                {host_worksheets_html ? host_worksheets_html : null}
+
+                {group_permissions_html ? <h3>Group Permissions</h3> : null}
+                {group_permissions_html ? group_permissions_html : null}
+
+
 
             </div>
         );
@@ -354,6 +468,8 @@ var BundleAttr = React.createClass({
         }
     }
 });
+
+
 
 var FileBrowser = React.createClass({
     render: function() {
@@ -408,6 +524,8 @@ var FileBrowser = React.createClass({
     }
 });
 
+
+
 var FileBrowserBreadCrumbs = React.createClass({
     breadCrumbClicked: function(path) {
         this.props.updateFileBrowser(path, true);
@@ -456,12 +574,14 @@ var FileBrowserItem = React.createClass({
         var file_link = document.location.pathname.replace('/bundles/', '/api/bundles/filecontent/') + file_location;
         var size = '';
         if(this.props.hasOwnProperty('size')){
-           if(this.props.size == 0)
-                size = "0"
-           var k = 1000;
-           var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-           var i = Math.floor(Math.log(this.props.size) / Math.log(k));
-           size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            if(this.props.size == 0 || this.props.size === undefined)
+                size = "0 bytes"
+            else{ // we have a real size create a nice human readable version
+                var k = 1000;
+                var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                var i = Math.floor(Math.log(this.props.size) / Math.log(k));
+                size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
         }
         return (
             <tr>

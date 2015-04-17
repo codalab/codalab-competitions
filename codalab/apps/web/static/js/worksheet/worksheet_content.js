@@ -70,7 +70,7 @@ var WorksheetContent = function() {
                 // this is the first item. Let's get the index after the comments stop
                 // and the real worksheet begins
                 for(i=0; i < raw.length; i++){
-                    if(raw[i].lastIndexOf('//', 0) === 0 || raw[i].lastIndexOf('%', 0) === 0){
+                    if(raw[i].lastIndexOf('//', 0) === 0){
                         last_raw_index = i+1;
                     }else{
                         break; // break out, we are done with comments
@@ -89,6 +89,9 @@ var WorksheetContent = function() {
             // we are in the middle of a ws,
             // what are you? Then let's find where you begin and end
             switch (ws_item.state.mode) {
+                // case 'search':
+                //     // debugger;
+                //     break;
                 case 'markup':
                     // grab the first bundle's info following you.
                     switch (below_item.state.mode) {
@@ -104,6 +107,17 @@ var WorksheetContent = function() {
                                 }
                             }
                             break;
+                        case 'search':
+                            for(i=last_raw_index; i < raw.length; i++){
+                                //a line that begins with %, which means another bundle display type
+                                if((raw[i].lastIndexOf('%', 0) === 0)){
+                                    raw_size = i - last_raw_index;
+                                    break;
+                                }else{
+                                    //??
+                                }
+                            }
+                            break
                         case 'markup': // this case only happens when moving around items
                             // init markup is consolidated.
                             // will be consolidated after save and update so
@@ -166,12 +180,13 @@ var WorksheetContent = function() {
                     ws_item.state.raw_size = raw_size;
                     break;
                 case 'worksheet':
+                case 'search':
                     // we default ws_item.state.raw_size to 0. worksheet is 1 line always aka size 0
                     break;
                 default:
-                    console.error("Got an item mode index does not handle.");
-            }
-        });
+                    console.error("Got an item mode index does not handle. Please update raw size for this item mode");
+            }// end of swtich statment
+        });// end of  items.map(function(ws_item, index){
 
     };
 

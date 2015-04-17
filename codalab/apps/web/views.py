@@ -330,6 +330,8 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
+        context['public_submissions'] = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                                    is_public=True)
         submissions = dict()
         all_submissions = dict()
         try:
@@ -418,6 +420,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'publication_url': submission.publication_url,
                         'bibtex': submission.bibtex,
                         'organization_or_affiliation': submission.organization_or_affiliation,
+                        'is_public': submission.is_public,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -699,12 +702,32 @@ class MySubmissionResultsPartial(TemplateView):
 
         return ctx
 
+
+class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+
+            if request.user == submission.participant.user:
+                submission.is_public = not submission.is_public
+                submission.save()
+                return HttpResponse(submission.is_public)
+            else:
+                raise Http404()
+        except ObjectDoesNotExist:
+            raise Http404()
+
+
 class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     This view serves the files associated with a submission.
     """
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+
+        if not submission.is_public and request.user != submission.participant.user:
+            raise Http404()
+
         filetype = kwargs.get('filetype')
         try:
             file, file_type, file_name = submission.get_file_for_download(filetype, request.user)
@@ -814,6 +837,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
                     'exception_details': submission.exception_details,
                     'description': submission.description,
+                    'is_public': submission.is_public,
                 }
                 # add score groups into data columns
                 if (submission_info['is_in_leaderboard'] == True):
