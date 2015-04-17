@@ -1,5 +1,11 @@
 // Singleton class to manage actions triggered by the general search bar
 var WorksheetActions =  function() {
+    function formatHelp(usage, description) {
+      return usage + ' : ' + description;
+    }
+    var bundleKeywordsHelp = 'Bundle keywords (example: test name=nlp.* type=run state=running .mine .last ...)';
+    var worksheetKeywordsHelp = 'Worksheet keywords (example: test name=nlp.* .mine .last ...)';
+
     function WorksheetActions() {
         this.commands = {
             // Dictionary of terms that can be entered into the search bar
@@ -20,10 +26,122 @@ var WorksheetActions =  function() {
             //     minimumInputLength: min length before doin get for search choices
             // }
             // ------------------------------------
-            'add': {
-                helpText: 'add - add a bundle to this worksheet name or uuid',
-                minimumInputLength: 3,
+            'work': {
+                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
+                minimumInputLength: 0,
+                edit_enabled: false,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: worksheetKeywordsHelp + ': ' + term
+                    };
+                },*/
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/worksheets/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxWorksheetDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    window.location = '/worksheets/' + params[1] + '/';
+                },
+            }, // end off work
+            'new': {
+                helpText: formatHelp('new <name>', 'create new worksheet with given name'),
+                minimumInputLength: 0,
                 edit_enabled: true,
+                searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: 'New worksheet name: ' + term
+                    };
+                },
+                executefn: function(params, command, callback){
+                    if(params.length === 2 && params[0] === 'new'){
+                        var postdata = {
+                            'name': params[1]
+                        };
+                        $.ajax({
+                            type:'POST',
+                            cache: false,
+                            url:'/api/worksheets/',
+                            contentType:"application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify(postdata),
+                            success: function(data, status, jqXHR){
+                                window.location = '/worksheets/' + data.uuid + '/';
+                            },
+                            error: function(jqHXR, status, error){
+                                console.error(status + ': ' + error);
+                            }
+                        });
+                    }else {
+                        alert('invalid syntax');
+                    }
+                }, // end of executefn
+            }, // end of new
+
+            'info': {
+                helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
+                minimumInputLength: 1,
+                edit_enabled: false,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
+                queryfn: function(query){
+                    var get_data = {
+                        search_string: query.term
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/bundles/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            // select2 wants its options in a certain format, so let's make a new
+                            // list it will like
+                            query.callback({
+                                results: ws_actions.AjaxBundleDictToOptions(data)
+                            });
+                        },
+                        error: function(jqHXR, status, error){
+                            console.error(status + ': ' + error);
+                        }
+                    });
+                },
+                executefn: function(params, command, callback){
+                    window.location = '/bundles/' + params[1] + '/';
+                },
+            }, // end off info
+
+            'add': {
+                helpText: formatHelp('add <bundle>', 'add bundle to this worksheet'),
+                minimumInputLength: 1,
+                edit_enabled: true,
+                /*searchChoice: function(input, term){
+                    return {
+                        id: term,
+                        text: bundleKeywordsHelp + ': ' + term
+                    };
+                },*/
                 queryfn: function(query){
                     var get_data = {
                         search_string: query.term
@@ -68,104 +186,50 @@ var WorksheetActions =  function() {
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "wnew [worksheetname]"');
+                        alert('invalid syntax');
                     }
                 }
-            },// end off add
-            'info': {
-                helpText: 'info - go to a bundle\'s info page',
-                minimumInputLength: 3,
-                edit_enabled: false,
-                queryfn: function(query){
-                    var get_data = {
-                        search_string: query.term
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/bundles/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR, callback){
-                            // select2 wants its options in a certain format, so let's make a new
-                            // list it will like
-                            query.callback({
-                                results: ws_actions.AjaxBundleDictToOptions(data)
-                            });
-                        },
-                        error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                },
-                executefn: function(params, command, callback){
-                    window.location = '/bundles/' + params[1] + '/';
-                },
-            }, // end off info
-            'work': {
-                helpText: 'work - go to a worksheet',
-                minimumInputLength: 1,
-                edit_enabled: false,
-                queryfn: function(query){
-                    var get_data = {
-                        search_string: query.term
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/worksheets/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR, callback){
-                            // select2 wants its options in a certain format, so let's make a new
-                            // list it will like
-                            query.callback({
-                                results: ws_actions.AjaxWorksheetDictToOptions(data)
-                            });
-                        },
-                        error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                },
-                executefn: function(params, command, callback){
-                    window.location = '/worksheets/' + params[1] + '/';
-                },
-            }, // end off work
-            'wnew': {
-                helpText: 'wnew - add and go to a new worksheet by naming it',
+            }, // end off add
+
+            'upload': {
+                helpText: formatHelp('upload <url>', 'upload contents of URL as a dataset'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
-                        text: 'New worksheet name: ' + term
+                        text: 'URL (http://...): ' + term
                     };
                 },
                 executefn: function(params, command, callback){
-                    if(params.length === 2 && params[0] === 'wnew'){
+                    if(params.length === 2 && params[0] === 'upload'){
+                        worksheet_uuid = ws_obj.state.uuid;
                         var postdata = {
-                            'name': params[1]
+                            'worksheet_uuid': worksheet_uuid,
+                            'url': params[1]
                         };
                         $.ajax({
                             type:'POST',
                             cache: false,
-                            url:'/api/worksheets/',
+                            url:'/api/bundles/upload_url/',
                             contentType:"application/json; charset=utf-8",
                             dataType: 'json',
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
-                                window.location = '/worksheets/' + data.uuid + '/';
+                                callback();
                             },
                             error: function(jqHXR, status, error){
                                 console.error(status + ': ' + error);
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "wnew [worksheetname]"');
+                        alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of wnew
+            }, // end of upload
             'run': {
-                helpText: 'run - Create a run bundle ',
+                // TODO: support run targets
+                helpText: formatHelp('run <key>:<bundle> ... \'<command>\'', 'create a run bundle'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 maximumSelectionSize: function(){
@@ -187,7 +251,7 @@ var WorksheetActions =  function() {
                     if(term.lastIndexOf(":", 0) === -1){
                         return {
                             id: term,
-                            text: 'target_spec  [<key>:](<uuid>|<name>)  ' + term
+                            text: 'Dependencies (<key>:<bundle>) ' + term
                         };
                     }
                 },
@@ -261,31 +325,36 @@ var WorksheetActions =  function() {
                     });
                 },
             }, // end of run
-            'upload': {
-                helpText: 'upload - upload a dataset via a url',
+            'cl': {
+                helpText: formatHelp('cl <command>', 'run CLI command'),
                 minimumInputLength: 0,
-                edit_enabled: true,
-                searchChoice: function(input, term){
+                edit_enabled: false,
+                searchChoice: function(input, term) {
                     return {
                         id: term,
-                        text: 'dataset url: ' + term
+                        text: 'Command: ' + term
                     };
                 },
                 executefn: function(params, command, callback){
-                    if(params.length === 2 && params[0] === 'upload'){
+                    if(params.length === 2 && params[0] === 'cl') {
                         worksheet_uuid = ws_obj.state.uuid;
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
-                            'url': params[1]
+                            'command': params[1]
                         };
                         $.ajax({
                             type:'POST',
                             cache: false,
-                            url:'/api/bundles/upload_url/',
+                            url:'/api/worksheets/command/',
                             contentType:"application/json; charset=utf-8",
                             dataType: 'json',
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
+                                console.log('===== Output of command: ' + params[1]);
+                                if (data.data.exception) alert(data.data.exception);
+                                if (data.data.stdout) alert(data.data.stdout);
+                                if (data.data.stderr) console.log(data.data.stderr);
+                                console.log('=====');
                                 callback();
                             },
                             error: function(jqHXR, status, error){
@@ -293,10 +362,10 @@ var WorksheetActions =  function() {
                             }
                         });
                     }else {
-                        alert('wnew command syntax must be "upload http://example.com/file"');
+                        alert('invalid syntax');
                     }
                 }, // end of executefn
-            },// end of wnew
+            }, // end of upload
         };// end of commands
     }// endof worksheetActions() init
 
@@ -307,24 +376,13 @@ var WorksheetActions =  function() {
         can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
         var commandDict = this.commands;
         var commandList = [];
-        for(var key in commandDict){
-            if(can_edit){
-                //push everthing they have access
+        for(var key in commandDict) {
+            if (can_edit || !commandDict[key].edit_enabled) {
                 commandList.push({
                     'id': key,
                     'text': commandDict[key].helpText
                 });
-            }else{
-                //restrict to only non edit_endabled actions.
-                if(commandDict[key].edit_enabled){
-                    //pass
-                }else{
-                    commandList.push({
-                        'id': key,
-                        'text': commandDict[key].helpText
-                    });
-                }
-            }// end of if canedit
+            }
         }
         return commandList;
     }; // end of getCommands

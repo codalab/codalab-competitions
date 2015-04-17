@@ -267,6 +267,34 @@ class WorksheetContentApi(views.APIView):
             return Response({'error': smart_str(e)})
 
 
+class WorksheetsCommandApi(views.APIView):
+    """
+    Run an arbitrary CLI command.
+    """
+    def post(self, request):
+        user = self.request.user
+        if not user.id:
+            return Response(None, status=401)
+        data = json.loads(request.body)
+        if not data.get('worksheet_uuid', None) or not data.get('command', None):
+            return Response("Must have worksheet uuid and command", status=status.HTTP_400_BAD_REQUEST)
+        service = BundleService(self.request.user)
+        try:
+            data = service.general_command(data['worksheet_uuid'], data['command'])
+            return Response({
+                'success': True,
+                'data': data
+                })
+        except Exception as e:
+            logging.error(self.__str__())
+            logging.error(smart_str(e))
+            logging.error('')
+            logging.debug('-------------------------')
+            tb = traceback.format_exc()
+            logging.error(tb)
+            logging.debug('-------------------------')
+            return Response(status=service.http_status_from_exception(e))
+
 class BundleInfoApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
@@ -367,7 +395,6 @@ class BundleSearchApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_infos = service.search_bundles(search_string.split(' '), worksheet_uuid)
-            print bundle_infos
             return Response(bundle_infos, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())
@@ -392,8 +419,8 @@ class BundleCreateApi(views.APIView):
             #TODO CHECKING
             command = postdata['data'][-1].strip("'")
             items = postdata['data'][:-1]
-            args = items.append(command)
-            new_bundle_uuid = service.create_run_bundle(args, command, postdata['worksheet_uuid'])
+            items.append(command)
+            new_bundle_uuid = service.create_run_bundle(items, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())

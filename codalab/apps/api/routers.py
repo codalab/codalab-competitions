@@ -32,10 +32,11 @@ urlpatterns += (
     url(r'^competition/(?P<pk>\d+)/pages/(?P<entity_label>\w[\w\d\-\_]+)/$', views.competition_page_list, name='api_competition_page_list'),
 
     url(r'^worksheets/$', views.WorksheetsListApi.as_view(), name='api_worksheets'),
-    url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets'),
-    url(r'^worksheets/add/$', views.WorksheetsAddApi.as_view(), name='api_worksheets'),
-    url(r'^worksheets/delete/$', views.WorksheetsDeleteApi.as_view(), name='api_worksheets'),
+    url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets_info'),
+    url(r'^worksheets/add/$', views.WorksheetsAddApi.as_view(), name='api_worksheets_add'),
+    url(r'^worksheets/delete/$', views.WorksheetsDeleteApi.as_view(), name='api_worksheets_delete'),
     url(r'^worksheets/search/$', views.WorksheetsSearchApi.as_view(), name='api_worksheet_search'),
+    url(r'^worksheets/command/$', views.WorksheetsCommandApi.as_view(), name='api_worksheets_command'),
     url(r'^worksheets/(?P<uuid>[A-Za-z0-9]+)/$', views.WorksheetContentApi.as_view(), name='api_worksheet_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
@@ -44,6 +45,4 @@ urlpatterns += (
     url(r'^bundles/create/$', views.BundleCreateApi.as_view(), name='api_bundle_create'),
     url(r'^bundles/upload_url/$', views.BundleUploadApi.as_view(), name='api_bundle_upload_url'),
     url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleInfoApi.as_view(), name='api_bundle_info'),
-
-
 )

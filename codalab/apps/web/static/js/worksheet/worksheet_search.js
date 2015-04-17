@@ -178,7 +178,7 @@ var WorksheetSearch = React.createClass({
             <div className="ws-search">
                 <div className="container">
                     <div className="input-group">
-                        <input id="search" type="hidden" placeholder="General search/command line" />
+                        <input id="search" type="hidden" placeholder="Click here or press '/' to start" />
                         <span className="input-group-btn">
                             <button className="btn btn-default" type="button" onClick={this.executeCommands}>Go</button>
                         </span>
