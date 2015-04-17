@@ -3,11 +3,11 @@
 {% load url from future %}
 
 {% block content %}
-    <h2> > {{ thread.title }}</h2>
+    <h2 class="thread_title"> > {{ thread.title }}</h2>
     {% for post in thread.posts.all %}
-        Posted by: {{ post.posted_by }}<br>
-        Posted on: {{ post.date_created }}<br>
         {{ post.content|linebreaks }}
+
+        <span class="posted_by">Posted by: {{ post.posted_by }} @ {{ post.date_created }}</span>
 
         {% if not forloop.last %}
             <hr>

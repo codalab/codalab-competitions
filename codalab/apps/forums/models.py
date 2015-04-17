@@ -1,5 +1,8 @@
 import datetime
 from django.db import models
+from django.core.urlresolvers import reverse
+
+from .helpers import send_mail
 
 
 class Forum(models.Model):
@@ -20,6 +23,24 @@ class Thread(models.Model):
         if not self.id:
             self.date_created = datetime.datetime.today()
         return super(Thread, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk })
+
+    def notify_all_posters_of_new_post(self):
+        users_in_thread = set(post.posted_by for post in self.posts.all())
+
+        for user in users_in_thread:
+            send_mail(
+                context_data={
+                    'thread': self,
+                    'user': user,
+                },
+                subject='New post in %s' % self.title,
+                html_file="forums/emails/new_post.html",
+                text_file="forums/emails/new_post.txt",
+                to_email=user.email
+            )
 
 
 class Post(models.Model):

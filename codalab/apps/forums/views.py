@@ -42,7 +42,7 @@ class ForumDetailView(DetailView, ForumBaseMixin):
 class RedirectToThreadMixin(object):
 
     def get_success_url(self):
-        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.thread.pk })
+        return self.thread.get_absolute_url()
 
 
 class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
@@ -58,6 +58,7 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, 
 
         self.thread.last_post_date = datetime.datetime.now()
         self.thread.save()
+        self.thread.notify_all_posters_of_new_post()
         return HttpResponseRedirect(self.get_success_url())
 
 

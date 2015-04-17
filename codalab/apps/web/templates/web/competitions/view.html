@@ -100,7 +100,9 @@
                     {% if competition.allow_public_submissions %}
                     <li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
                     {% endif %}
+                    {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </ul>

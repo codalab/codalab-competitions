@@ -3,10 +3,6 @@
 {% load bootstrap %}
 
 {% block content %}
-{#    {% if form.errors %}#}
-{#        {{ form.errors }}#}
-{#    {% endif %}#}
-
     <form action="." method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
