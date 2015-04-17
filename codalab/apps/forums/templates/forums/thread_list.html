@@ -3,6 +3,7 @@
 {% load url from future %}
 
 {% block content %}
+    {% if forum.threads.all %}
     <table class="table">
         <thead>
             <tr>
@@ -35,4 +36,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <i>No topics started yet, <a href="{% url 'forum_new_thread' forum_pk=forum.pk %}">start one now</a>!</i>
+    {% endif %}
 {% endblock %}
