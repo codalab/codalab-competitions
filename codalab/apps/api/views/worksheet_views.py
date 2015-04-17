@@ -419,8 +419,8 @@ class BundleCreateApi(views.APIView):
             #TODO CHECKING
             command = postdata['data'][-1].strip("'")
             items = postdata['data'][:-1]
-            args = items.append(command)
-            new_bundle_uuid = service.create_run_bundle(args, command, postdata['worksheet_uuid'])
+            items.append(command)
+            new_bundle_uuid = service.create_run_bundle(items, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             logging.error(self.__str__())

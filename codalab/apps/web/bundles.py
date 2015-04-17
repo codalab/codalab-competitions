@@ -121,8 +121,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
-        def create_run_bundle(self, args, command, worksheet_uuid):
-            #mimic the command line so we can parse targets and create the bundle
+        def create_run_bundle(self, args, worksheet_uuid):
             cli = self._create_cli(worksheet_uuid)
             parser = cli.create_parser('run')
             parser.add_argument('target_spec', help=cli.TARGET_SPEC_FORMAT, nargs='*')
@@ -130,13 +129,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             metadata_util.add_arguments(RunBundle, set(), parser)
             metadata_util.add_edit_argument(parser)
             args = parser.parse_args(args)
-
             metadata = metadata_util.request_missing_metadata(RunBundle, args)
-            metadata['name'] = str(slugify(command))
-
             targets = cli.parse_key_targets(self.client, worksheet_uuid, args.target_spec)
 
-            new_bundle_uuid = self.client.derive_bundle('run', targets, str(command), metadata, worksheet_uuid)
+            new_bundle_uuid = self.client.derive_bundle('run', targets, args.command, metadata, worksheet_uuid)
             return new_bundle_uuid
 
 
