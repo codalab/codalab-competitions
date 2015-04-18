@@ -219,6 +219,7 @@
             </div>
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
+                    {# "1" in these urls gets replaced with the proper ID #}
                     <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
                     <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
                     <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
@@ -227,6 +228,10 @@
                     {% if not submission.phase.is_scoring_only %}
                         <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
                     {% endif %}
+                    {% if submission.phase.competition.enable_detailed_results %}
+                        <li><a href="/my/competition/submission/1/detailed_results" target="_blank">View detailed results</a></li>
+                    {% endif %}
+                    <li><a href="/my/competition/submission/1/output.zip">Download evaluation output from scoring step</a></li>
                 </ul>
             </div>
             <div class="modal-footer">
