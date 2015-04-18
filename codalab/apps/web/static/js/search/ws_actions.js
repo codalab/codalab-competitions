@@ -64,7 +64,7 @@ var WorksheetActions =  function() {
             'new': {
                 helpText: formatHelp('new <name>', 'create new worksheet with given name'),
                 minimumInputLength: 0,
-                edit_enabled: true,
+                edit_enabled: false,
                 searchChoice: function(input, term){
                     return {
                         id: term,
@@ -227,6 +227,7 @@ var WorksheetActions =  function() {
                     }
                 }, // end of executefn
             }, // end of upload
+
             'run': {
                 // TODO: support run targets
                 helpText: formatHelp('run <key>:<bundle> ... \'<command>\'', 'create a run bundle'),
@@ -325,6 +326,7 @@ var WorksheetActions =  function() {
                     });
                 },
             }, // end of run
+
             'cl': {
                 helpText: formatHelp('cl <command>', 'run CLI command'),
                 minimumInputLength: 0,
