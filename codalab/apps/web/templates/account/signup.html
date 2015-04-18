@@ -26,7 +26,7 @@
 
             <div class="form-group">
                 <label for="id_username">*Username:</label>
-                <input id="id_username" class="form-control" name="username" placeholder="Username" type="text" value="{{ form.username.value|default_if_none:"" }}">
+                <input id="id_username" class="form-control" name="username" autofocus placeholder="Username" type="text" value="{{ form.username.value|default_if_none:"" }}">
             </div>
             <div class="form-group">
                 <label for="id_email">*E-mail:</label>
