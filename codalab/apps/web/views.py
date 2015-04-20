@@ -77,7 +77,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
-    denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+    try:
+        denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+    except:
+        denied = -1
 
     competitions_owner = models.Competition.objects.filter(creator=request.user)
     competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
