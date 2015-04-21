@@ -26,7 +26,7 @@
     "workers": {
         "q": {
             "verbose": 1,
-            "docker_image": "codalab/ubuntu:1.6",
+            "docker_image": "codalab/ubuntu:1.7",
             "dispatch_command": "{{VIRTUAL_ENV}}/bin/python {{BUNDLE_SERVICE_CODE_PATH}}/scripts/dispatch-q.py"
         }
     }
