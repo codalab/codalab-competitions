@@ -5,15 +5,11 @@
 
 {% block hero_subheader %}
     <div class="jumbotron">
-        <!-- GitHub Ribbon
-        <div class="ribbon">
-            <a href="https://github.com/codalab/codalab" target="_blank">Fork CodaLab on GitHub</a>
-        </div>-->
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-md-offset-2">
                     <img src="{{STATIC_URL}}img/codalab-logo-white.png" alt="CodaLab" class="img-responsive">
-                    <h4>An experimental platform for collaboration and competition.</h4>
+                    <h4><b>Accelerating reproducible computational research.</b></h4>
                 </div>
             </div>
         </div>
@@ -21,23 +17,36 @@
 {% endblock hero_subheader %}
 
 {% block content %}
-    <p>CodaLab is an open-source platform that makes life easier for those conducting data- and computation-intensive experiments. Use existing algorithms and datasets or upload your own (any format, any language). All experiments you do are reproducible and sharable with others.</p>
     <!-- {% if not user.is_authenticated %}-->
     <!-- <a href="{% url 'account_signup' %}" class="button">Sign Up</a>-->
     <!-- {% endif %}-->
 
     <div class="row">
+        <p>
+        CodaLab is an ecosystem for conducting computational
+        research in a more efficient, reproducible, and collaborative manner.
+        </p>
         <div class="col-sm-6">
             <p><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"></a></p>
-            <p><strong>Worksheets</strong> allow you to create publishable executable papers or personal research logs, where text and experiments are seamlessly integrated.</p>
+            <p><strong>Worksheets</strong> allow you to
+            capture complex research pipelines in a reproducible way
+            and create "executable papers".
+            Use any data format or programming language &mdash; great for the power user!
+            </p>
+            <ul class="alt-bullet">
+                <li><a href="/worksheets"><strong>Explore worksheets</strong></a></li>
+            </ul>
 
         </div>
         <div class="col-sm-6">
             <p><a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"></a></p>
-            <p><strong>Competitions</strong> unite great minds to solve problems in machine learning, medical imaging, and more. Get started with competitions right now:</p>
+            <p><strong>Competitions</strong>
+            bring together the entire community
+            to tackle the most challenging data and computational problems today.
+            You can win prizes and also create your own competition.
+            </p>
             <ul class="alt-bullet">
-                <li><a href="/competitions"><strong>Participate in a competition</strong></a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"><strong>Host a competition</strong></a></li>
+                <li><a href="/competitions"><strong>Explore competitions</strong></a></li>
             </ul>
         </div>
     </div>
