@@ -271,7 +271,7 @@ var Bundle = React.createClass({
             var host_worksheets_url = ''
             host_worksheets_rows = []
             this.state.host_worksheets.forEach(function(worksheet, i){
-                host_worksheets_url = "/worksheet/" + worksheet.uuid;
+                host_worksheets_url = "/worksheets/" + worksheet.uuid;
                 host_worksheets_rows.push(
                     <tr>
                         <td>
