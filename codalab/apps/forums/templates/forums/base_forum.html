@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block page_title %}Forums{% endblock page_title %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}forums/forums.css">
+{% endblock extra_headers %}
+
+{% block content_wrapper %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>{{ forum.competition.title }} Forum</h2>
+                <a href="{% url 'competitions:view' pk=forum.competition.pk %}" class="btn btn-default pull-left">Go back to competition</a>
+                {% if thread or 'new_thread' in request.path %}
+                    <a href="{% url 'forum_detail' forum_pk=forum.pk %}" class="btn btn-default pull-left">Back to thread list</a>
+                {% endif %}
+
+                {% if not thread %}
+                    <a href="{% url 'forum_new_thread' forum_pk=forum.pk %}" class="btn btn-default pull-right">Start a new topic</a>
+                {% elif 'new_post' not in request.path %}
+                    <a href="{% url 'forum_new_post' forum_pk=forum.pk thread_pk=thread.pk %}" class="btn btn-default pull-right">Post in this thread</a>
+                {% endif %}
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel forum-panel">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+
+                {% if thread and 'new_post' not in request.path %}
+                    <a href="{% url 'forum_new_post' forum_pk=forum.pk thread_pk=thread.pk %}" class="btn btn-default pull-right">Post in this thread</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content_wrapper %}
+
