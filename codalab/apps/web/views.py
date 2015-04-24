@@ -477,46 +477,9 @@ class CompetitionResultsDownload(View):
         phase = competition.phases.get(pk=self.kwargs['phase'])
         if phase.is_blind:
             return HttpResponse(status=403)
-        groups = phase.scores()
 
-        csvfile = StringIO.StringIO()
-        csvwriter = csv.writer(csvfile)
-
-        for group in groups:
-            csvwriter.writerow([group['label']])
-            csvwriter.writerow([])
-
-            headers = ["User"]
-            sub_headers = [""]
-            for header in group['headers']:
-                subs = header['subs']
-                if subs:
-                    for sub in subs:
-                        headers.append(header['label'])
-                        sub_headers.append(sub['label'])
-                else:
-                    headers.append(header['label'])
-            csvwriter.writerow(headers)
-            csvwriter.writerow(sub_headers)
-
-            if len(group['scores']) <= 0:
-                csvwriter.writerow(["No data available"])
-            else:
-                for pk, scores in group['scores']:
-                    row = [scores['username']]
-                    for v in scores['values']:
-                        if 'rnk' in v:
-                            row.append("%s (%s)" % (v['val'], v['rnk']))
-                        else:
-                            row.append("%s (%s)" % (v['val'], v['hidden_rnk']))
-                    csvwriter.writerow(row)
-
-            csvwriter.writerow([])
-            csvwriter.writerow([])
-
-        response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
+        response = HttpResponse(competition.get_results_csv(phase.pk), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=test.csv"
-
         return response
 
 
