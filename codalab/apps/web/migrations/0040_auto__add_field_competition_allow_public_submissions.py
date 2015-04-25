@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Competition.allow_public_submissions'
         db.add_column(u'web_competition', 'allow_public_submissions',
-                      self.gf('django.db.models.fields.BooleanField')(default=True),
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
@@ -71,7 +71,7 @@ class Migration(SchemaMigration):
         u'web.competition': {
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'admins': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'competition_admins'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['authenz.ClUser']"}),
-            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'allow_teams': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
