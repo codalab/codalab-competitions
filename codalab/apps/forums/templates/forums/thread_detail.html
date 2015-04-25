@@ -1,0 +1,16 @@
+{% extends "forums/base_forum.html" %}
+
+{% load url from future %}
+
+{% block content %}
+    <h2 class="thread_title"> > {{ thread.title }}</h2>
+    {% for post in thread.posts.all %}
+        {{ post.content|linebreaks }}
+
+        <span class="posted_by">Posted by: {{ post.posted_by }} @ {{ post.date_created }}</span>
+
+        {% if not forloop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

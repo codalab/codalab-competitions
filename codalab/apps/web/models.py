@@ -170,6 +170,7 @@ class Competition(models.Model):
     allow_teams = models.BooleanField(default=False)
     enable_per_submission_metadata = models.BooleanField(default=False)
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
+    enable_forum = models.BooleanField(default=True)
 
     @property
     def pagecontent(self):
