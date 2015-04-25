@@ -172,6 +172,7 @@ class Competition(models.Model):
     allow_teams = models.BooleanField(default=False)
     enable_per_submission_metadata = models.BooleanField(default=False)
     allow_public_submissions = models.BooleanField(default=True)
+    enable_forum = models.BooleanField(default=True)
 
     @property
     def pagecontent(self):
@@ -455,6 +456,9 @@ def submission_inputfile_name(instance, filename="input.txt"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_history_file_name(instance, filename="history.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_scores_file_name(instance, filename="scores.txt"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_runfile_name(instance, filename="run.txt"):
@@ -857,6 +861,7 @@ class CompetitionSubmission(models.Model):
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
+    scores_file = models.FileField(upload_to=submission_scores_file_name, storage=BundleStorage, null=True, blank=True)
     detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)

@@ -477,9 +477,8 @@ class CompetitionResultsDownload(View):
         phase = competition.phases.get(pk=self.kwargs['phase'])
         if phase.is_blind:
             return HttpResponse(status=403)
-
         response = HttpResponse(competition.get_results_csv(phase.pk), status=200, content_type="text/csv")
-        response["Content-Disposition"] = "attachment; filename=test.csv"
+        response["Content-Disposition"] = "attachment; filename=%s results.csv" % phase.competition.title
         return response
 
 
