@@ -129,7 +129,6 @@ var Worksheet = React.createClass({
         Mousetrap.bind(['shift+e'], function(e){
             this.toggleEditing();
         }.bind(this));
-
     },
     toggleEditingText: function(arg){
         this.setState({editingText: arg});
@@ -274,7 +273,7 @@ var Worksheet = React.createClass({
         }
 
         // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-        raw_display = (
+        var raw_display = (
                     <textarea
                         id="raw-textarea"
                         className="form-control mousetrap"
@@ -284,7 +283,7 @@ var Worksheet = React.createClass({
                     />
             )
 
-        items_display = (
+        var items_display = (
                 <WorksheetItemList
                     ref={"list"}
                     active={this.state.activeComponent=='list'}
@@ -310,6 +309,12 @@ var Worksheet = React.createClass({
                     active={this.state.activeComponent=='search'}
                     show={this.state.showSearchBar}
                     refreshWorksheet={this.refreshWorksheet}
+                />
+            )
+
+        var worksheet_modal = (
+                <BootstrapModal
+                    ref={"modal"}
                 />
             )
 
@@ -341,6 +346,7 @@ var Worksheet = React.createClass({
                         </div>
                         {worksheet_display}
                     </div>
+                    {worksheet_modal}
                 </div>
             </div>
         )
