@@ -54,9 +54,6 @@
          top:-7px;
       }
    }
-   > .container {
-     width:auto;
-   }
 }
 #worksheet_content {
    display:none;
@@ -255,7 +252,6 @@
          .table;
          .table-bordered;
          .table-striped;
-         width:auto;
          border-width:2px;
          border-color:white;
          margin-bottom:0;
@@ -269,13 +265,10 @@
                   font-size:@font-size-med;
                   border-width:2px;
                   border-color:white;
-                  white-space:nowrap;
-                  max-width:25em;
-                  overflow:hidden;
-                  text-overflow:ellipsis;
-                  &:hover {
-                     white-space:normal;
-                     overflow:auto;
+                  @media screen and (max-width: @screen-xs-max) {
+                     max-width:25em;
+                     overflow:hidden;
+                     text-overflow:ellipsis;
                   }
                   a.bundle-link {
                      font-weight:bold;
