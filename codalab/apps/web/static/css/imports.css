@@ -7499,6 +7499,9 @@ input[type="checkbox"] {
 #worksheet.search-hidden .ws-search {
   top: -7px;
 }
+#worksheet > .container {
+  width: auto;
+}
 #worksheet_content {
   display: none;
   margin-top: 12px;
@@ -7842,6 +7845,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   max-width: 100%;
   margin-bottom: 25px;
   border: 1px solid #dddddd;
+  width: auto;
   border-width: 2px;
   border-color: white;
   margin-bottom: 0;
@@ -8059,7 +8063,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-table table > tfoot > tr > td.table-column-_7C,
 #worksheet_content .type-record table > tfoot > tr > td.table-column-_7C,
 #worksheet_content .type-search table > tfoot > tr > td.table-column-_7C {
-  background-color: #AAA;
+  background-color: #AAA !important;
   color: #AAA;
   width: 3px;
   padding: 0;
