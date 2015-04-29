@@ -120,7 +120,6 @@
 {% endblock js %}
 
 {% block jsincludes %}
-
     {% if local_mathjax %}
             <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
@@ -129,6 +128,7 @@
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.terminal-0.8.8.min.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
@@ -174,4 +174,142 @@ $(function () {
 
 });
 </script>
+
+<style type="text/css">
+/*
+Just thrown here for now since this is early testing.
+ */
+.terminal .terminal-output .format, .cmd .format,
+.cmd .prompt, .cmd .prompt div, .terminal .terminal-output div div{
+    display: inline-block;
+}
+.cmd .clipboard {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    opacity: 0.01;
+    filter: alpha(opacity = 0.01);
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.01);
+    width: 2px;
+}
+.cmd > .clipboard {
+    position: fixed;
+}
+.terminal {
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.cmd {
+    padding: 0;
+    margin: 0;
+    height: 1.3em;
+    /*margin-top: 3px; */
+}
+.cmd .cursor.blink {
+    -webkit-animation: blink 1s infinite steps(1, start);
+       -moz-animation: blink 1s infinite steps(1, start);
+        -ms-animation: blink 1s infinite steps(1, start);
+            animation: blink 1s infinite steps(1, start);
+}
+@keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb; /* not #aaa because it's seem there is Google Chrome bug */
+        color: #000;
+  }
+}
+@-webkit-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+@-ms-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+@-moz-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+.terminal .terminal-output div div, .cmd .prompt {
+    display: block;
+    line-height: 14px;
+    height: auto;
+}
+.cmd .prompt {
+    float: left;
+}
+.terminal, .cmd {
+    font-family: FreeMono, monospace;
+    color: #223;
+    background-color: #EFEFEF;
+    font-size: 12px;
+    line-height: 14px;
+}
+.terminal-output > div {
+    /*padding-top: 3px;*/
+    min-height: 14px;
+}
+.terminal .terminal-output div span {
+    display: inline-block;
+}
+.cmd span {
+    float: left;
+    /*display: inline-block; */
+}
+.terminal .inverted, .cmd .inverted, .cmd .cursor.blink {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div div::-moz-selection,
+.terminal .terminal-output div span::-moz-selection,
+.terminal .terminal-output div div a::-moz-selection {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div div::selection,
+.terminal .terminal-output div div a::selection,
+.terminal .terminal-output div span::selection,
+.cmd > span::selection,
+.cmd .prompt span::selection {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div.error, .terminal .terminal-output div.error div {
+    color: red;
+}
+.clear {
+    clear: both;
+}
+.terminal a {
+    color: #0F60FF;
+}
+.terminal a:hover {
+    color: red;
+}
+
+
+</style>
+
 {% endblock jsincludes %}
