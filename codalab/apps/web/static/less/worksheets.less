@@ -54,6 +54,9 @@
          top:-7px;
       }
    }
+   > .container {
+     width:auto;
+   }
 }
 #worksheet_content {
    display:none;
@@ -252,6 +255,7 @@
          .table;
          .table-bordered;
          .table-striped;
+         width:auto;
          border-width:2px;
          border-color:white;
          margin-bottom:0;
@@ -265,8 +269,22 @@
                   font-size:@font-size-med;
                   border-width:2px;
                   border-color:white;
+                  white-space:nowrap;
+                  max-width:25em;
+                  overflow:hidden;
+                  text-overflow:ellipsis;
+                  &:hover {
+                     white-space:normal;
+                     overflow:auto;
+                  }
                   a.bundle-link {
                      font-weight:bold;
+                  }
+                  &.table-column-_7C {
+                     background-color:#AAA !important;
+                     color:#AAA;
+                     width:3px;
+                     padding:0;
                   }
                }
             }
