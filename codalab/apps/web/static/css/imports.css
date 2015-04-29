@@ -7995,6 +7995,31 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   font-size: 14px;
   border-width: 2px;
   border-color: white;
+  white-space: nowrap;
+  max-width: 25em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#worksheet_content .type-table table > thead > tr > th:hover,
+#worksheet_content .type-record table > thead > tr > th:hover,
+#worksheet_content .type-search table > thead > tr > th:hover,
+#worksheet_content .type-table table > tbody > tr > th:hover,
+#worksheet_content .type-record table > tbody > tr > th:hover,
+#worksheet_content .type-search table > tbody > tr > th:hover,
+#worksheet_content .type-table table > tfoot > tr > th:hover,
+#worksheet_content .type-record table > tfoot > tr > th:hover,
+#worksheet_content .type-search table > tfoot > tr > th:hover,
+#worksheet_content .type-table table > thead > tr > td:hover,
+#worksheet_content .type-record table > thead > tr > td:hover,
+#worksheet_content .type-search table > thead > tr > td:hover,
+#worksheet_content .type-table table > tbody > tr > td:hover,
+#worksheet_content .type-record table > tbody > tr > td:hover,
+#worksheet_content .type-search table > tbody > tr > td:hover,
+#worksheet_content .type-table table > tfoot > tr > td:hover,
+#worksheet_content .type-record table > tfoot > tr > td:hover,
+#worksheet_content .type-search table > tfoot > tr > td:hover {
+  white-space: normal;
+  overflow: auto;
 }
 #worksheet_content .type-table table > thead > tr > th a.bundle-link,
 #worksheet_content .type-record table > thead > tr > th a.bundle-link,
@@ -8015,6 +8040,29 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-record table > tfoot > tr > td a.bundle-link,
 #worksheet_content .type-search table > tfoot > tr > td a.bundle-link {
   font-weight: bold;
+}
+#worksheet_content .type-table table > thead > tr > th.table-column-_7C,
+#worksheet_content .type-record table > thead > tr > th.table-column-_7C,
+#worksheet_content .type-search table > thead > tr > th.table-column-_7C,
+#worksheet_content .type-table table > tbody > tr > th.table-column-_7C,
+#worksheet_content .type-record table > tbody > tr > th.table-column-_7C,
+#worksheet_content .type-search table > tbody > tr > th.table-column-_7C,
+#worksheet_content .type-table table > tfoot > tr > th.table-column-_7C,
+#worksheet_content .type-record table > tfoot > tr > th.table-column-_7C,
+#worksheet_content .type-search table > tfoot > tr > th.table-column-_7C,
+#worksheet_content .type-table table > thead > tr > td.table-column-_7C,
+#worksheet_content .type-record table > thead > tr > td.table-column-_7C,
+#worksheet_content .type-search table > thead > tr > td.table-column-_7C,
+#worksheet_content .type-table table > tbody > tr > td.table-column-_7C,
+#worksheet_content .type-record table > tbody > tr > td.table-column-_7C,
+#worksheet_content .type-search table > tbody > tr > td.table-column-_7C,
+#worksheet_content .type-table table > tfoot > tr > td.table-column-_7C,
+#worksheet_content .type-record table > tfoot > tr > td.table-column-_7C,
+#worksheet_content .type-search table > tfoot > tr > td.table-column-_7C {
+  background-color: #AAA;
+  color: #AAA;
+  width: 3px;
+  padding: 0;
 }
 #worksheet_content .type-table table > thead > tr > th,
 #worksheet_content .type-record table > thead > tr > th,

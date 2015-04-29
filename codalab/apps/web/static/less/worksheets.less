@@ -265,8 +265,22 @@
                   font-size:@font-size-med;
                   border-width:2px;
                   border-color:white;
+                  white-space:nowrap;
+                  max-width:25em;
+                  overflow:hidden;
+                  text-overflow:ellipsis;
+                  &:hover {
+                     white-space:normal;
+                     overflow:auto;
+                  }
                   a.bundle-link {
                      font-weight:bold;
+                  }
+                  &.table-column-_7C {
+                     background-color:#AAA;
+                     color:#AAA;
+                     width:3px;
+                     padding:0
                   }
                }
             }
