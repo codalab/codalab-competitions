@@ -13,7 +13,9 @@ var WorksheetContent = function() {
             owner_id: 0,
             uuid: 0,
             items: [],
-            raw: []
+            raw: [],
+            group_permissions: [],
+            permission_str: ''
         };
     }
     //add functions and calls below

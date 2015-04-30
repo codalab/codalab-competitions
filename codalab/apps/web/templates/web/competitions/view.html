@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load url from future %}
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
@@ -91,13 +92,16 @@
             {% for tab, contents in tabs.items %}
                 {% if tab.codename == "participate" %}
                     {# Put this before participate tab #}
-                    <li class=""><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
+                    <li><a href="#phases" role="tab" data-toggle="tab">Phases</a></li>
                 {% endif %}
-                <li class=""><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
+                <li><a href="#{{tab.codename|slugify}}" role="tab" data-toggle="tab">{{tab.name}}</a></li>
                 {% if tab.codename == "results" %}
                     {# Put this after results tab #}
                     {% if competition.allow_public_submissions %}
-                    <li class=""><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
+                    <li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
+                    {% endif %}
+                    {% if competition.enable_forum %}
+                    <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
                     {% endif %}
                 {% endif %}
             {% endfor %}
@@ -219,6 +223,7 @@
             </div>
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
+                    {# "1" in these urls gets replaced with the proper ID #}
                     <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
                     <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
                     <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
@@ -227,6 +232,10 @@
                     {% if not submission.phase.is_scoring_only %}
                         <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
                     {% endif %}
+                    {% if submission.phase.competition.enable_detailed_results %}
+                        <li><a href="/my/competition/submission/1/detailed_results" target="_blank">View detailed results</a></li>
+                    {% endif %}
+                    <li><a href="/my/competition/submission/1/output.zip">Download evaluation output from scoring step</a></li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -296,10 +305,17 @@
                             $(this).hide();
                         }
                     });
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', true);
                 } else {
                     $("#public_submission_table tbody tr").show();
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', false);
                 }
             });
+
+            var only_show_public_leaderboard_submissions = window.localStorage.getItem('only_show_public_leaderboard_submissions') == "true";
+            $("#public_submission_filter_only_leaderboard").attr('checked', only_show_public_leaderboard_submissions);
+            // Call change to force the change on page reload
+            $("#public_submission_filter_only_leaderboard").change();
         });
     </script>
 {% endblock %}

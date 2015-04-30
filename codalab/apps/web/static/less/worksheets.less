@@ -375,8 +375,19 @@ html, body, #worksheet_container {height:100%;}
                   font-size:@font-size-med;
                   border-width:2px;
                   border-color:white;
+                  @media screen and (max-width: @screen-xs-max) {
+                     max-width:25em;
+                     overflow:hidden;
+                     text-overflow:ellipsis;
+                  }
                   a.bundle-link {
                      font-weight:bold;
+                  }
+                  &.table-column-_7C {
+                     background-color:#AAA !important;
+                     color:#AAA;
+                     width:3px;
+                     padding:0;
                   }
                }
             }

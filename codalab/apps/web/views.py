@@ -77,7 +77,10 @@ def competition_index(request):
 @login_required
 def my_index(request):
     template = loader.get_template("web/my/index.html")
-    denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+    try:
+        denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
+    except:
+        denied = -1
 
     competitions_owner = models.Competition.objects.filter(creator=request.user)
     competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
@@ -480,12 +483,16 @@ class CompetitionResultsDownload(View):
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
-            csvwriter.writerow([group['label']])
-            csvwriter.writerow([])
+            #csvwriter.writerow([group['label']])
+            #csvwriter.writerow([])
 
             headers = ["User"]
             sub_headers = [""]
-            for header in group['headers']:
+            # This ordering dict will contain {<header key>: <order of the column>}
+            ordering = {}
+
+            for count, header in enumerate(group['headers']):
+                ordering[header['key']] = count
                 subs = header['subs']
                 if subs:
                     for sub in subs:
@@ -494,25 +501,28 @@ class CompetitionResultsDownload(View):
                 else:
                     headers.append(header['label'])
             csvwriter.writerow(headers)
-            csvwriter.writerow(sub_headers)
+            if sub_headers != ['']:
+                csvwriter.writerow(sub_headers)
 
             if len(group['scores']) <= 0:
                 csvwriter.writerow(["No data available"])
             else:
                 for pk, scores in group['scores']:
-                    row = [scores['username']]
+                    #print pk, scores
+                    row = [scores['username']] + (['']*(len(ordering) + 1))
                     for v in scores['values']:
                         if 'rnk' in v:
-                            row.append("%s (%s)" % (v['val'], v['rnk']))
+                            # Based on the header label insert the score into the proper column
+                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
                         else:
-                            row.append("%s (%s)" % (v['val'], v['hidden_rnk']))
+                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
                     csvwriter.writerow(row)
 
             csvwriter.writerow([])
             csvwriter.writerow([])
 
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
-        response["Content-Disposition"] = "attachment; filename=test.csv"
+        response["Content-Disposition"] = "attachment; filename=%s results.csv" % phase.competition.title
 
         return response
 

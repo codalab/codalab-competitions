@@ -169,7 +169,8 @@ class Competition(models.Model):
     is_migrating_delayed = models.BooleanField(default=False)
     allow_teams = models.BooleanField(default=False)
     enable_per_submission_metadata = models.BooleanField(default=False)
-    allow_public_submissions = models.BooleanField(default=True)
+    allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
+    enable_forum = models.BooleanField(default=True)
 
     @property
     def pagecontent(self):
@@ -921,14 +922,15 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-        # If the user requesting access is the owner, access granted
-        if self.participant.competition.creator.id != requested_by.id:
-            # User making request must be owner of this submission and be granted
-            # download privilege by the competition owners.
-            if self.participant.user.id != requested_by.id:
-                raise PermissionDenied()
-            if file_has_restricted_access and self.phase.is_blind:
-                raise PermissionDenied()
+        if not self.is_public:
+            # If the user requesting access is the owner, access granted
+            if self.participant.competition.creator.id != requested_by.id:
+                # User making request must be owner of this submission and be granted
+                # download privilege by the competition owners.
+                if self.participant.user.id != requested_by.id:
+                    raise PermissionDenied()
+                if file_has_restricted_access and self.phase.is_blind:
+                    raise PermissionDenied()
 
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:

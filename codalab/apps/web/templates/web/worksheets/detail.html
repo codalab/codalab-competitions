@@ -35,37 +35,25 @@
                 <h5>General</h5>
                 <table class="table table-striped">
                     <tr>
-                        <td><kbd>/</kbd> jump to search bar</td>
+                        <td><kbd>/</kbd> Jump to action bar</td>
                     </tr>
                     <tr>
-                        <td><kbd>E</kbd> Toggle editing mode (if user has permission)</td>
+                        <td><kbd>E</kbd> Toggle editing mode</td>
                     </tr>
                     <tr>
-                        <td><kbd>F</kbd> Toggle raw editing mode (if user has permission)</td>
+                        <td><kbd>F</kbd> Raw editing mode for worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>j</kbd> or <kbd>↓</kbd> Next worksheet item or table row</td>
+                        <td><kbd>j</kbd> or <kbd>↓</kbd> Highlight next worksheet item or table row</td>
                     </tr>
                     <tr>
-                        <td><kbd>k</kbd> or <kbd>↑</kbd> Previous worksheet item or table row</td>
+                        <td><kbd>k</kbd> or <kbd>↑</kbd> Highlight previous worksheet item or table row</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> Move focused item down</td>
+                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> Move highlighted worksheet item down</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> Move focused item up</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>x</kbd> Select highlighted item (if in edit mode)</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>d</kbd> Detach selected items from worksheet</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>O</kbd> Insert markup before highlighted item or row</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>o</kbd> Insert markup after highlighted item or row</td>
+                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> Move highlighted worksheet item up</td>
                     </tr>
                     <tr>
                         <td><kbd>G</kbd> Jump to end of worksheet</td>
@@ -74,34 +62,46 @@
                         <td><kbd>1 G</kbd> Jump to beginning of worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>R</kbd> Refresh Worksheet</td>
+                        <td><kbd>R</kbd> Refresh worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>?</kbd> Show this glossary</td>
+                        <td><kbd>?</kbd> Open keyboard shortcut help</td>
                     </tr>
                 </table>
-                <h5>Editing Markup</h5>
+                <h5>In edit mode</h5>
                 <table class="table table-striped">
                     <tr>
-                        <td><kbd>e</kbd> Edit highlighted item (markup bundles only)</td>
+                        <td><kbd>x</kbd> Select highlighted item</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + enter</kbd> or <kbd>⌘ + enter</kbd> Save edits to markup item</td>
+                        <td><kbd>d</kbd> Detach selected items from worksheet (doesn't delete)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>O</kbd> Insert markup before highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>o</kbd> Insert markup after highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>e</kbd> Edit highlighted item</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + enter</kbd> or <kbd>⌘ + enter</kbd> Save edits</td>
                     </tr>
                     <tr>
                         <td><kbd>esc</kbd> Exit edit mode</td>
                     </tr>
                 </table>
-                <h5>Tables and Bundles</h5>
+                <h5>Tables</h5>
                 <table class="table table-striped">
                     <tr>
                         <td><kbd>enter</kbd> Go to details page of highlighted bundle</td>
                     </tr>
                     <tr>
-                        <td><kbd>shift + x</kbd> Select parent table of highlighted row</td>
+                        <td><kbd>shift + x</kbd> Select table of highlighted row</td>
                     </tr>
                     <tr>
-                        <td><kbd>shift + j</kbd>  Move highlighted row down</td>
+                        <td><kbd>shift + j</kbd> Move highlighted row down</td>
                     </tr>
                     <tr>
                         <td><kbd>shift + k</kbd> Move highlighted row up</td>
@@ -124,7 +124,7 @@
     {% if local_mathjax %}
             <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
-            <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+            <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
@@ -151,6 +151,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/search_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/modal_interface.js"></script>
     {# main entrance point for the worksheet and it's items/bundles #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>

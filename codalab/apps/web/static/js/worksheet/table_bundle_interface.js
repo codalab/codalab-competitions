@@ -238,9 +238,12 @@ var TableBundle = React.createClass({
         var className = 'table ' + (focused ? 'focused ' : '');
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];
+        var column_classes = header_items.map(function(item, index) {
+            return 'table-column-' + encodeURIComponent(item).replace("%", "_").replace(/[^-_A-Za-z0-9]/g, "_");
+        });
         var header_html = header_items.map(function(item, index) {
-                return <th key={index}> {item} </th>;
-            });
+            return <th key={index} className={column_classes[index]}>{item}</th>;
+        });
         var focusIndex = this.state.rowFocusIndex;
         var row_items = item.interpreted[1];
         var body_rows_html = row_items.map(function(row_item, index) {
@@ -255,6 +258,7 @@ var TableBundle = React.createClass({
                             focused={rowFocused}
                             bundleURL={bundle_url}
                             headerItems={header_items}
+                            columnClasses={column_classes}
                             canEdit={canEdit}
                             checkboxEnabled={focused}
                             handleClick={self.focusOnRow}
@@ -296,19 +300,20 @@ var TableRow = React.createClass({
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_item = this.props.item;
         var header_items = this.props.headerItems;
+        var column_classes = this.props.columnClasses;
         var bundle_url = this.props.bundleURL;
         var checkbox = this.props.canEdit ? <td className="td-checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
             if(index == 0){
                 return (
-                    <td key={index}>
+                    <td key={index} className={column_classes[index]}>
                         <a href={bundle_url} className="bundle-link" target="_blank">
                             {row_item[header_key]}
                         </a>
                     </td>
                 )
             } else {
-                return <td key={index}> {row_item[header_key]}</td>
+                return <td key={index} className={column_classes[index]}>{row_item[header_key]}</td>
             }
         });
         return (

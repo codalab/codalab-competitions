@@ -36,26 +36,27 @@ def new_user_signup(sender, **kwargs):
     """
     user = kwargs['user']
     get_or_create_cli_client(user)
-    if len(settings.BUNDLE_SERVICE_URL) > 0:
-        from apps.web.bundles import BundleService
-        service = BundleService(user)
-        try:
-            #clean up there name and make sure nothing sneaks in
-            ws_name = smart_str(user.username)
-            if "@" in ws_name:
-                ws_name = ws_name.split('@')[0]
-            rx = re.compile('\W+')
-            ws_name = rx.sub('', ws_name).strip()
-            uuid = service.create_worksheet(ws_name)
-        except Exception as e:
-            logging.error("create_default_worksheet")
-            logging.error(smart_str(e))
-            logging.error('Error Creating default worksheet for new user')
-            logging.debug('-------------------------')
-            tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
-            raise e
+    # Don't create a worksheet by default.
+    #if len(settings.BUNDLE_SERVICE_URL) > 0:
+    #    from apps.web.bundles import BundleService
+    #    service = BundleService(user)
+    #    try:
+    #        #clean up there name and make sure nothing sneaks in
+    #        ws_name = smart_str(user.username)
+    #        if "@" in ws_name:
+    #            ws_name = ws_name.split('@')[0]
+    #        rx = re.compile('\W+')
+    #        ws_name = rx.sub('', ws_name).strip()
+    #        uuid = service.create_worksheet(ws_name)
+    #    except Exception as e:
+    #        logging.error("create_default_worksheet")
+    #        logging.error(smart_str(e))
+    #        logging.error('Error Creating default worksheet for new user')
+    #        logging.debug('-------------------------')
+    #        tb = traceback.format_exc()
+    #        logging.error(tb)
+    #        logging.debug('-------------------------')
+    #        raise e
 
 @receiver(user_logged_in)
 def on_user_logged_in(sender, **kwargs):

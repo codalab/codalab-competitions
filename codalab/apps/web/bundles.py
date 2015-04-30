@@ -16,6 +16,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.common import UsageError, PermissionError
     from codalab.lib import worksheet_util, bundle_cli, metadata_util
     from codalab.objects.permission import permission_str, group_permissions_str
+    from codalab.lib.codalab_manager import CodaLabManager
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -86,7 +87,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.search_worksheets(keywords))
 
         def create_worksheet(self, name):
-            return _call_with_retries(lambda: self.client.new_worksheet(name))
+            return _call_with_retries(lambda: self.client.new_worksheet(name, None))
 
         def worksheet(self, uuid, interpreted=False):
             try:
@@ -120,24 +121,18 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
-        def create_run_bundle(self, args, command, worksheet_uuid):
-            from codalab.lib.codalab_manager import CodaLabManager
-            #mimic the command line so we can parse targets and create the bundle
-            manager = CodaLabManager()
-            cli = bundle_cli.BundleCLI(manager)
+        def create_run_bundle(self, args, worksheet_uuid):
+            cli = self._create_cli(worksheet_uuid)
             parser = cli.create_parser('run')
             parser.add_argument('target_spec', help=cli.TARGET_SPEC_FORMAT, nargs='*')
             parser.add_argument('command', help='Command-line')
             metadata_util.add_arguments(RunBundle, set(), parser)
             metadata_util.add_edit_argument(parser)
             args = parser.parse_args(args)
-
             metadata = metadata_util.request_missing_metadata(RunBundle, args)
-            metadata['name'] = str(slugify(command))
-
             targets = cli.parse_key_targets(self.client, worksheet_uuid, args.target_spec)
 
-            new_bundle_uuid = self.client.derive_bundle('run', targets, str(command), metadata, worksheet_uuid)
+            new_bundle_uuid = self.client.derive_bundle('run', targets, args.command, metadata, worksheet_uuid)
             return new_bundle_uuid
 
 
@@ -179,6 +174,48 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def delete_worksheet(self, worksheet_uuid):
             return _call_with_retries(lambda: self.client.delete_worksheet(worksheet_uuid))
+
+        # Create an instance of a CLI.
+        def _create_cli(self, worksheet_uuid):
+            manager = CodaLabManager(temporary=True, clients={settings.BUNDLE_SERVICE_URL: self.client})
+            manager.set_current_worksheet_uuid(self.client, worksheet_uuid)
+            cli = bundle_cli.BundleCLI(manager, headless=True)
+            return cli
+
+        def general_command(self, worksheet_uuid, command):
+            cli = self._create_cli(worksheet_uuid)
+            args = worksheet_util.string_to_tokens(command)
+            def do_command():
+                from cStringIO import StringIO
+                import sys
+                real_stdout = sys.stdout
+                sys.stdout = StringIO()
+                stdout_str = None
+
+                #real_stderr = sys.stderr
+                #sys.stderr = StringIO()
+                stderr_str = None
+
+                exception = None
+                try:
+                    cli.do_command(args)
+                    success = True
+                except BaseException as e:  # To capture SystemExit
+                    exception = e
+                    success = False
+                stdout_str = sys.stdout.getvalue()
+                sys.stdout.close()
+                sys.stdout = real_stdout
+
+                #stderr_str = sys.stderr.getvalue()
+                #sys.stderr.close()
+                #sys.stderr = real_stderr
+
+                print '>>> general_command on worksheet %s: %s' % (worksheet_uuid, command)
+                print stdout_str
+                print stderr_str
+                return {'stdout': stdout_str, 'stderr': stderr_str, 'exception': str(exception) if exception else None}
+            return _call_with_retries(do_command)
 
         MAX_BYTES = 1024*1024
         def read_file(self, uuid, path):
