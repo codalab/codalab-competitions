@@ -266,6 +266,11 @@ var Worksheet = React.createClass({
                         </div>
                     </div>
         }
+
+        var permission_str = "you(" + ws_obj.state.permission_str + ") "
+        ws_obj.state.group_permissions.forEach(function(perm) {
+            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
+        });
         if(ws_obj.state.items.length){
             // pass
         }else {
@@ -332,7 +337,7 @@ var Worksheet = React.createClass({
                                     <div className="worksheet-name">
                                         <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                                         <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                        <div className="worksheet-permission">Permission: {ws_obj.state.permission_str}</div>
+                                        <div className="worksheet-permission">Permission: {permission_str}</div>
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
