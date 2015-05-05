@@ -3,7 +3,6 @@
 #
 
 import sys
-import os.path
 import os
 
 root_dir = os.path.join(os.path.dirname(
@@ -18,7 +17,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 from configurations import importer
 importer.install()
 
-from apps.web.models import *
+from apps.web.models import Competition
 
 for c in Competition.objects.all():
     print c.id, c.title

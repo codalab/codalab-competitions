@@ -4,13 +4,14 @@ Common utilities to interact with Azure Storage.
 
 import datetime
 import os.path
-import re, itertools
+import re
+import itertools
 from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
 from io import RawIOBase, BufferedRWPair, BufferedWriter
 
-#keep consistent path separators
+# keep consistent path separators
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 try:
@@ -32,7 +33,7 @@ try:
         RESOURCE_BLOB,
         SHARED_ACCESS_PERMISSION,
         SIGNED_RESOURCE_TYPE,
-        )
+    )
 
 except ImportError:
     raise ImproperlyConfigured(
@@ -50,9 +51,15 @@ class AzureStorage(Storage):
     chunk_size = 65536
 
     def __init__(self, *args, **kwargs):
-        self.account_name = kwargs.pop('account_name', setting("AZURE_ACCOUNT_NAME"))
-        self.account_key = kwargs.pop('account_key', setting("AZURE_ACCOUNT_KEY"))
-        self.azure_container = kwargs.pop('azure_container', setting("AZURE_CONTAINER"))
+        self.account_name = kwargs.pop(
+            'account_name',
+            setting("AZURE_ACCOUNT_NAME"))
+        self.account_key = kwargs.pop(
+            'account_key',
+            setting("AZURE_ACCOUNT_KEY"))
+        self.azure_container = kwargs.pop(
+            'azure_container',
+            setting("AZURE_CONTAINER"))
         super(AzureStorage, self).__init__(*args, **kwargs)
         self._connection = None
 
@@ -64,7 +71,11 @@ class AzureStorage(Storage):
         return self._connection
 
     def _open(self, name, mode="rb"):
-        return AzureBlockBlobFile(self.connection, self.azure_container, name, mode)
+        return AzureBlockBlobFile(
+            self.connection,
+            self.azure_container,
+            name,
+            mode)
 
     def exists(self, name):
         try:
@@ -82,13 +93,17 @@ class AzureStorage(Storage):
         cur = 0
         while True:
             data = content.read(self.chunk_size)
-            if not len(data): break
+            if not len(data):
+                break
             f.write(data)
         f.close()
         return name
 
     def url(self, name):
-        return "https://%s%s/%s/%s" % (self.account_name, azure.BLOB_SERVICE_HOST_BASE, self.azure_container, name)
+        return "https://%s%s/%s/%s" % (self.account_name,
+                                       azure.BLOB_SERVICE_HOST_BASE,
+                                       self.azure_container,
+                                       name)
 
     def properties(self, name):
         return self.connection.get_blob_properties(
@@ -101,11 +116,15 @@ class AzureStorage(Storage):
         dir_path, file_name = os.path.split(name)
         name = clean_name(name)
         try:
-            file_root, file_ext = re.match('^([^\.\s]+)(\.\S+)$', file_name).groups()
+            file_root, file_ext = re.match(
+                '^([^\.\s]+)(\.\S+)$', file_name).groups()
         except AttributeError:
             file_root, file_ext = (file_name, '')
         path_prefix = pathjoin(dir_path, file_root)
-        file_list = {f.name: True for f in self.connection.list_blobs(self.azure_container, path_prefix)}
+        file_list = {
+            f.name: True for f in self.connection.list_blobs(
+                self.azure_container,
+                path_prefix)}
         ct = itertools.count(1)
         while name in file_list:
             name = path_prefix + "_%s%s" % (next(ct), file_ext)
@@ -127,15 +146,23 @@ class AzureBlockBlobFile(RawIOBase):
                 if 'a' not in mode:
                     raise Exception("File Already Exists.")
             except azure.WindowsAzureMissingResourceError as e:
-                res = self.connection.put_blob(self.container, self.name, '', "BlockBlob")
+                res = self.connection.put_blob(
+                    self.container,
+                    self.name,
+                    '',
+                    "BlockBlob")
         self._cur = 0
-        self._end = (int(self.properties['content-length']) - 1) if int(self.properties['content-length']) > 0 else 0
+        self._end = (int(self.properties[
+                     'content-length']) - 1
+                     ) if int(self.properties['content-length']) > 0 else 0
         self._block_list = []
 
     @property
     def properties(self):
         if self._properties is None:
-            self._properties = self.connection.get_blob_properties(self.container, self.name)
+            self._properties = self.connection.get_blob_properties(
+                self.container,
+                self.name)
         return self._properties
 
     @property
@@ -160,25 +187,29 @@ class AzureBlockBlobFile(RawIOBase):
     def read(self, num_bytes=None):
         start = self._cur
         if not num_bytes:
-            end = self.size -1
+            end = self.size - 1
         else:
-            end = self._cur+num_bytes-1
+            end = self._cur + num_bytes - 1
         if self._cur > self._end:
             raise Exception("Something odd happened.")
         if self._cur == self._end and not num_bytes:
             return None
         if self._end < end:
             end = self._end
-        content = self.connection.get_blob(self.container,
-                                           self.name,
-                                           x_ms_range='bytes=%d-%d' % (start, end))
-        self._cur = self._cur + len(content) if self._cur < self._end else self._end
+        content = self.connection.get_blob(
+            self.container, self.name, x_ms_range='bytes=%d-%d' %
+            (start, end))
+        self._cur = self._cur + \
+            len(content) if self._cur < self._end else self._end
         return content
 
     def write(self, data):
         blockid = "%6d" % len(self._block_list)
         try:
-            self.connection.put_block(self.container, self.name, data, blockid)
+            self.connection.put_block(self.container,
+                                      self.name,
+                                      data,
+                                      blockid)
             self._block_list.append((blockid, len(data)))
             return len(data)
         except azure.WindowsAzureError as e:
@@ -186,7 +217,9 @@ class AzureBlockBlobFile(RawIOBase):
 
     def flush(self):
         if self._block_list:
-            self.connection.put_block_list(self.container, self.name, [b[0] for b in self._block_list])
+            self.connection.put_block_list(
+                self.container, self.name, [
+                    b[0] for b in self._block_list])
             self._end = sum([b[1] for b in self._block_list]) - 1
             self._cur = 0
             self._block_list = []
@@ -195,6 +228,7 @@ class AzureBlockBlobFile(RawIOBase):
         self.flush()
 
 PREFERRED_STORAGE_X_MS_VERSION = '2013-08-15'
+
 
 def make_blob_sas_url(account_name,
                       account_key,
@@ -221,16 +255,22 @@ def make_blob_sas_url(account_name,
     start = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
     expiry = start + datetime.timedelta(minutes=duration)
     sap = SharedAccessPolicy(AccessPolicy(
-            start.strftime(date_format), 
-            expiry.strftime(date_format),
-            permission))
-    signed_query = sas.generate_signed_query_string(resource_path, RESOURCE_BLOB, sap)
+        start.strftime(date_format),
+        expiry.strftime(date_format),
+        permission))
+    signed_query = sas.generate_signed_query_string(
+        resource_path,
+        RESOURCE_BLOB,
+        sap)
     sas.permission_set = [Permission('/' + resource_path, signed_query)]
 
     res = WebResource()
     res.properties[SIGNED_RESOURCE_TYPE] = RESOURCE_BLOB
     res.properties[SHARED_ACCESS_PERMISSION] = permission
     res.path = '/{0}'.format(resource_path)
-    res.request_url = 'https://{0}.blob.core.windows.net/{1}/{2}'.format(account_name, container_name, blob_name)
+    res.request_url = 'https://{0}.blob.core.windows.net/{1}/{2}'.format(
+        account_name,
+        container_name,
+        blob_name)
     res = sas.sign_request(res)
     return res.request_url
