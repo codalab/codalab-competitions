@@ -20,6 +20,8 @@ urlpatterns = patterns('',
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^health/', include('apps.health.urls')),
     url(r'^analytics/', include('apps.analytics.urls')),
+    url(r'^forums/', include('apps.forums.urls')),
+    url(r'^captcha/', include('captcha.urls')),
 
     # Direct URL redirects
     url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),

@@ -1,0 +1,42 @@
+{% extends "forums/base_forum.html" %}
+
+{% load url from future %}
+
+{% block content %}
+    {% if forum.threads.all %}
+    <table class="table">
+        <thead>
+            <tr>
+                <td width="500px">
+                    Title
+                </td>
+                <td>
+                    Started by
+                </td>
+                <td>
+                    Date created
+                </td>
+                <td>
+                    Latest post
+                </td>
+                <td>
+                    Posts
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for thread in forum.threads.all %}
+                <tr>
+                    <td><a href="{% url 'forum_thread_detail' forum_pk=forum.pk thread_pk=thread.pk %}">{{ thread.title }}</a></td>
+                    <td>{{ thread.started_by }}</td>
+                    <td>{{ thread.date_created|date:"M d, Y" }}</td>
+                    <td>{{ thread.last_post_date|timesince }}</td> {# date:"g:iA M d" #}
+                    <td>{{ thread.posts.count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <i>No topics started yet, <a href="{% url 'forum_new_thread' forum_pk=forum.pk %}">start one now</a>!</i>
+    {% endif %}
+{% endblock %}

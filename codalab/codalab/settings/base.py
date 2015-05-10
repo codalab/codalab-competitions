@@ -47,7 +47,7 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = ''
 
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'codalab.test_runner.CodalabTestRunner'
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
@@ -199,6 +199,8 @@ class Base(Settings):
         'compressor',
         'django_js_reverse',
         'guardian',
+        'captcha',
+        'bootstrapform',
 
         # Storage API
         'storages',
@@ -216,6 +218,7 @@ class Base(Settings):
         'apps.web',
         'apps.health',
         'apps.analytics',
+        'apps.forums',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -271,6 +274,10 @@ class Base(Settings):
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
         ),
+    }
+
+    SOUTH_MIGRATION_MODULES = {
+        'captcha': 'captcha.south_migrations',
     }
 
     #HAYSTACK_CONNECTIONS = {

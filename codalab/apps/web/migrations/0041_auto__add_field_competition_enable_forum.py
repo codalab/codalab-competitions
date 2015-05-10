@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Competition.allow_public_submissions'
-        db.add_column(u'web_competition', 'allow_public_submissions',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+        # Adding field 'Competition.enable_forum'
+        db.add_column(u'web_competition', 'enable_forum',
+                      self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Competition.allow_public_submissions'
-        db.delete_column(u'web_competition', 'allow_public_submissions')
+        # Deleting field 'Competition.enable_forum'
+        db.delete_column(u'web_competition', 'enable_forum')
 
 
     models = {
@@ -71,12 +71,13 @@ class Migration(SchemaMigration):
         u'web.competition': {
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'admins': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'competition_admins'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['authenz.ClUser']"}),
-            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'allow_teams': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'disallow_leaderboard_modifying': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_forum': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_per_submission_metadata': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
