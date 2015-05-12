@@ -477,53 +477,8 @@ class CompetitionResultsDownload(View):
         phase = competition.phases.get(pk=self.kwargs['phase'])
         if phase.is_blind:
             return HttpResponse(status=403)
-        groups = phase.scores()
-
-        csvfile = StringIO.StringIO()
-        csvwriter = csv.writer(csvfile)
-
-        for group in groups:
-            #csvwriter.writerow([group['label']])
-            #csvwriter.writerow([])
-
-            headers = ["User"]
-            sub_headers = [""]
-            # This ordering dict will contain {<header key>: <order of the column>}
-            ordering = {}
-
-            for count, header in enumerate(group['headers']):
-                ordering[header['key']] = count
-                subs = header['subs']
-                if subs:
-                    for sub in subs:
-                        headers.append(header['label'])
-                        sub_headers.append(sub['label'])
-                else:
-                    headers.append(header['label'])
-            csvwriter.writerow(headers)
-            if sub_headers != ['']:
-                csvwriter.writerow(sub_headers)
-
-            if len(group['scores']) <= 0:
-                csvwriter.writerow(["No data available"])
-            else:
-                for pk, scores in group['scores']:
-                    #print pk, scores
-                    row = [scores['username']] + (['']*(len(ordering) + 1))
-                    for v in scores['values']:
-                        if 'rnk' in v:
-                            # Based on the header label insert the score into the proper column
-                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
-                        else:
-                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
-                    csvwriter.writerow(row)
-
-            csvwriter.writerow([])
-            csvwriter.writerow([])
-
-        response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
+        response = HttpResponse(competition.get_results_csv(phase.pk), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=%s results.csv" % phase.competition.title
-
         return response
 
 
