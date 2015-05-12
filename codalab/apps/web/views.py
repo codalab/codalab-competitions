@@ -734,9 +734,13 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
     """
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
+        competition = submission.phase.competition
 
-        if not submission.is_public and request.user != submission.participant.user:
-            raise Http404()
+        # Check competition admin permissions or user permissions
+        if not submission.is_public:
+            if (competition.creator != request.user and request.user not in competition.admins.all()) and \
+                request.user != submission.participant.user:
+                raise Http404()
 
         filetype = kwargs.get('filetype')
         try:
