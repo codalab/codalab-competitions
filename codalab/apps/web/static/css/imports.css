@@ -7499,9 +7499,6 @@ input[type="checkbox"] {
 #worksheet.search-hidden .ws-search {
   top: -7px;
 }
-#worksheet > .container {
-  width: auto;
-}
 #worksheet_content {
   display: none;
   margin-top: 12px;
@@ -7845,7 +7842,6 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   max-width: 100%;
   margin-bottom: 25px;
   border: 1px solid #dddddd;
-  width: auto;
   border-width: 2px;
   border-color: white;
   margin-bottom: 0;
@@ -7999,31 +7995,30 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   font-size: 14px;
   border-width: 2px;
   border-color: white;
-  white-space: nowrap;
-  max-width: 25em;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-#worksheet_content .type-table table > thead > tr > th:hover,
-#worksheet_content .type-record table > thead > tr > th:hover,
-#worksheet_content .type-search table > thead > tr > th:hover,
-#worksheet_content .type-table table > tbody > tr > th:hover,
-#worksheet_content .type-record table > tbody > tr > th:hover,
-#worksheet_content .type-search table > tbody > tr > th:hover,
-#worksheet_content .type-table table > tfoot > tr > th:hover,
-#worksheet_content .type-record table > tfoot > tr > th:hover,
-#worksheet_content .type-search table > tfoot > tr > th:hover,
-#worksheet_content .type-table table > thead > tr > td:hover,
-#worksheet_content .type-record table > thead > tr > td:hover,
-#worksheet_content .type-search table > thead > tr > td:hover,
-#worksheet_content .type-table table > tbody > tr > td:hover,
-#worksheet_content .type-record table > tbody > tr > td:hover,
-#worksheet_content .type-search table > tbody > tr > td:hover,
-#worksheet_content .type-table table > tfoot > tr > td:hover,
-#worksheet_content .type-record table > tfoot > tr > td:hover,
-#worksheet_content .type-search table > tfoot > tr > td:hover {
-  white-space: normal;
-  overflow: auto;
+@media screen and (max-width: 767px) {
+  #worksheet_content .type-table table > thead > tr > th,
+  #worksheet_content .type-record table > thead > tr > th,
+  #worksheet_content .type-search table > thead > tr > th,
+  #worksheet_content .type-table table > tbody > tr > th,
+  #worksheet_content .type-record table > tbody > tr > th,
+  #worksheet_content .type-search table > tbody > tr > th,
+  #worksheet_content .type-table table > tfoot > tr > th,
+  #worksheet_content .type-record table > tfoot > tr > th,
+  #worksheet_content .type-search table > tfoot > tr > th,
+  #worksheet_content .type-table table > thead > tr > td,
+  #worksheet_content .type-record table > thead > tr > td,
+  #worksheet_content .type-search table > thead > tr > td,
+  #worksheet_content .type-table table > tbody > tr > td,
+  #worksheet_content .type-record table > tbody > tr > td,
+  #worksheet_content .type-search table > tbody > tr > td,
+  #worksheet_content .type-table table > tfoot > tr > td,
+  #worksheet_content .type-record table > tfoot > tr > td,
+  #worksheet_content .type-search table > tfoot > tr > td {
+    max-width: 25em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 #worksheet_content .type-table table > thead > tr > th a.bundle-link,
 #worksheet_content .type-record table > thead > tr > th a.bundle-link,

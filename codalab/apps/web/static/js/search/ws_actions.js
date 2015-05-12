@@ -353,9 +353,15 @@ var WorksheetActions =  function() {
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
                                 console.log('===== Output of command: ' + params[1]);
-                                if (data.data.exception) alert(data.data.exception);
-                                if (data.data.stdout) alert(data.data.stdout);
-                                if (data.data.stderr) console.log(data.data.stderr);
+                                if (data.data.exception){
+                                    alert(data.data.exception);
+                                }
+                                if (data.data.stdout){
+                                    alert(data.data.stdout);
+                                }
+                                if (data.data.stderr){
+                                    console.log(data.data.stderr);
+                                }
                                 console.log('=====');
                                 callback();
                             },

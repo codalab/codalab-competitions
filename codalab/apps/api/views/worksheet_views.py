@@ -316,7 +316,8 @@ class BundleInfoApi(views.APIView):
                     if item['name'] in ['stdout', 'stderr']:
                         lines = service.head_target((uuid, item['name']), 100)
                         if lines:
-                            lines = ' '.join(lines)
+                            import base64
+                            lines = ' '.join(map(base64.b64decode, lines))
                             bundle_info[item['name']] = lines
 
             bundle_info['edit_permission'] = False
@@ -467,17 +468,19 @@ class BundleContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             target = (uuid, path)
-            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            info = service.get_target_info(target, 2)  # 2 is the depth to retrieve
             info['stdout'] = None
             info['stderr'] = None
             #if we have std out or err update it.
             contents = info.get('contents')
             if contents:
+                contents = sorted(contents, key=lambda r: r['name'])
                 for item in contents:
                     if item['name'] in ['stdout', 'stderr']:
                         lines = service.head_target((uuid, item['name']), 100)
                         if lines:
-                            lines = ' '.join(lines)
+                            import base64
+                            lines = ' '.join(map(base64.b64decode, lines))
                             info[item['name']] = lines
             return Response(info)
         except Exception as e:
