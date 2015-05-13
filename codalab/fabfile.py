@@ -12,7 +12,7 @@ django_settings.configure(Dev)
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
-# Ignore annoying internal fabric depreciation stuff
+# Ignore annoying internal fabric depreciated stuff
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
@@ -56,7 +56,7 @@ def test_django():
 
 def test_lint():
     sys.stdout.write("Checking syntax...")
-    local('flake8 **/*.py', capture=True)
+    local('flake8 . --max-line-length=120 --exclude=*/migrations/*', capture=True)
     print "done"
 
 
