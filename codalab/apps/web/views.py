@@ -496,7 +496,7 @@ class CompetitionCompleteResultsDownload(View):
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
-            csvwriter.writerow([group['label']])
+            csvwriter.writerow([group['label'].encode("utf-8")])
             csvwriter.writerow([])
 
             headers = ["User"]
@@ -505,10 +505,10 @@ class CompetitionCompleteResultsDownload(View):
                 subs = header['subs']
                 if subs:
                     for sub in subs:
-                        headers.append(header['label'])
-                        sub_headers.append(sub['label'])
+                        headers.append(header['label'].encode("utf-8"))
+                        sub_headers.append(sub['label'].encode("utf-8"))
                 else:
-                    headers.append(header['label'])
+                    headers.append(header['label'].encode("utf-8"))
             headers.append('Description')
             headers.append('Date')
             headers.append('Filename')
@@ -536,6 +536,8 @@ class CompetitionCompleteResultsDownload(View):
 
                     is_on_leaderboard = submission.pk in leader_board_entries
                     row.append(is_on_leaderboard)
+
+                    row = [str(r).encode("utf-8") for r in row]
                     csvwriter.writerow(row)
 
             csvwriter.writerow([])
@@ -543,7 +545,6 @@ class CompetitionCompleteResultsDownload(View):
 
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=competition_results.csv"
-
         return response
 
 ### Views for My Codalab
