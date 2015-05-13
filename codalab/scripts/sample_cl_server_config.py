@@ -3,7 +3,8 @@ import os
 import os.path
 import sys
 
-root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
+root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), "codalab")
 sys.path.append(root_dir)
 
 # Set things for django configurations

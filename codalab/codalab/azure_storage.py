@@ -6,10 +6,9 @@ import datetime
 import os.path
 import re
 import itertools
-from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
-from io import RawIOBase, BufferedRWPair, BufferedWriter
+from io import RawIOBase
 
 # keep consistent path separators
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
@@ -20,10 +19,6 @@ try:
 
     from azure.storage import (
         AccessPolicy,
-        BlobService,
-        SharedAccessPolicy,
-        SharedAccessSignature,
-        StorageServiceProperties,
     )
     from azure.storage.sharedaccesssignature import (
         Permission,
@@ -79,7 +74,7 @@ class AzureStorage(Storage):
 
     def exists(self, name):
         try:
-            p = self.properties(name)
+            self.properties(name)
         except azure.WindowsAzureMissingResourceError:
             return False
         else:
@@ -90,7 +85,6 @@ class AzureStorage(Storage):
 
     def _save(self, name, content):
         f = self._open(name, 'wb')
-        cur = 0
         while True:
             data = content.read(self.chunk_size)
             if not len(data):
@@ -145,8 +139,8 @@ class AzureBlockBlobFile(RawIOBase):
                 self.properties
                 if 'a' not in mode:
                     raise Exception("File Already Exists.")
-            except azure.WindowsAzureMissingResourceError as e:
-                res = self.connection.put_blob(
+            except azure.WindowsAzureMissingResourceError:
+                self.connection.put_blob(
                     self.container,
                     self.name,
                     '',

@@ -28,7 +28,8 @@ logger = logging.getLogger('codalabtools')
 class AzureServiceBusQueueMessage(QueueMessage):
 
     """
-    Implements a QueueMessage backed by a Windows Azure Service Bus Queue Message.
+    Implements a QueueMessage backed by a Windows Azure Service Bus Queue
+    Message.
     """
 
     def __init__(self, queue, message):
@@ -48,9 +49,9 @@ class AzureServiceBusQueue(Queue):
     Implements a Queue backed by a Windows Azure Service Bus Queue.
     """
 
-    # Timeout in seconds. receive_message is blocking and returns as soon as one of two
-    # conditions occurs: a message is received or the timeout period has
-    # elapsed.
+    # Timeout in seconds. receive_message is blocking and returns as soon
+    # as one of two conditions occurs: a message is received or the timeout
+    # period has elapsed.
     polling_timeout = 60
 
     def __init__(self, namespace, key, issuer, name):

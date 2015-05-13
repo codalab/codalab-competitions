@@ -60,12 +60,14 @@ def migrate_data():
 
 def insert_data():
     """
-    Inserts initial data required by the web app into the database defined by the Django settings.
+    Inserts initial data required by the web app into the database defined
+    by the Django settings.
 
-    The script's first action is to check the value of the Site's name. If the name is already the
-    expected value (as defined by settings.CODALAB_SITE_NAME) then no additional data is inserted.
-    Therefore, it is safe to run the script multiple times; the deployment code takes advantage of
-    this fact.
+    The script's first action is to check the value of the Site's name. If
+    the name is already the expected value (as defined by
+    settings.CODALAB_SITE_NAME) then no additional data is inserted.
+    Therefore, it is safe to run the script multiple times; the deployment
+    code takes advantage of this fact.
     """
     #
     # Site info
@@ -73,7 +75,8 @@ def insert_data():
 
     site, _ = Site.objects.get_or_create(pk=settings.SITE_ID)
     if site.name == settings.CODALAB_SITE_NAME:
-        print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
+        print "Initial data has been detected in the database: skipping all " \
+              "inserts. Running data migration..."
         migrate_data()
         print "Data migration complete."
         return
@@ -123,7 +126,7 @@ def insert_data():
             codename=category['codename'],
             visibility=category['visibility'],
             is_menu=category['is_menu'],
-            ßcontent_limit=category['content_limit'])
+            content_limit=category['content_limit'])
         nc.save()
         content_categories[category['codename']] = nc
 

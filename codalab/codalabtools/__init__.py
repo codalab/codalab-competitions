@@ -3,11 +3,9 @@ Package containing the CodaLab client tools.
 """
 
 import json
-import logging
 import multiprocessing
 import os
 import yaml
-import time
 
 from Queue import Empty
 
@@ -15,7 +13,8 @@ from Queue import Empty
 class BaseConfig(object):
 
     """
-    Defines a base class for loading configuration values from a YAML-formatted file.
+    Defines a base class for loading configuration values from a
+    YAML-formatted file.
     """
 
     def __init__(self, filename='.codalabconfig'):
@@ -49,7 +48,8 @@ class BaseConfig(object):
 class Queue(object):
 
     """
-    Provides an abstract definition for a queue providing one-way asynchronous messaging
+    Provides an abstract definition for a queue providing one-way
+    asynchronous messaging
     between a publisher and a remote subscriber.
     """
 
@@ -57,7 +57,8 @@ class Queue(object):
         """
         Gets the next message from the queue.
 
-        Returns a valid QueueMessage instance or None if no message was received.
+        Returns a valid QueueMessage instance or None if no message was
+        received.
         """
         raise NotImplementedError()
 
@@ -87,7 +88,8 @@ class QueueMessage(object):
 
 class QueueMessageError(Exception):
 
-    """Indicates that the body of a queue message cannot be decoded or is invalid."""
+    """Indicates that the body of a queue message cannot be decoded or is
+    invalid."""
 
     def __init__(self, message):
         Exception.__init__(self, message)
@@ -96,10 +98,11 @@ class QueueMessageError(Exception):
 def decode_message_body(message):
     """
     Returns a dictionary instance contructed by decoding the JSON-encoded body
-    of the given message. The message is expected to decode to a dict containing
-    the following required key-value pairs:
+    of the given message. The message is expected to decode to a dict
+    containing the following required key-value pairs:
         key='id' -> tracking identifier
-        key='task_type' -> string defining the type of task expected from the consumer
+        key='task_type' -> string defining the type of task expected from the
+        consumer
     Input arguments are usually passed with a third optional key-value pair:
         key='task_args' -> object defining input arguments for the task
 
@@ -110,9 +113,9 @@ def decode_message_body(message):
         data = json.loads(body)
     except:
         raise QueueMessageError("JSON object could not be decoded.")
-    if not 'id' in data:
+    if 'id' not in data:
         raise QueueMessageError("Missing key: id.")
-    if not 'task_type' in data:
+    if 'task_type' not in data:
         raise QueueMessageError("Missing key: task_type.")
     return data
 
@@ -120,17 +123,18 @@ def decode_message_body(message):
 class BaseWorker(object):
 
     """
-    Defines the base implementation for a worker process which listens to a queue for
-    messages. Each message defines a task. When the worker receives a message, it performs
-    the task then goes back to listening mode.
+    Defines the base implementation for a worker process which listens to a
+    queue for messages. Each message defines a task. When the worker receives
+    a message, it performs the task then goes back to listening mode.
     """
 
     def __init__(self, queue, vtable, logger):
         """
         queue: The Queue object to listen to.
-        vtable: A map from a task type to a function which contructs a runnable task. Given a
-            message with an identifier I, a task type T and task arguments A, the function
-            constructed to run the task is: F = vtable[T](I, A). And F() runs the task.
+        vtable: A map from a task type to a function which contructs a
+            runnable task. Given a message with an identifier I, a task type
+            T and task arguments A, the function constructed to run the task
+            is: F = vtable[T](I, A). And F() runs the task.
         logger: The logging.Logger object to use.
         """
         self.queue = queue

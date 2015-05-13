@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Run this with the python from the CodaLab virtual environment
 #
-
+import datetime
 import sys
 import os
 from django.utils import timezone
@@ -20,7 +20,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codalab.settings")
 from configurations import importer
 importer.install()
 
-from apps.web.models import *
+from apps.web.models import Competition, ContentCategory, get_user_model, \
+    CompetitionPhase, SubmissionResultGroup, SubmissionComputedScore, \
+    SubmissionComputedScoreField, SubmissionScoreSet, CompetitionParticipant, \
+    ParticipantStatus, SubmissionScoreDef, SubmissionScoreDefGroup, \
+    SubmissionResultGroupPhase, Page, File, random, PageContainer, \
+    ContentType
 
 # Get the user model
 User = get_user_model()
@@ -286,9 +291,9 @@ brats_leaderboard_defs = [
                                'label': 'Complete',
                                'computed': {
                                    'operation': 'Avg',
-                                 'fields': ('SyntheticDiceComplete',
-                                            'SyntheticSensitivityComplete',
-                                            'SyntheticSpecificityComplete')
+                                   'fields': ('SyntheticDiceComplete',
+                                              'SyntheticSensitivityComplete',
+                                              'SyntheticSpecificityComplete')
                                }}),
     ('SyntheticRankCore',     {'group': 'synthetic',
                                'column_group': 'SyntheticRank',
