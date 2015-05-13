@@ -8,15 +8,22 @@ class CodalabSignupForm(forms.Form):
     method_description = forms.CharField(required=False)
     project_url = forms.URLField(required=False)
     publication_url = forms.URLField(required=False)
-    organization_or_affiliation = forms.CharField(max_length=255, required=False)
+    organization_or_affiliation = forms.CharField(
+        max_length=255,
+        required=False)
     bibtex = forms.CharField(required=False)
 
     class Meta():
         widgets = {
-            'team_members': forms.Textarea(attrs={"class": "form-control"}),
-            'method_description': forms.Textarea(attrs={"class": "form-control"}),
-            'bibtex': forms.Textarea(attrs={"class": "form-control"})
-        }
+            'team_members': forms.Textarea(
+                attrs={
+                    "class": "form-control"}),
+            'method_description': forms.Textarea(
+                attrs={
+                    "class": "form-control"}),
+            'bibtex': forms.Textarea(
+                attrs={
+                    "class": "form-control"})}
 
     def save(self, new_user):
         new_user.__dict__.update({
@@ -30,4 +37,3 @@ class CodalabSignupForm(forms.Form):
             'bibtex': self.cleaned_data['bibtex'],
         })
         new_user.save()
-

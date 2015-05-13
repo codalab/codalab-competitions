@@ -59,7 +59,8 @@ class CompetitionsPhase(TestCase):
         for phase in [1, 2, 3]:
             phase_start = start_date + (day_delta * (phase - 2))
             p, created = CompetitionPhase.objects.get_or_create(
-                competition=competition, phasenumber=phase, label="Phase %d" % phase, start_date=phase_start, max_submissions=4)
+                competition=competition, phasenumber=phase, label="Phase %d" %
+                phase, start_date=phase_start, max_submissions=4)
             phases.append(p)
 
         self.assertEqual(len(phases), 3)
@@ -74,8 +75,8 @@ class CompetitionsPhase(TestCase):
         for phase in [1, 2, 3]:
             phase_start = start_date + (day_delta * (phase - 2))
             p, created = CompetitionPhase.objects.get_or_create(
-                competition=competition, phasenumber=phase, label="Phase %d" % phase,
-                start_date=phase_start, max_submissions=4)
+                competition=competition, phasenumber=phase, label="Phase %d" %
+                phase, start_date=phase_start, max_submissions=4)
             phases.append(p)
 
         self.assertEqual(phases[0].is_active, False)
@@ -92,26 +93,24 @@ class CompetitionsPhase(TestCase):
         for phase in [1, 2]:
             phase_start = start_date + (day_delta * (phase - 2))
             p, created = CompetitionPhase.objects.get_or_create(
-                competition=competition, phasenumber=phase, label="Phase %d" % phase,
-                start_date=phase_start, max_submissions=4)
+                competition=competition, phasenumber=phase, label="Phase %d" %
+                phase, start_date=phase_start, max_submissions=4)
             phases.append(p)
             print phase_start
 
         self.assertEqual(phases[0].is_active, False)
         self.assertEqual(phases[1].is_active, True)
 
-# Publish / Unpublish Test
-# Create a competition
-# Get the list of competitions (The new one should not be in it, and the new one should have the published flag set to false)
-# Publish the new one
-# The new one should be in the list and have the published flag set to true
-# Check turning off works
 
 class ParticipationStatusEmailTests(TestCase):
 
     def _participant_join_competition(self, cleanup_email=False):
         self.client.login(username="participant", password="pass")
-        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+        resp = self.client.post(
+            reverse(
+                'competition-participate',
+                kwargs={
+                    'pk': self.competition.pk}))
         self.client.logout()
 
         if cleanup_email:
@@ -124,8 +123,12 @@ class ParticipationStatusEmailTests(TestCase):
         for s in statuses:
             ParticipantStatus.objects.get_or_create(name=s, codename=s)
 
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
-        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.organizer_user = User.objects.create_user(
+            username="organizer",
+            password="pass")
+        self.participant_user = User.objects.create_user(
+            username="participant",
+            password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
@@ -140,14 +143,20 @@ class ParticipationStatusEmailTests(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Application to Test Competition sent', subjects)
-        self.assertIn('%s applied to your competition' % self.participant_user, subjects)
+        self.assertIn(
+            '%s applied to your competition' %
+            self.participant_user,
+            subjects)
 
     def test_participation_update_emails_contain_valid_links(self):
         self._participant_join_competition()
 
         for m in mail.outbox:
             self.assertIn("http://example.com/my/settings", m.body)
-            self.assertIn("http://example.com/competitions/%s" % self.competition.pk, m.body)
+            self.assertIn(
+                "http://example.com/competitions/%s" %
+                self.competition.pk,
+                m.body)
 
     def test_attempting_to_join_competition_auto_approved_sends_emails(self):
         self.competition.has_registration = False
@@ -158,10 +167,18 @@ class ParticipationStatusEmailTests(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Accepted into Test Competition!', subjects)
-        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+        self.assertIn(
+            '%s accepted into your competition!' %
+            self.participant_user,
+            subjects)
 
-    def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(self):
-        resp = self.client.post(reverse('competition-participate', kwargs={'pk': self.competition.pk}))
+    def test_attempting_to_join_competition_not_logged_in_doesnt_send_email(
+            self):
+        resp = self.client.post(
+            reverse(
+                'competition-participate',
+                kwargs={
+                    'pk': self.competition.pk}))
 
         self.assertEquals(resp.status_code, 403)
         self.assertEqual(len(mail.outbox), 0)
@@ -169,11 +186,16 @@ class ParticipationStatusEmailTests(TestCase):
     def test_participation_status_update_approved_sends_email(self):
         self._participant_join_competition(cleanup_email=True)
 
-        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+        participant = CompetitionParticipant.objects.get(
+            competition=self.competition,
+            user=self.participant_user)
 
         self.client.login(username="organizer", password="pass")
         resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            reverse(
+                'competition-participation-status',
+                kwargs={
+                    'pk': self.competition.pk}),
             {
                 "status": "approved",
                 "participant_id": participant.pk,
@@ -185,16 +207,24 @@ class ParticipationStatusEmailTests(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Accepted into %s!' % self.competition, subjects)
-        self.assertIn('%s accepted into your competition!' % self.participant_user, subjects)
+        self.assertIn(
+            '%s accepted into your competition!' %
+            self.participant_user,
+            subjects)
 
     def test_participation_status_update_revoked_sends_email(self):
         self._participant_join_competition(cleanup_email=True)
 
-        participant = CompetitionParticipant.objects.get(competition=self.competition, user=self.participant_user)
+        participant = CompetitionParticipant.objects.get(
+            competition=self.competition,
+            user=self.participant_user)
 
         self.client.login(username="organizer", password="pass")
         resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            reverse(
+                'competition-participation-status',
+                kwargs={
+                    'pk': self.competition.pk}),
             {
                 "status": "denied",
                 "participant_id": participant.pk,
@@ -206,9 +236,13 @@ class ParticipationStatusEmailTests(TestCase):
 
         subjects = [m.subject for m in mail.outbox]
         self.assertIn('Permission revoked from Test Competition!', subjects)
-        self.assertIn("%s's permission revoked from your competition!" % self.participant_user, subjects)
+        self.assertIn(
+            "%s's permission revoked from your competition!" %
+            self.participant_user,
+            subjects)
 
-    def test_participation_status_update_not_sent_when_participant_disables_status_notifications(self):
+    def test_participation_status_update_not_sent_when_participant_disables_status_notifications(
+            self):
         self.participant_user.participation_status_updates = False
         self.participant_user.save()
 
@@ -216,7 +250,8 @@ class ParticipationStatusEmailTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_organizer_not_notified_participant_joining_competition_if_opted_out(self):
+    def test_organizer_not_notified_participant_joining_competition_if_opted_out(
+            self):
         self.organizer_user.organizer_status_updates = False
         self.organizer_user.save()
 
@@ -232,8 +267,12 @@ class ParticipationStatusPermissionsTests(TestCase):
         for s in statuses:
             ParticipantStatus.objects.get_or_create(name=s, codename=s)
 
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
-        self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.organizer_user = User.objects.create_user(
+            username="organizer",
+            password="pass")
+        self.participant_user = User.objects.create_user(
+            username="participant",
+            password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
@@ -242,13 +281,18 @@ class ParticipationStatusPermissionsTests(TestCase):
         self.participant = CompetitionParticipant.objects.create(
             user=self.participant_user,
             competition=self.competition,
-            status=ParticipantStatus.objects.get(codename=ParticipantStatus.PENDING)
+            status=ParticipantStatus.objects.get(
+                codename=ParticipantStatus.PENDING)
         )
 
-    def test_updating_participant_status_denied_without_competition_ownership(self):
+    def test_updating_participant_status_denied_without_competition_ownership(
+            self):
         self.client.login(username="participant", password="pass")
         resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            reverse(
+                'competition-participation-status',
+                kwargs={
+                    'pk': self.competition.pk}),
             {
                 "status": ParticipantStatus.APPROVED,
                 "participant_id": self.participant.pk,
@@ -261,7 +305,10 @@ class ParticipationStatusPermissionsTests(TestCase):
     def test_updating_participant_status_works_as_owner(self):
         self.client.login(username="organizer", password="pass")
         resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            reverse(
+                'competition-participation-status',
+                kwargs={
+                    'pk': self.competition.pk}),
             {
                 "status": ParticipantStatus.APPROVED,
                 "participant_id": self.participant.pk,
@@ -270,16 +317,24 @@ class ParticipationStatusPermissionsTests(TestCase):
         )
 
         self.assertEquals(resp.status_code, 200)
-        participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
-        self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
+        participant_with_new_status = CompetitionParticipant.objects.get(
+            pk=self.participant.pk)
+        self.assertEquals(
+            participant_with_new_status.status.codename,
+            ParticipantStatus.APPROVED)
 
     def test_updating_participant_status_works_as_competition_admin(self):
-        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        some_admin = User.objects.create_user(
+            username="some_admin",
+            password="pass")
         self.client.login(username="some_admin", password="pass")
         self.competition.admins.add(some_admin)
         self.competition.save()
         resp = self.client.post(
-            reverse('competition-participation-status', kwargs={'pk': self.competition.pk}),
+            reverse(
+                'competition-participation-status',
+                kwargs={
+                    'pk': self.competition.pk}),
             {
                 "status": ParticipantStatus.APPROVED,
                 "participant_id": self.participant.pk,
@@ -288,14 +343,19 @@ class ParticipationStatusPermissionsTests(TestCase):
         )
 
         self.assertEquals(resp.status_code, 200)
-        participant_with_new_status = CompetitionParticipant.objects.get(pk=self.participant.pk)
-        self.assertEquals(participant_with_new_status.status.codename, ParticipantStatus.APPROVED)
+        participant_with_new_status = CompetitionParticipant.objects.get(
+            pk=self.participant.pk)
+        self.assertEquals(
+            participant_with_new_status.status.codename,
+            ParticipantStatus.APPROVED)
 
 
 class CompetitionPublishTests(TestCase):
 
     def setUp(self):
-        self.organizer_user = User.objects.create_user(username="organizer", password="pass")
+        self.organizer_user = User.objects.create_user(
+            username="organizer",
+            password="pass")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
@@ -309,31 +369,46 @@ class CompetitionPublishTests(TestCase):
         self.client.login(username="organizer", password="pass")
 
     def test_publish_competition_without_reference_data_returns_400(self):
-        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+        resp = self.client.get(
+            reverse(
+                "competition-publish",
+                kwargs={
+                    "pk": self.competition.pk}))
 
         self.assertEquals(resp.status_code, 400)
-        self.assertDictEqual(json.loads(resp.data), {
-            "error": "Not all phases have reference data, it is required for each phase before publishing."
-        })
+        self.assertDictEqual(
+            json.loads(
+                resp.data), {
+                "error": "Not all phases have reference data, it is required for each phase before publishing."})
 
-    def test_publish_competition_works_with_all_phases_having_reference_data(self):
+    def test_publish_competition_works_with_all_phases_having_reference_data(
+            self):
         self.phase.reference_data = 'test/path'
         self.phase.save()
 
-        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+        resp = self.client.get(
+            reverse(
+                "competition-publish",
+                kwargs={
+                    "pk": self.competition.pk}))
 
         self.assertEquals(resp.status_code, 200)
 
     def test_publish_competition_works_for_admins(self):
         self.phase.reference_data = 'test/path'
         self.phase.save()
-        some_admin = User.objects.create_user(username="some_admin", password="pass")
+        some_admin = User.objects.create_user(
+            username="some_admin",
+            password="pass")
         self.client.logout()
         self.client.login(username="some_admin", password="pass")
         self.competition.admins.add(some_admin)
         self.competition.save()
 
-        resp = self.client.get(reverse("competition-publish", kwargs={"pk": self.competition.pk}))
+        resp = self.client.get(
+            reverse(
+                "competition-publish",
+                kwargs={
+                    "pk": self.competition.pk}))
 
         self.assertEquals(resp.status_code, 200)
-

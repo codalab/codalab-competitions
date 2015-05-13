@@ -1,10 +1,5 @@
-import mock
-import datetime
-
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 
 from apps.web import models

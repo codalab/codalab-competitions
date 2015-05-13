@@ -5,7 +5,8 @@ from django.template import Context
 from django.template.loader import render_to_string
 
 
-def send_mail(context_data=None, from_email=None, html_file=None, text_file=None, subject=None, to_email=None):
+def send_mail(context_data=None, from_email=None, html_file=None,
+              text_file=None, subject=None, to_email=None):
     from_email = from_email if from_email else settings.DEFAULT_FROM_EMAIL
 
     context_data["site"] = Site.objects.get_current()

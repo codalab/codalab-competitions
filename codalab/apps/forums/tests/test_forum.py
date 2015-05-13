@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from apps.web.models import Competition
-from ..models import Forum, Thread, Post
+from ..models import Forum, Thread
 
 
 User = get_user_model()

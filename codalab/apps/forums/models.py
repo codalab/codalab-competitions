@@ -6,7 +6,10 @@ from .helpers import send_mail
 
 
 class Forum(models.Model):
-    competition = models.OneToOneField('web.Competition', unique=True, related_name="forum")
+    competition = models.OneToOneField(
+        'web.Competition',
+        unique=True,
+        related_name="forum")
 
 
 class Thread(models.Model):
@@ -25,7 +28,8 @@ class Thread(models.Model):
         return super(Thread, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk })
+        return reverse('forum_thread_detail', kwargs={
+                       'forum_pk': self.forum.pk, 'thread_pk': self.pk})
 
     def notify_all_posters_of_new_post(self):
         users_in_thread = set(post.posted_by for post in self.posts.all())

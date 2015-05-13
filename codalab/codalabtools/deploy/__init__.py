@@ -8,7 +8,11 @@ import os
 import sys
 import time
 # Add codalabtools to the module search path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)))))
 
 from azure import WindowsAzureMissingResourceError
 from azure.servicemanagement import (ConfigurationSet,
@@ -30,10 +34,13 @@ from codalabtools.azure_extensions import (
 
 logger = logging.getLogger('codalabtools')
 
+
 class DeploymentConfig(BaseConfig):
+
     """
     Defines credentials and configuration values needed to deploy CodaLab.
     """
+
     def __init__(self, label=None, filename='.codalabconfig'):
         super(DeploymentConfig, self).__init__(filename)
 
@@ -42,14 +49,16 @@ class DeploymentConfig(BaseConfig):
         self._azure_mgmt_info = self._dinfo['azure-management']
         self._svc_global = self._dinfo['service-global']
         self._bld = self._dinfo['build-configuration']
-        self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
+        self._svc = self._dinfo[
+            'service-configurations'][label] if label is not None else {}
 
     @staticmethod
     def _cap(word):
         """
         Returns a capitalized word.
         """
-        return word[0].upper() + word[1:].lower() if len(word) > 1 else word.upper()
+        return word[
+            0].upper() + word[1:].lower() if len(word) > 1 else word.upper()
 
     def getLoggerDictConfig(self):
         """Gets Dict config for logging configuration."""
@@ -183,7 +192,8 @@ class DeploymentConfig(BaseConfig):
         Currently a value of 1 will turn on worksheets, a value > 1 will turn on
         all preview features and a value < 1 will turn preview off.
         """
-        return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
+        return self._svc['django'][
+            'preview'] if 'preview' in self._svc['django'] else 0
 
     def getDatabaseEngine(self):
         """Gets the database engine type."""
@@ -227,14 +237,16 @@ class DeploymentConfig(BaseConfig):
 
     def getServiceStorageCorsAllowedOrigins(self):
         """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
-        return self._svc['storage']['cors-allowed-origins'] if 'cors-allowed-origins' in self._svc['storage'] else '*'
+        return self._svc['storage'][
+            'cors-allowed-origins'] if 'cors-allowed-origins' in self._svc['storage'] else '*'
 
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
         name = self._svc['bus']['namespace']
         if len(name) <= 0:
             cap = DeploymentConfig._cap
-            name = '{0}{1}Bus'.format(cap(self.getServicePrefix()), cap(self.label))
+            name = '{0}{1}Bus'.format(
+                cap(self.getServicePrefix()), cap(self.label))
         return name
 
     def getSslCertificatePath(self):
@@ -248,14 +260,16 @@ class DeploymentConfig(BaseConfig):
     def getSslCertificateInstalledPath(self):
         """Gets the path of the installed SSL certificate file."""
         if len(self.getSslCertificatePath()) > 0:
-            return "/etc/ssl/certs/%s" % os.path.basename(self.getSslCertificatePath())
+            return "/etc/ssl/certs/%s" % os.path.basename(
+                self.getSslCertificatePath())
         else:
             return ""
 
     def getSslCertificateKeyInstalledPath(self):
         """Gets the path of the installed SSL certificate key file."""
         if len(self.getSslCertificateKeyPath()) > 0:
-            return "/etc/ssl/private/%s" % os.path.basename(self.getSslCertificateKeyPath())
+            return "/etc/ssl/private/%s" % os.path.basename(
+                self.getSslCertificateKeyPath())
         else:
             return ""
 
@@ -290,19 +304,25 @@ class DeploymentConfig(BaseConfig):
         service_name = self.getServiceName()
         vm_numbers = range(1, 1 + self.getServiceInstanceCount())
         ssh_port = self.getServiceInstanceSshPort()
-        return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
+        return [
+            '{0}.cloudapp.net:{1}'.format(
+                service_name, str(
+                    ssh_port + vm_number)) for vm_number in vm_numbers]
 
     def getBundleServiceGitUser(self):
         """Gets the name of the Git user associated with the target source code repository for bundles."""
-        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
+        return self._svc[
+            'git-bundles']['user'] if 'git-bundles' in self._svc else ""
 
     def getBundleServiceGitRepo(self):
         """Gets the name of the Git of the target source code repository  for bundles."""
-        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
+        return self._svc[
+            'git-bundles']['repo'] if 'git-bundles' in self._svc else ""
 
     def getBundleServiceGitTag(self):
         """Gets the Git tag defining the specific version of the source code  for bundles."""
-        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
+        return self._svc[
+            'git-bundles']['tag'] if 'git-bundles' in self._svc else ""
 
     def getBundleServiceUrl(self):
         """Gets the URL for the bundle service."""
@@ -314,15 +334,18 @@ class DeploymentConfig(BaseConfig):
 
     def getBundleServiceDatabaseName(self):
         """Gets the bundle service database name."""
-        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
+        return self._svc['database'][
+            'bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
 
     def getBundleServiceDatabaseUser(self):
         """Gets the database username."""
-        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
+        return self._svc['database'][
+            'bundle_user'] if 'bundle_user' in self._svc['database'] else ""
 
     def getBundleServiceDatabasePassword(self):
         """Gets the password for the database user."""
-        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
+        return self._svc['database'][
+            'bundle_password'] if 'bundle_password' in self._svc['database'] else ""
 
     def getBundleServiceAppId(self):
         """Gets the value of the OAuth client ID assigned to the bundle service."""
@@ -334,13 +357,19 @@ class DeploymentConfig(BaseConfig):
 
 
 class Deployment(object):
+
     """
     Helper class to handle deployment of the web site.
     """
+
     def __init__(self, config):
         self.config = config
-        self.sms = ServiceManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
-        self.sbms = ServiceBusManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
+        self.sms = ServiceManagementService(
+            config.getAzureSubscriptionId(),
+            config.getAzureCertificatePath())
+        self.sbms = ServiceBusManagementService(
+            config.getAzureSubscriptionId(),
+            config.getAzureCertificatePath())
 
     @staticmethod
     def _resource_exists(get_resource):
@@ -375,9 +404,15 @@ class Deployment(object):
         now = start_time
         while result.status == 'InProgress':
             if now >= max_time:
-                raise Exception("Operation did not finish within the expected timeout")
-            logger.info('Waiting for operation to finish (last_status=%s wait_so_far=%s)',
-                        result.status, round(now - start_time, 1))
+                raise Exception(
+                    "Operation did not finish within the expected timeout")
+            logger.info(
+                'Waiting for operation to finish (last_status=%s wait_so_far=%s)',
+                result.status,
+                round(
+                    now -
+                    start_time,
+                    1))
             time_to_wait = max(0.0, min(max_time - now, wait))
             time.sleep(time_to_wait)
             result = self.sms.get_operation_status(request_id)
@@ -385,7 +420,13 @@ class Deployment(object):
         if result.status != 'Succeeded':
             raise Exception("Operation terminated but it did not succeed.")
 
-    def _wait_for_role_instance_status(self, role_instance_name, service_name, expected_status, timeout=600, wait=5):
+    def _wait_for_role_instance_status(
+            self,
+            role_instance_name,
+            service_name,
+            expected_status,
+            timeout=600,
+            wait=5):
         """
         Waits for a role instance within the web site's cloud service to reach the status specified.
 
@@ -400,16 +441,25 @@ class Deployment(object):
         now = start_time
         while True:
             status = None
-            deployment = self.sms.get_deployment_by_name(service_name, service_name)
+            deployment = self.sms.get_deployment_by_name(
+                service_name,
+                service_name)
             for role_instance in deployment.role_instance_list:
                 if role_instance.instance_name == role_instance_name:
                     status = role_instance.instance_status
             if status == expected_status:
                 break
             if now >= max_time:
-                raise Exception("Operation did not finish within the expected timeout")
-            logger.info('Waiting for deployment status: expecting %s but got %s (wait_so_far=%s)',
-                        expected_status, status, round(now - start_time, 1))
+                raise Exception(
+                    "Operation did not finish within the expected timeout")
+            logger.info(
+                'Waiting for deployment status: expecting %s but got %s (wait_so_far=%s)',
+                expected_status,
+                status,
+                round(
+                    now -
+                    start_time,
+                    1))
             time_to_wait = max(0.0, min(max_time - now, wait))
             time.sleep(time_to_wait)
             now = time.time()
@@ -428,8 +478,15 @@ class Deployment(object):
         logger.info("Checking that disk %s has been deleted.", disk_name)
         while self._resource_exists(lambda: self.sms.get_disk(disk_name)):
             if now >= max_time:
-                raise Exception("Disk %s was not deleted within the expected timeout.".format(disk_name))
-            logger.info("Waiting for disk %s to disappear (wait_so_far=%s).", disk_name, round(now - start_time, 1))
+                raise Exception(
+                    "Disk %s was not deleted within the expected timeout.".format(disk_name))
+            logger.info(
+                "Waiting for disk %s to disappear (wait_so_far=%s).",
+                disk_name,
+                round(
+                    now -
+                    start_time,
+                    1))
             time_to_wait = max(0.0, min(max_time - now, wait))
             time.sleep(time_to_wait)
             now = time.time()
@@ -453,9 +510,15 @@ class Deployment(object):
             if status == 'Active':
                 break
             if now >= max_time:
-                raise Exception("Operation did not finish within the expected timeout")
-            logger.info('Waiting for namespace status: expecting Active but got %s (wait_so_far=%s)',
-                        status, round(now - start_time, 1))
+                raise Exception(
+                    "Operation did not finish within the expected timeout")
+            logger.info(
+                'Waiting for namespace status: expecting Active but got %s (wait_so_far=%s)',
+                status,
+                round(
+                    now -
+                    start_time,
+                    1))
             time_to_wait = max(0.0, min(max_time - now, wait))
             time.sleep(time_to_wait)
             now = time.time()
@@ -466,8 +529,13 @@ class Deployment(object):
         a dictionary where keys are role instance names and values are RoleInstance objects.
         """
         role_instances = {}
-        if self._resource_exists(lambda: self.sms.get_deployment_by_name(service_name, service_name)):
-            deployment = self.sms.get_deployment_by_name(service_name, service_name)
+        if self._resource_exists(
+            lambda: self.sms.get_deployment_by_name(
+                service_name,
+                service_name)):
+            deployment = self.sms.get_deployment_by_name(
+                service_name,
+                service_name)
             for role_instance in deployment.role_instance_list:
                 role_instances[role_instance.instance_name] = role_instance
         return role_instances
@@ -478,8 +546,12 @@ class Deployment(object):
         """
         name = self.config.getAffinityGroupName()
         location = self.config.getServiceLocation()
-        logger.info("Checking for existence of affinity group (name=%s; location=%s).", name, location)
-        if self._resource_exists(lambda: self.sms.get_affinity_group_properties(name)):
+        logger.info(
+            "Checking for existence of affinity group (name=%s; location=%s).",
+            name,
+            location)
+        if self._resource_exists(
+                lambda: self.sms.get_affinity_group_properties(name)):
             logger.warn("An affinity group named %s already exists.", name)
         else:
             self.sms.create_affinity_group(name, name, location)
@@ -489,12 +561,21 @@ class Deployment(object):
         """
         Creates the storage account if it does not exist.
         """
-        logger.info("Checking for existence of storage account (name=%s).", name)
-        if self._resource_exists(lambda: self.sms.get_storage_account_properties(name)):
+        logger.info(
+            "Checking for existence of storage account (name=%s).",
+            name)
+        if self._resource_exists(
+                lambda: self.sms.get_storage_account_properties(name)):
             logger.warn("A storage account named %s already exists.", name)
         else:
-            result = self.sms.create_storage_account(name, "", name, affinity_group=self.config.getAffinityGroupName())
-            self._wait_for_operation_success(result.request_id, timeout=self.config.getAzureOperationTimeout())
+            result = self.sms.create_storage_account(
+                name,
+                "",
+                name,
+                affinity_group=self.config.getAffinityGroupName())
+            self._wait_for_operation_success(
+                result.request_id,
+                timeout=self.config.getAzureOperationTimeout())
             logger.info("Created storage account %s.", name)
 
     def _getStorageAccountKey(self, account_name):
@@ -512,13 +593,23 @@ class Deployment(object):
         account_name = self.config.getServiceStorageAccountName()
         account_key = self._getStorageAccountKey(account_name)
         blob_service = BlobService(account_name, account_key)
-        name_and_access_list = [(self.config.getServicePublicStorageContainer(), 'blob'),
-                                (self.config.getServiceBundleStorageContainer(), None)]
+        name_and_access_list = [
+            (self.config.getServicePublicStorageContainer(),
+             'blob'),
+            (self.config.getServiceBundleStorageContainer(),
+             None)]
         for name, access in name_and_access_list:
             logger.info("Checking for existence of Blob container %s.", name)
-            blob_service.create_container(name, x_ms_blob_public_access=access, fail_on_exist=False)
-            access_info = 'private' if access is None else 'public {0}'.format(access)
-            logger.info("Blob container %s is ready (access: %s).", name, access_info)
+            blob_service.create_container(
+                name,
+                x_ms_blob_public_access=access,
+                fail_on_exist=False)
+            access_info = 'private' if access is None else 'public {0}'.format(
+                access)
+            logger.info(
+                "Blob container %s is ready (access: %s).",
+                name,
+                access_info)
 
     def ensureStorageHasCorsConfiguration(self):
         """
@@ -536,7 +627,10 @@ class Deployment(object):
         cors_rule.max_age_in_seconds = 1800
         cors_rules = Cors()
         cors_rules.cors_rule.append(cors_rule)
-        set_storage_service_cors_properties(account_name, account_key, cors_rules)
+        set_storage_service_cors_properties(
+            account_name,
+            account_key,
+            cors_rules)
 
     def _ensureServiceExists(self, service_name, affinity_group_name):
         """
@@ -545,11 +639,19 @@ class Deployment(object):
         service_name: Name of the cloud service.
         affinity_group_name: Name of the affinity group (which should exists).
         """
-        logger.info("Checking for existence of cloud service (name=%s).", service_name)
-        if self._resource_exists(lambda: self.sms.get_hosted_service_properties(service_name)):
-            logger.warn("A cloud service named %s already exists.", service_name)
+        logger.info(
+            "Checking for existence of cloud service (name=%s).",
+            service_name)
+        if self._resource_exists(
+                lambda: self.sms.get_hosted_service_properties(service_name)):
+            logger.warn(
+                "A cloud service named %s already exists.",
+                service_name)
         else:
-            self.sms.create_hosted_service(service_name, service_name, affinity_group=affinity_group_name)
+            self.sms.create_hosted_service(
+                service_name,
+                service_name,
+                affinity_group=affinity_group_name)
             logger.info("Created cloud service %s.", service_name)
 
     def _ensureServiceCertificateExists(self, service_name):
@@ -563,8 +665,13 @@ class Deployment(object):
         cert_thumbprint = self.config.getServiceCertificateThumbprint()
         cert_path = self.config.getServiceCertificateFilename()
         cert_password = self.config.getServiceCertificatePassword()
-        logger.info("Checking for existence of cloud service certificate for service %s.", service_name)
-        get_cert = lambda: self.sms.get_service_certificate(service_name, cert_algorithm, cert_thumbprint)
+        logger.info(
+            "Checking for existence of cloud service certificate for service %s.",
+            service_name)
+        get_cert = lambda: self.sms.get_service_certificate(
+            service_name,
+            cert_algorithm,
+            cert_thumbprint)
         if self._resource_exists(get_cert):
             logger.info("Found expected cloud service certificate.")
         else:
@@ -572,17 +679,26 @@ class Deployment(object):
                 cert_data = base64.b64encode(f.read())
             if len(cert_data) <= 0:
                 raise Exception("Detected invalid certificate data.")
-            result = self.sms.add_service_certificate(service_name, cert_data, cert_format, cert_password)
-            self._wait_for_operation_success(result.request_id, timeout=self.config.getAzureOperationTimeout())
+            result = self.sms.add_service_certificate(
+                service_name,
+                cert_data,
+                cert_format,
+                cert_password)
+            self._wait_for_operation_success(
+                result.request_id,
+                timeout=self.config.getAzureOperationTimeout())
             logger.info("Added service certificate.")
 
     def _assertOsImageExists(self, os_image_name):
         """
         Asserts that the named OS image exists.
         """
-        logger.info("Checking for availability of OS image (name=%s).", os_image_name)
+        logger.info(
+            "Checking for availability of OS image (name=%s).",
+            os_image_name)
         if self.sms.get_os_image(os_image_name) is None:
-            raise Exception("Unable to find OS Image '{0}'.".format(os_image_name))
+            raise Exception(
+                "Unable to find OS Image '{0}'.".format(os_image_name))
 
     def _ensureVirtualMachinesExist(self):
         """
@@ -595,34 +711,45 @@ class Deployment(object):
         vm_role_size = self.config.getServiceInstanceRoleSize()
         vm_numbers = self.config.getServiceInstanceCount()
         if vm_numbers < 1:
-            raise Exception("Detected an invalid number of instances: {0}.".format(vm_numbers))
+            raise Exception(
+                "Detected an invalid number of instances: {0}.".format(vm_numbers))
 
         self._assertOsImageExists(self.config.getServiceOSImageName())
 
         role_instances = self._getRoleInstances(service_name)
-        for vm_number in range(1, vm_numbers+1):
+        for vm_number in range(1, vm_numbers + 1):
             vm_hostname = '{0}-{1}'.format(service_name, vm_number)
             if vm_hostname in role_instances:
-                logger.warn("Role instance %s already exists: skipping creation.", vm_hostname)
+                logger.warn(
+                    "Role instance %s already exists: skipping creation.",
+                    vm_hostname)
                 continue
 
             logger.info("Role instance %s provisioning begins.", vm_hostname)
             vm_diskname = '{0}.vhd'.format(vm_hostname)
             vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(
-                self.config.getServiceStorageAccountName(), vm_diskname
-            )
+                self.config.getServiceStorageAccountName(),
+                vm_diskname)
             ssh_port = str(self.config.getServiceInstanceSshPort() + vm_number)
 
             os_hd = OSVirtualHardDisk(self.config.getServiceOSImageName(),
                                       vm_disk_media_link,
                                       disk_name=vm_diskname,
                                       disk_label=vm_diskname)
-            linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
+            linux_config = LinuxConfigurationSet(
+                vm_hostname,
+                vm_username,
+                vm_password,
+                True)
             linux_config.ssh.public_keys.public_keys.append(
-                PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
+                PublicKey(
+                    cert_thumbprint,
+                    u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
             )
             linux_config.ssh.key_pairs.key_pairs.append(
-                KeyPair(cert_thumbprint, u'/home/{0}/.ssh/id_rsa'.format(vm_username))
+                KeyPair(
+                    cert_thumbprint,
+                    u'/home/{0}/.ssh/id_rsa'.format(vm_username))
             )
             network_config = ConfigurationSet()
             network_config.configuration_set_type = 'NetworkConfiguration'
@@ -631,31 +758,38 @@ class Deployment(object):
                                                          port=ssh_port,
                                                          local_port=u'22')
             network_config.input_endpoints.input_endpoints.append(ssh_endpoint)
-            http_endpoint = ConfigurationSetInputEndpoint(name='HTTP',
-                                                          protocol='TCP',
-                                                          port=u'80',
-                                                          local_port=u'80',
-                                                          load_balanced_endpoint_set_name=service_name)
+            http_endpoint = ConfigurationSetInputEndpoint(
+                name='HTTP',
+                protocol='TCP',
+                port=u'80',
+                local_port=u'80',
+                load_balanced_endpoint_set_name=service_name)
             http_endpoint.load_balancer_probe.port = '80'
             http_endpoint.load_balancer_probe.protocol = 'TCP'
-            network_config.input_endpoints.input_endpoints.append(http_endpoint)
+            network_config.input_endpoints.input_endpoints.append(
+                http_endpoint)
 
             if vm_number == 1:
-                result = self.sms.create_virtual_machine_deployment(service_name=service_name,
-                                                                    deployment_name=service_name,
-                                                                    deployment_slot='Production',
-                                                                    label=vm_hostname,
-                                                                    role_name=vm_hostname,
-                                                                    system_config=linux_config,
-                                                                    os_virtual_hard_disk=os_hd,
-                                                                    network_config=network_config,
-                                                                    availability_set_name=service_name,
-                                                                    data_virtual_hard_disks=None,
-                                                                    role_size=vm_role_size)
-                self._wait_for_operation_success(result.request_id,
-                                                 timeout=self.config.getAzureOperationTimeout())
-                self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
-                                                    self.config.getAzureOperationTimeout())
+                result = self.sms.create_virtual_machine_deployment(
+                    service_name=service_name,
+                    deployment_name=service_name,
+                    deployment_slot='Production',
+                    label=vm_hostname,
+                    role_name=vm_hostname,
+                    system_config=linux_config,
+                    os_virtual_hard_disk=os_hd,
+                    network_config=network_config,
+                    availability_set_name=service_name,
+                    data_virtual_hard_disks=None,
+                    role_size=vm_role_size)
+                self._wait_for_operation_success(
+                    result.request_id,
+                    timeout=self.config.getAzureOperationTimeout())
+                self._wait_for_role_instance_status(
+                    vm_hostname,
+                    service_name,
+                    'ReadyRole',
+                    self.config.getAzureOperationTimeout())
             else:
                 result = self.sms.add_role(service_name=service_name,
                                            deployment_name=service_name,
@@ -665,10 +799,14 @@ class Deployment(object):
                                            network_config=network_config,
                                            availability_set_name=service_name,
                                            role_size=vm_role_size)
-                self._wait_for_operation_success(result.request_id,
-                                                 timeout=self.config.getAzureOperationTimeout())
-                self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
-                                                    self.config.getAzureOperationTimeout())
+                self._wait_for_operation_success(
+                    result.request_id,
+                    timeout=self.config.getAzureOperationTimeout())
+                self._wait_for_role_instance_status(
+                    vm_hostname,
+                    service_name,
+                    'ReadyRole',
+                    self.config.getAzureOperationTimeout())
 
             logger.info("Role instance %s has been created.", vm_hostname)
 
@@ -676,8 +814,13 @@ class Deployment(object):
         """
         Deletes the VMs in the given cloud service.
         """
-        if self._resource_exists(lambda: self.sms.get_deployment_by_name(service_name, service_name)) == False:
-            logger.warn("Deployment %s not found: no VMs to delete.", service_name)
+        if self._resource_exists(
+            lambda: self.sms.get_deployment_by_name(
+                service_name,
+                service_name)) == False:
+            logger.warn(
+                "Deployment %s not found: no VMs to delete.",
+                service_name)
         else:
             logger.info("Attempting to delete deployment %s.", service_name)
             # Get set of role instances before we remove them
@@ -696,17 +839,23 @@ class Deployment(object):
                     hdrs.append((name, value))
                 request.headers = hdrs
                 request.path = request.path + '?comp=media'
-                #pylint: disable=W0212
+                # pylint: disable=W0212
                 response = self.sms._filter(request)
                 return response
 
-            svc = ServiceManagementService(self.sms.subscription_id, self.sms.cert_file)
-            #pylint: disable=W0212
+            svc = ServiceManagementService(
+                self.sms.subscription_id,
+                self.sms.cert_file)
+            # pylint: disable=W0212
             svc._filter = update_request
             result = svc.delete_deployment(service_name, service_name)
-            logger.info("Deployment %s deletion in progress: waiting for delete_deployment operation.", service_name)
+            logger.info(
+                "Deployment %s deletion in progress: waiting for delete_deployment operation.",
+                service_name)
             self._wait_for_operation_success(result.request_id)
-            logger.info("Deployment %s deletion in progress: waiting for VM disks to be removed.", service_name)
+            logger.info(
+                "Deployment %s deletion in progress: waiting for VM disks to be removed.",
+                service_name)
             # Now wait for the disks to disappear
             for role_instance_name in role_instances.keys():
                 disk_name = "{0}.vhd".format(role_instance_name)
@@ -726,23 +875,35 @@ class Deployment(object):
 
         role_instances = self._getRoleInstances(service_name)
         if vm_hostname in role_instances:
-            logger.warn("Role instance %s already exists: skipping creation.", vm_hostname)
+            logger.warn(
+                "Role instance %s already exists: skipping creation.",
+                vm_hostname)
         else:
             logger.info("Role instance %s provisioning begins.", vm_hostname)
             self._assertOsImageExists(self.config.getBuildOSImageName())
 
             vm_diskname = '{0}.vhd'.format(vm_hostname)
-            vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(service_storage_name, vm_diskname)
+            vm_disk_media_link = 'http://{0}.blob.core.windows.net/vhds/{1}'.format(
+                service_storage_name,
+                vm_diskname)
             os_hd = OSVirtualHardDisk(self.config.getBuildOSImageName(),
                                       vm_disk_media_link,
                                       disk_name=vm_diskname,
                                       disk_label=vm_diskname)
-            linux_config = LinuxConfigurationSet(vm_hostname, vm_username, vm_password, True)
+            linux_config = LinuxConfigurationSet(
+                vm_hostname,
+                vm_username,
+                vm_password,
+                True)
             linux_config.ssh.public_keys.public_keys.append(
-                PublicKey(cert_thumbprint, u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
+                PublicKey(
+                    cert_thumbprint,
+                    u'/home/{0}/.ssh/authorized_keys'.format(vm_username))
             )
             linux_config.ssh.key_pairs.key_pairs.append(
-                KeyPair(cert_thumbprint, u'/home/{0}/.ssh/id_rsa'.format(vm_username))
+                KeyPair(
+                    cert_thumbprint,
+                    u'/home/{0}/.ssh/id_rsa'.format(vm_username))
             )
             network_config = ConfigurationSet()
             network_config.configuration_set_type = 'NetworkConfiguration'
@@ -752,20 +913,26 @@ class Deployment(object):
                                                          local_port=u'22')
             network_config.input_endpoints.input_endpoints.append(ssh_endpoint)
 
-            result = self.sms.create_virtual_machine_deployment(service_name=service_name,
-                                                                deployment_name=service_name,
-                                                                deployment_slot='Production',
-                                                                label=vm_hostname,
-                                                                role_name=vm_hostname,
-                                                                system_config=linux_config,
-                                                                os_virtual_hard_disk=os_hd,
-                                                                network_config=network_config,
-                                                                availability_set_name=None,
-                                                                data_virtual_hard_disks=None,
-                                                                role_size=self.config.getBuildInstanceRoleSize())
-            self._wait_for_operation_success(result.request_id, timeout=self.config.getAzureOperationTimeout())
-            self._wait_for_role_instance_status(vm_hostname, service_name, 'ReadyRole',
-                                                self.config.getAzureOperationTimeout())
+            result = self.sms.create_virtual_machine_deployment(
+                service_name=service_name,
+                deployment_name=service_name,
+                deployment_slot='Production',
+                label=vm_hostname,
+                role_name=vm_hostname,
+                system_config=linux_config,
+                os_virtual_hard_disk=os_hd,
+                network_config=network_config,
+                availability_set_name=None,
+                data_virtual_hard_disks=None,
+                role_size=self.config.getBuildInstanceRoleSize())
+            self._wait_for_operation_success(
+                result.request_id,
+                timeout=self.config.getAzureOperationTimeout())
+            self._wait_for_role_instance_status(
+                vm_hostname,
+                service_name,
+                'ReadyRole',
+                self.config.getAzureOperationTimeout())
             logger.info("Role instance %s has been created.", vm_hostname)
 
     def _deleteStorageAccount(self, name):
@@ -773,8 +940,11 @@ class Deployment(object):
         Deletes the storage account for the web site.
         """
         logger.info("Attempting to delete storage account %s.", name)
-        if self._resource_exists(lambda: self.sms.get_storage_account_properties(name)) == False:
-            logger.warn("Storage account %s not found: nothing to delete.", name)
+        if self._resource_exists(
+                lambda: self.sms.get_storage_account_properties(name)) == False:
+            logger.warn(
+                "Storage account %s not found: nothing to delete.",
+                name)
         else:
             self.sms.delete_storage_account(name)
             logger.info("Storage account %s deleted.", name)
@@ -784,7 +954,8 @@ class Deployment(object):
         Deletes the specified cloud service.
         """
         logger.info("Attempting to delete cloud service %s.", name)
-        if self._resource_exists(lambda: self.sms.get_hosted_service_properties(name)) == False:
+        if self._resource_exists(
+                lambda: self.sms.get_hosted_service_properties(name)) == False:
             logger.warn("Cloud service %s not found: nothing to delete.", name)
         else:
             self.sms.delete_hosted_service(name)
@@ -796,8 +967,11 @@ class Deployment(object):
         """
         name = self.config.getAffinityGroupName()
         logger.info("Attempting to delete affinity group %s.", name)
-        if self._resource_exists(lambda: self.sms.get_affinity_group_properties(name)) == False:
-            logger.warn("Affinity group %s not found: nothing to delete.", name)
+        if self._resource_exists(
+                lambda: self.sms.get_affinity_group_properties(name)) == False:
+            logger.warn(
+                "Affinity group %s not found: nothing to delete.",
+                name)
         else:
             self.sms.delete_affinity_group(name)
             logger.info("Affinity group %s deleted.", name)
@@ -807,7 +981,9 @@ class Deployment(object):
         Creates the Azure Service Bus Namespace if it does not exist.
         """
         name = self.config.getServiceBusNamespace()
-        logger.info("Checking for existence of service bus namespace (name=%s).", name)
+        logger.info(
+            "Checking for existence of service bus namespace (name=%s).",
+            name)
         if self._resource_exists(lambda: self.sbms.get_namespace(name)):
             logger.warn("A namespace named %s already exists.", name)
         else:
@@ -820,9 +996,16 @@ class Deployment(object):
         Creates Azure service bus queues required by the service.
         """
         logger.info("Checking for existence of Service Bus Queues.")
-        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
-        sbs = ServiceBusService(namespace.name, namespace.default_key, issuer='owner')
-        queue_names = ['jobresponsequeue', 'windowscomputequeue', 'linuxcomputequeue']
+        namespace = self.sbms.get_namespace(
+            self.config.getServiceBusNamespace())
+        sbs = ServiceBusService(
+            namespace.name,
+            namespace.default_key,
+            issuer='owner')
+        queue_names = [
+            'jobresponsequeue',
+            'windowscomputequeue',
+            'linuxcomputequeue']
         for name in queue_names:
             logger.info("Checking for existence of Queue %s.", name)
             sbs.create_queue(name, fail_on_exist=False)
@@ -834,7 +1017,8 @@ class Deployment(object):
         """
         name = self.config.getServiceBusNamespace()
         logger.info("Attempting to delete service bus namespace %s.", name)
-        if self._resource_exists(lambda: self.sbms.get_namespace(name)) == False:
+        if self._resource_exists(
+                lambda: self.sbms.get_namespace(name)) == False:
             logger.warn("Namespace %s not found: nothing to delete.", name)
         else:
             self.sbms.delete_namespace(name)
@@ -851,22 +1035,28 @@ class Deployment(object):
         logger.info("Starting deployment operation.")
         self._ensureAffinityGroupExists()
         self._ensureStorageAccountExists(self.config.getStorageAccountName())
-        ## Build instance
+        # Build instance
         if 'build' in assets:
-            self._ensureServiceExists(self.config.getBuildServiceName(), self.config.getAffinityGroupName())
-            self._ensureServiceCertificateExists(self.config.getBuildServiceName())
+            self._ensureServiceExists(
+                self.config.getBuildServiceName(),
+                self.config.getAffinityGroupName())
+            self._ensureServiceCertificateExists(
+                self.config.getBuildServiceName())
             self._ensureBuildMachineExists()
         # Web instances
         if 'web' in assets:
-            self._ensureStorageAccountExists(self.config.getServiceStorageAccountName())
+            self._ensureStorageAccountExists(
+                self.config.getServiceStorageAccountName())
             self._ensureStorageContainersExist()
             self.ensureStorageHasCorsConfiguration()
             self._ensureServiceBusNamespaceExists()
             self._ensureServiceBusQueuesExist()
-            self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
+            self._ensureServiceExists(
+                self.config.getServiceName(),
+                self.config.getAffinityGroupName())
             self._ensureServiceCertificateExists(self.config.getServiceName())
             self._ensureVirtualMachinesExist()
-        #queues
+        # queues
         logger.info("Deployment operation is complete.")
 
     def Teardown(self, assets):
@@ -881,7 +1071,8 @@ class Deployment(object):
         if 'web' in assets:
             self._deleteVirtualMachines(self.config.getServiceName())
             self._deleteService(self.config.getServiceName())
-            self._deleteStorageAccount(self.config.getServiceStorageAccountName())
+            self._deleteStorageAccount(
+                self.config.getServiceStorageAccountName())
         if 'build' in assets:
             self._deleteVirtualMachines(self.config.getBuildServiceName())
             self._deleteService(self.config.getBuildServiceName())
@@ -895,25 +1086,32 @@ class Deployment(object):
         """
         Generates the content of the local Django settings file.
         """
-        allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
+        allowed_hosts = [
+            '{0}.cloudapp.net'.format(
+                self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
         allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
-        ssl_allowed_hosts = self.config.getSslRewriteHosts();
+        ssl_allowed_hosts = self.config.getSslRewriteHosts()
         if len(ssl_allowed_hosts) == 0:
             ssl_allowed_hosts = allowed_hosts
 
-        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
+        storage_key = self._getStorageAccountKey(
+            self.config.getServiceStorageAccountName())
+        namespace = self.sbms.get_namespace(
+            self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
             bundle_auth_scheme = "https"
         else:
             bundle_auth_scheme = "http"
         if len(ssl_allowed_hosts) == 0:
-            bundle_auth_host = '{0}.cloudapp.net'.format(self.config.getServiceName())
+            bundle_auth_host = '{0}.cloudapp.net'.format(
+                self.config.getServiceName())
         else:
             bundle_auth_host = ssl_allowed_hosts[0]
-        bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
+        bundle_auth_url = "{0}://{1}".format(
+            bundle_auth_scheme,
+            bundle_auth_host)
 
         lines = [
             "from base import Base",
@@ -932,19 +1130,25 @@ class Deployment(object):
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
             "    SSL_PORT = '443'",
-            "    SSL_CERTIFICATE = '{0}'".format(self.config.getSslCertificateInstalledPath()),
-            "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
+            "    SSL_CERTIFICATE = '{0}'".format(
+                self.config.getSslCertificateInstalledPath()),
+            "    SSL_CERTIFICATE_KEY = '{0}'".format(
+                self.config.getSslCertificateKeyInstalledPath()),
             "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
-            "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
+            "    AZURE_ACCOUNT_NAME = '{0}'".format(
+                self.config.getServiceStorageAccountName()),
             "    AZURE_ACCOUNT_KEY = '{0}'".format(storage_key),
-            "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
+            "    AZURE_CONTAINER = '{0}'".format(
+                self.config.getServicePublicStorageContainer()),
             "    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME",
             "    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY",
-            "    BUNDLE_AZURE_CONTAINER = '{0}'".format(self.config.getServiceBundleStorageContainer()),
+            "    BUNDLE_AZURE_CONTAINER = '{0}'".format(
+                self.config.getServiceBundleStorageContainer()),
             "",
-            "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
+            "    SBS_NAMESPACE = '{0}'".format(
+                self.config.getServiceBusNamespace()),
             "    SBS_ISSUER = 'owner'",
             "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key),
             "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
@@ -953,7 +1157,8 @@ class Deployment(object):
             "    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'",
             "    EMAIL_HOST = '{0}'".format(self.config.getEmailHost()),
             "    EMAIL_HOST_USER = '{0}'".format(self.config.getEmailUser()),
-            "    EMAIL_HOST_PASSWORD = '{0}'".format(self.config.getEmailPassword()),
+            "    EMAIL_HOST_PASSWORD = '{0}'".format(
+                self.config.getEmailPassword()),
             "    EMAIL_PORT = 587",
             "    EMAIL_USE_TLS = True",
             "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
@@ -962,17 +1167,21 @@ class Deployment(object):
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
-            "    ADMINS = (('Admin', '{0}'),)".format(self.config.getAdminEmail()),
+            "    ADMINS = (('Admin', '{0}'),)".format(
+                self.config.getAdminEmail()),
             "    MANAGERS = ADMINS",
             "",
             "    DATABASES = {",
             "        'default': {",
-            "            'ENGINE': '{0}',".format(self.config.getDatabaseEngine()),
+            "            'ENGINE': '{0}',".format(
+                self.config.getDatabaseEngine()),
             "            'NAME': '{0}',".format(self.config.getDatabaseName()),
             "            'USER': '{0}',".format(self.config.getDatabaseUser()),
-            "            'PASSWORD': '{0}',".format(self.config.getDatabasePassword()),
+            "            'PASSWORD': '{0}',".format(
+                self.config.getDatabasePassword()),
             "            'HOST': '{0}',".format(self.config.getDatabaseHost()),
-            "            'PORT': '{0}', ".format(self.config.getDatabasePort()),
+            "            'PORT': '{0}', ".format(
+                self.config.getDatabasePort()),
             "            'OPTIONS' : {",
             "                'init_command': 'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',",
             "                'read_timeout': 5",
@@ -980,16 +1189,24 @@ class Deployment(object):
             "        }",
             "    }",
             "",
-            "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
-            "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
-            "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
-            "    BUNDLE_APP_ID = '{0}'".format(self.config.getBundleServiceAppId()),
-            "    BUNDLE_APP_KEY = '{0}'".format(self.config.getBundleServiceAppKey()),
+            "    BUNDLE_DB_NAME = '{0}'".format(
+                self.config.getBundleServiceDatabaseName()),
+            "    BUNDLE_DB_USER = '{0}'".format(
+                self.config.getBundleServiceDatabaseUser()),
+            "    BUNDLE_DB_PASSWORD = '{0}'".format(
+                self.config.getBundleServiceDatabasePassword()),
+            "    BUNDLE_APP_ID = '{0}'".format(
+                self.config.getBundleServiceAppId()),
+            "    BUNDLE_APP_KEY = '{0}'".format(
+                self.config.getBundleServiceAppKey()),
             "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
             "",
-            "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
-            "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
-            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    BUNDLE_SERVICE_URL = '{0}'".format(
+                self.config.getBundleServiceUrl()),
+            "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(
+                self.config.getLandingPageWorksheetUuid()),
+            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(
+                self.config.getVirtualMachineLogonUsername()),
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "",
@@ -1005,11 +1222,15 @@ class Deployment(object):
 
 if __name__ == "__main__":
 
-    configuration = DeploymentConfig('dev', r'c:\cygwin64\home\cpoulain\.devconfig')
+    configuration = DeploymentConfig(
+        'dev',
+        r'c:\cygwin64\home\cpoulain\.devconfig')
     logging.config.dictConfig(configuration.getLoggerDictConfig())
-    logger.info("Loaded configuration from file: %s", configuration.getFilename())
-    assets_to_deploy = {} # {'build', 'web'}
-    assets_to_teardown = {} # {'web', 'build', 'rest'}
+    logger.info(
+        "Loaded configuration from file: %s",
+        configuration.getFilename())
+    assets_to_deploy = {}  # {'build', 'web'}
+    assets_to_teardown = {}  # {'web', 'build', 'rest'}
     try:
         dep = Deployment(configuration)
         if len(assets_to_deploy) > 0:
@@ -1018,4 +1239,3 @@ if __name__ == "__main__":
             dep.Teardown(assets_to_teardown)
     except Exception:
         logger.exception("An unexpected error occurred.")
-

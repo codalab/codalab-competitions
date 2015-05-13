@@ -4,14 +4,10 @@ View-related customatizations for auth.
 
 import json
 import logging
-import traceback
-import re
 
-from django.conf import settings
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
 from allauth.account.signals import user_signed_up
@@ -29,6 +25,8 @@ logger = logging.getLogger(__name__)
 #
 # Implements hooks for additional processing post sign-up and post log-in.
 #
+
+
 @receiver(user_signed_up)
 def new_user_signup(sender, **kwargs):
     """
@@ -37,7 +35,7 @@ def new_user_signup(sender, **kwargs):
     user = kwargs['user']
     get_or_create_cli_client(user)
     # Don't create a worksheet by default.
-    #if len(settings.BUNDLE_SERVICE_URL) > 0:
+    # if len(settings.BUNDLE_SERVICE_URL) > 0:
     #    from apps.web.bundles import BundleService
     #    service = BundleService(user)
     #    try:
@@ -58,20 +56,24 @@ def new_user_signup(sender, **kwargs):
     #        logging.debug('-------------------------')
     #        raise e
 
+
 @receiver(user_logged_in)
 def on_user_logged_in(sender, **kwargs):
     """
     Handles bookkeeping after a user signs up.
     """
     user = kwargs['user']
-    # Backwards compatibility: do this for user who signed up before OAuth was added.
+    # Backwards compatibility: do this for user who signed up before OAuth was
+    # added.
     get_or_create_cli_client(user)
 
 #
 # OAuth token validation API
 #
 
+
 class ValidationApi(ScopedProtectedResourceView):
+
     """
     Translates an OAuth token into information about the associated CodaLab user.
     """
@@ -85,12 +87,16 @@ class ValidationApi(ScopedProtectedResourceView):
         if token is None or len(token) <= 0:
             return {'code': 400}
         try:
-            access_token = AccessToken.objects.select_related("application", "user").get(token=token)
+            access_token = AccessToken.objects.select_related(
+                "application",
+                "user").get(
+                token=token)
             if access_token.is_valid(scopes):
                 return {
                     'code': 200,
-                    'user': {'id': access_token.user.id, 'name': access_token.user.username}
-                }
+                    'user': {
+                        'id': access_token.user.id,
+                        'name': access_token.user.username}}
             return {'code': 403}
         except AccessToken.DoesNotExist:
             return {'code': 404}
@@ -106,10 +112,12 @@ class ValidationApi(ScopedProtectedResourceView):
         token = d['token'] if 'token' in d else None
         scopes = d['scopes'] if 'scopes' in d else None
         response_data = ValidationApi._translate_token(token, scopes)
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        return HttpResponse(
+            json.dumps(response_data), content_type="application/json")
 
 
 class InfoApi(ScopedProtectedResourceView):
+
     """
     Translates a list of names into information about CodaLab users with matching names.
     """
@@ -120,7 +128,7 @@ class InfoApi(ScopedProtectedResourceView):
         """
         Performs translation of list of names to list of user dict.
         """
-        if names is None or type(names) is not list or len(names) == 0:
+        if names is None or not isinstance(names, list) or len(names) == 0:
             return {'code': 400}
         for name in names:
             if type(name) not in (str, unicode) or len(name) < 1:
@@ -134,7 +142,8 @@ class InfoApi(ScopedProtectedResourceView):
             for name in names:
                 if name in user_dict:
                     user = user_dict[name]
-                    user_list.append({'name': name, 'id': user.id, 'active': user.is_active})
+                    user_list.append(
+                        {'name': name, 'id': user.id, 'active': user.is_active})
                 else:
                     user_list.append({'name': name})
             return {'code': 200, 'users': user_list}
@@ -146,9 +155,10 @@ class InfoApi(ScopedProtectedResourceView):
         """
         Performs translation of list of user IDs to list of user dict.
         """
-        if uids_str is None or type(uids_str) is not list or len(uids_str) == 0:
+        if uids_str is None or not isinstance(
+                uids_str, list) or len(uids_str) == 0:
             return {'code': 400}
-        uids= []
+        uids = []
         for uid_str in uids_str:
             try:
                 uid = int(uid_str)
@@ -164,7 +174,8 @@ class InfoApi(ScopedProtectedResourceView):
             for uid in uids:
                 if uid in user_dict:
                     user = user_dict[uid]
-                    user_list.append({'name': user.username, 'id': uid, 'active': user.is_active})
+                    user_list.append(
+                        {'name': user.username, 'id': uid, 'active': user.is_active})
                 else:
                     user_list.append({'id': uid})
             return {'code': 200, 'users': user_list}
@@ -184,4 +195,5 @@ class InfoApi(ScopedProtectedResourceView):
             response_data = InfoApi._translate_ids(ids)
         else:
             return HttpResponse(status=400)
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        return HttpResponse(
+            json.dumps(response_data), content_type="application/json")

@@ -2,9 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from apps.web.models import (Competition,
-                             CompetitionParticipant,
-                             ParticipantStatus,)
+from apps.web.models import Competition
 
 User = get_user_model()
 
@@ -49,4 +47,5 @@ class CompetitionYamlDownload(TestCase):
         resp = self.client.get(reverse("competitions:download_yaml", kwargs={"competition_pk": self.competition.pk}))
         self.assertEquals(resp.content, "original yaml file contents")
         self.assertIn(('Content-Type', 'text/yaml'), resp.items())
-        self.assertIn(('Content-Disposition', 'attachment; filename="competition_%s.yaml"' % self.competition.pk), resp.items())
+        self.assertIn(('Content-Disposition', 'attachment; filename="competition_%s.yaml"' % self.competition.pk),
+                      resp.items())

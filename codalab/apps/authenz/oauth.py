@@ -20,12 +20,15 @@ logger = logging.getLogger(__name__)
 # Customized OAuth validator
 #
 
+
 class Validator(OAuth2Validator):
+
     """
     Customizes the default validator.
     """
 
-    def validate_scopes(self, client_id, scopes, client, request, *args, **kwargs):
+    def validate_scopes(
+            self, client_id, scopes, client, request, *args, **kwargs):
         """
         Ensure required scopes are permitted (as specified in the settings file)
         """
@@ -42,9 +45,11 @@ class Validator(OAuth2Validator):
 # to connect their CLI client tool to the bundle service via OAuth protocol.
 #
 
+
 def cli_client_id(user):
     """Provides the default CLI Client ID associated with the given user in the OAuth provider store."""
     return 'cli_client_{0}'.format(user.username)
+
 
 def get_or_create_cli_client(user):
     """
@@ -54,12 +59,12 @@ def get_or_create_cli_client(user):
     try:
         logger.debug("Attempting to create cli client %s", client_id)
         client, created = Application.objects.get_or_create(
-                            client_id=client_id,
-                            user=user,
-                            client_type=Application.CLIENT_CONFIDENTIAL,
-                            authorization_grant_type=Application.GRANT_PASSWORD,
-                            client_secret='',
-                            name=client_id)
+            client_id=client_id,
+            user=user,
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_PASSWORD,
+            client_secret='',
+            name=client_id)
         if created:
             logger.info("Created CLI client %s", client_id)
         else:
@@ -68,6 +73,7 @@ def get_or_create_cli_client(user):
     except:
         logger.exception("Failed to create CLI client %s.", client_id)
         return None, False
+
 
 def get_user_token(user):
     """
@@ -78,8 +84,11 @@ def get_user_token(user):
         return None
 
     client = Application.objects.get(client_id=cli_client_id(user))
-    tokens = AccessToken.objects.filter(application_id=client.id,
-                                        expires__gt=timezone.now() + timedelta(minutes=5))
+    tokens = AccessToken.objects.filter(
+        application_id=client.id,
+        expires__gt=timezone.now() +
+        timedelta(
+            minutes=5))
     access_token = None
     for token in tokens:
         if token.is_valid([]):
@@ -90,7 +99,8 @@ def get_user_token(user):
         access_token = AccessToken(
             user=user,
             scope='',
-            expires=timezone.now() + timedelta(seconds=oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS),
+            expires=timezone.now() +
+            timedelta(seconds=oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS),
             token=generate_token(),
             application=client)
         access_token.save()

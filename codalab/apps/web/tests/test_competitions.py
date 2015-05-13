@@ -81,14 +81,15 @@ class CompetitionPhaseToPhase(TestCase):
 
     def test_scheduler_url_calls_competition_phase_migration_check(self):
         with mock.patch('apps.web.models.Competition.check_trailing_phase_submissions') as check_trailing_mock:
-            resp = self.client.get('/competitions/check_phase_migrations')
+            self.client.get('/competitions/check_phase_migrations')
 
         self.assertTrue(check_trailing_mock.called)
 
     def test_check_trailing_phase_submissions_doesnt_trigger_migrations_if_they_are_done(self):
         with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
             competition_doesnt_need_migrated = Competition.objects.create(creator=self.user, modified_by=self.user)
-            only_phase = CompetitionPhase.objects.create(
+            # only_phase
+            CompetitionPhase.objects.create(
                 competition=competition_doesnt_need_migrated,
                 phasenumber=1,
                 start_date=datetime.datetime.now() - datetime.timedelta(days=30)
@@ -122,12 +123,14 @@ class CompetitionPhaseToPhase(TestCase):
     def test_phase_to_phase_migrations_only_when_auto_migration_flag_is_true(self):
         with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
             competition = Competition.objects.create(creator=self.user, modified_by=self.user)
-            first_phase = CompetitionPhase.objects.create(
+            # first_phase
+            CompetitionPhase.objects.create(
                 competition=competition,
                 phasenumber=1,
                 start_date=datetime.datetime.now() - datetime.timedelta(days=30)
             )
-            second_phase = CompetitionPhase.objects.create(
+            # second_phase
+            CompetitionPhase.objects.create(
                 competition=competition,
                 phasenumber=2,
                 start_date=datetime.datetime.now() - datetime.timedelta(days=20),
@@ -154,7 +157,7 @@ class CompetitionPhaseToPhase(TestCase):
         self.phase_2.max_submissions_per_day = 1
         self.phase_2.save()
 
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.tasks.evaluate_submission'):
             self.competition.check_trailing_phase_submissions()
 
         # The submissions still made it
@@ -167,13 +170,15 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertFalse(self.competition.is_migrating)
 
     def test_phase_migrations_delayed_until_submissions_not_marked_running(self):
-        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running",
+                                                                                     codename="running")[0]
         self.submission_1.save()
         with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
             self.competition.check_trailing_phase_submissions()
         self.assertFalse(evaluate_mock.called)
 
-        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="finished", codename="finished")[0]
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="finished",
+                                                                                     codename="finished")[0]
         self.submission_1.save()
         PhaseLeaderBoardEntry.objects.create(
             board=self.leader_board,
@@ -184,26 +189,28 @@ class CompetitionPhaseToPhase(TestCase):
         self.assertTrue(evaluate_mock.called)
 
     def test_phase_migrations_handles_delay_with_failed_submissions(self):
-        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running",
+                                                                                     codename="running")[0]
         self.submission_1.save()
         with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
             self.competition.check_trailing_phase_submissions()
         self.assertFalse(evaluate_mock.called)
 
-        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="failed", codename="failed")[0]
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="failed",
+                                                                                     codename="failed")[0]
         self.submission_1.save()
         with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
             self.competition.check_trailing_phase_submissions()
         self.assertTrue(evaluate_mock.called)
 
     def test_phase_migrations_delayed_marks_competition(self):
-        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
+        self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running",
+                                                                                     codename="running")[0]
         self.submission_1.save()
         self.assertFalse(self.competition.is_migrating_delayed)
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.tasks.evaluate_submission'):
             self.competition.check_trailing_phase_submissions()
         self.assertTrue(self.competition.is_migrating_delayed)
-
 
 
 class CompetitionTest(TestCase):
@@ -292,7 +299,7 @@ class CompetitionEditPermissionsTests(CompetitionTest):
     def test_can_edit_competition_with_ownership(self):
         self.client.login(username="organizer", password="pass")
         with mock.patch('apps.web.views.CompetitionEdit.construct_inlines') as construct_inlines_mock:
-            resp = self.client.post(
+            self.client.post(
                 reverse("competitions:edit", kwargs={"pk": self.competition.pk}),
                 data={}
             )

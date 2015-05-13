@@ -14,8 +14,10 @@ from django.core.management.base import BaseCommand
 
 User = get_user_model()
 
+
 class Command(BaseCommand):
-    help = """Creates a fake competition zip file for easy uploading and testing. \n Please see create_competition_zip.py for more options"""
+    help = """Creates a fake competition zip file for easy uploading and testing. \n Please see
+    create_competition_zip.py for more options"""
 
     option_list = BaseCommand.option_list + (
         make_option('--numphases', '-p',
@@ -51,20 +53,27 @@ class Command(BaseCommand):
         print "this command is mainly used quick dev test of full upload competition flow and phases"
         print " ----- "
 
-        #please set these to whatever defaults you would like to load
-        yaml_file_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/competition.yaml"
-        logo_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/logo.jpg"
+        # please set these to whatever defaults you would like to load
+        yaml_file_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/" \
+                        "competition.yaml"
+        logo_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/" \
+                   "logo.jpg"
 
-        scoring_program_eval_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/scoring_program/evaluate.py"
-        scoring_program_metdata_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/scoring_program/metadata"
+        scoring_program_eval_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/" \
+                                   "competition/scoring_program/evaluate.py"
+        scoring_program_metdata_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/" \
+                                      "hello_world/competition/scoring_program/metadata"
 
-        reference_data_truth_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/competition/reference_data/truth.txt"
+        reference_data_truth_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/" \
+                                   "competition/reference_data/truth.txt"
 
-        #dummy flat data
+        # dummy flat data
         data_html = "<p> This is the data for the competition. It is to be used responsibly.</p>"
-        evaluation_html = "<H3>Evaluation Criteria</H3><p>This is the page that tells you how competition submissions will be evaluated and scored.</p>"
+        evaluation_html = "<H3>Evaluation Criteria</H3><p>This is the page that tells you how competition " \
+                          "submissions will be evaluated and scored.</p>"
         overview_html = "<H3>Welcome!</H3> <p> This is an example competition. </p>"
-        terms_and_conditions_html = "<H3>Terms and Conditions</H3> <p> This page enumerated the terms and conditions of the competition. </p>"
+        terms_and_conditions_html = "<H3>Terms and Conditions</H3> <p> This page enumerated the terms and " \
+                                    "conditions of the competition. </p>"
 
         numphases = options['numphases']
         phaselength = options['phaselength']
@@ -83,13 +92,13 @@ class Command(BaseCommand):
             phasedates.append(next)
             next = next + delta
 
-        #get files and make edits
+        # get files and make edits
         yaml_file = requests.get(yaml_file_url)
         comp_yaml_obj = yaml.load(yaml_file.content)
 
-        #put our date changed phases and with random name
+        # put our date changed phases and with random name
         tz_now = datetime.datetime.now()
-        comp_yaml_obj['title'] = "%s %s" %(comp_yaml_obj['title'], tz_now.strftime("%m-%d %d:%M"))
+        comp_yaml_obj['title'] = "%s %s" % (comp_yaml_obj['title'], tz_now.strftime("%m-%d %d:%M"))
         comp_yaml_obj['force_submission_to_leaderboard'] = True
 
         comp_yaml_obj['phases'] = {}
@@ -97,18 +106,17 @@ class Command(BaseCommand):
             random_name = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(6))
             phase_name = "Phase %s %s" % (i, random_name)
             phase = {
-                   i: {
-                      'scoring_program': 'scoring_program.zip',
-                      'phasenumber': i,
-                      'max_submissions': 100,
-                      'reference_data': 'reference_data.zip',
-                      'start_date': phasedates[i],
-                      'label': phase_name,
-                      'auto_migration': auto_migrate
-                   }
+                i: {
+                    'scoring_program': 'scoring_program.zip',
+                    'phasenumber': i,
+                    'max_submissions': 100,
+                    'reference_data': 'reference_data.zip',
+                    'start_date': phasedates[i],
+                    'label': phase_name,
+                    'auto_migration': auto_migrate
                 }
+            }
             comp_yaml_obj['phases'].update(phase)
-
 
         PROJECT_ROOT = os.path.abspath(os.path.split(os.path.split(__file__)[1])[0])
 
@@ -116,10 +124,10 @@ class Command(BaseCommand):
         temp_dir = os.path.join(PROJECT_ROOT, 'tmp_comp')
         if os.path.exists(temp_dir) == False:
             os.mkdir(temp_dir)
-        #now lets create a real temp dir.
+        # now lets create a real temp dir.
         root_dir = tempfile.mkdtemp(dir=temp_dir)
 
-        #setup up some sub folders
+        # setup up some sub folders
         scoring_program_dir = os.path.join(root_dir, 'scoring_program')
         if os.path.exists(scoring_program_dir) == False:
             os.mkdir(scoring_program_dir)
@@ -128,12 +136,12 @@ class Command(BaseCommand):
         if os.path.exists(reference_data_dir) == False:
             os.mkdir(reference_data_dir)
 
-        #write the files we need
+        # write the files we need
         # yaml for the competition
         with open(os.path.join(root_dir, 'competition.yaml'), 'w') as f:
             f.write(yaml.dump(comp_yaml_obj, default_flow_style=False))
 
-        #misc files
+        # misc files
         with open(os.path.join(root_dir, 'data.html'), 'w') as f:
             f.write(data_html)
         with open(os.path.join(root_dir, 'evaluation.html'), 'w') as f:
@@ -149,8 +157,7 @@ class Command(BaseCommand):
                 for chunk in r.iter_content():
                     f.write(chunk)
 
-
-        #scoring program files
+        # scoring program files
         evaluate_py = requests.get(scoring_program_eval_url)
         evaluate_py = evaluate_py.content
 
@@ -162,23 +169,21 @@ class Command(BaseCommand):
         with open(os.path.join(scoring_program_dir, 'metadata'), 'w') as f:
             f.write(scoring_program_metdata)
 
-
-        #reference data files
+        # reference data files
         truth_txt = requests.get(reference_data_truth_url)
         truth_txt = truth_txt.content
 
         with open(os.path.join(reference_data_dir, 'truth.txt'), 'w') as f:
             f.write(truth_txt)
 
-
-        #zip everything up
+        # zip everything up
         shutil.make_archive(
-            base_name=scoring_program_dir,  #folder and file name are the same
+            base_name=scoring_program_dir,  # folder and file name are the same
             format='zip',
             root_dir=scoring_program_dir,
         )
         shutil.make_archive(
-            base_name=reference_data_dir,  #folder and file name are the same
+            base_name=reference_data_dir,  # folder and file name are the same
             format='zip',
             root_dir=reference_data_dir,
         )

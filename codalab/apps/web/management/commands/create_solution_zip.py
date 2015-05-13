@@ -11,8 +11,10 @@ from django.core.management.base import BaseCommand
 
 User = get_user_model()
 
+
 class Command(BaseCommand):
-    help = """Creates a fake solution zip file for easy uploading and testing. \n This is made to work in tandem with create_competition_zip"""
+    help = """Creates a fake solution zip file for easy uploading and testing. \n This is made to work in tandem
+    with create_competition_zip"""
 
     option_list = BaseCommand.option_list + (
         make_option('--delete', '-d',
@@ -36,8 +38,9 @@ class Command(BaseCommand):
         print "this command is mainly used quick dev test"
         print " ----- "
 
-        #please set these to whatever defaults you would like to load
-        answer_txt_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/submission/answer.txt"
+        # please set these to whatever defaults you would like to load
+        answer_txt_url = "https://raw.githubusercontent.com/Tivix/competition-examples/master/hello_world/" \
+                         "submission/answer.txt"
         delete = options['delete']
         wrong = options['wrong']
 
@@ -47,11 +50,10 @@ class Command(BaseCommand):
         temp_dir = os.path.join(PROJECT_ROOT, 'tmp_comp')
         if os.path.exists(temp_dir) == False:
             os.mkdir(temp_dir)
-        #now lets create a real temp dir.
+        # now lets create a real temp dir.
         root_dir = tempfile.mkdtemp(dir=temp_dir)
 
-
-        #reference data files
+        # reference data files
         answer_txt = requests.get(answer_txt_url)
         answer_txt = answer_txt.content
 

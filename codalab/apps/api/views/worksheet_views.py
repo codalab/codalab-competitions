@@ -6,40 +6,17 @@ import logging
 import traceback
 import mimetypes
 
-from uuid import uuid4
-
-from rest_framework import (permissions, status, viewsets, views, generics, filters)
-from rest_framework.decorators import action, link, permission_classes
-from rest_framework.exceptions import PermissionDenied, ParseError
+from rest_framework import (status, views)
 from rest_framework.response import Response
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
-from django.core.files.base import ContentFile
-from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
-from django.http import Http404, StreamingHttpResponse
-from django.template import Context
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
+from django.http import StreamingHttpResponse
 from django.utils.encoding import smart_str
 
-from apps.api import serializers
 from apps.authenz.models import ClUser
-from apps.jobs.models import Job
-from apps.web import models as webmodels
 from apps.web.bundles import BundleService
-from apps.web.tasks import (create_competition, evaluate_submission)
-
-from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
 logger = logging.getLogger(__name__)
-
-
 
 
 class WorksheetsInfoApi(views.APIView):
@@ -51,10 +28,10 @@ class WorksheetsInfoApi(views.APIView):
         logger.debug("WorksheetsApi: user_id=%s.", user.id)
         info = {
             'config': {
-                'beta' : settings.SHOW_BETA_FEATURES,
-                'preview' : getattr(settings, 'PREVIEW_WORKSHEETS', False),
-                'loginUrl' : settings.LOGIN_URL,
-                'logoutUrl' : settings.LOGOUT_URL,
+                'beta': settings.SHOW_BETA_FEATURES,
+                'preview': getattr(settings, 'PREVIEW_WORKSHEETS', False),
+                'loginUrl': settings.LOGIN_URL,
+                'logoutUrl': settings.LOGOUT_URL,
             },
             'user': {
                 'authenticated': user.id != None,
@@ -62,6 +39,7 @@ class WorksheetsInfoApi(views.APIView):
             }
         }
         return Response(info, status=status.HTTP_201_CREATED)
+
 
 class WorksheetsListApi(views.APIView):
     """
@@ -144,7 +122,7 @@ class WorksheetsAddApi(views.APIView):
             return Response({
                 'success': True,
                 'data': data
-                })
+            })
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
@@ -154,6 +132,7 @@ class WorksheetsAddApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
+
 
 class WorksheetsDeleteApi(views.APIView):
     """
@@ -173,7 +152,7 @@ class WorksheetsDeleteApi(views.APIView):
             return Response({
                 'success': True,
                 'data': data
-                })
+            })
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
@@ -183,6 +162,7 @@ class WorksheetsDeleteApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
+
 
 class WorksheetsSearchApi(views.APIView):
     """
@@ -284,7 +264,7 @@ class WorksheetsCommandApi(views.APIView):
             return Response({
                 'success': True,
                 'data': data
-                })
+            })
         except Exception as e:
             logging.error(self.__str__())
             logging.error(smart_str(e))
@@ -294,6 +274,7 @@ class WorksheetsCommandApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
+
 
 class BundleInfoApi(views.APIView):
     """
@@ -306,10 +287,10 @@ class BundleInfoApi(views.APIView):
         try:
             bundle_info = service.get_bundle_info(uuid)
             target = (uuid, '')
-            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
+            info = service.get_target_info(target, 2)  # 2 is the depth to retrieve
             bundle_info['stdout'] = None
             bundle_info['stderr'] = None
-            #if we have std out or err update it.
+            # if we have std out or err update it.
             contents = info.get('contents')
             if contents:
                 for item in contents:
@@ -344,7 +325,7 @@ class BundleInfoApi(views.APIView):
             if bundle_info['owner_id'] == str(self.request.user.id):
                 data = json.loads(request.body)
                 new_metadata = data['metadata']
-                #clean up stuff
+                # clean up stuff
                 if new_metadata.get('data_size', None):
                     new_metadata.pop('data_size')
                 if new_metadata.get('created', None):
@@ -359,7 +340,7 @@ class BundleInfoApi(views.APIView):
                 else:
                     new_metadata['tags'] = []
 
-                if new_metadata.get('language', None) or new_metadata.get('language') ==  u'':
+                if new_metadata.get('language', None) or new_metadata.get('language') == u'':
                     language = new_metadata['language']
                     language = language.split(',')
                     new_metadata['language'] = language
@@ -384,6 +365,7 @@ class BundleInfoApi(views.APIView):
             logging.debug('-------------------------')
             return Response({'error': smart_str(e)})
 
+
 class BundleSearchApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
@@ -391,7 +373,7 @@ class BundleSearchApi(views.APIView):
     def get(self, request):
         user_id = self.request.user.id
         search_string = request.GET.get('search_string', '')
-        worksheet_uuid = request.GET.get('worksheet_uuid', None) #if you want to filter it down to worksheet
+        worksheet_uuid = request.GET.get('worksheet_uuid', None)  # if you want to filter it down to worksheet
         logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
@@ -407,17 +389,17 @@ class BundleSearchApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+
 class BundleCreateApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
     """
     def post(self, request):
-        user_id = self.request.user.id
         postdata = json.loads(request.body)
         # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            #TODO CHECKING
+            # TODO CHECKING
             command = postdata['data'][-1].strip("'")
             items = postdata['data'][:-1]
             items.append(command)
@@ -433,17 +415,17 @@ class BundleCreateApi(views.APIView):
             logging.debug('-------------------------')
             return Response(status=service.http_status_from_exception(e))
 
+
 class BundleUploadApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
     """
     def post(self, request):
-        user_id = self.request.user.id
         postdata = json.loads(request.body)
         # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            #TODO CHECKING
+            # TODO CHECKING
             info = {}
             new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
@@ -471,7 +453,7 @@ class BundleContentApi(views.APIView):
             info = service.get_target_info(target, 2)  # 2 is the depth to retrieve
             info['stdout'] = None
             info['stderr'] = None
-            #if we have std out or err update it.
+            # if we have std out or err update it.
             contents = info.get('contents')
             if contents:
                 contents = sorted(contents, key=lambda r: r['name'])
@@ -492,7 +474,8 @@ class BundleContentApi(views.APIView):
             logging.error(tb)
             logging.debug('-------------------------')
             return Response({'error': smart_str(e)})
-            #return Response(status=service.http_status_from_exception(e))
+            # return Response(status=service.http_status_from_exception(e))
+
 
 class BundleFileContentApi(views.APIView):
     """

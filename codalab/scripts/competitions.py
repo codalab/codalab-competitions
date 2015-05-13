@@ -62,19 +62,19 @@ pc, _ = PageContainer.objects.get_or_create(
 brats2012.save()
 
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="overview",
+    category=details_category, container=pc, codename="overview",
     defaults=dict(label="Overview", rank=0,
                   html=open(os.path.join(os.path.dirname(__file__),
                                          "brats2012_overview.html")).read())
-    )
+)
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="evaluation",
+    category=details_category, container=pc, codename="evaluation",
     defaults=dict(label="Evaluation", rank=1,
                   html=open(os.path.join(os.path.dirname(__file__),
                                          "brats2012_evaluation.html")).read())
-    )
+)
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="terms_and_conditions",
+    category=details_category, container=pc, codename="terms_and_conditions",
     defaults=dict(rank=2,
                   label="Terms and Conditions",
                   html=open(os.path.join(
@@ -82,19 +82,19 @@ Page.objects.get_or_create(
                       "brats2012_terms_and_conditions.html")).read()))
 
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="faq",
+    category=details_category, container=pc, codename="faq",
     defaults=dict(label="FAQ",
                   rank=3,
                   html=open(os.path.join(os.path.dirname(__file__),
                                          "brats2012_faq.html")).read()))
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="key_dates",
+    category=details_category, container=pc, codename="key_dates",
     defaults=dict(label="Key Dates",
                   rank=4,
                   html=open(os.path.join(os.path.dirname(__file__),
                                          "brats2012_key_dates.html")).read()))
 Page.objects.get_or_create(
-    category=details_category, container=pc,  codename="organizers",
+    category=details_category, container=pc, codename="organizers",
     defaults=dict(label="Organizers",
                   rank=5,
                   html=open(os.path.join(os.path.dirname(__file__),
@@ -102,7 +102,7 @@ Page.objects.get_or_create(
 )
 
 Page.objects.get_or_create(
-    category=participate_category, container=pc,  codename="get_data",
+    category=participate_category, container=pc, codename="get_data",
     defaults=dict(label="Get Data",
                   rank=0,
                   html=open(os.path.join(os.path.dirname(__file__),
@@ -217,18 +217,18 @@ brats_leaderboard_defs = [
      'PatientHausdorff', 'label': 'Enhancing', 'sort': 'asc'}),
     ('PatientKappa', {'group': 'patient', 'label': 'Kappa'}),
     ('PatientRank', {'label': 'Rank'}),
-    ('PatientRankComplete',  {'group': 'patient',
-                              'column_group': 'PatientRank',
-                              'label': 'Complete',
-                              'computed':
+    ('PatientRankComplete', {'group': 'patient',
+                             'column_group': 'PatientRank',
+                             'label': 'Complete',
+                             'computed':
                                   {'operation': 'Avg',
                                    'fields': ('PatientDiceComplete',
                                               'PatientSensitivityComplete',
                                               'PatientSpecificityComplete')}}
      ),
-    ('PatientRankCore',      {'group': 'patient',
-                              'column_group': 'PatientRank', 'label': 'Core',
-                              'computed': {
+    ('PatientRankCore', {'group': 'patient',
+                         'column_group': 'PatientRank', 'label': 'Core',
+                         'computed': {
                                   'operation': 'Avg',
                                   'fields': ('PatientDiceCore',
                                              'PatientSensitivityCore',
@@ -295,7 +295,7 @@ brats_leaderboard_defs = [
                                               'SyntheticSensitivityComplete',
                                               'SyntheticSpecificityComplete')
                                }}),
-    ('SyntheticRankCore',     {'group': 'synthetic',
+    ('SyntheticRankCore', {'group': 'synthetic',
                                'column_group': 'SyntheticRank',
                                'label': 'Core',
                                'computed': {
@@ -304,7 +304,7 @@ brats_leaderboard_defs = [
                                        'SyntheticDiceCore',
                                        'SyntheticSensitivityCore',
                                        'SyntheticSpecificityCore')}}),
-    ('SyntheticRankOverall',  {'group': 'synthetic',
+    ('SyntheticRankOverall', {'group': 'synthetic',
                                'label': 'Overall Rank',
                                'selection_default': 1,
                                'computed': {

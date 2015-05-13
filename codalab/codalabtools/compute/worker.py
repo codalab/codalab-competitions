@@ -4,13 +4,11 @@ Defines the worker process which handles computations.
 """
 import azure
 import json
-import datetime
 import logging
 import logging.config
 import os
 import signal
 import math
-import select
 import shutil
 import sys
 import tempfile
@@ -32,10 +30,13 @@ from codalabtools.azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
 
+
 class WorkerConfig(BaseConfig):
+
     """
     Defines configuration properties (mostly credentials) for a worker process.
     """
+
     def __init__(self, filename='.codalabconfig'):
         super(WorkerConfig, self).__init__(filename)
         self._winfo = self.info['compute-worker']
@@ -73,9 +74,12 @@ class WorkerConfig(BaseConfig):
 
     def getLocalRoot(self):
         """Gets the path for the local directory where files are staged or None if the path is not provided."""
-        return self._winfo['local-root'] if 'local-root' in self._winfo else None
+        return self._winfo[
+            'local-root'] if 'local-root' in self._winfo else None
 
-def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
+
+def getBundle(root_path, blob_service, container,
+              bundle_id, bundle_rel_path, max_depth=3):
     """
     be controlled with the max_depth parameter.
 
@@ -102,19 +106,25 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
         try:
-            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
+            logger.debug(
+                "Getting bundle_id=%s from container=%s" %
+                (container, bundle_id))
             blob = blob_service.get_blob(container, bundle_id)
         except azure.WindowsAzureMissingResourceError:
-            #file not found lets None this bundle
+            # file not found lets None this bundle
             bundles[bundle_rel_path] = None
             return bundles
 
         bundle_ext = os.path.splitext(bundle_id)[1]
-        bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+        bundle_file = tempfile.NamedTemporaryFile(
+            prefix='tmp',
+            suffix=bundle_ext,
+            dir=root_path,
+            delete=False)
 
         logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
 
-        #take our temp file and write whatever is it form the blob
+        # take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
             f.write(blob)
         # stage the bundle directory
@@ -135,15 +145,32 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
-        if (bundle_info is not None) and isinstance(bundle_info, dict) and (depth < max_depth):
+        if (bundle_info is not None) and isinstance(
+                bundle_info, dict) and (depth < max_depth):
             for (k, v) in bundle_info.items():
-                if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
+                if k not in (
+                        "description",
+                        "command",
+                        "exitCode",
+                        "elapsedTime",
+                        "stdout",
+                        "stderr",
+                        "submitted-by",
+                        "submitted-at"):
                     if isinstance(v, str):
-                        getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
+                        getThem(
+                            v,
+                            join(
+                                bundle_rel_path,
+                                k),
+                            bundles,
+                            depth +
+                            1)
 
         return bundles
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
+
 
 def _send_update(queue, task_id, status, extra=None):
     """
@@ -161,7 +188,8 @@ def _send_update(queue, task_id, status, extra=None):
                        'task_args': task_args})
     queue.send_message(body)
 
-def _upload(blob_service, container, blob_id, blob_file, content_type = None):
+
+def _upload(blob_service, container, blob_id, blob_file, content_type=None):
     """
     Uploads a Blob.
 
@@ -172,7 +200,12 @@ def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
     with open(blob_file, 'rb') as f:
         blob = f.read()
-        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
+        blob_service.put_blob(
+            container,
+            blob_id,
+            blob,
+            x_ms_blob_type='BlockBlob',
+            x_ms_blob_content_type=content_type)
 
 
 class ExecutionTimeLimitExceeded(Exception):
@@ -218,8 +251,14 @@ def get_run_func(config):
             # Fetch and stage the bundles
             blob_service = BlobService(config.getAzureStorageAccountName(),
                                        config.getAzureStorageAccountKey())
-            bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
-            # Verify we have an input folder: create one if it's not in the bundle.
+            bundles = getBundle(
+                root_dir,
+                blob_service,
+                container,
+                run_id,
+                'run')
+            # Verify we have an input folder: create one if it's not in the
+            # bundle.
             input_rel_path = join('run', 'input')
             if input_rel_path not in bundles:
                 input_dir = join(root_dir, 'run', 'input')
@@ -278,18 +317,22 @@ def get_run_func(config):
                 # Update command-line with the real paths
                 logger.debug("CMD: %s", prog_cmd)
                 prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
-                                    .replace("$input", join('.', 'input')) \
-                                    .replace("$output", join('.', 'output')) \
-                                    .replace("$tmp", join('.', 'temp')) \
-                                    .replace("/", os.path.sep) \
-                                    .replace("\\", os.path.sep)
+                    .replace("$input", join('.', 'input')) \
+                    .replace("$output", join('.', 'output')) \
+                    .replace("$tmp", join('.', 'temp')) \
+                    .replace("/", os.path.sep) \
+                    .replace("\\", os.path.sep)
                 logger.debug("Invoking program: %s", prog_cmd)
 
                 startTime = time.time()
                 exit_code = None
                 timed_out = False
 
-                evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
+                evaluator_process = Popen(
+                    prog_cmd.split(' '),
+                    stdout=PIPE,
+                    stderr=PIPE,
+                    env=os.environ)
 
                 async_process.make_async(evaluator_process.stdout)
                 async_process.make_async(evaluator_process.stderr)
@@ -298,22 +341,25 @@ def get_run_func(config):
 
                 time_difference = time.time() - startTime
                 signal.signal(signal.SIGALRM, alarm_handler)
-                signal.alarm(int(math.fabs(math.ceil(execution_time_limit - time_difference))))
+                signal.alarm(
+                    int(math.fabs(math.ceil(execution_time_limit - time_difference))))
 
                 exit_code = None
 
                 logger.debug("Checking process, exit_code = %s" % exit_code)
 
                 try:
-                    while exit_code == None:
-                        new_stdout = async_process.read_async(evaluator_process.stdout)
-                        new_stderr = async_process.read_async(evaluator_process.stderr)
+                    while exit_code is None:
+                        new_stdout = async_process.read_async(
+                            evaluator_process.stdout)
+                        new_stderr = async_process.read_async(
+                            evaluator_process.stderr)
                         stdout_buffer += new_stdout
                         stderr_buffer += new_stderr
                         time.sleep(1)
                         exit_code = evaluator_process.poll()
                 except (ValueError, OSError):
-                    pass # tried to communicate with dead process
+                    pass  # tried to communicate with dead process
                 except ExecutionTimeLimitExceeded:
                     exit_code = -1
                     logger.info("Killed process for running too long!")
@@ -337,7 +383,8 @@ def get_run_func(config):
                         'elapsedTime': elapsedTime
                     }
                 else:
-                    # otherwise we're doing multi-track and processing multiple commands so append to the array
+                    # otherwise we're doing multi-track and processing multiple
+                    # commands so append to the array
                     prog_status.append({
                         'exitCode': exit_code,
                         'elapsedTime': elapsedTime
@@ -349,54 +396,90 @@ def get_run_func(config):
             stderr.close()
 
             logger.debug("Saving output files")
-            stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
+            stdout_id = "%s/%s" % (os.path.splitext(run_id)
+                                   [0], stdout_file_name)
             _upload(blob_service, container, stdout_id, stdout_file)
-            stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
+            stderr_id = "%s/%s" % (os.path.splitext(run_id)
+                                   [0], stderr_file_name)
             _upload(blob_service, container, stderr_id, stderr_file)
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
                 logger.debug("Packing private results...")
-                private_output_file = join(root_dir, 'run', 'private_output.zip')
-                shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
-                private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
-                _upload(blob_service, container, private_output_id, private_output_file)
+                private_output_file = join(
+                    root_dir,
+                    'run',
+                    'private_output.zip')
+                shutil.make_archive(
+                    os.path.splitext(private_output_file)[0],
+                    'zip',
+                    output_dir)
+                private_output_id = "%s/private_output.zip" % (
+                    os.path.splitext(run_id)[0])
+                _upload(
+                    blob_service,
+                    container,
+                    private_output_id,
+                    private_output_file)
                 shutil.rmtree(private_dir)
 
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
             output_file = join(root_dir, 'run', 'output.zip')
-            shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
+            shutil.make_archive(
+                os.path.splitext(output_file)[0],
+                'zip',
+                output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
             _upload(blob_service, container, output_id, output_file)
 
             # Check if the output folder contain an "html file" and copy the html file as detailed_results.html
-            # traverse root directory, and list directories as dirs and files as files
+            # traverse root directory, and list directories as dirs and files
+            # as files
             html_found = False
             for root, dirs, files in os.walk(output_dir):
                 if not (html_found):
-                    path = root.split('/')
+                    root.split('/')
                     for file in files:
-                        file_to_upload = os.path.join(root,file)
+                        file_to_upload = os.path.join(root, file)
                         file_ext = os.path.splitext(file_to_upload)[1]
-                        if file_ext.lower() ==".html":
-                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
+                        if file_ext.lower() == ".html":
+                            html_file_id = "%s/html/%s" % (
+                                os.path.splitext(run_id)[0], "detailed_results.html")
                             print "file_to_upload:%s" % file_to_upload
-                            _upload(blob_service, container, html_file_id, file_to_upload, "html")
+                            _upload(
+                                blob_service,
+                                container,
+                                html_file_id,
+                                file_to_upload,
+                                "html")
                             html_found = True
 
-            # check if timed out AFTER output files are written! If we exit sooner, no output is written
+            # check if timed out AFTER output files are written! If we exit
+            # sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
                 _send_update(queue, task_id, 'failed')
             elif exit_code != 0:
-                logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
+                logger.exception(
+                    "Run task exit code non-zero (task_id=%s).",
+                    task_id)
+                _send_update(
+                    queue,
+                    task_id,
+                    'failed',
+                    extra={
+                        'traceback': open(stderr_file).read()})
             else:
                 _send_update(queue, task_id, 'finished')
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={'traceback': traceback.format_exc()})
+            _send_update(
+                queue,
+                task_id,
+                'failed',
+                extra={
+                    'traceback': traceback.format_exc()})
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:
@@ -405,8 +488,12 @@ def get_run_func(config):
                 os.chdir(current_dir)
                 shutil.rmtree(root_dir)
             except:
-                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+                logger.exception(
+                    "Unable to clean-up local folder %s (task_id=%s)",
+                    root_dir,
+                    task_id)
     return run
+
 
 def main():
     """
@@ -423,7 +510,7 @@ def main():
                                  config.getAzureServiceBusQueue())
     # map task type to function to accomplish the task
     vtable = {
-        'run' : get_run_func(config)
+        'run': get_run_func(config)
     }
     # create and start the worker
     worker = BaseWorker(queue, vtable, logger)
