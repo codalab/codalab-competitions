@@ -745,81 +745,85 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
-        if self.request.user.id == competition.creator_id or self.request.user in competition.admins.all():
-            # find the active phase
-            if (phase_id != None):
-                context['selected_phase_id'] = int(phase_id)
-                active_phase = competition.phases.filter(id=phase_id)[0]
-            else:
-                active_phase = competition.phases.all()[0]
-                for phase in competition.phases.all():
-                    if phase.is_active:
-                        context['selected_phase_id'] = phase.id
-                        active_phase = phase
 
-            context['selected_phase'] = active_phase
+        if self.request.user.id != competition.creator_id and self.request.user not in competition.admins.all():
+            raise Http404()
 
-            submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
-            # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
-            id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
-            # create column definition
-            columns = [
-                {
-                    'label': 'SUBMITTED',
-                    'name': 'submitted_at'
-                },
-                {
-                    'label': 'SUBMITTED BY',
-                    'name': 'submitted_by'
-                },
-                {
-                    'label': 'FILENAME',
-                    'name': 'filename'
-                },
-                {
-                    'label': 'STATUS',
-                    'name': 'status_name'
-                },
-                {
-                    'label': 'LEADERBOARD',
-                    'name': 'is_in_leaderboard'
-                },
-            ]
-            scores = active_phase.scores()
-            for score_group_index, score_group in enumerate(scores):
-                column = {
-                    'label': score_group['label'],
-                    'name': 'score_' + str(score_group_index),
-                }
-                columns.append(column)
-            # map submissions to view data
-            submission_info_list = []
-            for submission in submissions:
-                submission_info = {
-                    'id': submission.id,
-                    'submitted_by': submission.participant.user.username,
-                    'user_pk': submission.participant.user.pk,
-                    'number': submission.submission_number,
-                    'filename': submission.get_filename(),
-                    'submitted_at': submission.submitted_at,
-                    'status_name': submission.status.name,
-                    'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
-                    'exception_details': submission.exception_details,
-                    'description': submission.description,
-                    'is_public': submission.is_public,
-                }
-                # add score groups into data columns
-                if (submission_info['is_in_leaderboard'] == True):
-                    for score_group_index, score_group in enumerate(scores):
-                        user_score = filter(lambda user_score: user_score[1]['username'] == submission.participant.user.username, score_group['scores'])[0]
-                        main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
-                        submission_info['score_' + str(score_group_index)] = main_score['val']
-                submission_info_list.append(submission_info)
-            # order results
-            sort_data_table(self.request, context, submission_info_list)
-            # complete context
-            context['columns'] = columns
-            context['submission_info_list'] = submission_info_list
+        # find the active phase
+        if (phase_id != None):
+            context['selected_phase_id'] = int(phase_id)
+            active_phase = competition.phases.filter(id=phase_id)[0]
+        else:
+            active_phase = competition.phases.all()[0]
+            for phase in competition.phases.all():
+                if phase.is_active:
+                    context['selected_phase_id'] = phase.id
+                    active_phase = phase
+
+        context['selected_phase'] = active_phase
+
+        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
+        # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
+        id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
+        # create column definition
+        columns = [
+            {
+                'label': 'SUBMITTED',
+                'name': 'submitted_at'
+            },
+            {
+                'label': 'SUBMITTED BY',
+                'name': 'submitted_by'
+            },
+            {
+                'label': 'FILENAME',
+                'name': 'filename'
+            },
+            {
+                'label': 'STATUS',
+                'name': 'status_name'
+            },
+            {
+                'label': 'LEADERBOARD',
+                'name': 'is_in_leaderboard'
+            },
+        ]
+        scores = active_phase.scores()
+        for score_group_index, score_group in enumerate(scores):
+            column = {
+                'label': score_group['label'],
+                'name': 'score_' + str(score_group_index),
+            }
+            columns.append(column)
+        # map submissions to view data
+        submission_info_list = []
+        for submission in submissions:
+            submission_info = {
+                'id': submission.id,
+                'submitted_by': submission.participant.user.username,
+                'user_pk': submission.participant.user.pk,
+                'number': submission.submission_number,
+                'filename': submission.get_filename(),
+                'submitted_at': submission.submitted_at,
+                'status_name': submission.status.name,
+                'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
+                'exception_details': submission.exception_details,
+                'description': submission.description,
+                'is_public': submission.is_public,
+            }
+            # add score groups into data columns
+            if (submission_info['is_in_leaderboard'] == True):
+                for score_group_index, score_group in enumerate(scores):
+                    user_score = filter(lambda user_score: user_score[1]['username'] == submission.participant.user.username, score_group['scores'])[0]
+                    main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
+                    submission_info['score_' + str(score_group_index)] = main_score['val']
+            submission_info_list.append(submission_info)
+        # order results
+        sort_data_table(self.request, context, submission_info_list)
+        # complete context
+        context['columns'] = columns
+        context['submission_info_list'] = submission_info_list
+
         return context
 
 class VersionView(TemplateView):
