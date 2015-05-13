@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
     focustype: 'worksheet', // worksheet, bundle or None
+    fetch_timeout: 1000,
     getInitialState: function(){
         return { };
     },
@@ -13,12 +14,24 @@ var WorksheetSidePanel = React.createClass({
             $(this).unbind('mousemove');
         });
     },
+    componentWillUnmount: function(){
+    },
+    debouncedFetchExtra: undefined,
+    componentDidUpdate:function(){
+        var self = this;
+        // _.debounce(
+        if(this.debouncedFetchExtra === undefined){
+            // debounce it to wait for user to stop for X time.
+            this.debouncedFetchExtra = _.debounce(self.debouncedFetchExtra, 1500).bind(this);
+        }
+        this.debouncedFetchExtra();
+    },
     current_focus: function(){
         var focus = '';
         if(this.props.focusIndex > -1){
             focus = ws_obj.state.items[this.props.focusIndex].state;
             //focus.mode == "worksheet" #TODO render correct worksheet stuff when selected not just generic ws
-            if(focus.mode == "markup" || focus.mode == "worksheet"){
+            if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
                 // this.focustype = undefined;
                 //for now lets default it back to showing worksheet info
                 focus = ws_obj.state;
@@ -33,8 +46,10 @@ var WorksheetSidePanel = React.createClass({
         }
         return  focus;
     },
-    componentWillUnmount: function(){
-
+    fetch_extra: function(){
+        console.log('fetch_extra: ' + Math.random().toString(36).substring(7));
+        console.log(this.props.focusIndex);
+        console.log()
     },
     resizePanel: function(e){
         e.preventDefault();
@@ -92,12 +107,16 @@ var WorksheetDetailSidePanel = React.createClass({
     render: function(){
         var worksheet = this.props.item;
 
-
+        var permission_str = ""
+        worksheet.group_permissions.forEach(function(perm) {
+            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
+        });
         return (
             <div id="panel_content">
                 <h3 className="ws-name">{worksheet.name}</h3>
                 <p className="ws-uuid">{worksheet.uuid}</p>
                 <p className="ws-owner">{worksheet.owner}</p>
+                <p className="ws-permissions">{permission_str}</p>
             </div>
         )
     }
