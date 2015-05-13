@@ -35,7 +35,6 @@ def start_workers():
         sys.stdout.write("Starting tmux...")
         local('./tmux.sh')
         print "done"
-        return True
 
 
 def stop_workers():
@@ -56,7 +55,9 @@ def test_django():
 
 def test_lint():
     sys.stdout.write("Checking syntax...")
-    local('flake8 . --max-line-length=120 --exclude=*/migrations/*', capture=True)
+    local(
+        'flake8 . --max-line-length=120 --exclude=*/migrations/*',
+        capture=True)
     print "done"
 
 
