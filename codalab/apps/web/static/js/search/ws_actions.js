@@ -5,6 +5,11 @@ var WorksheetActions =  function() {
     }
     var bundleKeywordsHelp = 'Bundle keywords (example: test name=nlp.* type=run state=running .mine .last ...)';
     var worksheetKeywordsHelp = 'Worksheet keywords (example: test name=nlp.* .mine .last ...)';
+    var displayError = function(jqHXR, status){
+        error = jqHXR.responseJSON['error'];
+        $("#worksheet-message").html("Action bar error: " + error).addClass('alert-danger alert').show();
+        console.error(status + ': ' + error);
+    }
 
     function WorksheetActions() {
         this.commands = {
@@ -53,7 +58,7 @@ var WorksheetActions =  function() {
                             });
                         },
                         error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
+                            displayError(jqHXR, status);
                         }
                     });
                 },
@@ -87,7 +92,7 @@ var WorksheetActions =  function() {
                                 window.location = '/worksheets/' + data.uuid + '/';
                             },
                             error: function(jqHXR, status, error){
-                                console.error(status + ': ' + error);
+                                displayError(jqHXR, status);
                             }
                         });
                     }else {
@@ -123,7 +128,7 @@ var WorksheetActions =  function() {
                             });
                         },
                         error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
+                            displayError(jqHXR, status);
                         }
                     });
                 },
@@ -159,6 +164,8 @@ var WorksheetActions =  function() {
                             });
                         },
                         error: function(jqHXR, status, error){
+                            error = jqHXR.responseJSON['error'];
+                            $("#worksheet-message").html("Action bar error: " + error).addClass('alert-danger alert').show();
                             console.error(status + ': ' + error);
                         }
                     });
@@ -182,7 +189,7 @@ var WorksheetActions =  function() {
                                 callback();
                             },
                             error: function(jqHXR, status, error){
-                                console.error("error: " + status + ': ' + error);
+                                displayError(jqHXR, status);
                             }
                         });
                     }else {
@@ -219,7 +226,7 @@ var WorksheetActions =  function() {
                                 callback();
                             },
                             error: function(jqHXR, status, error){
-                                console.error(status + ': ' + error);
+                                displayError(jqHXR, status);
                             }
                         });
                     }else {
@@ -296,7 +303,7 @@ var WorksheetActions =  function() {
                             });
                         },
                         error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
+                            displayError(jqHXR, status);
                         }
                     });
                 },
@@ -321,7 +328,7 @@ var WorksheetActions =  function() {
                             callback();
                         },
                         error: function(jqHXR, status, error){
-                            console.error(status + ': ' + error);
+                            displayError(jqHXR, status);
                         }
                     });
                 },
@@ -366,7 +373,7 @@ var WorksheetActions =  function() {
                                 callback();
                             },
                             error: function(jqHXR, status, error){
-                                console.error(status + ': ' + error);
+                                displayError(jqHXR, status);
                             }
                         });
                     }else {
