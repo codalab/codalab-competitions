@@ -1,9 +1,9 @@
 /** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
     focustype: 'worksheet', // worksheet, bundle or None
-    fetch_timeout: 1000,
     getInitialState: function(){
-        return { };
+        return {
+        };
     },
     componentDidMount: function(){
         var self = this;
@@ -14,15 +14,13 @@ var WorksheetSidePanel = React.createClass({
             $(this).unbind('mousemove');
         });
     },
-    componentWillUnmount: function(){
-    },
     debouncedFetchExtra: undefined,
     componentDidUpdate:function(){
         var self = this;
         // _.debounce(
         if(this.debouncedFetchExtra === undefined){
             // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self.debouncedFetchExtra, 1500).bind(this);
+            this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
         }
         this.debouncedFetchExtra();
     },
@@ -47,9 +45,29 @@ var WorksheetSidePanel = React.createClass({
         return  focus;
     },
     fetch_extra: function(){
-        console.log('fetch_extra: ' + Math.random().toString(36).substring(7));
-        console.log(this.props.focusIndex);
-        console.log()
+        var current_focus = this.current_focus();
+        var subFocusIndex = this.props.subFocusIndex;
+        var bundle_info;
+        if(current_focus.bundle_info instanceof Array){ //tables are arrays
+            bundle_info = current_focus.bundle_info[this.props.subFocusIndex]
+        }else{ // content/images/ect. are not
+            bundle_info = current_focus.bundle_info
+        }
+        $.ajax({
+            type: "GET",
+            //  /api/bundles/0x706<...>d5b66e
+            url: "/api/bundles/" + bundle_info.uuid,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                console.log("got detailed bundle info");
+                this.setState({detailed_bundle_info:data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(status, err.toString());
+            }.bind(this)
+        });
+
     },
     resizePanel: function(e){
         e.preventDefault();
@@ -64,18 +82,21 @@ var WorksheetSidePanel = React.createClass({
         });
     },
     render: function(){
-        current_focus = this.current_focus();
-        side_panel_details = ''
+        var current_focus = this.current_focus();
+        var side_panel_details = ''
         switch (this.focustype) {
             case 'worksheet':
                 side_panel_details = <WorksheetDetailSidePanel
                                         item={current_focus}
+                                        ref="worksheet_info_side_panel"
                                     />
                 break;
             case 'bundle':
                 side_panel_details = <BundleDetailSidePanel
                                         item={current_focus}
                                         subFocusIndex={this.props.subFocusIndex}
+                                        detailed_bundle_info={this.state.detailed_bundle_info}
+                                        ref="bundle_info_side_panel"
                                     />
                 break;
             default:
