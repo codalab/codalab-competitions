@@ -13,22 +13,14 @@ class ComputeConfigTests(TestCase):
 
     def no_config_test(self):
         """Loads non-existent config file."""
-        cfg_path = os.path.join(
-            os.getcwd(),
-            "codalabtools",
-            "compute",
-            "foo.config")
+        cfg_path = os.path.join(os.getcwd(), "codalabtools", "compute", "foo.config")
         self.assertFalse(os.path.exists(cfg_path))
         with self.assertRaises(EnvironmentError):
             WorkerConfig(cfg_path)
 
     def sample_config_test(self):
         """Loads 'sample.config' in codalabtools\\compute."""
-        cfg_path = os.path.join(
-            os.getcwd(),
-            "codalabtools",
-            "compute",
-            "sample.config")
+        cfg_path = os.path.join(os.getcwd(), "codalabtools", "compute", "sample.config")
         self.assertTrue(os.path.isfile(cfg_path))
         cfg = WorkerConfig(cfg_path)
         self.assertEqual(cfg_path, cfg.getFilename())

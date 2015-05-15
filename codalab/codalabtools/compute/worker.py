@@ -74,8 +74,7 @@ class WorkerConfig(BaseConfig):
 
     def getLocalRoot(self):
         """Gets the path for the local directory where files are staged or None if the path is not provided."""
-        return self._winfo[
-            'local-root'] if 'local-root' in self._winfo else None
+        return self._winfo['local-root'] if 'local-root' in self._winfo else None
 
 
 def getBundle(root_path, blob_service, container,
@@ -158,15 +157,7 @@ def getBundle(root_path, blob_service, container,
                         "submitted-by",
                         "submitted-at"):
                     if isinstance(v, str):
-                        getThem(
-                            v,
-                            join(
-                                bundle_rel_path,
-                                k),
-                            bundles,
-                            depth +
-                            1)
-
+                        getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
         return bundles
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
