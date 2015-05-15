@@ -74,7 +74,7 @@ class WorksheetsListApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
     """
     Provides a web API to create a worksheet.
@@ -101,7 +101,7 @@ class WorksheetsListApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class WorksheetsAddApi(views.APIView):
@@ -131,7 +131,7 @@ class WorksheetsAddApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class WorksheetsDeleteApi(views.APIView):
@@ -161,7 +161,7 @@ class WorksheetsDeleteApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class WorksheetsSearchApi(views.APIView):
@@ -184,7 +184,7 @@ class WorksheetsSearchApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class WorksheetContentApi(views.APIView):
@@ -212,7 +212,7 @@ class WorksheetContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
     """
     Provides a web API to update/save a worksheet.
@@ -244,7 +244,7 @@ class WorksheetContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.error('-------------------------')
-            return Response({'error': smart_str(e)})
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class WorksheetsCommandApi(views.APIView):
@@ -273,7 +273,7 @@ class WorksheetsCommandApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class BundleInfoApi(views.APIView):
@@ -313,7 +313,7 @@ class BundleInfoApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
     def post(self, request, uuid):
         user_id = self.request.user.id
@@ -387,7 +387,7 @@ class BundleSearchApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class BundleCreateApi(views.APIView):
@@ -413,7 +413,7 @@ class BundleCreateApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class BundleUploadApi(views.APIView):
@@ -437,7 +437,7 @@ class BundleUploadApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
 
 
 class BundleContentApi(views.APIView):
@@ -498,4 +498,4 @@ class BundleFileContentApi(views.APIView):
             tb = traceback.format_exc()
             logging.error(tb)
             logging.debug('-------------------------')
-            return Response(status=service.http_status_from_exception(e))
+            return Response({"error": smart_str(e)}, status=500)
