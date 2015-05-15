@@ -741,7 +741,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     template_name = 'web/my/submissions.html'
 
     def get_context_data(self, **kwargs):
-        phase_id = self.request.GET.get('phase');
+        phase_id = self.request.GET.get('phase')
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
