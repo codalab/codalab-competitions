@@ -16,6 +16,6 @@ before_script:
 #  - "pylint --rcfile=pylint.rc setup.py"
 script:
   - "cd codalab"
-  - "python manage.py test"
+  - "fab test"
 notifications:
   slack: tivix:R2rmqmHoOvRo0pgfL7g7Sly6

@@ -1,10 +1,7 @@
-import mock
 import datetime
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 
 from apps.web.models import (Competition,
@@ -64,7 +61,8 @@ class CompetitionDownloadCSVTests(TestCase):
             label=u"Test \u2020",
             ordering=1
         )
-        submission_result_group_phase = SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=result_group)
+
+        SubmissionResultGroupPhase.objects.create(phase=self.phase_1, group=result_group)
         score_def = SubmissionScoreDef.objects.create(
             competition=self.competition,
             key="Key",
