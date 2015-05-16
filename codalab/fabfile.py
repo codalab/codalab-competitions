@@ -68,7 +68,8 @@ def test_lint():
         _print("Checking syntax...")
         local(
             'flake8 . --max-line-length=120 --exclude=*/migrations/* --ignore=E712,E127,F403,E128,E126,E711,E501',
-            capture=True)
+            capture=True
+        )
         print "done"
 
 
