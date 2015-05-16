@@ -4,7 +4,6 @@ Defines background tasks needed by the web site.
 import io
 import json
 import logging
-import yaml
 
 from urllib import pathname2url
 from zipfile import ZipFile
@@ -58,6 +57,7 @@ def echo_task(job_id, args):
 
     run_job_task(job_id, echo_it)
 
+
 def echo(text):
     """
     Echoes the text specified. This is for testing.
@@ -69,6 +69,7 @@ def echo(text):
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
 # Create competition
+
 
 def create_competition_task(job_id, args):
     """
@@ -82,15 +83,22 @@ def create_competition_task(job_id, args):
     def create_it(job):
         """Handles the actual creation of the competition"""
         comp_def_id = args['comp_def_id']
-        logger.info("Creating competition for competition bundle (bundle_id=%s, job_id=%s)",
-                    comp_def_id, job.id)
+        logger.info(
+            "Creating competition for competition bundle (bundle_id=%s, job_id=%s)",
+            comp_def_id,
+            job.id)
         competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
         competition = competition_def.unpack()
-        logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
-                    comp_def_id, job.id, competition.pk)
-        return JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
+        logger.info(
+            "Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
+            comp_def_id,
+            job.id,
+            competition.pk)
+        return JobTaskResult(
+            status=Job.FINISHED, info={'competition_id': competition.pk})
 
     run_job_task(job_id, create_it)
+
 
 def create_competition(comp_def_id):
     """
@@ -101,7 +109,8 @@ def create_competition(comp_def_id):
 
     Returns a Job object which can be used to track the progress of the operation.
     """
-    return Job.objects.create_and_dispatch_job('create_competition', {'comp_def_id': comp_def_id})
+    return Job.objects.create_and_dispatch_job(
+        'create_competition', {'comp_def_id': comp_def_id})
 
 # Evaluate submissions in a competition
 
@@ -112,6 +121,7 @@ _FINAL_STATES = {
     CompetitionSubmissionStatus.CANCELLED
 }
 
+
 def _set_submission_status(submission_id, status_codename):
     """
     Update the status of a submission.
@@ -121,7 +131,8 @@ def _set_submission_status(submission_id, status_codename):
     """
     status = CompetitionSubmissionStatus.objects.get(codename=status_codename)
     with transaction.commit_on_success():
-        submission = CompetitionSubmission.objects.select_for_update().get(pk=submission_id)
+        submission = CompetitionSubmission.objects.select_for_update().get(
+            pk=submission_id)
         old_status_codename = submission.status.codename
         if old_status_codename not in _FINAL_STATES:
             submission.status = status
@@ -129,8 +140,12 @@ def _set_submission_status(submission_id, status_codename):
             logger.info("Changed submission status from %s to %s (id=%s).",
                         old_status_codename, status_codename, submission_id)
         else:
-            logger.info("Skipping update of submission status: invalid transition %s -> %s  (id=%s).",
-                        status_codename, old_status_codename, submission_id)
+            logger.info(
+                "Skipping update of submission status: invalid transition %s -> %s  (id=%s).",
+                status_codename,
+                old_status_codename,
+                submission_id)
+
 
 def predict(submission, job_id):
     """
@@ -155,22 +170,39 @@ def predict(submission, job_id):
         lines.append("input: %s" % input_value)
     lines.append("stdout: %s" % submission_stdout_filename(submission))
     lines.append("stderr: %s" % submission_stderr_filename(submission))
-    submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_runfile.save(
+        'run.txt',
+        ContentFile(
+            '\n'.join(lines)))
     # Create stdout.txt & stderr.txt
     username = submission.participant.user.username
-    lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    lines = [
+        "Standard output for submission #{0} by {1}.".format(
+            submission.submission_number,
+            username),
+        ""]
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
-    lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.prediction_stdout_file.save(
+        'prediction_stdout_file.txt',
+        ContentFile(
+            '\n'.join(lines)))
+    lines = [
+        "Standard error for submission #{0} by {1}.".format(
+            submission.submission_number,
+            username),
+        ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stderr_file.save(
+        'prediction_stderr_file.txt',
+        ContentFile(
+            '\n'.join(lines)))
 
     # Store workflow state
-    submission.execution_key = json.dumps({'predict' : job_id})
+    submission.execution_key = json.dumps({'predict': job_id})
     submission.save()
     # Submit the request to the computation service
     body = json.dumps({
-        "id" : job_id,
+        "id": job_id,
         "task_type": "run",
         "task_args": {
             "bundle_id": submission.prediction_runfile.name,
@@ -183,7 +215,10 @@ def predict(submission, job_id):
 
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     # Update the submission object
-    _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
+    _set_submission_status(
+        submission.id,
+        CompetitionSubmissionStatus.SUBMITTED)
+
 
 def score(submission, job_id):
     """
@@ -198,38 +233,44 @@ def score(submission, job_id):
         state = json.loads(submission.execution_key)
     has_generated_predictions = 'predict' in state
 
-    #generate metadata-only bundle describing the history of submissions and phases
+    # generate metadata-only bundle describing the history of submissions and
+    # phases
     last_submissions = CompetitionSubmission.objects.filter(
         participant=submission.participant,
         status__codename=CompetitionSubmissionStatus.FINISHED
     ).order_by('-submitted_at')
 
-
     lines = []
-    lines.append("description: history of all previous successful runs output files")
+    lines.append(
+        "description: history of all previous successful runs output files")
 
     if last_submissions:
         for past_submission in last_submissions:
             if past_submission.pk != submission.pk:
-                #pad folder numbers for sorting os side, 001, 002, 003,... 010, etc...
+                # pad folder numbers for sorting os side, 001, 002, 003,...
+                # 010, etc...
                 past_submission_phasenumber = '%03d' % past_submission.phase.phasenumber
                 past_submission_number = '%03d' % past_submission.submission_number
                 lines.append('%s/%s/output/: %s' % (
-                        past_submission_phasenumber,
-                        past_submission_number,
-                        submission_private_output_filename(past_submission),
-                    )
+                    past_submission_phasenumber,
+                    past_submission_number,
+                    submission_private_output_filename(past_submission),
+                )
                 )
     else:
         pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
-    submission.scores_file.save('scores.txt', ContentFile(submission.phase.competition.get_results_csv(submission.phase.pk)))
+    submission.scores_file.save(
+        'scores.txt', ContentFile(
+            submission.phase.competition.get_results_csv(
+                submission.phase.pk)))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
-    # which is run to generate results) ordirectly (participant uploads results directly).
+    # which is run to generate results) ordirectly (participant uploads
+    # results directly).
     lines = []
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
@@ -243,12 +284,16 @@ def score(submission, job_id):
     lines.append("history: %s" % submission_history_file_name(submission))
     lines.append("scores: %s" % submission_scores_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
-    lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
+    lines.append(
+        "submitted-at: %s" %
+        submission.submitted_at.replace(
+            microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
     lines.append("competition-phase: %s" % submission.phase.phasenumber)
     is_automatic_submission = False
     if submission.phase.auto_migration:
-        # If this phase has auto_migration and this submission is the first in the phase, it is an automatic submission!
+        # If this phase has auto_migration and this submission is the first in
+        # the phase, it is an automatic submission!
         submissions_this_phase = CompetitionSubmission.objects.filter(
             phase=submission.phase,
             participant=submission.participant
@@ -257,7 +302,6 @@ def score(submission, job_id):
 
     lines.append("automatic-submission: %s" % is_automatic_submission)
     submission.inputfile.save('input.txt', ContentFile('\n'.join(lines)))
-
 
     # Generate metadata-only bundle describing the computation.
     lines = []
@@ -272,38 +316,61 @@ def score(submission, job_id):
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
-    if has_generated_predictions == False:
+    if not has_generated_predictions:
         username = submission.participant.user.username
-        lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-        submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
-        lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-        submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
+        lines = [
+            "Standard output for submission #{0} by {1}.".format(
+                submission.submission_number,
+                username),
+            ""]
+        submission.stdout_file.save(
+            'stdout.txt',
+            ContentFile(
+                '\n'.join(lines)))
+        lines = [
+            "Standard error for submission #{0} by {1}.".format(
+                submission.submission_number,
+                username),
+            ""]
+        submission.stderr_file.save(
+            'stderr.txt',
+            ContentFile(
+                '\n'.join(lines)))
     # Update workflow state
     state['score'] = job_id
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
     body = json.dumps({
-        "id" : job_id,
+        "id": job_id,
         "task_type": "run",
         "task_args": {
-            "bundle_id" : submission.runfile.name,
-            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "bundle_id": submission.runfile.name,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": False,
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-    if has_generated_predictions == False:
-        _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
+    if not has_generated_predictions:
+        _set_submission_status(
+            submission.id,
+            CompetitionSubmissionStatus.SUBMITTED)
+
 
 class SubmissionUpdateException(Exception):
+
     """Defines an exception that occurs during the update of a CompetitionSubmission object."""
+
     def __init__(self, submission, inner_exception):
-        super(SubmissionUpdateException, self).__init__(inner_exception.message)
+        super(
+            SubmissionUpdateException,
+            self).__init__(
+            inner_exception.message)
         self.submission = submission
         self.inner_exception = inner_exception
+
 
 def update_submission_task(job_id, args):
     """
@@ -323,78 +390,131 @@ def update_submission_task(job_id, args):
         job_id: The job ID used to track the progress of the evaluation.
         """
         if status == 'running':
-            _set_submission_status(submission.id, CompetitionSubmissionStatus.RUNNING)
+            _set_submission_status(
+                submission.id,
+                CompetitionSubmissionStatus.RUNNING)
             return Job.RUNNING
 
         if status == 'finished':
             result = Job.FAILED
             state = {}
             if len(submission.execution_key) > 0:
-                logger.debug("update_submission_task loading state: %s", submission.execution_key)
+                logger.debug(
+                    "update_submission_task loading state: %s",
+                    submission.execution_key)
                 state = json.loads(submission.execution_key)
             if 'score' in state:
-                logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
-                submission.output_file.name = pathname2url(submission_output_filename(submission))
-                submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
-                submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
+                logger.debug(
+                    "update_submission_task loading final scores (pk=%s)",
+                    submission.pk)
+                submission.output_file.name = pathname2url(
+                    submission_output_filename(submission))
+                submission.private_output_file.name = pathname2url(
+                    submission_private_output_filename(submission))
+                submission.detailed_results_file.name = pathname2url(
+                    submission_detailed_results_filename(submission))
                 submission.save()
-                logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
-                logger.debug("Output.zip location=%s" % submission.output_file.file.name)
+                logger.debug(
+                    "Retrieving output.zip and 'scores.txt' file (submission_id=%s)",
+                    submission.id)
+                logger.debug(
+                    "Output.zip location=%s" %
+                    submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
                 scores = None
                 try:
                     scores = open(ozip.extract('scores.txt'), 'r').read()
                 except Exception:
-                    logger.error("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
-                    _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+                    logger.error(
+                        "Scores.txt not found, unable to process submission: %s (submission_id=%s)",
+                        status,
+                        submission.id)
+                    _set_submission_status(
+                        submission.id,
+                        CompetitionSubmissionStatus.FAILED)
                     return Job.FAILED
 
-                logger.debug("Processing scores... (submission_id=%s)", submission.id)
+                logger.debug(
+                    "Processing scores... (submission_id=%s)",
+                    submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
                         label, value = line.split(":")
-                        logger.debug("Attempting to submit score %s:%s" % (label, value))
+                        logger.debug(
+                            "Attempting to submit score %s:%s" %
+                            (label, value))
                         try:
-                            scoredef = SubmissionScoreDef.objects.get(competition=submission.phase.competition,
-                                                                      key=label.strip())
-                            SubmissionScore.objects.create(result=submission, scoredef=scoredef, value=float(value))
+                            scoredef = SubmissionScoreDef.objects.get(
+                                competition=submission.phase.competition,
+                                key=label.strip())
+                            SubmissionScore.objects.create(
+                                result=submission,
+                                scoredef=scoredef,
+                                value=float(value))
                         except SubmissionScoreDef.DoesNotExist:
-                            logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
-                logger.debug("Done processing scores... (submission_id=%s)", submission.id)
-                _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
+                            logger.warning(
+                                "Score %s does not exist (submission_id=%s)",
+                                label,
+                                submission.id)
+                logger.debug(
+                    "Done processing scores... (submission_id=%s)",
+                    submission.id)
+                _set_submission_status(
+                    submission.id,
+                    CompetitionSubmissionStatus.FINISHED)
                 # Automatically submit to the leaderboard?
                 if submission.phase.is_blind:
-                    logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
+                    logger.debug(
+                        "Adding to leaderboard... (submission_id=%s)",
+                        submission.id)
                     add_submission_to_leaderboard(submission)
-                    logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
+                    logger.debug(
+                        "Leaderboard updated with latest submission (submission_id=%s)",
+                        submission.id)
 
                 if submission.phase.competition.force_submission_to_leaderboard:
                     add_submission_to_leaderboard(submission)
-                    logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
+                    logger.debug(
+                        "Force submission added submission to leaderboard (submission_id=%s)",
+                        submission.id)
 
                 result = Job.FINISHED
             else:
-                logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
-                url_name = pathname2url(submission_prediction_output_filename(submission))
+                logger.debug(
+                    "update_submission_task entering scoring phase (pk=%s)",
+                    submission.pk)
+                url_name = pathname2url(
+                    submission_prediction_output_filename(submission))
                 submission.prediction_output_file.name = url_name
-                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
-                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
+                submission.prediction_stderr_file.name = pathname2url(
+                    predict_submission_stdout_filename(submission))
+                submission.prediction_stdout_file.name = pathname2url(
+                    predict_submission_stderr_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
                     result = Job.RUNNING
-                    logger.debug("update_submission_task scoring phase entered (pk=%s)", submission.pk)
+                    logger.debug(
+                        "update_submission_task scoring phase entered (pk=%s)",
+                        submission.pk)
                 except Exception:
-                    logger.exception("update_submission_task failed to enter scoring phase (pk=%s)", submission.pk)
+                    logger.exception(
+                        "update_submission_task failed to enter scoring phase (pk=%s)",
+                        submission.pk)
             return result
 
         if status != 'failed':
-            logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
+            logger.error(
+                "Invalid status: %s (submission_id=%s)",
+                status,
+                submission.id)
 
         if traceback:
             submission.exception_details = traceback
             submission.save()
-        _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+        _set_submission_status(
+            submission.id,
+            CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
         """
@@ -406,23 +526,37 @@ def update_submission_task(job_id, args):
         """
         try:
             submission = ex.submission
-            _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+            _set_submission_status(
+                submission.id,
+                CompetitionSubmissionStatus.FAILED)
         except Exception:
-            logger.exception("Unable to set the submission status to Failed (job_id=%s)", job.id)
+            logger.exception(
+                "Unable to set the submission status to Failed (job_id=%s)",
+                job.id)
         return JobTaskResult(status=Job.FAILED)
 
     def update_it(job):
         """Updates the database to reflect the state of the evaluation of the given competition submission."""
-        logger.debug("Entering update_submission_task::update_it (job_id=%s)", job.id)
+        logger.debug(
+            "Entering update_submission_task::update_it (job_id=%s)",
+            job.id)
         if job.task_type != 'evaluate_submission':
-            raise ValueError("Job has incorrect task_type (job.task_type=%s)", job.task_type)
+            raise ValueError(
+                "Job has incorrect task_type (job.task_type=%s)",
+                job.task_type)
         task_args = job.get_task_args()
         submission_id = task_args['submission_id']
-        logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
+        logger.debug(
+            "Looking for submission (job_id=%s, submission_id=%s)",
+            job.id,
+            submission_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
         status = args['status']
-        logger.debug("Ready to update submission status (job_id=%s, submission_id=%s, status=%s)",
-                     job.id, submission_id, status)
+        logger.debug(
+            "Ready to update submission status (job_id=%s, submission_id=%s, status=%s)",
+            job.id,
+            submission_id,
+            status)
         result = None
         try:
             traceback = None
@@ -430,8 +564,11 @@ def update_submission_task(job_id, args):
                 traceback = args['extra']['traceback']
             result = update_submission(submission, status, job.id, traceback)
         except Exception as e:
-            logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
-                             job.id, submission_id, status)
+            logger.exception(
+                "Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
+                job.id,
+                submission_id,
+                status)
             raise SubmissionUpdateException(submission, e)
         return JobTaskResult(status=result)
 
@@ -454,25 +591,42 @@ def evaluate_submission_task(job_id, args):
         """Start the process to evaluate the given competition submission."""
         logger.debug("evaluate_submission_task begins (job_id=%s)", job_id)
         submission_id = args['submission_id']
-        logger.debug("evaluate_submission_task submission_id=%s (job_id=%s)", submission_id, job_id)
-        predict_and_score = args['predict'] == True
-        logger.debug("evaluate_submission_task predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
+        logger.debug(
+            "evaluate_submission_task submission_id=%s (job_id=%s)",
+            submission_id,
+            job_id)
+        predict_and_score = args['predict']
+        logger.debug(
+            "evaluate_submission_task predict_and_score=%s (job_id=%s)",
+            predict_and_score,
+            job_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
 
-        task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
+        task_name, task_func = (
+            'prediction', predict) if predict_and_score else (
+            'scoring', score)
         try:
-            logger.debug("evaluate_submission_task dispatching %s task (submission_id=%s, job_id=%s)",
-                        task_name, submission_id, job_id)
+            logger.debug(
+                "evaluate_submission_task dispatching %s task (submission_id=%s, job_id=%s)",
+                task_name,
+                submission_id,
+                job_id)
             task_func(submission, job_id)
-            logger.debug("evaluate_submission_task dispatched %s task (submission_id=%s, job_id=%s)",
-                        task_name, submission_id, job_id)
+            logger.debug(
+                "evaluate_submission_task dispatched %s task (submission_id=%s, job_id=%s)",
+                task_name,
+                submission_id,
+                job_id)
         except Exception:
-            logger.exception("evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
-                             job_id, submission_id)
+            logger.exception(
+                "evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
+                job_id,
+                submission_id)
             update_submission_task(job_id, {'status': 'failed'})
         logger.debug("evaluate_submission_task ends (job_id=%s)", job_id)
 
     submit_it()
+
 
 def evaluate_submission(submission_id, is_scoring_only):
     """
@@ -483,12 +637,20 @@ def evaluate_submission(submission_id, is_scoring_only):
 
     Returns a Job object which can be used to track the progress of the operation.
     """
-    task_args = {'submission_id': submission_id, 'predict': (not is_scoring_only)}
-    return Job.objects.create_and_dispatch_job('evaluate_submission', task_args)
+    task_args = {
+        'submission_id': submission_id,
+        'predict': (
+            not is_scoring_only)}
+    return Job.objects.create_and_dispatch_job(
+        'evaluate_submission', task_args)
 
 
-def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
-                        connection=None):
+def _send_mass_html_mail(
+        datatuple,
+        fail_silently=False,
+        user=None,
+        password=None,
+        connection=None):
     connection = connection or get_connection(
         username=user, password=password, fail_silently=fail_silently
     )
@@ -509,16 +671,22 @@ def send_mass_email_task(job_id, task_args):
     from_email = task_args["from_email"]
     to_emails = task_args["to_emails"]
 
-    context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
-    text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
-    html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
+    context = Context(
+        {"competition": competition, "body": body, "site": Site.objects.get_current()})
+    text = render_to_string(
+        "emails/notifications/participation_organizer_direct_email.txt",
+        context)
+    html = render_to_string(
+        "emails/notifications/participation_organizer_direct_email.html",
+        context)
 
     mail_tuples = ((subject, text, html, from_email, [e]) for e in to_emails)
 
     _send_mass_html_mail(mail_tuples)
 
 
-def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
+def send_mass_email(
+        competition, body=None, subject=None, from_email=None, to_emails=None):
     task_args = {
         "competition_pk": competition.pk,
         "body": body,

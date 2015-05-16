@@ -1,14 +1,10 @@
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, CreateView
 
-from apps.web.models import Competition
 from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
 from .models import Forum, Thread, Post
@@ -23,7 +19,9 @@ class ForumBaseMixin(object):
         # Get object early so we can access it in multiple places
         self.forum = get_object_or_404(Forum, pk=self.kwargs['forum_pk'])
         if 'thread_pk' in self.kwargs:
-            self.thread = get_object_or_404(Thread, pk=self.kwargs['thread_pk'])
+            self.thread = get_object_or_404(
+                Thread,
+                pk=self.kwargs['thread_pk'])
         return super(ForumBaseMixin, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -45,7 +43,8 @@ class RedirectToThreadMixin(object):
         return self.thread.get_absolute_url()
 
 
-class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
+class CreatePostView(
+        ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
     model = Post
     template_name = "forums/post_form.html"
     form_class = PostForm
@@ -62,7 +61,8 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, 
         return HttpResponseRedirect(self.get_success_url())
 
 
-class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
+class CreateThreadView(
+        ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
     model = Thread
     template_name = "forums/post_form.html"
     form_class = ThreadForm
@@ -86,4 +86,3 @@ class ThreadDetailView(ForumBaseMixin, DetailView):
     model = Thread
     template_name = "forums/thread_detail.html"
     pk_url_kwarg = 'thread_pk'
-

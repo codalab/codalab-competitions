@@ -1,15 +1,16 @@
 import os
 
 from django import forms
-from django.forms.formsets import formset_factory
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 import models
 from tinymce.widgets import TinyMCE
 
-User =  get_user_model()
+User = get_user_model()
+
 
 class CompetitionForm(forms.ModelForm):
+
     class Meta:
         model = models.Competition
         fields = (
@@ -31,13 +32,24 @@ class CompetitionForm(forms.ModelForm):
             'allow_public_submissions',
             'enable_forum',
         )
-        widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
-                                            mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+        widgets = {
+            'description': TinyMCE(
+                attrs={
+                    'rows': 20,
+                    'class': 'competition-editor-description'},
+                mce_attrs={
+                    "theme": "advanced",
+                    "cleanup_on_startup": True,
+                    "theme_advanced_toolbar_location": "top",
+                    "gecko_spellcheck": True})}
+
     def __init__(self, *args, **kwargs):
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
+
 class CompetitionPhaseForm(forms.ModelForm):
+
     class Meta:
         model = models.CompetitionPhase
         fields = (
@@ -57,47 +69,67 @@ class CompetitionPhaseForm(forms.ModelForm):
             'scoring_program_organizer_dataset',
         )
         widgets = {
-            'leaderboard_management_mode' : forms.Select(
+            'leaderboard_management_mode': forms.Select(
                 attrs={'class': 'competition-editor-phase-leaderboard-mode'},
-                choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
+                choices=(
+                    ('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
-            'DELETE' : forms.HiddenInput,
+            'DELETE': forms.HiddenInput,
             'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
         # If no reference_data
-        if not self.instance.reference_data and not self.cleaned_data["reference_data_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+        if not self.instance.reference_data and not self.cleaned_data[
+                "reference_data_organizer_dataset"]:
+            raise forms.ValidationError(
+                "Phase has no reference_data set or chosen in the form, but it is required")
 
         # If we were using org dataset but do not select a new one
-        if self.instance.reference_data_organizer_dataset and not self.cleaned_data["reference_data_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no reference_data set or chosen in the form, but it is required")
+        if self.instance.reference_data_organizer_dataset and not self.cleaned_data[
+                "reference_data_organizer_dataset"]:
+            raise forms.ValidationError(
+                "Phase has no reference_data set or chosen in the form, but it is required")
 
         return self.cleaned_data["reference_data_organizer_dataset"]
 
     def clean_scoring_program_organizer_dataset(self):
         # If no scoring_data
-        if not self.instance.scoring_program and not self.cleaned_data["scoring_program_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+        if not self.instance.scoring_program and not self.cleaned_data[
+                "scoring_program_organizer_dataset"]:
+            raise forms.ValidationError(
+                "Phase has no scoring_program set or chosen in the form, but it is required")
 
         # If we were using org dataset but do not select a new one
-        if self.instance.scoring_program_organizer_dataset and not self.cleaned_data["scoring_program_organizer_dataset"]:
-            raise forms.ValidationError("Phase has no scoring_program set or chosen in the form, but it is required")
+        if self.instance.scoring_program_organizer_dataset and not self.cleaned_data[
+                "scoring_program_organizer_dataset"]:
+            raise forms.ValidationError(
+                "Phase has no scoring_program set or chosen in the form, but it is required")
 
         return self.cleaned_data["scoring_program_organizer_dataset"]
 
 
 class PageForm(forms.ModelForm):
+
     class Meta:
         model = models.Page
         fields = ('category', 'rank', 'label', 'html', 'container')
-        widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
-                                     mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
-                    'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
+        widgets = {
+            'html': TinyMCE(
+                attrs={
+                    'rows': 20,
+                    'class': 'competition-editor-page-html'},
+                mce_attrs={
+                    "theme": "advanced",
+                    "cleanup_on_startup": True,
+                    "theme_advanced_toolbar_location": "top",
+                    "gecko_spellcheck": True}),
+            'DELETE': forms.HiddenInput,
+            'container': forms.HiddenInput}
 
 
 class LeaderboardForm(forms.ModelForm):
+
     class Meta:
         model = models.SubmissionScoreDef
         fields = (
@@ -112,15 +144,19 @@ class LeaderboardForm(forms.ModelForm):
 
 
 class CompetitionDatasetForm(forms.ModelForm):
+
     class Meta:
         model = models.Dataset
 
+
 class CompetitionParticipantForm(forms.ModelForm):
+
     class Meta:
         model = models.CompetitionParticipant
 
 
 class OrganizerDataSetModelForm(forms.ModelForm):
+
     class Meta:
         model = models.OrganizerDataSet
         fields = ["name", "description", "type", "data_file", "sub_data_files"]
@@ -130,17 +166,19 @@ class OrganizerDataSetModelForm(forms.ModelForm):
         super(OrganizerDataSetModelForm, self).__init__(*args, **kwargs)
         self.fields["sub_data_files"].widget.attrs["style"] = "width: 100%;"
 
-        # If we have sub_data_files, then hide what is currently in data_file (which would be metadata containing references
-        # to all of the sub_data_files)
-        if self.instance.pk != None and self.instance.sub_data_files.count() > 0:
-            self.fields["data_file"] = forms.FileField(initial=None, required=False)
+        # If we have sub_data_files, then hide what is currently in data_file (which would be metadata containing
+        # references to all of the sub_data_files)
+        if self.instance.pk is not None and self.instance.sub_data_files.count() > 0:
+            self.fields["data_file"] = forms.FileField(
+                initial=None,
+                required=False)
 
     def clean_data_file(self):
         data = self.cleaned_data.get('data_file')
 
-        #if data and self.data.get("sub_data_files"):
+        # if data and self.data.get("sub_data_files"):
         #    raise forms.ValidationError("Cannot submit both single data file and multiple sub files!")
-        #elif not data and not self.data.get("sub_data_files"):
+        # elif not data and not self.data.get("sub_data_files"):
         if not data and not self.data.get("sub_data_files"):
             raise forms.ValidationError("This field is required.")
 
@@ -155,10 +193,17 @@ class OrganizerDataSetModelForm(forms.ModelForm):
             lines = []
 
             for dataset in self.cleaned_data.get("sub_data_files"):
-                file_name = os.path.splitext(os.path.basename(dataset.data_file.file.name))[0]
-                lines.append("%s: %s" % (file_name, dataset.data_file.file.name))
+                file_name = os.path.splitext(
+                    os.path.basename(
+                        dataset.data_file.file.name))[0]
+                lines.append(
+                    "%s: %s" %
+                    (file_name, dataset.data_file.file.name))
 
-            self.instance.data_file.save("metadata", ContentFile("\n".join(lines)))
+            self.instance.data_file.save(
+                "metadata",
+                ContentFile(
+                    "\n".join(lines)))
 
         if commit:
             instance.save()
@@ -185,7 +230,12 @@ class UserSettingsForm(forms.ModelForm):
             'bibtex',
         )
         widgets = {
-            'team_members': forms.Textarea(attrs={"class": "form-control"}),
-            'method_description': forms.Textarea(attrs={"class": "form-control"}),
-            'bibtex': forms.Textarea(attrs={"class": "form-control"})
-        }
+            'team_members': forms.Textarea(
+                attrs={
+                    "class": "form-control"}),
+            'method_description': forms.Textarea(
+                attrs={
+                    "class": "form-control"}),
+            'bibtex': forms.Textarea(
+                attrs={
+                    "class": "form-control"})}

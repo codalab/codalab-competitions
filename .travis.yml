@@ -16,6 +16,7 @@ before_script:
 #  - "pylint --rcfile=pylint.rc setup.py"
 script:
   - "cd codalab"
-  - "python manage.py test"
+  - "flake8 . --max-line-length=120 --exclude=*/migrations/* --ignore=E712,E127,F403,E128,E126,E711,E501"
+  - "python manage.py test --noinput"
 notifications:
   slack: tivix:R2rmqmHoOvRo0pgfL7g7Sly6

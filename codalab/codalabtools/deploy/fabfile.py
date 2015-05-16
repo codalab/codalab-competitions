@@ -20,7 +20,6 @@ from fabric.api import (cd,
                         get,
                         prefix,
                         put,
-                        require,
                         task,
                         roles,
                         require,
@@ -29,8 +28,6 @@ from fabric.api import (cd,
                         shell_env,
                         sudo)
 from fabric.contrib.files import exists
-from fabric.network import ssh
-from fabric.utils import fastprint
 from codalabtools.deploy import DeploymentConfig, Deployment
 
 
@@ -42,6 +39,7 @@ logger = logging.getLogger('codalabtools')
 #
 # Internal helpers
 #
+
 
 def _validate_asset_choice(choice):
     """
@@ -56,8 +54,11 @@ def _validate_asset_choice(choice):
     elif choice == 'web':
         assets = {'web'}
     else:
-        raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
+        raise ValueError(
+            "Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." %
+            (choice))
     return assets
+
 
 def provision_packages(packages=None):
     """
@@ -80,12 +81,14 @@ def provision_packages(packages=None):
 # Tasks for reading configuration information.
 #
 
+
 @task
 def using(path):
     """
     Specifies a location for the CodaLab configuration file.
     """
     env.cfg_path = path
+
 
 @task
 def config(label=None):
@@ -105,26 +108,32 @@ def config(label=None):
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
     logging.config.dictConfig(configuration.getLoggerDictConfig())
-    logger.info("Loaded configuration from file: %s", configuration.getFilename())
+    logger.info(
+        "Loaded configuration from file: %s",
+        configuration.getFilename())
 
     env.user = configuration.getVirtualMachineLogonUsername()
     env.password = configuration.getVirtualMachineLogonPassword()
     env.key_filename = configuration.getServiceCertificateKeyFilename()
-    env.roledefs = {'build' : [configuration.getBuildHostname()]}
+    env.roledefs = {'build': [configuration.getBuildHostname()]}
 
     if label is not None:
-        env.roledefs.update({'web' : configuration.getWebHostnames()})
+        env.roledefs.update({'web': configuration.getWebHostnames()})
         # Information about main CodaLab repo
         env.git_user = configuration.getGitUser()
         env.git_repo = configuration.getGitRepo()
         env.git_tag = configuration.getGitTag()
-        env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_user, env.git_repo)
+        env.git_repo_url = 'https://github.com/{0}/{1}.git'.format(
+            env.git_user,
+            env.git_repo)
         # Information about Bundles repo
         env.git_bundles_user = configuration.getBundleServiceGitUser()
         env.git_bundles_repo = configuration.getBundleServiceGitRepo()
         env.git_bundles_tag = configuration.getBundleServiceGitTag()
         if len(configuration.getBundleServiceUrl()) > 0:
-            env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(env.git_bundles_user, env.git_bundles_repo)
+            env.git_bundles_repo_url = 'https://github.com/{0}/{1}.git'.format(
+                env.git_bundles_user,
+                env.git_bundles_repo)
         else:
             env.git_bundles_repo_url = ''
         env.deploy_dir = 'deploy'
@@ -132,7 +141,8 @@ def config(label=None):
         env.django_settings_module = 'codalab.settings'
         env.django_configuration = configuration.getDjangoConfiguration()
         env.config_http_port = '80'
-        env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
+        env.config_server_name = "{0}.cloudapp.net".format(
+            configuration.getServiceName())
 
     env.configuration = True
 
@@ -140,16 +150,19 @@ def config(label=None):
 # Tasks for provisioning machines
 #
 
+
 @task
 @roles('build')
 def provision_build():
     """
     Installs required software packages on a newly provisioned build machine.
     """
-    packages = ('build-essential python-crypto python2.7-dev python-setuptools ' +
-                'libmysqlclient-dev mysql-client-core-5.5 ' +
-                'libpcre3-dev libpng12-dev libjpeg-dev git')
+    packages = (
+        'build-essential python-crypto python2.7-dev python-setuptools ' +
+        'libmysqlclient-dev mysql-client-core-5.5 ' +
+        'libpcre3-dev libpng12-dev libjpeg-dev git')
     provision_packages(packages)
+
 
 @task
 @roles('web')
@@ -157,10 +170,12 @@ def provision_web():
     """
     Installs required software packages on a newly provisioned web instance.
     """
-    packages = ('language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
-                'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
-                'libmysqlclient-dev mysql-client-core-5.5 uwsgi-plugin-python')
+    packages = (
+        'language-pack-en python2.7 python-setuptools libmysqlclient18 ' +
+        'libpcre3 libjpeg8 libpng3 nginx supervisor git python2.7-dev ' +
+        'libmysqlclient-dev mysql-client-core-5.5 uwsgi-plugin-python')
     provision_packages(packages)
+
 
 @task
 def provision(choice):
@@ -186,6 +201,7 @@ def provision(choice):
         execute(provision_web)
     logger.info("Provisioning is complete.")
 
+
 @task
 def teardown(choice):
     """
@@ -204,6 +220,7 @@ def teardown(choice):
     dep.Teardown(assets)
     logger.info("Teardown is complete.")
 
+
 @task
 @roles('build', 'web')
 def test_connections():
@@ -216,6 +233,7 @@ def test_connections():
 #
 # Tasks for creating and installing build artifacts
 #
+
 
 @roles("build")
 @task
@@ -233,24 +251,31 @@ def build():
     with settings(warn_only=True):
         run('mkdir -p %s' % src_dir)
     with cd(src_dir):
-        run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
+        run('git clone --depth=1 --branch %s --single-branch %s .' %
+            (env.git_tag, env.git_repo_url))
         # Generate settings file (local.py)
         configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
         dep = Deployment(configuration)
         buf = StringIO()
         buf.write(dep.getSettingsFileContent())
-        settings_file = "/".join(['codalab', 'codalab', 'settings', 'local.py'])
+        settings_file = "/".join(['codalab',
+                                  'codalab',
+                                  'settings',
+                                  'local.py'])
         put(buf, settings_file)
     # Assemble source and configurations for the bundle service
     if len(env.git_bundles_repo_url) > 0:
-        build_dir_b = "/".join(['builds', env.git_bundles_user, env.git_bundles_repo])
+        build_dir_b = "/".join(['builds',
+                                env.git_bundles_user,
+                                env.git_bundles_repo])
         src_dir_b = "/".join([build_dir_b, env.git_bundles_tag])
         if exists(src_dir_b):
             run('rm -rf %s' % (src_dir_b.rstrip('/')))
         with settings(warn_only=True):
             run('mkdir -p %s' % src_dir_b)
         with cd(src_dir_b):
-            run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
+            run('git clone --depth=1 --branch %s --single-branch %s .' %
+                (env.git_bundles_tag, env.git_bundles_repo_url))
         # Replace current bundles dir in main CodaLab other bundles repo.
         bundles_dir = "/".join([src_dir, 'bundles'])
         run('rm -rf %s' % (bundles_dir.rstrip('/')))
@@ -258,7 +283,9 @@ def build():
     # Package everything
     with cd(build_dir):
         run('rm -f %s' % env.build_archive)
-        run('tar -cvf - %s | gzip -9 -c > %s' % (env.git_tag, env.build_archive))
+        run('tar -cvf - %s | gzip -9 -c > %s' %
+            (env.git_tag, env.build_archive))
+
 
 @roles("build")
 @task
@@ -273,7 +300,12 @@ def push_build():
             parts = host.split(':', 1)
             host = parts[0]
             port = parts[1]
-            run('scp -P {0} {1} {2}@{3}:{4}'.format(port, env.build_archive, env.user, host, env.build_archive))
+            run('scp -P {0} {1} {2}@{3}:{4}'.format(port,
+                                                    env.build_archive,
+                                                    env.user,
+                                                    host,
+                                                    env.build_archive))
+
 
 @roles('web')
 @task
@@ -296,19 +328,25 @@ def deploy_web():
     print env.SHELL_ENV
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
-            requirements_path = "/".join(['codalab', 'requirements', 'dev_azure_nix.txt'])
+            requirements_path = "/".join(['codalab',
+                                          'requirements',
+                                          'dev_azure_nix.txt'])
             pip_cmd = 'pip install -r {0}'.format(requirements_path)
             run(pip_cmd)
             # additional requirements for bundle service
             run('pip install SQLAlchemy simplejson')
             with cd('codalab'):
                 run('python manage.py config_gen')
-                run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
+                run(
+                    'mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
                 run('python manage.py syncdb --migrate')
                 run('python scripts/initialize.py')
                 run('python manage.py collectstatic --noinput')
-                sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
-                sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+                sudo(
+                    'ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+                sudo(
+                    'ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+
 
 @roles('web')
 @task
@@ -325,7 +363,8 @@ def install_mysql(choice='all'):
     """
     require('configuration')
     if len(env.roledefs['web']) != 1:
-        raise Exception("Task install_mysql requires exactly one web instance.")
+        raise Exception(
+            "Task install_mysql requires exactly one web instance.")
 
     if choice == 'mysql':
         choices = {'mysql'}
@@ -338,41 +377,61 @@ def install_mysql(choice='all'):
     elif choice == 'bundles_db_recreate':
         choices = {'bundles_db_recreate'}
     else:
-        raise ValueError("Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." % (choice))
+        raise ValueError(
+            "Invalid choice: %s. Valid choices are: 'build', 'web' or 'all'." %
+            (choice))
 
     configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
     dba_password = configuration.getDatabaseAdminPassword()
 
     if 'mysql' in choices:
-        sudo('DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
+        sudo(
+            'DEBIAN_FRONTEND=noninteractive apt-get -q -y install mysql-server')
         sudo('mysqladmin -u root password {0}'.format(dba_password))
 
     if 'site_db' in choices:
         db_name = configuration.getDatabaseName()
         db_user = configuration.getDatabaseUser()
         db_password = configuration.getDatabasePassword()
-        cmds = ["create database {0};".format(db_name),
-                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
-        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+        cmds = [
+            "create database {0};".format(db_name),
+            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(
+                db_user,
+                db_password),
+            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(
+                db_name,
+                db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(
+            dba_password, " ".join(cmds)))
 
     if 'bundles_db' in choices:
         db_name = configuration.getBundleServiceDatabaseName()
         db_user = configuration.getBundleServiceDatabaseUser()
         db_password = configuration.getBundleServiceDatabasePassword()
-        cmds = ["create database {0};".format(db_name),
-                "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(db_user, db_password),
-                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
-        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+        cmds = [
+            "create database {0};".format(db_name),
+            "create user '{0}'@'localhost' IDENTIFIED BY '{1}';".format(
+                db_user,
+                db_password),
+            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(
+                db_name,
+                db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(
+            dba_password, " ".join(cmds)))
 
     if 'bundles_db_recreate' in choices:
         db_name = configuration.getBundleServiceDatabaseName()
         db_user = configuration.getBundleServiceDatabaseUser()
         db_password = configuration.getBundleServiceDatabasePassword()
-        cmds = ["drop database {0};".format(db_name),
-                "create database {0};".format(db_name),
-                "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
-        run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
+        cmds = [
+            "drop database {0};".format(db_name),
+            "create database {0};".format(db_name),
+            "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(
+                db_name,
+                db_user)]
+        run('mysql --user=root --password={0} --execute="{1}"'.format(
+            dba_password, " ".join(cmds)))
+
 
 @roles('web')
 @task
@@ -382,11 +441,18 @@ def install_ssl_certificates():
     """
     require('configuration')
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
-    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
-        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
-        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (
+            len(cfg.getSslCertificateKeyInstalledPath()) > 0):
+        put(cfg.getSslCertificatePath(),
+            cfg.getSslCertificateInstalledPath(),
+            use_sudo=True)
+        put(cfg.getSslCertificateKeyPath(),
+            cfg.getSslCertificateKeyInstalledPath(),
+            use_sudo=True)
     else:
-        logger.info("Skipping certificate installation because both files are not specified.")
+        logger.info(
+            "Skipping certificate installation because both files are not specified.")
+
 
 @roles('web')
 @task
@@ -397,6 +463,7 @@ def supervisor():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisord -c codalab/config/generated/supervisor.conf')
+
 
 @roles('web')
 @task
@@ -410,6 +477,7 @@ def supervisor_stop():
     # since worker is muli threaded, we need to kill all running processes
     run('pkill -9 -f worker.py')
 
+
 @roles('web')
 @task
 def supervisor_restart():
@@ -419,6 +487,7 @@ def supervisor_restart():
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf restart all')
+
 
 @roles('web')
 @task
@@ -431,13 +500,15 @@ def nginx_restart():
 #
 # Maintenance and diagnostics
 #
+
+
 @roles('web')
 @task
 def maintenance(mode):
     """
     Begin or end maintenance (mode=begin|end).
     """
-    modes = {'begin': '1', 'end' : '0'}
+    modes = {'begin': '1', 'end': '0'}
     if mode in modes:
         require('configuration')
         env.SHELL_ENV = dict(
@@ -450,10 +521,12 @@ def maintenance(mode):
             with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV):
                 with cd('codalab'):
                     run('python manage.py config_gen')
-                    sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+                    sudo(
+                        'ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
                     nginx_restart()
     else:
         print "Invalid mode. Valid values are 'begin' or 'end'"
+
 
 @roles('web')
 @task
@@ -465,6 +538,7 @@ def fetch_logs():
     with cd(env.deploy_dir):
         get('codalab/var/*.log', '~/logs/%(host)s/%(path)s')
 
+
 @task
 def enable_cors():
     """
@@ -475,19 +549,24 @@ def enable_cors():
     dep = Deployment(cfg)
     dep.ensureStorageHasCorsConfiguration()
 
+
 @task
 def install_packages_compute_workers():
     # --yes and --force-yes accepts the Y/N question when installing the package
     sudo('apt-get update')
     sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
     sudo('apt-get --yes --force-yes install r-base')
-    sudo('apt-get --yes --force-yes --fix-missing install mono-runtime libmono-system-web-extensions4.0-cil libmono-system-io-compression4.0-cil')
+    sudo(
+        'apt-get --yes --force-yes --fix-missing install mono-runtime libmono-system-web-extensions4.0-cil '
+        'libmono-system-io-compression4.0-cil')
 
     # check for khiops dir if not, put
     if not exists("/home/azureuser/khiops/"):
         run('mkdir -p /home/azureuser/khiops/')
-        put("~/khiops/", "/home/azureuser/") # actually ends up in /home/azureuser/khiops
+        # actually ends up in /home/azureuser/khiops
+        put("~/khiops/", "/home/azureuser/")
         sudo("chmod +x /home/azureuser/khiops/bin/64/MODL")
+
 
 @task
 def khiops_print_machine_name_and_id():
@@ -524,16 +603,12 @@ def get_database_dump():
 
     dump_file_name = 'launchdump-%s.sql.gz' % datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
-    run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
-        db_host,
-        db_user,
-        db_password,
-        db_name,
-        dump_file_name)
-    )
+    run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' %
+        (db_host, db_user, db_password, db_name, dump_file_name))
 
     backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
     get('/tmp/%s' % dump_file_name, backup_dir)
+
 
 @task
 def update_compute_worker():

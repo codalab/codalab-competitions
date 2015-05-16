@@ -3,12 +3,10 @@ Defines Django views for 'apps.api' app for competitions
 """
 import json
 import logging
-import traceback
-import mimetypes
 
 from uuid import uuid4
 
-from rest_framework import (permissions, status, viewsets, views, generics, filters)
+from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
@@ -19,29 +17,21 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
-from django.core.files.base import ContentFile
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
-from django.http import Http404, StreamingHttpResponse
+from django.http import Http404
 from django.template import Context
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_str
 from django.utils.html import escape
 
-
 from apps.api import serializers
-from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
-from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
 logger = logging.getLogger(__name__)
-
-
 
 
 def _generate_blob_sas_url(prefix, extension):
@@ -58,6 +48,7 @@ def _generate_blob_sas_url(prefix, extension):
     logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
+
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationSasApi(views.APIView):
     """
@@ -71,6 +62,7 @@ class CompetitionCreationSasApi(views.APIView):
         prefix = 'competition/upload/{0}'.format(request.user.id)
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationApi(views.APIView):
@@ -98,7 +90,8 @@ class CompetitionCreationApi(views.APIView):
         logger.debug("CompetitionCreation def: owner=%s; def=%s; blob=%s.", owner.id, cdb.pk, cdb.config_bundle.name)
         job = create_competition(cdb.pk)
         logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
-        return Response({'token' : job.pk}, status=status.HTTP_201_CREATED)
+        return Response({'token': job.pk}, status=status.HTTP_201_CREATED)
+
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationStatusApi(views.APIView):
@@ -118,7 +111,7 @@ class CompetitionCreationStatusApi(views.APIView):
         except Job.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         logger.debug("CompetitionCreationStatus: requestor=%s; job=%s; job.status:%s.", user_id, job.pk, job.status)
-        data = {'status' : job.get_status_code_name()}
+        data = {'status': job.get_status_code_name()}
         info = job.get_task_info()
         logger.debug("CompetitionCreationStatus: info=%s", info)
         if 'competition_id' in info:
@@ -127,11 +120,12 @@ class CompetitionCreationStatusApi(views.APIView):
             data['error'] = info['error']
         return Response(data)
 
+
 class CompetitionAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionSerial
     queryset = webmodels.Competition.objects.all()
     filter_class = serializers.CompetitionFilter
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     filter_fields = ('creator')
     search_fields = ("title", "description", "=creator__username")
 
@@ -164,7 +158,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         c = webmodels.Competition.objects.get(id=pk)
         response = {}
         if self.request.user == c.creator or self.request.user in c.admins.all():
-            phases_needing_reference_data = webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
+            phases_needing_reference_data = \
+                webmodels.CompetitionPhase.objects.filter(competition=c, reference_data='').count()
 
             if phases_needing_reference_data > 0:
                 response = {
@@ -225,8 +220,8 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                                                                        defaults={'status': status, 'reason': None})
 
         response_data = {
-            'result' : 201 if cr else 200,
-            'id' : p.id
+            'result': 201 if cr else 200,
+            'id': p.id
         }
 
         status_text = str(status)
@@ -320,7 +315,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                 'status': status,
                 'participantId': part,
                 'reason': reason
-                }
+            }
 
             if status == webmodels.ParticipantStatus.PENDING:
                 pass
@@ -375,10 +370,10 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                         to_email=comp.creator.email
                     )
 
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             resp = {
-                'status' : 400
-                }
+                'status': 400
+            }
 
         return Response(json.dumps(resp), content_type="application/json")
 
@@ -394,8 +389,10 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
                              "imageUrl": comp.image.url if comp.image else None},
                          "published": 3}, status=200)
 
-competition_list = CompetitionAPIViewSet.as_view({'get':'list', 'post': 'participate'})
-competition_retrieve = CompetitionAPIViewSet.as_view({'get':'retrieve', 'put':'update', 'patch': 'partial_update'})
+
+competition_list = CompetitionAPIViewSet.as_view({'get': 'list', 'post': 'participate'})
+competition_retrieve = CompetitionAPIViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})
+
 
 class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionParticipantSerial
@@ -404,6 +401,7 @@ class CompetitionParticipantAPIViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         competition_id = self.kwargs.get('competition_id', None)
         return self.queryset.filter(competition__pk=competition_id)
+
 
 class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
     serializer_class = serializers.CompetitionPhaseSerial
@@ -419,14 +417,14 @@ class CompetitionPhaseAPIViewset(viewsets.ModelViewSet):
             kw['phases__phasenumber'] = phasenumber
         return self.queryset.filter(**kw)
 
-competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get':'list', 'post':'create'})
-competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve',
-                                                                'put':'update',
-                                                                'patch':'partial_update'})
+competitionphase_list = CompetitionPhaseAPIViewset.as_view({'get': 'list', 'post': 'create'})
+competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get': 'retrieve',
+                                                                'put': 'update',
+                                                                'patch': 'partial_update'})
 
 
 class CompetitionPageViewSet(viewsets.ModelViewSet):
-    ## TODO: Turn the custom logic here into a mixin for other content
+    # TODO: Turn the custom logic here into a mixin for other content
     serializer_class = serializers.PageSerial
     content_type = ContentType.objects.get_for_model(webmodels.Competition)
     queryset = webmodels.Page.objects.all()
@@ -462,7 +460,7 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
 
     def new_pagecontainer(self, competition_id):
         try:
-            competition = webmodels.Competition.objects.get(pk=competition_id)
+            webmodels.Competition.objects.get(pk=competition_id)
         except ObjectDoesNotExist:
             raise Http404
         self._pagecontainer = webmodels.PageContainer.objects.create(object_id=competition_id,
@@ -478,11 +476,12 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         container = self.pagecontainer
         if not container:
-            container = self.new_pagecontainer(self.kwargs.get('competition_id'))
-        return  super(CompetitionPageViewSet, self).create(request, *args, **kwargs)
+            self.new_pagecontainer(self.kwargs.get('competition_id'))
+        return super(CompetitionPageViewSet, self).create(request, *args, **kwargs)
 
-competition_page_list = CompetitionPageViewSet.as_view({'get':'list', 'post':'create'})
-competition_page = CompetitionPageViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
+
+competition_page_list = CompetitionPageViewSet.as_view({'get': 'list', 'post': 'create'})
+competition_page = CompetitionPageViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})
 
 
 @permission_classes((permissions.IsAuthenticated,))
@@ -500,6 +499,7 @@ class CompetitionSubmissionSasApi(views.APIView):
         prefix = 'competition/{0}/submission/{1}'.format(competition_id, request.user.id)
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
@@ -524,7 +524,8 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         if phase is None or phase.is_active is False:
             raise PermissionDenied(detail='Competition phase is closed.')
         if phase.auto_migration and not phase.is_migrated and not phase.competition.is_migrating_delayed:
-            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a few minutes")
+            raise PermissionDenied(detail="Failed, competition phase is being migrated, please try again in a "
+                                          "few minutes")
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
@@ -597,10 +598,12 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         response['status'] = (201 if cr else 200)
         return Response(response, status=response['status'], content_type="application/json")
 
-competition_submission_retrieve = CompetitionSubmissionViewSet.as_view({'get':'retrieve'})
-competition_submission_create = CompetitionSubmissionViewSet.as_view({'post':'create'})
+
+competition_submission_retrieve = CompetitionSubmissionViewSet.as_view({'get': 'retrieve'})
+competition_submission_create = CompetitionSubmissionViewSet.as_view({'post': 'create'})
 competition_submission_leaderboard = CompetitionSubmissionViewSet.as_view(
-                                        {'post':'addToLeaderboard', 'delete':'removeFromLeaderboard'})
+                                        {'post': 'addToLeaderboard', 'delete': 'removeFromLeaderboard'})
+
 
 class LeaderBoardViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LeaderBoardSerial
@@ -616,8 +619,10 @@ class LeaderBoardViewSet(viewsets.ModelViewSet):
             kw['phase__competition__pk'] = competition_id
         return self.queryset.filter(**kw)
 
-leaderboard_list = LeaderBoardViewSet.as_view({'get':'list', 'post':'create'})
-leaderboard_retrieve = LeaderBoardViewSet.as_view({'get':'retrieve', 'put':'update', 'patch':'partial_update'})
+
+leaderboard_list = LeaderBoardViewSet.as_view({'get': 'list', 'post': 'create'})
+leaderboard_retrieve = LeaderBoardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})
+
 
 class LeaderBoardDataViewSet(views.APIView):
     """

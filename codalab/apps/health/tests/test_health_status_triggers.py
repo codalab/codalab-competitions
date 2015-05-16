@@ -1,4 +1,3 @@
-import datetime
 import mock
 
 from django.core import mail

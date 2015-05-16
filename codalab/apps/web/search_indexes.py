@@ -1,6 +1,6 @@
-import datetime
 from haystack import indexes
 from models import Competition
+
 
 class CompetitionIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True)

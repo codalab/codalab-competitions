@@ -1,7 +1,5 @@
-import mock
 import datetime
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -63,7 +61,7 @@ class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
 
     def test_dataset_delete_actually_deletes(self):
         self.client.login(username="organizer", password="pass")
-        resp = self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
+        self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(0, len(models.OrganizerDataSet.objects.filter(pk=self.dataset.pk)))
 
     def test_dataset_delete_doesnt_delete_phases_using_dataset(self):
@@ -81,7 +79,7 @@ class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
         )
 
         self.client.login(username="organizer", password="pass")
-        resp = self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
+        self.client.post(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(1, len(models.CompetitionPhase.objects.filter(pk=self.phase.pk)))
 
 

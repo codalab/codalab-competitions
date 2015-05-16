@@ -127,15 +127,14 @@ class Competitions(TestCase):
 
     #    create_data2 = json.loads(res.content)
 
-
     # delete  first competition
     #    res = client.delete('/api/competition/'+ str(create_data1['id'])+'/')
     #    delete_data = json.loads(res.content)
 
-
     # try to access the deleted comp
     #    res = client.get('/api/competition/'+ str(create_data1['id'])+'/')
     #    self.assertEqual(int(res.status_code), int(404))
+
 
 class CompetitionPhaseTests(TestCase):
 
@@ -267,17 +266,17 @@ class CompetitionDefinitionTests(TestCase):
 
     def test_import_date_1(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01')
-        dte = utc.localize(datetime.datetime(2014,03,01))
+        dte = utc.localize(datetime.datetime(2014, 03, 01))
         self.assertEqual(dte, dta)
 
     def test_import_date_2(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 10:00:01')
-        dte = utc.localize(datetime.datetime(2014,03,01,10,00,01))
+        dte = utc.localize(datetime.datetime(2014, 03, 01, 10, 00, 01))
         self.assertEqual(dte, dta)
 
     def test_import_date_3(self):
         dta = CompetitionDefinitionTests.read_date('2014-03-01 18:15')
-        dte = utc.localize(datetime.datetime(2014,03,01,18,15))
+        dte = utc.localize(datetime.datetime(2014, 03, 01, 18, 15))
         self.assertEqual(dte, dta)
 
     def test_import_date_4(self):

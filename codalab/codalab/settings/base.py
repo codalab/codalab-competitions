@@ -3,9 +3,10 @@ if not importer.installed:
     importer.install()
 
 from configurations import Settings
-from configurations.utils import uppercase_attributes
-import os, sys, pkgutil, subprocess
-from os.path import abspath, basename, dirname, join, normpath
+import os
+import sys
+from os.path import abspath
+from os.path import dirname
 
 __version__ = 'N/A'
 try:
@@ -21,19 +22,21 @@ class Base(Settings):
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
     PORT = '8000'
-    DOMAIN_NAME='localhost'
-    SERVER_NAME='localhost'
+    DOMAIN_NAME = 'localhost'
+    SERVER_NAME = 'localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
-    LOCAL_MATHJAX = False # see prep_for_offline
+    # is the less -> css already done or would you like less.js to compile it
+    # on render
+    COMPILE_LESS = True
+    LOCAL_MATHJAX = False  # see prep_for_offline
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
     if 'CONFIG_HTTP_PORT' in os.environ:
         PORT = os.environ.get('CONFIG_HTTP_PORT')
 
-    MAINTENANCE_MODE=0
+    MAINTENANCE_MODE = 0
     if 'MAINTENANCE_MODE' in os.environ:
         MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE')
 
@@ -46,16 +49,17 @@ class Base(Settings):
     SSL_CERTIFICATE = ''
     SSL_CERTIFICATE_KEY = ''
 
-    TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
-    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
-    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
+    TEST_DATA_PATH = os.path.join(PROJECT_DIR, 'test_data')
+    # 'codalab.test_runner.CodalabTestRunner'
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+    CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'config', 'templates')
+    CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR, 'config', 'generated')
 
     DJANGO_ROOT = dirname(dirname(abspath(__file__)))
     SITE_ROOT = dirname(DJANGO_ROOT)
 
     SOURCE_GIT_URL = 'https://github.com/codalab/codalab.git'
-    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV',None)
+    VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV', None)
 
     AUTH_USER_MODEL = 'authenz.ClUser'
 
@@ -117,9 +121,9 @@ class Base(Settings):
 
     # Additional locations of static files
     STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+        # Put strings here, like "/home/html/static" or "C:/www/django/static".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
     )
 
     # List of finder classes that know how to find static files in
@@ -127,7 +131,7 @@ class Base(Settings):
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
         'django.contrib.staticfiles.finders.FileSystemFinder',
-        #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+        # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
         'compressor.finders.CompressorFinder',
     )
 
@@ -138,7 +142,7 @@ class Base(Settings):
     TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
-        #'django.template.loaders.eggs.Loader',
+        # 'django.template.loaders.eggs.Loader',
     )
 
     MIDDLEWARE_CLASSES = (
@@ -158,7 +162,7 @@ class Base(Settings):
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
         # Don't forget to use absolute paths, not relative paths.
-        os.path.join(PROJECT_DIR,'templates'),
+        os.path.join(PROJECT_DIR, 'templates'),
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = Settings.TEMPLATE_CONTEXT_PROCESSORS + (
@@ -252,14 +256,15 @@ class Base(Settings):
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
-    ACCOUNT_AUTHENTICATION_METHOD='username_email'
-    ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=True
-    ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+    ACCOUNT_EMAIL_REQUIRED = True
+    ACCOUNT_USERNAME_REQUIRED = True
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Our versioning
-    CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
+    CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[
+        0]
 
     # Django Analytical configuration
     GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
@@ -280,23 +285,23 @@ class Base(Settings):
         'captcha': 'captcha.south_migrations',
     }
 
-    #HAYSTACK_CONNECTIONS = {
+    # HAYSTACK_CONNECTIONS = {
     #    'default': {
     #        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
     #        'URL': 'http://127.0.0.1:8983/solr'
     #        # ...or for multicore...
     #        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
     #    },
-    #}
+    # }
 
     HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        'default': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
 
     BUNDLE_SERVICE_URL = ""
-    LANDING_PAGE_WORKSHEET_UUID = '';
+    LANDING_PAGE_WORKSHEET_UUID = ''
 
     # Currently the search bar is hidden using this flag
     SHOW_BETA_FEATURES = False
@@ -360,7 +365,7 @@ class Base(Settings):
 
     @classmethod
     def pre_setup(cls):
-        if hasattr(cls,'OPTIONAL_APPS'):
+        if hasattr(cls, 'OPTIONAL_APPS'):
             for a in cls.OPTIONAL_APPS:
                 try:
                     __import__(a)
@@ -368,27 +373,27 @@ class Base(Settings):
                     print e
                 else:
                     cls.INSTALLED_APPS += (a,)
-        cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
-                                 'CONFIG_SERVER_NAME': cls.SERVER_NAME })
+        cls.STARTUP_ENV.update({'CONFIG_HTTP_PORT': cls.PORT,
+                                'CONFIG_SERVER_NAME': cls.SERVER_NAME})
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
             cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
     @classmethod
     def post_setup(cls):
-        if not hasattr(cls,'PORT'):
+        if not hasattr(cls, 'PORT'):
             raise AttributeError("PORT environmenment variable required")
-        if not hasattr(cls,'SERVER_NAME'):
+        if not hasattr(cls, 'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
 
 class DevBase(Base):
 
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+    OPTIONAL_APPS = ('debug_toolbar', 'django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
-    DEBUG=True
+    DEBUG = True
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES' : True,
+        'ENABLE_STACKTRACES': True,
     }
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
@@ -396,15 +401,19 @@ class DevBase(Base):
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
+            # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'ENGINE': 'django.db.backends.sqlite3',
+            # Or path to database file if using sqlite3.
+            'NAME': os.path.join(Base.PROJECT_DIR, 'dev_db.sqlite'),
             # The following settings are not used with sqlite3:
             'USER': '',
             'PASSWORD': '',
-            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            # Empty for localhost through domain sockets or '127.0.0.1' for
+            # localhost through TCP.
+            'HOST': '',
             'PORT': '',                      # Set to empty string for default.
         }
     }
 
     # Send e-mails to the console during development
-    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

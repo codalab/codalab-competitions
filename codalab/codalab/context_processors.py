@@ -9,6 +9,7 @@ def app_version_proc(request):
         'last_commit': settings.CODALAB_LAST_COMMIT
     }
 
+
 def common_settings(request):
     "A context processor that returns dev settings"
     return {

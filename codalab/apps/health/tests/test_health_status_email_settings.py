@@ -1,5 +1,3 @@
-import os
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -33,5 +31,5 @@ class HealthStatusSettingsTests(TestCase):
     def test_health_email_settings_actually_changes_environment_variable(self):
         self.client.login(username="admin", password="pass")
         emails = "test@test.com,test2@test.com"
-        resp = self.client.post(reverse("health_status_email_settings"), {"emails": emails})
+        self.client.post(reverse("health_status_email_settings"), {"emails": emails})
         self.assertEquals(HealthSettings.objects.get_or_create(pk=1)[0].emails, emails)

@@ -22,7 +22,8 @@ class CompetitionTest(TestCase):
             ParticipantStatus.objects.get_or_create(name=s, codename=s)
 
         self.organizer_user = User.objects.create_user(username="organizer", password="pass", email="org@anizer.com")
-        self.participant_user = User.objects.create_user(username="participant", password="pass", email="participant@comp.com")
+        self.participant_user = User.objects.create_user(username="participant", password="pass",
+                                                         email="participant@comp.com")
         self.competition = Competition.objects.create(
             title="Test Competition",
             creator=self.organizer_user,
@@ -50,7 +51,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.client.login(username="organizer", password="pass")
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             resp = self.client.post(
-                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                reverse("competitions:competition_message_participants",
+                        kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": "message body"}
             )
             self.assertEquals(resp.status_code, 200)
@@ -86,7 +88,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.client.login(username="organizer", password="pass")
         non_existant_competition_id = 2398234
         resp = self.client.post(
-            reverse("competitions:competition_message_participants", kwargs={"competition_id": non_existant_competition_id})
+            reverse("competitions:competition_message_participants",
+                    kwargs={"competition_id": non_existant_competition_id})
         )
         self.assertEquals(resp.status_code, 404)
 
@@ -113,14 +116,15 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.client.login(username="organizer", password="pass")
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             resp = self.client.post(
-                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                reverse("competitions:competition_message_participants",
+                        kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": 'Injected!<script src="http://code_injection/bad_code.js"></script>'}
             )
             self.assertEquals(resp.status_code, 200)
 
         send_mass_email_mock.assert_called_with(
             self.competition,
-            body=u'Injected!', # <script> tag was removed!
+            body=u'Injected!',  # <script> tag was removed!
             subject=u'test',
             to_emails=[self.participant_user.email],
             from_email=settings.DEFAULT_FROM_EMAIL
@@ -134,7 +138,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
 
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             resp = self.client.post(
-                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                reverse("competitions:competition_message_participants",
+                        kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": 'Test body'}
             )
             self.assertEquals(resp.status_code, 200)
@@ -146,7 +151,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.participant.save()
 
         denied_participant_user = User.objects.create_user(username="denied_participant", password="pass")
-        denied_participant = CompetitionParticipant.objects.create(
+        CompetitionParticipant.objects.create(
             user=denied_participant_user,
             competition=self.competition,
             status=ParticipantStatus.objects.get_or_create(name='denied', codename=ParticipantStatus.DENIED)[0]
@@ -155,7 +160,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
             self.client.login(username="organizer", password="pass")
             resp = self.client.post(
-                reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
+                reverse("competitions:competition_message_participants",
+                        kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": "message body"}
             )
             self.assertEquals(resp.status_code, 200)
@@ -164,7 +170,8 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             self.competition,
             body=u"message body",
             subject=u'test',
-            to_emails=[self.participant_user.email], # denied participant, although a member of this competition, was not emailed
+            # denied participant, although a member of this competition, was not emailed
+            to_emails=[self.participant_user.email],
             from_email=settings.DEFAULT_FROM_EMAIL
         )
 

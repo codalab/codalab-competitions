@@ -6,7 +6,9 @@ from unittest import TestCase
 
 from codalabtools.compute.worker import WorkerConfig
 
+
 class ComputeConfigTests(TestCase):
+
     """Tests for WorkerConfig."""
 
     def no_config_test(self):
@@ -52,8 +54,8 @@ class ComputeConfigTests(TestCase):
                 }
             },
             'root': {
-              'level': 'DEBUG',
-              'handlers': ['console']
+                'level': 'DEBUG',
+                'handlers': ['console']
             }
         }
         self.assertDictEqual(log_cfg_expected, cfg.getLoggerDictConfig())

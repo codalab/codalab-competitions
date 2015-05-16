@@ -11,10 +11,13 @@ from django.utils import timezone
 from apps.jobs import models
 from apps.jobs.models import Job, run_job_task, JobTaskResult
 
+
 class JobsTests(TestCase):
+
     """
     Tests for creating, updating and deleting jobs.
     """
+
     def setUp(self):
         """
         Class-level setup.
@@ -45,7 +48,11 @@ class JobsTests(TestCase):
         Test basic job creation when required input is missing.
         """
         task_type = 'foo'
-        task_args = { 'value1': 'a string', 'value2': 2, 'value3' : { 'key1' : 'val1' } }
+        task_args = {
+            'value1': 'a string',
+            'value2': 2,
+            'value3': {
+                'key1': 'val1'}}
         job = Job.objects.create_job(task_type, task_args)
         self.assertIsNotNone(job)
         self.assertEqual(job.task_type, task_type)
@@ -134,7 +141,7 @@ class JobsTests(TestCase):
         self.assertEqual(job.status, Job.PENDING)
         last_updated = last_update_of(job)
         # pending -> running
-        job = single_run(job.id, { 'status': 'running' })
+        job = single_run(job.id, {'status': 'running'})
         self.assertEqual(job.status, Job.RUNNING)
 
         # Remove seconds/ms, fixes problem with mac running this test
@@ -143,12 +150,12 @@ class JobsTests(TestCase):
         self.assertGreaterEqual(job.updated, last_updated)
         last_updated = last_update_of(job)
         # running -> finished
-        job = single_run(job.id, { 'status': 'finished' })
+        job = single_run(job.id, {'status': 'finished'})
         self.assertEqual(job.status, Job.FINISHED)
         self.assertGreaterEqual(job.updated, last_updated)
         last_updated = last_update_of(job)
         # Try finished -> running which is not valid and will have no effect
-        job = single_run(job.id, { 'status': 'running' })
+        job = single_run(job.id, {'status': 'running'})
         self.assertEqual(job.status, Job.FINISHED)
         self.assertEqual(job.updated, last_updated)
         job.delete()
@@ -160,8 +167,10 @@ class JobsTests(TestCase):
         job = Job.objects.create()
         self.assertIsNotNone(job)
         self.assertEqual(job.status, Job.PENDING)
-        info = { 'key1': "value1", 'key2' : 2 }
-        models.update_job_status_task(job.id, { 'status': 'finished', 'info' : info })
+        info = {'key1': "value1", 'key2': 2}
+        models.update_job_status_task(
+            job.id, {
+                'status': 'finished', 'info': info})
         job = Job.objects.get(pk=job.id)
         self.assertEqual(job.status, Job.FINISHED)
         self.assertDictEqual(job.get_task_info(), info)
@@ -173,9 +182,9 @@ class JobsTests(TestCase):
         self.assertIsNotNone(job)
         self.assertEqual(job.status, Job.PENDING)
         self.assertDictEqual(job.get_task_info(), {})
-        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.RUNNING))
+        run_job_task(job.id, lambda ajob: JobTaskResult(status=Job.RUNNING))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.FINISHED))
+        run_job_task(job.id, lambda ajob: JobTaskResult(status=Job.FINISHED))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.FINISHED)
         job.delete()
 
@@ -206,9 +215,18 @@ class JobsTests(TestCase):
         self.assertEqual(job.status, Job.PENDING)
         run_job_task(job.id, JobsTests._comp_with_ex, self._ex_handler)
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: JobTaskResult())
+        run_job_task(
+            job.id,
+            JobsTests._comp_with_ex,
+            lambda j,
+            e: JobTaskResult())
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.RUNNING)
-        run_job_task(job.id, JobsTests._comp_with_ex, lambda j, e: JobTaskResult(status=Job.FAILED))
+        run_job_task(
+            job.id,
+            JobsTests._comp_with_ex,
+            lambda j,
+            e: JobTaskResult(
+                status=Job.FAILED))
         self.assertEqual(Job.objects.get(pk=job.id).status, Job.FAILED)
         job.delete()
 
@@ -217,13 +235,21 @@ class JobsTests(TestCase):
         job = Job.objects.create()
         self.assertIsNotNone(job)
         self.assertEqual(job.status, Job.PENDING)
-        info1 = { 'key1': 'value1', 'key2': 2 }
-        info2 = { 'key1': 'value1', 'key2': 2, 'key3': 3.3 }
-        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.RUNNING, info=info1))
+        info1 = {'key1': 'value1', 'key2': 2}
+        info2 = {'key1': 'value1', 'key2': 2, 'key3': 3.3}
+        run_job_task(
+            job.id,
+            lambda ajob: JobTaskResult(
+                status=Job.RUNNING,
+                info=info1))
         j = Job.objects.get(pk=job.id)
         self.assertEqual(j.status, Job.RUNNING)
         self.assertDictEqual(j.get_task_info(), info1)
-        run_job_task(job.id, lambda ajob : JobTaskResult(status=Job.FINISHED, info=info2))
+        run_job_task(
+            job.id,
+            lambda ajob: JobTaskResult(
+                status=Job.FINISHED,
+                info=info2))
         j = Job.objects.get(pk=job.id)
         self.assertEqual(j.status, Job.FINISHED)
         self.assertDictEqual(j.get_task_info(), info2)

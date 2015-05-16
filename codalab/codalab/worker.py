@@ -29,6 +29,7 @@ from apps.web.tasks import (echo_task,
 
 logger = logging.getLogger('codalab')
 
+
 def start_worker():
     """
     Setup the worker and start it.
@@ -46,6 +47,7 @@ def start_worker():
     logger.info("Starting site worker.")
     worker.start()
 
+
 def start_producer():
     """
     Start a sample task producer.
@@ -56,10 +58,12 @@ def start_producer():
     delay_inc = 5
     while True:
         time.sleep(cur_delay)
-        job = Job.objects.create_and_dispatch_job('status_update', { 'status': 'finished' })
+        job = Job.objects.create_and_dispatch_job('status_update',
+                                                  {'status': 'finished'})
         logger.info("Created job with id=%s", job.id)
         if (cur_delay < max_delay):
             cur_delay += min(delay_inc, (max_delay - cur_delay))
+
 
 if __name__ == "__main__":
 
@@ -68,7 +72,8 @@ Usage: %s [command]
 
 command:
     worker (default): starts the site background worker.
-    producer: starts a sample producer of tasks directed at the site background worker.
+    producer: starts a sample producer of tasks directed at the site
+              background worker.
 """ % basename(sys.argv[0])
 
     command = "worker"
