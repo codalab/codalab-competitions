@@ -1,0 +1,183 @@
+body {
+    padding-top:@navbar-height + 2px; // include bottom border;
+    padding-bottom:@footer-height * 2;
+    > .container {
+        padding-bottom:36px;
+    }
+    &.ws-interface {
+        padding-top:@navbar-height + 2 + 59 + 2; // same as above plus height of ws searchbar and its border
+        > .container {
+            padding-bottom:0;
+        }
+    }
+}
+.jumbotron {
+    background: url('../img/slider_exp_comp.gif') repeat-x center center;
+    background-size:cover;
+    background-color: @brand-primary;
+    text-align:center;
+    padding:36px 0 24px;
+    margin-bottom:20px;
+    img.img-responsive {
+        max-width:90%;
+        margin:0 5%;
+    }
+    h4 {
+        margin-top:12px;
+        font-size:24px;
+    }
+}
+.page-header {
+    margin:0 0 20px;
+    border:none;
+    background: url('../img/tiled-header-bg.gif') repeat-x top left;
+    min-height: 80px;
+    color:white;
+    h1 {
+        margin-top:14px;
+        margin-bottom:0;
+    }
+}
+// Alerts
+.alert-box.alert {
+    code {
+        font-weight:normal;
+        color:white;
+        background-color:transparent;
+    }
+    a:not(.close) {
+        color:#fff;
+        text-decoration: underline;
+    }
+}
+.alert.alert-waiting {
+    background-image:url('../img/PreloaderTransp.gif');
+    background-repeat: no-repeat;
+    background-size:16px;
+    background-position: 10px 15px;
+    padding-left:32px;
+}
+// Tabs
+.tab-content > .tab-pane {
+   background-color:white;
+}
+.tab-content > .active {
+   border-style:solid;
+   border-color: #ccc;
+   border-width:0 1px 1px 1px;
+}
+.tab-content > .tab-pane > .tab-inner {
+   padding:24px;
+}
+.tab-content.sidenav > .active {
+   border:none;
+}
+.tab-pane {
+    > h3,
+    > h2,
+    > h1 {
+        &:first-child {
+            margin-top:0;
+        }
+    }
+}
+// Panels
+.panel {
+    .panel-body {
+        p:last-child {
+            margin-bottom:0;
+        }
+    }
+}
+// Wells
+.well {
+    .box-shadow(none);
+}
+// KBD
+kbd {
+    .box-shadow(none);
+    border:none;
+    font-size:85%;
+    border:1px solid darken(@kbd-bg, 5%);
+    border-radius:2px;
+}
+.nav.nav-sidenav {
+    > li > a {
+        border-left: 2px solid transparent;
+        padding: 6px 12px;
+    }
+    > .active > a,
+    > li > a:hover,
+    > li > a:focus {
+        color:@blue;
+        font-weight:bold;
+        border-left:2px solid @blue;
+        background-color:@white-dark;
+    }
+}
+.competitionPreloader {
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    width:50px;
+    height:50px;
+    position:absolute;
+    z-index:10;
+    margin:-25px 0 0 -25px;
+    left:50%;
+    top:50%;
+    display:block;
+}
+.preloader {
+    background:url('../img/Preloader_Medium.gif') no-repeat center center;
+    left:50%;
+    top:80px;
+    width:50px;
+    height:50px;
+    position:absolute;
+    z-index:30;
+}
+.buttonPreloader {
+    position:absolute;
+    margin:0;
+    left:50%;
+    margin-left:-15px;
+    top:7px;
+}
+.select2-container-multi {
+    .select2-choices {
+        .select2-search-field {
+            input:focus {
+                border:none;
+                .box-shadow(none);
+            }
+            input.select2-active {
+                background-color: #FFF;
+                background-image: url('../img/Preloader_Small.gif');
+                background-repeat: no-repeat;
+                background-size:16px;
+            }
+        }
+        .select2-search-choice {
+            line-height:inherit;
+            padding: 3px 5px 3px 18px;
+            .select2-search-choice-close {
+                left: 3px;
+                top: 3px;
+            }
+        }
+    }
+    &.select2-container-active .select2-choices {
+        border-color:@blue-light;
+    }
+}
+input[type="radio"], input[type="checkbox"] {
+    margin-top:6px;
+}
+.clearablefileinput .field-container {
+    padding-top:7px;
+    font-size:@font-size-med;
+}
+@media (min-width:@screen-xs) {
+    .form-horizontal .control-label {
+        padding-top:4px;
+    }
+}

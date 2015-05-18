@@ -22,6 +22,8 @@ urlpatterns += (
 
     url(r'^competition/(?P<pk>\d+)/phases/(?P<phasenumber>\d+)$',views.competitionphase_retrieve,name='api_competitionphase'),
     url(r'^competition/(?P<competition_id>\d+)/phases/(?P<phase_id>\d+)/leaderboard$',views.leaderboard_retrieve, name='api_phase_leaderboard'),
+    url(r'^competition/(?P<competition_id>\d+)/phases/(?P<phase_id>\d+)/leaderboard/data$',views.LeaderBoardDataViewSet.as_view(), name='api_phase_leaderboarddata'),
+
     url(r'^competition/(?P<pk>\d+)/phases/$',views.competitionphase_list,name='api_competitionphases_list'),
 
     url(r'^competition/(?P<competition_id>\d+)/pages/(?P<category>[a-zA-Z][\w\d\-\_]*)/$', views.competition_page_list, name='api_competition_page_list'),
@@ -30,10 +32,17 @@ urlpatterns += (
     url(r'^competition/(?P<pk>\d+)/pages/(?P<entity_label>\w[\w\d\-\_]+)/$', views.competition_page_list, name='api_competition_page_list'),
 
     url(r'^worksheets/$', views.WorksheetsListApi.as_view(), name='api_worksheets'),
-    url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets'),
+    url(r'^worksheets/info/$', views.WorksheetsInfoApi.as_view(), name='api_worksheets_info'),
+    url(r'^worksheets/add/$', views.WorksheetsAddApi.as_view(), name='api_worksheets_add'),
+    url(r'^worksheets/delete/$', views.WorksheetsDeleteApi.as_view(), name='api_worksheets_delete'),
+    url(r'^worksheets/search/$', views.WorksheetsSearchApi.as_view(), name='api_worksheet_search'),
+    url(r'^worksheets/command/$', views.WorksheetsCommandApi.as_view(), name='api_worksheets_command'),
     url(r'^worksheets/(?P<uuid>[A-Za-z0-9]+)/$', views.WorksheetContentApi.as_view(), name='api_worksheet_content'),
+    url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/filecontent/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleFileContentApi.as_view(), name='api_bundle_filecontent'),
+    url(r'^bundles/search/$', views.BundleSearchApi.as_view(), name='api_bundle_search'),
+    url(r'^bundles/create/$', views.BundleCreateApi.as_view(), name='api_bundle_create'),
+    url(r'^bundles/upload_url/$', views.BundleUploadApi.as_view(), name='api_bundle_upload_url'),
     url(r'^bundles/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleInfoApi.as_view(), name='api_bundle_info'),
-
 )

@@ -1,17 +1,113 @@
 {% extends "base.html" %}
-
+{% block custom_body_attributes %}{% endblock %}
 {% block head_title %}Worksheet details{% endblock head_title %}
 {% block subheader %}{% endblock subheader %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div id="worksheet-message">
-            <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
-        </div>
-        <div id="general_search" class="ws-detail"></div>
-        <div id="worksheet-body">
-            <!-- worksheet html wil go here-->
+
+</div>
+<div class="container">
+    <div id="worksheet-message" class="ws-detail">
+        <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
+    </div>
+</div>
+<div id="worksheet_container">
+    <!-- worksheet html wil go here-->
+</div>
+</div>
+<div id="save_progress" class="progress-message">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Saving...
+</div>
+<div id="update_progress" class="progress-message">
+    <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Updating...
+</div>
+<div id="save_error" class="progress-message">
+    <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
+</div>
+<div id="glossaryModal" class="modal" data-keyboard="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4>Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+                <h5>General</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>/</kbd> Jump to action bar</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>E</kbd> Toggle editing mode</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>F</kbd> Raw editing mode for worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>j</kbd> or <kbd>↓</kbd> Highlight next worksheet item or table row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>k</kbd> or <kbd>↑</kbd> Highlight previous worksheet item or table row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> Move highlighted worksheet item down</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> Move highlighted worksheet item up</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>G</kbd> Jump to end of worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>1 G</kbd> Jump to beginning of worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>R</kbd> Refresh worksheet</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>?</kbd> Open keyboard shortcut help</td>
+                    </tr>
+                </table>
+                <h5>In edit mode</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>x</kbd> Select highlighted item</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>d</kbd> Detach selected items from worksheet (doesn't delete)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>O</kbd> Insert markup before highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>o</kbd> Insert markup after highlighted item or row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>e</kbd> Edit highlighted item</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>ctrl + enter</kbd> or <kbd>⌘ + enter</kbd> Save edits</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>esc</kbd> Exit edit mode</td>
+                    </tr>
+                </table>
+                <h5>Tables</h5>
+                <table class="table table-striped">
+                    <tr>
+                        <td><kbd>enter</kbd> Go to details page of highlighted bundle</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + x</kbd> Select table of highlighted row</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + j</kbd> Move highlighted row down</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>shift + k</kbd> Move highlighted row up</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -20,21 +116,45 @@
 
 {% block js %}
     {# moved below because the script tag is in base making this block not color code in editors #}
+    {{ block.super }}
 {% endblock js %}
 
 {% block jsincludes %}
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    {% if local_mathjax %}
+            <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% else %}
+            <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    {% endif %}
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
-    <script src="http://fb.me/react-0.11.1.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
-    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
-
+    <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    {#  JSX FILES #}
+    <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
+
+
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
+    {# ------- JSX FILES  ------- #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_search.js"></script>
+    {# bundle type renders/actions #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/search_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/modal_interface.js"></script>
+    {# main entrance point for the worksheet and it's items/bundles #}
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/search/general_search.js"></script>
+    {# ------- END JSX FILES  ------- #}
 
 <script>
 MathJax.Hub.Config({
@@ -43,14 +163,16 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
-
-
+// mixing django and javascript to get uuid if not a normal worksheet page
+var worksheet_url = '/api' + document.location.pathname
+{% if worksheet_uuid %}
+    worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
+{% endif %}
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
-    ws_obj = new WorksheetContent("/api" + document.location.pathname);
+    ws_obj = new WorksheetContent(worksheet_url);
+    ws_actions = new WorksheetActions(); // Search bar actions
 
-    $(".top-bar-section ul > li").removeClass("active");
-    $("#liWorksheets").addClass("active");
 });
 </script>
 {% endblock jsincludes %}

@@ -4,22 +4,19 @@
 {% block page_title %}Create Competition{% endblock page_title %}
 
 {% block content %}
-<div class="row">
-    <div class="large-12 columns">
-        <div class="panel">
-            <p>
-                To create a competition, upload a bundle with the definition of the new competition.
-                <a class="helpLinkIcon right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
-                   title="Get help with creating a competition" target="_blank">
-                </a>
-            </p>
-            <button id="uploadButton" class="button">Upload definition...</button>
-            {% csrf_token %}
-            <div id="details">
+<div id="create_competition" class="panel panel-default">
+    <div class="panel-body">
+        <p>
+            To create a competition, upload a bundle with the definition of the new competition.
+            <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
+               title="Get help with creating a competition" target="_blank">
+               <span class="glyphicon glyphicon-question-sign"></span>
+            </a>
+        </p>
+        <button id="uploadButton" class="button btn btn-primary">Upload definition...</button>
+        {% csrf_token %}
+        <div id="details"></div>
     </div>
-	</div>
-  </div>
-
 </div>
 {% endblock %}
 

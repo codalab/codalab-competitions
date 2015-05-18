@@ -5,8 +5,8 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 from codalabtools.azure_extensions import (Cors,CorsRule,set_storage_service_cors_properties)
 
-account_name = "azuretraining2350"
-account_key = "Dhz+S8fQYjN2ECHMBLwid896HqNNUiKSVFXqgUVKyfc6ZAjunxz/vZx2fMojbsl6iQpKHIwBexvnC/zu8oA2wg=="
+account_name = "name"
+account_key = "key"
 cors_rule = CorsRule()
 cors_rule.allowed_origins = '*' # this is fine for dev setup
 cors_rule.allowed_methods = 'PUT'

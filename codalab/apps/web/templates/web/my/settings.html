@@ -3,90 +3,148 @@
 {% load codalab_tags %}
 {% load tz %}
 
-{% block page_title %}Settings{% endblock page_title %}
-{% block head_title %}Settings{% endblock %}
+{% block page_title %}User Settings{% endblock page_title %}
+{% block head_title %}User Settings{% endblock %}
 
 {% block extra_head %}
 {# include extra JS stuff here #}
 {% endblock %}
 
 {% block content %}
+<form method="POST" action=".">{% csrf_token %}
+    <h2>{{ user.username }}</h2>
+    {% if errors %}
+        <div class="alert alert-error">
+            There were errors processing the form, please try reloading the page!
+        </div>
+    {% endif %}
 
-<style>
-    input[type="radio"] {
-        margin-left: 20px;
-    }
-    .inline {
-        display: inline;
-        margin-left: 10px !important;
-    }
+    {% if saved_successfully %}
+        <div class="alert alert-success">
+            Saved successfully!
+        </div>
+    {% endif %}
 
-    .error {
-        color: #efefef;
-        background-color: #ff333d;
-        padding: 20px;
-        margin: 20px;
-    }
-    .success {
-        color: #efefef;
-        background-color: #218026;
-        padding: 20px;
-        margin: 20px;
-    }
-</style>
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {% for field, msg in form.errors.items %}
+                <b>{{ field }}</b> {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
 
-<div class="row">
-    <div class="large-12 large-centered columns content">
-        <form method="POST" action=".">
-            {% if errors %}
-                <div class="error">
-                    There were errors processing the form, please try reloading the page!
-                </div>
-            {% endif %}
-
-            {% if saved_successfully %}
-                <div class="success">
-                    Saved successfully!
-                </div>
-            {% endif %}
-
-            {% csrf_token %}
-
-            <div class="row">
-                <div class="large-12 columns">
-                    <label>Receive updates about your participation status in competitions</label>
-                    <input type="radio" name="participation_status_updates" value="true"  {% if request.user.participation_status_updates %}checked{% endif %}>
-                    <label for="pokemonRed" class="inline">Yes</label>
-
-                    <input type="radio" name="participation_status_updates" value="false"  {% if not request.user.participation_status_updates %}checked{% endif %}>
-                    <label for="pokemonBlue" class="inline">No</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="large-12 columns">
-                    <label>Receive updates about participants in your competitions</label>
-                    <input type="radio" name="organizer_status_updates" value="true" {% if request.user.organizer_status_updates %}checked{% endif %}>
-                    <label for="pokemonRed" class="inline">Yes</label>
-
-                    <input type="radio" name="organizer_status_updates" value="false"  {% if not request.user.organizer_status_updates %}checked{% endif %}>
-                    <label for="pokemonBlue" class="inline">No</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="large-12 columns">
-                    <label>Receive messages from competiton organizers</label>
-                    <input type="radio" name="organizer_direct_message_updates" value="true"  {% if request.user.organizer_direct_message_updates %}checked{% endif %}>
-                    <label for="pokemonRed" class="inline">Yes</label>
-
-                    <input type="radio" name="organizer_direct_message_updates" value="false"  {% if not request.user.organizer_direct_message_updates %}checked{% endif %}>
-                    <label for="pokemonBlue" class="inline">No</label>
-                </div>
-            </div>
-
-            <input type="submit" class="button" value="Save">
-        </form>
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Basic settings {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</h4>
+            <table class="table table-striped account">
+                <tbody>
+                    <tr>
+                        <th>First name</th>
+                        <td>{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Last name</th>
+                        <td>{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date joined</th>
+                        <td>{{ user.date_joined }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+
+    <!--
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Team</h4>
+            <table class="table table-striped affiliation">
+                <tbody>
+                    <tr>
+                        <th>{{ form.team_name.label }}</th>
+                        <td>{{ form.team_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.team_members.label }}<br><i style="font-weight: normal;">(each member on a new line)</i></th>
+                        <td>{{ form.team_members }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    -->
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <h4>Competition settings</h4>
+
+            <table class="table table-striped subscriptions">
+                <tbody>
+                    <tr>
+                        <th>{{ form.participation_status_updates.label }}</th>
+                        <td>{{ form.participation_status_updates }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.organizer_status_updates.label }}</th>
+                        <td>{{ form.organizer_status_updates}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.organizer_direct_message_updates.label }}</th>
+                        <td>{{ form.organizer_direct_message_updates }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Profile information</h4>
+            <table class="table table-striped affiliation">
+                <tbody>
+                    <tr>
+                        <th>{{ form.organization_or_affiliation.label }}</th>
+                        <td>{{ form.organization_or_affiliation }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.method_name.label }}</th>
+                        <td>{{ form.method_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.method_description.label }}</th>
+                        <td>{{ form.method_description }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.contact_email.label }}</th>
+                        <td>{{ form.contact_email }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.project_url.label }}</th>
+                        <td>{{ form.project_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.publication_url.label }}</th>
+                        <td>{{ form.publication_url }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.bibtex.label }}</th>
+                        <td>{{ form.bibtex }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
+        </div>
+    </div>
+    -->
+</form>
 {% endblock %}
 
 {% block js %}

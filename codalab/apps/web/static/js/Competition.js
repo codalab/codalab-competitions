@@ -1,19 +1,19 @@
 var Competition;
 (function(Competition) {
 
-    Competition.invokePhaseButtonOnOpen = function(id) {
-        var btn = $('#' + id + ' .button.selected')[0];
-        if (btn === undefined) {
-            btn = $('#' + id + ' .button.active')[0];
-            if (btn === undefined) {
-                btn = $('#' + id + ' .button')[0];
-            }
-        }
-        btn.click();
-    };
+    // Competition.invokePhaseButtonOnOpen = function(id) {
+    //     var btn = $('#' + id + ' .btn.selected')[0];
+    //     if (btn === undefined) {
+    //         btn = $('#' + id + ' .btn.active')[0];
+    //         if (btn === undefined) {
+    //             btn = $('#' + id + ' .btn')[0];
+    //         }
+    //     }
+    //     btn.click();
+    // };
 
     function decorateLeaderboardButton(btn, submitted) {
-        if($('#disallow_leaderboard_modifying').length > 0) {
+        if ($('#disallow_leaderboard_modifying').length > 0) {
             btn.text('Leaderboard modifying disallowed').attr('disabled', 'disabled');
         } else {
             if (submitted) {
@@ -52,8 +52,8 @@ var Competition;
                     rows.html('');
                     var row = $('#' + submission + ' td.status');
                     row.addClass('submitted');
-                    row.html("<i class='fi-check'></i>");
-                    $('#user_results button.leaderBoardRemove').each(function(index) {
+                    row.html('<span class="glyphicon glyphicon-ok"></span>');
+                    $('#user_results .leaderboard_button.leaderBoardRemove').each(function(index) {
                         decorateLeaderboardButton($(this), false);
                     });
                 } else {
@@ -74,6 +74,7 @@ var Competition;
     }
 
     Competition.getPhaseSubmissions = function(competitionId, phaseId, cstoken) {
+
         $('.competition_submissions').html('').append("<div class='competitionPreloader'></div>").children().css({ 'top': '200px', 'display': 'block' });
         var url = '/competitions/' + competitionId + '/submissions/' + phaseId;
         $.ajax({
@@ -91,6 +92,20 @@ var Competition;
                         sasEndpoint: '/api/competition/' + competitionId + '/submission/sas',
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
+                        validateBeforeFilePrompt: function() {
+                            if($('#submission_method_name').length == 0) {
+                                // if we dont have submision method field, just skip this check
+                                return true;
+                            }
+
+                            var team_name = $('#submission_team_name').val();
+                            var method_name = $('#submission_method_name').val();
+                            var method_description = $('#submission_method_description').val();
+
+                            return (team_name && team_name !== '') &&
+                                   (method_name && method_name !== '') &&
+                                   (method_description && method_description !== '');
+                        },
                         beforeSelection: function(info, valid) {
                             $('#fileUploadButton').addClass('disabled');
                         },
@@ -116,19 +131,36 @@ var Competition;
                         },
                         uploadSuccess: function(file, trackingId) {
                             $('#details').html('Creating new submission...');
+                            var description = $('#submission_description_textarea').val() || '';
+                            var method_name = $('#submission_method_name').val() || '';
+                            var method_description = $('#submission_method_description').val() || '';
+                            var project_url = $('#submission_project_url').val() || '';
+                            var publication_url = $('#submission_publication_url').val() || '';
+                            var bibtex = $('#submission_bibtex').val() || '';
+                            var team_name = $('#submission_team_name').val() || '';
+                            var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
+
+                            $('#submission_description_textarea').val('');
                             $.ajax({
-                                url: '/api/competition/' + competitionId + '/submission',
+                                url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
+                                                                                      '&method_name=' + encodeURIComponent(method_name) +
+                                                                                      '&method_description=' + encodeURIComponent(method_description) +
+                                                                                      '&project_url=' + encodeURIComponent(project_url) +
+                                                                                      '&publication_url=' + encodeURIComponent(publication_url) +
+                                                                                      '&team_name=' + encodeURIComponent(team_name) +
+                                                                                      '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
+                                                                                      '&bibtex=' + encodeURIComponent(bibtex),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
                             }).done(function(response) {
                                 $('#details').html('');
                                 $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response));
-                                $('#user_results #' + response.id + ' .fi-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
+                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
+                                $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
                                 $('#fileUploadButton').removeClass('disabled');
                                 //$('#fileUploadButton').text("Submit Results...");
-                                $('#user_results #' + response.id + ' .fi-plus').click();
+                                $('#user_results #' + response.id + ' .glyphicon-plus').click();
                             }).fail(function(jqXHR) {
                                 var msg = 'An unexpected error occurred.';
                                 if (jqXHR.status == 403) {
@@ -141,12 +173,12 @@ var Competition;
                         }
                     });
                 }
-                $('#user_results .fi-plus').on('click', function() {
+                $('#user_results .glyphicon-plus').on('click', function() {
                     Competition.showOrHideSubmissionDetails(this);
                 });
             },
             error: function(xhr, status, err) {
-                $('.competition_submissions').html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
+                $('.competition_submissions').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
     };
@@ -191,7 +223,7 @@ var Competition;
                 });
             },
             error: function(xhr, status, err) {
-                $('.competition_results').html("<div class='alert-error'>An error occurred. Please try refreshing the page.</div>");
+                $('.competition_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
     };
@@ -275,10 +307,36 @@ var Competition;
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
     }
 
-    Competition.displayNewSubmission = function(response) {
+    Competition.displayNewSubmission = function(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
+
+        if (description !== undefined && description !== '') {
+            $(elemTr).attr('data-description', description);
+        }
+        if (method_name !== undefined && method_name !== '') {
+            $(elemTr).attr('data-method-name', method_name);
+        }
+        if (method_description !== undefined && method_description !== '') {
+            $(elemTr).attr('data-method-description', method_description);
+        }
+        if (project_url !== undefined && project_url !== '') {
+            $(elemTr).attr('data-project-url', project_url);
+        }
+        if (publication_url !== undefined && publication_url !== '') {
+            $(elemTr).attr('data-publication-url', publication_url);
+        }
+        if (bibtex !== undefined && bibtex !== '') {
+            $(elemTr).attr('data-bibtex', bibtex);
+        }
+        if (team_name !== undefined && team_name !== '') {
+            $(elemTr).attr('data-team-name', team_name);
+        }
+        if (organization_or_affiliation !== undefined && organization_or_affiliation !== '') {
+            $(elemTr).attr('data-organization-or-affiliation', organization_or_affiliation);
+        }
+
         $(elemTr).children().each(function(index) {
             switch (index) {
                 case 0:
@@ -286,11 +344,11 @@ var Competition;
                         $(this).val('1');
 
                         // Add the check box if auto submitted to leaderboard
-                        if($("#forced_to_leaderboard").length > 0) {
+                        if ($('#forced_to_leaderboard').length > 0) {
                             // Remove previous checkmarks
-                            $(".fi-check").remove();
+                            $('.glyphicon-ok').remove();
 
-                            $($(elemTr).children("td")[4]).html('<i class="fi-check"></i>');
+                            $($(elemTr).children('td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                         }
                     }
                     break;
@@ -305,7 +363,7 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = dt.getDate().toString() + "/" + dt.getMonth().toString() + "/" + dt.getFullYear();
+                    var d = dt.getDate().toString() + '/' + dt.getMonth().toString() + '/' + dt.getFullYear();
                     var h = dt.getHours().toString();
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
@@ -340,23 +398,78 @@ var Competition;
         return subStatus;
     };
 
+    Competition.toggleSubmissionPublic = function(event) {
+        event.preventDefault();
+
+        // Remove focus from link
+        this.blur();
+
+        var submissionId = $(this).attr('submission-id');
+        var linkElement = $(this);
+
+        $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
+            .success(function(data) {
+                var isPublic = data == 'True' ? 'private':'public';
+                linkElement.html('Make your submission ' + isPublic);
+            })
+            .error(function() {
+                alert('Error making submission public, is your Internet connection working?')
+            });
+
+        return false;
+    };
+
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
-        if ($(obj).hasClass('fi-minus')) {
-            $(obj).removeClass('fi-minus');
-            $(obj).addClass('fi-plus');
+        if ($(obj).hasClass('glyphicon-minus')) {
+            $(obj).removeClass('glyphicon-minus');
+            $(obj).addClass('glyphicon-plus');
             $(nTr).next('tr.trDetails').remove();
         }
         else {
-            $(obj).removeClass('fi-plus');
-            $(obj).addClass('fi-minus');
+            $(obj).removeClass('glyphicon-plus');
+            $(obj).addClass('glyphicon-minus');
             var elem = $('#submission_details_template .trDetails').clone();
             elem.find('.tdDetails').attr('colspan', nTr.cells.length);
             elem.find('a').each(function(i) { $(this).attr('href', $(this).attr('href').replace('_', nTr.id)) });
+
+            if ($(nTr).attr('data-description') !== undefined) {
+                elem.find('.submission_description').html('<b>Description:</b> <br><pre>' + $(nTr).attr('data-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-team-name')) {
+                elem.find('.submission_team_name').html('<b>Team name:</b> ' + $(nTr).attr('data-team-name'));
+            }
+            if ($(nTr).attr('data-method-name')) {
+                elem.find('.submission_method_name').html('<b>Method name:</b> ' + $(nTr).attr('data-method-name'));
+            }
+            if ($(nTr).attr('data-method-description')) {
+                elem.find('.submission_method_description').html('<b>Method description:</b><br><pre>' + $(nTr).attr('data-method-description') + '</pre>');
+            }
+            if ($(nTr).attr('data-project-url')) {
+                elem.find('.submission_project_url').html('<b>Project URL:</b> <a href="' + $(nTr).attr('data-project-url') + '">' + $(nTr).attr('data-project-url') + '</a>');
+            }
+            if ($(nTr).attr('data-publication-url')) {
+                elem.find('.submission_publication_url').html('<b>Publication URL:</b> <a href="' + $(nTr).attr('data-publication-url') + '">' + $(nTr).attr('data-publication-url') + '</a>');
+            }
+            if ($(nTr).attr('data-bibtex')) {
+                elem.find('.submission_bibtex').html('<b>Bibtex:</b><br><pre>' + $(nTr).attr('data-bibtex') + '</pre>');
+            }
+            if ($(nTr).attr('data-organization-or-affiliation')) {
+                elem.find('.submission_organization_or_affiliation').html('<b>Organization/affiliation:</b> ' + $(nTr).attr('data-organization-or-affiliation'));
+            }
+            if ($(nTr).attr('data-exception')) {
+                elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
+            }
+
+            var isPublic = $(nTr).attr('data-is-public') ? 'private':'public';
+            elem.find('.public_link').html('Make your submission ' + isPublic);
+            elem.find('.public_link').click(Competition.toggleSubmissionPublic);
+            elem.find('.public_link').attr('submission-id', nTr.id);
+
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
             if ((phasestate == 1) && (state == 1)) {
-                var btn = elem.find('button');
+                var btn = elem.find('.leaderboard_button');
                 btn.removeClass('hide');
                 var submitted = $(nTr).find('.status').hasClass('submitted');
                 var competition = $('#competitionId').val();
@@ -367,7 +480,7 @@ var Competition;
             }
             else {
                 var status = $.trim($(nTr).find('.statusName').html());
-                var btn = elem.find('button').addClass('hide');
+                var btn = elem.find('.leaderboard_button').addClass('hide');
                 if (status === 'Submitting' || status === 'Submitted' || status === 'Running') {
                     btn.removeClass('hide');
                     btn.text('Refresh status');
@@ -396,24 +509,24 @@ var Competition;
                     $('#user_results #' + submissionId + 'input:hidden').val('1');
                     var phasestate = $('#phasestate').val();
                     if (phasestate == 1) {
-                        if($("#disallow_leaderboard_modifying").length > 0) {
+                        if ($('#disallow_leaderboard_modifying').length > 0) {
                             $(obj).text('Leaderboard modifying disallowed').attr('disabled', 'disabled');
 
-                            if($("#forced_to_leaderboard").length > 0) {
+                            if ($('#forced_to_leaderboard').length > 0) {
                                 // Remove all checkmarks
-                                $(".fi-check").remove();
+                                $('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
                             }
                         } else {
-                            if ($("#forced_to_leaderboard").length == 0) {
+                            if ($('#forced_to_leaderboard').length == 0) {
                                 $(obj).addClass('leaderBoardSubmit');
                                 $(obj).text('Submit to Leaderboard');
                             } else {
                                 // Remove all checkmarks
-                                $(".fi-check").remove();
+                                $('.glyphicon-ok').remove();
                                 // Get the 4th table item and put a checkmark there
-                                $($("#" + submissionId + " td")[4]).html('<i class="fi-check"></i>');
+                                $($('#' + submissionId + ' td')[4]).html('<span class="glyphicon glyphicon-ok"></span>');
 
                                 $(obj).removeClass('leaderBoardSubmit');
                                 $(obj).addClass('leaderBoardRemove');
@@ -421,7 +534,7 @@ var Competition;
                             }
                         }
 
-                        $(obj).unbind( "click" ).off('click').on('click', function() {
+                        $(obj).unbind('click').off('click').on('click', function() {
                             updateLeaderboard(competitionId, submissionId, $('#cstoken').val(), $(obj));
                         });
                     } else {
@@ -431,6 +544,9 @@ var Competition;
                 else if (data.status === 'failed' || data.status === 'cancelled') {
                     $(obj).addClass('hide');
                     $(obj).parent().parent().find('a').removeClass('hide');
+                    if (data.exception_details) {
+                        $('a[href="traceback/' + submissionId + '/"]').parent().html('Error: <br><pre>' + data.exception_details + '</pre>');
+                    }
                 }
                 $('.competitionPreloader').hide();
             },
@@ -466,10 +582,10 @@ var Competition;
                 return false;
             });
 
-            $('#submissions_phase_buttons .button').each(function(e, index) {
+            $('#submissions_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
                     var phaseId = $.trim($(this).attr('id').replace('submissions_phase_', ''));
-                    $('#submissions_phase_buttons .button').removeClass('selected');
+                    $('#submissions_phase_buttons .btn').removeClass('selected');
                     $(this).addClass('selected');
                     var competitionId = $('#competitionId').val();
                     var cstoken = $('#cstoken').val();
@@ -477,93 +593,88 @@ var Competition;
                 });
             });
 
-            $("a[href='#participate-submit_results']").click(function(obj) {
-                Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
-            });
+            // $("a[href='#participate-submit_results']").click(function(obj) {
+            //     Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
+            // });
 
-            $('#results_phase_buttons .button').each(function(e, index) {
+            $('#results_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
                     var phaseId = $.trim($(this).attr('id').replace('results_phase_', ''));
-                    $('#results_phase_buttons .button').removeClass('selected');
+                    $('#results_phase_buttons .btn').removeClass('selected');
                     $(this).addClass('selected');
                     var competitionId = $('#competitionId').val();
                     Competition.getPhaseResults(competitionId, phaseId);
                 });
             });
 
-            $('#Results').click(function(obj) {
-                Competition.invokePhaseButtonOnOpen('results_phase_buttons');
-            });
+            // $('#Results').click(function(obj) {
+            //     Competition.invokePhaseButtonOnOpen('results_phase_buttons');
+            // });
 
             // This helps make sections appear with Foundation
-            $(this).foundation('section', 'reflow');
+            // $(this).foundation('section', 'reflow');
 
             $('.top-bar-section ul > li').removeClass('active');
+
             $('#liCompetitions').addClass('active');
 
-            $('.my_managing .competition-tile #competition-actions').each(function(e, index) {
 
-                $(this).children('#competition-publish-button').click(function() {
-                    var competition_actions = $(this).parent()[0];
-                    request = $.ajax({
-                        url: $(this)[0].value,
-                        success: function(response, textStatus, jqXHR) {
-                            console.log('Published competition.');
-                            $(competition_actions).children('#competition-publish-button').hide();
-                            $(competition_actions).children('#competition-delete-button').hide();
-                            $(competition_actions).children('#competition-unpublish-button').show();
-                        },
-                        error: function(jsXHR, textStatus, errorThrown) {
-                            var data = $.parseJSON(jsXHR.responseJSON);
-                            if(data.error) {
-                                alert(data.error);
-                            }
-                            console.log('Error publishing competition!');
+            $('#competition-publish-button').click(function(e) {
+                e.preventDefault();
+                var competition_actions = $(this).parent()[0];
+                request = $.ajax({
+                    url: $(this).attr('href'),
+                    success: function(response, textStatus, jqXHR) {
+                        console.log('Published competition.');
+                        $(competition_actions).children('#competition-publish-button').hide();
+                        $(competition_actions).children('#competition-delete-button').hide();
+                        $(competition_actions).children('#competition-unpublish-button').show();
+                    },
+                    error: function(jsXHR, textStatus, errorThrown) {
+                        var data = $.parseJSON(jsXHR.responseJSON);
+                        if (data.error) {
+                            alert(data.error);
                         }
-                    });
+                        console.log('Error publishing competition!');
+                    }
                 });
+            });
 
-                $(this).children('#competition-unpublish-button').click(function() {
-                    // This shows how unpublishing a competition works. We have this commented out
-                    // because we don't want competition owners to inadvertantly unpublish, then delete
-                    // competitions that have submissions and results.
-                    // If this decision is changed in the future simply uncommenting this code will enable
-                    // competitions to be unpublished.
-                    // Only unpublished competitions are able to be deleted.
-                    //var competition_actions = $(this).parent()[0];
-                    //request = $.ajax({
-                    //    url: $(this)[0].value,
-                    //    success: function(response, textStatus, jqXHR) {
-                    //        console.log('Unpublished competition.');
-                    //        $(competition_actions).children('#competition-publish-button').show();
-                    //        $(competition_actions).children('#competition-delete-button').show();
-                    //        $(competition_actions).children('#competition-unpublish-button').hide()
-                    //    },
-                    //    error: function(jsXHR, textStatus, errorThrown) {
-                    //        console.log('Error unpublishing competition!');
-                    //    }
-                    //});
+            $('#competition-unpublish-button').click(function(e) {
+                e.preventDefault();
+                // This shows how unpublishing a competition works. We have this commented out
+                // because we don't want competition owners to inadvertantly unpublish, then delete
+                // competitions that have submissions and results.
+                // If this decision is changed in the future simply uncommenting this code will enable
+                // competitions to be unpublished.
+                // Only unpublished competitions are able to be deleted.
+                var competition_actions = $(this).parent()[0];
+                request = $.ajax({
+                   url: $(this).attr('href'),
+                   success: function(response, textStatus, jqXHR) {
+                       console.log('Unpublished competition.');
+                       $(competition_actions).children('#competition-publish-button').show();
+                       $(competition_actions).children('#competition-delete-button').show();
+                       $(competition_actions).children('#competition-unpublish-button').hide();
+                   },
+                   error: function(jsXHR, textStatus, errorThrown) {
+                       console.log('Error unpublishing competition!');
+                   }
                 });
+            });
 
+            $('#my_managing .competition-tile .competition-actions').each(function(e, index) {
                 if ($(this)[0].getAttribute('published') == 'True') {
-                    $(this).children('#competition-delete-button').hide();
-                    $(this).children('#competition-publish-button').hide();
-                    $(this).children('#competition-unpublish-button').show();
+                    $(this).find('#competition-delete-button').hide();
+                    $(this).find('#competition-publish-button').hide();
+                    $(this).find('#competition-unpublish-button').show();
                 } else {
-                    $(this).children('#competition-delete-button').show();
-                    $(this).children('#competition-publish-button').show();
-                    $(this).children('#competition-unpublish-button').hide();
+                    $(this).find('#competition-delete-button').show();
+                    $(this).find('#competition-publish-button').show();
+                    $(this).find('#competition-unpublish-button').hide();
                 }
             });
 
-            var loc = window.location.href;
-            if (loc !== undefined) {
-                if (loc.match(/#participate-submit_results$/i) !== null) {
-                    Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
-                } else if (loc.match(/#results$/i) !== null) {
-                    Competition.invokePhaseButtonOnOpen('results_phase_buttons');
-                }
-            }
         });
     };
 })(Competition || (Competition = {}));

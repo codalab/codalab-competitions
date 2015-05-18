@@ -89,3 +89,47 @@ class OrganizerDataSetListViewTestsCase(OrganizerDataSetTestCase):
     def test_dataset_list_view_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets"))
         self.assertEquals(resp.status_code, 302)
+
+
+class OrganizerDataSetMultiDelete(OrganizerDataSetCreateTestsCase):
+
+    def test_dataset_multidelete_returns_works_for_owner(self):
+        self.client.login(username="organizer", password="pass")
+        resp = self.client.get(reverse("datasets_delete_multiple"))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_dataset_multidelete_actually_deletes_multiple_datasets(self):
+        self.client.login(username="organizer", password="pass")
+
+        second_dataset = models.OrganizerDataSet.objects.create(
+            name="Test",
+            type="None",
+            data_file=SimpleUploadedFile("something.txt", "contents of file"),
+            uploaded_by=self.user
+        )
+
+        resp = self.client.post(
+            reverse("datasets_delete_multiple"),
+            {"ids_to_delete[]": [self.dataset.pk, second_dataset.pk]}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(models.OrganizerDataSet.objects.filter(pk=self.dataset.pk).count(), 0)
+        self.assertEqual(models.OrganizerDataSet.objects.filter(pk=second_dataset.pk).count(), 0)
+
+    def test_dataset_multidelete_doesnt_delete_datasets_you_dont_own(self):
+        self.client.login(username="potentially_malicious", password="pass")
+
+        second_dataset = models.OrganizerDataSet.objects.create(
+            name="Test",
+            type="None",
+            data_file=SimpleUploadedFile("something.txt", "contents of file"),
+            uploaded_by=self.user
+        )
+
+        resp = self.client.post(
+            reverse("datasets_delete_multiple"),
+            {"ids_to_delete[]": [self.dataset.pk, second_dataset.pk]}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(models.OrganizerDataSet.objects.filter(pk=self.dataset.pk).count(), 1)
+        self.assertEqual(models.OrganizerDataSet.objects.filter(pk=second_dataset.pk).count(), 1)

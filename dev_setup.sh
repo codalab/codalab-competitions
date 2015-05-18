@@ -33,7 +33,7 @@ fi
  
 if [ ! -f "$venv_dir/bin/python" ]; then
         echo "Creating VirtualEnv in: $venv_dir"
-        virtualenv --clear --distribute $venv_dir
+        virtualenv -p /usr/bin/python2.7 --clear --distribute $venv_dir
 fi
  
 venv_pip="$venv_dir/bin/pip"

@@ -1,5 +1,6 @@
 import os,sys
 from django import template
+from django.forms import CheckboxInput
 
 # Long way to point to the CodaLab directory where azure_storage.py resides
 # sys.path to find the settings
@@ -16,12 +17,11 @@ register = template.Library()
 def filename(value):
     return os.path.basename(value.file.name)
 
-# by mikeivanov (on April 16, 2007)
-
 
 @register.filter
 def in_list(value, arg):
     return value in arg
+
 
 @register.filter
 def get_type(value):
@@ -32,13 +32,16 @@ def get_type(value):
         value._type = value.__class__.__name__
     return value._type
 
+
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
 
+
 @register.filter
 def get_by_name(dictionary, key):
     return filter(lambda x: x['name'] == key, dictionary)
+
 
 @register.filter
 def get_array_or_attr(elem, attribute):
@@ -46,6 +49,7 @@ def get_array_or_attr(elem, attribute):
         return elem[attribute]
     else:
         return [elem]
+
 
 @register.filter(name='get_sas')
 def get_sas(value):
@@ -60,3 +64,27 @@ def get_sas(value):
                             duration=60)
     print url
     return url
+
+
+@register.simple_tag
+def active(request, pattern):
+    import re
+    if re.search(pattern, request.path):
+        return 'active'
+    return ''
+
+
+@register.filter(name='is_checkbox')
+def is_checkbox(field):
+    return field.field.widget.__class__.__name__ == CheckboxInput().__class__.__name__
+
+
+@register.simple_tag
+def field_type(field):
+    return field.field.widget.__class__.__name__.lower()
+
+
+# Custom tag for diagnostics
+@register.simple_tag()
+def debug_object_dump(var):
+    return dir(var)

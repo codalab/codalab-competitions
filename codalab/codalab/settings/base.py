@@ -25,7 +25,12 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
+<<<<<<< HEAD
     THUMBNAIL_DEBUG = DEBUG
+=======
+    COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
+    LOCAL_MATHJAX = False # see prep_for_offline
+>>>>>>> upstream/master
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -46,7 +51,7 @@ class Base(Settings):
     SSL_CERTIFICATE_KEY = ''
 
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
-    TEST_RUNNER = 'codalab.test_runner.CodalabTestRunner'
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
     CONFIG_GEN_GENERATED_DIR = os.path.join(PROJECT_DIR,'config','generated')
 
@@ -165,7 +170,8 @@ class Base(Settings):
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
         "apps.web.context_processors.beta",
-        'django.core.context_processors.request',
+        "django.core.context_processors.request",
+        "codalab.context_processors.common_settings",
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -183,6 +189,7 @@ class Base(Settings):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
+        'django.contrib.humanize',
 
         # Analytics app that works with many services - IRJ 2013.7.29
         'analytical',
@@ -196,6 +203,8 @@ class Base(Settings):
         'compressor',
         'django_js_reverse',
         'guardian',
+        'captcha',
+        'bootstrapform',
 
         # Storage API
         'storages',
@@ -213,8 +222,13 @@ class Base(Settings):
         'apps.web',
         'apps.profile',
         'apps.health',
+<<<<<<< HEAD
         'apps.teams',
 
+=======
+        'apps.analytics',
+        'apps.forums',
+>>>>>>> upstream/master
 
         # Authentication app, enables social authentication
         'allauth',
@@ -235,6 +249,7 @@ class Base(Settings):
 
     OAUTH2_PROVIDER = {
         'OAUTH2_VALIDATOR_CLASS': 'apps.authenz.oauth.Validator',
+        'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
 
     # Email Configuration
@@ -244,16 +259,17 @@ class Base(Settings):
     EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'info@codalab.org'
+    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'
     SERVER_EMAIL = 'info@codalab.org'
 
     # Authentication configuration
-    LOGIN_REDIRECT_URL = '/my'
+    LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
     ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=False
-    ACCOUNT_EMAIL_VERIFICATION='none'
+    ACCOUNT_USERNAME_REQUIRED=True
+    ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Our versioning
     CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
@@ -271,6 +287,10 @@ class Base(Settings):
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
         ),
+    }
+
+    SOUTH_MIGRATION_MODULES = {
+        'captcha': 'captcha.south_migrations',
     }
 
     #HAYSTACK_CONNECTIONS = {
@@ -297,6 +317,7 @@ class Base(Settings):
 
 
     BUNDLE_SERVICE_URL = ""
+    LANDING_PAGE_WORKSHEET_UUID = '';
 
     # Currently the search bar is hidden using this flag
     SHOW_BETA_FEATURES = False

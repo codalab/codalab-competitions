@@ -31,6 +31,9 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
+                             submission_scores_file_name,
+                             predict_submission_stdout_filename,
+                             predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -139,11 +142,14 @@ def predict(submission, job_id):
     # Generate metadata-only bundle describing the computation
     lines = []
     program_value = submission.file.name
+
     if len(program_value) > 0:
         lines.append("program: %s" % program_value)
     else:
         raise ValueError("Program is missing.")
     input_value = submission.phase.input_data.name
+
+    logger.info("Running prediction")
 
     if len(input_value) > 0:
         lines.append("input: %s" % input_value)
@@ -154,9 +160,10 @@ def predict(submission, job_id):
     username = submission.participant.user.username
     lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
     lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
     submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    submission.save('stderr.txt', ContentFile('\n'.join(lines)))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
@@ -166,10 +173,11 @@ def predict(submission, job_id):
         "id" : job_id,
         "task_type": "run",
         "task_args": {
-            "bundle_id" : submission.prediction_runfile.name,
-            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "bundle_id": submission.prediction_runfile.name,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": True,
         }
     })
 
@@ -194,7 +202,6 @@ def score(submission, job_id):
     last_submissions = CompetitionSubmission.objects.filter(
         participant=submission.participant,
         status__codename=CompetitionSubmissionStatus.FINISHED
-
     ).order_by('-submitted_at')
 
 
@@ -217,6 +224,7 @@ def score(submission, job_id):
         pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
+    submission.scores_file.save('scores.txt', ContentFile(submission.phase.competition.get_results_csv(submission.phase.pk)))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
@@ -233,6 +241,7 @@ def score(submission, job_id):
         raise ValueError("Results are missing.")
 
     lines.append("history: %s" % submission_history_file_name(submission))
+    lines.append("scores: %s" % submission_scores_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
@@ -281,7 +290,8 @@ def score(submission, job_id):
             "bundle_id" : submission.runfile.name,
             "container_name" : settings.BUNDLE_AZURE_CONTAINER,
             "reply_to" : settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": False,
         }
     })
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
@@ -304,7 +314,7 @@ def update_submission_task(job_id, args):
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status, job_id):
+    def update_submission(submission, status, job_id, traceback=None):
         """
         Updates the status of a submission.
 
@@ -331,7 +341,14 @@ def update_submission_task(job_id, args):
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 logger.debug("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
-                scores = open(ozip.extract('scores.txt'), 'r').read()
+                scores = None
+                try:
+                    scores = open(ozip.extract('scores.txt'), 'r').read()
+                except Exception:
+                    logger.error("Scores.txt not found, unable to process submission: %s (submission_id=%s)", status, submission.id)
+                    _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
+                    return Job.FAILED
+
                 logger.debug("Processing scores... (submission_id=%s)", submission.id)
                 for line in scores.split("\n"):
                     if len(line) > 0:
@@ -360,6 +377,8 @@ def update_submission_task(job_id, args):
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
                 submission.prediction_output_file.name = url_name
+                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
+                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
                 submission.save()
                 try:
                     score(submission, job_id)
@@ -371,6 +390,10 @@ def update_submission_task(job_id, args):
 
         if status != 'failed':
             logger.error("Invalid status: %s (submission_id=%s)", status, submission.id)
+
+        if traceback:
+            submission.exception_details = traceback
+            submission.save()
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
@@ -402,7 +425,10 @@ def update_submission_task(job_id, args):
                      job.id, submission_id, status)
         result = None
         try:
-            result = update_submission(submission, status, job.id)
+            traceback = None
+            if 'extra' in args and 'traceback' in args['extra']:
+                traceback = args['extra']['traceback']
+            result = update_submission(submission, status, job.id, traceback)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)

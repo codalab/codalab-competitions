@@ -4,6 +4,7 @@ Defines models for this Django app.
 import json
 import logging
 import threading
+import traceback
 
 from codalabtools.azure_extensions import AzureServiceBusQueue
 from django.conf import settings
@@ -231,5 +232,7 @@ def run_job_task(job_id, computation, handle_exception=None):
             logger.debug("Task exception has been handled (job_id=%s, new_status=%s).",
                          job_id, "unchanged" if result.status is None else result.status)
         result_dict = result.get_dict()
+
         if result_dict is not None:
+            result_dict['info'] = {'error': traceback.format_exc()}
             update_job_status_task(job_id, result_dict)

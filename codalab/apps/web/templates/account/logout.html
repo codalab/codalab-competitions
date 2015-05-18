@@ -7,19 +7,15 @@
 {% block page_title %}Sign Out{% endblock page_title %}
 
 {% block content %}
-<div class="row">
-    <div class="small-12 columns account_widget">
-	    <p>
-		{% trans 'Are you sure you want to sign out?' %}
-	    </p>
-	    <form method="post" action="{% url 'account_logout' %}">
-		    {% csrf_token %}
-		    {% if redirect_field_value %}
-			<input type="hidden" name="{{redirect_field_name}}" value="{{redirect_field_value}}"/>
-		    {% endif %}
-		    <button id="id_signout" class="button" type="submit" autofocus="autofocus">{% trans 'Sign Out' %}</button>
-	    </form>
-    </div>
-</div>
+<p>
+	{% trans 'Are you sure you want to sign out?' %}
+</p>
+<form method="post" action="{% url 'account_logout' %}">
+    {% csrf_token %}
+    {% if redirect_field_value %}
+		<input type="hidden" name="{{redirect_field_name}}" value="{{redirect_field_value}}"/>
+    {% endif %}
+    <button class="btn btn-danger" type="submit" autofocus="autofocus">{% trans 'Sign Out' %}</button>
+</form>
 {% endblock %}
 

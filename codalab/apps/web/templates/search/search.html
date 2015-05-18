@@ -6,26 +6,22 @@
 {% block content %}
     <form method="get" action=".">
         {% if query %}
-            <h3>Results</h3>
-            <div class="row">
-                <div class="large-10 large-offset-1 columns centered">
-                    {% for result in page.object_list %}
-                        {% if result.content_type == "web.competition" %}
-                            {% include "web/competitions/summary.html" with competition=result.object %}
-                        {% endif %}
-                    {% empty %}
-                        <p>No results found for query: {{ query }}.</p>
-                    {% endfor %}
-                </div>
-
-                {% if page.has_previous or page.has_next %}
-                    <div>
-                        {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-                        |
-                        {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-                    </div>
+            <h2>Results</h2>
+            {% for result in page.object_list %}
+                {% if result.content_type == "web.competition" %}
+                    {% include "web/competitions/summary.html" with competition=result.object %}
                 {% endif %}
-            </div>
+            {% empty %}
+                <p>No results found for query: {{ query }}.</p>
+            {% endfor %}
+            {% if page.has_previous or page.has_next %}
+                <nav>
+                    <ul class="pagination">
+                        {% if page.has_previous %}<li><a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a></li>{% endif %}
+                        {% if page.has_next %}<li><a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a></li>{% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
         {% else %}
             {# Show some example queries to run, maybe query syntax, something else? #}
         {% endif %}

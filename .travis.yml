@@ -1,4 +1,7 @@
 language: python
+cache:
+  - pip
+  - apt
 python:
   - "2.7"
 branches:
@@ -14,3 +17,5 @@ before_script:
 script:
   - "cd codalab"
   - "python manage.py test"
+notifications:
+  slack: tivix:R2rmqmHoOvRo0pgfL7g7Sly6

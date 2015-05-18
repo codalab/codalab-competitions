@@ -12,9 +12,30 @@ User =  get_user_model()
 class CompetitionForm(forms.ModelForm):
     class Meta:
         model = models.Competition
-        fields = ('title', 'description', 'disallow_leaderboard_modifying', 'force_submission_to_leaderboard', 'image', 'has_registration', 'end_date', 'published', 'enable_medical_image_viewer', 'enable_detailed_results')
+        fields = (
+            'title',
+            'description',
+            'disallow_leaderboard_modifying',
+            'force_submission_to_leaderboard',
+            'image',
+            'has_registration',
+            'end_date',
+            'published',
+            'enable_medical_image_viewer',
+            'enable_detailed_results',
+            'admins',
+            'show_datasets_from_yaml',
+            'reward',
+            'allow_teams',
+            'enable_per_submission_metadata',
+            'allow_public_submissions',
+            'enable_forum',
+        )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+    def __init__(self, *args, **kwargs):
+        super(CompetitionForm, self).__init__(*args, **kwargs)
+        self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
@@ -26,6 +47,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'start_date',
             'max_submissions',
             'max_submissions_per_day',
+            'execution_time_limit',
             'color',
             'is_scoring_only',
             'auto_migration',
@@ -73,6 +95,21 @@ class PageForm(forms.ModelForm):
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
+
+
+class LeaderboardForm(forms.ModelForm):
+    class Meta:
+        model = models.SubmissionScoreDef
+        fields = (
+            'key',
+            'label',
+            'ordering',
+            'numeric_format',
+            'show_rank',
+            'selection_default',
+            'sorting',
+        )
+
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
@@ -127,3 +164,28 @@ class OrganizerDataSetModelForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
+
+class UserSettingsForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = (
+            'participation_status_updates',
+            'organizer_status_updates',
+            'organizer_direct_message_updates',
+            'organization_or_affiliation',
+            'team_name',
+            'team_members',
+            'method_name',
+            'method_description',
+            'contact_email',
+            'project_url',
+            'publication_url',
+            'bibtex',
+        )
+        widgets = {
+            'team_members': forms.Textarea(attrs={"class": "form-control"}),
+            'method_description': forms.Textarea(attrs={"class": "form-control"}),
+            'bibtex': forms.Textarea(attrs={"class": "form-control"})
+        }

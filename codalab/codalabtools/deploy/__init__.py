@@ -189,6 +189,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the database engine type."""
         return self._svc['database']['engine']
 
+    def getAdminEmail(self):
+        """Gets the database engine type."""
+        return self._svc['django']['admin-email']
+
     def getDatabaseName(self):
         """Gets the Django site database name."""
         return self._svc['database']['name']
@@ -304,6 +308,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the URL for the bundle service."""
         return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
 
+    def getLandingPageWorksheetUuid(self):
+        """Gets the URL for the bundle service."""
+        return self._svc['django'].get('landing-page-worksheet-uuid', '')
+
     def getBundleServiceDatabaseName(self):
         """Gets the bundle service database name."""
         return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
@@ -323,6 +331,7 @@ class DeploymentConfig(BaseConfig):
     def getBundleServiceAppKey(self):
         """Gets the value of the OAuth client secret assigned to the bundle service."""
         return self._svc['django']['bundle-app-key']
+
 
 class Deployment(object):
     """
@@ -947,13 +956,13 @@ class Deployment(object):
             "    EMAIL_HOST_PASSWORD = '{0}'".format(self.config.getEmailPassword()),
             "    EMAIL_PORT = 587",
             "    EMAIL_USE_TLS = True",
-            "    DEFAULT_FROM_EMAIL = 'info@codalab.org'",
+            "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
-            "    ADMINS = (('CodaLab', 'codalab@live.com'),)",
+            "    ADMINS = (('Admin', '{0}'),)".format(self.config.getAdminEmail()),
             "    MANAGERS = ADMINS",
             "",
             "    DATABASES = {",
@@ -979,6 +988,7 @@ class Deployment(object):
             "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
+            "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
             "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",

@@ -251,7 +251,7 @@ var BundleRenderer = (function() {
         var rows = [];
         for (var k in data.metadata) {
             console.log(k);
-            if(k == "description"){
+            if (k == 'description') {
                 rows.push([k, data.metadata[k]]);
             }
             // if (k !== 'name') {
