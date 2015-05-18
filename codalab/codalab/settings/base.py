@@ -25,8 +25,12 @@ class Base(Settings):
     SERVER_NAME='localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
+<<<<<<< HEAD
+    THUMBNAIL_DEBUG = DEBUG
+=======
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
+>>>>>>> upstream/master
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -216,9 +220,15 @@ class Base(Settings):
         'apps.jobs',
         'apps.api',
         'apps.web',
+        'apps.profile',
         'apps.health',
+<<<<<<< HEAD
+        'apps.teams',
+
+=======
         'apps.analytics',
         'apps.forums',
+>>>>>>> upstream/master
 
         # Authentication app, enables social authentication
         'allauth',
@@ -228,7 +238,10 @@ class Base(Settings):
         'oauth2_provider',
 
         # Search
-        'haystack'
+        'haystack',
+
+        # Thumbnail generator
+        'sorl.thumbnail'
     )
 
     OPTIONAL_APPS = []
@@ -294,6 +307,14 @@ class Base(Settings):
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
+
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': os.path.join(MEDIA_ROOT, 'cache'),
+        }
+    }
+
 
     BUNDLE_SERVICE_URL = ""
     LANDING_PAGE_WORKSHEET_UUID = '';

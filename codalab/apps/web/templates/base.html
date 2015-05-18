@@ -1,8 +1,12 @@
-{% load url from future %}
+﻿{% load url from future %}
 {% load account %}
 {% load analytical %}
+<<<<<<< HEAD
+{% load thumbnail %}
+=======
 {% load codalab_tags %}
 {% load compress %}
+>>>>>>> upstream/master
 
 <!DOCTYPE html>
 <html class="no-js" {% block custom_html_attributes %}{% endblock %} lang="en">
@@ -53,6 +57,70 @@
     <!-- End of Analytics from Charles -->
 </head>
 
+<<<<<<< HEAD
+<body class="body" {% block custom_body_attributes %} {% endblock %}>
+
+    <!-- Main Page Content and Sidebar -->
+    <div class="container" id="layout">
+        <!-- Nav Bar -->
+        <div class="header">
+          <nav class="top-bar">
+            <ul class="title-area">
+              <!-- Title Area -->
+              {% block title %}
+              <li class="name cl-logo"><a href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/CL_Header_Logo.png" alt="Home"></a></li>
+              {% endblock title %}
+              <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+              <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+            </ul>
+            <section class="top-bar-section">
+              {% block top_bar_right_menus %}
+              <!-- Left Nav Section -->
+
+              <!-- Right Nav Section -->
+              <ul class="right">
+                {% if BETA %}
+                <li class="has-form">
+                    <form action="/search" method="get">
+                    <input class="round" name="q" type="search" placeholder="Search">
+                    </form>
+                </li>
+                {% endif %}
+                {%if PREVIEW_WORKSHEETS %}
+                <li id="liWorksheets"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
+                {% endif %}
+                <li id="liCompetitions"><a href="/competitions" tabindex=3 target="_self">Competitions</a></li>
+                {% if user.is_authenticated %}
+                    <li id="liMyCodalab"><a href="/my" tabindex=4 target="_self">My CodaLab</a></li>
+                    <li id="liMyCodalab"><a href="{% url "my_datasets" %}" tabindex=4 target="_self">My Datasets</a></li>
+                {% else %}
+                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
+                {% endif %}
+                <li id="liHelp"><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
+                {% if user.is_authenticated %}
+                    <li class="has-dropdown">
+                      <a href="/profile/my" target="_self">
+                          {% thumbnail user.userprofile.picture "100x100" crop="center" as im %}
+                              <img src="{{ im.url }}" class="mini_avatar" alt="{{user.username}}">
+                          {% empty %}
+                            <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="{{user.username}}">
+                          {% endthumbnail %}
+                      {{user.username}}</a>
+
+
+                      <ul class="dropdown">
+                          <!-- <li><a href="#">My Profile</a></li> -->
+                          <li><a href="{% url "user_settings" %}">Settings</a></li>
+                          <li class="divider"></li>
+                          <li><a href="{% url 'account_logout' %}" target="_self">Sign Out</a></li>
+                      </ul>
+                    </li>
+                    {% else %}
+                        <li class="menu-icon">
+
+                    <a href="{% url "account_login" %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini_avatar" alt="Sign In"> Sign In</a></li>
+                {% endif %}
+=======
 <body {% block custom_body_attributes %}{% endblock %}>
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
@@ -117,6 +185,7 @@
                                 <a href="{% url 'account_login' %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
                             </li>
                         {% endif %}
+>>>>>>> upstream/master
                     </ul>
                 </div>
             {% endblock top_bar_right_menus %}

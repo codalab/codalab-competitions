@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{#  {% load codalab %} #}
+{% load tz %}
+{% load i18n %}
+{% load thumbnail %}
+{% block page_title %}Profile{% endblock page_title %}
+{% block head_title %}Profile{% endblock %}
+
+{% block extra_head %}
+{# include extra JS stuff here #}
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+{% endblock extra_scripts %}
+{% block content %}
+<div class="row">
+    <div class="large-6 columns">
+	    <form class="profile" id="profile_form" method="post" action="{% url 'profile' %}" enctype="multipart/form-data">
+		    {% csrf_token %}
+            {% for hidden in user_form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% for hidden in profile_form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% thumbnail user.userprofile.picture "100x100" crop="center" as im %}
+                <img src="{{ im.url }}">
+            {% endthumbnail %}
+            {{ user_form.as_p }}
+            {{ profile_form.as_p }}
+		    <button class="button" type="submit">{% trans "Save" %} </button>
+	    </form>
+    </div>
+    <div class="large-6 columns">
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock js %}
+
+
