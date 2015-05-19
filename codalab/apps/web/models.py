@@ -36,6 +36,8 @@ from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
 from django.contrib.auth import get_user_model
 
+from apps.forums.models import Forum
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -367,6 +369,9 @@ class Competition(models.Model):
             csvwriter.writerow([])
 
         return csvfile.getvalue()
+
+
+post_save.connect(Forum.competition_post_save, sender=Competition)
 
 
 class Page(models.Model):
