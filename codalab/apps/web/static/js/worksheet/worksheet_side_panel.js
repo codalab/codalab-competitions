@@ -14,15 +14,15 @@ var WorksheetSidePanel = React.createClass({
             $(this).unbind('mousemove');
         });
     },
-    debouncedFetchExtra: undefined,
+    // debouncedFetchExtra: undefined,
     componentDidUpdate:function(){
-        var self = this;
-        // _.debounce(
-        if(this.debouncedFetchExtra === undefined){
-            // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
-        }
-        this.debouncedFetchExtra();
+        // var self = this;
+        // // _.debounce(
+        // if(this.debouncedFetchExtra === undefined){
+        //     // debounce it to wait for user to stop for X time.
+        //     this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
+        // }
+        // this.debouncedFetchExtra();
     },
     current_focus: function(){
         var focus = '';
@@ -53,20 +53,21 @@ var WorksheetSidePanel = React.createClass({
         }else{ // content/images/ect. are not
             bundle_info = current_focus.bundle_info
         }
-        $.ajax({
-            type: "GET",
-            //  /api/bundles/0x706<...>d5b66e
-            url: "/api/bundles/" + bundle_info.uuid,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                console.log("got detailed bundle info");
-                this.setState({detailed_bundle_info:data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(status, err.toString());
-            }.bind(this)
-        });
+        console.log("fetch_extra");
+        // $.ajax({
+        //     type: "GET",
+        //     //  /api/bundles/0x706<...>d5b66e
+        //     url: "/api/bundles/" + bundle_info.uuid,
+        //     dataType: 'json',
+        //     cache: false,
+        //     success: function(data) {
+        //         console.log("got detailed bundle info");
+        //         this.setState({detailed_bundle_info:data});
+        //     }.bind(this),
+        //     error: function(xhr, status, err) {
+        //         console.error(status, err.toString());
+        //     }.bind(this)
+        // });
 
     },
     resizePanel: function(e){
@@ -92,10 +93,10 @@ var WorksheetSidePanel = React.createClass({
                                     />
                 break;
             case 'bundle':
+                // TODO TODO set bundle detail state
                 side_panel_details = <BundleDetailSidePanel
                                         item={current_focus}
                                         subFocusIndex={this.props.subFocusIndex}
-                                        detailed_bundle_info={this.state.detailed_bundle_info}
                                         ref="bundle_info_side_panel"
                                     />
                 break;
@@ -142,17 +143,11 @@ var WorksheetDetailSidePanel = React.createClass({
         )
     }
 });
+
+
+
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function(){
-        return { };
-    },
-    componentDidMount: function(){
-
-    },
-    componentWillUnmount: function(){
-
-    },
-    render: function(){
         var item = this.props.item;
         var bundle_info;
         if(item.bundle_info instanceof Array){ //tables are arrays
@@ -160,9 +155,67 @@ var BundleDetailSidePanel = React.createClass({
         }else{ // content/images/ect. are not
             bundle_info = item.bundle_info
         }
+        return bundle_info;
+    },
+    debouncedFetchExtra: undefined,
+    setupFetchExtra: function(){
+        var self = this;
+        // _.debounce(
+        if(this.debouncedFetchExtra === undefined){
+            // debounce it to wait for user to stop for X time.
+            this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
+        }
+        this.debouncedFetchExtra();
+    },
+    fetch_extra: function(){
+        console.log("fetch_extra");
+        var item = this.props.item;
+        var bundle_info;
+        if(item.bundle_info instanceof Array){ //tables are arrays
+            bundle_info = item.bundle_info[this.props.subFocusIndex]
+        }else{ // content/images/ect. are not
+            bundle_info = item.bundle_info
+        }
+
+
+        ws_bundle_obj.state = bundle_info;
+        if(ws_bundle_obj.current_uuid == bundle_info.uuid){
+            return;
+        }
+
+        console.log(bundle_info.uuid);
+
+        ws_bundle_obj.current_uuid = bundle_info.uuid;
+        ws_bundle_obj.fetch({
+            success: function(data){
+                console.log("BundleDetailSidePanel fetch  success");
+                // somethign with data
+                if(ws_bundle_obj.current_uuid == bundle_info.uuid){
+                    console.log("UPDATE ***");
+                    this.setState(data)
+                }
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(ws_obj.url, status, err);
+            }.bind(this)
+        });
+
+    },
+    componentDidMount: function(){
+        console.log("BundleDetailSidePanel componentDidMount");
+        this.setupFetchExtra();
+    },
+    componentDidUpdate: function(){
+        console.log("BundleDetailSidePanel componentDidUpdate");
+        this.setupFetchExtra();
+    },
+    componentWillUnmount: function(){
+
+    },
+    render: function(){
+        var bundle_info = this.state;
         var bundle_url = '/bundles/' + bundle_info.uuid;
         var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
-        // bundle_info.name = "Wyle E Coyoted";
         var bundle_name;
         if(bundle_info.metadata.name){
             bundle_name = <h3 className="bundle-name">{ bundle_info.metadata.name }</h3>
@@ -177,25 +230,46 @@ var BundleDetailSidePanel = React.createClass({
         // "metadata": {},
         // "files": {},
         var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
+
+
+        /// ------------------------------------------------------------------
         var dependencies = bundle_info.dependencies
-        var dependencies_list_html = dependencies.map(function(d, index) {
-            var dep_bundle_url = '/bundles/' + d.parent_uuid;
-            return (
+        var dependencies_table = []
+        var dep_bundle_url = ''
+        var dependencies_html = ''
+        if(dependencies.length){
+            dependencies.forEach(function(dep, i){
+                dep_bundle_url = "/bundles/" + dep.parent_uuid;
+                dependencies_table.push(
                     <tr>
-                        <th>
-                            {d.parent_name}
-                        </th>
                         <td>
-                            <a href={dep_bundle_url} className="bundle-link" target="_blank">
-                                {d.parent_uuid}
-                            </a>
+                            {dep.child_path}
+                        </td>
+                        <td>
+                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
                         </td>
                     </tr>
                 )
-        });
-        if(dependencies_list_html.length == 0){
-            dependencies_list_html = <li> none </li>
-        }
+            }) // end of foreach
+
+            dependencies_html = (
+                <div className="dependencies-table">
+                    <h4>Dependencies</h4>
+                    <table className="bundle-meta table">
+                        <thead>
+                            <tr>
+                                <th>Path</th>
+                                <th>UUID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {dependencies_table}
+                        </tbody>
+                    </table>
+                </div>
+            )
+        }// end of this.state.dependencies.length
+
         var metadata = bundle_info.metadata
         var metadata_list_html = [];
         for (var property in metadata) {
@@ -249,6 +323,7 @@ var BundleDetailSidePanel = React.createClass({
                     {bundle_name}
                     <div className="bundle-links">
                         <a href={bundle_url} className="bundle-link" target="_blank">{bundle_info.uuid}</a>
+                        &nbsp;
                         <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
                             <span className="glyphicon glyphicon-download-alt"></span>
                         </a>
@@ -283,12 +358,8 @@ var BundleDetailSidePanel = React.createClass({
                         {metadata_list_html}
                     </tbody>
                 </table>
-                <h4>dependencies</h4>
-                <table className="bundle-meta table">
-                    <tbody>
-                        {dependencies_list_html}
-                    </tbody>
-                </table>
+
+                {dependencies_html}
                 {stdout_html}
                 {stderr_html}
             </div>

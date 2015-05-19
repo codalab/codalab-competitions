@@ -134,6 +134,7 @@
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
+    <script src="{{ STATIC_URL }}js/worksheet/bundle_detail_content.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
 
 
@@ -172,6 +173,7 @@ var worksheet_url = '/api' + document.location.pathname
 $(function () {
     //                           /api/worksheets/0x706<...>d5b66e
     ws_obj = new WorksheetContent(worksheet_url);
+    ws_bundle_obj = new BundleContent();
     ws_actions = new WorksheetActions(); // Search bar actions
 
 });
