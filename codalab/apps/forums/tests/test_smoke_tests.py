@@ -23,7 +23,7 @@ class ForumSmokeTests(TestCase):
             modified_by=self.admin_user,
             published=False,
         )
-        self.forum = Forum.objects.create(competition=self.competition)
+        self.forum = self.competition.forum
         self.thread = Thread.objects.create(forum=self.forum, started_by=self.regular_user)
 
     def test_forum_thread_list_view_returns_200(self):
