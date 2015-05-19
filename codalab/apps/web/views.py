@@ -37,6 +37,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
+from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -313,6 +314,10 @@ class CompetitionDetailView(DetailView):
         if competition.creator != request.user and request.user not in competition.admins.all():
             if not competition.published and competition.secret_key != secret_key:
                 return HttpResponse(status=404)
+        # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
+        # does not exist for this competition. should be removed eventually.
+        if not hasattr(competition, 'forum'):
+            Forum.objects.get_or_create(competition=competition)
         return super(CompetitionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
