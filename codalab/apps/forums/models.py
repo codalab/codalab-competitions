@@ -11,7 +11,9 @@ class Forum(models.Model):
 
     @classmethod
     def competition_post_save(cls, **kwargs):
-        Forum.objects.create(competition=kwargs["instance"])
+        competition = kwargs['instance']
+        if not hasattr(competition, 'forum'):
+            Forum.objects.create(competition=competition)
 
 
 class Thread(models.Model):
