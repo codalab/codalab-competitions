@@ -11,6 +11,8 @@ import datetime
 import django.dispatch
 import time
 import string
+import StringIO
+import csv
 import uuid
 from django.db import models
 from django.db import IntegrityError
@@ -33,6 +35,8 @@ from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
 from django.contrib.auth import get_user_model
+
+from apps.forums.models import Forum
 
 
 User = get_user_model()
@@ -169,7 +173,8 @@ class Competition(models.Model):
     is_migrating_delayed = models.BooleanField(default=False)
     allow_teams = models.BooleanField(default=False)
     enable_per_submission_metadata = models.BooleanField(default=False)
-    allow_public_submissions = models.BooleanField(default=True)
+    allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
+    enable_forum = models.BooleanField(default=True)
 
     @property
     def pagecontent(self):
@@ -314,6 +319,60 @@ class Competition(models.Model):
             if current_phase.auto_migration:
                 self.do_phase_migration(current_phase, last_phase)
 
+    def get_results_csv(self, phase_pk):
+        phase = self.phases.get(pk=phase_pk)
+        if phase.is_blind:
+            return 'Not allowed, phase is blind.'
+
+        groups = phase.scores()
+
+        csvfile = StringIO.StringIO()
+        csvwriter = csv.writer(csvfile)
+
+        for group in groups:
+            #csvwriter.writerow([group['label']])
+            #csvwriter.writerow([])
+
+            headers = ["User"]
+            sub_headers = [""]
+            # This ordering dict will contain {<header key>: <order of the column>}
+            ordering = {}
+
+            for count, header in enumerate(group['headers']):
+                ordering[header['key']] = count
+                subs = header['subs']
+                if subs:
+                    for sub in subs:
+                        headers.append(header['label'])
+                        sub_headers.append(sub['label'])
+                else:
+                    headers.append(header['label'])
+            csvwriter.writerow(headers)
+            if sub_headers != ['']:
+                csvwriter.writerow(sub_headers)
+
+            if len(group['scores']) <= 0:
+                csvwriter.writerow(["No data available"])
+            else:
+                for pk, scores in group['scores']:
+                    #print pk, scores
+                    row = [scores['username']] + (['']*(len(ordering) + 1))
+                    for v in scores['values']:
+                        if 'rnk' in v:
+                            # Based on the header label insert the score into the proper column
+                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
+                        else:
+                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
+                    csvwriter.writerow(row)
+
+            csvwriter.writerow([])
+            csvwriter.writerow([])
+
+        return csvfile.getvalue()
+
+
+post_save.connect(Forum.competition_post_save, sender=Competition)
+
 
 class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
@@ -402,6 +461,9 @@ def submission_inputfile_name(instance, filename="input.txt"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_history_file_name(instance, filename="history.txt"):
+    return os.path.join(submission_root(instance), filename)
+
+def submission_scores_file_name(instance, filename="scores.txt"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_runfile_name(instance, filename="run.txt"):
@@ -804,6 +866,7 @@ class CompetitionSubmission(models.Model):
     stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
+    scores_file = models.FileField(upload_to=submission_scores_file_name, storage=BundleStorage, null=True, blank=True)
     detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)
@@ -921,7 +984,11 @@ class CompetitionSubmission(models.Model):
         if key not in downloadable_files:
             raise ValueError("File requested is not valid.")
         file_attr, file_ext, file_has_restricted_access = downloadable_files[key]
-        if not self.is_public:
+
+        competition = self.phase.competition
+        if competition.creator == requested_by or requested_by in competition.admins.all():
+            pass
+        elif not self.is_public:
             # If the user requesting access is the owner, access granted
             if self.participant.competition.creator.id != requested_by.id:
                 # User making request must be owner of this submission and be granted

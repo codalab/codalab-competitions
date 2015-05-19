@@ -31,8 +31,9 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
-                            predict_submission_stdout_filename,
-                            predict_submission_stderr_filename,
+                             submission_scores_file_name,
+                             predict_submission_stdout_filename,
+                             predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
 
@@ -201,7 +202,6 @@ def score(submission, job_id):
     last_submissions = CompetitionSubmission.objects.filter(
         participant=submission.participant,
         status__codename=CompetitionSubmissionStatus.FINISHED
-
     ).order_by('-submitted_at')
 
 
@@ -224,6 +224,7 @@ def score(submission, job_id):
         pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
+    submission.scores_file.save('scores.txt', ContentFile(submission.phase.competition.get_results_csv(submission.phase.pk)))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
@@ -240,6 +241,7 @@ def score(submission, job_id):
         raise ValueError("Results are missing.")
 
     lines.append("history: %s" % submission_history_file_name(submission))
+    lines.append("scores: %s" % submission_scores_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)

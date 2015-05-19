@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Competition.allow_public_submissions'
-        db.add_column(u'web_competition', 'allow_public_submissions',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+        # Adding field 'CompetitionSubmission.scores_file'
+        db.add_column(u'web_competitionsubmission', 'scores_file',
+                      self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Competition.allow_public_submissions'
-        db.delete_column(u'web_competition', 'allow_public_submissions')
+        # Deleting field 'CompetitionSubmission.scores_file'
+        db.delete_column(u'web_competitionsubmission', 'scores_file')
 
 
     models = {
@@ -71,12 +71,13 @@ class Migration(SchemaMigration):
         u'web.competition': {
             'Meta': {'ordering': "['end_date']", 'object_name': 'Competition'},
             'admins': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'competition_admins'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['authenz.ClUser']"}),
-            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'allow_teams': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'disallow_leaderboard_modifying': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_detailed_results': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enable_forum': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'enable_medical_image_viewer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'enable_per_submission_metadata': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
@@ -163,6 +164,7 @@ class Migration(SchemaMigration):
             'project_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'publication_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'runfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'scores_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.CompetitionSubmissionStatus']"}),
             'status_details': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'stderr_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),

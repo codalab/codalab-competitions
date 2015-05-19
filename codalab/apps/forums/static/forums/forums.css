@@ -1,0 +1,17 @@
+.forum-panel {
+    margin-top: 20px;
+    padding: 20px;
+}
+.forum-panel .table tbody tr {
+    background-color: #FFF;
+}
+.forum-panel .posted_by {
+    font-size: 10px;
+}
+.forum-panel hr {
+    margin-top: 5px;
+    border-top: 1px solid #F5F5F5;
+}
+.forum-panel .thread_title {
+    border-bottom: 1px solid #CCC;
+}

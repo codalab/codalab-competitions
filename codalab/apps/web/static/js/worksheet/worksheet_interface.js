@@ -129,7 +129,6 @@ var Worksheet = React.createClass({
         Mousetrap.bind(['shift+e'], function(e){
             this.toggleEditing();
         }.bind(this));
-
     },
     toggleEditingText: function(arg){
         this.setState({editingText: arg});
@@ -267,6 +266,11 @@ var Worksheet = React.createClass({
                         </div>
                     </div>
         }
+
+        var permission_str = "you(" + ws_obj.state.permission_str + ") "
+        ws_obj.state.group_permissions.forEach(function(perm) {
+            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
+        });
         if(ws_obj.state.items.length){
             // pass
         }else {
@@ -274,7 +278,7 @@ var Worksheet = React.createClass({
         }
 
         // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-        raw_display = (
+        var raw_display = (
                     <textarea
                         id="raw-textarea"
                         className="form-control mousetrap"
@@ -284,7 +288,7 @@ var Worksheet = React.createClass({
                     />
             )
 
-        items_display = (
+        var items_display = (
                 <WorksheetItemList
                     ref={"list"}
                     active={this.state.activeComponent=='list'}
@@ -313,6 +317,12 @@ var Worksheet = React.createClass({
                 />
             )
 
+        var worksheet_modal = (
+                <BootstrapModal
+                    ref={"modal"}
+                />
+            )
+
         //simple switch out if raw or items
         var worksheet_display = this.state.rawMode ? raw_display : items_display
 
@@ -327,7 +337,7 @@ var Worksheet = React.createClass({
                                     <div className="worksheet-name">
                                         <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                                         <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                        <div className="worksheet-permission">Permission: {ws_obj.state.permission_str}</div>
+                                        <div className="worksheet-permission">Permission: {permission_str}</div>
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
@@ -341,6 +351,7 @@ var Worksheet = React.createClass({
                         </div>
                         {worksheet_display}
                     </div>
+                    {worksheet_modal}
                 </div>
             </div>
         )
