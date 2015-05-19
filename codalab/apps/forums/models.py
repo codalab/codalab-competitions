@@ -1,12 +1,19 @@
 import datetime
-from django.db import models
+
 from django.core.urlresolvers import reverse
+from django.db import models
 
 from .helpers import send_mail
 
 
 class Forum(models.Model):
     competition = models.OneToOneField('web.Competition', unique=True, related_name="forum")
+
+    @classmethod
+    def competition_post_save(cls, **kwargs):
+        competition = kwargs['instance']
+        if not hasattr(competition, 'forum'):
+            Forum.objects.create(competition=competition)
 
 
 class Thread(models.Model):
