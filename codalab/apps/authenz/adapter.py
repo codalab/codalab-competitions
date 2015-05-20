@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account import app_settings
 
 USERNAME_REGEX = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_\.\-]+$', re.UNICODE)
 
@@ -24,7 +25,7 @@ class CodalabAccountAdapter(DefaultAccountAdapter):
                                           "letters, digits and ./-/_ "))
 
         username_blacklist_lower = [ub.lower()
-                                    for ub in settings.USERNAME_BLACKLIST]
+                                    for ub in app_settings.USERNAME_BLACKLIST]
         if username.lower() in username_blacklist_lower:
             raise forms.ValidationError(_("Username can not be used. "
                                           "Please use other username."))
