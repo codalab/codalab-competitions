@@ -30,7 +30,7 @@ class CompetitionDownloadCSVTests(TestCase):
     def setUp(self):
         super(CompetitionDownloadCSVTests, self).setUp()
 
-        self.user = User.objects.create(email='test@user.com', username='testuser')
+        self.user = User.objects.create(email='test@user.com', username=u'testuser\u2020')
         self.other_user = User.objects.create(email='other@user.com', username='other')
         self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
         self.participant_1 = CompetitionParticipant.objects.create(
@@ -50,7 +50,8 @@ class CompetitionDownloadCSVTests(TestCase):
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
-            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29)
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
+            description=u"Some description with unicode \u2020"
         )
         self.leader_board = PhaseLeaderBoard.objects.create(phase=self.phase_1)
         self.leader_board_entry_1 = PhaseLeaderBoardEntry.objects.create(
