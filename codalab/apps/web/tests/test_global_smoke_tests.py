@@ -62,7 +62,11 @@ class ForumSmokeTests(TestCase):
         resp = self.client.get(reverse("my_competition_participants", kwargs={"competition_id": self.competition.pk}))
         self.assertEquals(resp.status_code, 302)
 
-    def test_worksheet_landing_page_returns_200(self):
+    def test_worksheet_landing_page_returns_302_to_list_page(self):
         resp = self.client.get(reverse("ws_landing_page"))
-        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.get("location").endswith(reverse("ws_list")))
 
+    def test_worksheet_landing_page_returns_200(self):
+        resp = self.client.get(reverse("ws_list"))
+        self.assertEquals(resp.status_code, 200)
