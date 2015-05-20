@@ -156,6 +156,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             new_bundle_uuid = self.client.upload_bundle_url(url, info, worksheet_uuid, True)
             return new_bundle_uuid
 
+
+        def upload_bundle_file(self, files, worksheet_uuid):
+            return None
+
+
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
 

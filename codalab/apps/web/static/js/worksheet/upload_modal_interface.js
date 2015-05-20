@@ -10,14 +10,14 @@ var UploadModal = React.createClass({
     componentDidMount: function() {
         this.resetState();
         $(this.getDOMNode()).modal({background: true, keyboard: true, show: false});
-        // this.show(); uncomment to get modal as pages loads for testing.
+        this.show(); //  un/comment to get modal as pages loads for testing.
     },
     componentWillUnmount: function() {
         $(this.getDOMNode()).off('hidden');
     },
     resetState: function(){
         this.setState({"error": null, "is_uploading": false});
-    }
+    },
     show: function(){
         $(this.getDOMNode()).modal('show');
         this.resetState();
@@ -33,6 +33,7 @@ var UploadModal = React.createClass({
 
         var fd = new FormData();
         fd.append( 'file', this.refs.file.getDOMNode().files[0] );
+        fd.append( 'worksheet_uuid', ws_obj.state.uuid);
         $.ajax({
             url:'/api/bundles/upload_url/',
             data: fd,

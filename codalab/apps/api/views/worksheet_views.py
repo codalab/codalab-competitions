@@ -442,8 +442,7 @@ class BundleUploadApi(views.APIView):
         service = BundleService(self.request.user)
         if request.FILES:
             try:
-                print request.FILES
-                #TODO pass to CLI
+                service.upload_bundle_file(request.FILES['file'], request.POST['worksheet_uuid'])
                 return Response({'success': True}, content_type="application/json")
             except Exception, e:
                 logging.error(self.__str__())
