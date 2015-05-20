@@ -231,6 +231,8 @@ class Base(Settings):
         'haystack'
     )
 
+    ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
+
     OPTIONAL_APPS = []
     INTERNAL_IPS = []
 
