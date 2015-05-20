@@ -43,7 +43,7 @@ var UploadModal = React.createClass({
             type: 'POST',
             success: function(data, status, jqXHR){
                 this.props.refreshWorksheet();
-                this.hide();
+                // this.hide(); // hidden for testing
             }.bind(this),
             error: function(jqHXR, status, error){
                 error = jqHXR.responseJSON['error'];
