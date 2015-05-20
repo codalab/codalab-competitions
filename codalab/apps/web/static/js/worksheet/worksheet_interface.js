@@ -320,6 +320,7 @@ var Worksheet = React.createClass({
         var upload_modal = (
                 <UploadModal
                     ref={"modal"}
+                    refreshWorksheet={this.refreshWorksheet}
                 />
             )
 

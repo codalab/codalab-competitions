@@ -3,18 +3,27 @@
 var UploadModal = React.createClass({
     getInitialState: function(){
         return{
+            "error": null,
+            "is_uploading": false
         }
     },
     componentDidMount: function() {
         $(this.getDOMNode()).modal({background: true, keyboard: true, show: false});
+        this.show();
     },
     componentWillUnmount: function() {
         $(this.getDOMNode()).off('hidden');
     },
     show: function(){
-        $(this.getDOMNode()).modal();
+        $(this.getDOMNode()).modal('show');
+        this.setState({"error": null, "is_uploading": false});
+    },
+    hide: function(){
+        $(this.getDOMNode()).modal('hide');
+        this.setState({"error": null, "is_uploading": false});
     },
     onSubmit: function(e){
+        this.setState({"error": null, "is_uploading": true});
         e.stopPropagation();
         e.preventDefault();
 
@@ -29,16 +38,40 @@ var UploadModal = React.createClass({
             cache: false,
             type: 'POST',
             success: function(data, status, jqXHR){
-                console.log('uplaoded');
-                console.log(data);
-                console.log('');
+                $(this.getDOMNode()).modal('hide');
+                this.props.refreshWorksheet();
+                this.hide();
             }.bind(this),
             error: function(jqHXR, status, error){
+                error = jqHXR.responseJSON['error'];
+                this.setState({"error": "there has been an error please try again", "is_uploading": false})
+                console.error(status + ': ' + error);
 
             }.bind(this)
         });
     },
     render: function() {
+        var error_html = ''
+        if(this.state.error){
+            error_html = (  <div class="alert alert-danger" role="alert">
+                                {this.state.error}
+                            </div>
+                        );
+        }
+        var uploading_html = '';
+        if(this.state.is_uploading){
+            var style = { width: '100%'}; // to control the % of the progress bar, show 100% and animate it.
+            uploading_html = (
+                                <div className="progress">
+                                  <div  className="progress-bar progress-bar-striped active"
+                                        role="progressbar"
+                                        style={style}
+                                    >
+                                    Uploading
+                                  </div>
+                                </div>
+                            )
+        }
         return (
             <div className="modal fade" id="ws-bundle-upload" tabindex="-1" role="dialog" aria-hidden="true">
                 <div className="modal-dialog">
@@ -55,6 +88,8 @@ var UploadModal = React.createClass({
                                 <p>
                                     <input id="uploadInput" type="file" ref="file" name="file"/>
                                 </p>
+                                {uploading_html}
+                                {error_html}
 
                             </div>
                             <div className="modal-footer">

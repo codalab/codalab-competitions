@@ -440,7 +440,7 @@ class BundleUploadApi(views.APIView):
     def post(self, request):
         user_id = self.request.user.id
         service = BundleService(self.request.user)
-        body = request.body  # to stop the error: You cannot access body after reading from request's data stream
+        # body = request.body  # to stop the error: You cannot access body after reading from request's data stream
         if request.FILES:
             try:
                 print request.FILES
