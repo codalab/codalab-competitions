@@ -435,27 +435,41 @@ class BundleCreateApi(views.APIView):
 
 class BundleUploadApi(views.APIView):
     """
-    Provides a web API to obtain a bundle's primary information.
+    Provides a web API
     """
     def post(self, request):
         user_id = self.request.user.id
-        postdata = json.loads(request.body)
-        # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
-        try:
-            #TODO CHECKING
-            info = {}
-            new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
-            return Response({'uuid': new_bundle_uuid}, content_type="application/json")
-        except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
-            tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
-            return Response({"error": smart_str(e)}, status=500)
+        body = request.body  # to stop the error: You cannot access body after reading from request's data stream
+        if request.FILES:
+            try:
+                print request.FILES
+                return Response({'success': True}, content_type="application/json")
+            except Exception, e:
+                logging.error(self.__str__())
+                logging.error(smart_str(e))
+                logging.error('')
+                logging.debug('-------------------------')
+                tb = traceback.format_exc()
+                logging.error(tb)
+                logging.debug('-------------------------')
+                return Response({"error": smart_str(e)}, status=500)
+        else: ## no files just a url
+            postdata = json.loads(body)
+            try:
+                #TODO CHECKING
+                info = {}
+                new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
+                return Response({'uuid': new_bundle_uuid}, content_type="application/json")
+            except Exception as e:
+                logging.error(self.__str__())
+                logging.error(smart_str(e))
+                logging.error('')
+                logging.debug('-------------------------')
+                tb = traceback.format_exc()
+                logging.error(tb)
+                logging.debug('-------------------------')
+                return Response({"error": smart_str(e)}, status=500)
 
 
 class BundleContentApi(views.APIView):

@@ -199,18 +199,23 @@ var WorksheetActions =  function() {
             }, // end off add
 
             'upload': {
-                helpText: formatHelp('upload <url>', 'upload contents of URL as a dataset'),
+                helpText: formatHelp('upload', 'upload contents of URL as a dataset or a file'),
                 minimumInputLength: 0,
                 edit_enabled: true,
                 searchChoice: function(input, term){
                     return {
                         id: term,
-                        text: 'URL (http://...): ' + term
+                        text: 'Type "file" or a URL (http://...): ' + term
                     };
                 },
                 executefn: function(params, command, callback){
                     if(params.length === 2 && params[0] === 'upload'){
                         worksheet_uuid = ws_obj.state.uuid;
+                        if(params[1].trim().toLowerCase() == 'file'){
+                            callback()
+                            $("#ws-bundle-upload").modal();
+                            return;
+                        }
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
                             'url': params[1]
