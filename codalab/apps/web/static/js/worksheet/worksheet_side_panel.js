@@ -14,15 +14,37 @@ var WorksheetSidePanel = React.createClass({
             $(this).unbind('mousemove');
         });
     },
-    // debouncedFetchExtra: undefined,
+    debouncedFetchExtra: undefined,
+    _fetch_extra: function(){
+        if(this.refs.hasOwnProperty('bundle_info_side_panel')){
+            this.refs.bundle_info_side_panel.fetch_extra();
+        }
+    },
     componentDidUpdate:function(){
-        // var self = this;
-        // // _.debounce(
-        // if(this.debouncedFetchExtra === undefined){
-        //     // debounce it to wait for user to stop for X time.
-        //     this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
-        // }
-        // this.debouncedFetchExtra();
+        var self = this;
+        // _.debounce(
+        if(this.debouncedFetchExtra === undefined){
+            // debounce it to wait for user to stop for X time.
+            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 1500).bind(this);
+        }
+        //set up the wait for fetching extra
+        this.debouncedFetchExtra();
+
+        // update the child if bundle
+        if(this.focustype == 'bundle'){
+            var current_focus = this.current_focus();
+            var subFocusIndex = this.props.subFocusIndex;
+            var bundle_info;
+            if(current_focus.bundle_info instanceof Array){ //tables are arrays
+                bundle_info = current_focus.bundle_info[this.props.subFocusIndex]
+            }else{ // content/images/ect. are not
+                bundle_info = current_focus.bundle_info
+            }
+            if(this.refs.hasOwnProperty('bundle_info_side_panel')){ // just to double check so no errors
+                this.refs.bundle_info_side_panel.setState(bundle_info);
+            }
+        }
+
     },
     current_focus: function(){
         var focus = '';
@@ -43,32 +65,6 @@ var WorksheetSidePanel = React.createClass({
             this.focustype = 'worksheet';
         }
         return  focus;
-    },
-    fetch_extra: function(){
-        var current_focus = this.current_focus();
-        var subFocusIndex = this.props.subFocusIndex;
-        var bundle_info;
-        if(current_focus.bundle_info instanceof Array){ //tables are arrays
-            bundle_info = current_focus.bundle_info[this.props.subFocusIndex]
-        }else{ // content/images/ect. are not
-            bundle_info = current_focus.bundle_info
-        }
-        console.log("fetch_extra");
-        // $.ajax({
-        //     type: "GET",
-        //     //  /api/bundles/0x706<...>d5b66e
-        //     url: "/api/bundles/" + bundle_info.uuid,
-        //     dataType: 'json',
-        //     cache: false,
-        //     success: function(data) {
-        //         console.log("got detailed bundle info");
-        //         this.setState({detailed_bundle_info:data});
-        //     }.bind(this),
-        //     error: function(xhr, status, err) {
-        //         console.error(status, err.toString());
-        //     }.bind(this)
-        // });
-
     },
     resizePanel: function(e){
         e.preventDefault();
@@ -148,6 +144,7 @@ var WorksheetDetailSidePanel = React.createClass({
 
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function(){
+        //set the state from the props and leave props.item alone
         var item = this.props.item;
         var bundle_info;
         if(item.bundle_info instanceof Array){ //tables are arrays
@@ -157,39 +154,20 @@ var BundleDetailSidePanel = React.createClass({
         }
         return bundle_info;
     },
-    debouncedFetchExtra: undefined,
-    setupFetchExtra: function(){
-        var self = this;
-        // _.debounce(
-        if(this.debouncedFetchExtra === undefined){
-            // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self.fetch_extra, 1500).bind(this);
-        }
-        this.debouncedFetchExtra();
-    },
-    fetch_extra: function(){
-        console.log("fetch_extra");
-        var item = this.props.item;
-        var bundle_info;
-        if(item.bundle_info instanceof Array){ //tables are arrays
-            bundle_info = item.bundle_info[this.props.subFocusIndex]
-        }else{ // content/images/ect. are not
-            bundle_info = item.bundle_info
-        }
-
-
+    fetch_extra: function(){ // grab detailed infomation about this bundle info.
+        var bundle_info = this.state;
         ws_bundle_obj.state = bundle_info;
+        //break out if we don't match. The user has moved on.
         if(ws_bundle_obj.current_uuid == bundle_info.uuid){
             return;
         }
-
         console.log(bundle_info.uuid);
-
+        //update we are at the correct focus.
         ws_bundle_obj.current_uuid = bundle_info.uuid;
         ws_bundle_obj.fetch({
             success: function(data){
                 console.log("BundleDetailSidePanel fetch  success");
-                // somethign with data
+                // do a check since this fires async to double check users intent.
                 if(ws_bundle_obj.current_uuid == bundle_info.uuid){
                     console.log("UPDATE ***");
                     this.setState(data)
@@ -201,17 +179,8 @@ var BundleDetailSidePanel = React.createClass({
         });
 
     },
-    componentDidMount: function(){
-        console.log("BundleDetailSidePanel componentDidMount");
-        this.setupFetchExtra();
-    },
-    componentDidUpdate: function(){
-        console.log("BundleDetailSidePanel componentDidUpdate");
-        this.setupFetchExtra();
-    },
-    componentWillUnmount: function(){
-
-    },
+    componentDidMount: function(){},
+    componentWillUnmount: function(){},
     render: function(){
         var bundle_info = this.state;
         var bundle_url = '/bundles/' + bundle_info.uuid;
@@ -221,17 +190,9 @@ var BundleDetailSidePanel = React.createClass({
             bundle_name = <h3 className="bundle-name">{ bundle_info.metadata.name }</h3>
         }
         var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready')
-        // "uuid": "",
-        // "hard_dependencies": [],
-        // "state": "ready",
-        // "dependencies": [],
-        // "command": null,
-        // "bundle_type": "",
-        // "metadata": {},
-        // "files": {},
         var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
 
-
+        // setup various parts of the side panel.
         /// ------------------------------------------------------------------
         var dependencies = bundle_info.dependencies
         var dependencies_table = []
@@ -317,6 +278,8 @@ var BundleDetailSidePanel = React.createClass({
                 </span>
             )
         }
+        /// ------------------------------------------------------------------
+        // put it all together.
         return (
             <div id="panel_content">
                 <div className="bundle-header">
@@ -358,7 +321,6 @@ var BundleDetailSidePanel = React.createClass({
                         {metadata_list_html}
                     </tbody>
                 </table>
-
                 {dependencies_html}
                 {stdout_html}
                 {stderr_html}

@@ -30,7 +30,6 @@ var TableBundle = React.createClass({
                 this.focusOnRow(0);
                 this.props.updateWorksheetSubFocusIndex(0);
             }else {
-                console.log("setting up the index", index);
                 this.focusOnRow(index);
                 this.props.updateWorksheetSubFocusIndex(index);
                 this.scrollToRow(index, e);
