@@ -586,10 +586,18 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'name': 'entries'
             }
         ]
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
+        except models.Competition.DoesNotExist:
+            raise Http404()
+
+        if competition.creator != self.request.user and self.request.user not in competition.admins.all():
+            raise Http404()
+
         context['columns'] = columns
         # retrieve participant submissions information
         participant_list = []
-        competition_participants = self.queryset.filter(competition=self.kwargs.get('competition_id'))
+        competition_participants = self.queryset.filter(competition=competition)
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
