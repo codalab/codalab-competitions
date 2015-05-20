@@ -542,7 +542,7 @@ class CompetitionCompleteResultsDownload(View):
                     is_on_leaderboard = submission.pk in leader_board_entries
                     row.append(is_on_leaderboard)
 
-                    row = [str(r).encode("utf-8") for r in row]
+                    row = [unicode(r).encode("utf-8") for r in row]
                     csvwriter.writerow(row)
 
             csvwriter.writerow([])
