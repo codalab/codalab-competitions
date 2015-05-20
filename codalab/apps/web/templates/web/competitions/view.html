@@ -184,6 +184,7 @@
                                         <td width="125"><b>User</b></td>
                                         <td width="125"><b>Date</b></td>
                                         <td><b>Description</b></td>
+                                        <td width="200">Likes</td>
                                         <td width="250"><b>Downloads</b></td>
                                     </tr>
                                 </thead>
@@ -194,6 +195,20 @@
                                         <td><b>{{ submission.participant.user.username }}</b></td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td>{{ submission.description|default_if_none:""|escape }}</td>
+                                        <td>
+                                            <button class="like btn btn-default {% if submission.already_liked %}already-liked{% endif %}"
+                                                    submission-pk="{{ submission.pk }}">
+                                                {% if submission.already_liked %}
+                                                    unlike
+                                                {% else %}
+                                                    like
+                                                {% endif %}
+                                            </button>
+                                            <span style="margin-top: 20px;">
+                                                <span class="like-count">{{ submission.get_like_count|default:0 }}</span>
+                                                likes
+                                            </span>
+                                        </td>
                                         <td>
                                             <button class="view_download_btn btn btn-default"
                                                     data-submission-id="{{ submission.pk }}"
@@ -287,6 +302,30 @@
             /******************************************************************
             Public submissions
              *****************************************************************/
+            // Liking submissions
+            $(".btn.like").click(function() {
+                var element = $(this);
+                var already_liked = element.hasClass("already-liked");
+                var like_count = parseInt(element.parent().find(".like-count").text());
+                var url = "{% url "coopetitions:like" submission_pk="0" %}";
+                url = url.replace(0, element.attr('submission-pk'));
+                $.get(url)
+                        .success(function(){
+                            if(!already_liked) {
+                                element.text("unlike");
+                                element.addClass("already-liked");
+                                element.parent().find(".like-count").text(like_count + 1);
+                            } else {
+                                element.text("like");
+                                element.removeClass("already-liked");
+                                element.parent().find(".like-count").text(like_count - 1);
+                            }
+                        })
+                        .error(function() {
+                            alert("Could not like submission, is your Internet connection working?");
+                        });
+            });
+
             // Handle modal to download public submissions
             $(".view_download_btn").click(function() {
                 var submission_id = $(this).attr('data-submission-id');

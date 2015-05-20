@@ -37,6 +37,8 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
+from apps.coopetitions.models import Like
+from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -313,6 +315,10 @@ class CompetitionDetailView(DetailView):
         if competition.creator != request.user and request.user not in competition.admins.all():
             if not competition.published and competition.secret_key != secret_key:
                 return HttpResponse(status=404)
+        # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
+        # does not exist for this competition. should be removed eventually.
+        if not hasattr(competition, 'forum'):
+            Forum.objects.get_or_create(competition=competition)
         return super(CompetitionDetailView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -333,8 +339,15 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
-        context['public_submissions'] = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                                    is_public=True)
+        context['public_submissions'] = []
+        public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                         is_public=True).prefetch_related()
+        for submission in public_submissions:
+            # Let's process all public submissions and figure out which ones we've already liked
+            if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                submission.already_liked = True
+            context['public_submissions'].append(submission)
+
         submissions = dict()
         all_submissions = dict()
         try:
@@ -496,7 +509,7 @@ class CompetitionCompleteResultsDownload(View):
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
-            csvwriter.writerow([group['label']])
+            csvwriter.writerow([group['label'].encode("utf-8")])
             csvwriter.writerow([])
 
             headers = ["User"]
@@ -505,10 +518,10 @@ class CompetitionCompleteResultsDownload(View):
                 subs = header['subs']
                 if subs:
                     for sub in subs:
-                        headers.append(header['label'])
-                        sub_headers.append(sub['label'])
+                        headers.append(header['label'].encode("utf-8"))
+                        sub_headers.append(sub['label'].encode("utf-8"))
                 else:
-                    headers.append(header['label'])
+                    headers.append(header['label'].encode("utf-8"))
             headers.append('Description')
             headers.append('Date')
             headers.append('Filename')
@@ -536,6 +549,8 @@ class CompetitionCompleteResultsDownload(View):
 
                     is_on_leaderboard = submission.pk in leader_board_entries
                     row.append(is_on_leaderboard)
+
+                    row = [unicode(r).encode("utf-8") for r in row]
                     csvwriter.writerow(row)
 
             csvwriter.writerow([])
@@ -543,7 +558,6 @@ class CompetitionCompleteResultsDownload(View):
 
         response = HttpResponse(csvfile.getvalue(), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=competition_results.csv"
-
         return response
 
 ### Views for My Codalab
@@ -580,10 +594,18 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'name': 'entries'
             }
         ]
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
+        except models.Competition.DoesNotExist:
+            raise Http404()
+
+        if competition.creator != self.request.user and self.request.user not in competition.admins.all():
+            raise Http404()
+
         context['columns'] = columns
         # retrieve participant submissions information
         participant_list = []
-        competition_participants = self.queryset.filter(competition=self.kwargs.get('competition_id'))
+        competition_participants = self.queryset.filter(competition=competition)
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
@@ -741,85 +763,89 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     template_name = 'web/my/submissions.html'
 
     def get_context_data(self, **kwargs):
-        phase_id = self.request.GET.get('phase');
+        phase_id = self.request.GET.get('phase')
         context = super(MyCompetitionSubmissionsPage, self).get_context_data(**kwargs)
         competition = models.Competition.objects.get(pk=self.kwargs['competition_id'])
         context['competition'] = competition
-        if self.request.user.id == competition.creator_id or self.request.user in competition.admins.all():
-            # find the active phase
-            if (phase_id != None):
-                context['selected_phase_id'] = int(phase_id)
-                active_phase = competition.phases.filter(id=phase_id)[0]
-            else:
-                active_phase = competition.phases.all()[0]
-                for phase in competition.phases.all():
-                    if phase.is_active:
-                        context['selected_phase_id'] = phase.id
-                        active_phase = phase
 
-            context['selected_phase'] = active_phase
+        if self.request.user.id != competition.creator_id and self.request.user not in competition.admins.all():
+            raise Http404()
 
-            submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
-            # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
-            id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
-            # create column definition
-            columns = [
-                {
-                    'label': 'SUBMITTED',
-                    'name': 'submitted_at'
-                },
-                {
-                    'label': 'SUBMITTED BY',
-                    'name': 'submitted_by'
-                },
-                {
-                    'label': 'FILENAME',
-                    'name': 'filename'
-                },
-                {
-                    'label': 'STATUS',
-                    'name': 'status_name'
-                },
-                {
-                    'label': 'LEADERBOARD',
-                    'name': 'is_in_leaderboard'
-                },
-            ]
-            scores = active_phase.scores()
-            for score_group_index, score_group in enumerate(scores):
-                column = {
-                    'label': score_group['label'],
-                    'name': 'score_' + str(score_group_index),
-                }
-                columns.append(column)
-            # map submissions to view data
-            submission_info_list = []
-            for submission in submissions:
-                submission_info = {
-                    'id': submission.id,
-                    'submitted_by': submission.participant.user.username,
-                    'user_pk': submission.participant.user.pk,
-                    'number': submission.submission_number,
-                    'filename': submission.get_filename(),
-                    'submitted_at': submission.submitted_at,
-                    'status_name': submission.status.name,
-                    'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
-                    'exception_details': submission.exception_details,
-                    'description': submission.description,
-                    'is_public': submission.is_public,
-                }
-                # add score groups into data columns
-                if (submission_info['is_in_leaderboard'] == True):
-                    for score_group_index, score_group in enumerate(scores):
-                        user_score = filter(lambda user_score: user_score[1]['username'] == submission.participant.user.username, score_group['scores'])[0]
-                        main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
-                        submission_info['score_' + str(score_group_index)] = main_score['val']
-                submission_info_list.append(submission_info)
-            # order results
-            sort_data_table(self.request, context, submission_info_list)
-            # complete context
-            context['columns'] = columns
-            context['submission_info_list'] = submission_info_list
+        # find the active phase
+        if (phase_id != None):
+            context['selected_phase_id'] = int(phase_id)
+            active_phase = competition.phases.filter(id=phase_id)[0]
+        else:
+            active_phase = competition.phases.all()[0]
+            for phase in competition.phases.all():
+                if phase.is_active:
+                    context['selected_phase_id'] = phase.id
+                    active_phase = phase
+
+        context['selected_phase'] = active_phase
+
+        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
+        # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
+        id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
+        # create column definition
+        columns = [
+            {
+                'label': 'SUBMITTED',
+                'name': 'submitted_at'
+            },
+            {
+                'label': 'SUBMITTED BY',
+                'name': 'submitted_by'
+            },
+            {
+                'label': 'FILENAME',
+                'name': 'filename'
+            },
+            {
+                'label': 'STATUS',
+                'name': 'status_name'
+            },
+            {
+                'label': 'LEADERBOARD',
+                'name': 'is_in_leaderboard'
+            },
+        ]
+        scores = active_phase.scores()
+        for score_group_index, score_group in enumerate(scores):
+            column = {
+                'label': score_group['label'],
+                'name': 'score_' + str(score_group_index),
+            }
+            columns.append(column)
+        # map submissions to view data
+        submission_info_list = []
+        for submission in submissions:
+            submission_info = {
+                'id': submission.id,
+                'submitted_by': submission.participant.user.username,
+                'user_pk': submission.participant.user.pk,
+                'number': submission.submission_number,
+                'filename': submission.get_filename(),
+                'submitted_at': submission.submitted_at,
+                'status_name': submission.status.name,
+                'is_in_leaderboard': submission.id in id_of_submissions_in_leaderboard,
+                'exception_details': submission.exception_details,
+                'description': submission.description,
+                'is_public': submission.is_public,
+            }
+            # add score groups into data columns
+            if (submission_info['is_in_leaderboard'] == True):
+                for score_group_index, score_group in enumerate(scores):
+                    user_score = filter(lambda user_score: user_score[1]['username'] == submission.participant.user.username, score_group['scores'])[0]
+                    main_score = filter(lambda main_score: main_score['name'] == score_group['selection_key'], user_score[1]['values'])[0]
+                    submission_info['score_' + str(score_group_index)] = main_score['val']
+            submission_info_list.append(submission_info)
+        # order results
+        sort_data_table(self.request, context, submission_info_list)
+        # complete context
+        context['columns'] = columns
+        context['submission_info_list'] = submission_info_list
+
         return context
 
 class VersionView(TemplateView):
