@@ -37,6 +37,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
+from apps.coopetitions.models import Like
 from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
@@ -338,8 +339,15 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
-        context['public_submissions'] = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                                    is_public=True)
+        context['public_submissions'] = []
+        public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                         is_public=True).prefetch_related()
+        for submission in public_submissions:
+            # Let's process all public submissions and figure out which ones we've already liked
+            if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                submission.already_liked = True
+            context['public_submissions'].append(submission)
+
         submissions = dict()
         all_submissions = dict()
         try:

@@ -1011,6 +1011,10 @@ class CompetitionSubmission(models.Model):
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
         return getattr(self, file_attr), file_type, file_name
 
+    def get_like_count(self):
+        return len(self.likes.all())
+
+
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
