@@ -440,10 +440,10 @@ class BundleUploadApi(views.APIView):
     def post(self, request):
         user_id = self.request.user.id
         service = BundleService(self.request.user)
-        # body = request.body  # to stop the error: You cannot access body after reading from request's data stream
         if request.FILES:
             try:
                 print request.FILES
+                #TODO pass to CLI
                 return Response({'success': True}, content_type="application/json")
             except Exception, e:
                 logging.error(self.__str__())
@@ -455,7 +455,7 @@ class BundleUploadApi(views.APIView):
                 logging.debug('-------------------------')
                 return Response({"error": smart_str(e)}, status=500)
         else: ## no files just a url
-            postdata = json.loads(body)
+            postdata = json.loads(request.body)
             try:
                 #TODO CHECKING
                 info = {}

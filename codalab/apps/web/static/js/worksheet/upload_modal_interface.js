@@ -8,19 +8,23 @@ var UploadModal = React.createClass({
         }
     },
     componentDidMount: function() {
+        this.resetState();
         $(this.getDOMNode()).modal({background: true, keyboard: true, show: false});
-        this.show();
+        // this.show(); uncomment to get modal as pages loads for testing.
     },
     componentWillUnmount: function() {
         $(this.getDOMNode()).off('hidden');
     },
+    resetState: function(){
+        this.setState({"error": null, "is_uploading": false});
+    }
     show: function(){
         $(this.getDOMNode()).modal('show');
-        this.setState({"error": null, "is_uploading": false});
+        this.resetState();
     },
     hide: function(){
         $(this.getDOMNode()).modal('hide');
-        this.setState({"error": null, "is_uploading": false});
+        this.resetState();
     },
     onSubmit: function(e){
         this.setState({"error": null, "is_uploading": true});
@@ -29,7 +33,6 @@ var UploadModal = React.createClass({
 
         var fd = new FormData();
         fd.append( 'file', this.refs.file.getDOMNode().files[0] );
-        //
         $.ajax({
             url:'/api/bundles/upload_url/',
             data: fd,
@@ -38,13 +41,15 @@ var UploadModal = React.createClass({
             cache: false,
             type: 'POST',
             success: function(data, status, jqXHR){
-                $(this.getDOMNode()).modal('hide');
                 this.props.refreshWorksheet();
                 this.hide();
             }.bind(this),
             error: function(jqHXR, status, error){
                 error = jqHXR.responseJSON['error'];
-                this.setState({"error": "there has been an error please try again", "is_uploading": false})
+                this.setState({
+                        "error": "there has been an error please try again",
+                        "is_uploading": false
+                    })
                 console.error(status + ': ' + error);
 
             }.bind(this)
@@ -53,7 +58,7 @@ var UploadModal = React.createClass({
     render: function() {
         var error_html = ''
         if(this.state.error){
-            error_html = (  <div class="alert alert-danger" role="alert">
+            error_html = (  <div className="alert alert-danger" role="alert">
                                 {this.state.error}
                             </div>
                         );
@@ -90,7 +95,6 @@ var UploadModal = React.createClass({
                                 </p>
                                 {uploading_html}
                                 {error_html}
-
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
