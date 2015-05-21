@@ -5,6 +5,7 @@ var WorksheetSidePanel = React.createClass({
         return {
         };
     },
+    debouncedFetchExtra: undefined,
     componentDidMount: function(){
         var self = this;
         $('#dragbar').mousedown(function(e){
@@ -14,13 +15,26 @@ var WorksheetSidePanel = React.createClass({
             $(this).unbind('mousemove');
         });
     },
-    debouncedFetchExtra: undefined,
+    capture_keys: function(){
+        console.log('capture_keys');
+        Mousetrap.bind(['shift+up', 'shift+k'], function(e){
+            var node = this.getDOMNode();
+            var nodetop = $(node).scrollTop() // get all measurements for node rel to current viewport
+            $(node).stop(true).animate({scrollTop: nodetop-100}, 45);
+        }.bind(this), 'keydown');
+        Mousetrap.bind(['shift+down', 'shift+j'], function(e){
+            var node = this.getDOMNode();
+            var nodetop = $(node).scrollTop() // get all measurements for node rel to current viewport
+            $(node).stop(true).animate({scrollTop: nodetop+100}, 45);
+        }.bind(this), 'keydown');
+    },
     _fetch_extra: function(){
         if(this.refs.hasOwnProperty('bundle_info_side_panel')){
             this.refs.bundle_info_side_panel.fetch_extra();
         }
     },
     componentDidUpdate:function(){
+        this.capture_keys();
         var self = this;
         // _.debounce(
         if(this.debouncedFetchExtra === undefined){
@@ -278,6 +292,84 @@ var BundleDetailSidePanel = React.createClass({
                 </span>
             )
         }
+        var host_worksheets_html = ''
+        if(bundle_info.host_worksheets){
+            if(bundle_info.host_worksheets.length){
+                var host_worksheets_url = ''
+                host_worksheets_rows = []
+                bundle_info.host_worksheets.forEach(function(worksheet, i){
+                    host_worksheets_url = "/worksheets/" + worksheet.uuid;
+                    host_worksheets_rows.push(
+                        <tr>
+                            <td>
+                                {worksheet.name}
+                            </td>
+                            <td>
+                                <a href={host_worksheets_url}>{worksheet.uuid}</a>
+                            </td>
+                        </tr>
+                    );
+                }) // end of foreach
+                host_worksheets_html = (
+                            <div className="host-worksheets-table">
+                                <h4>Host Worksheets</h4>
+                                <table className="bundle-meta table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>UUID</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {host_worksheets_rows}
+                                            </tbody>
+                                </table>
+                            </div>
+                )
+            }
+        }// end of if host_worksheets
+
+        var group_permissions_html = ''
+        if(bundle_info.edit_permission){
+            if(bundle_info.group_permissions.length){
+                group_permissions_rows = []
+                bundle_info.group_permissions.forEach(function(group, i){
+                    group_permissions_rows.push(
+                        <tr>
+                            <td>
+                                {group.group_name}
+                            </td>
+                            <td>
+                               {group.group_uuid}
+                            </td>
+                            <td>
+                               {group.permission_str}
+                            </td>
+                        </tr>
+                    );
+                }) // end of foreach
+                group_permissions_html = (
+                            <div className="row">
+                                <div className="col-sm-10">
+                                    <div className="dependencies-table">
+                                        <table id="dependencies_table" >
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>UUID</th>
+                                                    <th>Permissions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {group_permissions_rows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                )
+            } // end of if group_permissions.len
+        }// end of if edit.permission
         /// ------------------------------------------------------------------
         // put it all together.
         return (
@@ -322,6 +414,7 @@ var BundleDetailSidePanel = React.createClass({
                     </tbody>
                 </table>
                 {dependencies_html}
+                {host_worksheets_html}
                 {stdout_html}
                 {stderr_html}
             </div>
