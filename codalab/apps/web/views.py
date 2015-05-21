@@ -344,8 +344,9 @@ class CompetitionDetailView(DetailView):
                                                                          is_public=True).prefetch_related()
         for submission in public_submissions:
             # Let's process all public submissions and figure out which ones we've already liked
-            if Like.objects.filter(submission=submission, user=self.request.user).exists():
-                submission.already_liked = True
+            if self.request.user.is_authenticated():
+                if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                    submission.already_liked = True
             context['public_submissions'].append(submission)
 
         submissions = dict()
