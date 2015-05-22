@@ -56,7 +56,7 @@ class CompetitionSubmissionAdminPageTests(TestCase):
         self.assertEquals(resp.status_code, 302)
 
 
-class CompetitionSubmissionTests(TestCase):
+class CompetitionSubmissionDeleteTests(TestCase):
     def setUp(self):
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")

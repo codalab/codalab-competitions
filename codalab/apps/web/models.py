@@ -36,6 +36,8 @@ from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
 from django.contrib.auth import get_user_model
 
+from apps.forums.models import Forum
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -367,6 +369,9 @@ class Competition(models.Model):
             csvwriter.writerow([])
 
         return csvfile.getvalue()
+
+
+post_save.connect(Forum.competition_post_save, sender=Competition)
 
 
 class Page(models.Model):
@@ -1005,6 +1010,10 @@ class CompetitionSubmission(models.Model):
             file_type = 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
         return getattr(self, file_attr), file_type, file_name
+
+    def get_like_count(self):
+        return len(self.likes.all())
+
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)

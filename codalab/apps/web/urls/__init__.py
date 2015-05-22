@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^analytics/', include('apps.analytics.urls')),
     url(r'^forums/', include('apps.forums.urls')),
     url(r'^captcha/', include('captcha.urls')),
+    url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
 
     # Direct URL redirects
     url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),

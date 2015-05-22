@@ -219,6 +219,7 @@ class Base(Settings):
         'apps.health',
         'apps.analytics',
         'apps.forums',
+        'apps.coopetitions',
 
         # Authentication app, enables social authentication
         'allauth',
