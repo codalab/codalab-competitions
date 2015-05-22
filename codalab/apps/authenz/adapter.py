@@ -12,7 +12,8 @@ from allauth.account import app_settings
 USERNAME_REGEX = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_\.\-]+$', re.UNICODE)
 
 
-#  https://github.com/pennersr/django-allauth/blob/master/allauth/account/adapter.py
+# Have to override this because of USERNAME_REGEX and the ValidationError message associated with it
+# https://github.com/pennersr/django-allauth/blob/master/allauth/account/adapter.py
 class CodalabAccountAdapter(DefaultAccountAdapter):
 
     def clean_username(self, username):
