@@ -8,7 +8,7 @@ from apps.web.models import Competition
 User = get_user_model()
 
 
-class ForumSmokeTests(TestCase):
+class GlobalSmokeTests(TestCase):
 
     def setUp(self):
         self.organizer = User.objects.create_superuser(username="organizer", email="admin@example.com", password="pass")
