@@ -16,7 +16,6 @@ var WorksheetSidePanel = React.createClass({
         });
     },
     capture_keys: function(){
-        console.log('capture_keys');
         Mousetrap.bind(['shift+up', 'shift+k'], function(e){
             var node = this.getDOMNode();
             var nodetop = $(node).scrollTop() // get all measurements for node rel to current viewport
@@ -247,7 +246,18 @@ var BundleDetailSidePanel = React.createClass({
 
         var metadata = bundle_info.metadata
         var metadata_list_html = [];
-        for (var property in metadata) {
+        // lets sort the metadata by key
+        var keys = []
+        var property; // we will reuse this.
+        for (property in metadata){
+            if (metadata.hasOwnProperty(property)){
+                keys.push(property);
+                console.log(property);
+            }
+        }
+        keys.sort(); // sorted, lets get them in the proper order
+        for (var i = 0; i < keys.length; i++){
+            property = keys[i]; //set to current property
             if (metadata.hasOwnProperty(property)) {
                 metadata_list_html.push(
                     <tr>
@@ -262,8 +272,9 @@ var BundleDetailSidePanel = React.createClass({
                     </tr>
                 )
             }
-        }
-        // <em>subFocusIndex (maybe wrong): {this.props.subFocusIndex}</em>
+        }// end of for(var i keys.len)
+
+
         var stdout_html = ''
         if(bundle_info.stdout){
             //had to add span since react elm must be wrapped
