@@ -137,8 +137,59 @@ var WorksheetDetailSidePanel = React.createClass({
     },
     render: function(){
         var worksheet = this.props.item;
+        var bundles_html = ''
+        var bundles_table = [];
+        // helper function for showing all bundles.
+        var bundle_push = function(b){
+            var b_url =  "/bundles/" + b.uuid;
+            bundles_table.push(
+                <tr>
+                    <td>
+                        {b.metadata.name}
+                    </td>
+                    <td>
+                        <a href={b_url}>{b.uuid}</a>
+                    </td>
+                </tr>
+            );
+        }
 
-        var permission_str = ""
+        if(worksheet.items.length){
+            worksheet.items.forEach(function(item, i){
+                var bundle = null;
+                var bundle_info = null;
+                if(item.state.hasOwnProperty('bundle_info') && item.state.bundle_info){
+                   bundle_info = item.state.bundle_info;
+                   if(Array.isArray(bundle_info)){
+                        bundle_info.forEach(function(bi, i){
+                            bundle_push(bi);
+                        });
+                   }else{
+                        bundle_push(bundle_info);
+                   }
+                }
+            }) // end of foreach
+
+            bundles_html = (
+                <div className="bundles-table">
+                    <h4>Bundles</h4>
+                    <table className="bundle-meta table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>UUID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {bundles_table}
+                        </tbody>
+                    </table>
+                </div>
+            )
+        }// end of this.state.dependencies.length
+
+
+        var permission_str = "you(" + ws_obj.state.permission_str + ") "
         worksheet.group_permissions.forEach(function(perm) {
             permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
         });
@@ -147,7 +198,8 @@ var WorksheetDetailSidePanel = React.createClass({
                 <h3 className="ws-name">{worksheet.name}</h3>
                 <p className="ws-uuid">{worksheet.uuid}</p>
                 <p className="ws-owner">{worksheet.owner}</p>
-                <p className="ws-permissions">{permission_str}</p>
+                <p className="ws-permissions">Permissions: {permission_str}</p>
+                {bundles_html}
             </div>
         )
     }
