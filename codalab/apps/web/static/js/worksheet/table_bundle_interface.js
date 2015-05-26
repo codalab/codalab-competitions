@@ -28,10 +28,8 @@ var TableBundle = React.createClass({
             if(index < 0){
                 this._owner.setFocus(parentFocusIndex - 1, e);
                 this.focusOnRow(0);
-                this.props.updateWorksheetSubFocusIndex(0);
             }else {
                 this.focusOnRow(index);
-                this.props.updateWorksheetSubFocusIndex(index);
                 this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
@@ -55,7 +53,6 @@ var TableBundle = React.createClass({
                 this.props.updateWorksheetSubFocusIndex(0);
             }else {
                 this.focusOnRow(index);
-                this.props.updateWorksheetSubFocusIndex(index);
                 this.scrollToRow(index, event);
             }
         }.bind(this), 'keydown');
@@ -126,32 +123,6 @@ var TableBundle = React.createClass({
             this.throttledScrollToRow = _.throttle(__innerScrollToRow, 50).bind(this);
         }
         this.throttledScrollToRow(index, event);
-
-
-        // var navbarHeight = parseInt($('body').css('padding-top'));
-        // var distance, scrollTo;
-        // //get hight and seee if can fit on page
-
-        // if(index > -1){
-        //     var scrollPos = $(window).scrollTop();
-        //     var table = this.getDOMNode();
-        //     var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
-        //     var tablePos = table.getBoundingClientRect().top;
-        //     var rowPos = tablePos + (index * rowHeight);
-        //     var distanceFromBottom = window.innerHeight - rowPos;
-        //     var distanceFromTop = rowPos - navbarHeight;
-        //     if(keyMap[event.keyCode] == 'k' ||
-        //        keyMap[event.keyCode] == 'up'){
-        //         distance = distanceFromTop;
-        //         scrollTo = scrollPos - rowHeight - 55;
-        //     }else {
-        //         distance = distanceFromBottom;
-        //         scrollTo = scrollPos + rowHeight + 55;
-        //     }
-        // }
-        // if(distance < 50){
-        //     $('html,body').stop(true).animate({scrollTop: scrollTo}, 250);
-        // }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
@@ -211,6 +182,7 @@ var TableBundle = React.createClass({
     },
     focusOnRow: function(rowIndex){
         this.setState({rowFocusIndex: rowIndex});
+        this.props.updateWorksheetSubFocusIndex(rowIndex);
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);

@@ -252,7 +252,6 @@ var BundleDetailSidePanel = React.createClass({
         for (property in metadata){
             if (metadata.hasOwnProperty(property)){
                 keys.push(property);
-                console.log(property);
             }
         }
         keys.sort(); // sorted, lets get them in the proper order
