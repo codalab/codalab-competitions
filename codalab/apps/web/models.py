@@ -367,7 +367,7 @@ class Competition(models.Model):
                         csvwriter.writerow(row)
             except:
                 csvwriter.writerow(["Exception parsing scores!"])
-                logger.error("Error parsing scores for competition PK=%s" % self.competition.pk)
+                logger.error("Error parsing scores for competition PK=%s" % self.pk)
 
             csvwriter.writerow([])
             csvwriter.writerow([])
