@@ -37,6 +37,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
+from apps.coopetitions.models import Like
 from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
@@ -338,8 +339,16 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
-        context['public_submissions'] = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                                    is_public=True)
+        context['public_submissions'] = []
+        public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                         is_public=True).prefetch_related()
+        for submission in public_submissions:
+            # Let's process all public submissions and figure out which ones we've already liked
+            if self.request.user.is_authenticated():
+                if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                    submission.already_liked = True
+            context['public_submissions'].append(submission)
+
         submissions = dict()
         all_submissions = dict()
         try:
@@ -586,10 +595,18 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'name': 'entries'
             }
         ]
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
+        except models.Competition.DoesNotExist:
+            raise Http404()
+
+        if competition.creator != self.request.user and self.request.user not in competition.admins.all():
+            raise Http404()
+
         context['columns'] = columns
         # retrieve participant submissions information
         participant_list = []
-        competition_participants = self.queryset.filter(competition=self.kwargs.get('competition_id'))
+        competition_participants = self.queryset.filter(competition=competition)
         competition_participants_ids = list(participant.id for participant in competition_participants)
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)

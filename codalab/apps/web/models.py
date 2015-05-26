@@ -351,19 +351,23 @@ class Competition(models.Model):
             if sub_headers != ['']:
                 csvwriter.writerow(sub_headers)
 
-            if len(group['scores']) <= 0:
-                csvwriter.writerow(["No data available"])
-            else:
-                for pk, scores in group['scores']:
-                    #print pk, scores
-                    row = [scores['username']] + (['']*(len(ordering) + 1))
-                    for v in scores['values']:
-                        if 'rnk' in v:
-                            # Based on the header label insert the score into the proper column
-                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
-                        else:
-                            row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
-                    csvwriter.writerow(row)
+            try:
+                if len(group['scores']) <= 0:
+                    csvwriter.writerow(["No data available"])
+                else:
+                    for pk, scores in group['scores']:
+                        #print pk, scores
+                        row = [scores['username']] + (['']*(len(ordering) + 1))
+                        for v in scores['values']:
+                            if 'rnk' in v:
+                                # Based on the header label insert the score into the proper column
+                                row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
+                            else:
+                                row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
+                        csvwriter.writerow(row)
+            except:
+                csvwriter.writerow(["Exception parsing scores!"])
+                logger.error("Error parsing scores for competition PK=%s" % self.pk)
 
             csvwriter.writerow([])
             csvwriter.writerow([])
@@ -1010,6 +1014,10 @@ class CompetitionSubmission(models.Model):
             file_type = 'application/zip'
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
         return getattr(self, file_attr), file_type, file_name
+
+    def get_like_count(self):
+        return len(self.likes.all())
+
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
