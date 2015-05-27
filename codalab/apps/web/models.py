@@ -470,6 +470,9 @@ def submission_history_file_name(instance, filename="history.txt"):
 def submission_scores_file_name(instance, filename="scores.txt"):
     return os.path.join(submission_root(instance), filename)
 
+def submission_coopetition_file_name(instance, filename="coopetition.txt"):
+    return os.path.join(submission_root(instance), filename)
+
 def submission_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), filename)
 
@@ -861,6 +864,8 @@ class CompetitionSubmission(models.Model):
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
     execution_key = models.TextField(blank=True, default="")
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100, null=True, blank=True)
@@ -871,6 +876,7 @@ class CompetitionSubmission(models.Model):
     stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
     history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
     scores_file = models.FileField(upload_to=submission_scores_file_name, storage=BundleStorage, null=True, blank=True)
+    coopetition_file = models.FileField(upload_to=submission_coopetition_file_name, storage=BundleStorage, null=True, blank=True)
     detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
     prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
                                           storage=BundleStorage, null=True, blank=True)
@@ -889,6 +895,8 @@ class CompetitionSubmission(models.Model):
     team_name = models.CharField(max_length=64, null=True, blank=True)
 
     is_public = models.BooleanField(default=False)
+    when_made_public = models.DateTimeField(null=True, blank=True)
+    when_unmade_public = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -900,6 +908,17 @@ class CompetitionSubmission(models.Model):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
             raise Exception("Competition for phase and participant must be the same")
+
+        if self.is_public and not self.when_made_public:
+            self.when_made_public = datetime.datetime.utcnow()
+        if not self.is_public and self.when_made_public:
+            self.when_unmade_public = datetime.datetime.utcnow()
+
+        if hasattr(self, 'status'):
+            if self.status.codename == CompetitionSubmissionStatus.RUNNING:
+                self.started_at = datetime.datetime.utcnow()
+            if self.status.codename == CompetitionSubmissionStatus.FINISHED:
+                self.completed_at = datetime.datetime.utcnow()
 
         # only at save on object creation should it be submitted
         if not self.pk:
@@ -1016,7 +1035,7 @@ class CompetitionSubmission(models.Model):
         return getattr(self, file_attr), file_type, file_name
 
     def get_like_count(self):
-        return len(self.likes.all())
+        return self.likes.all().count()
 
 
 class SubmissionResultGroup(models.Model):
