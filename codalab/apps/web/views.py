@@ -719,6 +719,9 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                 request.user != submission.participant.user:
                 raise Http404()
+        else:
+            if competition.has_registration and competition.participants.filter(user=request.user).exists():
+                raise Http404()
 
         filetype = kwargs.get('filetype')
         try:
