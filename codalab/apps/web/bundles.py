@@ -95,7 +95,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                                             uuid,
                                             True,  #fetch_items
                                             True,  # get_permissions
-
                                 )
             except PermissionError:
                 raise UsageError # forces a not found
@@ -117,6 +116,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                                     worksheet_info['items']
                                 )
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
+                # Currently, only certain fields are base64 encoded.
+                import base64
+                for item in worksheet_info['items']:
+                    if item['mode'] in ['html', 'contents']:
+                        item['interpreted'] = map(base64.b64decode, item['interpreted'])
+
                 return worksheet_info
             else:
                 return worksheet_info

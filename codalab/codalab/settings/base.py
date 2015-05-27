@@ -219,6 +219,7 @@ class Base(Settings):
         'apps.health',
         'apps.analytics',
         'apps.forums',
+        'apps.coopetitions',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -230,6 +231,8 @@ class Base(Settings):
         # Search
         'haystack'
     )
+
+    ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
 
     OPTIONAL_APPS = []
     INTERNAL_IPS = []
