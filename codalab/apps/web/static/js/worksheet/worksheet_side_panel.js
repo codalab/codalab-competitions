@@ -142,13 +142,14 @@ var WorksheetDetailSidePanel = React.createClass({
         // helper function for showing all bundles.
         var bundle_push = function(b){
             var b_url =  "/bundles/" + b.uuid;
+            var short_uuid = b.uuid.slice(0,8);
             bundles_table.push(
                 <tr>
                     <td>
                         {b.metadata.name}
                     </td>
                     <td>
-                        <a href={b_url}>{b.uuid}</a>
+                        <a href={b_url}>{short_uuid}</a>
                     </td>
                 </tr>
             );
@@ -199,6 +200,7 @@ var WorksheetDetailSidePanel = React.createClass({
                 <p className="ws-uuid">{worksheet.uuid}</p>
                 <p className="ws-owner">{worksheet.owner}</p>
                 <p className="ws-permissions">Permissions: {permission_str}</p>
+                <hr />
                 {bundles_html}
             </div>
         )

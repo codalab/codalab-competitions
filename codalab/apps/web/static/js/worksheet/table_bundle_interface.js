@@ -50,7 +50,6 @@ var TableBundle = React.createClass({
 
             if(index == rowsInTable){
                 this._owner.setFocus(parentFocusIndex + 1, event);
-                this.props.updateWorksheetSubFocusIndex(0);
             }else {
                 this.focusOnRow(index);
                 this.scrollToRow(index, event);
