@@ -898,6 +898,8 @@ class CompetitionSubmission(models.Model):
     when_made_public = models.DateTimeField(null=True, blank=True)
     when_unmade_public = models.DateTimeField(null=True, blank=True)
 
+    download_counter = models.IntegerField(default=0)
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1024,6 +1026,10 @@ class CompetitionSubmission(models.Model):
         if key == 'private_output.zip':
             if self.participant.competition.creator.id != requested_by.id:
                 raise PermissionDenied()
+
+        if key == 'input.zip':
+            self.download_counter += 1
+            self.save()
 
         if file_ext == 'txt':
             file_type = 'text/plain'

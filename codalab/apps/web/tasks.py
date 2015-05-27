@@ -237,6 +237,7 @@ def score(submission, job_id):
         "when_unmade_public",
         "started_at",
         "completed_at",
+        "download_counter",
     )
     coopetition_dict = submission.phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
         *coopetition_field_names
