@@ -232,6 +232,7 @@ def score(submission, job_id):
     submission.scores_file.save('scores.txt', ContentFile(score_csv))
 
     coopetition_field_names = (
+        "participant__user__username",
         "pk",
         "when_made_public",
         "when_unmade_public",
