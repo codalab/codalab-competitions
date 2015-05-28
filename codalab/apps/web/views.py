@@ -747,8 +747,13 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             # this may hide a true 404 in unexpected circumstances
             return HttpResponse("", status=200, content_type='text/plain')
         except:
-            msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-            return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+            # Let's check to make sure we're in a prediction competition, otherwise let user know
+            if filetype.startswith("predict_") and submission.phase.is_scoring_only:
+                return HttpResponse("This competition is scoring only, prediction data not available",
+                                    content_type='text/plain')
+            else:
+                msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+                return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):
     """
