@@ -1040,8 +1040,14 @@ class CompetitionSubmission(models.Model):
         file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
         return getattr(self, file_attr), file_type, file_name
 
-    def get_like_count(self):
+    def get_overall_like_count(self):
+        return self.get_only_like_count() - self.get_only_dislike_count()
+
+    def get_only_like_count(self):
         return self.likes.all().count()
+
+    def get_only_dislike_count(self):
+        return self.dislikes.all().count()
 
 
 class SubmissionResultGroup(models.Model):

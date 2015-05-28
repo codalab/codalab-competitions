@@ -12,6 +12,19 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
 
+<style>
+    .like, .dislike {
+        cursor: pointer;
+        cursor; hand;
+    }
+    .already-liked {
+        color: green;
+    }
+    .already-disliked {
+        color: red;
+    }
+</style>
+
 
 <div class="competition-view">
     <div class="row">
@@ -196,16 +209,12 @@
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td>{{ submission.description|default_if_none:""|escape }}</td>
                                         <td>
-                                            <button class="like btn btn-default {% if submission.already_liked %}already-liked{% endif %}"
-                                                    submission-pk="{{ submission.pk }}">
-                                                {% if submission.already_liked %}
-                                                    unlike
-                                                {% else %}
-                                                    like
-                                                {% endif %}
-                                            </button>
+                                            <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
+                                               submission-pk="{{ submission.pk }}"></i>
+                                            <i class="glyphicon glyphicon-thumbs-down dislike {% if submission.already_disliked %}already-disliked{% endif %}"
+                                               submission-pk="{{ submission.pk }}"></i>
                                             <span style="margin-top: 20px;">
-                                                <span class="like-count">{{ submission.get_like_count|default:0 }}</span>
+                                                <span class="like-count">{{ submission.get_overall_like_count|default:0 }}</span>
                                                 likes
                                             </span>
                                         </td>
@@ -213,7 +222,8 @@
                                             <button class="view_download_btn btn btn-default"
                                                     data-submission-id="{{ submission.pk }}"
                                                     data-toggle="modal"
-                                                    data-target="#public-submission-modal">
+                                                    data-target="#public-submission-modal"
+                                                    data-download-count="{{ submission.download_counter|default:0 }}">
                                                 View downloads
                                             </button>
                                         </td>
@@ -239,7 +249,7 @@
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
                     {# "1" in these urls gets replaced with the proper ID #}
-                    <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
+                    <li><a href="/my/competition/submission/1/input.zip">Download submission (<span class="download_count"></span> downloads)</a></li>
                     <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
                     <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
                     <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
@@ -302,23 +312,20 @@
             /******************************************************************
             Public submissions
              *****************************************************************/
-            // Liking submissions
-            $(".btn.like").click(function() {
+            // Thumbs up submissions
+            $(".like").click(function() {
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
-                var like_count = parseInt(element.parent().find(".like-count").text());
                 var url = "{% url "coopetitions:like" submission_pk="0" %}";
                 url = url.replace(0, element.attr('submission-pk'));
                 $.get(url)
-                        .success(function(){
+                        .success(function(new_like_count){
+                            element.parent().find(".like-count").text(new_like_count);
                             if(!already_liked) {
-                                element.text("unlike");
                                 element.addClass("already-liked");
-                                element.parent().find(".like-count").text(like_count + 1);
+                                element.parent().find(".dislike").removeClass("already-disliked");
                             } else {
-                                element.text("like");
                                 element.removeClass("already-liked");
-                                element.parent().find(".like-count").text(like_count - 1);
                             }
                         })
                         .error(function() {
@@ -326,11 +333,35 @@
                         });
             });
 
+            $(".dislike").click(function() {
+                var element = $(this);
+                var already_disliked = element.hasClass("already-disliked");
+                var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
+                url = url.replace(0, element.attr('submission-pk'));
+                $.get(url)
+                        .success(function(new_like_count){
+                            element.parent().find(".like-count").text(new_like_count);
+                            if(!already_disliked) {
+                                element.addClass("already-disliked");
+                                element.parent().find(".like").removeClass("already-liked");
+                            } else {
+                                element.removeClass("already-disliked");
+                            }
+                        })
+                        .error(function() {
+                            alert("Could not dislike submission, is your Internet connection working?");
+                        });
+            });
+
             // Handle modal to download public submissions
             $(".view_download_btn").click(function() {
                 var submission_id = $(this).attr('data-submission-id');
+                var download_count = $(this).attr('data-download-count');
                 var regex = /\/my\/competition\/submission\/\d+\//g;
                 var download_list = $('#public-submission-modal .download-list');
+
+                // Replace download count
+                $("#public-submission-modal .download_count").text(download_count);
 
                 // Replace id in links with new submission id
                 download_list.html(download_list.html().replace(regex, '/my/competition/submission/' + submission_id + '/'));

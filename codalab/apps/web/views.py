@@ -37,7 +37,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
-from apps.coopetitions.models import Like
+from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
@@ -347,6 +347,8 @@ class CompetitionDetailView(DetailView):
             if self.request.user.is_authenticated():
                 if Like.objects.filter(submission=submission, user=self.request.user).exists():
                     submission.already_liked = True
+                if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+                    submission.already_disliked = True
             context['public_submissions'].append(submission)
 
         submissions = dict()
@@ -720,7 +722,7 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
                 request.user != submission.participant.user:
                 raise Http404()
         else:
-            if competition.has_registration and competition.participants.filter(user=request.user).exists():
+            if competition.has_registration and not competition.participants.filter(user=request.user).exists():
                 raise Http404()
 
         filetype = kwargs.get('filetype')
