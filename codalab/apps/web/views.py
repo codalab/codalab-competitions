@@ -37,7 +37,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
-from apps.coopetitions.models import Like
+from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
@@ -347,6 +347,8 @@ class CompetitionDetailView(DetailView):
             if self.request.user.is_authenticated():
                 if Like.objects.filter(submission=submission, user=self.request.user).exists():
                     submission.already_liked = True
+                if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+                    submission.already_disliked = True
             context['public_submissions'].append(submission)
 
         submissions = dict()
@@ -719,6 +721,9 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                 request.user != submission.participant.user:
                 raise Http404()
+        else:
+            if competition.has_registration and not competition.participants.filter(user=request.user).exists():
+                raise Http404()
 
         filetype = kwargs.get('filetype')
         try:
@@ -742,8 +747,13 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             # this may hide a true 404 in unexpected circumstances
             return HttpResponse("", status=200, content_type='text/plain')
         except:
-            msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-            return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+            # Let's check to make sure we're in a prediction competition, otherwise let user know
+            if filetype.startswith("predict_") and submission.phase.is_scoring_only:
+                return HttpResponse("This competition is scoring only, prediction data not available",
+                                    content_type='text/plain')
+            else:
+                msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+                return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):
     """

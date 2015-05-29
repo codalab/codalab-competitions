@@ -7436,6 +7436,18 @@ input[type="checkbox"] {
     padding-top: 4px;
   }
 }
+/* Competition detail page */
+.like,
+.dislike {
+  cursor: pointer;
+  cursor: hand;
+}
+.already-liked {
+  color: green;
+}
+.already-disliked {
+  color: red;
+}
 #worksheet-message {
   padding: 20px 0;
 }
