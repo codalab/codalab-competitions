@@ -80,6 +80,8 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.assertEquals(resp.content, self.submission_1.stdout_file.read())
 
     def test_submission_download_public_requires_participation_access(self):
+        self.submission_1.is_public = True
+        self.submission_1.save()
         self.competition.has_registration = True
         self.competition.save()
 
@@ -91,7 +93,6 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="other_participant", password="pass")
         resp = self.client.get(self.url)
         self.assertEquals(resp.status_code, 200)
-        self.client.logout()
 
     def test_submission_download_public_without_registration_allows_access(self):
         self.competition.has_registration = False
