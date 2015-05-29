@@ -1,10 +1,11 @@
 """
 Defines background tasks needed by the web site.
 """
+import csv
 import io
 import json
 import logging
-import yaml
+import StringIO
 
 from urllib import pathname2url
 from zipfile import ZipFile
@@ -12,6 +13,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
+from django.db.models import Count
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
@@ -32,6 +34,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stderr_filename,
                              submission_history_file_name,
                              submission_scores_file_name,
+                             submission_coopetition_file_name,
                              predict_submission_stdout_filename,
                              predict_submission_stderr_filename,
                              SubmissionScore,
@@ -224,7 +227,32 @@ def score(submission, job_id):
         pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
-    submission.scores_file.save('scores.txt', ContentFile(submission.phase.competition.get_results_csv(submission.phase.pk)))
+
+    score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
+    submission.scores_file.save('scores.txt', ContentFile(score_csv))
+
+    coopetition_field_names = (
+        "participant__user__username",
+        "pk",
+        "when_made_public",
+        "when_unmade_public",
+        "started_at",
+        "completed_at",
+        "download_count",
+    )
+    coopetition_dict = submission.phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
+        *coopetition_field_names
+    ).annotate(like_count=Count("likes"))
+
+    # Add this after fetching annotated count from db
+    coopetition_field_names += ("like_count",)
+
+    coopetition_csv = StringIO.StringIO()
+    writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
+    writer.writeheader()
+    for row in coopetition_dict:
+        writer.writerow(row)
+    submission.coopetition_file.save('coopetition.txt', ContentFile(coopetition_csv.getvalue()))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
@@ -242,6 +270,7 @@ def score(submission, job_id):
 
     lines.append("history: %s" % submission_history_file_name(submission))
     lines.append("scores: %s" % submission_scores_file_name(submission))
+    lines.append("coopetition: %s" % submission_coopetition_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
