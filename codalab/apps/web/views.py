@@ -84,13 +84,12 @@ def my_index(request):
     except:
         denied = -1
 
-    competitions_owner = models.Competition.objects.filter(creator=request.user)
-    competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk')
     published_competitions = models.Competition.objects.filter(published=True)
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date()))
     context = RequestContext(request, {
-        'my_competitions' : competitions_owner | competitions_admin,
-        'competitions_im_in' : request.user.participation.all().exclude(status=denied),
+        'my_competitions': my_competitions,
+        'competitions_im_in': request.user.participation.all().exclude(status=denied),
         'published_competitions': published_competitions,
         'my_datasets': models.OrganizerDataSet.objects.filter()
         })
