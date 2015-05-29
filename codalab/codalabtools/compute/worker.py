@@ -265,12 +265,8 @@ def get_run_func(config):
                 stdout_file_name = 'stdout.txt'
                 stderr_file_name = 'stderr.txt'
 
-            stdout_file = join(run_dir, stdout_file_name)
-            stderr_file = join(run_dir, stderr_file_name)
-            stdout = open(stdout_file, "a+")
-            stderr = open(stderr_file, "a+")
-            # stdout_buffer = ''
-            # stderr_buffer = ''
+            stdout = open(join(run_dir, stdout_file_name), "a+")
+            stderr = open(join(run_dir, stderr_file_name), "a+")
             prog_status = []
 
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
@@ -289,9 +285,6 @@ def get_run_func(config):
                 timed_out = False
 
                 evaluator_process = Popen(prog_cmd.split(' '), stdout=stdout, stderr=stderr, env=os.environ)
-                #
-                # async_process.make_async(evaluator_process.stdout)
-                # async_process.make_async(evaluator_process.stderr)
 
                 logger.debug("Started process, pid=%s" % evaluator_process.pid)
 
@@ -306,11 +299,6 @@ def get_run_func(config):
                 try:
                     print "doing the try "
                     while exit_code == None:
-                        #print evaluator_process.communicate()
-                        # new_stdout = async_process.read_async(evaluator_process.stdout)
-                        # new_stderr = async_process.read_async(evaluator_process.stderr)
-                        # stdout_buffer += new_stdout
-                        # stderr_buffer += new_stderr
                         time.sleep(1)
                         exit_code = evaluator_process.poll()
                 except (ValueError, OSError):
@@ -323,8 +311,6 @@ def get_run_func(config):
                     timed_out = True
 
                 signal.alarm(0)
-                # stdout.write("test")
-                # stderr.write(stderr_buffer)
 
                 logger.debug("Exit Code: %d", exit_code)
 
