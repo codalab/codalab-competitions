@@ -17,8 +17,12 @@ def like(request, submission_pk):
     try:
         like = Like.objects.get(submission=submission, user=request.user)
         like.delete()
+        submission.like_count -= 1
+        submission.save()
     except Like.DoesNotExist:
         Like.objects.create(submission=submission, user=request.user)
+        submission.like_count += 1
+        submission.save()
         # Remove dislike object if it exists, we should only be able to dislike OR like not both
         try:
             dislike = Dislike.objects.get(submission=submission, user=request.user)
@@ -40,8 +44,12 @@ def dislike(request, submission_pk):
     try:
         dislike = Dislike.objects.get(submission=submission, user=request.user)
         dislike.delete()
+        submission.dislike_count -= 1
+        submission.save()
     except Dislike.DoesNotExist:
         Dislike.objects.create(submission=submission, user=request.user)
+        submission.dislike_count += 1
+        submission.save()
         # Remove like object if it exists, we should only be able to dislike OR like not both
         try:
             like = Like.objects.get(submission=submission, user=request.user)

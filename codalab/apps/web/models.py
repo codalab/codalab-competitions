@@ -898,7 +898,10 @@ class CompetitionSubmission(models.Model):
     when_made_public = models.DateTimeField(null=True, blank=True)
     when_unmade_public = models.DateTimeField(null=True, blank=True)
 
-    download_counter = models.IntegerField(default=0)
+    download_count = models.IntegerField(default=0)
+
+    like_count = models.IntegerField(default=0)
+    dislike_count = models.IntegerField(default=0)
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
@@ -1028,7 +1031,7 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied()
 
         if key == 'input.zip':
-            self.download_counter += 1
+            self.download_count += 1
             self.save()
 
         if file_ext == 'txt':
@@ -1041,13 +1044,7 @@ class CompetitionSubmission(models.Model):
         return getattr(self, file_attr), file_type, file_name
 
     def get_overall_like_count(self):
-        return self.get_only_like_count() - self.get_only_dislike_count()
-
-    def get_only_like_count(self):
-        return self.likes.all().count()
-
-    def get_only_dislike_count(self):
-        return self.dislikes.all().count()
+        return self.like_count - self.dislike_count
 
 
 class SubmissionResultGroup(models.Model):
