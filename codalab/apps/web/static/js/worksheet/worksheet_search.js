@@ -19,16 +19,29 @@ var WorksheetSearch = React.createClass({
                 console.log("******* PARSE AND RUN *********");
                 if (command == 'test') {
                     term.echo("you just typed 'test'");
-                } else {
-                    try {
-                        var result = window.eval(command);
-                        if (result !== undefined) {
-                            term.echo(new String(result));
-                        }
-                    } catch(e) {
-                        term.error(new String(e));
-                    }
                 }
+                if(command == 'html'){
+                    term.echo("<h1>DONE</h1>", {raw:true});
+                }
+                if(command == 'time'){
+                    term.pause()
+                    setTimeout(function(){
+                        term.resume();
+                        term.echo("<h3>response</h3>", {raw:true});
+                    }, 3000);
+
+
+                }
+                // else {
+                //     try {
+                //         var result = window.eval(command);
+                //         if (result !== undefined) {
+                //             term.echo(new String(result));
+                //         }
+                //     } catch(e) {
+                //         term.error(new String(e));
+                //     }
+                // }
             },
             // 2nd is helpers and options. Take note of completion
             {
@@ -41,6 +54,18 @@ var WorksheetSearch = React.createClass({
                     if(event.keyCode == 27){ //esc
                         terminal.focus(false);
                     }
+                    if (event.keyCode == 9){ //Tab
+                        // TODO handle auto-completion logic
+                        term.echo("autocompletion commands...");
+                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
+                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
+                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
+                        term.set_command(term.get_command() + " contorl auto completion");
+
+                        // Tells the terminal to not handle the tab key
+                        return false;
+                    }
+
                 },
                 onBlur: function(term){
                     term.resize(term.width(), 45);
@@ -50,43 +75,43 @@ var WorksheetSearch = React.createClass({
                     term.resize(term.width(), 150);
                     self.props.handleFocus();
                 },
-                completion: function (term, string, callback){
-                    console.log('completion')
-                    console.log(string);
-                    console.log(term.get_command());
-                    var args = term.get_command().split(' ')
-                    var last = args[args.length-2];
-                    console.log(args);
-                    console.log(last);
-                    console.log('-------------------');
-                    var hints = ['test', 'whatever']
-                    if(last == "info"){
-                        hints = [
-                            '0x4d2d43753ede4c819df3584cc64944b1|pugbug.png|francis',
-                            '0x8cd3d83b83f44c6e848f6e5ae1a8079f|sort.py|francis',
-                            '0xf4128f189a0c43af9e3afa7bd731c6c6|mlcomp.py|percy',
-                            '0x8680a5b13478402ca063706d2de35f25|some_data_set|erick',
-                            '0xc1757edeb84144ee9697ebbe90d422a5|anotherprogram|francis',
-                            '0xG4d2d43753ede4c819df3584cc64944b1|pugbug.png|francis',
-                            '0xG8cd3d83b83f44c6e848f6e5ae1a8079f|sort.py|francis',
-                            '0xGf4128f189a0c43af9e3afa7bd731c6c6|mlcomp.py|percy',
-                            '0xG8680a5b13478402ca063706d2de35f25|some_data_set|erick',
-                            '0xGc1757edeb84144ee9697ebbe90d422a5|anotherprogram|francis',
-                        ];
-                    }
-                    callback(hints);
-                    // no to clean up if we selected something
-                    var new_args = term.get_command().split(' ')
-                    var new_last = new_args[new_args.length-2];
-                    if(new_last == last){
-                        // nothing to do
-                    }else{
-                        //clean up and replace it
-                        new_last = new_last.split('|')[0]
-                        new_args[new_args.length-2] = new_last
-                        term.set_command(new_args.join(' '));
-                    }
-                },
+                // completion: function (term, string, callback){
+                //     console.log('completion')
+                //     console.log(string);
+                //     console.log(term.get_command());
+                //     var args = term.get_command().split(' ')
+                //     var last = args[args.length-2];
+                //     console.log(args);
+                //     console.log(last);
+                //     console.log('-------------------');
+                //     var hints = ['test', 'whatever']
+                //     if(last == "info"){
+                //         hints = [
+                //             '0x4d2d43753ede4c819df3584cc64944b1|pugbug.png|francis',
+                //             '0x8cd3d83b83f44c6e848f6e5ae1a8079f|sort.py|francis',
+                //             '0xf4128f189a0c43af9e3afa7bd731c6c6|mlcomp.py|percy',
+                //             '<h1>0x8680a5b13478402ca063706d2de35f25|some_data_set|erick</h1>',
+                //             '0xc1757edeb84144ee9697ebbe90d422a5|anotherprogram|francis',
+                //             '0xG4d2d43753ede4c819df3584cc64944b1|pugbug.png|francis',
+                //             '0xG8cd3d83b83f44c6e848f6e5ae1a8079f|sort.py|francis',
+                //             '0xGf4128f189a0c43af9e3afa7bd731c6c6|mlcomp.py|percy',
+                //             '0xG8680a5b13478402ca063706d2de35f25|some_data_set|erick',
+                //             '0xGc1757edeb84144ee9697ebbe90d422a5|anotherprogram|francis',
+                //         ];
+                //     }
+                //     callback(hints);
+                //     // no to clean up if we selected something
+                //     var new_args = term.get_command().split(' ')
+                //     var new_last = new_args[new_args.length-2];
+                //     if(new_last == last){
+                //         // nothing to do
+                //     }else{
+                //         //clean up and replace it
+                //         new_last = new_last.split('|')[0]
+                //         new_args[new_args.length-2] = new_last
+                //         term.set_command(new_args.join(' '));
+                //     }
+                // },
             }
         );
         //turn off focus by default
