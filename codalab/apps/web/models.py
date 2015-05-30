@@ -925,6 +925,9 @@ class CompetitionSubmission(models.Model):
             if self.status.codename == CompetitionSubmissionStatus.FINISHED:
                 self.completed_at = datetime.datetime.utcnow()
 
+        self.like_count = self.likes.all().count()
+        self.dislike_count = self.dislikes.all().count()
+
         # only at save on object creation should it be submitted
         if not self.pk:
             if not ignore_submission_limits:

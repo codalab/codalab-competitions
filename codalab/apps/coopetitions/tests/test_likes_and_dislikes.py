@@ -84,3 +84,14 @@ class CoopetitionsLikeDislikeTests(TestCase):
         self.client.get(self.dislike_url)
         self.submission = CompetitionSubmission.objects.get(pk=self.submission.pk)
         self.assertEquals(self.submission.dislike_count, 0)
+
+    def test_like_or_dislike_quickly_maintains_proper_score_count(self):
+        self.client.get(self.dislike_url)
+        self.client.get(self.like_url)
+        self.client.get(self.like_url)
+        self.client.get(self.dislike_url)
+        self.client.get(self.like_url)
+        self.client.get(self.dislike_url)
+        self.submission = CompetitionSubmission.objects.get(pk=self.submission.pk)
+        self.assertEquals(self.submission.dislike_count, 1)
+        self.assertEquals(self.submission.like_count, 0)
