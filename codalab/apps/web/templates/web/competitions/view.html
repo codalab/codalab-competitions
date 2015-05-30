@@ -196,9 +196,11 @@
                                         <td>{{ submission.description|default_if_none:""|escape }}</td>
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
-                                               submission-pk="{{ submission.pk }}"></i>
+                                               submission-pk="{{ submission.pk }}"
+                                               original-count="{{ submission.get_overall_like_count|default:0 }}"></i>
                                             <i class="glyphicon glyphicon-thumbs-down dislike {% if submission.already_disliked %}already-disliked{% endif %}"
-                                               submission-pk="{{ submission.pk }}"></i>
+                                               submission-pk="{{ submission.pk }}"
+                                               original-count="{{ submission.get_overall_like_count|default:0 }}"></i>
                                             <span style="margin-top: 20px;">
                                                 <span class="like-count">{{ submission.get_overall_like_count|default:0 }}</span>
                                                 likes
@@ -303,17 +305,18 @@
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
                 var url = "{% url "coopetitions:like" submission_pk="0" %}";
+                var original_like_count = parseInt(element.parent().find(".like-count").text());
+                if(!already_liked) {
+                    element.parent().find(".like-count").text(original_like_count + 1);
+                    element.addClass("already-liked");
+                    element.parent().find(".dislike").removeClass("already-disliked");
+                } else {
+                    element.parent().find(".like-count").text(original_like_count - 1);
+                    element.removeClass("already-liked");
+                }
+
                 url = url.replace(0, element.attr('submission-pk'));
                 $.get(url)
-                        .success(function(new_like_count){
-                            element.parent().find(".like-count").text(new_like_count);
-                            if(!already_liked) {
-                                element.addClass("already-liked");
-                                element.parent().find(".dislike").removeClass("already-disliked");
-                            } else {
-                                element.removeClass("already-liked");
-                            }
-                        })
                         .error(function() {
                             alert("Could not like submission, is your Internet connection working?");
                         });
@@ -323,17 +326,17 @@
                 var element = $(this);
                 var already_disliked = element.hasClass("already-disliked");
                 var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
+                var original_like_count = parseInt(element.parent().find(".like-count").text());
+                if(!already_disliked) {
+                    element.parent().find(".like-count").text(original_like_count - 1);
+                    element.addClass("already-disliked");
+                    element.parent().find(".like").removeClass("already-liked");
+                } else {
+                    element.parent().find(".like-count").text(original_like_count + 1);
+                    element.removeClass("already-disliked");
+                }
                 url = url.replace(0, element.attr('submission-pk'));
                 $.get(url)
-                        .success(function(new_like_count){
-                            element.parent().find(".like-count").text(new_like_count);
-                            if(!already_disliked) {
-                                element.addClass("already-disliked");
-                                element.parent().find(".like").removeClass("already-liked");
-                            } else {
-                                element.removeClass("already-disliked");
-                            }
-                        })
                         .error(function() {
                             alert("Could not dislike submission, is your Internet connection working?");
                         });
