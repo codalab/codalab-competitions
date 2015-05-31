@@ -197,12 +197,15 @@
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
-                                               original-count="{{ submission.get_overall_like_count|default:0 }}"></i>
+                                               was-initially-liked="{% if submission.already_liked %}1{% endif %}"></i>
                                             <i class="glyphicon glyphicon-thumbs-down dislike {% if submission.already_disliked %}already-disliked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
-                                               original-count="{{ submission.get_overall_like_count|default:0 }}"></i>
+                                               was-initially-disliked="{% if submission.already_disliked %}1{% endif %}"></i>
                                             <span style="margin-top: 20px;">
-                                                <span class="like-count">{{ submission.get_overall_like_count|default:0 }}</span>
+                                                <span class="like-count"
+                                                      original-count="{{ submission.get_overall_like_count|default:0 }}{% if submission.already_disliked %}+1{% endif %}{% if submission.already_liked %}-1{% endif %}">
+                                                    {{ submission.get_overall_like_count|default:0 }}
+                                                </span>
                                                 likes
                                             </span>
                                         </td>
@@ -305,13 +308,25 @@
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
                 var url = "{% url "coopetitions:like" submission_pk="0" %}";
-                var original_like_count = parseInt(element.attr('original-count'));
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_liked = element.attr('was-initially-liked') == '1';
+
+                if(was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                } else if (!was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
                 if(!already_liked) {
-                    element.parent().find(".like-count").text(original_like_count + 1);
                     element.addClass("already-liked");
                     element.parent().find(".dislike").removeClass("already-disliked");
                 } else {
-                    element.parent().find(".like-count").text(original_like_count - 1);
                     element.removeClass("already-liked");
                 }
 
@@ -326,13 +341,25 @@
                 var element = $(this);
                 var already_disliked = element.hasClass("already-disliked");
                 var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
-                var original_like_count = parseInt(element.attr('original-count'));
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_disliked = element.attr('was-initially-disliked') == '1';
+
+                if(was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                } else if (!was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
                 if(!already_disliked) {
-                    element.parent().find(".like-count").text(original_like_count - 1);
                     element.addClass("already-disliked");
                     element.parent().find(".like").removeClass("already-liked");
                 } else {
-                    element.parent().find(".like-count").text(original_like_count + 1);
                     element.removeClass("already-disliked");
                 }
                 url = url.replace(0, element.attr('submission-pk'));
