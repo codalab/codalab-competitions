@@ -305,7 +305,7 @@
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
                 var url = "{% url "coopetitions:like" submission_pk="0" %}";
-                var original_like_count = parseInt(element.parent().find(".like-count").text());
+                var original_like_count = parseInt(element.attr('original-count'));
                 if(!already_liked) {
                     element.parent().find(".like-count").text(original_like_count + 1);
                     element.addClass("already-liked");
@@ -326,7 +326,7 @@
                 var element = $(this);
                 var already_disliked = element.hasClass("already-disliked");
                 var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
-                var original_like_count = parseInt(element.parent().find(".like-count").text());
+                var original_like_count = parseInt(element.attr('original-count'));
                 if(!already_disliked) {
                     element.parent().find(".like-count").text(original_like_count - 1);
                     element.addClass("already-disliked");
