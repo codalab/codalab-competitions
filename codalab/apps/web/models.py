@@ -470,7 +470,7 @@ def submission_history_file_name(instance, filename="history.txt"):
 def submission_scores_file_name(instance, filename="scores.txt"):
     return os.path.join(submission_root(instance), filename)
 
-def submission_coopetition_file_name(instance, filename="coopetition.txt"):
+def submission_coopetition_file_name(instance, filename="coopetition.zip"):
     return os.path.join(submission_root(instance), filename)
 
 def submission_runfile_name(instance, filename="run.txt"):

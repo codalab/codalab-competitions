@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import StringIO
+import zipfile
 
 from urllib import pathname2url
 from zipfile import ZipFile
@@ -231,28 +232,37 @@ def score(submission, job_id):
     score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
     submission.scores_file.save('scores.txt', ContentFile(score_csv))
 
-    coopetition_field_names = (
-        "participant__user__username",
-        "pk",
-        "when_made_public",
-        "when_unmade_public",
-        "started_at",
-        "completed_at",
-        "download_count",
-    )
-    coopetition_dict = submission.phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
-        *coopetition_field_names
-    ).annotate(like_count=Count("likes"))
+    coopetition_zip_buffer = StringIO.StringIO()
+    coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
 
-    # Add this after fetching annotated count from db
-    coopetition_field_names += ("like_count",)
+    for phase in submission.phase.competition.phases.all():
+        coopetition_field_names = (
+            "participant__user__username",
+            "pk",
+            "when_made_public",
+            "when_unmade_public",
+            "started_at",
+            "completed_at",
+            "download_count",
+            "submission_number",
+        )
+        coopetition_dict = phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
+            *coopetition_field_names
+        ).annotate(like_count=Count("likes"), dislike_count=Count("dislikes"))
 
-    coopetition_csv = StringIO.StringIO()
-    writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
-    writer.writeheader()
-    for row in coopetition_dict:
-        writer.writerow(row)
-    submission.coopetition_file.save('coopetition.txt', ContentFile(coopetition_csv.getvalue()))
+        # Add this after fetching annotated count from db
+        coopetition_field_names += ("like_count", "dislike_count")
+
+        coopetition_csv = StringIO.StringIO()
+        writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
+        writer.writeheader()
+        for row in coopetition_dict:
+            writer.writerow(row)
+
+        coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue())
+
+    coopetition_zip_file.close()
+    submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
