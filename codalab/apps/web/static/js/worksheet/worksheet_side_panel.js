@@ -95,6 +95,7 @@ var WorksheetSidePanel = React.createClass({
         switch (this.focustype) {
             case 'worksheet':
                 side_panel_details = <WorksheetDetailSidePanel
+                                        key={'ws' + this.props.focusIndex}
                                         item={current_focus}
                                         ref="worksheet_info_side_panel"
                                     />
@@ -224,7 +225,7 @@ var BundleDetailSidePanel = React.createClass({
         }else{ // content/images/ect. are not
             bundle_info = item.bundle_info;
         }
-        // provide defaults or sane checks
+
         bundle_info.host_worksheets   = bundle_info.host_worksheets || [];
         bundle_info.dependencies      = bundle_info.dependencies || [];
         bundle_info.group_permissions = bundle_info.group_permissions || [];

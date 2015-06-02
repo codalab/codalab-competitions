@@ -392,7 +392,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
             break;
         case 'table':
             return <TableBundle
-                        key={i}
+                        key={'tb'+i}
                         index={i}
                         item={item}
                         ref={ref}
