@@ -8,25 +8,25 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Like'
-        db.create_table(u'coopetitions_like', (
+        # Adding model 'Dislike'
+        db.create_table(u'coopetitions_dislike', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.CompetitionSubmission'])),
+            ('submission', self.gf('django.db.models.fields.related.ForeignKey')(related_name='dislikes', to=orm['web.CompetitionSubmission'])),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['authenz.ClUser'])),
             ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
-        db.send_create_signal(u'coopetitions', ['Like'])
+        db.send_create_signal(u'coopetitions', ['Dislike'])
 
-        # Adding unique constraint on 'Like', fields ['submission', 'user']
-        db.create_unique(u'coopetitions_like', ['submission_id', 'user_id'])
+        # Adding unique constraint on 'Dislike', fields ['submission', 'user']
+        db.create_unique(u'coopetitions_dislike', ['submission_id', 'user_id'])
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Like', fields ['submission', 'user']
-        db.delete_unique(u'coopetitions_like', ['submission_id', 'user_id'])
+        # Removing unique constraint on 'Dislike', fields ['submission', 'user']
+        db.delete_unique(u'coopetitions_dislike', ['submission_id', 'user_id'])
 
-        # Deleting model 'Like'
-        db.delete_table(u'coopetitions_like')
+        # Deleting model 'Dislike'
+        db.delete_table(u'coopetitions_dislike')
 
 
     models = {
@@ -78,10 +78,17 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'coopetitions.dislike': {
+            'Meta': {'unique_together': "(('submission', 'user'),)", 'object_name': 'Dislike'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'submission': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'dislikes'", 'to': u"orm['web.CompetitionSubmission']"}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"})
+        },
         u'coopetitions.like': {
             'Meta': {'unique_together': "(('submission', 'user'),)", 'object_name': 'Like'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'submission': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.CompetitionSubmission']"}),
+            'submission': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'likes'", 'to': u"orm['web.CompetitionSubmission']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"})
         },
@@ -150,8 +157,12 @@ class Migration(SchemaMigration):
         u'web.competitionsubmission': {
             'Meta': {'unique_together': "(('submission_number', 'phase', 'participant'),)", 'object_name': 'CompetitionSubmission'},
             'bibtex': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'completed_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'coopetition_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'}),
             'detailed_results_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'dislike_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'download_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'exception_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'execution_key': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             'file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
@@ -160,6 +171,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'inputfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'like_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'method_description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'method_name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'organization_or_affiliation': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -175,13 +187,16 @@ class Migration(SchemaMigration):
             'publication_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'runfile': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'scores_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'started_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.CompetitionSubmissionStatus']"}),
             'status_details': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'stderr_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'stdout_file': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'submission_number': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'submitted_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'team_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'})
+            'team_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'when_made_public': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'when_unmade_public': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
         },
         u'web.competitionsubmissionstatus': {
             'Meta': {'object_name': 'CompetitionSubmissionStatus'},
