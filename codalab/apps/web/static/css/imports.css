@@ -4962,7 +4962,7 @@ a.list-group-item-danger.active:focus {
 }
 .panel {
   margin-bottom: 25px;
-  background-color: #ffffff;
+  background-color: #fbfbfb;
   border: 1px solid transparent;
   border-radius: 0;
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -6412,6 +6412,10 @@ fieldset[disabled] .btn-secondary.active {
 .ws-search:focus {
   background: white;
 }
+.worksheet-icon-sm {
+  background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+  padding-left: 50px;
+}
 .worksheet-icon {
   text-indent: 75px;
   background: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
@@ -7436,10 +7440,73 @@ input[type="checkbox"] {
     padding-top: 4px;
   }
 }
+/* Competition detail page */
+.like,
+.dislike {
+  cursor: pointer;
+  cursor: hand;
+}
+.already-liked {
+  color: green;
+}
+.already-disliked {
+  color: red;
+}
 .panel-frame {
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
+}
+.panel-text-overflow {
+  max-width: 100%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+.bundle-state {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: #ffffff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+a.bundle-state:hover,
+a.bundle-state:focus {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bundle-state:empty {
+  display: none;
+}
+.btn .bundle-state {
+  position: relative;
+  top: -1px;
+}
+.bundle-state.state-ready {
+  background-color: #92d053;
+}
+.bundle-state.state-ready[href]:hover,
+.bundle-state.state-ready[href]:focus {
+  background-color: #79bc34;
+}
+.bundle-state.state-running {
+  background-color: #fa963f;
+}
+.bundle-state.state-running[href]:hover,
+.bundle-state.state-running[href]:focus {
+  background-color: #f97b0d;
+}
+.bundle-state.state-failed {
+  background-color: #d9534f;
+}
+.bundle-state.state-failed[href]:hover,
+.bundle-state.state-failed[href]:focus {
+  background-color: #c9302c;
 }
 html,
 body,
@@ -7536,15 +7603,73 @@ body,
   height: 100%;
   overflow: auto;
   padding: 0 15px;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 #worksheet .ws-panel #panel_content {
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
 }
-#worksheet .ws-panel #panel_content h3:first-child {
-  margin-top: 0;
+#worksheet .ws-panel #panel_content .ws-uuid {
+  max-width: 100%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+#worksheet .ws-panel #panel_content .bundle-description {
+  font-size: 90%;
+  margin-bottom: 10px;
+}
+#worksheet .ws-panel #panel_content h3 {
+  margin-top: 12.5px;
+  margin-bottom: 6.25px;
+  font-size: 24px;
+  line-height: 1.1em;
+}
+#worksheet .ws-panel #panel_content h3.bundle-name {
+  background: url('/static/img/icon_bundle_sm.png') no-repeat 5px 10px;
+  padding-left: 50px;
+  padding-left: 30px;
+  background-size: 20px;
+  background-position: 0 7px;
+}
+#worksheet .ws-panel #panel_content h3.ws-name {
+  background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
+  padding-left: 50px;
+  padding-left: 30px;
+  background-size: 20px;
+  background-position: 0 7px;
+}
+#worksheet .ws-panel #panel_content h4 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+#worksheet .ws-panel #panel_content .bundle-links {
+  position: relative;
+}
+#worksheet .ws-panel #panel_content .bundle-links .bundle-link {
+  max-width: 100%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  line-height: 29px;
+  font-size: 16px;
+  display: inline-block;
+  padding-right: 40px;
+}
+#worksheet .ws-panel #panel_content .bundle-links .bundle-download {
+  position: absolute;
+  right: 0;
+  z-index: 1;
+}
+#worksheet .ws-panel #panel_content .bundle-meta {
+  font-size: 80%;
+  margin-bottom: 5px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta th,
+#worksheet .ws-panel #panel_content .bundle-meta td {
+  border-top: none;
+}
+#worksheet .ws-panel #panel_content .bundle-meta .bundle-state {
+  font-size: 80%;
 }
 #worksheet_content {
   margin-top: 12px;
@@ -8276,6 +8401,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 .progress-message#update_progress {
   top: 63px;
+  left: 40px;
+  right: auto;
 }
 .progress-message#save_error i {
   font-size: 18px;
@@ -8493,74 +8620,176 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 #bundle-content .bundle-tile h3 .btn {
   margin-left: 6px;
 }
-#bundle-content .bundle-tile .metadata-table {
-  margin-bottom: 24px;
-}
-#bundle-content .bundle-tile .metadata-table table {
+#bundle-content .bundle-tile table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 25px;
   border: 1px solid #dddddd;
   margin-bottom: 0;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .metadata-table table > thead > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > td {
+#bundle-content .bundle-tile table > thead > tr > th,
+#bundle-content .bundle-tile table > tbody > tr > th,
+#bundle-content .bundle-tile table > tfoot > tr > th,
+#bundle-content .bundle-tile table > thead > tr > td,
+#bundle-content .bundle-tile table > tbody > tr > td,
+#bundle-content .bundle-tile table > tfoot > tr > td {
   padding: 4px 6px;
   line-height: 1.6;
   vertical-align: top;
   border-top: 1px solid #dddddd;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th {
+#bundle-content .bundle-tile table > thead > tr > th {
   vertical-align: bottom;
   border-bottom: 2px solid #dddddd;
 }
-#bundle-content .bundle-tile .metadata-table table > caption + thead > tr:first-child > th,
-#bundle-content .bundle-tile .metadata-table table > colgroup + thead > tr:first-child > th,
-#bundle-content .bundle-tile .metadata-table table > thead:first-child > tr:first-child > th,
-#bundle-content .bundle-tile .metadata-table table > caption + thead > tr:first-child > td,
-#bundle-content .bundle-tile .metadata-table table > colgroup + thead > tr:first-child > td,
-#bundle-content .bundle-tile .metadata-table table > thead:first-child > tr:first-child > td {
+#bundle-content .bundle-tile table > caption + thead > tr:first-child > th,
+#bundle-content .bundle-tile table > colgroup + thead > tr:first-child > th,
+#bundle-content .bundle-tile table > thead:first-child > tr:first-child > th,
+#bundle-content .bundle-tile table > caption + thead > tr:first-child > td,
+#bundle-content .bundle-tile table > colgroup + thead > tr:first-child > td,
+#bundle-content .bundle-tile table > thead:first-child > tr:first-child > td {
   border-top: 0;
 }
-#bundle-content .bundle-tile .metadata-table table > tbody + tbody {
+#bundle-content .bundle-tile table > tbody + tbody {
   border-top: 2px solid #dddddd;
 }
-#bundle-content .bundle-tile .metadata-table table .table {
+#bundle-content .bundle-tile table .table {
   background-color: #f7f7f7;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .metadata-table table > thead > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > td {
+#bundle-content .bundle-tile table > thead > tr > th,
+#bundle-content .bundle-tile table > tbody > tr > th,
+#bundle-content .bundle-tile table > tfoot > tr > th,
+#bundle-content .bundle-tile table > thead > tr > td,
+#bundle-content .bundle-tile table > tbody > tr > td,
+#bundle-content .bundle-tile table > tfoot > tr > td {
   line-height: 1.34;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th a .glyphicon,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > th a .glyphicon,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > th a .glyphicon {
+#bundle-content .bundle-tile table > thead > tr > th a .glyphicon,
+#bundle-content .bundle-tile table > tbody > tr > th a .glyphicon,
+#bundle-content .bundle-tile table > tfoot > tr > th a .glyphicon {
   font-size: 14px;
   padding-top: 3px;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > th,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .metadata-table table > thead > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr > td,
-#bundle-content .bundle-tile .metadata-table table > tfoot > tr > td {
+#bundle-content .bundle-tile table > thead > tr > th,
+#bundle-content .bundle-tile table > tbody > tr > th,
+#bundle-content .bundle-tile table > tfoot > tr > th,
+#bundle-content .bundle-tile table > thead > tr > td,
+#bundle-content .bundle-tile table > tbody > tr > td,
+#bundle-content .bundle-tile table > tfoot > tr > td {
   border: 1px solid #dddddd;
 }
-#bundle-content .bundle-tile .metadata-table table > thead > tr > th,
-#bundle-content .bundle-tile .metadata-table table > thead > tr > td {
+#bundle-content .bundle-tile table > thead > tr > th,
+#bundle-content .bundle-tile table > thead > tr > td {
   border-bottom-width: 2px;
 }
-#bundle-content .bundle-tile .metadata-table table > tbody > tr:nth-child(odd) > td,
-#bundle-content .bundle-tile .metadata-table table > tbody > tr:nth-child(odd) > th {
+#bundle-content .bundle-tile table > tbody > tr:nth-child(odd) > td,
+#bundle-content .bundle-tile table > tbody > tr:nth-child(odd) > th {
   background-color: white;
+}
+#bundle-content .bundle-tile .state-table {
+  margin-top: 12px;
+}
+@media screen and (max-width: 767px) {
+  #bundle-content .bundle-tile .state-table {
+    width: 100%;
+    margin-bottom: 18.75px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #dddddd;
+    -webkit-overflow-scrolling: touch;
+  }
+  #bundle-content .bundle-tile .state-table > .table {
+    margin-bottom: 0;
+  }
+  #bundle-content .bundle-tile .state-table > .table > thead > tr > th,
+  #bundle-content .bundle-tile .state-table > .table > tbody > tr > th,
+  #bundle-content .bundle-tile .state-table > .table > tfoot > tr > th,
+  #bundle-content .bundle-tile .state-table > .table > thead > tr > td,
+  #bundle-content .bundle-tile .state-table > .table > tbody > tr > td,
+  #bundle-content .bundle-tile .state-table > .table > tfoot > tr > td {
+    white-space: nowrap;
+  }
+  #bundle-content .bundle-tile .state-table > .table-bordered {
+    border: 0;
+  }
+  #bundle-content .bundle-tile .state-table > .table-bordered > thead > tr > th:first-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr > th:first-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr > th:first-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > thead > tr > td:first-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr > td:first-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr > td:first-child {
+    border-left: 0;
+  }
+  #bundle-content .bundle-tile .state-table > .table-bordered > thead > tr > th:last-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr > th:last-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr > th:last-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > thead > tr > td:last-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr > td:last-child,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr > td:last-child {
+    border-right: 0;
+  }
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr:last-child > th,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr:last-child > th,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tbody > tr:last-child > td,
+  #bundle-content .bundle-tile .state-table > .table-bordered > tfoot > tr:last-child > td {
+    border-bottom: 0;
+  }
+}
+#bundle-content .bundle-tile .state-table code {
+  font-size: 80%;
+  color: #666666;
+  background-color: transparent;
+}
+#bundle-content .bundle-tile .metadata-table {
+  margin-bottom: 24px;
+}
+@media screen and (max-width: 767px) {
+  #bundle-content .bundle-tile .metadata-table {
+    width: 100%;
+    margin-bottom: 18.75px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #dddddd;
+    -webkit-overflow-scrolling: touch;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table {
+    margin-bottom: 0;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table > thead > tr > th,
+  #bundle-content .bundle-tile .metadata-table > .table > tbody > tr > th,
+  #bundle-content .bundle-tile .metadata-table > .table > tfoot > tr > th,
+  #bundle-content .bundle-tile .metadata-table > .table > thead > tr > td,
+  #bundle-content .bundle-tile .metadata-table > .table > tbody > tr > td,
+  #bundle-content .bundle-tile .metadata-table > .table > tfoot > tr > td {
+    white-space: nowrap;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table-bordered {
+    border: 0;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > thead > tr > th:first-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr > th:first-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr > th:first-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > thead > tr > td:first-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr > td:first-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr > td:first-child {
+    border-left: 0;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > thead > tr > th:last-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr > th:last-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr > th:last-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > thead > tr > td:last-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr > td:last-child,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr > td:last-child {
+    border-right: 0;
+  }
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr:last-child > th,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr:last-child > th,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tbody > tr:last-child > td,
+  #bundle-content .bundle-tile .metadata-table > .table-bordered > tfoot > tr:last-child > td {
+    border-bottom: 0;
+  }
 }
 #bundle-content .bundle-tile .metadata-table table input.form-control {
   margin-bottom: 0;
@@ -8575,71 +8804,52 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 #bundle-content .bundle-tile .dependencies-table {
   margin-bottom: 24px;
 }
-#bundle-content .bundle-tile .dependencies-table table {
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: 25px;
-  border: 1px solid #dddddd;
-  margin-bottom: 0;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
-  padding: 4px 6px;
-  line-height: 1.6;
-  vertical-align: top;
-  border-top: 1px solid #dddddd;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th {
-  vertical-align: bottom;
-  border-bottom: 2px solid #dddddd;
-}
-#bundle-content .bundle-tile .dependencies-table table > caption + thead > tr:first-child > th,
-#bundle-content .bundle-tile .dependencies-table table > colgroup + thead > tr:first-child > th,
-#bundle-content .bundle-tile .dependencies-table table > thead:first-child > tr:first-child > th,
-#bundle-content .bundle-tile .dependencies-table table > caption + thead > tr:first-child > td,
-#bundle-content .bundle-tile .dependencies-table table > colgroup + thead > tr:first-child > td,
-#bundle-content .bundle-tile .dependencies-table table > thead:first-child > tr:first-child > td {
-  border-top: 0;
-}
-#bundle-content .bundle-tile .dependencies-table table > tbody + tbody {
-  border-top: 2px solid #dddddd;
-}
-#bundle-content .bundle-tile .dependencies-table table .table {
-  background-color: #f7f7f7;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
-  line-height: 1.34;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th a .glyphicon,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th a .glyphicon,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th a .glyphicon {
-  font-size: 14px;
-  padding-top: 3px;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr > td,
-#bundle-content .bundle-tile .dependencies-table table > tfoot > tr > td {
-  border: 1px solid #dddddd;
-}
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > th,
-#bundle-content .bundle-tile .dependencies-table table > thead > tr > td {
-  border-bottom-width: 2px;
-}
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr:nth-child(odd) > td,
-#bundle-content .bundle-tile .dependencies-table table > tbody > tr:nth-child(odd) > th {
-  background-color: white;
+@media screen and (max-width: 767px) {
+  #bundle-content .bundle-tile .dependencies-table {
+    width: 100%;
+    margin-bottom: 18.75px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #dddddd;
+    -webkit-overflow-scrolling: touch;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table {
+    margin-bottom: 0;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table > thead > tr > th,
+  #bundle-content .bundle-tile .dependencies-table > .table > tbody > tr > th,
+  #bundle-content .bundle-tile .dependencies-table > .table > tfoot > tr > th,
+  #bundle-content .bundle-tile .dependencies-table > .table > thead > tr > td,
+  #bundle-content .bundle-tile .dependencies-table > .table > tbody > tr > td,
+  #bundle-content .bundle-tile .dependencies-table > .table > tfoot > tr > td {
+    white-space: nowrap;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered {
+    border: 0;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > thead > tr > th:first-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr > th:first-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr > th:first-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > thead > tr > td:first-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr > td:first-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr > td:first-child {
+    border-left: 0;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > thead > tr > th:last-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr > th:last-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr > th:last-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > thead > tr > td:last-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr > td:last-child,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr > td:last-child {
+    border-right: 0;
+  }
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr:last-child > th,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr:last-child > th,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tbody > tr:last-child > td,
+  #bundle-content .bundle-tile .dependencies-table > .table-bordered > tfoot > tr:last-child > td {
+    border-bottom: 0;
+  }
 }
 #bundle-content .bundle-tile .bundle-file-view-container {
   border-top: 1px solid #cccccc;
@@ -8742,6 +8952,18 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 #bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > tfoot > tr > td .file {
   font-weight: normal;
 }
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > thead > tr > th .file .size,
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > tbody > tr > th .file .size,
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > tfoot > tr > th .file .size,
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > thead > tr > td .file .size,
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > tbody > tr > td .file .size,
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table > tfoot > tr > td .file .size {
+  width: 5em;
+  float: right;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 80%;
+  line-height: 1.6;
+}
 #bundle-content .bundle-tile .bundle-file-view-container .file-browser-table .glyphicon {
   font-size: 14px;
   color: #739cb9;
@@ -8749,6 +8971,17 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 }
 #bundle-content .bundle-tile .bundle-file-view-container .file-browser-table .glyphicon.glyphicon-file {
   color: #999999;
+}
+#bundle-content .bundle-tile .stdout-container,
+#bundle-content .bundle-tile .stderr-container {
+  border-top: 1px solid #cccccc;
+}
+#bundle-content .bundle-tile .stdout-container pre,
+#bundle-content .bundle-tile .stderr-container pre {
+  overflow: auto;
+  word-wrap: normal;
+  white-space: pre;
+  font-size: 80%;
 }
 #glossaryModal .modal-header h4 {
   margin: 0;
