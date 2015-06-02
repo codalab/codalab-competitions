@@ -394,6 +394,9 @@ class CompetitionDetailView(DetailView):
         except ObjectDoesNotExist:
             pass
 
+        if competition.creator == self.request.user or self.request.user in competition.admins.all():
+            context['is_admin_or_owner'] = True
+
         # Use this flag to trigger container-fluid for result table
         context['on_competition_detail'] = True
 
