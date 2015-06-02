@@ -12,6 +12,10 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
 
+{% if is_admin_or_owner %}
+    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit this competition</a>
+{% endif %}
+
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">
