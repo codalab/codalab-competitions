@@ -249,7 +249,9 @@ var BundleDetailSidePanel = React.createClass({
                 // do a check since this fires async to double check users intent.
                 if(ws_bundle_obj.current_uuid == bundle_info.uuid){
                     console.log("UPDATE ***");
-                    this.setState(data)
+                    if(this.isMounted()){
+                        this.setState(data)
+                    }
                 }
             }.bind(this),
             error: function(xhr, status, err) {
