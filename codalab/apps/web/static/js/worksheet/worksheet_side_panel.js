@@ -35,7 +35,6 @@ var WorksheetSidePanel = React.createClass({
     componentDidUpdate:function(){
         this.capture_keys();
         var self = this;
-        // _.debounce(
         if(this.debouncedFetchExtra === undefined){
             // debounce it to wait for user to stop for X time.
             this.debouncedFetchExtra = _.debounce(self._fetch_extra, 1500).bind(this);
@@ -63,17 +62,16 @@ var WorksheetSidePanel = React.createClass({
         var focus = '';
         if(this.props.focusIndex > -1){
             focus = ws_obj.state.items[this.props.focusIndex].state;
-            //focus.mode == "worksheet" #TODO render correct worksheet stuff when selected not just generic ws
             if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
-                // this.focustype = undefined;
-                //for now lets default it back to showing worksheet info
-                focus = ws_obj.state;
                 this.focustype = 'worksheet';
-            }
-            else{
+                if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
+                     //for lets default it back to showing the main worksheet info
+                     focus = ws_obj.state;
+                }
+            }else{
                 this.focustype = 'bundle';
-            }
-        }else{
+            }// end of if focus.modes
+        }else{// there is no focus index, just show the worksheet infomation
             focus = ws_obj.state;
             this.focustype = 'worksheet';
         }
@@ -104,6 +102,7 @@ var WorksheetSidePanel = React.createClass({
             case 'bundle':
                 // TODO TODO set bundle detail state
                 side_panel_details = <BundleDetailSidePanel
+                                        key={this.props.focusIndex + this.props.subFocusIndex}
                                         item={current_focus}
                                         subFocusIndex={this.props.subFocusIndex}
                                         ref="bundle_info_side_panel"
@@ -137,6 +136,10 @@ var WorksheetDetailSidePanel = React.createClass({
     },
     render: function(){
         var worksheet = this.props.item;
+        if(worksheet.hasOwnProperty('subworksheet_info')){
+            // are we looking at a sub worksheet. lets get the correct worksheet data.
+            worksheet = worksheet.subworksheet_info;
+        }
         var bundles_html = ''
         var bundles_table = [];
         // helper function for showing all bundles.
@@ -155,6 +158,7 @@ var WorksheetDetailSidePanel = React.createClass({
             );
         }
 
+        worksheet.items = worksheet.items || []; // check if even exists if not create empty
         if(worksheet.items.length){
             worksheet.items.forEach(function(item, i){
                 var bundle = null;
@@ -191,6 +195,7 @@ var WorksheetDetailSidePanel = React.createClass({
 
 
         var permission_str = "you(" + ws_obj.state.permission_str + ") "
+        worksheet.group_permissions = worksheet.group_permissions || []; // check if even exists if not create empty
         worksheet.group_permissions.forEach(function(perm) {
             permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
         });
@@ -215,10 +220,16 @@ var BundleDetailSidePanel = React.createClass({
         var item = this.props.item;
         var bundle_info;
         if(item.bundle_info instanceof Array){ //tables are arrays
-            bundle_info = item.bundle_info[this.props.subFocusIndex]
+            bundle_info = item.bundle_info[this.props.subFocusIndex];
         }else{ // content/images/ect. are not
-            bundle_info = item.bundle_info
+            bundle_info = item.bundle_info;
         }
+        // provide defaults or sane checks
+        bundle_info.host_worksheets   = bundle_info.host_worksheets || [];
+        bundle_info.dependencies      = bundle_info.dependencies || [];
+        bundle_info.group_permissions = bundle_info.group_permissions || [];
+        bundle_info.stdout = bundle_info.stdout || null;
+        bundle_info.stderr = bundle_info.stderr || null;
         return bundle_info;
     },
     fetch_extra: function(){ // grab detailed infomation about this bundle info.
