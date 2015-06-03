@@ -12,6 +12,9 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
 
+{% if is_admin_or_owner %}
+    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit this competition</a>
+{% endif %}
 
 <div class="competition-view">
     <div class="row">
@@ -196,16 +199,17 @@
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td>{{ submission.description|default_if_none:""|escape }}</td>
                                         <td>
-                                            <button class="like btn btn-default {% if submission.already_liked %}already-liked{% endif %}"
-                                                    submission-pk="{{ submission.pk }}">
-                                                {% if submission.already_liked %}
-                                                    unlike
-                                                {% else %}
-                                                    like
-                                                {% endif %}
-                                            </button>
+                                            <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
+                                               submission-pk="{{ submission.pk }}"
+                                               was-initially-liked="{% if submission.already_liked %}1{% endif %}"></i>
+                                            <i class="glyphicon glyphicon-thumbs-down dislike {% if submission.already_disliked %}already-disliked{% endif %}"
+                                               submission-pk="{{ submission.pk }}"
+                                               was-initially-disliked="{% if submission.already_disliked %}1{% endif %}"></i>
                                             <span style="margin-top: 20px;">
-                                                <span class="like-count">{{ submission.get_like_count|default:0 }}</span>
+                                                <span class="like-count"
+                                                      original-count="{{ submission.get_overall_like_count|default:0 }}{% if submission.already_disliked %}+1{% endif %}{% if submission.already_liked %}-1{% endif %}">
+                                                    {{ submission.get_overall_like_count|default:0 }}
+                                                </span>
                                                 likes
                                             </span>
                                         </td>
@@ -213,8 +217,9 @@
                                             <button class="view_download_btn btn btn-default"
                                                     data-submission-id="{{ submission.pk }}"
                                                     data-toggle="modal"
-                                                    data-target="#public-submission-modal">
-                                                View downloads
+                                                    data-target="#public-submission-modal"
+                                                    data-download-count="{{ submission.download_count|default:0 }}">
+                                                View (download count: {{ submission.download_count|default:0 }})
                                             </button>
                                         </td>
                                     </tr>
@@ -239,14 +244,14 @@
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
                     {# "1" in these urls gets replaced with the proper ID #}
-                    <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
-                    <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
-                    <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
-                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
-                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">View scoring error log</a></li>
+                    <li><a href="/my/competition/submission/1/input.zip">Download submission (<span class="download_count"></span> downloads)</a></li>
                     {% if not submission.phase.is_scoring_only %}
+                        <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                        <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
                         <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
                     {% endif %}
+                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
+                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">View scoring error log</a></li>
                     {% if submission.phase.competition.enable_detailed_results %}
                         <li><a href="/my/competition/submission/1/detailed_results" target="_blank">View detailed results</a></li>
                     {% endif %}
@@ -302,35 +307,81 @@
             /******************************************************************
             Public submissions
              *****************************************************************/
-            // Liking submissions
-            $(".btn.like").click(function() {
+            // Thumbs up submissions
+            $(".like").click(function() {
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
-                var like_count = parseInt(element.parent().find(".like-count").text());
                 var url = "{% url "coopetitions:like" submission_pk="0" %}";
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_liked = element.attr('was-initially-liked') == '1';
+
+                if(was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                } else if (!was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
+                if(!already_liked) {
+                    element.addClass("already-liked");
+                    element.parent().find(".dislike").removeClass("already-disliked");
+                } else {
+                    element.removeClass("already-liked");
+                }
+
                 url = url.replace(0, element.attr('submission-pk'));
                 $.get(url)
-                        .success(function(){
-                            if(!already_liked) {
-                                element.text("unlike");
-                                element.addClass("already-liked");
-                                element.parent().find(".like-count").text(like_count + 1);
-                            } else {
-                                element.text("like");
-                                element.removeClass("already-liked");
-                                element.parent().find(".like-count").text(like_count - 1);
-                            }
-                        })
                         .error(function() {
                             alert("Could not like submission, is your Internet connection working?");
+                        });
+            });
+
+            $(".dislike").click(function() {
+                var element = $(this);
+                var already_disliked = element.hasClass("already-disliked");
+                var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_disliked = element.attr('was-initially-disliked') == '1';
+
+                if(was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                } else if (!was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
+                if(!already_disliked) {
+                    element.addClass("already-disliked");
+                    element.parent().find(".like").removeClass("already-liked");
+                } else {
+                    element.removeClass("already-disliked");
+                }
+                url = url.replace(0, element.attr('submission-pk'));
+                $.get(url)
+                        .error(function() {
+                            alert("Could not dislike submission, is your Internet connection working?");
                         });
             });
 
             // Handle modal to download public submissions
             $(".view_download_btn").click(function() {
                 var submission_id = $(this).attr('data-submission-id');
+                var download_count = $(this).attr('data-download-count');
                 var regex = /\/my\/competition\/submission\/\d+\//g;
                 var download_list = $('#public-submission-modal .download-list');
+
+                // Replace download count
+                $("#public-submission-modal .download_count").text(download_count);
 
                 // Replace id in links with new submission id
                 download_list.html(download_list.html().replace(regex, '/my/competition/submission/' + submission_id + '/'));
