@@ -109,3 +109,5 @@ wheel_packages/
 /codalab/apps/web/static/js/vendor/fonts/
 
 /codalab/apps/web/static/js/vendor/mathjax/
+
+/codalab/local_fabfile.py

@@ -12,6 +12,10 @@
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
 
+{% if is_admin_or_owner %}
+    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit this competition</a>
+{% endif %}
+
 <div class="competition-view">
     <div class="row">
         <div class="col-sm-2">
@@ -215,7 +219,7 @@
                                                     data-toggle="modal"
                                                     data-target="#public-submission-modal"
                                                     data-download-count="{{ submission.download_count|default:0 }}">
-                                                View downloads
+                                                View (download count: {{ submission.download_count|default:0 }})
                                             </button>
                                         </td>
                                     </tr>
@@ -240,7 +244,7 @@
             <div class="modal-body">
                 <ul class="download-list list-unstyled">
                     {# "1" in these urls gets replaced with the proper ID #}
-                    <li><a href="/my/competition/submission/1/input.zip">Download submission</a></li>
+                    <li><a href="/my/competition/submission/1/input.zip">Download submission (<span class="download_count"></span> downloads)</a></li>
                     {% if not submission.phase.is_scoring_only %}
                         <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
                         <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
