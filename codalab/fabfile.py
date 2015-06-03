@@ -92,6 +92,6 @@ def test():
 
 # for custom local helper fabric file, usefull if doing something with keys
 try:
-    from local_fasbfile import *
+    from local_fabfile import *
 except Exception, e:
     pass
