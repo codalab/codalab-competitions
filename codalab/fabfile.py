@@ -7,11 +7,17 @@ from fabric.api import hide
 from fabric.api import local
 from fabric.api import quiet
 
+from django.core.exceptions import ImproperlyConfigured
+
 env.setdefault("DJANGO_CONFIGURATION", "Dev")
 from django.conf import settings as django_settings
-from codalab.settings import Dev
-django_settings.configure(Dev)
-
+try:
+    from codalab.settings import Dev
+    django_settings.configure(Dev)
+except ImproperlyConfigured, e:
+    print 'ERROR: Configuration issue:'
+    print '\t', e
+    print ''
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -82,3 +88,10 @@ def test():
     #test_lint()
     test_django()
     test_e2e()
+
+
+# for custom local helper fabric file, usefull if doing something with keys
+try:
+    from local_fasbfile import *
+except Exception, e:
+    pass
