@@ -6,6 +6,7 @@ from fabric.api import env
 from fabric.api import hide
 from fabric.api import local
 from fabric.api import quiet
+from fabric.colors import red, green
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -47,26 +48,31 @@ def start_workers():
             print 'Please install tmux before running this command, i.e. "brew install tmux"'
             return
         _print("Starting tmux...")
-        local('./tmux.sh')
-        print "done"
+        if not local('./tmux.sh').succeeded:
+            print red("could not start workers!")
+        else:
+            print green("done")
 
 
 def stop_workers():
-    local('tmux kill-session -t codalab_workers')
+    with quiet():
+        _print("Starting tmux...")
+        local('tmux kill-session -t codalab_workers')
+        print green("done")
 
 
 def test_e2e():
     with hide('running', 'stdout', 'stderr', 'warnings', 'aborts'):
         _print("Running Selenium tests...")
         # insert selenium tests when we get them
-        print "done"
+        print green("done")
 
 
 def test_django():
     with hide('running', 'stdout', 'stderr', 'warnings', 'aborts'):
         _print("Running Django tests...")
         local('python manage.py test --noinput', capture=True)
-        print "done"
+        print green("done")
 
 
 # def test_lint():
