@@ -6,13 +6,16 @@ var WorksheetSidePanel = React.createClass({
         };
     },
     debouncedFetchExtra: undefined,
-    componentDidMount: function(){
+    componentDidMount: function(e){
         var self = this;
         $('#dragbar').mousedown(function(e){
             self.resizePanel(e);
         });
         $(document).mouseup(function(e){
             $(this).unbind('mousemove');
+        });
+        $(window).resize(function(e){
+            self.resetPanel();
         });
     },
     capture_keys: function(){
@@ -81,13 +84,20 @@ var WorksheetSidePanel = React.createClass({
         e.preventDefault();
         $(document).mousemove(function(e){
             var windowWidth = $(window).width();
-            var panelWidth = (windowWidth - e.pageX) / windowWidth * 100;
-            if(10 < panelWidth && panelWidth < 55){
+            var panelWidth = windowWidth - e.pageX;
+            var panelWidthPercentage = (windowWidth - e.pageX) / windowWidth * 100;
+            if(240 < panelWidth && panelWidthPercentage < 55){
                 $('.ws-container').css('width', e.pageX);
-                $('.ws-panel').css('width', panelWidth + '%');
-                $('#dragbar').css('right', panelWidth + '%');
+                $('.ws-panel').css('width', panelWidthPercentage + '%');
+                $('#dragbar').css('right', panelWidthPercentage + '%');
             }
         });
+    },
+    resetPanel: function(){
+        var windowWidth = $(window).width();
+        var panelWidth = parseInt($('.ws-panel').css('width'));
+        var containerWidth = windowWidth - panelWidth;
+        $('.ws-container').css('width', containerWidth);
     },
     render: function(){
         var current_focus = this.current_focus();
@@ -206,7 +216,6 @@ var WorksheetDetailSidePanel = React.createClass({
                 <p className="ws-uuid">{worksheet.uuid}</p>
                 <p className="ws-owner">{worksheet.owner}</p>
                 <p className="ws-permissions">Permissions: {permission_str}</p>
-                <hr />
                 {bundles_html}
             </div>
         )
@@ -392,15 +401,15 @@ var BundleDetailSidePanel = React.createClass({
                             <div className="host-worksheets-table">
                                 <h4>Host Worksheets</h4>
                                 <table className="bundle-meta table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>UUID</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {host_worksheets_rows}
-                                            </tbody>
+                                    <thead>
+                                        <tr>
+                                            <th width="40%">Name</th>
+                                            <th width="60%">UUID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {host_worksheets_rows}
+                                    </tbody>
                                 </table>
                             </div>
                 )
@@ -456,7 +465,6 @@ var BundleDetailSidePanel = React.createClass({
                     {bundle_name}
                     <div className="bundle-links">
                         <a href={bundle_url} className="bundle-link" target="_blank">{bundle_info.uuid}</a>
-                        &nbsp;
                         <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
                             <span className="glyphicon glyphicon-download-alt"></span>
                         </a>

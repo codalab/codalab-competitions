@@ -355,14 +355,14 @@ var Worksheet = React.createClass({
                         <div id="worksheet_content" className={editableClassName}>
                             <div className="header-row">
                                 <div className="row">
-                                    <div className="col-sm-6">
+                                    <div className="col-sm-6 col-md-8">
                                         <div className="worksheet-name">
                                             <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
                                             <div className="worksheet-author">{ws_obj.state.owner}</div>
                                             <div className="worksheet-permission">Permission: {permission_str}</div>
                                         </div>
                                     </div>
-                                    <div className="col-sm-6">
+                                    <div className="col-sm-6 col-md-4">
                                         <div className="controls">
                                             <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
                                             {editFeatures}

@@ -102,24 +102,26 @@ html, body, #worksheet_container {height:100%;}
    }
    .ws-panel {
       width:@initial-panel-width;
+      min-width:200px;
       position: absolute;
       right:0;
       height:100%;
       overflow:auto;
-      padding: 0 @grid-gutter-width/2;
+      padding: 0 @grid-gutter-width/3;
       background:@panel-bg;
       #panel_content {
+         font-size:14px;
          .panel-frame;
          .ws-uuid {
             .panel-text-overflow;
          }
          .bundle-description {
             font-size:90%;
-            margin-bottom:10px;
+            margin: 5px 0;
          }
          h3 {
             margin-top:@line-height-computed / 2;
-            margin-bottom:@line-height-computed / 4;
+            margin-bottom:@line-height-computed / 2;
             font-size:24px;
             line-height:1.1em;
             &.bundle-name {
@@ -130,22 +132,31 @@ html, body, #worksheet_container {height:100%;}
             }
             &.ws-name {
                .worksheet-icon-sm;
-               padding-left:30px;
+               padding-left:26px;
                background-size:20px;
                background-position:0 7px;
 
             }
          }
          h4 {
-            font-size:18px;
-            margin-bottom:5px;
+            font-size:20px;
+            margin-bottom:8px;
+            margin-top:12px;
+            padding-top:8px;
+            border-top:2px solid @gray-light;
+         }
+         p {
+            margin:0;
+            line-height:1.34em;
+         }
+         hr {
+            margin: 12px 0;
          }
          .bundle-links {
             position:relative;
             .bundle-link {
                .panel-text-overflow;
                line-height:29px;
-               font-size:@font-size-base;
                display:inline-block;
                padding-right:40px;
             }
@@ -156,13 +167,35 @@ html, body, #worksheet_container {height:100%;}
             }
          }
          .bundle-meta {
-            font-size:80%;
+            font-size:90%;
             margin-bottom:5px;
-            th, td {
-               border-top:none;
+            &.table {
+               .table-striped;
+               > tbody > tr:nth-child(odd) {
+                  > th,
+                  > td {
+                     background-color:#f8f8f8;
+                  }
+               }
+               th, td {
+                  border-top:none;
+                  padding:1px 6px;
+               }
+               > thead > tr > th {
+                  border-bottom-width:1px;
+               }
+               a {
+                  word-wrap: break-word;
+                  word-break: break-all;
+               }
             }
             .bundle-state {
                font-size:80%;
+               padding:1px 4px;
+            }
+            pre {
+               font-size:11px;
+               padding:8px;
             }
          }
       }
@@ -200,9 +233,13 @@ html, body, #worksheet_container {height:100%;}
          margin-right:5px;
       }
       h1 {
-         text-indent:65px;
+         text-indent:0;
          margin:0;
          font-size:44px;
+         line-height:1em;
+         padding-top:5px;
+         padding-left:65px;
+         min-height:60px;
       }
       .worksheet-author {
          text-indent:65px;
@@ -742,6 +779,11 @@ html, body, #worksheet_container {height:100%;}
          margin-bottom:16px;
       }
    }
+   #worksheet .ws-panel,
+   #worksheet #dragbar {
+      display:none;
+   }
+   #worksheet .ws-container {
+      right:0;
+   }
 }
-
-
