@@ -395,7 +395,9 @@ var WorksheetActions =  function() {
                 edit_enabled: false,
                 executefn: function(options, term){
                     if(options.length) {
-                        options = options.join(' ')
+                        // options = options.splice(1, options.length-1) // cut out the cl
+                        // options = options.join(' ');
+                        options = options[1]
                         worksheet_uuid = ws_obj.state.uuid;
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
@@ -432,6 +434,38 @@ var WorksheetActions =  function() {
                 }, // end of executefn
             }, // end of cl
             'work': {
+                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
+                minimumInputLength: 0,
+                edit_enabled: false,
+                autocomplete: function(query){
+                    // var get_data = {
+                    //     search_string: query.term
+                    // };
+                    // $.ajax({
+                    //     type: 'GET',
+                    //     url: '/api/worksheets/search/',
+                    //     dataType: 'json',
+                    //     data: get_data,
+                    //     success: function(data, status, jqXHR, callback){
+                    //         // select2 wants its options in a certain format, so let's make a new
+                    //         // list it will like
+                    //         query.callback({
+                    //             results: ws_actions.AjaxWorksheetDictToOptions(data)
+                    //         });
+                    //     },
+                    //     error: function(jqHXR, status, error){
+                    //         displayError(jqHXR, status);
+                    //     }
+                    // });
+                    return ['0x100d688cdcb142179608fe1ee0b020c3', '0xfaaa1ae10a8b4d778ccce596fcde52be']
+                },
+                executefn: function(options, term){
+                    debugger;
+                    options = options.splice(1, options.length-1)[0] // cut out the command
+                    window.location = '/worksheets/' + options + '/';
+                },
+            }, // end off work
+            'workNOT': {
                 helpText: formatHelp('work <worksheet>', 'go to worksheet'),
                 minimumInputLength: 0,
                 edit_enabled: false,

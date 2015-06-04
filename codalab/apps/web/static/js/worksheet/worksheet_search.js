@@ -17,14 +17,6 @@ var WorksheetSearch = React.createClass({
                 command = command.trim(); // cut of any extra whitespace
                 var args = command.split(' '); //command.get_command().split(' ')
                 command = args[1]; // the command they enterd, minus cl
-
-                if(args.length > 2){
-                    // extra stuff they ented after the command
-                    args = args.splice(2, args.length-1);
-                }else{
-                    // they've only ented a command lets clean up args
-                    args = ['']
-                }
                 var last = args[args.length-1];
 
                 console.log("entered command");
@@ -106,7 +98,7 @@ var WorksheetSearch = React.createClass({
                                 tab_count = 0;
                             } else {
                                 // lets find what matches and fill in as much as we can if not a full match
-                                // example: test123 and testabc are comp words, type tes, hit tab,
+                                // example: test123 and testabc are comp words, type `te`, hit tab,
                                 //          we can complete to `test` based on matchs
                                 var found = false;
                                 var found_index;
