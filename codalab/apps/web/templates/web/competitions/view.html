@@ -13,7 +13,11 @@
 {% endif %}
 
 {% if is_admin_or_owner %}
-    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit this competition</a>
+    <h3>Admin features</h3>
+    <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">Participants</a>
+    <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
+    <hr>
 {% endif %}
 
 <div class="competition-view">
