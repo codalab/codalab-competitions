@@ -32,10 +32,9 @@ def _print(str):
     sys.stdout.flush()
 
 
-def fresh_db():
-    raise NotImplementedError()
-
-
+###############################################################################
+# Site/compute workers
+###############################################################################
 def view_workers():
     with quiet():
         if not local('tmux attach -t codalab_workers').succeeded:
@@ -49,19 +48,32 @@ def start_workers():
             print 'Please install tmux before running this command, i.e. "brew install tmux"'
             return
         _print("Starting tmux...")
-        if not local('./tmux.sh').succeeded:
-            print red("could not start workers!")
-        else:
+
+        if local('tmux has-session -t codalab_workers').succeeded:
+            print green("session already started! fab view_workers to view it.")
+            return
+
+        if local('./tmux.sh').succeeded:
             print green("done")
+        else:
+            print red("could not start workers!")
 
 
 def stop_workers():
     with quiet():
-        _print("Starting tmux...")
+        _print("Stopping tmux...")
         local('tmux kill-session -t codalab_workers')
         print green("done")
 
 
+def restart_workers():
+    stop_workers()
+    start_workers()
+
+
+###############################################################################
+# Tests
+###############################################################################
 def test_e2e():
     with hide('running', 'stdout', 'stderr', 'warnings', 'aborts'):
         _print("Running Selenium tests...")
@@ -95,6 +107,13 @@ def test():
     #test_lint()
     test_django()
     test_e2e()
+
+
+###############################################################################
+# Environment/database
+###############################################################################
+def fresh_db():
+    raise NotImplementedError()
 
 
 # for custom local helper fabric file, useful if doing something with keys
