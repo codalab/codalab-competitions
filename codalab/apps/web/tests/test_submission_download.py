@@ -46,6 +46,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
+            is_public=False,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
             stdout_file=SimpleUploadedFile(name="test.txt", content="test std out")
         )
