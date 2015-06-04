@@ -265,8 +265,10 @@ def get_run_func(config):
                 stdout_file_name = 'stdout.txt'
                 stderr_file_name = 'stderr.txt'
 
-            stdout = open(join(run_dir, stdout_file_name), "a+")
-            stderr = open(join(run_dir, stderr_file_name), "a+")
+            stdout_file = join(run_dir, stdout_file_name)
+            stderr_file = join(run_dir, stderr_file_name)
+            stdout = open(stdout_file, "a+")
+            stderr = open(stderr_file, "a+")
             prog_status = []
 
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
