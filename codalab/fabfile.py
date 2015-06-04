@@ -20,6 +20,7 @@ except ImproperlyConfigured, e:
     print '\t', e
     print ''
 
+
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 # Ignore annoying internal fabric depreciated stuff
@@ -96,7 +97,7 @@ def test():
     test_e2e()
 
 
-# for custom local helper fabric file, usefull if doing something with keys
+# for custom local helper fabric file, useful if doing something with keys
 try:
     from local_fabfile import *
 except Exception, e:
