@@ -9,19 +9,39 @@ var WorksheetSearch = React.createClass({
     componentDidMount: function(){
         // https://github.com/jcubic/jquery.terminal
         var self = this;
-
+        var tab_count = 0;
         var term = $('#command_line').terminal(
             // 1st argument is handle commands entered
             function(command, term) {
+                // lets clean and cut up what the enterd
                 command = command.trim(); // cut of any extra whitespace
+                var args = command.split(' '); //command.get_command().split(' ')
+                command = args[1]; // the command they enterd, minus cl
+
+                if(args.length > 2){
+                    // extra stuff they ented after the command
+                    args = args.splice(2, args.length-1);
+                }else{
+                    // they've only ented a command lets clean up args
+                    args = ['']
+                }
+                var last = args[args.length-1];
+
                 console.log("entered command");
                 console.log(command);
+                console.log(args);
                 console.log("******* PARSE AND RUN *********");
-                if (command == 'test') {
-                    term.echo("you just typed 'test'");
+                if(typeof(command) == 'undefined'){  // no command
+                    return;
                 }
-                if(command == 'html'){
-                    term.echo("<h1>DONE</h1>", {raw:true});
+                ws_action_command = ws_actions.checkAndReturnCommand(command);
+                if(typeof(ws_action_command) == 'undefined'){  // no command
+                    //didnt find anything take all extra
+                    // throw it in cl command and hope for the best
+                    ws_action_command = ws_actions.checkAndReturnCommand('cl');
+                    ws_action_command.executefn(args, term); // todo promise
+                }else{ // we have a ws_action lets use it.
+                    ws_action_command.executefn(args, term); // todo promise
                 }
                 if(command == 'time'){
                     term.pause()
@@ -29,25 +49,14 @@ var WorksheetSearch = React.createClass({
                         term.resume();
                         term.echo("<h3>response</h3>", {raw:true});
                     }, 3000);
-
-
                 }
-                // else {
-                //     try {
-                //         var result = window.eval(command);
-                //         if (result !== undefined) {
-                //             term.echo(new String(result));
-                //         }
-                //     } catch(e) {
-                //         term.error(new String(e));
-                //     }
-                // }
+
             },
-            // 2nd is helpers and options. Take note of completion
+            // 2nd is helpers and options. Take note of keydown for tab completion
             {
                 greetings: 'Worksheet Interface: A codalab cli lite interface. Please enter a command or help to see list of commands',
                 name: 'command_line',
-                height: 45,
+                height: 145,
                 prompt: '> ',
                 history: true,
                 keydown: function(event, terminal){
@@ -55,15 +64,71 @@ var WorksheetSearch = React.createClass({
                         terminal.focus(false);
                     }
                     if (event.keyCode == 9){ //Tab
-                        // TODO handle auto-completion logic
-                        term.echo("autocompletion commands...");
-                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
-                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
-                        term.echo("<a href='http://google.com'>a link</a>", {raw: true});
-                        term.set_command(term.get_command() + " contorl auto completion");
+                        ++tab_count;
+                        var command;  // the ws_action command
+                        var entered = term.get_command();
+                        var args = entered.split(' '); //term.get_command().split(' ')
+                        var last = args[args.length-1];
+                        console.log('completion')
+                        console.log(entered);
+                        console.log(args);
+                        console.log(last);
+                        console.log('-------------------');
 
-                        // Tells the terminal to not handle the tab key
-                        return false;
+                        if(args[0] != 'cl'){ // shove in cl, just some helpful sugar
+                            term.set_command('cl ' + entered);
+                        }
+
+                        var auto_complete_list;
+                        if(args.length > 2 && args[1]){
+                            command = ws_actions.checkAndReturnCommand(args[1]);
+                            auto_complete_list = command.autocomplete(last) // todo handle ajax blocking // todo promise
+                        }else{
+                            auto_complete_list = ws_actions.getCommands(self.props.canEdit); // todo promise
+                        }
+
+                        var regex = new RegExp('^' + $.terminal.escape_regex(last));
+                        var matched = [];
+                        // push all found auto_complete_list in to matched for more tricks
+                        for (var i=auto_complete_list.length; i--;) {
+                            if (regex.test(auto_complete_list[i])) {
+                                matched.push(auto_complete_list[i]);
+                            }
+                        }
+                        // now for the insert or print out
+                        if(matched.length === 1){ // we found an exact match, just put in in the term
+                            term.insert(matched[0].replace(regex, '') + ' ');
+                        }else if (matched.length > 1) {
+                            if (tab_count >= 2) {
+                                // TODO fancy ouput, not just \t
+                                // term.echo("<a href='http://google.com'>a link</a>", {raw: true});
+                                term.echo(matched.join('\t'));
+                                tab_count = 0;
+                            } else {
+                                // lets find what matches and fill in as much as we can if not a full match
+                                // example: test123 and testabc are comp words, type tes, hit tab,
+                                //          we can complete to `test` based on matchs
+                                var found = false;
+                                var found_index;
+                                var j;
+                                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label
+                                loop: // dont stop till found, because it is guaranteed from before, thanks matched
+                                    for (j=last.length; j<matched[0].length; ++j) {
+                                        for (i=1; i<matched.length; ++i) {
+                                            if (matched[0].charAt(j) !== matched[i].charAt(j)) {
+                                                break loop;
+                                            }
+                                        }
+                                        found = true;
+                                    }
+                                    if (found) {
+                                        term.insert(matched[0].slice(0, j).replace(regex, ''));
+                                    }
+                            }
+                        }// end if else if
+                        return false; // dont really hit tab
+                    }else{// end if 9 aka tab, reset the counter
+                        tab_count = 0;
                     }
 
                 },
@@ -116,6 +181,7 @@ var WorksheetSearch = React.createClass({
         );
         //turn off focus by default
         term.focus(false);
+        term.focus(true); // todo remove
 
         // $('#search').select2({
         //     multiple:true,

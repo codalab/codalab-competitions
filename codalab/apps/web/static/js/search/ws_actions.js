@@ -12,6 +12,8 @@ var WorksheetActions =  function() {
     }
 
     function WorksheetActions() {
+        // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY
+        // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY // LEGACY
         this.commands = {
             // Dictionary of terms that can be entered into the search bar
             // and the names of functions they call.
@@ -382,6 +384,85 @@ var WorksheetActions =  function() {
                 }, // end of executefn
             }, // end of upload
         };// end of commands
+
+        // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*********************
+        // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        this.commands = {
+            'cl': { // default lets just run abrary commands commands fall back to this if no other command is found
+                helpText: formatHelp('cl <command>', 'run CLI command'),
+                minimumInputLength: 0,
+                edit_enabled: false,
+                executefn: function(options, term){
+                    if(options.length) {
+                        options = options.join(' ')
+                        worksheet_uuid = ws_obj.state.uuid;
+                        var postdata = {
+                            'worksheet_uuid': worksheet_uuid,
+                            'command': options
+                        };
+                        $.ajax({
+                            type:'POST',
+                            cache: false,
+                            url:'/api/worksheets/command/',
+                            contentType:"application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify(postdata),
+                            success: function(data, status, jqXHR){
+                                console.log('===== Output of command: ' + options);
+                                if (data.data.exception){
+                                    alert(data.data.exception);
+                                }
+                                if (data.data.stdout){
+                                    console.log(data.data.stdout);
+                                    term.echo(data.data.stdout);
+                                }
+                                if (data.data.stderr){
+                                    console.log(data.data.stderr);
+                                }
+                                console.log('=====');
+                            },
+                            error: function(jqHXR, status, error){
+                                displayError(jqHXR, status);
+                            }
+                        });
+                    }else {
+                        alert('invalid syntax');
+                    }
+                }, // end of executefn
+            }, // end of cl
+            'work': {
+                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
+                minimumInputLength: 0,
+                edit_enabled: false,
+                autocomplete: function(query){
+                    // var get_data = {
+                    //     search_string: query.term
+                    // };
+                    // $.ajax({
+                    //     type: 'GET',
+                    //     url: '/api/worksheets/search/',
+                    //     dataType: 'json',
+                    //     data: get_data,
+                    //     success: function(data, status, jqXHR, callback){
+                    //         // select2 wants its options in a certain format, so let's make a new
+                    //         // list it will like
+                    //         query.callback({
+                    //             results: ws_actions.AjaxWorksheetDictToOptions(data)
+                    //         });
+                    //     },
+                    //     error: function(jqHXR, status, error){
+                    //         displayError(jqHXR, status);
+                    //     }
+                    // });
+                    return ['0x100d688cdcb142179608fe1ee0b020c3', '0xfaaa1ae10a8b4d778ccce596fcde52be']
+                },
+                executefn: function(options, term){
+                    options = options[1]
+                    window.location = '/worksheets/' + options + '/';
+                },
+            }, // end off work
+        }; // end of commands
     }// endof worksheetActions() init
 
     //helper commands
@@ -393,12 +474,10 @@ var WorksheetActions =  function() {
         var commandList = [];
         for(var key in commandDict) {
             if (can_edit || !commandDict[key].edit_enabled) {
-                commandList.push({
-                    'id': key,
-                    'text': commandDict[key].helpText
-                });
+                commandList.push(key);
             }
         }
+        commandList = _.without(commandList, 'cl')
         return commandList;
     }; // end of getCommands
 
@@ -411,6 +490,7 @@ var WorksheetActions =  function() {
         return command_dict;
     };
 
+    //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY
     WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
         // Render a bundle in the dropdown action bar
         var newOptions = [];
