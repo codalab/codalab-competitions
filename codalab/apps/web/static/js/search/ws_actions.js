@@ -388,21 +388,61 @@ var WorksheetActions =  function() {
         // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*********************
         // REDO OF COMMANDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        this.not_implemented_commands = [
+        // this is a list of commands that are no front end implmented but we sill want to show
+        // for action bar autocomplet
+            'help',
+
+            'upload',
+            'make',
+            'run',
+            'detach',
+            'rm',
+            'search',
+            'ls',
+            'info',
+            'cat',
+            'wait',
+            'cp',
+            'mimic',
+            'macro',
+            'kill',
+            // Commands for worksheets:
+            'new',
+            'add',
+            // 'work', // see below
+            'print',
+            'wedit',
+            'wadd',
+            'wrm',
+            'wls',
+            'wcp',
+            // Commands for groups and permissions:
+            'gls',
+            'gnew',
+            'grm',
+            'ginfo',
+            'uadd',
+            'urm',
+            'perm',
+            'wperm',
+            'chown',
+        ]
         this.commands = {
             'cl': { // default lets just run abrary commands commands fall back to this if no other command is found
                 helpText: formatHelp('cl <command>', 'run CLI command'),
                 minimumInputLength: 0,
                 edit_enabled: false,
-                executefn: function(options, term){
+                executefn: function(options, term){ // is a promise must resolve and return a promise
+                    var defer = jQuery.Deferred();
                     if(options.length) {
-                        // options = options.splice(1, options.length-1) // cut out the cl
-                        // options = options.join(' ');
-                        options = options[1]
+                        options = options.join(' ');
                         worksheet_uuid = ws_obj.state.uuid;
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
                             'command': options
                         };
+
                         $.ajax({
                             type:'POST',
                             cache: false,
@@ -413,87 +453,70 @@ var WorksheetActions =  function() {
                             success: function(data, status, jqXHR){
                                 console.log('===== Output of command: ' + options);
                                 if (data.data.exception){
-                                    alert(data.data.exception);
+                                    console.error(data.data.exception);
+                                    term.echo("<span style='color:red'>Error: " + data.data.exception +"</a>", {raw: true});
                                 }
                                 if (data.data.stdout){
                                     console.log(data.data.stdout);
                                     term.echo(data.data.stdout);
                                 }
                                 if (data.data.stderr){
-                                    console.log(data.data.stderr);
+                                    console.error(data.data.stderr);
+                                    term.echo("<span style='color:red'>Error: " + data.data.stderr +"</a>", {raw: true});
                                 }
                                 console.log('=====');
+                                defer.resolve();
                             },
                             error: function(jqHXR, status, error){
                                 displayError(jqHXR, status);
+                                defer.reject();
                             }
                         });
                     }else {
                         alert('invalid syntax');
+                        defer.reject();
                     }
+                    return defer.promise();
                 }, // end of executefn
             }, // end of cl
+            // real commands  and implementation start here
             'work': {
                 helpText: formatHelp('work <worksheet>', 'go to worksheet'),
                 minimumInputLength: 0,
                 edit_enabled: false,
-                autocomplete: function(query){
-                    // var get_data = {
-                    //     search_string: query.term
-                    // };
-                    // $.ajax({
-                    //     type: 'GET',
-                    //     url: '/api/worksheets/search/',
-                    //     dataType: 'json',
-                    //     data: get_data,
-                    //     success: function(data, status, jqXHR, callback){
-                    //         // select2 wants its options in a certain format, so let's make a new
-                    //         // list it will like
-                    //         query.callback({
-                    //             results: ws_actions.AjaxWorksheetDictToOptions(data)
-                    //         });
-                    //     },
-                    //     error: function(jqHXR, status, error){
-                    //         displayError(jqHXR, status);
-                    //     }
-                    // });
-                    return ['0x100d688cdcb142179608fe1ee0b020c3', '0xfaaa1ae10a8b4d778ccce596fcde52be']
+                autocomplete: function(options){ // is a promise must resolve and return a promise
+                    var defer = jQuery.Deferred();
+                    var get_data = {
+                        search_string: options[options.length-1]
+                    };
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/worksheets/search/',
+                        dataType: 'json',
+                        data: get_data,
+                        success: function(data, status, jqXHR, callback){
+                            var autocomplete_list = [];
+                            for (var i = 0; i < data.length; i++) {
+                                var worksheet = data[i];
+                                // autocomplete_list .push({
+                                //     'text': worksheet.uuid, // UUID
+                                //     'display': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
+                                // });
+                                autocomplete_list.push(worksheet.uuid);
+                            }
+                            defer.resolve(autocomplete_list)
+                        },
+                        error: function(jqHXR, status, error){
+                            displayError(jqHXR, status);
+                        }
+                    });
+                    return defer.promise();
                 },
                 executefn: function(options, term){
-                    debugger;
-                    options = options.splice(1, options.length-1)[0] // cut out the command
-                    window.location = '/worksheets/' + options + '/';
-                },
-            }, // end off work
-            'workNOT': {
-                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
-                minimumInputLength: 0,
-                edit_enabled: false,
-                autocomplete: function(query){
-                    // var get_data = {
-                    //     search_string: query.term
-                    // };
-                    // $.ajax({
-                    //     type: 'GET',
-                    //     url: '/api/worksheets/search/',
-                    //     dataType: 'json',
-                    //     data: get_data,
-                    //     success: function(data, status, jqXHR, callback){
-                    //         // select2 wants its options in a certain format, so let's make a new
-                    //         // list it will like
-                    //         query.callback({
-                    //             results: ws_actions.AjaxWorksheetDictToOptions(data)
-                    //         });
-                    //     },
-                    //     error: function(jqHXR, status, error){
-                    //         displayError(jqHXR, status);
-                    //     }
-                    // });
-                    return ['0x100d688cdcb142179608fe1ee0b020c3', '0xfaaa1ae10a8b4d778ccce596fcde52be']
-                },
-                executefn: function(options, term){
-                    options = options[1]
-                    window.location = '/worksheets/' + options + '/';
+                    var defer = jQuery.Deferred();
+                    defer.resolve()
+                    window.location = '/worksheets/' + options[1] + '/';
+                    return defer.promise();
                 },
             }, // end off work
         }; // end of commands
@@ -503,6 +526,10 @@ var WorksheetActions =  function() {
     WorksheetActions.prototype.getCommands = function(can_edit){
         // The select2 autocomplete expects its data in a certain way, so we'll turn
         // relevant parts of the command dict into an array it can work with
+        // this is derfered since getCommands is used for autocomplete.
+        // if used else where don't forget your .then()
+        var defer = jQuery.Deferred();
+
         can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
         var commandDict = this.commands;
         var commandList = [];
@@ -512,7 +539,9 @@ var WorksheetActions =  function() {
             }
         }
         commandList = _.without(commandList, 'cl')
-        return commandList;
+        commandList = commandList.concat(this.not_implemented_commands)
+        defer.resolve(commandList); // resolve immediately since this isnt ajax
+        return defer.promise();
     }; // end of getCommands
 
     WorksheetActions.prototype.checkAndReturnCommand = function(input){

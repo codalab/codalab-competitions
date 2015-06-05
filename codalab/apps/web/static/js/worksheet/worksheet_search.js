@@ -12,36 +12,39 @@ var WorksheetSearch = React.createClass({
         var tab_count = 0;
         var term = $('#command_line').terminal(
             // 1st argument is handle commands entered
-            function(command, term) {
+            function(entered, term) {
                 // lets clean and cut up what the enterd
-                command = command.trim(); // cut of any extra whitespace
-                var args = command.split(' '); //command.get_command().split(' ')
+                var command = entered.trim(); // cut of any extra whitespace
+                var args;
+                var last;
+                args = command.split(' '); //command.get_command().split(' ')
                 command = args[1]; // the command they enterd, minus cl
-                var last = args[args.length-1];
+                args = args.splice(1, args.length-1)
+                last = args[args.length-1];
 
                 console.log("entered command");
                 console.log(command);
                 console.log(args);
                 console.log("******* PARSE AND RUN *********");
+
                 if(typeof(command) == 'undefined'){  // no command
                     return;
                 }
-                ws_action_command = ws_actions.checkAndReturnCommand(command);
+
+                var ws_action_command = ws_actions.checkAndReturnCommand(command);
                 if(typeof(ws_action_command) == 'undefined'){  // no command
-                    //didnt find anything take all extra
-                    // throw it in cl command and hope for the best
+                    // didnt find anything take all extra text throw it in cl command and hope for the best
                     ws_action_command = ws_actions.checkAndReturnCommand('cl');
-                    ws_action_command.executefn(args, term); // todo promise
-                }else{ // we have a ws_action lets use it.
-                    ws_action_command.executefn(args, term); // todo promise
                 }
-                if(command == 'time'){
-                    term.pause()
-                    setTimeout(function(){
-                        term.resume();
-                        term.echo("<h3>response</h3>", {raw:true});
-                    }, 3000);
-                }
+                var executefn = ws_action_command.executefn(args, term)
+                // lets lock the term, do the command enterd and unlock stops the user from typing
+                // executefn is a promise
+                term.pause();
+                executefn.always(function (data) {
+                    term.resume();
+                    // console.log(data);
+                });
+
 
             },
             // 2nd is helpers and options. Take note of keydown for tab completion
@@ -71,53 +74,60 @@ var WorksheetSearch = React.createClass({
                             term.set_command('cl ' + entered);
                         }
 
-                        var auto_complete_list;
+                        var fetch_auto_complete_list;
                         if(args.length > 2 && args[1]){
                             command = ws_actions.checkAndReturnCommand(args[1]);
-                            auto_complete_list = command.autocomplete(last) // todo handle ajax blocking // todo promise
+                            fetch_auto_complete_list = command.autocomplete(args) // todo handle ajax blocking // todo promise
                         }else{
-                            auto_complete_list = ws_actions.getCommands(self.props.canEdit); // todo promise
+                            fetch_auto_complete_list = ws_actions.getCommands(self.props.canEdit); // todo promise
                         }
 
-                        var regex = new RegExp('^' + $.terminal.escape_regex(last));
-                        var matched = [];
-                        // push all found auto_complete_list in to matched for more tricks
-                        for (var i=auto_complete_list.length; i--;) {
-                            if (regex.test(auto_complete_list[i])) {
-                                matched.push(auto_complete_list[i]);
+                        // lets lock the term, do the lookup
+                        // fetch_auto_complete_list is a promise
+                        term.pause();
+                        fetch_auto_complete_list.always(function(auto_complete_list){
+                            term.resume(); // unblock since we are doing stuff to the term
+                            var regex = new RegExp('^' + $.terminal.escape_regex(last));
+                            var matched = [];
+                            // push all found auto_complete_list in to matched for more tricks
+                            for (var i=auto_complete_list.length; i--;) {
+                                if (regex.test(auto_complete_list[i])) {
+                                    matched.push(auto_complete_list[i]);
+                                }
                             }
-                        }
-                        // now for the insert or print out
-                        if(matched.length === 1){ // we found an exact match, just put in in the term
-                            term.insert(matched[0].replace(regex, '') + ' ');
-                        }else if (matched.length > 1) {
-                            if (tab_count >= 2) {
-                                // TODO fancy ouput, not just \t
-                                // term.echo("<a href='http://google.com'>a link</a>", {raw: true});
-                                term.echo(matched.join('\t'));
-                                tab_count = 0;
-                            } else {
-                                // lets find what matches and fill in as much as we can if not a full match
-                                // example: test123 and testabc are comp words, type `te`, hit tab,
-                                //          we can complete to `test` based on matchs
-                                var found = false;
-                                var found_index;
-                                var j;
-                                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label
-                                loop: // dont stop till found, because it is guaranteed from before, thanks matched
-                                    for (j=last.length; j<matched[0].length; ++j) {
-                                        for (i=1; i<matched.length; ++i) {
-                                            if (matched[0].charAt(j) !== matched[i].charAt(j)) {
-                                                break loop;
+                            // now for the insert or print out
+                            if(matched.length === 1){ // we found an exact match, just put in in the term
+                                term.insert(matched[0].replace(regex, '') + ' ');
+                            }else if (matched.length > 1) {
+                                if (tab_count >= 2) {
+                                    // TODO fancy ouput, not just \t
+                                    // term.echo("<a href='http://google.com'>a link</a>", {raw: true});
+                                    term.echo(matched.join('\t'));
+                                    tab_count = 0;
+                                } else {
+                                    // lets find what matches and fill in as much as we can if not a full match
+                                    // example: test123 and testabc are comp words, type `te`, hit tab,
+                                    //          we can complete to `test` based on matchs
+                                    var found = false;
+                                    var found_index;
+                                    var j;
+                                    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label
+                                    loop: // dont stop till found, because it is guaranteed from before, thanks matched
+                                        for (j=last.length; j<matched[0].length; ++j) {
+                                            for (i=1; i<matched.length; ++i) {
+                                                if (matched[0].charAt(j) !== matched[i].charAt(j)) {
+                                                    break loop;
+                                                }
                                             }
+                                            found = true;
                                         }
-                                        found = true;
-                                    }
-                                    if (found) {
-                                        term.insert(matched[0].slice(0, j).replace(regex, ''));
-                                    }
-                            }
-                        }// end if else if
+                                        if (found) {
+                                            term.insert(matched[0].slice(0, j).replace(regex, ''));
+                                        }
+                                }// end of if tab_count
+                            }// end if else if
+                        }); // end of then
+
                         return false; // dont really hit tab
                     }else{// end if 9 aka tab, reset the counter
                         tab_count = 0;
