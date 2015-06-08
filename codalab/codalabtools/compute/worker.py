@@ -319,7 +319,7 @@ def get_run_func(config):
                 endTime = time.time()
                 elapsedTime = endTime - startTime
 
-                if len(prog_cmd_list) > 1:
+                if len(prog_cmd_list) == 1:
                     # Overwrite prog_status array with dict
                     prog_status = {
                         'exitCode': exit_code,
