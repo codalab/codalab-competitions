@@ -40,6 +40,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
+from apps.coopetitions.models import DownloadRecord
 
 logger = logging.getLogger(__name__)
 
@@ -260,6 +261,24 @@ def score(submission, job_id):
             writer.writerow(row)
 
         coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue())
+
+    coopetition_downloads_csv = StringIO.StringIO()
+    writer = csv.writer(coopetition_downloads_csv)
+    writer.writerow((
+        "submission_pk",
+        "submission_owner",
+        "downloaded_by",
+        "time_of_download",
+    ))
+    for download in DownloadRecord.objects.filter(submission__phase__competition=submission.phase.competition):
+        writer.writerow((
+            download.submission.pk,
+            download.submission.participant.user.username,
+            download.user.username,
+            str(download.timestamp),
+        ))
+
+    coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue())
 
     coopetition_zip_file.close()
     submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
