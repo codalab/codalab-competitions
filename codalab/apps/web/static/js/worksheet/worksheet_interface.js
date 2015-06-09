@@ -27,7 +27,15 @@ var Worksheet = React.createClass({
             rawMode: false,
             showSearchBar: true,
             editingText: false,
+            focusIndex: -1,
+            subFocusIndex: 0,
         };
+    },
+    _setfocusIndex: function(index){
+        this.setState({focusIndex: index});
+    },
+    _setWorksheetSubFocusIndex: function(index){
+        this.setState({subFocusIndex: index});
     },
     componentDidMount: function() {
         this.bindEvents();
@@ -117,7 +125,6 @@ var Worksheet = React.createClass({
                 this.showSearchBar();
                 this.setState({activeComponent: 'search'});
         }.bind(this));
-
 
         //toggle raw - F
         Mousetrap.bind(['shift+f'], function(e){
@@ -298,12 +305,13 @@ var Worksheet = React.createClass({
                     toggleRawMode={this.toggleRawMode}
                     toggleSearchBar={this.toggleSearchBar}
                     hideSearchBar={this.hideSearchBar}
+                    updateWorksheetFocusIndex={this._setfocusIndex}
+                    updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
                     showSearchBar={this.showSearchBar}
                     toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
                 />
-                )
-
+            )
 
         var search_display = (
                 <WorksheetSearch
@@ -317,6 +325,18 @@ var Worksheet = React.createClass({
                 />
             )
 
+        var worksheet_side_panel = null;
+        if(ws_obj.state.items.length){
+            worksheet_side_panel = (
+                <WorksheetSidePanel
+                    ref={"panel"}
+                    active={this.state.activeComponent=='side_panel'}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
+                />
+            )
+        }
+
         var worksheet_modal = (
                 <BootstrapModal
                     ref={"modal"}
@@ -329,30 +349,34 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={serachClassName}>
                 {search_display}
-                <div className="container">
-                    <div id="worksheet_content" className={editableClassName}>
-                        <div className="header-row">
-                            <div className="row">
-                                <div className="col-sm-6">
-                                    <div className="worksheet-name">
-                                        <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                                        <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                        <div className="worksheet-permission">Permission: {permission_str}</div>
+                {worksheet_side_panel}
+                <div className="ws-container">
+                    <div className="container-fluid">
+                        <div id="worksheet_content" className={editableClassName}>
+                            <div className="header-row">
+                                <div className="row">
+                                    <div className="col-sm-6 col-md-8">
+                                        <div className="worksheet-name">
+                                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                                            <div className="worksheet-author">{ws_obj.state.owner}</div>
+                                            <div className="worksheet-permission">Permission: {permission_str}</div>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6 col-md-4">
+                                        <div className="controls">
+                                            <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                            {editFeatures}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-sm-6">
-                                    <div className="controls">
-                                        <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                        {editFeatures}
-                                    </div>
-                                </div>
+                                <hr />
                             </div>
-                            <hr />
+                            {worksheet_display}
                         </div>
-                        {worksheet_display}
                     </div>
                     {worksheet_modal}
                 </div>
+                <div id="dragbar"></div>
             </div>
         )
     }
