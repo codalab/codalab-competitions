@@ -7,6 +7,7 @@ import os
 import sys
 import traceback
 import yaml
+import mimetypes
 
 from os.path import splitext
 
@@ -30,6 +31,7 @@ from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from django.core.servers.basehttp import FileWrapper
 
 from mimetypes import MimeTypes
 
@@ -1089,6 +1091,7 @@ def download_dataset(request, dataset_key):
 
     try:
         if dataset.sub_data_files.count() > 0:
+            # TODO: Could refactor this to only zip this stuff up one time, maybe after dataset creation?
             zip_buffer = StringIO.StringIO()
 
             zip_file = zipfile.ZipFile(zip_buffer, "w")
@@ -1106,7 +1109,13 @@ def download_dataset(request, dataset_key):
         else:
             mime = MimeTypes()
             file_type = mime.guess_type(dataset.data_file.file.name)
-            response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+            chunk_size = 8192
+            response = StreamingHttpResponse(
+                FileWrapper(open(dataset.data_file), chunk_size),
+                status=200,
+                content_type=file_type
+            )
+            response['Content-Length'] = os.path.getsize(dataset.data_file)
             if file_type != 'text/plain':
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
             return response
