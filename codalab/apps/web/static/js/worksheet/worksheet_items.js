@@ -45,7 +45,7 @@ var WorksheetItemList = React.createClass({
             }else {
                 fIndex = Math.max(this.state.focusIndex - 1, 0);
             }
-            this.setFocus(fIndex, e);
+            this.setFocus(fIndex, e, null, 'up');
         }.bind(this), 'keydown');
 
         Mousetrap.bind(['ctrl+up', 'meta+up', 'ctrl+k', 'meta+k'], function(e){
@@ -56,7 +56,7 @@ var WorksheetItemList = React.createClass({
         //jump to the top - 1 G
         Mousetrap.bind(['1 shift+g'], function(e){
             $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0, e);
+            this.setFocus(0, e, null, null);
         }.bind(this), 'keydown');
 
         ////
@@ -66,7 +66,7 @@ var WorksheetItemList = React.createClass({
             // not be the same as the number of item objects because of editing/inserting/whatever,
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex, e);
+            this.setFocus(fIndex, e, null, 'down');
             // console.log('moving down');
         }.bind(this), 'keydown');
 
@@ -79,7 +79,7 @@ var WorksheetItemList = React.createClass({
         // jump to the bottom - G
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex, e, true);
+            this.setFocus(fIndex, e, null, true);
             $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
@@ -127,33 +127,34 @@ var WorksheetItemList = React.createClass({
 
 
         if(focusedItem && focusedItem.hasOwnProperty('capture_keys')){
-                // pass the event along to the element
-                focusedItem.capture_keys();
+            // pass the event along to the element
+            focusedItem.capture_keys();
         }
     },
     scrollToItem: function(index, event){
         // scroll the window to keep the focused element in view if needed
         var __innerScrollToItem = function(index, event){
+            var container = $(".ws-container")
             var navbarHeight = parseInt($('body').css('padding-top'));
-            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            var viewportHeight = Math.max($(".ws-container").innerHeight() || 0);
 
             var item = this.refs['item' + index];
             var node = item.getDOMNode();
             var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
              // where is the top of the elm on the page and does it fit in the the upper forth of the page
-            var scrollTo = $(window).scrollTop() + nodePos.top - navbarHeight - (viewportHeight/4);
+            var scrollTo = $(".ws-container").scrollTop() + nodePos.top - navbarHeight - (viewportHeight/4);
             // how far node top is from top of viewport
             var distanceFromTopViewPort = nodePos.top - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
             // console.log('scrolling');
             if(distanceFromTopViewPort > viewportHeight/3){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
             // if the elment is not in the viewport (way up top), just scroll
             if(distanceFromTopViewPort < 0){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
         }; // end of __innerScrollToItem
@@ -163,7 +164,6 @@ var WorksheetItemList = React.createClass({
             this.throttledScrollToItem = _.throttle(__innerScrollToItem, 75).bind(this);
         }
         this.throttledScrollToItem(index, event);
-
     },
     resetFocusIndex: function(){
         this.setState({focusIndex: -1});
@@ -276,23 +276,28 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index, event, last_sub_el){
+    setFocus: function(index, event, last_sub_el, direction){
         // index : what item index we want to focus on
         // event : the JS click event or keyboar event
         // last_sub_el: True/False force a focus on the last sub element
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});
+            //pass back up to workshet interface so the app knows which item is slected
+            this.props.updateWorksheetFocusIndex(index)
             if(index >= 0){
                 var mode = ws_obj.state.items[index].state.mode;
                 var react_el = this.refs['item'+index]
                 if(mode === 'table'){
                     this.toggleCheckboxEnable(false);
+                    if(direction == 'up'){
+                        last_sub_el = true;
+                    }
                 }else {
                     this.toggleCheckboxEnable(true);
                 }
                 if(react_el && last_sub_el){ //we have a react item and wish to force last sub item (usefulll for tables)
                     if(react_el.hasOwnProperty('focusOnLast')){
-                        react_el.focusOnLast();
+                        react_el.focusOnLast(event);
                     }
                 }
                 if(typeof(event) !== 'undefined'){
@@ -314,11 +319,13 @@ var WorksheetItemList = React.createClass({
         this.capture_keys(); //each item capture keys are handled dynamically after this call
         // shortcut naming
         var canEdit         = this.props.canEdit;
+        var updateWSFI      = this.props.updateWorksheetSubFocusIndex; //when on a complex item type (table) understand which bundle user has selectd
         var checkboxEnabled = this.state.checkboxEnabled;
         var editingIndex    = this.state.editingIndex;
         var focusIndex      = this.state.focusIndex;
         var handleSave      = this.saveItem;
         var setFocus        = this.setFocus;
+
 
         var worksheet_items = [];
         // console.log(ws_obj.state.items);
@@ -331,7 +338,7 @@ var WorksheetItemList = React.createClass({
                 var editing = i === editingIndex;
                 //create the item of the correct type and add it to the list.
                 worksheet_items.push(
-                        WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled)
+                        WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWSFI)
                     )
             });
             items_display = worksheet_items
@@ -351,7 +358,7 @@ var WorksheetItemList = React.createClass({
 
 
 
-var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled){
+var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWorksheetSubFocusIndex){
     switch (item.state.mode) {
         case 'markup':
             return <MarkdownBundle
@@ -364,6 +371,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
 
                         handleSave={handleSave}
                 />
@@ -379,11 +387,12 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'table':
             return <TableBundle
-                        key={i}
+                        key={'tb'+i}
                         index={i}
                         item={item}
                         ref={ref}
@@ -392,6 +401,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
 
                         handleSave={handleSave}
                     />
@@ -407,6 +417,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'html':
@@ -420,6 +431,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'record':
@@ -433,6 +445,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'image':
@@ -446,6 +459,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'worksheet':
@@ -459,6 +473,7 @@ var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, 
                         canEdit={canEdit}
                         setFocus={setFocus}
                         checkboxEnabled={checkboxEnabled}
+                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
                 />
             break;
         case 'search':
