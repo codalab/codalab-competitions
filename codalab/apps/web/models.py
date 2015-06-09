@@ -37,6 +37,7 @@ from django_extensions.db.fields import UUIDField
 from django.contrib.auth import get_user_model
 
 from apps.forums.models import Forum
+from apps.coopetitions.models import DownloadRecord
 
 
 User = get_user_model()
@@ -1034,8 +1035,7 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied()
 
         if key == 'input.zip':
-            self.download_count += 1
-            self.save()
+            DownloadRecord.objects.get_or_create(user=requested_by, submission=self)
 
         if file_ext == 'txt':
             file_type = 'text/plain'
