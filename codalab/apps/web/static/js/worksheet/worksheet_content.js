@@ -491,7 +491,7 @@ var WorksheetContent = function() {
                 this.state = data;
                 var ws_items = [];
                 data.items.map(function(item){
-                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode, item.properties);
+                    var ws_item = new WorksheetItem(item.interpreted, item.bundle_info, item.mode, item.properties, item.subworksheet_info);
                     ws_items.push(ws_item);
                 });
                 this.state.items = ws_items;
@@ -547,11 +547,12 @@ var WorksheetContent = function() {
 // gets created in worksheet/details.html
 var WorksheetItem = function() {
     //init
-    function WorksheetItem(interpreted, bundle_info, mode, properties) {
+    function WorksheetItem(interpreted, bundle_info, mode, properties, subworksheet_info) {
         this.state = {
             interpreted: interpreted,
             bundle_info: bundle_info,
             properties: properties,
+            subworksheet_info: subworksheet_info,
             mode: mode,
             raw_index: 0,
             raw_size: 0,
