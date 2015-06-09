@@ -233,6 +233,7 @@ def score(submission, job_id):
     score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
     submission.scores_file.save('scores.txt', ContentFile(score_csv))
 
+    # Extra submission info
     coopetition_zip_buffer = StringIO.StringIO()
     coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
 
@@ -247,7 +248,7 @@ def score(submission, job_id):
             "download_count",
             "submission_number",
         )
-        coopetition_dict = phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
+        annotated_submissions = phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
             *coopetition_field_names
         ).annotate(like_count=Count("likes"), dislike_count=Count("dislikes"))
 
@@ -257,11 +258,19 @@ def score(submission, job_id):
         coopetition_csv = StringIO.StringIO()
         writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
         writer.writeheader()
-        for row in coopetition_dict:
+        for row in annotated_submissions:
             writer.writerow(row)
 
         coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue())
 
+    # Scores metadata
+    for phase in submission.phase.competition.phases.all():
+        coopetition_zip_file.writestr(
+            'coopetition_scores_phase_%s.txt' % phase.phasenumber,
+            phase.competition.get_results_csv(phase.pk)
+        )
+
+    # Download metadata
     coopetition_downloads_csv = StringIO.StringIO()
     writer = csv.writer(coopetition_downloads_csv)
     writer.writerow((
