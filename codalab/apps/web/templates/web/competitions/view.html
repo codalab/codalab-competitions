@@ -195,6 +195,7 @@
                                         <td width="125"><b>User</b></td>
                                         <td width="125"><b>Date</b></td>
                                         <td><b>Description</b></td>
+                                        <td width="100"><b>Score</b></td>
                                         <td width="100"><b>Likes</b></td>
                                         <td width="125"><b>Downloads</b></td>
                                         {% if competition.enable_detailed_results %}
@@ -209,6 +210,7 @@
                                         <td><b>{{ submission.participant.user.username }}</b></td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
+                                        <td>{{ submission.get_default_score|floatformat:3 }}</td>
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"

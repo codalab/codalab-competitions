@@ -1049,6 +1049,13 @@ class CompetitionSubmission(models.Model):
     def get_overall_like_count(self):
         return self.like_count - self.dislike_count
 
+    def get_default_score(self):
+        score = self.scores.filter(scoredef__ordering=1)
+        if score:
+            return score[0].value
+        else:
+            return None
+
 
 class SubmissionResultGroup(models.Model):
     competition = models.ForeignKey(Competition)
