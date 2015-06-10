@@ -320,12 +320,12 @@ class Competition(models.Model):
             if current_phase.auto_migration:
                 self.do_phase_migration(current_phase, last_phase)
 
-    def get_results_csv(self, phase_pk):
+    def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False):
         phase = self.phases.get(pk=phase_pk)
         if phase.is_blind:
             return 'Not allowed, phase is blind.'
 
-        groups = phase.scores()
+        groups = phase.scores(include_scores_not_on_leaderboard=include_scores_not_on_leaderboard)
 
         csvfile = StringIO.StringIO()
         csvwriter = csv.writer(csvfile)

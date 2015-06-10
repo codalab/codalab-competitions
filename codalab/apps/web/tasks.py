@@ -267,7 +267,7 @@ def score(submission, job_id):
     for phase in submission.phase.competition.phases.all():
         coopetition_zip_file.writestr(
             'coopetition_scores_phase_%s.txt' % phase.phasenumber,
-            phase.competition.get_results_csv(phase.pk)
+            phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True)
         )
 
     # Download metadata
