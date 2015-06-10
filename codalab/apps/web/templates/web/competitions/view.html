@@ -6,6 +6,10 @@
 {% block head_title %}Competition{% endblock %}
 {% block page_title %}Competition{% endblock page_title %}
 
+{% block extra_scripts %}
+    <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
 {% if request.user.is_staff %}
@@ -191,8 +195,11 @@
                                         <td width="125"><b>User</b></td>
                                         <td width="125"><b>Date</b></td>
                                         <td><b>Description</b></td>
-                                        <td width="200">Likes</td>
-                                        <td width="250"><b>Downloads</b></td>
+                                        <td width="100"><b>Likes</b></td>
+                                        <td width="125"><b>Downloads</b></td>
+                                        {% if competition.enable_detailed_results %}
+                                            <td width="150"><b>Detailed results?</b></td>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -201,7 +208,7 @@
                                         <td>{{ forloop.counter }}</td>
                                         <td><b>{{ submission.participant.user.username }}</b></td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
-                                        <td>{{ submission.description|default_if_none:""|escape }}</td>
+                                        <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
@@ -214,7 +221,6 @@
                                                       original-count="{{ submission.get_overall_like_count|default:0 }}{% if submission.already_disliked %}+1{% endif %}{% if submission.already_liked %}-1{% endif %}">
                                                     {{ submission.get_overall_like_count|default:0 }}
                                                 </span>
-                                                likes
                                             </span>
                                         </td>
                                         <td>
@@ -223,9 +229,14 @@
                                                     data-toggle="modal"
                                                     data-target="#public-submission-modal"
                                                     data-download-count="{{ submission.download_count|default:0 }}">
-                                                View (download count: {{ submission.download_count|default:0 }})
+                                                <i class="glyphicon glyphicon-download"></i> ({{ submission.download_count|default:0 }} dl{{ submission.download_count|pluralize }})
                                             </button>
                                         </td>
+                                        {% if competition.enable_detailed_results %}
+                                        <td>
+                                            <li><a href="/my/competition/submission/{{ submission.pk }}/detailed_results" target="_blank">View detailed results</a></li>
+                                        </td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -311,7 +322,10 @@
             /******************************************************************
             Public submissions
              *****************************************************************/
-            // Thumbs up submissions
+            // Truncate long submision descriptions
+            $(".truncate-readmore").readmore({collapsedHeight: 45});
+
+            // Thumbs up/down submissions
             $(".like").click(function() {
                 var element = $(this);
                 var already_liked = element.hasClass("already-liked");
