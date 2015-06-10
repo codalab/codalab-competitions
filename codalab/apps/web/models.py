@@ -37,6 +37,7 @@ from django_extensions.db.fields import UUIDField
 from django.contrib.auth import get_user_model
 
 from apps.forums.models import Forum
+from apps.coopetitions.models import DownloadRecord
 
 
 User = get_user_model()
@@ -319,12 +320,12 @@ class Competition(models.Model):
             if current_phase.auto_migration:
                 self.do_phase_migration(current_phase, last_phase)
 
-    def get_results_csv(self, phase_pk):
+    def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False):
         phase = self.phases.get(pk=phase_pk)
         if phase.is_blind:
             return 'Not allowed, phase is blind.'
 
-        groups = phase.scores()
+        groups = phase.scores(include_scores_not_on_leaderboard=include_scores_not_on_leaderboard)
 
         csvfile = StringIO.StringIO()
         csvwriter = csv.writer(csvfile)
@@ -1034,8 +1035,7 @@ class CompetitionSubmission(models.Model):
                 raise PermissionDenied()
 
         if key == 'input.zip':
-            self.download_count += 1
-            self.save()
+            DownloadRecord.objects.get_or_create(user=requested_by, submission=self)
 
         if file_ext == 'txt':
             file_type = 'text/plain'
@@ -1048,6 +1048,13 @@ class CompetitionSubmission(models.Model):
 
     def get_overall_like_count(self):
         return self.like_count - self.dislike_count
+
+    def get_default_score(self):
+        score = self.scores.filter(scoredef__ordering=1)
+        if score:
+            return score[0].value
+        else:
+            return None
 
 
 class SubmissionResultGroup(models.Model):
