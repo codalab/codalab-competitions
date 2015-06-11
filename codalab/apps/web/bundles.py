@@ -2,6 +2,7 @@ from time import sleep
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
+from django.utils.encoding import smart_str
 
 from xmlrpclib import Fault, ProtocolError
 
@@ -14,9 +15,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.bundles.uploaded_bundle import UploadedBundle
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from codalab.common import UsageError, PermissionError
-    from codalab.lib import worksheet_util, bundle_cli, metadata_util
-    from codalab.objects.permission import permission_str, group_permissions_str
+    from codalab.lib import worksheet_util, bundle_cli, metadata_util, file_util
     from codalab.lib.codalab_manager import CodaLabManager
+    from codalab.objects.permission import permission_str, group_permissions_str
+    from codalab.server.rpc_file_handle import RPCFileHandle
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -26,6 +28,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.bundles import (
         get_bundle_subclass
     )
+
 
     def _call_with_retries(f, retry_count=0):
         try:
@@ -155,6 +158,28 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             }
             new_bundle_uuid = self.client.upload_bundle_url(url, info, worksheet_uuid, True)
             return new_bundle_uuid
+
+
+        def upload_bundle_file(self, in_mem_file, worksheet_uuid):
+            remote_file_uuid = self.client.open_temp_file()
+            dest = RPCFileHandle(remote_file_uuid, self.client.proxy)
+            file_util.copy(in_mem_file, dest, autoflush=False)
+            dest.close()
+            info = {
+                'bundle_type': 'dataset',
+                'metadata': {
+                    'source_url': u'',
+                    'tags': [],
+                    'name': smart_str(file.name),
+                    'license': u'',
+                    'description': 'Upload from web'
+                }
+            }
+            #TODO save to worksheet.
+            # self.client.upload_bundle_zip(remote_file_uuid, info, worksheet_uuid, False, True)
+
+            return None
+
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
