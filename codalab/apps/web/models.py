@@ -348,7 +348,7 @@ class Competition(models.Model):
                         sub_headers.append(sub['label'])
                 else:
                     headers.append(header['label'])
-            csvwriter.writerow(headers)
+            csvwriter.writerow(['submission_pk',] + headers)
             if sub_headers != ['']:
                 csvwriter.writerow(sub_headers)
 
@@ -365,7 +365,7 @@ class Competition(models.Model):
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
                             else:
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
-                        csvwriter.writerow(row)
+                        csvwriter.writerow([scores['id'],] + row)
             except:
                 csvwriter.writerow(["Exception parsing scores!"])
                 logger.error("Error parsing scores for competition PK=%s" % self.pk)
