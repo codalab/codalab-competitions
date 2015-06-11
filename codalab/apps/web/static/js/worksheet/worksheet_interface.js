@@ -25,7 +25,7 @@ var Worksheet = React.createClass({
             activeComponent: 'list',
             editMode: false,
             rawMode: false,
-            showSearchBar: true,
+            showActionBar: true,
             editingText: false,
             focusIndex: -1,
             subFocusIndex: 0,
@@ -64,16 +64,16 @@ var Worksheet = React.createClass({
         this.toggleEditing(false);
         this.toggleRawMode(true);
     },
-    handleSearchFocus: function(event){
-        this.setState({activeComponent:'search'});
+    handleActionBarFocus: function(event){
+        this.setState({activeComponent:'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
-    handleSearchBlur: function(event){
-        // explicitly close the select2 dropdown because we're leaving the search bar
-        $('#search').select2('close');
+    handleActionBarBlur: function(event){
+        // explicitly close term because we're leaving the action bar
+        // $('#command_line').terminal().focus(false);
         this.setState({activeComponent:'list'});
     },
     capture_keys: function(){
@@ -118,12 +118,12 @@ var Worksheet = React.createClass({
 
         //toggle search bar - B
         Mousetrap.bind(['shift+b'], function(e){
-            this.toggleSearchBar();
+            this.toggleActionBar();
         }.bind(this));
 
          Mousetrap.bind(['/'], function(e){
-                this.showSearchBar();
-                this.setState({activeComponent: 'search'});
+                this.showActionBar();
+                this.setState({activeComponent: 'action'});
         }.bind(this));
 
         //toggle raw - F
@@ -177,14 +177,14 @@ var Worksheet = React.createClass({
         }
 
     },
-    toggleSearchBar: function(){
-        this.setState({showSearchBar:!this.state.showSearchBar});
+    toggleActionBar: function(){
+        this.setState({showActionBar:!this.state.showActionBar});
     },
-    showSearchBar: function(){
-        this.setState({showSearchBar:true});
+    showActionBar: function(){
+        this.setState({showActionBar:true});
     },
-    hideSearchBar: function(){
-        this.setState({showSearchBar:false});
+    hideActionBar: function(){
+        this.setState({showActionBar:false});
     },
     refreshWorksheet: function(){
         $('#update_progress').show();
@@ -253,7 +253,7 @@ var Worksheet = React.createClass({
         var editPermission = ws_obj.getState().edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
 
-        var searchHidden = !editPermission && !this.state.showSearchBar;
+        var searchHidden = !editPermission && !this.state.showActionBar;
         var checkboxEnabled = this.state.checkboxEnabled;
 
         var serachClassName     = searchHidden ? 'search-hidden' : '';
@@ -303,24 +303,24 @@ var Worksheet = React.createClass({
                     saveAndUpdateWorksheet={this.saveAndUpdateWorksheet}
                     toggleEditing={this.toggleEditing}
                     toggleRawMode={this.toggleRawMode}
-                    toggleSearchBar={this.toggleSearchBar}
-                    hideSearchBar={this.hideSearchBar}
+                    toggleActionBar={this.toggleActionBar}
+                    hideActionBar={this.hideActionBar}
                     updateWorksheetFocusIndex={this._setfocusIndex}
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
-                    showSearchBar={this.showSearchBar}
+                    showActionBar={this.showActionBar}
                     toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
 
-        var search_display = (
-                <WorksheetSearch
-                    ref={"search"}
+        var action_bar_display = (
+                <WorksheetActionBar
+                    ref={"action"}
                     canEdit={this.canEdit()}
-                    handleFocus={this.handleSearchFocus}
-                    handleBlur={this.handleSearchBlur}
+                    handleFocus={this.handleActionBarFocus}
+                    handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent=='search'}
-                    show={this.state.showSearchBar}
+                    show={this.state.showActionBar}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
@@ -348,7 +348,7 @@ var Worksheet = React.createClass({
 
         return (
             <div id="worksheet" className={serachClassName}>
-                {search_display}
+                {action_bar_display}
                 {worksheet_side_panel}
                 <div className="ws-container">
                     <div className="container-fluid">
