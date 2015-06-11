@@ -178,7 +178,9 @@ var WorksheetDetailSidePanel = React.createClass({
                    bundle_info = item.state.bundle_info;
                    if(Array.isArray(bundle_info)){
                         bundle_info.forEach(function(bi, i){
-                            bundle_push(bi);
+                            if(bi.hasOwnProperty('data_hash')){
+                                bundle_push(bi);
+                            }
                         });
                    }else{
                         bundle_push(bundle_info);
