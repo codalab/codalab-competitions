@@ -431,7 +431,8 @@ var WorksheetActions =  function() {
                                 defer.resolve();
                             },
                             error: function(jqHXR, status, error){
-                                displayError(jqHXR, status);
+                                term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                                // displayError(jqHXR, status);
                                 defer.reject();
                             }
                         });
@@ -471,7 +472,7 @@ var WorksheetActions =  function() {
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){
-                            defer.resolve([])
+                            defer.resolve([]);
                             var error = jqHXR.responseJSON['error'];
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                         }
