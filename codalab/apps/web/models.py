@@ -667,7 +667,10 @@ class CompetitionPhase(models.Model):
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             if include_scores_not_on_leaderboard:
-                qs = CompetitionSubmission.objects.filter(phase=self)
+                qs = CompetitionSubmission.objects.filter(
+                    phase=self,
+                    status__codename=CompetitionSubmissionStatus.FINISHED
+                )
                 for submission in qs:
                     result_location.append(submission.file.name)
                     submissions.append((submission.pk, submission.participant.user))
