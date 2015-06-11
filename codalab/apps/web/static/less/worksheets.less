@@ -1,3 +1,29 @@
+@initial-panel-width: 25%;
+@panel-bg: #FBFBFB;
+
+.panel-frame {
+   margin-top:12px;
+   line-height:1.2;
+   min-height:480px;
+}
+.panel-text-overflow {
+   max-width:100%;
+   overflow-x:hidden;
+   text-overflow:ellipsis;
+}
+.bundle-state {
+   .label;
+   &.state-ready {
+      .label-success;
+   }
+   &.state-running {
+      .label-warning;
+   }
+   &.state-failed {
+      .label-danger;
+   }
+}
+html, body, #worksheet_container {height:100%;}
 #worksheet-message {
    padding:20px 0;
    &.alert {
@@ -10,6 +36,8 @@
 }
 #worksheet {
    .transition(margin-top .35s ease);
+   position:relative;
+   height:100%;
    .ws-search {
       position:fixed;
       top:52px;
@@ -23,6 +51,7 @@
       .transition(top .35s ease);
       > .container {
          display:table;
+         padding-right:65px;
          > .input-group {
             display:table-row;
             .select2-container, .input-group-btn {
@@ -33,6 +62,7 @@
                top:0;
                bottom:0;
                line-height:1;
+               width:50px;
             }
          }
       }
@@ -54,13 +84,126 @@
          top:-7px;
       }
    }
+   #dragbar {
+      background-color:@gray-light;
+      position:absolute;
+      height:100%;
+      right:@initial-panel-width;
+      width: 2px;
+      cursor: col-resize;
+   }
+   .ws-container {
+      position: absolute;
+      left: 0;
+      right:@initial-panel-width;
+      padding: 0 @grid-gutter-width;
+      height:100%;
+      overflow:auto;
+   }
+   .ws-panel {
+      width:@initial-panel-width;
+      min-width:200px;
+      position: absolute;
+      right:0;
+      height:100%;
+      overflow:auto;
+      padding: 0 @grid-gutter-width/3;
+      background:@panel-bg;
+      #panel_content {
+         font-size:14px;
+         .panel-frame;
+         .ws-uuid {
+            .panel-text-overflow;
+         }
+         .bundle-description {
+            font-size:90%;
+            margin: 5px 0;
+         }
+         h3 {
+            margin-top:@line-height-computed / 2;
+            margin-bottom:@line-height-computed / 2;
+            font-size:24px;
+            line-height:1.1em;
+            &.bundle-name {
+               .bundle-icon-sm;
+               padding-left:30px;
+               background-size:20px;
+               background-position:0 7px;
+            }
+            &.ws-name {
+               .worksheet-icon-sm;
+               padding-left:26px;
+               background-size:20px;
+               background-position:0 7px;
+
+            }
+         }
+         h4 {
+            font-size:20px;
+            margin-bottom:8px;
+            margin-top:12px;
+            padding-top:8px;
+            border-top:2px solid @gray-light;
+         }
+         p {
+            margin:0;
+            line-height:1.34em;
+         }
+         hr {
+            margin: 12px 0;
+         }
+         .bundle-links {
+            position:relative;
+            .bundle-link {
+               .panel-text-overflow;
+               line-height:29px;
+               display:inline-block;
+               padding-right:40px;
+            }
+            .bundle-download {
+               position:absolute;
+               right:0;
+               z-index:1;
+            }
+         }
+         .bundle-meta {
+            font-size:90%;
+            margin-bottom:5px;
+            &.table {
+               .table-striped;
+               > tbody > tr:nth-child(odd) {
+                  > th,
+                  > td {
+                     background-color:#f8f8f8;
+                  }
+               }
+               th, td {
+                  border-top:none;
+                  padding:1px 6px;
+               }
+               > thead > tr > th {
+                  border-bottom-width:1px;
+               }
+               a {
+                  word-wrap: break-word;
+                  word-break: break-all;
+               }
+            }
+            .bundle-state {
+               font-size:80%;
+               padding:1px 4px;
+            }
+            pre {
+               font-size:11px;
+               padding:8px;
+            }
+         }
+      }
+   }
 }
 #worksheet_content {
+   .panel-frame;
    display:none;
-   margin-top:12px;
-   line-height:1.2;
-   min-height:480px;
-   padding-bottom: 50px;
    hr {
       margin:12px 0;
    }
@@ -90,9 +233,13 @@
          margin-right:5px;
       }
       h1 {
-         text-indent:65px;
+         text-indent:0;
          margin:0;
          font-size:44px;
+         line-height:1em;
+         padding-top:5px;
+         padding-left:65px;
+         min-height:60px;
       }
       .worksheet-author {
          text-indent:65px;
@@ -411,6 +558,8 @@
    z-index:1020;
    &#update_progress {
       top:63px;
+      left:40px;
+      right:auto;
    }
    &#save_error i {
       font-size:18px;
@@ -504,13 +653,25 @@
             margin-left:6px;
          }
       }
+      table {
+         .table;
+         .table-bordered;
+         .table-striped;
+         margin-bottom:0;
+      }
+      .state-table {
+         .table-responsive;
+         margin-top:12px;
+         code {
+            font-size:80%;
+            color:@gray-dark;
+            background-color:transparent;
+         }
+      }
       .metadata-table {
+         .table-responsive;
          margin-bottom:24px;
          table {
-            .table;
-            .table-bordered;
-            .table-striped;
-            margin-bottom:0;
             input.form-control {
                margin-bottom:0;
                padding:4px 8px;
@@ -526,13 +687,8 @@
          }
       }
       .dependencies-table {
+         .table-responsive;
          margin-bottom:24px;
-         table {
-            .table;
-            .table-bordered;
-            .table-striped;
-            margin-bottom:0;
-         }
       }
       .bundle-file-view-container {
          border-top:1px solid @gray-light;
@@ -564,6 +720,13 @@
                      }
                      .file {
                         font-weight:normal;
+                        .size {
+                           width:5em;
+                           float:right;
+                           font-family:@font-family-monospace;
+                           font-size:80%;
+                           line-height:@line-height-base;
+                        }
                      }
                   }
                }
@@ -576,6 +739,15 @@
                   color:@gray;
                }
             }
+         }
+      }
+      .stdout-container, .stderr-container {
+         border-top:1px solid @gray-light;
+         pre {
+            overflow: auto;
+            word-wrap: normal;
+            white-space: pre;
+            font-size:80%;
          }
       }
    }
@@ -607,6 +779,11 @@
          margin-bottom:16px;
       }
    }
+   #worksheet .ws-panel,
+   #worksheet #dragbar {
+      display:none;
+   }
+   #worksheet .ws-container {
+      right:0;
+   }
 }
-
-

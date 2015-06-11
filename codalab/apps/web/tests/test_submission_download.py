@@ -20,10 +20,16 @@ class CompetitionSubmissionDownloadTests(TestCase):
     def setUp(self):
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
+        self.other_participant_user = User.objects.create_user(username="other_participant", password="pass")
         self.other_user = User.objects.create_user(username="other", password="pass")
         self.competition = Competition.objects.create(creator=self.organizer, modified_by=self.organizer, published=True)
         self.participant_1 = CompetitionParticipant.objects.create(
             user=self.participant_user,
+            competition=self.competition,
+            status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
+        )
+        self.participant_2 = CompetitionParticipant.objects.create(
+            user=self.other_participant_user,
             competition=self.competition,
             status=ParticipantStatus.objects.get_or_create(name='approved', codename=ParticipantStatus.APPROVED)[0]
         )
@@ -40,6 +46,7 @@ class CompetitionSubmissionDownloadTests(TestCase):
             participant=self.participant_1,
             phase=self.phase_1,
             status=submission_finished,
+            is_public=False,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
             stdout_file=SimpleUploadedFile(name="test.txt", content="test std out")
         )
@@ -72,3 +79,27 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="participant", password="pass")
         resp = self.client.get(self.url)
         self.assertEquals(resp.content, self.submission_1.stdout_file.read())
+
+    def test_submission_download_public_requires_participation_access(self):
+        self.submission_1.is_public = True
+        self.submission_1.save()
+        self.competition.has_registration = True
+        self.competition.save()
+
+        self.client.login(username="other", password="pass")
+        resp = self.client.get(self.url)
+        self.assertEquals(resp.status_code, 404)
+        self.client.logout()
+
+        self.client.login(username="other_participant", password="pass")
+        resp = self.client.get(self.url)
+        self.assertEquals(resp.status_code, 200)
+
+    def test_submission_download_public_without_registration_allows_access(self):
+        self.competition.has_registration = False
+        self.competition.save()
+        self.submission_1.is_public = True
+        self.submission_1.save()
+        self.client.login(username="other", password="pass")
+        resp = self.client.get(self.url)
+        self.assertEquals(resp.status_code, 200)

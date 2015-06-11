@@ -7,6 +7,7 @@ import os
 import sys
 import traceback
 import yaml
+import mimetypes
 
 from os.path import splitext
 
@@ -30,6 +31,7 @@ from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from django.core.servers.basehttp import FileWrapper
 
 from mimetypes import MimeTypes
 
@@ -37,7 +39,7 @@ from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.web.bundles import BundleService
-from apps.coopetitions.models import Like
+from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from django.contrib.auth import get_user_model
 
@@ -61,7 +63,8 @@ def competition_index(request):
     is_finished = request.GET.get('is_finished', False)
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
-    competitions = models.Competition.objects.filter(published=True).order_by('-end_date')
+    competitions = models.Competition.objects.filter(published=True)
+    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date()))
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
@@ -84,13 +87,12 @@ def my_index(request):
     except:
         denied = -1
 
-    competitions_owner = models.Competition.objects.filter(creator=request.user)
-    competitions_admin = models.Competition.objects.filter(admins__in=[request.user])
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk')
     published_competitions = models.Competition.objects.filter(published=True)
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date()))
     context = RequestContext(request, {
-        'my_competitions' : competitions_owner | competitions_admin,
-        'competitions_im_in' : request.user.participation.all().exclude(status=denied),
+        'my_competitions': my_competitions,
+        'competitions_im_in': request.user.participation.all().exclude(status=denied),
         'published_competitions': published_competitions,
         'my_datasets': models.OrganizerDataSet.objects.filter()
         })
@@ -347,6 +349,8 @@ class CompetitionDetailView(DetailView):
             if self.request.user.is_authenticated():
                 if Like.objects.filter(submission=submission, user=self.request.user).exists():
                     submission.already_liked = True
+                if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+                    submission.already_disliked = True
             context['public_submissions'].append(submission)
 
         submissions = dict()
@@ -391,6 +395,9 @@ class CompetitionDetailView(DetailView):
 
         except ObjectDoesNotExist:
             pass
+
+        if competition.creator == self.request.user or self.request.user in competition.admins.all():
+            context['is_admin_or_owner'] = True
 
         # Use this flag to trigger container-fluid for result table
         context['on_competition_detail'] = True
@@ -715,7 +722,10 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
         competition = submission.phase.competition
 
         # Check competition admin permissions or user permissions
-        if not submission.is_public:
+        if submission.is_public:
+            if competition.has_registration and not competition.participants.filter(user=request.user).exists():
+                raise Http404()
+        else:
             if (competition.creator != request.user and request.user not in competition.admins.all()) and \
                 request.user != submission.participant.user:
                 raise Http404()
@@ -742,8 +752,13 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             # this may hide a true 404 in unexpected circumstances
             return HttpResponse("", status=200, content_type='text/plain')
         except:
-            msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-            return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+            # Let's check to make sure we're in a prediction competition, otherwise let user know
+            if filetype.startswith("predict_") and submission.phase.is_scoring_only:
+                return HttpResponse("This competition is scoring only, prediction data not available",
+                                    content_type='text/plain')
+            else:
+                msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+                return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):
     """
@@ -1076,6 +1091,7 @@ def download_dataset(request, dataset_key):
 
     try:
         if dataset.sub_data_files.count() > 0:
+            # TODO: Could refactor this to only zip this stuff up one time, maybe after dataset creation?
             zip_buffer = StringIO.StringIO()
 
             zip_file = zipfile.ZipFile(zip_buffer, "w")
@@ -1093,7 +1109,13 @@ def download_dataset(request, dataset_key):
         else:
             mime = MimeTypes()
             file_type = mime.guess_type(dataset.data_file.file.name)
-            response = HttpResponse(dataset.data_file.read(), status=200, content_type=file_type)
+            chunk_size = 8192
+            response = StreamingHttpResponse(
+                FileWrapper(open(dataset.data_file), chunk_size),
+                status=200,
+                content_type=file_type
+            )
+            response['Content-Length'] = os.path.getsize(dataset.data_file)
             if file_type != 'text/plain':
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
             return response

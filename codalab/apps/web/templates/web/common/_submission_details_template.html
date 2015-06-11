@@ -23,11 +23,11 @@
                                     {% if phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></li>
                                     {% else %}
-                                        <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict output log</a></li>
-                                        <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict error log</a></li>
                                         <li><a href="/my/competition/submission/_/stdout.txt" target="_blank">View scoring output log</a></li>
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank">View scoring error log</a></li>
                                         {% if not phase.is_scoring_only %}
+                                            <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                                            <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict error log</a></li>
                                             <li><a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></li>
                                         {% endif %}
                                         {% if phase.competition.enable_detailed_results %}

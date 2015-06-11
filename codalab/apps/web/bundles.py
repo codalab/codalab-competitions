@@ -1,3 +1,4 @@
+import base64
 from time import sleep
 
 from django.conf import settings
@@ -117,10 +118,23 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                                 )
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
                 # Currently, only certain fields are base64 encoded.
-                import base64
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
+                        # item['name'] in ['stdout', 'stderr']
                         item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                    elif 'bundle_info' in item:
+                        for bundle_info in item['bundle_info']:
+                            try:
+                                ## sometimes bundle_info is a string. when item['mode'] is image
+                                if isinstance(bundle_info, dict) and bundle_info.get('bundle_type', None) == 'run':
+                                    if 'stdout' in bundle_info.keys():
+                                        bundle_info['stdout'] = base64.b64decode(bundle_info['stdout'])
+                                    if 'stderr' in bundle_info.keys():
+                                        bundle_info['stderr'] = base64.b64decode(bundle_info['stderr'])
+                            except Exception, e:
+                                print e
+                                import ipdb; ipdb.set_trace()
+
 
                 return worksheet_info
             else:

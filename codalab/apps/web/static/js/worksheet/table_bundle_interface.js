@@ -27,9 +27,9 @@ var TableBundle = React.createClass({
             var parentFocusIndex = this._owner.state.focusIndex;
             if(index < 0){
                 this._owner.setFocus(parentFocusIndex - 1, e);
-                this.setState({rowFocusIndex: 0});
+                this.focusOnRow(0);
             }else {
-                this.setState({rowFocusIndex: index});
+                this.focusOnRow(index);
                 this.scrollToRow(index, e);
             }
         }.bind(this), 'keydown');
@@ -41,18 +41,18 @@ var TableBundle = React.createClass({
         }.bind(this), 'keydown');
 
 
-        Mousetrap.bind(['down', 'j'], function(e){
+        Mousetrap.bind(['down', 'j'], function(event){
             var item = this.props.item.state;
             var index = this.state.rowFocusIndex;
             var parentFocusIndex = this._owner.state.focusIndex;
             var rowsInTable = item.interpreted[1].length;
             index = Math.min(index + 1, rowsInTable);
-
             if(index == rowsInTable){
-                this._owner.setFocus(parentFocusIndex + 1, e);
+                this._owner.setFocus(parentFocusIndex + 1, event);
+                this.props.updateWorksheetSubFocusIndex(0);
             }else {
-                this.setState({rowFocusIndex: index});
-                this.scrollToRow(index, e);
+                this.focusOnRow(index);
+                this.scrollToRow(index, event);
             }
         }.bind(this), 'keydown');
 
@@ -88,13 +88,10 @@ var TableBundle = React.createClass({
         window.open(this.refs['row' + this.state.rowFocusIndex].props.bundleURL, '_blank');
     },
     scrollToRow: function(index, event){
-        // scroll the window to keep the focused row in view
-
-
         // scroll the window to keep the focused element in view if needed
         var __innerScrollToRow = function(index, event){
             var navbarHeight = parseInt($('body').css('padding-top'));
-            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            var viewportHeight = Math.max($(".ws-container").innerHeight() || 0);
 
             var node = this.getDOMNode();
             var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
@@ -103,18 +100,18 @@ var TableBundle = React.createClass({
             var tablePos = nodePos.top;
             var rowPos = tablePos + (index * rowHeight);
              // where is the top of the elm on the page and does it fit in the the upper forth of the page
-            var scrollTo = $(window).scrollTop() + rowPos - navbarHeight - (viewportHeight/4);
+            var scrollTo = $(".ws-container").scrollTop() + rowPos - navbarHeight - (viewportHeight/4);
             // how far node top is from top of viewport
             var distanceFromTopViewPort = rowPos - navbarHeight;
             // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
             // the elm is down the page and we should scrol to put it more in focus
             if(distanceFromTopViewPort > viewportHeight/3){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
             // if the elment is not in the viewport (way up top), just scroll
             if(distanceFromTopViewPort < 0){
-                $('html,body').stop(true).animate({scrollTop: scrollTo}, 45);
+                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
                 return;
             }
 
@@ -125,32 +122,6 @@ var TableBundle = React.createClass({
             this.throttledScrollToRow = _.throttle(__innerScrollToRow, 50).bind(this);
         }
         this.throttledScrollToRow(index, event);
-
-
-        // var navbarHeight = parseInt($('body').css('padding-top'));
-        // var distance, scrollTo;
-        // //get hight and seee if can fit on page
-
-        // if(index > -1){
-        //     var scrollPos = $(window).scrollTop();
-        //     var table = this.getDOMNode();
-        //     var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
-        //     var tablePos = table.getBoundingClientRect().top;
-        //     var rowPos = tablePos + (index * rowHeight);
-        //     var distanceFromBottom = window.innerHeight - rowPos;
-        //     var distanceFromTop = rowPos - navbarHeight;
-        //     if(keyMap[event.keyCode] == 'k' ||
-        //        keyMap[event.keyCode] == 'up'){
-        //         distance = distanceFromTop;
-        //         scrollTo = scrollPos - rowHeight - 55;
-        //     }else {
-        //         distance = distanceFromBottom;
-        //         scrollTo = scrollPos + rowHeight + 55;
-        //     }
-        // }
-        // if(distance < 50){
-        //     $('html,body').stop(true).animate({scrollTop: scrollTo}, 250);
-        // }
     },
     moveRow: function(delta){
         var oldIndex = this.state.rowFocusIndex;
@@ -210,6 +181,7 @@ var TableBundle = React.createClass({
     },
     focusOnRow: function(rowIndex){
         this.setState({rowFocusIndex: rowIndex});
+        this.props.updateWorksheetSubFocusIndex(rowIndex);
     },
     saveEditedItem: function(index, interpreted){
         this.props.handleSave(index, interpreted);

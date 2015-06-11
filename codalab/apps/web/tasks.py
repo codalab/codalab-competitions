@@ -1,10 +1,12 @@
 """
 Defines background tasks needed by the web site.
 """
+import csv
 import io
 import json
 import logging
-import yaml
+import StringIO
+import zipfile
 
 from urllib import pathname2url
 from zipfile import ZipFile
@@ -12,6 +14,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db import transaction
+from django.db.models import Count
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
@@ -32,10 +35,12 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stderr_filename,
                              submission_history_file_name,
                              submission_scores_file_name,
+                             submission_coopetition_file_name,
                              predict_submission_stdout_filename,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef)
+from apps.coopetitions.models import DownloadRecord
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +229,68 @@ def score(submission, job_id):
         pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
-    submission.scores_file.save('scores.txt', ContentFile(submission.phase.competition.get_results_csv(submission.phase.pk)))
+
+    score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
+    submission.scores_file.save('scores.txt', ContentFile(score_csv))
+
+    # Extra submission info
+    coopetition_zip_buffer = StringIO.StringIO()
+    coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
+
+    for phase in submission.phase.competition.phases.all():
+        coopetition_field_names = (
+            "participant__user__username",
+            "pk",
+            "when_made_public",
+            "when_unmade_public",
+            "started_at",
+            "completed_at",
+            "download_count",
+            "submission_number",
+        )
+        annotated_submissions = phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
+            *coopetition_field_names
+        ).annotate(like_count=Count("likes"), dislike_count=Count("dislikes"))
+
+        # Add this after fetching annotated count from db
+        coopetition_field_names += ("like_count", "dislike_count")
+
+        coopetition_csv = StringIO.StringIO()
+        writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
+        writer.writeheader()
+        for row in annotated_submissions:
+            writer.writerow(row)
+
+        coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue())
+
+    # Scores metadata
+    for phase in submission.phase.competition.phases.all():
+        coopetition_zip_file.writestr(
+            'coopetition_scores_phase_%s.txt' % phase.phasenumber,
+            phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True)
+        )
+
+    # Download metadata
+    coopetition_downloads_csv = StringIO.StringIO()
+    writer = csv.writer(coopetition_downloads_csv)
+    writer.writerow((
+        "submission_pk",
+        "submission_owner",
+        "downloaded_by",
+        "time_of_download",
+    ))
+    for download in DownloadRecord.objects.filter(submission__phase__competition=submission.phase.competition):
+        writer.writerow((
+            download.submission.pk,
+            download.submission.participant.user.username,
+            download.user.username,
+            str(download.timestamp),
+        ))
+
+    coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue())
+
+    coopetition_zip_file.close()
+    submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
@@ -242,6 +308,7 @@ def score(submission, job_id):
 
     lines.append("history: %s" % submission_history_file_name(submission))
     lines.append("scores: %s" % submission_scores_file_name(submission))
+    lines.append("coopetition: %s" % submission_coopetition_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
