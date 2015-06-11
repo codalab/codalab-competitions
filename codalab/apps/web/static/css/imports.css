@@ -7598,14 +7598,16 @@ body,
 }
 #worksheet .ws-panel {
   width: 25%;
+  min-width: 200px;
   position: absolute;
   right: 0;
   height: 100%;
   overflow: auto;
-  padding: 0 15px;
+  padding: 0 10px;
   background: #fbfbfb;
 }
 #worksheet .ws-panel #panel_content {
+  font-size: 14px;
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
@@ -7617,11 +7619,11 @@ body,
 }
 #worksheet .ws-panel #panel_content .bundle-description {
   font-size: 90%;
-  margin-bottom: 10px;
+  margin: 5px 0;
 }
 #worksheet .ws-panel #panel_content h3 {
   margin-top: 12.5px;
-  margin-bottom: 6.25px;
+  margin-bottom: 12.5px;
   font-size: 24px;
   line-height: 1.1em;
 }
@@ -7635,13 +7637,23 @@ body,
 #worksheet .ws-panel #panel_content h3.ws-name {
   background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
   padding-left: 50px;
-  padding-left: 30px;
+  padding-left: 26px;
   background-size: 20px;
   background-position: 0 7px;
 }
 #worksheet .ws-panel #panel_content h4 {
-  font-size: 18px;
-  margin-bottom: 5px;
+  font-size: 20px;
+  margin-bottom: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 2px solid #cccccc;
+}
+#worksheet .ws-panel #panel_content p {
+  margin: 0;
+  line-height: 1.34em;
+}
+#worksheet .ws-panel #panel_content hr {
+  margin: 12px 0;
 }
 #worksheet .ws-panel #panel_content .bundle-links {
   position: relative;
@@ -7651,7 +7663,6 @@ body,
   overflow-x: hidden;
   text-overflow: ellipsis;
   line-height: 29px;
-  font-size: 16px;
   display: inline-block;
   padding-right: 40px;
 }
@@ -7661,15 +7672,36 @@ body,
   z-index: 1;
 }
 #worksheet .ws-panel #panel_content .bundle-meta {
-  font-size: 80%;
+  font-size: 90%;
   margin-bottom: 5px;
 }
-#worksheet .ws-panel #panel_content .bundle-meta th,
-#worksheet .ws-panel #panel_content .bundle-meta td {
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > td,
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > th {
+  background-color: white;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > th,
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > td {
+  background-color: #f8f8f8;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table th,
+#worksheet .ws-panel #panel_content .bundle-meta.table td {
   border-top: none;
+  padding: 1px 6px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table > thead > tr > th {
+  border-bottom-width: 1px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table a {
+  word-wrap: break-word;
+  word-break: break-all;
 }
 #worksheet .ws-panel #panel_content .bundle-meta .bundle-state {
   font-size: 80%;
+  padding: 1px 4px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta pre {
+  font-size: 11px;
+  padding: 8px;
 }
 #worksheet_content {
   margin-top: 12px;
@@ -7709,9 +7741,13 @@ body,
   margin-right: 5px;
 }
 #worksheet_content .worksheet-name h1 {
-  text-indent: 65px;
+  text-indent: 0;
   margin: 0;
   font-size: 44px;
+  line-height: 1em;
+  padding-top: 5px;
+  padding-left: 65px;
+  min-height: 60px;
 }
 #worksheet_content .worksheet-name .worksheet-author {
   text-indent: 65px;
@@ -8998,6 +9034,13 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   #worksheet_content .type-table table,
   #worksheet_content .type-record table {
     margin-bottom: 16px;
+  }
+  #worksheet .ws-panel,
+  #worksheet #dragbar {
+    display: none;
+  }
+  #worksheet .ws-container {
+    right: 0;
   }
 }
 .competition-view {
