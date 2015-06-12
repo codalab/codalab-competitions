@@ -1,0 +1,13 @@
+machine:
+  python:
+    version: 2.7.5
+  #environment:
+  #  DJANGO_SETTINGS_MODULE: settings.production
+
+dependencies:
+  pre:
+    - pip install -r codalab/requirements/dev_azure_nix.txt
+
+test:
+  override:
+    - (cd codalab && python manage.py test)
