@@ -1111,11 +1111,11 @@ def download_dataset(request, dataset_key):
             file_type = mime.guess_type(dataset.data_file.file.name)
             chunk_size = 8192
             response = StreamingHttpResponse(
-                FileWrapper(open(dataset.data_file), chunk_size),
+                FileWrapper(dataset.data_file.file, chunk_size),
                 status=200,
                 content_type=file_type
             )
-            response['Content-Length'] = os.path.getsize(dataset.data_file)
+            response['Content-Length'] = dataset.data_file.file.size
             if file_type != 'text/plain':
                 response['Content-Disposition'] = 'attachment; filename="{0}"'.format(dataset.data_file.file.name)
             return response
