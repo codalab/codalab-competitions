@@ -1109,9 +1109,8 @@ def download_dataset(request, dataset_key):
         else:
             mime = MimeTypes()
             file_type = mime.guess_type(dataset.data_file.file.name)
-            chunk_size = 8192
             response = StreamingHttpResponse(
-                FileWrapper(dataset.data_file.file, chunk_size),
+                FileWrapper(dataset.data_file.file, blksize=8192 * 10),
                 status=200,
                 content_type=file_type
             )
