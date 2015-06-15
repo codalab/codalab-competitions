@@ -1110,7 +1110,7 @@ def download_dataset(request, dataset_key):
             mime = MimeTypes()
             file_type = mime.guess_type(dataset.data_file.file.name)
             response = StreamingHttpResponse(
-                FileWrapper(dataset.data_file.file, blksize=8192 * 10),
+                FileWrapper(dataset.data_file.file, blksize=8192 * 30),
                 status=200,
                 content_type=file_type
             )
