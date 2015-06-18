@@ -299,7 +299,6 @@ def get_run_func(config):
                 logger.debug("Checking process, exit_code = %s" % exit_code)
 
                 try:
-                    print "doing the try "
                     while exit_code == None:
                         time.sleep(1)
                         exit_code = evaluator_process.poll()
@@ -370,7 +369,6 @@ def get_run_func(config):
                         file_ext = os.path.splitext(file_to_upload)[1]
                         if file_ext.lower() ==".html":
                             html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
-                            print "file_to_upload:%s" % file_to_upload
                             _upload(blob_service, container, html_file_id, file_to_upload, "html")
                             html_found = True
 
