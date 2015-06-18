@@ -39,8 +39,15 @@
 
             {% endif %}
         </div>
-        <button id="fileUploadButton" class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
-                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
+        <button id="fileUploadButton"
+                class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                {% if not phase.reference_data %}disabled="disabled"{% endif %}>
+            Submit File
+        </button>
+        <button id="worksheetSelectionButton"
+                class="button btn btn-secondary">
+            Submit Worksheet
+        </button>
         {% if not phase.reference_data %}
             <p><em>This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</em></p>
         {% endif %}

@@ -89,7 +89,7 @@ var CodaLab;
             var currentFileInput = this.fileInput;
             this.fileInput = $(document.createElement('input'));
             this.fileInput.attr('type', 'file');
-            this.fileInput.attr('style', 'visibility: hidden; width: 1px; height: 1px;');
+            this.fileInput.attr('style', 'visibility: hidden; width: 1px; height: 1px; display: inline-block;');
             this.fileInput.on('change', function(e) {
                 _this.options.beforeSelection();
                 var selectionInfo = _this.validate();
