@@ -213,7 +213,7 @@ class Competition(models.Model):
     def get_start_date(self):
         phases = self.phases.all().order_by('start_date')
         if len(phases) > 0:
-            return phases[0].start_date
+            return phases[0].start_date.replace(tzinfo=None)
         else:
             return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y').replace(tzinfo=None)
 
@@ -348,7 +348,7 @@ class Competition(models.Model):
                         sub_headers.append(sub['label'])
                 else:
                     headers.append(header['label'])
-            csvwriter.writerow(headers)
+            csvwriter.writerow(['submission_pk',] + headers)
             if sub_headers != ['']:
                 csvwriter.writerow(sub_headers)
 
@@ -365,7 +365,7 @@ class Competition(models.Model):
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
                             else:
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])
-                        csvwriter.writerow(row)
+                        csvwriter.writerow([scores['id'],] + row)
             except:
                 csvwriter.writerow(["Exception parsing scores!"])
                 logger.error("Error parsing scores for competition PK=%s" % self.pk)
@@ -667,7 +667,10 @@ class CompetitionPhase(models.Model):
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             if include_scores_not_on_leaderboard:
-                qs = CompetitionSubmission.objects.filter(phase=self)
+                qs = CompetitionSubmission.objects.filter(
+                    phase=self,
+                    status__codename=CompetitionSubmissionStatus.FINISHED
+                )
                 for submission in qs:
                     result_location.append(submission.file.name)
                     submissions.append((submission.pk, submission.participant.user))

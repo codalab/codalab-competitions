@@ -1,4 +1,4 @@
-# CodaLab [![Build Status](https://travis-ci.org/codalab/codalab.png?branch=master)](https://travis-ci.org/codalab/codalab)
+# CodaLab [![Circle CI](https://circleci.com/gh/codalab/codalab.svg?style=shield)](https://circleci.com/gh/codalab/codalab)
 
 ## What is CodaLab?
 

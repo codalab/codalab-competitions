@@ -13,6 +13,7 @@ User = get_user_model()
 
 
 class OrganizerDataSetTestCase(TestCase):
+
     def setUp(self):
         self.user = User.objects.create_user(username="organizer", password="pass")
         self.other_user = User.objects.create_user(username="potentially_malicious", password="pass")
@@ -24,13 +25,27 @@ class OrganizerDataSetTestCase(TestCase):
         )
 
 
+class OrganizerDataSetDownloadTests(OrganizerDataSetTestCase):
+
+    def test_organizer_dataset_download_returns_200_response(self):
+        resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}))
+        self.assertEquals(resp.status_code, 200)
+
+    def test_organizer_dataset_download_contains_proper_data(self):
+        resp = self.client.get(reverse("datasets_download", kwargs={"dataset_key": self.dataset.key}))
+        self.assertEquals(resp.streaming_content.next(), "contents of file")
+        self.assertEquals(int(resp._headers["content-length"][1]), len("contents of file"))
+
+
 class OrganizerDataSetCreateTestsCase(OrganizerDataSetTestCase):
+
     def test_dataset_creation_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_create"))
         self.assertEquals(resp.status_code, 302)
 
 
 class OrganizerDataSetUpdateTestsCase(OrganizerDataSetTestCase):
+
     def test_dataset_update_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_update", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 302)
@@ -47,6 +62,7 @@ class OrganizerDataSetUpdateTestsCase(OrganizerDataSetTestCase):
 
 
 class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
+
     def test_dataset_delete_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets_delete", kwargs={"pk": self.dataset.pk}))
         self.assertEquals(resp.status_code, 302)
@@ -86,6 +102,7 @@ class OrganizerDataSetDeleteTestsCase(OrganizerDataSetTestCase):
 
 
 class OrganizerDataSetListViewTestsCase(OrganizerDataSetTestCase):
+
     def test_dataset_list_view_returns_302_when_not_logged_in(self):
         resp = self.client.get(reverse("my_datasets"))
         self.assertEquals(resp.status_code, 302)
