@@ -261,13 +261,13 @@ def score(submission, job_id):
         for row in annotated_submissions:
             writer.writerow(row)
 
-        coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue())
+        coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue().encode('utf-8'))
 
     # Scores metadata
     for phase in submission.phase.competition.phases.all():
         coopetition_zip_file.writestr(
             'coopetition_scores_phase_%s.txt' % phase.phasenumber,
-            phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True)
+            phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True).encode('utf-8')
         )
 
     # Download metadata
@@ -287,12 +287,13 @@ def score(submission, job_id):
             str(download.timestamp),
         ))
 
-    coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue())
+    coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue().encode('utf-8'))
 
     # Current user
-    coopetition_zip_file.writestr('current_user.txt', submission.participant.user.username)
-
+    coopetition_zip_file.writestr('current_user.txt', submission.participant.user.username.encode('utf-8'))
     coopetition_zip_file.close()
+
+    # Save them all
     submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
 
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
