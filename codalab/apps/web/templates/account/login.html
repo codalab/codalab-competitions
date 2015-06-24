@@ -18,23 +18,23 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-	    {% if socialaccount.providers  %}
-    		<p>
-    			{% blocktrans with site.name as site_name %}Please sign in with one
-    			of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
-    			for a {{site_name}} account and sign in below:
+        {% if socialaccount.providers  %}
+            <p>
+                {% blocktrans with site.name as site_name %}Please sign in with one
+                of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+                for a {{site_name}} account and sign in below:
                 {% endblocktrans %}
-    		</p>
-    		<div class="socialaccount_ballot">
-    			<ul class="socialaccount_providers">
-    				{% include "socialaccount/snippets/provider_list.html" %}
-    			</ul>
-    			<div class="login-or">{% trans 'or' %}</div>
-    		</div>
-    		{% include "socialaccount/snippets/login_extra.html" %}
-	    {% endif %}
-	    <form class="login" method="POST" action="{% url 'account_login' %}">
-		    {% csrf_token %}
+            </p>
+            <div class="socialaccount_ballot">
+                <ul class="socialaccount_providers">
+                    {% include "socialaccount/snippets/provider_list.html" %}
+                </ul>
+                <div class="login-or">{% trans 'or' %}</div>
+            </div>
+            {% include "socialaccount/snippets/login_extra.html" %}
+        {% endif %}
+        <form class="login" method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
             {% if form.errors %}
                 <div class="alert alert-error">
                     {% for field, msg in form.errors.items %}
@@ -58,13 +58,13 @@
                     Remember Me
                 </label>
             </div>
-		    {% if redirect_field_value %}
-		      <input type="hidden" name="{{ redirect_field_name }}" value=	"{{ redirect_field_value }}" />
-		    {% endif %}
-		    <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
-	    </form>
+            {% if redirect_field_value %}
+              <input type="hidden" name="{{ redirect_field_name }}" value=  "{{ redirect_field_value }}" />
+            {% endif %}
+            <button class="btn btn-primary margin-top" type="submit">{% trans "Sign In" %}</button>
+        </form>
         <p class="pad-top"><a href="{{ signup_url }}">Sign up for a new account</a></p>
-		<a href="../password/reset/">Forgot your password?</a></p>
+        <a href="../password/reset/">Forgot your password?</a></p>
         <a href="" onclick="alert('Please wait 5 minutes and attempt logging in again to resend confirmation email.'); return false;">Resend confirmation email?</a>
     </div>
 </div>
