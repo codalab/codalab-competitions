@@ -289,6 +289,9 @@ def score(submission, job_id):
 
     coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue())
 
+    # Current user
+    coopetition_zip_file.writestr('current_user.txt', submission.participant.user.username)
+
     coopetition_zip_file.close()
     submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
 
