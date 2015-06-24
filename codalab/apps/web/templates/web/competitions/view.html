@@ -8,6 +8,7 @@
 
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -188,14 +189,16 @@
                             <h3>Filters</h3>
                             <p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
 
-                            <table id="public_submission_table" class="table table-bordered table-striped">
+                            <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
                                 <thead>
                                     <tr>
                                         <td width="40"><b>#</b></td>
                                         <td width="125"><b>User</b></td>
                                         <td width="125"><b>Date</b></td>
                                         <td><b>Description</b></td>
-                                        <td width="100"><b>Score</b></td>
+                                        {% for label in competition.get_score_headers %}
+                                            <td width="100">{{ label }}</td>
+                                        {% endfor %}
                                         <td width="100"><b>Likes</b></td>
                                         <td width="125"><b>Downloads</b></td>
                                         {% if competition.enable_detailed_results %}
@@ -211,6 +214,9 @@
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         <td>{{ submission.get_default_score|floatformat:3 }}</td>
+                                        {% for label, value in submission.get_scores_as_tuples %}
+                                            <td>{{ value }}</td>
+                                        {% endfor %}
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
@@ -320,6 +326,8 @@
             $('#learn_the_details .col-sm-9 a').on('click', function() {
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
+
+            $("#public_submission_table").tablesorter();
 
             /******************************************************************
             Public submissions

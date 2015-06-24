@@ -375,6 +375,9 @@ class Competition(models.Model):
 
         return csvfile.getvalue()
 
+    def get_score_headers(self):
+        return self.submissionscoredef_set.all().order_by('ordering').values_list('label', flat=True)
+
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -1058,6 +1061,12 @@ class CompetitionSubmission(models.Model):
             return score[0].value
         else:
             return None
+
+    def get_scores_as_tuples(self):
+        scores = []
+        for score in self.scores.all().order_by('scoredef__ordering'):
+            scores.append((score.scoredef.label, score.value))
+        return scores
 
 
 class SubmissionResultGroup(models.Model):
