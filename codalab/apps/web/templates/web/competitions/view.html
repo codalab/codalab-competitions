@@ -217,7 +217,7 @@
                                     <tr data-on-leaderboard="{% if submission.leaderboard_entry_result.count %}true{% endif %}">
                                         <td>{{ forloop.counter }}</td>
                                         <td><b>{{ submission.participant.user.username }}</b></td>
-                                        <td>{{ submission.phase }}</td>
+                                        <td>{{ submission.phase.phasenumber }}</td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         <td>{{ submission.get_default_score|floatformat:3 }}</td>
