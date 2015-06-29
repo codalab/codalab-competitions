@@ -115,7 +115,7 @@
                             </li>
                         {% else %}
                             <li>
-                                <a href="{% url 'account_login' %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
+                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
                             </li>
                         {% endif %}
                     </ul>

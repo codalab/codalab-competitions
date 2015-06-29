@@ -40,6 +40,15 @@ from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERS
 logger = logging.getLogger(__name__)
 
 
+#util
+def log_exception(func, exception, traceback):
+    logging.error(func.__str__())
+    logging.error(smart_str(exception))
+    logging.error('')
+    logging.error('-------------------------')
+    logging.error(traceback)
+    logging.error('-------------------------')
+
 
 
 class WorksheetsInfoApi(views.APIView):
@@ -89,13 +98,8 @@ class WorksheetsListApi(views.APIView):
                         worksheet['owner'] = user.username
             return Response(worksheets)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
     """
@@ -116,13 +120,8 @@ class WorksheetsListApi(views.APIView):
             logger.debug("WorksheetCreation def: owner=%s; name=%s; uuid", owner.id, data["uuid"])
             return Response(data)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 
@@ -146,13 +145,8 @@ class WorksheetsAddApi(views.APIView):
                 'data': data
                 })
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 class WorksheetsDeleteApi(views.APIView):
@@ -175,13 +169,8 @@ class WorksheetsDeleteApi(views.APIView):
                 'data': data
                 })
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 class WorksheetsSearchApi(views.APIView):
@@ -197,13 +186,8 @@ class WorksheetsSearchApi(views.APIView):
             worksheet_infos = service.search_worksheets(search_string.split(' '))
             return Response(worksheet_infos, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 
@@ -225,13 +209,8 @@ class WorksheetContentApi(views.APIView):
                 worksheet['owner'] = None
             return Response(worksheet)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
     """
@@ -257,13 +236,8 @@ class WorksheetContentApi(views.APIView):
             service.parse_and_update_worksheet(worksheet_uuid, lines)
             return Response({})
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error('ERROR')
-            logging.error(smart_str(e))
-            logging.error('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.error('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 
@@ -286,13 +260,8 @@ class WorksheetsCommandApi(views.APIView):
                 'data': data
                 })
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 class BundleInfoApi(views.APIView):
@@ -325,13 +294,8 @@ class BundleInfoApi(views.APIView):
                 bundle_info['edit_permission'] = True
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
     def post(self, request, uuid):
@@ -375,13 +339,8 @@ class BundleInfoApi(views.APIView):
                 bundle_info = service.get_bundle_info(uuid)
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({'error': smart_str(e)})
 
 class BundleSearchApi(views.APIView):
@@ -398,13 +357,8 @@ class BundleSearchApi(views.APIView):
             bundle_infos = service.search_bundles(search_string.split(' '), worksheet_uuid)
             return Response(bundle_infos, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 class BundleCreateApi(views.APIView):
@@ -424,13 +378,8 @@ class BundleCreateApi(views.APIView):
             new_bundle_uuid = service.create_run_bundle(items, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 class BundleUploadApi(views.APIView):
@@ -448,13 +397,8 @@ class BundleUploadApi(views.APIView):
             new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
 
@@ -484,13 +428,8 @@ class BundleContentApi(views.APIView):
                             info[item['name']] = lines
             return Response(info)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({'error': smart_str(e)})
             #return Response(status=service.http_status_from_exception(e))
 
@@ -508,11 +447,6 @@ class BundleFileContentApi(views.APIView):
                 content_type = 'text/plain'
             return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
         except Exception as e:
-            logging.error(self.__str__())
-            logging.error(smart_str(e))
-            logging.error('')
-            logging.debug('-------------------------')
             tb = traceback.format_exc()
-            logging.error(tb)
-            logging.debug('-------------------------')
+            log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
