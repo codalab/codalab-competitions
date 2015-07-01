@@ -419,6 +419,27 @@ var Competition;
         return false;
     };
 
+    Competition.updateSubmissionDescription = function(event) {
+        event.preventDefault();
+
+        var element = this;
+
+        // Remove focus from link
+        element.blur();
+
+        var submission_id = $(this).attr('submission-id');
+        var new_description = $(this).parent().find('textarea[name="updated_description"]').val() || '';
+
+        $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
+            .success(function() {
+                $(element).parent().find('.submission_description').html("<b>Description:</b> <br><pre>" + new_description + "</pre>");
+                $(element).parent().find('textarea[name="updated_description"]').val('');
+            })
+            .error(function() {
+                alert('Error updating description, is your Internet connection working?')
+            });
+    };
+
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
         if ($(obj).hasClass('glyphicon-minus')) {
@@ -465,6 +486,9 @@ var Competition;
             elem.find('.public_link').html('Make your submission ' + isPublic);
             elem.find('.public_link').click(Competition.toggleSubmissionPublic);
             elem.find('.public_link').attr('submission-id', nTr.id);
+
+            elem.find('.update_description').click(Competition.updateSubmissionDescription);
+            elem.find('.update_description').attr('submission-id', nTr.id);
 
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
