@@ -268,22 +268,35 @@ var TableRow = React.createClass({
     },
     render: function(){
         var focusedClass = this.props.focused ? 'focused' : '';
-        var row_item = this.props.item;
+        var row_items = this.props.item;
         var header_items = this.props.headerItems;
         var column_classes = this.props.columnClasses;
         var bundle_url = this.props.bundleURL;
         var checkbox = this.props.canEdit ? <td className="td-checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
+            // check if schema is link type  `% add stdout /stdout link`
+            // will render out to "/api/bundles/-uuid-"
+            if(typeof row_items[header_key] === 'string'  && row_items[header_key].indexOf("/api/bundles/") != -1){
+                bundle_url = row_items[header_key]
+                return (
+                    <td key={index} className={column_classes[index]}>
+                        <a href={bundle_url} className="bundle-link" target="_blank">
+                            link
+                        </a>
+                    </td>
+                )
+            }
+            // if first element we want to link to bundle
             if(index == 0){
                 return (
                     <td key={index} className={column_classes[index]}>
                         <a href={bundle_url} className="bundle-link" target="_blank">
-                            {row_item[header_key]}
+                            {row_items[header_key]}
                         </a>
                     </td>
                 )
             } else {
-                return <td key={index} className={column_classes[index]}>{row_item[header_key]}</td>
+                return <td key={index} className={column_classes[index]}>{row_items[header_key]}</td>
             }
         });
         return (
