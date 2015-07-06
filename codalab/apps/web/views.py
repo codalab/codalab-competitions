@@ -1342,3 +1342,15 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         formatted_lines = traceback.format_exc().splitlines()
         msg = "There was an error retrieving the file. Please try again later or report the issue."
         return HttpResponse(msg, status=400, content_type='text/plain')
+
+
+def submission_update_description(request, submission_pk):
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
+        if submission.participant.user != request.user:
+            raise Http404()
+        submission.description = request.POST.get('updated_description')
+        submission.save()
+        return HttpResponse()
+    except models.CompetitionSubmission.DoesNotExist:
+        raise Http404()
