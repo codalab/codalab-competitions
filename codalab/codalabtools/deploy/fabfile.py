@@ -542,3 +542,12 @@ def update_compute_worker():
     run('cd codalab && git pull --rebase')
     sudo('stop codalab-compute-worker')
     sudo('start codalab-compute-worker')
+
+
+@task
+def update_conda():
+    with settings(warn_only=True):
+        if not run('conda'):
+            # If we can't run conda add it to the path
+            run('echo "export PATH=~/anaconda/bin:$PATH" >> ~/.bashrc')
+    run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
