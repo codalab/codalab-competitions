@@ -456,7 +456,7 @@ def submission_root(instance):
         str(instance.phase.pk),
         "submissions",
         str(instance.participant.user.pk),
-        str(instance.submission_number)
+        str(instance.pk),
     )
 
 def submission_file_name(instance, filename="predictions.zip"):
