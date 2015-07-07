@@ -82,7 +82,7 @@ var WorksheetActionBar = React.createClass({
                         if(args.length > 2 && args[1]){
                             command = ws_actions.checkAndReturnCommand(args[1]);
                             if(command){
-                                fetch_auto_complete_list = command.autocomplete(args) // todo handle ajax blocking // todo promise
+                                fetch_auto_complete_list = command.autocomplete(args)
                                 if(!paused){
                                     term.echo('fetching list ....');
                                 }
@@ -92,7 +92,7 @@ var WorksheetActionBar = React.createClass({
                                 fetch_auto_complete_list = empty_defer.promise()
                             }
                         }else{
-                            fetch_auto_complete_list = ws_actions.getCommands(self.props.canEdit, true); // todo promise
+                            fetch_auto_complete_list = ws_actions.getCommands(self.props.canEdit, true);
                         }
 
                         // lets lock the term, do the lookup

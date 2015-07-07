@@ -3,6 +3,7 @@ from time import sleep
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
+from django.utils.encoding import smart_str
 
 from xmlrpclib import Fault, ProtocolError
 
@@ -211,24 +212,27 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 sys.stdout = StringIO()
                 stdout_str = None
 
-                #real_stderr = sys.stderr
-                #sys.stderr = StringIO()
+                real_stderr = sys.stderr
+                sys.stderr = StringIO()
                 stderr_str = None
 
                 exception = None
                 try:
                     cli.do_command(args)
                     success = True
-                except BaseException as e:  # To capture SystemExit
-                    exception = e
+                except SystemExit as e:
+                    pass  # stderr will will tell the user the error
+                except BaseException as e:
+                    exception = smart_str(e)
                     success = False
                 stdout_str = sys.stdout.getvalue()
                 sys.stdout.close()
                 sys.stdout = real_stdout
 
-                #stderr_str = sys.stderr.getvalue()
-                #sys.stderr.close()
-                #sys.stderr = real_stderr
+
+                stderr_str = sys.stderr.getvalue()
+                sys.stderr.close()
+                sys.stderr = real_stderr
 
                 print '>>> general_command on worksheet %s: %s' % (worksheet_uuid, command)
                 print stdout_str
