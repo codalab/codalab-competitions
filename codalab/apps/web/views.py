@@ -792,17 +792,19 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['selected_phase_id'] = int(phase_id)
             active_phase = competition.phases.filter(id=phase_id)[0]
         else:
-            active_phase = competition.phases.all()[0]
-            for phase in competition.phases.all():
+            phases = list(competition.phases.all())
+            active_phase = phases[0]
+            for phase in phases:
                 if phase.is_active:
                     context['selected_phase_id'] = phase.id
                     active_phase = phase
 
         context['selected_phase'] = active_phase
 
-        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
+        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase).select_related('participant', 'participant__user', 'status')
         # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
-        id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
+        leaderboard_entries = list(models.PhaseLeaderBoardEntry.objects.filter(board__phase__competition=competition))
+        id_of_submissions_in_leaderboard = [e.result.id for e in leaderboard_entries if e.result in submissions]
         # create column definition
         columns = [
             {
