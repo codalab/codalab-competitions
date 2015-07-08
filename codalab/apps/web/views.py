@@ -87,16 +87,16 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk')
-    published_competitions = models.Competition.objects.filter(published=True)
-    published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date()))
-    context = RequestContext(request, {
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator')
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
+    context_dict = {
         'my_competitions': my_competitions,
-        'competitions_im_in': request.user.participation.all().exclude(status=denied),
+        'competitions_im_in': request.user.participation.all().exclude(status=denied).select_related('creator'),
         'published_competitions': published_competitions,
-        'my_datasets': models.OrganizerDataSet.objects.filter()
-        })
-    return HttpResponse(template.render(context))
+        #'my_datasets': models.OrganizerDataSet.objects.filter()
+    }
+    return HttpResponse(template.render(RequestContext(request, context_dict)))
 
 def sort_data_table(request, context, list):
     context['order'] = order = request.GET.get('order') if 'order' in request.GET else 'id'
