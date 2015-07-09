@@ -64,7 +64,7 @@ def competition_index(request):
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
     competitions = models.Competition.objects.filter(published=True)
-    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date()))
+    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date))
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
@@ -472,7 +472,6 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
         except ObjectDoesNotExist:
             pass
-
         return context
 
 class CompetitionResultsPage(TemplateView):
