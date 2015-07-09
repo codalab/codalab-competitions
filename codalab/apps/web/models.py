@@ -200,7 +200,7 @@ class Competition(models.Model):
     def set_owner(self,user):
         return assign_perm('view_task', user, self)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
 
@@ -220,16 +220,10 @@ class Competition(models.Model):
 
     @cached_property
     def get_start_date(self):
-        if self.start_date:
-            return self.start_date
-        else:
+        if not self.start_date:
+            # Save sets the start date, so let's set it!
             self.save()
-            return self.start_date
-        # phases = self.phases.all().order_by('start_date')
-        # if len(phases) > 0:
-        #     return phases[0].start_date.replace(tzinfo=None)
-        # else:
-        #     return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y').replace(tzinfo=None)
+        return self.start_date
 
     @property
     def is_active(self):
@@ -882,6 +876,7 @@ class CompetitionSubmission(models.Model):
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
+    readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
@@ -950,6 +945,14 @@ class CompetitionSubmission(models.Model):
         self.like_count = self.likes.all().count()
         self.dislike_count = self.dislikes.all().count()
 
+        if not self.readable_filename:
+            if hasattr(self, 'file'):
+                if self.file.name:
+                    try:
+                        self.readable_filename = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+                    except:
+                        self.readable_filename = split(self.file.name)[1]
+
         # only at save on object creation should it be submitted
         if not self.pk:
             if not ignore_submission_limits:
@@ -1001,15 +1004,9 @@ class CompetitionSubmission(models.Model):
         """
         Returns the short name of the file which was uploaded to create the submission.
         """
-        name = ''
-        try:
-            name = self.file.storage.properties(self.file.name)['x-ms-meta-name']
-        except:
-            pass
-        if len(name) == 0:
-            # For backwards compat, fallback to this method of getting the name.
-            name = split(self.file.name)[1]
-        return name
+        if not self.readable_filename:
+            self.save()
+        return self.readable_filename
 
     def get_file_for_download(self, key, requested_by):
         """
