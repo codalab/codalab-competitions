@@ -45,3 +45,8 @@ class CompetitionSecretKey(TestCase):
         self.competition.save()
         resp = self.client.get(reverse("competitions:view", kwargs={"pk": self.competition.pk}))
         self.assertEquals(resp.status_code, 200)
+
+    def test_competition_view_unpublished_returns_200_for_participant(self):
+        self.client.login(username="participant", password="pass")
+        resp = self.client.get(reverse("competitions:view", kwargs={"pk": self.competition.pk}))
+        self.assertEquals(resp.status_code, 200)

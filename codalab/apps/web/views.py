@@ -314,7 +314,7 @@ class CompetitionDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         competition = self.get_object()
         secret_key = request.GET.get("secret_key", None)
-        if competition.creator != request.user and request.user not in competition.admins.all():
+        if competition.creator != request.user and request.user not in competition.admins.all() and request.user not in competition.participants.all():
             if not competition.published and competition.secret_key != secret_key:
                 return HttpResponse(status=404)
         # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
