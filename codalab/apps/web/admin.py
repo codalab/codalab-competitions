@@ -1,5 +1,5 @@
 from django.contrib import admin
-import models
+from apps.web import models
 from django.contrib.contenttypes import generic
 from mptt.admin import MPTTModelAdmin
 
