@@ -34,14 +34,13 @@ from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
-from django.contrib.auth import get_user_model
 from django.utils.functional import cached_property
 
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
