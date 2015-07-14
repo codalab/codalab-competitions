@@ -429,11 +429,15 @@ var Competition;
 
         var submission_id = $(this).attr('submission-id');
         var new_description = $(this).parent().find('textarea[name="updated_description"]').val() || '';
+        // Escape html
+        new_description = new_description.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
             .success(function() {
                 $(element).parent().find('.submission_description').html("<b>Description:</b> <br><pre>" + new_description + "</pre>");
-                $(element).parent().find('textarea[name="updated_description"]').val('');
+                $(element).parent().find('textarea[name="updated_description"]').val('').hide();
+                $(element).parent().find('.update_description_btn').removeClass('hide').show();
+                $(element).hide();
             })
             .error(function() {
                 alert('Error updating description, is your Internet connection working?')
@@ -487,8 +491,16 @@ var Competition;
             elem.find('.public_link').click(Competition.toggleSubmissionPublic);
             elem.find('.public_link').attr('submission-id', nTr.id);
 
-            elem.find('.update_description').click(Competition.updateSubmissionDescription);
-            elem.find('.update_description').attr('submission-id', nTr.id);
+            elem.find('.save_description_btn').click(Competition.updateSubmissionDescription);
+            elem.find('.save_description_btn').attr('submission-id', nTr.id);
+
+            elem.find('.update_description_btn').click(function() {
+                var current_text = $(this).parent().find('.submission_description').text();
+                current_text = current_text.substr('Description: '.length);
+                $(this).parent().find('.save_description_btn').removeClass('hide').show();
+                $(this).parent().find('textarea[name="updated_description"]').removeClass('hide').show().val(current_text);
+                $(this).hide();
+            });
 
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();
