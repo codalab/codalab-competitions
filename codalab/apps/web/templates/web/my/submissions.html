@@ -25,6 +25,8 @@
     {% else %}
         <p>None</p>
     {% endif %}
+    <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
+    <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
 
     <h4>Submissions</h4>
     {% if submission_info_list|length > 0 %}

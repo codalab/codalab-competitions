@@ -64,7 +64,7 @@ def competition_index(request):
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
     competitions = models.Competition.objects.filter(published=True)
-    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date()))
+    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date))
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
@@ -87,16 +87,16 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk')
-    published_competitions = models.Competition.objects.filter(published=True)
-    published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date()))
-    context = RequestContext(request, {
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator')
+    published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
+    published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
+    context_dict = {
         'my_competitions': my_competitions,
-        'competitions_im_in': request.user.participation.all().exclude(status=denied),
+        'competitions_im_in': list(request.user.participation.all().exclude(status=denied).select_related('creator')),
         'published_competitions': published_competitions,
-        'my_datasets': models.OrganizerDataSet.objects.filter()
-        })
-    return HttpResponse(template.render(context))
+        #'my_datasets': models.OrganizerDataSet.objects.filter()
+    }
+    return HttpResponse(template.render(RequestContext(request, context_dict)))
 
 def sort_data_table(request, context, list):
     context['order'] = order = request.GET.get('order') if 'order' in request.GET else 'id'
@@ -315,8 +315,11 @@ class CompetitionDetailView(DetailView):
         competition = self.get_object()
         secret_key = request.GET.get("secret_key", None)
         if competition.creator != request.user and request.user not in competition.admins.all():
-            if not competition.published and competition.secret_key != secret_key:
-                return HttpResponse(status=404)
+            # user may not be logged in, so grab PK if we can, to check if they are a participant
+            user_pk = request.user.pk or -1
+            if not competition.participants.filter(user=user_pk).exists():
+                if not competition.published and competition.secret_key != secret_key:
+                    return HttpResponse(status=404)
         # FIXME: handles legacy problem with missing post_save signal for forums, creates forum if it
         # does not exist for this competition. should be removed eventually.
         if not hasattr(competition, 'forum'):
@@ -413,24 +416,32 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        if self.request.user in [x.user for x in competition.participants.all()]:
+        #if self.request.user in [x.user for x in competition.participants.all()]:
+        if competition.participants.filter(user__in=[self.request.user]).exists():
             participant = competition.participants.get(user=self.request.user)
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
-                submissions = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase)
+
+                submissions = set(list(models.CompetitionSubmission.objects.filter(
+                    participant=participant,
+                    phase=phase
+                ).select_related('status')))
+
                 # find which submission is in the leaderboard, if any and only if phase allows seeing results.
                 id_of_submission_in_leaderboard = -1
                 if not phase.is_blind:
-                    ids = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.filter(board__phase=phase)
-                                       if e.result in submissions]
-                    if len(ids) > 0: id_of_submission_in_leaderboard = ids[0]
-                # map submissions to view data
+                    leaderboard_entry = models.PhaseLeaderBoardEntry.objects.filter(
+                        board__phase=phase,
+                        result__participant__user=self.request.user
+                    ).select_related('result', 'result__participant')
+                    if leaderboard_entry:
+                        id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
                 submission_info_list = []
                 for submission in submissions:
                     submission_info = {
                         'id': submission.id,
                         'number': submission.submission_number,
-                        'filename': submission.get_filename(),
+                        'filename': submission.get_filename(),  # left as call for legacy update of readable_filename on subs.
                         'submitted_at': submission.submitted_at,
                         'status_name': submission.status.name,
                         'is_finished': submission.status.codename == 'finished',
@@ -451,7 +462,10 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 context['phase'] = phase
 
         try:
-            last_submission = models.CompetitionSubmission.objects.filter(participant=participant, phase=phase).latest('submitted_at')
+            last_submission = models.CompetitionSubmission.objects.filter(
+                participant__user=self.request.user,
+                phase=context['phase']
+            ).latest('submitted_at')
             context['last_submission_team_name'] = last_submission.team_name
             context['last_submission_method_name'] = last_submission.method_name
             context['last_submission_method_description'] = last_submission.method_description
@@ -461,7 +475,6 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['last_submission_organization_or_affiliation'] = last_submission.organization_or_affiliation
         except ObjectDoesNotExist:
             pass
-
         return context
 
 class CompetitionResultsPage(TemplateView):
@@ -792,17 +805,19 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['selected_phase_id'] = int(phase_id)
             active_phase = competition.phases.filter(id=phase_id)[0]
         else:
-            active_phase = competition.phases.all()[0]
-            for phase in competition.phases.all():
+            phases = list(competition.phases.all())
+            active_phase = phases[0]
+            for phase in phases:
                 if phase.is_active:
                     context['selected_phase_id'] = phase.id
                     active_phase = phase
 
         context['selected_phase'] = active_phase
 
-        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase)
+        submissions = models.CompetitionSubmission.objects.filter(phase=active_phase).select_related('participant', 'participant__user', 'status')
         # find which submissions are in the leaderboard, if any and only if phase allows seeing results.
-        id_of_submissions_in_leaderboard = [e.result.id for e in models.PhaseLeaderBoardEntry.objects.all() if e.result in submissions]
+        leaderboard_entries = list(models.PhaseLeaderBoardEntry.objects.filter(board__phase__competition=competition))
+        id_of_submissions_in_leaderboard = [e.result.id for e in leaderboard_entries if e.result in submissions]
         # create column definition
         columns = [
             {

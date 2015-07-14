@@ -39,13 +39,13 @@ class CompetitionSubmissionDownloadTests(TestCase):
             start_date=datetime.datetime.now() - datetime.timedelta(days=30),
         )
 
-        submission_finished = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
+        self.submission_finished_status = CompetitionSubmissionStatus.objects.create(name="finished", codename="finished")
         CompetitionSubmissionStatus.objects.create(name="failed", codename="failed")
 
         self.submission_1 = CompetitionSubmission.objects.create(
             participant=self.participant_1,
             phase=self.phase_1,
-            status=submission_finished,
+            status=self.submission_finished_status,
             is_public=False,
             submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
             stdout_file=SimpleUploadedFile(name="test.txt", content="test std out")
@@ -103,3 +103,26 @@ class CompetitionSubmissionDownloadTests(TestCase):
         self.client.login(username="other", password="pass")
         resp = self.client.get(self.url)
         self.assertEquals(resp.status_code, 200)
+
+    def test_submission_deleted_then_re_evaluated_does_not_make_output_corrupted(self):
+        self.submission_1.delete()
+
+        new_submission = CompetitionSubmission.objects.create(
+            participant=self.participant_1,
+            phase=self.phase_1,
+            status=self.submission_finished_status,
+            is_public=False,
+            submitted_at=datetime.datetime.now() - datetime.timedelta(days=29),
+            stdout_file=SimpleUploadedFile(name="test.txt", content="new stdout")
+        )
+        new_url = reverse(
+            "my_competition_output",
+            kwargs={
+                "submission_id": new_submission.pk,
+                "filetype": "stdout.txt"
+            }
+        )
+        self.client.login(username="participant", password="pass")
+        resp = self.client.get(new_url)
+        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.content, "new stdout")

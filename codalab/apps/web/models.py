@@ -34,13 +34,13 @@ from mptt.models import MPTTModel, TreeForeignKey
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
-from django.contrib.auth import get_user_model
+from django.utils.functional import cached_property
 
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
 ## Needed for computation service handling
@@ -153,7 +153,8 @@ class Competition(models.Model):
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
-    end_date = models.DateTimeField(null=True,blank=True, verbose_name="End Date (UTC)")
+    start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
+    end_date = models.DateTimeField(null=True, blank=True, verbose_name="End Date (UTC)")
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_creator')
     admins = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='competition_admins', blank=True, null=True)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='competitioninfo_modified_by')
@@ -198,24 +199,30 @@ class Competition(models.Model):
     def set_owner(self,user):
         return assign_perm('view_task', user, self)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
+
+        phases = self.phases.all().order_by('start_date')
+        if len(phases) > 0:
+            self.start_date = phases[0].start_date.replace(tzinfo=None)
+
         # Do the real save
         return super(Competition,self).save(*args,**kwargs)
 
+    @cached_property
     def image_url(self):
         # Return the transformed image_url
         if self.image:
-            return os.path.join(self.image_url_base,self.image.name)
+            return os.path.join(self.image_url_base, self.image.name)
         return None
 
+    @cached_property
     def get_start_date(self):
-        phases = self.phases.all().order_by('start_date')
-        if len(phases) > 0:
-            return phases[0].start_date.replace(tzinfo=None)
-        else:
-            return datetime.datetime.strptime('26 Sep 2012', '%d %b %Y').replace(tzinfo=None)
+        if not self.start_date:
+            # Save sets the start date, so let's set it!
+            self.save()
+        return self.start_date
 
     @property
     def is_active(self):
@@ -375,6 +382,10 @@ class Competition(models.Model):
 
         return csvfile.getvalue()
 
+    @cached_property
+    def get_participant_count(self):
+        return self.participants.all().count()
+
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
@@ -456,7 +467,7 @@ def submission_root(instance):
         str(instance.phase.pk),
         "submissions",
         str(instance.participant.user.pk),
-        str(instance.submission_number)
+        str(instance.pk),
     )
 
 def submission_file_name(instance, filename="predictions.zip"):
@@ -864,6 +875,7 @@ class CompetitionSubmission(models.Model):
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
+    readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)
     inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
     runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
@@ -932,6 +944,14 @@ class CompetitionSubmission(models.Model):
         self.like_count = self.likes.all().count()
         self.dislike_count = self.dislikes.all().count()
 
+        if not self.readable_filename:
+            if hasattr(self, 'file'):
+                if self.file.name:
+                    try:
+                        self.readable_filename = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+                    except:
+                        self.readable_filename = split(self.file.name)[1]
+
         # only at save on object creation should it be submitted
         if not self.pk:
             if not ignore_submission_limits:
@@ -983,15 +1003,9 @@ class CompetitionSubmission(models.Model):
         """
         Returns the short name of the file which was uploaded to create the submission.
         """
-        name = ''
-        try:
-            name = self.file.storage.properties(self.file.name)['x-ms-meta-name']
-        except:
-            pass
-        if len(name) == 0:
-            # For backwards compat, fallback to this method of getting the name.
-            name = split(self.file.name)[1]
-        return name
+        if not self.readable_filename:
+            self.save()
+        return self.readable_filename
 
     def get_file_for_download(self, key, requested_by):
         """
