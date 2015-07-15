@@ -496,7 +496,11 @@ var Competition;
 
             elem.find('.update_description_btn').click(function() {
                 var current_text = $(this).parent().find('.submission_description').text();
-                current_text = current_text.substr('Description: '.length);
+                if(current_text.indexOf('Description: ') !== -1) {
+                    current_text = current_text.substr('Description: '.length);
+                } else {
+                    current_text = '';
+                }
                 $(this).parent().find('.save_description_btn').removeClass('hide').show();
                 $(this).parent().find('textarea[name="updated_description"]').removeClass('hide').show().val(current_text);
                 $(this).hide();
