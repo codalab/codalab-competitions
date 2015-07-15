@@ -382,6 +382,11 @@ class Competition(models.Model):
 
         return csvfile.getvalue()
 
+    def get_score_headers(self):
+        qs = self.submissionscoredef_set.filter(computed=False)
+        qs = qs.order_by('ordering').values_list('label', flat=True)
+        return qs
+
     @cached_property
     def get_participant_count(self):
         return self.participants.all().count()
@@ -1072,6 +1077,12 @@ class CompetitionSubmission(models.Model):
             return score[0].value
         else:
             return None
+
+    def get_scores_as_tuples(self):
+        scores = []
+        for score in self.scores.all().order_by('scoredef__ordering'):
+            scores.append((score.scoredef.label, score.value))
+        return scores
 
 
 class SubmissionResultGroup(models.Model):

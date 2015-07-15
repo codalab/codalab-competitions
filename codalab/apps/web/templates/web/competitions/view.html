@@ -8,8 +8,8 @@
 
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/stupidtable.min.js"></script>
 
+    <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
 
     <style>
     #public_submission_table th b {
@@ -196,7 +196,7 @@
                             <h3>Filters</h3>
                             <p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
 
-                            <table id="public_submission_table" class="table table-bordered table-striped">
+                            <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
                                 <thead>
                                     <tr>
                                         <th width="40" data-sort="int"><b>#</b></th>
@@ -204,6 +204,9 @@
                                         <th width="75" data-sort="string"><b>Phase</b></th>
                                         <th width="125" data-sort="string"><b>Date</b></th>
                                         <th data-sort="string"><b>Description</b></th>
+                                        {% for label in competition.get_score_headers %}
+                                            <td width="100">{{ label }}</td>
+                                        {% endfor %}
                                         <th width="100" data-sort="string"><b>Score</b></th>
                                         <th width="100" data-sort="string"><b>Likes</b></th>
                                         <th width="125" data-sort="string"><b>Downloads</b></th>
@@ -221,6 +224,9 @@
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         <td>{{ submission.get_default_score|floatformat:3 }}</td>
+                                        {% for label, value in submission.get_scores_as_tuples %}
+                                            <td>{{ value }}</td>
+                                        {% endfor %}
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
@@ -335,7 +341,7 @@
              Public submissions
             *****************************************************************/
             // Make sortable
-            $('#public_submission_table').stupidtable();
+            $("#public_submission_table").tablesorter();
 
             // Truncate long submision descriptions
             $(".truncate-readmore").readmore({collapsedHeight: 45});
