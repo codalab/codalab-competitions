@@ -9,7 +9,7 @@
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
 
-    <script src="{{ STATIC_URL }}js/vendor/stupidtable.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
 
     <style>
     #public_submission_table th b {
@@ -199,17 +199,6 @@
                             <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
                                 <thead>
                                     <tr>
-<!--<<<<<<< HEAD
-                                        <td width="40"><b>#</b></td>
-                                        <td width="125"><b>User</b></td>
-                                        <td width="125"><b>Date</b></td>
-                                        <td><b>Description</b></td>
-                                        {% for label in competition.get_score_headers %}
-                                            <td width="100">{{ label }}</td>
-                                        {% endfor %}
-                                        <td width="100"><b>Likes</b></td>
-                                        <td width="125"><b>Downloads</b></td>
-=======-->
                                         <th width="40" data-sort="int"><b>#</b></th>
                                         <th width="125" data-sort="string"><b>User</b></th>
                                         <th width="75" data-sort="string"><b>Phase</b></th>
@@ -348,13 +337,11 @@
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
 
-            $("#public_submission_table").tablesorter();
-
             /******************************************************************
              Public submissions
             *****************************************************************/
             // Make sortable
-            $('#public_submission_table').stupidtable();
+            $("#public_submission_table").tablesorter();
 
             // Truncate long submision descriptions
             $(".truncate-readmore").readmore({collapsedHeight: 45});
