@@ -408,7 +408,8 @@ def supervisor_stop():
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
     # since worker is muli threaded, we need to kill all running processes
-    run('pkill -9 -f worker.py')
+    with settings(warn_only=True):
+        run('pkill -9 -f worker.py')
 
 @roles('web')
 @task
@@ -541,3 +542,12 @@ def update_compute_worker():
     run('cd codalab && git pull --rebase')
     sudo('stop codalab-compute-worker')
     sudo('start codalab-compute-worker')
+
+
+@task
+def update_conda():
+    with settings(warn_only=True):
+        if not run('conda'):
+            # If we can't run conda add it to the path
+            run('echo "export PATH=~/anaconda/bin:$PATH" >> ~/.bashrc')
+    run('conda update --yes --prefix /home/azureuser/anaconda anaconda')

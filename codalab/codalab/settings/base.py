@@ -371,6 +371,8 @@ class Base(Settings):
                     print e
                 else:
                     cls.INSTALLED_APPS += (a,)
+        if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
+            cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME })
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:

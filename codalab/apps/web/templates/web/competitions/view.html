@@ -8,7 +8,14 @@
 
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
-    <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
+
+    <script src="{{ STATIC_URL }}js/vendor/stupidtable.min.js"></script>
+
+    <style>
+    #public_submission_table th b {
+        cursor: pointer;
+    }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -192,6 +199,7 @@
                             <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
                                 <thead>
                                     <tr>
+<!--<<<<<<< HEAD
                                         <td width="40"><b>#</b></td>
                                         <td width="125"><b>User</b></td>
                                         <td width="125"><b>Date</b></td>
@@ -201,8 +209,20 @@
                                         {% endfor %}
                                         <td width="100"><b>Likes</b></td>
                                         <td width="125"><b>Downloads</b></td>
+=======-->
+                                        <th width="40" data-sort="int"><b>#</b></th>
+                                        <th width="125" data-sort="string"><b>User</b></th>
+                                        <th width="75" data-sort="string"><b>Phase</b></th>
+                                        <th width="125" data-sort="string"><b>Date</b></th>
+                                        <th data-sort="string"><b>Description</b></th>
+                                        {% for label in competition.get_score_headers %}
+                                            <td width="100">{{ label }}</td>
+                                        {% endfor %}
+                                        <th width="100" data-sort="string"><b>Score</b></th>
+                                        <th width="100" data-sort="string"><b>Likes</b></th>
+                                        <th width="125" data-sort="string"><b>Downloads</b></th>
                                         {% if competition.enable_detailed_results %}
-                                            <td width="150"><b>Detailed results?</b></td>
+                                            <th width="150" data-sort="string"><b>Detailed results?</b></th>
                                         {% endif %}
                                     </tr>
                                 </thead>
@@ -211,6 +231,7 @@
                                     <tr data-on-leaderboard="{% if submission.leaderboard_entry_result.count %}true{% endif %}">
                                         <td>{{ forloop.counter }}</td>
                                         <td><b>{{ submission.participant.user.username }}</b></td>
+                                        <td>{{ submission.phase.phasenumber }}</td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         <td>{{ submission.get_default_score|floatformat:3 }}</td>
@@ -330,8 +351,11 @@
             $("#public_submission_table").tablesorter();
 
             /******************************************************************
-            Public submissions
-             *****************************************************************/
+             Public submissions
+            *****************************************************************/
+            // Make sortable
+            $('#public_submission_table').stupidtable();
+
             // Truncate long submision descriptions
             $(".truncate-readmore").readmore({collapsedHeight: 45});
 
