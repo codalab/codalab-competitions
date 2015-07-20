@@ -56,16 +56,10 @@ var WorksheetActions =  function() {
             // ------------------------------------
             // Example (* starred are required)
             // 'commandname'{  // what the user enters
-            //  *  executefn: function that happens when they hit enter
+            //  *  executefn: a promise function that happens when they hit enter
             //  *  edit_enabled: is this a command that is only allowed when able to edit
-            //  *  autocomplete
-            //     data_url: does this command have an auto complete after it is entered
-            //     type: type for above data_url call
-            //     get_data: data that needs to get passed to data_url call. will haev a query param of what the user has entered
-            //
-            //     searchChoice: called if we want a custom search or help tex insead of json/ajax data_url
-            //
-            //     minimumInputLength: min length before doin get for search choices
+            //  *  autocomplete: a promise function that returns either a dict {"test" : autocompletetext, "display": displaytet}
+            //                   or an array of just things you wish to match vs what the user has typed
             // }
             // ------------------------------------
             'cl': { // default lets just run abrary commands commands fall back to this if no other command is found
@@ -141,17 +135,21 @@ var WorksheetActions =  function() {
                             var autocomplete_list = [];
                             for (var i = 0; i < data.length; i++) {
                                 var worksheet = data[i];
-                                // autocomplete_list .push({
-                                //     'text': worksheet.uuid, // UUID
-                                //     'display': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
-                                // });
-                                autocomplete_list.push(worksheet.uuid);
+                                autocomplete_list.push({
+                                    'text': worksheet.uuid, // UUID
+                                    'display': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
+                                });
                             }
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){
                             defer.resolve([]);
-                            var error = jqHXR.responseJSON['error'];
+                            var error;
+                            if(jqHXR.responseJSON){
+                                error = jqHXR.responseJSON['error'];
+                            }else{
+                                error = error
+                            }
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                         }
                     });
@@ -160,7 +158,14 @@ var WorksheetActions =  function() {
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
                     defer.resolve()
-                    window.location = '/worksheets/' + options[1] + '/';
+                    if(options[1]){
+                        if(options[1].length > 33){ // a full uuid
+                            window.location = '/worksheets/' + options[1] + '/';
+                        }else{
+                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>", {raw: true});
+                        }
+
+                    }
                     return defer.promise();
                 },
             }, // end off work
@@ -192,7 +197,12 @@ var WorksheetActions =  function() {
                         },
                         error: function(jqHXR, status, error){
                             defer.resolve([])
-                            var error = jqHXR.responseJSON['error'];
+                            var error;
+                            if(jqHXR.responseJSON){
+                                error = jqHXR.responseJSON['error'];
+                            }else{
+                                error = error
+                            }
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                         }
                     });
@@ -220,17 +230,21 @@ var WorksheetActions =  function() {
                                 var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
-                                // newOptions.push({
-                                //     'text': uuid, // UUID
-                                //     'text': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
-                                // });
-                                autocomplete_list.push(uuid)
+                                autocomplete_list.push({
+                                    'text': uuid, // UUID
+                                    'display': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                });
                             }
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){
                             defer.resolve([])
-                            var error = jqHXR.responseJSON['error'];
+                            var error;
+                            if(jqHXR.responseJSON){
+                                error = jqHXR.responseJSON['error'];
+                            }else{
+                                error = error
+                            }
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                             console.error(status + ': ' + error);
                         }
@@ -258,7 +272,12 @@ var WorksheetActions =  function() {
                         },
                         error: function(jqHXR, status, error){
                             defer.resolve()
-                            var error = jqHXR.responseJSON['error'];
+                            var error;
+                            if(jqHXR.responseJSON){
+                                error = jqHXR.responseJSON['error'];
+                            }else{
+                                error = error
+                            }
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                             console.error(status + ': ' + error);
                         }
@@ -288,17 +307,21 @@ var WorksheetActions =  function() {
                                 var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
-                                // newOptions.push({
-                                //     'text': uuid, // UUID
-                                //     'text': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
-                                // });
-                                autocomplete_list.push(uuid)
+                                autocomplete_list.push({
+                                    'text': uuid, // UUID
+                                    'display': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                });
                             }
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){
                             defer.resolve([])
-                            var error = jqHXR.responseJSON['error'];
+                            var error;
+                            if(jqHXR.responseJSON){
+                                error = jqHXR.responseJSON['error'];
+                            }else{
+                                error = error
+                            }
                             term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
                             console.error(status + ': ' + error);
                         }
@@ -309,7 +332,13 @@ var WorksheetActions =  function() {
                     var defer = jQuery.Deferred();
                     var bundle_uuid = options[options.length-1]
                     defer.resolve([])
-                    window.location = '/bundles/' + bundle_uuid + '/';
+                    if(bundle_uuid){
+                        if(bundle_uuid.length > 33){ // a full uuid
+                            window.location = '/bundles/' + bundle_uuid + '/';
+                        }else{
+                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>", {raw: true});
+                        }
+                    }
                     return defer.promise();
                 }
             }, // end off info
@@ -451,11 +480,10 @@ var WorksheetActions =  function() {
         }; // end of commands
     }// endof worksheetActions() init
 
-    //helper commands
+    // helper commands ----------- helper commands ------------ helper commands
     WorksheetActions.prototype.getCommands = function(can_edit, all){
         all = all || false
-        // The select2 autocomplete expects its data in a certain way, so we'll turn
-        // relevant parts of the command dict into an array it can work with
+        // grab relevant parts of the command dict into an array it can work with
         // this is derfered since getCommands is used for autocomplete.
         // if used else where don't forget your .then()
         var defer = jQuery.Deferred();
@@ -468,7 +496,7 @@ var WorksheetActions =  function() {
                 commandList.push(key);
             }
         }
-        commandList = _.without(commandList, 'cl')
+        commandList = _.without(commandList, 'cl'); // no need for cl
         if(all){
             commandList = commandList.concat(this.not_implemented_commands)
         }
@@ -482,46 +510,6 @@ var WorksheetActions =  function() {
             command_dict = ws_actions.commands[command];
         }
         return command_dict;
-    };
-
-    //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY //LEGACY
-    WorksheetActions.prototype.AjaxBundleDictToOptions = function(data){
-        // Render a bundle in the dropdown action bar
-        var newOptions = [];
-        for(var uuid in data){
-            var bundle = data[uuid];
-            var user = bundle.owner_name; // owner is a string <username>(<user_id>)
-            var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
-            created_date.setUTCSeconds(bundle.metadata.created);
-            created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
-            newOptions.push({
-                'id': uuid, // UUID
-                'text': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
-            });
-        }
-        return newOptions;
-    };
-
-    WorksheetActions.prototype.AjaxWorksheetDictToOptions = function(data) {
-        // Render a worksheet in the dropdown action bar
-        var newOptions = [];
-        console.log(data);
-        for (var i = 0; i < data.length; i++) {
-            var worksheet = data[i];
-            newOptions.push({
-                'id': worksheet.uuid, // UUID
-                'text': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
-            });
-        }
-        return newOptions;
-    };
-
-    WorksheetActions.prototype.checkRunCommandDone = function(val){
-        var current_values = val.split(',');
-        if(val.lastIndexOf('\'', 4) !== -1){
-            return true;
-        }
-        return false;
     };
 
     return WorksheetActions;

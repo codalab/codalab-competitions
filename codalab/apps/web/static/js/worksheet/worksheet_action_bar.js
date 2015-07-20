@@ -104,10 +104,25 @@ var WorksheetActionBar = React.createClass({
                             paused = false;
                             var regex = new RegExp('^' + $.terminal.escape_regex(last));
                             var matched = [];
-                            // push all found auto_complete_list in to matched for more tricks
+                            var matched_pos = []; // autocomplete will sometimes return array of objects, which ones match which
+
+                            // push all found auto_complete_list in to matched for more tricks later
                             for (var i=auto_complete_list.length; i--;) {
-                                if (regex.test(auto_complete_list[i])) {
-                                    matched.push(auto_complete_list[i]);
+                                var is_obj = false
+                                var test_match_text = auto_complete_list[i]
+                                // can be returned as array or an obj {'text': auto-coplete text , "display": fancy display text }
+                                if(typeof(test_match_text) == "object"){
+                                    test_match_text = auto_complete_list[i].text;
+                                    is_obj = true
+                                }
+                                // check the text and push it to the list
+                                if(regex.test(test_match_text)) {
+                                    matched.push(test_match_text);
+                                    if(is_obj){
+                                        is_obj  // so we can match it later
+                                        matched_pos.push(i);
+                                    }
+
                                 }
                             }
                             // now for the insert or print out
@@ -115,9 +130,18 @@ var WorksheetActionBar = React.createClass({
                                 term.insert(matched[0].replace(regex, '') + ' ');
                             }else if (matched.length > 1) {
                                 if (tab_count >= 2) {
-                                    // TODO fancy ouput, not just \t
-                                    // term.echo("<a href='http://google.com'>a link</a>", {raw: true});
-                                    term.echo(matched.join('\t'));
+                                    if(matched_pos.length > 0){
+                                        // we have fancy output sync back up with auto_coplete and print it
+                                        for(var i=matched_pos.length; i--;) {
+                                            // todo : pre and post display?
+                                            var display = auto_complete_list[matched_pos[i]].display
+                                            term.echo(display, {raw: true});
+                                        }
+                                    }else{ // nothing fancy just spit it out with a tab
+                                        term.echo(matched.join('\t'));
+                                    }
+
+
                                     tab_count = 0;
                                 } else {
                                     // lets find what matches and fill in as much as we can if not a full match
