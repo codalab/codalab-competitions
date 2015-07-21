@@ -9,6 +9,9 @@ var WorksheetActionBar = React.createClass({
     componentDidMount: function(){
         // https://github.com/jcubic/jquery.terminal
         var self = this;
+        $('#dragbar_horizontal').mousedown(function(e){
+            self.resizePanel(e);
+        });
         var tab_count = 0;
         var paused = false;
         var term = $('#command_line').terminal(
@@ -55,7 +58,8 @@ var WorksheetActionBar = React.createClass({
             {
                 greetings: 'Worksheet Interface: A codalab cli lite interface. Please enter a command or help to see list of commands',
                 name: 'command_line',
-                height: 35,
+                height: 45,
+                width: 700,
                 prompt: '> ',
                 history: true,
                 keydown: function(event, terminal){
@@ -164,7 +168,7 @@ var WorksheetActionBar = React.createClass({
                                             term.insert(matched[0].slice(0, j).replace(regex, ''));
                                         }
                                 }// end of if tab_count
-                            }// end if else if
+                            } // end if else if
                         }); // end of then
 
                         return false; // dont really hit tab
@@ -174,11 +178,11 @@ var WorksheetActionBar = React.createClass({
 
                 },
                 onBlur: function(term){
-                    term.resize(term.width(), 35);
+                    term.resize(term.width(), 45);
                     self.props.handleBlur();
                 },
                 onFocus: function(term){
-                    term.resize(term.width(), 150);
+                    term.resize(term.width(), 170);
                     self.props.handleFocus();
                 },
             }
@@ -190,12 +194,32 @@ var WorksheetActionBar = React.createClass({
     },
     componentWillUnmount: function(){},
     componentDidUpdate: function(){},
+    resizePanel: function(e){
+        var worksheet = $('#worksheet');
+        var actionbar = $('#ws_search');
+        var topOffset = actionbar.offset().top;
+        var worksheetHeight = $('#worksheet').height();
+        var worksheetPanel = $('#worksheet_panel');
+        var commandLine = $('#command_line');
+        $(document).mousemove(function(e){
+            e.preventDefault();
+            var actionbarHeight = e.pageY - topOffset;
+            var actionbarHeightPercentage = actionbarHeight / worksheetHeight * 100;
+            if(35 < actionbarHeight && actionbarHeightPercentage < 90){ // minimum height: 35px; maximum height: 90% of worksheet height
+                worksheetPanel.removeClass('actionbar-focus').addClass('actionbar-resized');;
+                actionbar.css('height', actionbarHeight);
+                $('#command_line').terminal().resize(commandLine.width(), actionbarHeight - 20);
+                worksheetPanel.css('padding-top', actionbarHeight);
+            }
+        });
+    },
     render: function(){
         return (
-            <div className="ws-search">
+            <div id="ws_search">
                 <div className="container">
-                    <div id="command_line" ></div>
+                    <div id="command_line"></div>
                 </div>
+                <div id="dragbar_horizontal" className="dragbar"></div>
             </div>
         )
     }
