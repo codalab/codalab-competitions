@@ -120,7 +120,7 @@ var Worksheet = React.createClass({
             this.toggleActionBar();
         }.bind(this));
 
-         Mousetrap.bind(['/'], function(e){
+         Mousetrap.bind(['c'], function(e){
                 this.showActionBar();
                 this.setState({activeComponent: 'action'});
                 $('#command_line').terminal().focus();
