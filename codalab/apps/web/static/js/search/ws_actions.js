@@ -137,7 +137,7 @@ var WorksheetActions =  function() {
                                 var worksheet = data[i];
                                 autocomplete_list.push({
                                     'text': worksheet.uuid, // UUID
-                                    'display': worksheet.name + ' | ' + worksheet.uuid.slice(0, 10) + ' | Owner: ' + worksheet.owner_name,
+                                    'display': worksheet.uuid.slice(0, 10)  + " | " +  worksheet.name + ' | Owner: ' + worksheet.owner_name,
                                 });
                             }
                             defer.resolve(autocomplete_list)
@@ -231,8 +231,8 @@ var WorksheetActions =  function() {
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
                                 autocomplete_list.push({
-                                    'text': uuid, // UUID
-                                    'display': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                    'text': uuid,
+                                    'display': uuid.slice(0, 10)  + " | " +  bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
                                 });
                             }
                             defer.resolve(autocomplete_list)
@@ -308,8 +308,8 @@ var WorksheetActions =  function() {
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
                                 autocomplete_list.push({
-                                    'text': uuid, // UUID
-                                    'display': bundle.metadata.name + ' | ' + uuid.slice(0, 10) + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                    'text': uuid,
+                                    'display':  uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
                                 });
                             }
                             defer.resolve(autocomplete_list)

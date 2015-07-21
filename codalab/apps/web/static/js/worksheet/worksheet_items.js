@@ -37,6 +37,9 @@ var WorksheetItemList = React.createClass({
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
+        if(!this.props.active){ // if we are not the active component dont bind keys
+            return;
+        }
 
         Mousetrap.bind(['up', 'k'], function(e){
             if(fIndex <= 0){

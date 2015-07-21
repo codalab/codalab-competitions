@@ -77,16 +77,15 @@ var Worksheet = React.createClass({
         this.setState({activeComponent:'list'});
     },
     capture_keys: function(){
+        // console.log("-------------------  capture_keys  -------------------");
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
-        // if(this.state.activeComponent == 'search'){
-        //     console.log("you've got the search bar");
-        // }
-        // if(this.state.activeComponent == "list"){
-        //     console.log("you've got the list");
-        // }
-
+        console.log(this.state.activeComponent );
+        if(this.state.activeComponent == 'action'){
+            // no need for other keys, we have the action bar focused
+            return;
+        }
         // No keyboard shortcuts are active in raw mode
         if(this.state.rawMode){
             Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
@@ -124,6 +123,7 @@ var Worksheet = React.createClass({
          Mousetrap.bind(['/'], function(e){
                 this.showActionBar();
                 this.setState({activeComponent: 'action'});
+                $('#command_line').terminal().focus();
         }.bind(this));
 
         //toggle raw - F
