@@ -69,12 +69,17 @@ var Worksheet = React.createClass({
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
+        $('#worksheet_panel').addClass('actionbar-focus');
+        $('#command_line').data('resizing', null);
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
     handleActionBarBlur: function(event){
         // explicitly close term because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
         this.setState({activeComponent:'list'});
+        $('#command_line').data('resizing', null);
+        $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
+        $('#ws_search').removeAttr('style');
     },
     capture_keys: function(){
         // console.log("-------------------  capture_keys  -------------------");
@@ -349,34 +354,36 @@ var Worksheet = React.createClass({
         return (
             <div id="worksheet" className={serachClassName}>
                 {action_bar_display}
-                {worksheet_side_panel}
-                <div className="ws-container">
-                    <div className="container-fluid">
-                        <div id="worksheet_content" className={editableClassName}>
-                            <div className="header-row">
-                                <div className="row">
-                                    <div className="col-sm-6 col-md-8">
-                                        <div className="worksheet-name">
-                                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                                            <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                            <div className="worksheet-permission">Permission: {permission_str}</div>
+                <div id="worksheet_panel" className="actionbar-focus">
+                    {worksheet_side_panel}
+                    <div className="ws-container">
+                        <div className="container-fluid">
+                            <div id="worksheet_content" className={editableClassName}>
+                                <div className="header-row">
+                                    <div className="row">
+                                        <div className="col-sm-6 col-md-8">
+                                            <div className="worksheet-name">
+                                                <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                                                <div className="worksheet-author">{ws_obj.state.owner}</div>
+                                                <div className="worksheet-permission">Permission: {permission_str}</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6 col-md-4">
+                                            <div className="controls">
+                                                <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                                {editFeatures}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col-sm-6 col-md-4">
-                                        <div className="controls">
-                                            <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                            {editFeatures}
-                                        </div>
-                                    </div>
+                                    <hr />
                                 </div>
-                                <hr />
+                                {worksheet_display}
                             </div>
-                            {worksheet_display}
                         </div>
+                        {worksheet_modal}
                     </div>
-                    {worksheet_modal}
                 </div>
-                <div id="dragbar"></div>
+                <div id="dragbar_vertical" className="dragbar"></div>
             </div>
         )
     }

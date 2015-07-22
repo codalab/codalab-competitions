@@ -1,5 +1,7 @@
 @initial-panel-width: 25%;
 @panel-bg: #FBFBFB;
+@actionbar-focus-height: 170px + 20px;
+@actionbar-blur-height: 45px + 20px;
 
 .panel-frame {
    margin-top:12px;
@@ -38,59 +40,74 @@ html, body, #worksheet_container {height:100%;}
    .transition(margin-top .35s ease);
    position:relative;
    height:100%;
-   .ws-search {
+   #ws_search {
       position:fixed;
-      top:52px;
       width:100%;
       margin:0;
       padding:10px 0;
+      text-align:center;
+      // padding:10px 0;
       z-index:@zindex-navbar;
-      background-color:fade(#eaeaea, 90%);
-      border-bottom:2px solid @navbar-default-border;
-      .box-shadow(0 2px 8px @gray-dark);
-      .transition(top .35s ease);
-      > .container {
-         display:table;
-         padding-right:65px;
-         > .input-group {
-            display:table-row;
-            .select2-container, .input-group-btn {
-               display:table-cell;
-            }
-            .btn {
-               position:absolute;
-               top:0;
-               bottom:0;
-               line-height:1;
-               width:50px;
-            }
-         }
-      }
-      .select2-container-multi .select2-choices {
-         padding:1px 5px 3px 0;
-         .select2-search-choice {
-            margin:3px 0 1px 4px;
-         }
-         .select2-search-field input {
-            margin-top:3px;
-            padding:3px 5px;
-            line-height:inherit;
-         }
-      }
+      background-color:fade(#efefef, 90%);
+      // border-bottom:2px solid @navbar-default-border;
+      // .box-shadow(0 2px 8px @gray-dark);
+      // .transition(top .35s ease);
+      // > .container {
+         // > .input-group {
+         //    display:table-row;
+         //    .select2-container, .input-group-btn {
+         //       display:table-cell;
+         //    }
+         //    .btn {
+         //       position:absolute;
+         //       top:0;
+         //       bottom:0;
+         //       line-height:1;
+         //       width:50px;
+         //    }
+         // }
+      // }
+      // .select2-container-multi .select2-choices {
+      //    padding:1px 5px 3px 0;
+      //    .select2-search-choice {
+      //       margin:3px 0 1px 4px;
+      //    }
+      //    .select2-search-field input {
+      //       margin-top:3px;
+      //       padding:3px 5px;
+      //       line-height:inherit;
+      //    }
+      // }
    }
    &.search-hidden {
       margin-top:-61px;
-      .ws-search {
+      #ws_search {
          top:-7px;
       }
    }
-   #dragbar {
-      background-color:@gray-light;
+   #dragbar_horizontal {
       position:absolute;
+      height:5px;
+      left:0;
+      right:0;
+      bottom:0;
+      cursor: row-resize;
+      border-bottom:2px solid @navbar-default-border;
+   }
+   #dragbar_vertical {
+      position:absolute;
+      background-color:@gray-light;
       height:100%;
       right:@initial-panel-width;
       width: 2px;
       cursor: col-resize;
+   }
+   #worksheet_panel {
+      .clearfix();
+      padding-top:@actionbar-blur-height;
+      &.actionbar-focus {
+         padding-top:@actionbar-focus-height;
+      }
    }
    .ws-container {
       position: absolute;
@@ -779,11 +796,17 @@ html, body, #worksheet_container {height:100%;}
          margin-bottom:16px;
       }
    }
+   #worksheet #worksheet_panel,
+   #worksheet #worksheet_panel.actionbar-focus {
+      padding-top:0;
+   }
+   #worksheet #ws_search,
    #worksheet .ws-panel,
-   #worksheet #dragbar {
+   #worksheet .dragbar {
       display:none;
    }
    #worksheet .ws-container {
       right:0;
+      padding:0;
    }
 }
