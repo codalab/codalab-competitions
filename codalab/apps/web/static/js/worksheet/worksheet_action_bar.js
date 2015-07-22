@@ -178,11 +178,17 @@ var WorksheetActionBar = React.createClass({
 
                 },
                 onBlur: function(term){
+                    if(term.data('resizing')){
+                        self.props.handleFocus();
+                        return false;
+                    }
                     term.resize(term.width(), 45);
                     self.props.handleBlur();
                 },
                 onFocus: function(term){
-                    term.resize(term.width(), 170);
+                    if(!term.data('resizing')){
+                        term.resize(term.width(), 170);
+                    }
                     self.props.handleFocus();
                 },
             }
@@ -195,7 +201,6 @@ var WorksheetActionBar = React.createClass({
     componentWillUnmount: function(){},
     componentDidUpdate: function(){},
     resizePanel: function(e){
-        var worksheet = $('#worksheet');
         var actionbar = $('#ws_search');
         var topOffset = actionbar.offset().top;
         var worksheetHeight = $('#worksheet').height();
@@ -203,12 +208,13 @@ var WorksheetActionBar = React.createClass({
         var commandLine = $('#command_line');
         $(document).mousemove(function(e){
             e.preventDefault();
+            $('#command_line').data('resizing', 'true');
             var actionbarHeight = e.pageY - topOffset;
             var actionbarHeightPercentage = actionbarHeight / worksheetHeight * 100;
-            if(35 < actionbarHeight && actionbarHeightPercentage < 90){ // minimum height: 35px; maximum height: 90% of worksheet height
+            if(65 < actionbarHeight && actionbarHeightPercentage < 90){ // minimum height: 65px; maximum height: 90% of worksheet height
                 worksheetPanel.removeClass('actionbar-focus').addClass('actionbar-resized');;
                 actionbar.css('height', actionbarHeight);
-                $('#command_line').terminal().resize(commandLine.width(), actionbarHeight - 20);
+                commandLine.terminal().resize(commandLine.width(), actionbarHeight - 20);
                 worksheetPanel.css('padding-top', actionbarHeight);
             }
         });

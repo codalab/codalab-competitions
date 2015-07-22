@@ -70,13 +70,16 @@ var Worksheet = React.createClass({
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
         $('#worksheet_panel').addClass('actionbar-focus');
+        $('#command_line').data('resizing', null);
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
     handleActionBarBlur: function(event){
         // explicitly close term because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
         this.setState({activeComponent:'list'});
-        $('#worksheet_panel').removeClass('actionbar-focus');
+        $('#command_line').data('resizing', null);
+        $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
+        $('#ws_search').removeAttr('style');
     },
     capture_keys: function(){
         // console.log("-------------------  capture_keys  -------------------");
