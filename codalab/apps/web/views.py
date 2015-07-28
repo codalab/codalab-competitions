@@ -346,7 +346,8 @@ class CompetitionDetailView(DetailView):
         context['current_server_time'] = datetime.datetime.now()
         context['public_submissions'] = []
         public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                         is_public=True).prefetch_related()
+                                                                         is_public=True,
+                                                                         status__codename="finished").prefetch_related()
         for submission in public_submissions:
             # Let's process all public submissions and figure out which ones we've already liked
             if self.request.user.is_authenticated():

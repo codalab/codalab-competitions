@@ -363,8 +363,8 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = dt.getDate().toString() + '/' + dt.getMonth().toString() + '/' + dt.getFullYear();
-                    var h = dt.getHours().toString();
+                    var d = ('0' + (dt.getMonth() + 1).toString()).slice(-2) + '/' + dt.getDate().toString() + '/' + dt.getFullYear();
+                    var h = ('0' + dt.getHours().toString()).slice(-2);
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + ' ' + h + ':' + m + ':' + s);
@@ -496,7 +496,11 @@ var Competition;
 
             elem.find('.update_description_btn').click(function() {
                 var current_text = $(this).parent().find('.submission_description').text();
-                current_text = current_text.substr('Description: '.length);
+                if(current_text.indexOf('Description: ') !== -1) {
+                    current_text = current_text.substr('Description: '.length);
+                } else {
+                    current_text = '';
+                }
                 $(this).parent().find('.save_description_btn').removeClass('hide').show();
                 $(this).parent().find('textarea[name="updated_description"]').removeClass('hide').show().val(current_text);
                 $(this).hide();
