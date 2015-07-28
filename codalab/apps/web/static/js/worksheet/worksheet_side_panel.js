@@ -8,7 +8,7 @@ var WorksheetSidePanel = React.createClass({
     debouncedFetchExtra: undefined,
     componentDidMount: function(e){
         var self = this;
-        $('#dragbar').mousedown(function(e){
+        $('#dragbar_vertical').mousedown(function(e){
             self.resizePanel(e);
         });
         $(document).mouseup(function(e){
@@ -86,18 +86,25 @@ var WorksheetSidePanel = React.createClass({
             var windowWidth = $(window).width();
             var panelWidth = windowWidth - e.pageX;
             var panelWidthPercentage = (windowWidth - e.pageX) / windowWidth * 100;
+            console.log('########')
+            console.log(panelWidth);
+            console.log(panelWidthPercentage);
             if(240 < panelWidth && panelWidthPercentage < 55){
                 $('.ws-container').css('width', e.pageX);
                 $('.ws-panel').css('width', panelWidthPercentage + '%');
-                $('#dragbar').css('right', panelWidthPercentage + '%');
+                $('#dragbar_vertical').css('right', panelWidthPercentage + '%');
             }
         });
     },
     resetPanel: function(){
         var windowWidth = $(window).width();
-        var panelWidth = parseInt($('.ws-panel').css('width'));
-        var containerWidth = windowWidth - panelWidth;
-        $('.ws-container').css('width', containerWidth);
+        if(windowWidth < 768){
+            $('.ws-container').removeAttr('style');
+        }else {
+            var panelWidth = parseInt($('.ws-panel').css('width'));
+            var containerWidth = windowWidth - panelWidth;
+            $('.ws-container').css('width', containerWidth);
+        }
     },
     render: function(){
         var current_focus = this.current_focus();

@@ -25,7 +25,7 @@ var Worksheet = React.createClass({
             activeComponent: 'list',
             editMode: false,
             rawMode: false,
-            showSearchBar: true,
+            showActionBar: true,
             editingText: false,
             focusIndex: -1,
             subFocusIndex: 0,
@@ -64,29 +64,33 @@ var Worksheet = React.createClass({
         this.toggleEditing(false);
         this.toggleRawMode(true);
     },
-    handleSearchFocus: function(event){
-        this.setState({activeComponent:'search'});
+    handleActionBarFocus: function(event){
+        this.setState({activeComponent:'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
+        $('#worksheet_panel').addClass('actionbar-focus');
+        $('#command_line').data('resizing', null);
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
-    handleSearchBlur: function(event){
-        // explicitly close the select2 dropdown because we're leaving the search bar
-        $('#search').select2('close');
+    handleActionBarBlur: function(event){
+        // explicitly close term because we're leaving the action bar
+        // $('#command_line').terminal().focus(false);
         this.setState({activeComponent:'list'});
+        $('#command_line').data('resizing', null);
+        $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
+        $('#ws_search').removeAttr('style');
     },
     capture_keys: function(){
+        // console.log("-------------------  capture_keys  -------------------");
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
-        // if(this.state.activeComponent == 'search'){
-        //     console.log("you've got the search bar");
-        // }
-        // if(this.state.activeComponent == "list"){
-        //     console.log("you've got the list");
-        // }
-
+        console.log(this.state.activeComponent );
+        if(this.state.activeComponent == 'action'){
+            // no need for other keys, we have the action bar focused
+            return;
+        }
         // No keyboard shortcuts are active in raw mode
         if(this.state.rawMode){
             Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
@@ -118,12 +122,13 @@ var Worksheet = React.createClass({
 
         //toggle search bar - B
         Mousetrap.bind(['shift+b'], function(e){
-            this.toggleSearchBar();
+            this.toggleActionBar();
         }.bind(this));
 
-         Mousetrap.bind(['/'], function(e){
-                this.showSearchBar();
-                this.setState({activeComponent: 'search'});
+         Mousetrap.bind(['c'], function(e){
+                this.showActionBar();
+                this.setState({activeComponent: 'action'});
+                $('#command_line').terminal().focus();
         }.bind(this));
 
         //toggle raw - F
@@ -177,14 +182,14 @@ var Worksheet = React.createClass({
         }
 
     },
-    toggleSearchBar: function(){
-        this.setState({showSearchBar:!this.state.showSearchBar});
+    toggleActionBar: function(){
+        this.setState({showActionBar:!this.state.showActionBar});
     },
-    showSearchBar: function(){
-        this.setState({showSearchBar:true});
+    showActionBar: function(){
+        this.setState({showActionBar:true});
     },
-    hideSearchBar: function(){
-        this.setState({showSearchBar:false});
+    hideActionBar: function(){
+        this.setState({showActionBar:false});
     },
     refreshWorksheet: function(){
         $('#update_progress').show();
@@ -253,7 +258,7 @@ var Worksheet = React.createClass({
         var editPermission = ws_obj.getState().edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
 
-        var searchHidden = !editPermission && !this.state.showSearchBar;
+        var searchHidden = !editPermission && !this.state.showActionBar;
         var checkboxEnabled = this.state.checkboxEnabled;
 
         var serachClassName     = searchHidden ? 'search-hidden' : '';
@@ -303,24 +308,24 @@ var Worksheet = React.createClass({
                     saveAndUpdateWorksheet={this.saveAndUpdateWorksheet}
                     toggleEditing={this.toggleEditing}
                     toggleRawMode={this.toggleRawMode}
-                    toggleSearchBar={this.toggleSearchBar}
-                    hideSearchBar={this.hideSearchBar}
+                    toggleActionBar={this.toggleActionBar}
+                    hideActionBar={this.hideActionBar}
                     updateWorksheetFocusIndex={this._setfocusIndex}
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
-                    showSearchBar={this.showSearchBar}
+                    showActionBar={this.showActionBar}
                     toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
 
-        var search_display = (
-                <WorksheetSearch
-                    ref={"search"}
+        var action_bar_display = (
+                <WorksheetActionBar
+                    ref={"action"}
                     canEdit={this.canEdit()}
-                    handleFocus={this.handleSearchFocus}
-                    handleBlur={this.handleSearchBlur}
+                    handleFocus={this.handleActionBarFocus}
+                    handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent=='search'}
-                    show={this.state.showSearchBar}
+                    show={this.state.showActionBar}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
@@ -348,35 +353,37 @@ var Worksheet = React.createClass({
 
         return (
             <div id="worksheet" className={serachClassName}>
-                {search_display}
-                {worksheet_side_panel}
-                <div className="ws-container">
-                    <div className="container-fluid">
-                        <div id="worksheet_content" className={editableClassName}>
-                            <div className="header-row">
-                                <div className="row">
-                                    <div className="col-sm-6 col-md-8">
-                                        <div className="worksheet-name">
-                                            <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                                            <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                            <div className="worksheet-permission">Permission: {permission_str}</div>
+                {action_bar_display}
+                <div id="worksheet_panel" className="actionbar-focus">
+                    {worksheet_side_panel}
+                    <div className="ws-container">
+                        <div className="container-fluid">
+                            <div id="worksheet_content" className={editableClassName}>
+                                <div className="header-row">
+                                    <div className="row">
+                                        <div className="col-sm-6 col-md-8">
+                                            <div className="worksheet-name">
+                                                <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
+                                                <div className="worksheet-author">{ws_obj.state.owner}</div>
+                                                <div className="worksheet-permission">Permission: {permission_str}</div>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6 col-md-4">
+                                            <div className="controls">
+                                                <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
+                                                {editFeatures}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col-sm-6 col-md-4">
-                                        <div className="controls">
-                                            <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                            {editFeatures}
-                                        </div>
-                                    </div>
+                                    <hr />
                                 </div>
-                                <hr />
+                                {worksheet_display}
                             </div>
-                            {worksheet_display}
                         </div>
+                        {worksheet_modal}
                     </div>
-                    {worksheet_modal}
                 </div>
-                <div id="dragbar"></div>
+                <div id="dragbar_vertical" className="dragbar"></div>
             </div>
         )
     }
