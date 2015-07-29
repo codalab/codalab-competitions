@@ -223,10 +223,10 @@
                                         <td>{{ submission.phase.phasenumber }}</td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
-                                        <td>{{ submission.get_default_score|floatformat:3 }}</td>
                                         {% for label, value in submission.get_scores_as_tuples %}
                                             <td>{{ value }}</td>
                                         {% endfor %}
+                                        <td>{{ submission.get_default_score|floatformat:3 }}</td>
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
