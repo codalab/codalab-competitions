@@ -1079,6 +1079,8 @@ class CompetitionSubmission(models.Model):
             return None
 
     def get_scores_as_tuples(self):
+        '''Returns a list of score tuples like so:
+        [("Score Label", 123), ("Another label", 1.2223)]'''
         scores = []
         for score in self.scores.all().order_by('scoredef__ordering'):
             scores.append((score.scoredef.label, score.value))
