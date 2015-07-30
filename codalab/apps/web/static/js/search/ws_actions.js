@@ -332,13 +332,37 @@ var WorksheetActions =  function() {
                     var defer = jQuery.Deferred();
                     var bundle_uuid = options[options.length-1]
                     defer.resolve([])
+                    var output = undefined;
                     if(bundle_uuid){
+                        // ^x will open info on user selected bundle from worksheet list
+                        if(bundle_uuid.toLocaleLowerCase() === "^x"){
+                            var current_focus = action_bar.current_focus(); // will update focustype
+                            var subFocusIndex = action_bar.props.subFocusIndex;
+                            if(action_bar.focustype == 'bundle'){
+                                var bundle_info;
+                                if(current_focus.bundle_info instanceof Array){ //tables are arrays
+                                    bundle_info = current_focus.bundle_info[action_bar.props.subFocusIndex]
+                                }else{ // content/images/ect. are not
+                                    bundle_info = current_focus.bundle_info
+                                }
+                                if(bundle_info){
+                                    bundle_uuid = bundle_info.uuid; // set bundle_uuid will fall through and open bundle
+                                }
+                            }else{
+                                 output = output || "<span style='color:red'>Error: Please select a valid bundle</a>";
+                            }
+                        }// end of if ^x
+
+                        // default handlers
                         if(bundle_uuid.length > 33){ // a full uuid
-                            window.location = '/bundles/' + bundle_uuid + '/';
+                            var location = '/bundles/' + bundle_uuid + '/';
+                            window.open(location,'_blank');
+                            output = "loading info page..."
                         }else{
-                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>", {raw: true});
+                            output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>";
                         }
                     }
+                    term.echo(output, {raw: true});
                     return defer.promise();
                 }
             }, // end off info

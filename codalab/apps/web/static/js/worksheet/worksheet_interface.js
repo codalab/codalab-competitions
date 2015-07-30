@@ -326,6 +326,8 @@ var Worksheet = React.createClass({
                     handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent=='search'}
                     show={this.state.showActionBar}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )

@@ -1,10 +1,11 @@
 /** @jsx React.DOM */
 
 var WorksheetActionBar = React.createClass({
+    focustype: 'worksheet', // keep track of what the user has focused on worksheet item
     // ********************************************
-    // please see ws_actions the goal of WorksheetSearch
-    // is to be a generic front end for all actions and select2
-    // for all new actions please add in ws_actions.
+    // please see ws_actions The goal of WorksheetActionbar
+    // is to be a generic front end link for all actions and jqueryterminal
+    // for all new actions please add in ws_actions.js
     // ********************************************
     componentDidMount: function(){
         // https://github.com/jcubic/jquery.terminal
@@ -70,13 +71,13 @@ var WorksheetActionBar = React.createClass({
                         ++tab_count;
                         var command;  // the ws_action command
                         var entered = term.get_command();
-                        var args = entered.split(' '); //term.get_command().split(' ')
+                        var args = entered.split(' '); // term.get_command().split(' ')
                         var last = args[args.length-1];
-                        console.log('completion')
-                        console.log(entered);
-                        console.log(args);
-                        console.log(last);
-                        console.log('-------------------');
+                        // console.log('completion')
+                        // console.log(entered);
+                        // console.log(args);
+                        // console.log(last);
+                        // console.log('-------------------');
 
                         if(args[0] != 'cl'){ // shove in cl, just some helpful sugar
                             term.set_command('cl ' + entered);
@@ -195,8 +196,26 @@ var WorksheetActionBar = React.createClass({
         );
         //turn off focus by default
         term.focus(false);
-        term.focus(true); // todo remove
 
+    },
+    current_focus: function(){  //get current focus of the user in the worksheet item list
+        var focus = '';
+        if(this.props.focusIndex > -1){
+            focus = ws_obj.state.items[this.props.focusIndex].state;
+            if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
+                this.focustype = 'worksheet';
+                if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
+                     //for lets default it back to the main worksheet info
+                     focus = ws_obj.state;
+                }
+            }else{
+                this.focustype = 'bundle';
+            }// end of if focus.modes
+        }else{// there is no focus index, just show the worksheet infomation
+            focus = ws_obj.state;
+            this.focustype = 'worksheet';
+        }
+        return  focus;
     },
     componentWillUnmount: function(){},
     componentDidUpdate: function(){},
