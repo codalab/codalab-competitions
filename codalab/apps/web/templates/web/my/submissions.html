@@ -61,6 +61,7 @@
                     {% endfor %}
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -87,6 +88,7 @@
                         {% endfor %}
                         <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
                         <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
+                        <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -102,6 +104,18 @@
     $(function () {
         $("#phase_selector").change(function(){
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
+        });
+
+        $(".mark_as_failed_button").click(function() {
+            var parent_tr = $(this).parents('tr');
+            var pk = parent_tr.prop('id');
+            $.get("/competitions/mark_as_failed/" + pk)
+                .success(function() {
+                    parent_tr.find('td:nth-child(4)').text('Failed');
+                })
+                .error(function() {
+                    alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
+                });
         });
     });
 {% endblock js %}

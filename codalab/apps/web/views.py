@@ -1370,3 +1370,16 @@ def submission_update_description(request, submission_pk):
         return HttpResponse()
     except models.CompetitionSubmission.DoesNotExist:
         raise Http404()
+
+
+def submission_mark_as_failed(request, submission_pk):
+    try:
+        submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
+        competition = submission.phase.competition
+        if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+            raise Http404()
+        submission.status = models.CompetitionSubmissionStatus.objects.get(codename="failed")
+        submission.save()
+        return HttpResponse()
+    except models.CompetitionSubmission.DoesNotExist:
+        raise Http404()
