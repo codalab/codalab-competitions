@@ -18,7 +18,7 @@ from apps.web.models import (Competition,
 User = get_user_model()
 
 
-class CompetitionSubmissionDeleteTests(TestCase):
+class SubmissionMarkAsFailedTests(TestCase):
     def setUp(self):
         self.organizer = User.objects.create_user(username="organizer", password="pass")
         self.participant_user = User.objects.create_user(username="participant", password="pass")
