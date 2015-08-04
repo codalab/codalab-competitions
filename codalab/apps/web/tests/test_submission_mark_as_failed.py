@@ -64,6 +64,3 @@ class CompetitionSubmissionDeleteTests(TestCase):
         self.assertEquals(resp.status_code, 200)
         submission = CompetitionSubmission.objects.get(pk=self.submission_1.pk)
         self.assertEquals(submission.status.codename, "failed")
-
-        print self.url
-        assert False
