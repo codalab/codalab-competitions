@@ -539,6 +539,7 @@ def get_database_dump():
 
 @task
 def update_compute_worker():
+    #run('fuser -f /codalabtemp/')
     run('cd codalab && git pull --rebase')
     sudo('stop codalab-compute-worker')
     sudo('start codalab-compute-worker')
@@ -551,3 +552,24 @@ def update_conda():
             # If we can't run conda add it to the path
             run('echo "export PATH=~/anaconda/bin:$PATH" >> ~/.bashrc')
     run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
+
+
+@task
+def git_pull():
+    """
+    TODO: Rename this to 'deploy' or something, also make it run migrations, collect static, etc.
+    """
+    run('cd deploy/codalab && git pull')
+
+
+@task
+def add_swap_config_and_restart():
+    sudo('echo "ResourceDisk.Format=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.Filesystem=ext4" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.MountPoint=/mnt/resource" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.EnableSwap=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.SwapSizeMB=2048" >> /etc/waagent.conf')
+
+    with settings(warn_only=True):
+        sudo("umount /mnt")
+        sudo("service walinuxagent restart")
