@@ -554,6 +554,7 @@ def update_conda():
     run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
 
 
+@roles('web')
 @task
 def git_pull():
     """
