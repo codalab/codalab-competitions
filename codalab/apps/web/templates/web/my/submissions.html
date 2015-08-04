@@ -107,15 +107,17 @@
         });
 
         $(".mark_as_failed_button").click(function() {
-            var parent_tr = $(this).parents('tr');
-            var pk = parent_tr.prop('id');
-            $.get("/competitions/mark_as_failed/" + pk)
-                .success(function() {
-                    parent_tr.find('td:nth-child(4)').text('Failed');
-                })
-                .error(function() {
-                    alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
-                });
+            if(confirm("Are you sure you want to mark this submission as failed?")) {
+                var parent_tr = $(this).parents('tr');
+                var pk = parent_tr.prop('id');
+                $.get("/competitions/mark_as_failed/" + pk)
+                    .success(function() {
+                        parent_tr.find('td:nth-child(4)').text('Failed');
+                    })
+                    .error(function() {
+                        alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
+                    });
+            }
         });
     });
 {% endblock js %}
