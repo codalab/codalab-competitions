@@ -554,13 +554,26 @@ def update_conda():
     run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
 
 
+# @roles('web')
+# @task
+# def git_pull():
+#     """
+#     TODO: Rename this to 'deploy' or something, also make it run migrations, collect static, etc.
+#     """
+#     run('cd deploy/codalab && git pull')
+
 @roles('web')
 @task
-def git_pull():
-    """
-    TODO: Rename this to 'deploy' or something, also make it run migrations, collect static, etc.
-    """
+def deploy():
+    # supervisor stop
+    # nginx maintenance
     run('cd deploy/codalab && git pull')
+    # pip install -r
+    # migrations
+    # collect static
+    # sueprvisor start
+    # nginx restart
+
 
 
 @task

@@ -177,6 +177,7 @@ class Competition(models.Model):
     enable_per_submission_metadata = models.BooleanField(default=False)
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
     enable_forum = models.BooleanField(default=True)
+    anonymous_leaderboard = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
