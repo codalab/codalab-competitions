@@ -72,12 +72,16 @@
                     </tr>
                 {% else %}
                     {% for pk, scoredata in group.scores %}
-                        <tr>
+                        <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
                             <td class="row-position">
                                 {{ forloop.counter }}
                             </td>
                             <td>
-                                {{scoredata.username}}
+                                {% if phase.competition.anonymous_leaderboard %}
+                                    <i>Anonymous</i>
+                                {% else %}
+                                    {{scoredata.username}}
+                                {% endif %}
                             </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{scoredata.team_name|default_if_none:""}}</td>
