@@ -456,6 +456,7 @@ def maintenance(mode):
     else:
         print "Invalid mode. Valid values are 'begin' or 'end'"
 
+
 @roles('web')
 @task
 def fetch_logs():
@@ -554,26 +555,19 @@ def update_conda():
     run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
 
 
-# @roles('web')
-# @task
-# def git_pull():
-#     """
-#     TODO: Rename this to 'deploy' or something, also make it run migrations, collect static, etc.
-#     """
-#     run('cd deploy/codalab && git pull')
-
 @roles('web')
 @task
 def deploy():
-    # supervisor stop
-    # nginx maintenance
-    run('cd deploy/codalab && git pull')
-    # pip install -r
-    # migrations
-    # collect static
-    # sueprvisor start
-    # nginx restart
-
+    maintenance("begin")
+    supervisor_stop()
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd('deploy/codalab'):
+        run('git pull')
+        sudo('pip install -r requirements/dev_azure_nix.txt')
+        run('python manage.py syncdb --migrate')
+        run('python manage.py collectstatic --noinput')
+    supervisor()
+    maintenance("end")
 
 
 @task
@@ -587,3 +581,13 @@ def add_swap_config_and_restart():
     with settings(warn_only=True):
         sudo("umount /mnt")
         sudo("service walinuxagent restart")
+
+
+def setup_env():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,
+    )
+    return prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV)
