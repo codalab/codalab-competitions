@@ -563,7 +563,7 @@ def deploy():
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd('deploy/codalab'):
         run('git pull')
-        sudo('pip install -r requirements/dev_azure_nix.txt')
+        run('pip install -r requirements/dev_azure_nix.txt')
         run('python manage.py syncdb --migrate')
         run('python manage.py collectstatic --noinput')
     supervisor()
