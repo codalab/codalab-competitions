@@ -566,6 +566,13 @@ def deploy():
         run('pip install -r requirements/dev_azure_nix.txt')
         run('python manage.py syncdb --migrate')
         run('python manage.py collectstatic --noinput')
+
+        # Generate config
+        run('python manage.py config_gen')
+        run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
+        sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+        sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+        # run('python scripts/initialize.py')  # maybe not needed
     supervisor()
     maintenance("end")
 
