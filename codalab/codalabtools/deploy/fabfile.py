@@ -310,6 +310,11 @@ def deploy_web():
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
                 sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
 
+                # Setup new relic
+                configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+                dep = Deployment(configuration)
+                run('newrelic-admin generate-config %s newrelic.ini' % dep.getNewRelicKey())
+
 @roles('web')
 @task
 def install_mysql(choice='all'):
