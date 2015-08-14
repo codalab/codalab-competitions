@@ -573,6 +573,11 @@ def deploy():
         sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
         sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
         # run('python scripts/initialize.py')  # maybe not needed
+
+        # Setup new relic
+        configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+        dep = Deployment(configuration)
+        run('newrelic-admin generate-config %s newrelic.ini' % dep.getNewRelicKey())
     supervisor()
     maintenance("end")
 

@@ -43,6 +43,7 @@ class DeploymentConfig(BaseConfig):
         self._svc_global = self._dinfo['service-global']
         self._bld = self._dinfo['build-configuration']
         self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
+        self.new_relic_key = self._dinfo['new-relic-key']
 
     @staticmethod
     def _cap(word):
@@ -50,6 +51,9 @@ class DeploymentConfig(BaseConfig):
         Returns a capitalized word.
         """
         return word[0].upper() + word[1:].lower() if len(word) > 1 else word.upper()
+
+    def getNewRelicKey(self):
+        return self.new_relic_key
 
     def getLoggerDictConfig(self):
         """Gets Dict config for logging configuration."""
@@ -992,6 +996,7 @@ class Deployment(object):
             "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
+            "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
             "",
         ]
         preview = self.config.getShowPreviewFeatures()

@@ -26,6 +26,10 @@ os.environ.setdefault('DJANGO_LOCAL_CONFIGURATION',
 
 from configurations.wsgi import get_wsgi_application
 
+# New Relic
+import newrelic.agent
+newrelic.agent.initialize('newrelic.ini')
+
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
