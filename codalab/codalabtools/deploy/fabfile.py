@@ -233,6 +233,7 @@ def build():
     with settings(warn_only=True):
         run('mkdir -p %s' % src_dir)
     with cd(src_dir):
+        # TODO: why do we have the --branch and --single-branch tags here, this causes problems
         run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
         # Generate settings file (local.py)
         configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
@@ -250,6 +251,7 @@ def build():
         with settings(warn_only=True):
             run('mkdir -p %s' % src_dir_b)
         with cd(src_dir_b):
+            # TODO: why do we have the --branch and --single-branch tags here, this causes problems
             run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
         # Replace current bundles dir in main CodaLab other bundles repo.
         bundles_dir = "/".join([src_dir, 'bundles'])

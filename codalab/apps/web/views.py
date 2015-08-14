@@ -64,7 +64,6 @@ def competition_index(request):
     medical_image_viewer = request.GET.get('medical_image_viewer', False)
 
     competitions = models.Competition.objects.filter(published=True)
-    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date))
 
     if query:
         competitions = competitions.filter(Q(title__iregex=".*%s" % query) | Q(description__iregex=".*%s" % query))
@@ -74,6 +73,8 @@ def competition_index(request):
         competitions = [c for c in competitions if c.is_active]
     if is_finished:
         competitions = [c for c in competitions if not c.is_active]
+
+    competitions = reversed(sorted(competitions, key=lambda c: c.get_start_date))
 
     return render(request, "web/competitions/index.html", {
         'competitions': competitions,
