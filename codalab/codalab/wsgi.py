@@ -24,16 +24,15 @@ os.environ.setdefault('DJANGO_CONFIGURATION', 'Dev')
 os.environ.setdefault('DJANGO_LOCAL_CONFIGURATION',
                       'codalab.settings.local_environment')
 
-from configurations.wsgi import get_wsgi_application
-
-# New Relic
-import newrelic.agent
-newrelic_ini_path = os.path.dirname(os.path.realpath(__file__))
-newrelic.agent.initialize('%s/../newrelic.ini' % newrelic_ini_path, os.environ.get('DJANGO_CONFIGURATION'))
+# # New Relic
+# import newrelic.agent
+# newrelic_ini_path = os.path.dirname(os.path.realpath(__file__))
+# newrelic.agent.initialize('%s/../newrelic.ini' % newrelic_ini_path, os.environ.get('DJANGO_CONFIGURATION'))
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
+from configurations.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
 # Apply WSGI middleware here.
