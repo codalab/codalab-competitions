@@ -63,7 +63,7 @@ class CompetitionPhaseForm(forms.ModelForm):
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            'phasenumber': forms.HiddenInput
+            #'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
