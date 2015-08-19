@@ -413,6 +413,7 @@ def supervisor_stop():
     """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisorctl -c codalab/config/generated/supervisor.conf stop all')
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
     # since worker is muli threaded, we need to kill all running processes
     with settings(warn_only=True):
