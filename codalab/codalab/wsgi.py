@@ -28,7 +28,9 @@ os.environ.setdefault('DJANGO_LOCAL_CONFIGURATION',
 import newrelic.agent
 newrelic_ini_path = os.path.dirname(os.path.realpath(__file__))
 if os.path.exists('%s/../newrelic.ini' % newrelic_ini_path):
-    newrelic.agent.initialize('%s/../newrelic.ini' % newrelic_ini_path, os.environ.get('DJANGO_CONFIGURATION'))
+    configuration_name = os.environ.get('DJANGO_CONFIGURATION')  # Dev, Prod, etc.
+    os.environ.setdefault('NEW_RELIC_APP_NAME', 'Codalab - %s' % configuration_name)
+    newrelic.agent.initialize('%s/../newrelic.ini' % newrelic_ini_path, configuration_name)
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
