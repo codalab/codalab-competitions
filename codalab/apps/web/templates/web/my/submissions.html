@@ -62,6 +62,7 @@
                     <th width="40"></th>
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -88,6 +89,15 @@
                         {% endfor %}
                         <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
                         <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
+                        <td align="center">
+                            <button class="btn btn-danger btn-xs hide_or_show_submission_button">
+                                {% if submission.is_in_leaderboard %}
+                                    HIDE
+                                {% else %}
+                                    SHOW
+                                {% endif %}
+                            </button>
+                        </td>
                         <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
                     </tr>
                 {% endfor %}
@@ -116,6 +126,29 @@
                     })
                     .error(function() {
                         alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
+                    });
+            }
+        });
+
+        $(".hide_or_show_submission_button").click(function() {
+            var self = this;
+            if(confirm("Are you sure you want to toggle this submissions presence on the leaderboard?")) {
+                var parent_tr = $(this).parents('tr');
+                var old_state = parent_tr.find('td:nth-child(5)').text();
+                var pk = parent_tr.prop('id');
+                $.post("/competitions/toggle_leaderboard/" + pk)
+                    .success(function() {
+                        // toggle "Leaderboard" column label
+                        if(old_state.indexOf("True") != -1) {
+                            parent_tr.find('td:nth-child(5)').text('False');
+                            $(self).text('SHOW');
+                        } else {
+                            parent_tr.find('td:nth-child(5)').text('True');
+                            $(self).text('HIDE');
+                        }
+                    })
+                    .error(function() {
+                        alert("Failed to remove submission from leaderboard");
                     });
             }
         });

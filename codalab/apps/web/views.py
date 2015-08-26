@@ -1386,3 +1386,33 @@ def submission_mark_as_failed(request, submission_pk):
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
+
+
+def submission_toggle_leaderboard(request, submission_pk):
+    if request.method == "POST":
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
+            competition = submission.phase.competition
+            if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+                raise Http404()
+
+            if submission.status.codename != "finished":
+                return HttpResponse(status=400)
+
+            is_on_leaderboard = models.PhaseLeaderBoardEntry.objects.filter(result=submission).exists()
+            # If the submission isn't already on the leaderboard, then add it to it
+            # otherwise delete it and other submissions else from leaderboard
+            if not is_on_leaderboard:
+                models.add_submission_to_leaderboard(submission)
+            else:
+                entries = models.PhaseLeaderBoardEntry.objects.filter(
+                    board__phase=submission.phase,
+                    result__participant=submission.participant
+                )
+                for entry in entries:
+                    entry.delete()
+
+            return HttpResponse()
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
+    raise Http404()
