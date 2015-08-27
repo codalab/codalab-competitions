@@ -41,6 +41,7 @@ from apps.web import tasks
 from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
+from tasks import evaluate_submission
 from django.contrib.auth import get_user_model
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -1361,6 +1362,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
         return HttpResponse(msg, status=400, content_type='text/plain')
 
 
+@login_required
 def submission_update_description(request, submission_pk):
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
@@ -1373,6 +1375,7 @@ def submission_update_description(request, submission_pk):
         raise Http404()
 
 
+@login_required
 def submission_mark_as_failed(request, submission_pk):
     if request.method == "POST":
         try:
@@ -1388,6 +1391,7 @@ def submission_mark_as_failed(request, submission_pk):
     raise Http404()
 
 
+@login_required
 def submission_toggle_leaderboard(request, submission_pk):
     if request.method == "POST":
         try:
@@ -1411,6 +1415,30 @@ def submission_toggle_leaderboard(request, submission_pk):
                 )
                 for entry in entries:
                     entry.delete()
+
+            return HttpResponse()
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
+    raise Http404()
+
+
+@login_required
+def submission_re_run(request, submission_pk):
+    if request.method == "POST":
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
+            competition = submission.phase.competition
+            if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+                raise Http404()
+
+            new_submission = models.CompetitionSubmission(
+                participant=submission.participant,
+                file=submission.file,
+                phase=submission.phase
+            )
+            new_submission.save(ignore_submission_limits=True)
+
+            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
