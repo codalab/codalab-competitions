@@ -132,25 +132,23 @@
 
         $(".hide_or_show_submission_button").click(function() {
             var self = this;
-            if(confirm("Are you sure you want to toggle this submissions presence on the leaderboard?")) {
-                var parent_tr = $(this).parents('tr');
-                var old_state = parent_tr.find('td:nth-child(5)').text();
-                var pk = parent_tr.prop('id');
-                $.post("/competitions/toggle_leaderboard/" + pk)
-                    .success(function() {
-                        // toggle "Leaderboard" column label
-                        if(old_state.indexOf("True") != -1) {
-                            parent_tr.find('td:nth-child(5)').text('False');
-                            $(self).text('SHOW');
-                        } else {
-                            parent_tr.find('td:nth-child(5)').text('True');
-                            $(self).text('HIDE');
-                        }
-                    })
-                    .error(function() {
-                        alert("Failed to remove submission from leaderboard");
-                    });
-            }
+            var parent_tr = $(this).parents('tr');
+            var old_state = parent_tr.find('td:nth-child(5)').text();
+            var pk = parent_tr.prop('id');
+            $.post("/competitions/toggle_leaderboard/" + pk)
+                .success(function() {
+                    // toggle "Leaderboard" column label
+                    if(old_state.indexOf("True") != -1) {
+                        parent_tr.find('td:nth-child(5)').text('False');
+                        $(self).text('SHOW');
+                    } else {
+                        parent_tr.find('td:nth-child(5)').text('True');
+                        $(self).text('HIDE');
+                    }
+                })
+                .error(function() {
+                    alert("Cannot show/hide a non 'Finished' submission");
+                });
         });
     });
 {% endblock js %}
