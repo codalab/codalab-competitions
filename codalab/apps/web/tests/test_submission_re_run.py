@@ -66,7 +66,7 @@ class SubmissionReRunTests(TestCase):
 
     def test_re_run_submission_returns_200_and_calls_evaluate_submission(self):
         self.client.login(username="organizer", password="pass")
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.views.evaluate_submission') as evaluate_mock:
             resp = self.client.post(self.url)
             self.assertEquals(resp.status_code, 200)
         self.assertTrue(evaluate_mock.called)
