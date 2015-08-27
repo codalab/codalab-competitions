@@ -138,12 +138,12 @@
     {% endblock hero_subheader %}
 
     {% block content_wrapper %}
-        <div class="{% if not on_competition_detail %}container{% else %}container-fluid{% endif %}">
+        <div class="container-fluid">
             {% block content %}
             {% endblock content %}
         </div>
-        {% endblock content_wrapper %}
-    </div>
+    {% endblock content_wrapper %}
+
 
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
