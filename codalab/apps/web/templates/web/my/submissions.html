@@ -63,6 +63,7 @@
                     <th width="40"></th>
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -99,6 +100,7 @@
                             </button>
                         </td>
                         <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
+                        <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -148,6 +150,17 @@
                 })
                 .error(function() {
                     alert("Cannot show/hide a non 'Finished' submission");
+                });
+        });
+
+        $(".re_run_submission_button").click(function() {
+            var self = this;
+            $.post("/competitions/re_run_submission/" + pk)
+                .success(function() {
+                    alert("Successfully re-ran submission, please refresh the page!");
+                })
+                .error(function() {
+                    alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
                 });
         });
     });
