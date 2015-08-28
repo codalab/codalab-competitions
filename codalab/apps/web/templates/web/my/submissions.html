@@ -155,6 +155,8 @@
 
         $(".re_run_submission_button").click(function() {
             var self = this;
+            var parent_tr = $(self).parents('tr');
+            var pk = parent_tr.prop('id');
             $.post("/competitions/submission_re_run/" + pk)
                 .success(function() {
                     alert("Successfully re-ran submission, please refresh the page!");
