@@ -313,9 +313,8 @@ def deploy_web():
                 sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
 
                 # Setup new relic
-                configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
-                dep = Deployment(configuration)
-                run('newrelic-admin generate-config %s newrelic.ini' % dep.getNewRelicKey())
+                cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+                run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
 
 @roles('web')
 @task
