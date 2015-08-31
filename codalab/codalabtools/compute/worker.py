@@ -8,15 +8,19 @@ import datetime
 import logging
 import logging.config
 import os
+import psutil
 import signal
 import math
 import select
 import shutil
+import socket
+import subprocess
 import sys
 import tempfile
 import time
 import traceback
 import yaml
+
 from os.path import dirname, abspath, join
 from subprocess import Popen, PIPE, call
 from zipfile import ZipFile
@@ -155,9 +159,11 @@ def _send_update(queue, task_id, status, extra=None):
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    body = json.dumps({'id': task_id,
-                       'task_type': 'run_update',
-                       'task_args': task_args})
+    body = json.dumps({
+        'id': task_id,
+        'task_type': 'run_update',
+        'task_args': task_args
+    })
     queue.send_message(body)
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -209,11 +215,23 @@ def get_run_func(config):
                                      reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
+        temp_dir = config.getLocalRoot()
+        debug_metadata = {
+            "hostname": socket.gethostname(),
+
+            "processes_running_in_temp_dir": subprocess.check_output(["fuser", temp_dir]),
+
+            "beginning_virtual_memory_usage": psutil.virtual_memory(),
+            "beginning_swap_memory_usage": psutil.swap_memory(),
+            "beginning_cpu_usage": psutil.cpu_percent(interval=None),
+
+            # following are filled in after test ran + process SHOULD have been closed
+            "end_virtual_memory_usage": None,
+            "end_swap_memory_usage": None,
+            "end_cpu_usage": None,
+        }
 
         try:
-            # Cleanup any stuck processes or old files
-            temp_dir = config.getLocalRoot()
-
             # Cleanup dir in case any processes didn't clean up properly
             for the_file in os.listdir(temp_dir):
                 file_path = os.path.join(temp_dir, the_file)
@@ -242,6 +260,21 @@ def get_run_func(config):
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:
                 raise Exception("Program bundle is not available.")
+
+
+
+
+
+
+
+            print "PROG REL PATH:", prog_rel_path
+
+
+
+
+
+
+
 
             prog_info = bundles[prog_rel_path]
             if prog_info is None:
@@ -386,27 +419,42 @@ def get_run_func(config):
                             _upload(blob_service, container, html_file_id, file_to_upload, "html")
                             html_found = True
 
+            # Save extra metadata
+            debug_metadata["end_virtual_memory_usage"] = psutil.virtual_memory()
+            debug_metadata["end_swap_memory_usage"] = psutil.swap_memory()
+            debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
+
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed')
+                _send_update(queue, task_id, 'failed', extra={
+                    'metadata': debug_metadata
+                })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
+                _send_update(queue, task_id, 'failed', extra={
+                    'traceback': open(stderr_file).read(),
+                    'metadata': debug_metadata
+                })
             else:
-                _send_update(queue, task_id, 'finished')
+                _send_update(queue, task_id, 'finished', extra={
+                    'metadata': debug_metadata
+                })
         except Exception:
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={'traceback': traceback.format_exc()})
+            _send_update(queue, task_id, 'failed', extra={
+                'traceback': traceback.format_exc(),
+                'metadata': debug_metadata
+            })
 
         # comment out for dev and viewing of raw folder outputs.
-        if root_dir is not None:
-            # Try cleaning-up temporary directory
-            try:
-                os.chdir(current_dir)
-                shutil.rmtree(root_dir)
-            except:
-                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+        # if root_dir is not None:
+        #     # Try cleaning-up temporary directory
+        #     try:
+        #         os.chdir(current_dir)
+        #         shutil.rmtree(root_dir)
+        #     except:
+        #         logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():

@@ -80,3 +80,4 @@ admin.site.register(models.Page, PageAdmin)
 
 admin.site.register(models.OrganizerDataSet)
 admin.site.register(models.CompetitionSubmission)
+admin.site.register(models.CompetitionSubmissionMetadata)

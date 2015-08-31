@@ -39,7 +39,8 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stdout_filename,
                              predict_submission_stderr_filename,
                              SubmissionScore,
-                             SubmissionScoreDef)
+                             SubmissionScoreDef,
+                             CompetitionSubmissionMetadata)
 from apps.coopetitions.models import DownloadRecord
 
 logger = logging.getLogger(__name__)
@@ -385,7 +386,7 @@ def update_submission_task(job_id, args):
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status, job_id, traceback=None):
+    def update_submission(submission, status, job_id, traceback=None, metadata=None):
         """
         Updates the status of a submission.
 
@@ -465,6 +466,8 @@ def update_submission_task(job_id, args):
         if traceback:
             submission.exception_details = traceback
             submission.save()
+        if metadata:
+            CompetitionSubmissionMetadata.objects.get_or_create(submission=submission, **metadata)
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
@@ -497,9 +500,14 @@ def update_submission_task(job_id, args):
         result = None
         try:
             traceback = None
-            if 'extra' in args and 'traceback' in args['extra']:
-                traceback = args['extra']['traceback']
-            result = update_submission(submission, status, job.id, traceback)
+            if 'extra' in args:
+                if 'traceback' in args['extra']:
+                    traceback = args['extra']['traceback']
+
+                if 'metadata' in args['extra']:
+                    metadata = args['extra']['metadata']
+
+            result = update_submission(submission, status, job.id, traceback, metadata)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)

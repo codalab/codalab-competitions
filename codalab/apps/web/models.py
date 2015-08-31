@@ -1625,6 +1625,19 @@ class OrganizerDataSet(models.Model):
         return "%s uploaded by %s" % (self.name, self.uploaded_by)
 
 
+class CompetitionSubmissionMetadata(models.Model):
+    submission = models.ForeignKey(CompetitionSubmission)
+    hostname = models.CharField(max_length=255, blank=True, null=True)
+    processes_running_in_temp_dir = models.TextField(blank=True, null=True)
+
+    beginning_virtual_memory_usage = models.TextField(blank=True, null=True)
+    beginning_swap_memory_usage = models.TextField(blank=True, null=True)
+    beginning_cpu_usage = models.TextField(blank=True, null=True)
+    end_virtual_memory_usage = models.TextField(blank=True, null=True)
+    end_swap_memory_usage = models.TextField(blank=True, null=True)
+    end_cpu_usage = models.TextField(blank=True, null=True)
+
+
 def add_submission_to_leaderboard(submission):
     """
     Adds the given submission to its leaderboard. It is the caller responsiblity to make
