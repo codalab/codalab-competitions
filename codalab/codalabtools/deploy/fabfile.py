@@ -547,7 +547,6 @@ def get_database_dump():
 
 @task
 def update_compute_worker():
-    #run('fuser -f /codalabtemp/')
     run('cd codalab && git pull --rebase')
     sudo('stop codalab-compute-worker')
     sudo('start codalab-compute-worker')
