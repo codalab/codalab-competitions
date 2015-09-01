@@ -60,7 +60,7 @@ var WorksheetActionBar = React.createClass({
                 greetings: 'Worksheet Interface: A codalab cli lite interface. Please enter a command or help to see list of commands',
                 name: 'command_line',
                 height: 45,
-                width: 700,
+                // width: 700,
                 prompt: '> ',
                 history: true,
                 keydown: function(event, terminal){
@@ -241,7 +241,7 @@ var WorksheetActionBar = React.createClass({
     render: function(){
         return (
             <div id="ws_search">
-                <div className="container">
+                <div className="">
                     <div id="command_line"></div>
                 </div>
                 <div id="dragbar_horizontal" className="dragbar"></div>
