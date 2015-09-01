@@ -7,7 +7,11 @@ var ImageBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.index, event);
+        var index = this.props.index;
+        var last_sub_el = undefined;
+        var direction = undefined;
+        var scroll = false;
+        this.props.setFocus(this.props.index, event, last_sub_el, direction, scroll);
     },
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
