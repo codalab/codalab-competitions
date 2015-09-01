@@ -30,6 +30,7 @@ class CompetitionForm(forms.ModelForm):
             'enable_per_submission_metadata',
             'allow_public_submissions',
             'enable_forum',
+            'anonymous_leaderboard',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
@@ -62,7 +63,7 @@ class CompetitionPhaseForm(forms.ModelForm):
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            'phasenumber': forms.HiddenInput
+            #'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):

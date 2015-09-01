@@ -40,6 +40,7 @@ class Base(Settings):
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+        'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
     SSL_PORT = ''

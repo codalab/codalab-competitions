@@ -61,6 +61,9 @@
                     {% endfor %}
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
+                    <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -87,6 +90,17 @@
                         {% endfor %}
                         <td align="center"><a href="#" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
                         <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
+                        <td align="center">
+                            <button class="btn btn-danger btn-xs hide_or_show_submission_button">
+                                {% if submission.is_in_leaderboard %}
+                                    HIDE
+                                {% else %}
+                                    SHOW
+                                {% endif %}
+                            </button>
+                        </td>
+                        <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
+                        <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -102,6 +116,54 @@
     $(function () {
         $("#phase_selector").change(function(){
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
+        });
+
+        $(".mark_as_failed_button").click(function() {
+            if(confirm("Are you sure you want to mark this submission as failed?")) {
+                var parent_tr = $(this).parents('tr');
+                var pk = parent_tr.prop('id');
+                $.post("/competitions/mark_as_failed/" + pk)
+                    .success(function() {
+                        parent_tr.find('td:nth-child(4)').text('Failed');
+                    })
+                    .error(function() {
+                        alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
+                    });
+            }
+        });
+
+        $(".hide_or_show_submission_button").click(function() {
+            var self = this;
+            var parent_tr = $(this).parents('tr');
+            var old_state = parent_tr.find('td:nth-child(5)').text();
+            var pk = parent_tr.prop('id');
+            $.post("/competitions/toggle_leaderboard/" + pk)
+                .success(function() {
+                    // toggle "Leaderboard" column label
+                    if(old_state.indexOf("True") != -1) {
+                        parent_tr.find('td:nth-child(5)').text('False');
+                        $(self).text('SHOW');
+                    } else {
+                        parent_tr.find('td:nth-child(5)').text('True');
+                        $(self).text('HIDE');
+                    }
+                })
+                .error(function() {
+                    alert("Cannot show/hide a non 'Finished' submission");
+                });
+        });
+
+        $(".re_run_submission_button").click(function() {
+            var self = this;
+            var parent_tr = $(self).parents('tr');
+            var pk = parent_tr.prop('id');
+            $.post("/competitions/submission_re_run/" + pk)
+                .success(function() {
+                    alert("Successfully re-ran submission, please refresh the page!");
+                })
+                .error(function() {
+                    alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
+                });
         });
     });
 {% endblock js %}

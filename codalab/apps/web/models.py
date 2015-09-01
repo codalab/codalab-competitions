@@ -177,6 +177,7 @@ class Competition(models.Model):
     enable_per_submission_metadata = models.BooleanField(default=False)
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
     enable_forum = models.BooleanField(default=True)
+    anonymous_leaderboard = models.BooleanField(default=False)
 
     @property
     def pagecontent(self):
@@ -994,6 +995,14 @@ class CompetitionSubmission(models.Model):
                     if submissions_from_today_count + 1 - failed_count > self.phase.max_submissions_per_day or self.phase.max_submissions_per_day == 0:
                         print 'PERMISSION DENIED'
                         raise PermissionDenied("The maximum number of submissions this day have been reached.")
+            else:
+                # Make sure we're incrementing the number if we're forcing in a new entry
+                while CompetitionSubmission.objects.filter(
+                    phase=self.phase,
+                    participant=self.participant,
+                    submission_number=self.submission_number
+                ).exists():
+                    self.submission_number += 1
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 

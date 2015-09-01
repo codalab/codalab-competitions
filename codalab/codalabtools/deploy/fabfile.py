@@ -233,6 +233,7 @@ def build():
     with settings(warn_only=True):
         run('mkdir -p %s' % src_dir)
     with cd(src_dir):
+        # TODO: why do we have the --branch and --single-branch tags here, this causes problems
         run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
         # Generate settings file (local.py)
         configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
@@ -250,6 +251,7 @@ def build():
         with settings(warn_only=True):
             run('mkdir -p %s' % src_dir_b)
         with cd(src_dir_b):
+            # TODO: why do we have the --branch and --single-branch tags here, this causes problems
             run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
         # Replace current bundles dir in main CodaLab other bundles repo.
         bundles_dir = "/".join([src_dir, 'bundles'])
@@ -309,6 +311,10 @@ def deploy_web():
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
                 sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+
+                # Setup new relic
+                cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+                run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
 
 @roles('web')
 @task
@@ -406,6 +412,7 @@ def supervisor_stop():
     """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisorctl -c codalab/config/generated/supervisor.conf stop all')
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
     # since worker is muli threaded, we need to kill all running processes
     with settings(warn_only=True):
@@ -455,6 +462,7 @@ def maintenance(mode):
                     nginx_restart()
     else:
         print "Invalid mode. Valid values are 'begin' or 'end'"
+
 
 @roles('web')
 @task
@@ -551,3 +559,52 @@ def update_conda():
             # If we can't run conda add it to the path
             run('echo "export PATH=~/anaconda/bin:$PATH" >> ~/.bashrc')
     run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
+
+
+@roles('web')
+@task
+def deploy():
+    maintenance("begin")
+    supervisor_stop()
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd('deploy/codalab'):
+        run('git pull')
+        run('pip install -r requirements/dev_azure_nix.txt')
+        run('python manage.py syncdb --migrate')
+        run('python manage.py collectstatic --noinput')
+
+        # Generate config
+        run('python manage.py config_gen')
+        run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
+        sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+        sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+        # run('python scripts/initialize.py')  # maybe not needed
+
+        # Setup new relic
+        cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+        run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+    supervisor()
+    maintenance("end")
+
+
+@task
+def add_swap_config_and_restart():
+    sudo('echo "ResourceDisk.Format=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.Filesystem=ext4" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.MountPoint=/mnt/resource" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.EnableSwap=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.SwapSizeMB=2048" >> /etc/waagent.conf')
+
+    with settings(warn_only=True):
+        sudo("umount /mnt")
+        sudo("service walinuxagent restart")
+
+
+def setup_env():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,
+    )
+    return prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV)

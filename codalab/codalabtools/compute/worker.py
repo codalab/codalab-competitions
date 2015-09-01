@@ -211,6 +211,20 @@ def get_run_func(config):
         current_dir = os.getcwd()
 
         try:
+            # Cleanup any stuck processes or old files
+            temp_dir = config.getLocalRoot()
+
+            # Cleanup dir in case any processes didn't clean up properly
+            for the_file in os.listdir(temp_dir):
+                file_path = os.path.join(temp_dir, the_file)
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
+            # Kill running processes in the temp dir
+            call(["fuser", "-k", temp_dir])
+
             _send_update(queue, task_id, 'running')
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
@@ -393,20 +407,6 @@ def get_run_func(config):
                 shutil.rmtree(root_dir)
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
-
-        # Cleanup any stuck processes or old files
-        temp_dir = config.getLocalRoot()
-
-        # Cleanup dir
-        for the_file in os.listdir(temp_dir):
-            file_path = os.path.join(temp_dir, the_file)
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
-        # Kill running processes in the temp dir
-        call(["fuser", "-f", temp_dir])
     return run
 
 def main():
