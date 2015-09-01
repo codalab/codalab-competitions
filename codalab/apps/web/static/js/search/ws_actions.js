@@ -97,7 +97,11 @@ var WorksheetActions =  function() {
                                     console.error(data.data.stderr);
                                     var err;
                                     err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
-                                    term.echo("<span style='color:red'>" + err +"</a>", {raw: true});
+                                    // 200 is ok response, this is a false flag due to how output is getting defined.
+                                    if(err.indexOf("200") === -1){ //-1 is not found
+                                        term.echo("<span style='color:red'>" + err +"</a>", {raw: true});
+                                    }
+
                                 }
                                 console.log('=====');
                                 defer.resolve();
