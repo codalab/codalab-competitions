@@ -146,10 +146,6 @@ var Worksheet = React.createClass({
         this.setState({editingText: arg});
     },
     toggleEditing: function(arg){
-        if(!this.canEdit()){
-            return;
-        }
-
         if(typeof(arg) !== 'undefined'){
             this.setState({editMode:arg});
         }else {
@@ -157,21 +153,23 @@ var Worksheet = React.createClass({
         }
     },
     toggleRawMode: function(val){
-        if(!this.canEdit()){
-            return;
-        }
         if(typeof(val)=='undefined'){
             if(this.state.rawMode){
                 ///TODO grab val the react way
                 ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet(true);
+                if(this.canEdit()){
+                    this.saveAndUpdateWorksheet(true);
+                }
+
             }
             this.setState({rawMode: !this.state.rawMode});
         }else {
             if(val==false){
-                ///TODO grab val the react way
-                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                this.saveAndUpdateWorksheet(true);
+                if(this.canEdit()){
+                    ///TODO grab val the react way
+                    ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+                    this.saveAndUpdateWorksheet(true);
+                }
             }
             this.setState({rawMode: val});
         }
@@ -266,18 +264,21 @@ var Worksheet = React.createClass({
         var viewClass           = !canEdit && !this.state.rawMode ? 'active' : '';
         var editClass           = canEdit && !this.state.rawMode ? 'active' : '';
         var rawClass            = this.state.rawMode ? 'active' : '';
-        var editFeatures = '';
+        var edit_btn = '';
         if(editPermission){
-            editFeatures =
-                    <div className="edit-features">
-                        <label>Mode:</label>
-                        <div className="btn-group">
-                            <button className={viewClass} onClick={this.viewMode}>View</button>
-                            <button className={editClass} onClick={this.editMode}>Edit</button>
-                            <button className={rawClass} onClick={this.rawMode}>Raw Edit</button>
-                        </div>
-                    </div>
+            edit_btn = <button className={editClass} onClick={this.editMode}>Edit</button>
         }
+        editFeatures = (
+                <div className="edit-features">
+                    <label>Mode:</label>
+                    <div className="btn-group">
+                        <button className={viewClass} onClick={this.viewMode}>View</button>
+                        {edit_btn}
+                        <button className={rawClass} onClick={this.rawMode}>Raw Edit</button>
+                    </div>
+                </div>
+            )
+
 
         var permission_str = "you(" + ws_obj.state.permission_str + ") "
         ws_obj.state.group_permissions.forEach(function(perm) {
