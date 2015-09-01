@@ -221,8 +221,8 @@ def get_run_func(config):
 
             "processes_running_in_temp_dir": subprocess.check_output(["fuser", temp_dir]),
 
-            "beginning_virtual_memory_usage": psutil.virtual_memory(),
-            "beginning_swap_memory_usage": psutil.swap_memory(),
+            "beginning_virtual_memory_usage": json.dumps(psutil.virtual_memory()._asdict()),
+            "beginning_swap_memory_usage": json.dumps(psutil.swap_memory()._asdict()),
             "beginning_cpu_usage": psutil.cpu_percent(interval=None),
 
             # following are filled in after test ran + process SHOULD have been closed
@@ -260,21 +260,6 @@ def get_run_func(config):
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:
                 raise Exception("Program bundle is not available.")
-
-
-
-
-
-
-
-            print "PROG REL PATH:", prog_rel_path
-
-
-
-
-
-
-
 
             prog_info = bundles[prog_rel_path]
             if prog_info is None:
@@ -420,8 +405,8 @@ def get_run_func(config):
                             html_found = True
 
             # Save extra metadata
-            debug_metadata["end_virtual_memory_usage"] = psutil.virtual_memory()
-            debug_metadata["end_swap_memory_usage"] = psutil.swap_memory()
+            debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+            debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
             debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
@@ -448,13 +433,13 @@ def get_run_func(config):
             })
 
         # comment out for dev and viewing of raw folder outputs.
-        # if root_dir is not None:
-        #     # Try cleaning-up temporary directory
-        #     try:
-        #         os.chdir(current_dir)
-        #         shutil.rmtree(root_dir)
-        #     except:
-        #         logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
+        if root_dir is not None:
+            # Try cleaning-up temporary directory
+            try:
+                os.chdir(current_dir)
+                shutil.rmtree(root_dir)
+            except:
+                logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
 
 def main():

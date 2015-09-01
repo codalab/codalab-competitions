@@ -500,6 +500,7 @@ def update_submission_task(job_id, args):
         result = None
         try:
             traceback = None
+            metadata = None
             if 'extra' in args:
                 if 'traceback' in args['extra']:
                     traceback = args['extra']['traceback']
