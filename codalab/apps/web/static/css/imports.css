@@ -8440,8 +8440,6 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 .progress-message#update_progress {
   top: 63px;
-  left: 40px;
-  right: auto;
 }
 .progress-message#save_error i {
   font-size: 18px;

@@ -3,9 +3,8 @@
 {% block head_title %}Worksheet details{% endblock head_title %}
 {% block subheader %}{% endblock subheader %}
 
-{% block content %}
+{% block content_wrapper %}
 
-</div>
 <div class="container">
     <div id="worksheet-message" class="ws-detail">
         <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
@@ -111,7 +110,7 @@
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock content_wrapper %}
 
 
 {% block js %}
