@@ -121,10 +121,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
                         # item['name'] in ['stdout', 'stderr']
-                        try:
-                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
-                        except Exception, e:
+                        if item['interpreted'] is None:
                             item['interpreted'] = ['MISSING']
+                        else:
+                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
                     elif item['mode'] == 'table':
                         # some of the contents of item['interpreted'] may be None if the associated files don't exist yet. Replace them with 'MISSING'.
                         for row_map in item['interpreted'][1]:
