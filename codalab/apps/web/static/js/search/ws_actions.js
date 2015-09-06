@@ -49,7 +49,14 @@ var WorksheetActions =  function() {
             'perm',
             'wperm',
             'chown',
-        ]
+        ];
+
+        // If we override a command, sometimes we want to fall back to 'cl' depending on what the arguments are.
+        var self = this;
+        function cl(options, term, action_bar) {
+          self.commands['cl'].executefn(options, term, action_bar);
+        }
+
         this.commands = {
             // Dictionary of terms that can be entered and acted
             // and the names of functions they call.
@@ -87,7 +94,7 @@ var WorksheetActions =  function() {
                                 console.log('===== Output of command: ' + options);
                                 if (data.data.exception){
                                     console.error(data.data.exception);
-                                    term.echo("<span style='color:red'>Error: " + data.data.exception +"</a>", {raw: true});
+                                    term.echo("<span style='color:red'>Error: " + data.data.exception +"</span>", {raw: true});
                                 }
                                 if (data.data.stdout){
                                     console.log(data.data.stdout);
@@ -99,15 +106,16 @@ var WorksheetActions =  function() {
                                     err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
                                     // 200 is ok response, this is a false flag due to how output is getting defined.
                                     if(err.indexOf("200") === -1){ //-1 is not found
-                                        term.echo("<span style='color:red'>" + err +"</a>", {raw: true});
+                                        term.echo("<span style='color:red'>" + err +"</span>", {raw: true});
                                     }
 
                                 }
                                 console.log('=====');
                                 defer.resolve();
+                                action_bar.props.refreshWorksheet();
                             },
                             error: function(jqHXR, status, error){
-                                term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                                term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                                 // displayError(jqHXR, status);
                                 defer.reject();
                             }
@@ -154,7 +162,7 @@ var WorksheetActions =  function() {
                             }else{
                                 error = error
                             }
-                            term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                         }
                     });
                     return defer.promise();
@@ -166,7 +174,7 @@ var WorksheetActions =  function() {
                         if(options[1].length > 33){ // a full uuid
                             window.location = '/worksheets/' + options[1] + '/';
                         }else{
-                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
                         }
 
                     }
@@ -207,7 +215,7 @@ var WorksheetActions =  function() {
                             }else{
                                 error = error
                             }
-                            term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                         }
                     });
                     return defer.promise();
@@ -249,7 +257,7 @@ var WorksheetActions =  function() {
                             }else{
                                 error = error
                             }
-                            term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                             console.error(status + ': ' + error);
                         }
                     });
@@ -282,7 +290,7 @@ var WorksheetActions =  function() {
                             }else{
                                 error = error
                             }
-                            term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                             console.error(status + ': ' + error);
                         }
                     });
@@ -326,7 +334,7 @@ var WorksheetActions =  function() {
                             }else{
                                 error = error
                             }
-                            term.echo("<span style='color:red'>Error: " + error +"</a>", {raw: true});
+                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                             console.error(status + ': ' + error);
                         }
                     });
@@ -353,7 +361,7 @@ var WorksheetActions =  function() {
                                     bundle_uuid = bundle_info.uuid; // set bundle_uuid will fall through and open bundle
                                 }
                             }else{
-                                 output = output || "<span style='color:red'>Error: Please select a valid bundle</a>";
+                                 output = output || "<span style='color:red'>Error: Please select a valid bundle</span>";
                             }
                         }// end of if ^x
 
@@ -363,7 +371,7 @@ var WorksheetActions =  function() {
                             window.open(location,'_blank');
                             output = "loading info page..."
                         }else{
-                            output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</a>";
+                            output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>";
                         }
                     }
                     term.echo(output, {raw: true});
@@ -371,41 +379,22 @@ var WorksheetActions =  function() {
                 }
             }, // end off info
 
-            // 'upload': {  // TODO
-            //     minimumInputLength: 0,
-            //     edit_enabled: true,
-            //     searchChoice: function(input, term){
-            //         return {
-            //             id: term,
-            //             text: 'URL (http://...): ' + term
-            //         };
-            //     },
-            //     executefn: function(params, command, callback){
-            //         if(params.length === 2 && params[0] === 'upload'){
-            //             worksheet_uuid = ws_obj.state.uuid;
-            //             var postdata = {
-            //                 'worksheet_uuid': worksheet_uuid,
-            //                 'url': params[1]
-            //             };
-            //             $.ajax({
-            //                 type:'POST',
-            //                 cache: false,
-            //                 url:'/api/bundles/upload_url/',
-            //                 contentType:"application/json; charset=utf-8",
-            //                 dataType: 'json',
-            //                 data: JSON.stringify(postdata),
-            //                 success: function(data, status, jqXHR){
-            //                     callback();
-            //                 },
-            //                 error: function(jqHXR, status, error){
-            //                     displayError(jqHXR, status);
-            //                 }
-            //             });
-            //         }else {
-            //             alert('invalid syntax');
-            //         }
-            //     }, // end of executefn
-            // }, // end of upload
+            'upload': {
+                helpText: formatHelp('upload', 'upload a program or dataset'),
+                edit_enabled: true,
+                executefn: function(options, term, action_bar) {
+                    var defer = jQuery.Deferred();
+                    defer.resolve([]);
+                    if (options.length == 1) {
+                      // If no arguments specified, then launch modal to select.
+                      $("#ws-bundle-upload").modal();
+                    } else {
+                      // Else, backoff to a regular cl call.
+                      cl(options, term, action_bar);
+                    }
+                    return defer.promise();
+                }, // end of executefn
+            }, // end of upload
 
             // 'run': {   // TODO
             //     minimumInputLength: 0,

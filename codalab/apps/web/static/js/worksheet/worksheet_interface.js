@@ -345,6 +345,13 @@ var Worksheet = React.createClass({
             )
         }
 
+        var upload_modal = (
+                <UploadModal
+                    ref={"modal"}
+                    refreshWorksheet={this.refreshWorksheet}
+                />
+            )
+
         var worksheet_modal = (
                 <BootstrapModal
                     ref={"modal"}
@@ -384,6 +391,7 @@ var Worksheet = React.createClass({
                             </div>
                         </div>
                         {worksheet_modal}
+                        {upload_modal}
                     </div>
                 </div>
                 <div id="dragbar_vertical" className="dragbar"></div>

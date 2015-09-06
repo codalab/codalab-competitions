@@ -14,11 +14,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.bundles.make_bundle import MakeBundle
     from codalab.bundles.run_bundle import RunBundle
     from codalab.bundles.uploaded_bundle import UploadedBundle
+    from codalab.bundles import get_bundle_subclass
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from codalab.common import UsageError, PermissionError
     from codalab.lib import worksheet_util, bundle_cli, metadata_util
     from codalab.objects.permission import permission_str, group_permissions_str
     from codalab.lib.codalab_manager import CodaLabManager
+    from codalab.server.rpc_file_handle import RPCFileHandle
+    from codalab.lib import file_util
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -141,6 +144,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             else:
                 return worksheet_info
 
+        # TODO: remove this, not necessary
         def create_run_bundle(self, args, worksheet_uuid):
             cli = self._create_cli(worksheet_uuid)
             parser = cli.create_parser('run')
@@ -156,19 +160,23 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return new_bundle_uuid
 
 
-        def upload_bundle_url(self, url, info, worksheet_uuid):
-            file_name = url.split("/")[-1]
-            info = {
-                'bundle_type': 'dataset',
-                'metadata': {
-                    'description': 'Upload %s' % url,
-                    'tags': [],
-                    'name': '%s' % file_name,
-                    'license': '',
-                    'source_url': '%s' % url,
-                }
-            }
-            new_bundle_uuid = self.client.upload_bundle_url(url, info, worksheet_uuid, True)
+        def upload_bundle(self, source_file, bundle_type, worksheet_uuid):
+            '''
+            Upload |source_file| (a stream) to |worksheet_uuid|.
+            '''
+            # Construct info for creating the bundle.
+            bundle_subclass = get_bundle_subclass(bundle_type) # program or data
+            metadata = metadata_util.request_missing_metadata(bundle_subclass, {}, initial_metadata={'name': source_file.name, 'description': 'Upload ' + source_file.name})
+            info = {'bundle_type': bundle_type, 'metadata': metadata}
+
+            # Upload it by creating a file handle and copying source_file to it (see RemoteBundleClient.upload_bundle in the CLI).
+            remote_file_uuid = self.client.open_temp_file()
+            dest = RPCFileHandle(remote_file_uuid, self.client.proxy)
+            file_util.copy(source_file, dest, autoflush=False, print_status='Uploading %s' % info['metadata']['name'])
+            dest.close()
+
+            # Then tell the client that the uploaded file handle is there.
+            new_bundle_uuid = self.client.upload_bundle_zip(remote_file_uuid, info, worksheet_uuid, False, True)
             return new_bundle_uuid
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):

@@ -13,6 +13,7 @@ var WorksheetActionBar = React.createClass({
         $('#dragbar_horizontal').mousedown(function(e){
             self.resizePanel(e);
         });
+        var MINIMIZE_HEIGHT = 25;
         var tab_count = 0;
         var paused = false;
         var term = $('#command_line').terminal(
@@ -57,9 +58,9 @@ var WorksheetActionBar = React.createClass({
             },
             // 2nd is helpers and options. Take note of keydown for tab completion
             {
-                greetings: 'Worksheet Interface: A codalab cli lite interface. Please enter a command or help to see list of commands',
+                greetings: 'Welcome to CodaLab!  Press \'c\' to focus, ESC to unfocus.  Type \'cl help\' to see all commands.',
                 name: 'command_line',
-                height: 45,
+                height: MINIMIZE_HEIGHT,
                 // width: 700,
                 prompt: '> ',
                 history: true,
@@ -86,7 +87,7 @@ var WorksheetActionBar = React.createClass({
                         var fetch_auto_complete_list;
                         if(args.length > 2 && args[1]){
                             command = ws_actions.checkAndReturnCommand(args[1]);
-                            if(command){
+                            if(command && command.autocomplete) {
                                 fetch_auto_complete_list = command.autocomplete(args)
                                 if(!paused){
                                     term.echo('fetching list ....');
@@ -136,7 +137,7 @@ var WorksheetActionBar = React.createClass({
                             }else if (matched.length > 1) {
                                 if (tab_count >= 2) {
                                     if(matched_pos.length > 0){
-                                        // we have fancy output sync back up with auto_coplete and print it
+                                        // we have fancy output sync back up with auto_complete and print it
                                         for(var i=matched_pos.length; i--;) {
                                             // todo : pre and post display?
                                             var display = auto_complete_list[matched_pos[i]].display
@@ -183,7 +184,7 @@ var WorksheetActionBar = React.createClass({
                         self.props.handleFocus();
                         return false;
                     }
-                    term.resize(term.width(), 45);
+                    term.resize(term.width(), MINIMIZE_HEIGHT);
                     self.props.handleBlur();
                 },
                 onFocus: function(term){
