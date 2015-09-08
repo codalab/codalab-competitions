@@ -7,6 +7,7 @@ from os.path import abspath, basename, dirname, join, normpath, split
 import zipfile
 import yaml
 import tempfile
+import json
 import datetime
 import django.dispatch
 import time
@@ -1626,7 +1627,7 @@ class OrganizerDataSet(models.Model):
 
 
 class CompetitionSubmissionMetadata(models.Model):
-    submission = models.ForeignKey(CompetitionSubmission)
+    submission = models.OneToOneField(CompetitionSubmission, related_name="metadata")
     hostname = models.CharField(max_length=255, blank=True, null=True)
     processes_running_in_temp_dir = models.TextField(blank=True, null=True)
 
@@ -1636,6 +1637,33 @@ class CompetitionSubmissionMetadata(models.Model):
     end_virtual_memory_usage = models.TextField(blank=True, null=True)
     end_swap_memory_usage = models.TextField(blank=True, null=True)
     end_cpu_usage = models.TextField(blank=True, null=True)
+
+    def _get_json_property_percent(self, name):
+        if hasattr(self, name):
+            try:
+                value = json.loads(getattr(self, name))["percent"]
+                return "%s%%" % value
+            except:
+                return 'ERR!'
+        return ''
+
+    def _get_property_percent(self, name):
+        value = getattr(self, name)
+        return "%s%%" % value if value else None
+
+    @property
+    def simple(self):
+        '''Returns the simplified versions of some of the metrics, i.e. just "percent" even though many more
+        details are available.'''
+        return {
+            "processes_running_in_temp_dir": self.processes_running_in_temp_dir,
+            "beginning_virtual_memory_usage": self._get_json_property_percent('beginning_virtual_memory_usage'),
+            "beginning_swap_memory_usage":  self._get_json_property_percent('beginning_swap_memory_usage'),
+            "beginning_cpu_usage": self._get_property_percent('beginning_cpu_usage'),
+            "end_virtual_memory_usage": self._get_json_property_percent('end_virtual_memory_usage'),
+            "end_swap_memory_usage": self._get_json_property_percent('end_swap_memory_usage'),
+            "end_cpu_usage": self._get_property_percent('end_cpu_usage'),
+        }
 
 
 def add_submission_to_leaderboard(submission):

@@ -426,6 +426,12 @@ def get_run_func(config):
                     'metadata': debug_metadata
                 })
         except Exception:
+            if debug_metadata['end_virtual_memory_usage'] == None:
+                # We didnt' make it far enough to save end metadata... so do it!
+                debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+                debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
+                debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
+
             logger.exception("Run task failed (task_id=%s).", task_id)
             _send_update(queue, task_id, 'failed', extra={
                 'traceback': traceback.format_exc(),
