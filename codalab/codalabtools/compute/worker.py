@@ -216,10 +216,14 @@ def get_run_func(config):
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
+        try:
+            running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError:
+            running_processes = ''
         debug_metadata = {
             "hostname": socket.gethostname(),
 
-            "processes_running_in_temp_dir": subprocess.check_output(["fuser", temp_dir]),
+            "processes_running_in_temp_dir": running_processes,
 
             "beginning_virtual_memory_usage": json.dumps(psutil.virtual_memory()._asdict()),
             "beginning_swap_memory_usage": json.dumps(psutil.swap_memory()._asdict()),
@@ -241,7 +245,10 @@ def get_run_func(config):
                     shutil.rmtree(file_path)
 
             # Kill running processes in the temp dir
-            call(["fuser", "-k", temp_dir])
+            try:
+                call(["fuser", "-k", temp_dir])
+            except subprocess.CalledProcessError:
+                pass
 
             _send_update(queue, task_id, 'running', extra={
                 'metadata': debug_metadata
