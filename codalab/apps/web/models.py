@@ -932,6 +932,17 @@ class CompetitionSubmission(models.Model):
     def __unicode__(self):
         return "%s %s %s %s" % (self.pk, self.phase.competition.title, self.phase.label, self.participant.user.email)
 
+    @property
+    def metadata_predict(self):
+        '''Generated from the prediction step (if applicable) of evaluation a submission, sometimes competition
+        phases are "result only" submissions'''
+        return self.metadatas.get(is_predict=True)
+
+    @property
+    def metadata_scoring(self):
+        '''Generated from the result scoring step of evaluation a submission'''
+        return self.metadatas.get(is_scoring=True)
+
     def save(self, ignore_submission_limits=False, *args, **kwargs):
         print "Saving competition submission."
         if self.participant.competition != self.phase.competition:
@@ -1627,7 +1638,9 @@ class OrganizerDataSet(models.Model):
 
 
 class CompetitionSubmissionMetadata(models.Model):
-    submission = models.OneToOneField(CompetitionSubmission, related_name="metadata")
+    submission = models.ForeignKey(CompetitionSubmission, related_name="metadatas")
+    is_predict = models.BooleanField(default=False)
+    is_scoring = models.BooleanField(default=False)
     hostname = models.CharField(max_length=255, blank=True, null=True)
     processes_running_in_temp_dir = models.TextField(blank=True, null=True)
 

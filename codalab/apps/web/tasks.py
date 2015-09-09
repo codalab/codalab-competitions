@@ -394,16 +394,29 @@ def update_submission_task(job_id, args):
         status: The new status string: 'running', 'finished' or 'failed'.
         job_id: The job ID used to track the progress of the evaluation.
         """
+        state = {}
+        if len(submission.execution_key) > 0:
+            logger.debug("update_submission_task loading state: %s", submission.execution_key)
+            state = json.loads(submission.execution_key)
+            logger.debug("update_submission_task state = %s" % submission.execution_key)
+
+        if metadata:
+            is_predict = 'score' not in state
+            sub_metadata, created = CompetitionSubmissionMetadata.objects.get_or_create(
+                is_predict=is_predict,
+                is_scoring=not is_predict,
+                submission=submission,
+            )
+            sub_metadata.__dict__.update(metadata)
+            sub_metadata.save()
+            logger.debug("saving extra metadata, was a new object created? %s" % created)
+
         if status == 'running':
             _set_submission_status(submission.id, CompetitionSubmissionStatus.RUNNING)
             return Job.RUNNING
 
         if status == 'finished':
             result = Job.FAILED
-            state = {}
-            if len(submission.execution_key) > 0:
-                logger.debug("update_submission_task loading state: %s", submission.execution_key)
-                state = json.loads(submission.execution_key)
             if 'score' in state:
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
@@ -466,8 +479,7 @@ def update_submission_task(job_id, args):
         if traceback:
             submission.exception_details = traceback
             submission.save()
-        if metadata:
-            CompetitionSubmissionMetadata.objects.get_or_create(submission=submission, **metadata)
+
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):

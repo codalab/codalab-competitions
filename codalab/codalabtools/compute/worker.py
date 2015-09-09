@@ -243,7 +243,9 @@ def get_run_func(config):
             # Kill running processes in the temp dir
             call(["fuser", "-k", temp_dir])
 
-            _send_update(queue, task_id, 'running')
+            _send_update(queue, task_id, 'running', extra={
+                'metadata': debug_metadata
+            })
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             # Fetch and stage the bundles
