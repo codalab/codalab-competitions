@@ -480,6 +480,24 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             pass
         return context
 
+
+@login_required()
+def competition_submission_metadata_page(request, competition_id, phase_id):
+    try:
+        competition = models.Competition.objects.get(pk=competition_id)
+        selected_phase = competition.phases.get(pk=phase_id)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+    if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+            raise Http404()
+
+    return render(request, "web/competitions/submission_metadata.html", {
+        'competition': competition,
+        'selected_phase': selected_phase,
+    })
+
+
 class CompetitionResultsPage(TemplateView):
     # Serves the leaderboards in the Results tab of a competition.
     template_name = 'web/competitions/_results_page.html'
