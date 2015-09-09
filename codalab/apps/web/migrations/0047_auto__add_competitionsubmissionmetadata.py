@@ -11,7 +11,9 @@ class Migration(SchemaMigration):
         # Adding model 'CompetitionSubmissionMetadata'
         db.create_table(u'web_competitionsubmissionmetadata', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['web.CompetitionSubmission'])),
+            ('submission', self.gf('django.db.models.fields.related.ForeignKey')(related_name='metadatas', to=orm['web.CompetitionSubmission'])),
+            ('is_predict', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('is_scoring', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('hostname', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('processes_running_in_temp_dir', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('beginning_virtual_memory_usage', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
@@ -204,8 +206,10 @@ class Migration(SchemaMigration):
             'end_virtual_memory_usage': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'hostname': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_predict': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_scoring': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'processes_running_in_temp_dir': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'submission': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['web.CompetitionSubmission']"})
+            'submission': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'metadatas'", 'to': u"orm['web.CompetitionSubmission']"})
         },
         u'web.competitionsubmissionstatus': {
             'Meta': {'object_name': 'CompetitionSubmissionStatus'},
