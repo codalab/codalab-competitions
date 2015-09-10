@@ -442,10 +442,10 @@ class BundleFileContentApi(views.APIView):
         # user_id = self.request.user.id
         service = BundleService(self.request.user)
         try:
-            content_type, _encoding = mimetypes.guess_type(path)
-            if not content_type:
-                content_type = 'text/plain'
-            return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
+            stream, name, content_type = service.read_target((uuid, path))
+            response = StreamingHttpResponse(stream, content_type=content_type)
+            response['Content-Disposition'] = 'filename="%s"' % name
+            return response
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)

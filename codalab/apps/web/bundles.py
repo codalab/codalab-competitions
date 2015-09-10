@@ -1,5 +1,7 @@
 import base64
 from time import sleep
+import mimetypes
+import os
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -237,21 +239,43 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(do_command)
 
         MAX_BYTES = 1024*1024
-        def read_file(self, uuid, path):
-            fid = self.client.open_target((uuid, path))
-            try:
-                while True:
-                    bytes = self.client.read_file(fid, BundleService.MAX_BYTES)
-                    yield bytes.data
-                    if len(bytes.data) < BundleService.MAX_BYTES:
-                        break
-            finally:
-                self.client.close_file(fid)
+        def read_target(self, target):
+            '''
+            Given target (bundle uuid, path), return (stream, name, content_type).
+            '''
+            uuid, path = target
+            bundle_info = self.client.get_bundle_info(uuid, False, False, False)
+            if path == '':
+                name = bundle_info['metadata']['name']
+            else:
+                name = os.path.basename(path)
 
-        def download_target(self, uuid, return_zip=False):
-            target = (uuid, '')
-            result_path, container_path = self.client.download_target(target=target, follow_symlinks=True, return_zip=return_zip)
-            return (result_path, container_path)
+            target_info = self.client.get_target_info(target, 0)
+            if target_info['type'] == 'file':
+                # Is a file, Don't need to zip it up
+                content_type = mimetypes.guess_type(name)[0]
+                if not content_type: content_type = 'text/plain'
+                source_uuid = self.client.open_target(target)
+                delete = False
+            else:
+                # Is a directory, need to zip it up
+                content_type = 'zip'
+                source_uuid, _ = self.client.open_target_zip(target, False)
+                name += '.zip'
+                delete = True
+
+            def read_file():
+                try:
+                    while True:
+                        bytes = self.client.read_file(source_uuid, BundleService.MAX_BYTES)
+                        yield bytes.data
+                        if len(bytes.data) < BundleService.MAX_BYTES:
+                            break
+                finally:
+                    self.client.finalize_file(source_uuid, delete)
+
+            print 'Downloading bundle uuid %s => %s %s' % (uuid, name, content_type)
+            return read_file(), name, content_type
 
         def http_status_from_exception(self, ex):
             # This is brittle. See https://github.com/codalab/codalab/issues/345.
