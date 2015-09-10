@@ -946,44 +946,11 @@ class BundleDetailView(TemplateView):
 
 def BundleDownload(request, uuid):
     service = BundleService(request.user)
-    item = service.get_bundle_info(uuid)
-    target = (uuid, '')
-
-     # look at top level and see if only file
-    info = service.get_target_info(target, 1)
-    return_zip = True  # defaults
-    bundle_content_type = "zip"  # defaults
-    if info['type'] == "file":
-        return_zip = False
-        # try to see if we can figure what type it is.
-        file_type = mimetypes.guess_type(info['name'])[0]
-        if not file_type:
-            # extra get for safety, may be missing info.
-            name = item.get('metadata', {'name': None}).get('name')
-            file_type = mimetypes.guess_type(name)[0]
-            bundle_content_type = file_type
-
-    local_path, temp_path = service.download_target(uuid, return_zip=return_zip)
-
-    # find the file name and extension
-    if return_zip:
-        file_ext = ".zip"
-    else:  # not a zip
-        name = item.get('metadata', {'name': 'nothing'}).get('name')
-        file_ext = name.split('.')
-        if len(file_ext) > 1:
-            file_ext = ''  # the name already has the extension we need
-        else:  # no ext found we have to do a best guess
-            file_ext = local_path.split('.')  # lets try the temp file itself.
-            if len(file_ext) > 1:
-                file_ext = '.' + file_ext[-1]
-            else:  # not sure
-                file_ext = ''
-
-    file_name = "%s%s" % (item['metadata']['name'], file_ext)
-
-    response = StreamingHttpResponse(service.read_file(uuid, local_path), content_type=bundle_content_type)
-    response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
+    stream, name, content_type = service.read_target((uuid, ''))
+    response = StreamingHttpResponse(stream, content_type=content_type)
+    #response['Content-Disposition'] = 'attachment; filename="%s"' % name
+    # Remove 'attachment' so that simple things show up in the browser.
+    response['Content-Disposition'] = 'filename="%s"' % name
     return response
 
 # Worksheets
