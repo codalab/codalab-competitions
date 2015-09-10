@@ -2747,8 +2747,9 @@ select[multiple].input-lg {
 fieldset[disabled] .btn {
   cursor: not-allowed;
   pointer-events: none;
-  opacity: 0.65;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=65)";
   filter: alpha(opacity=65);
+  opacity: 0.65;
   -webkit-box-shadow: none;
   box-shadow: none;
 }
@@ -3399,8 +3400,9 @@ tbody.collapse.in {
 [data-toggle="buttons"] > .btn > input[type="checkbox"] {
   position: absolute;
   z-index: -1;
-  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
+  opacity: 0;
 }
 .input-group {
   position: relative;
@@ -5322,16 +5324,18 @@ a.list-group-item-danger.active:focus {
   line-height: 1;
   color: #000000;
   text-shadow: 0 1px 0 #ffffff;
-  opacity: 0.2;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
   filter: alpha(opacity=20);
+  opacity: 0.2;
 }
 .close:hover,
 .close:focus {
   color: #000000;
   text-decoration: none;
   cursor: pointer;
-  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
   filter: alpha(opacity=50);
+  opacity: 0.5;
 }
 button.close {
   padding: 0;
@@ -5397,12 +5401,14 @@ button.close {
   background-color: #000000;
 }
 .modal-backdrop.fade {
-  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
+  opacity: 0;
 }
 .modal-backdrop.in {
-  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
   filter: alpha(opacity=50);
+  opacity: 0.5;
 }
 .modal-header {
   padding: 15px;
@@ -5467,12 +5473,14 @@ button.close {
   visibility: visible;
   font-size: 13px;
   line-height: 1.4;
-  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
+  opacity: 0;
 }
 .tooltip.in {
-  opacity: 0.9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
   filter: alpha(opacity=90);
+  opacity: 0.9;
 }
 .tooltip.top {
   margin-top: -3px;
@@ -5732,8 +5740,9 @@ button.close {
   left: 0;
   bottom: 0;
   width: 15%;
-  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
   filter: alpha(opacity=50);
+  opacity: 0.5;
   font-size: 20px;
   color: #ffffff;
   text-align: center;
@@ -5760,8 +5769,9 @@ button.close {
   outline: 0;
   color: #ffffff;
   text-decoration: none;
-  opacity: 0.9;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
   filter: alpha(opacity=90);
+  opacity: 0.9;
 }
 .carousel-control .icon-prev,
 .carousel-control .icon-next,
@@ -6405,11 +6415,11 @@ fieldset[disabled] .btn-secondary.active {
 .competition-tile:hover h3 {
   color: #4b7695;
 }
-.ws-search {
+#ws_search {
   margin: 10px 0 20px;
   height: auto;
 }
-.ws-search:focus {
+#ws_search:focus {
   background: white;
 }
 .worksheet-icon-sm {
@@ -7204,7 +7214,6 @@ fieldset[disabled] .phase-btn-purple.active {
   margin-top: -3px;
 }
 .ws-interface .navbar.navbar-default.navbar-fixed-top {
-  border-bottom-color: white;
   -webkit-box-shadow: none;
   box-shadow: none;
 }
@@ -7282,9 +7291,6 @@ body {
 }
 body > .container {
   padding-bottom: 36px;
-}
-body.ws-interface {
-  padding-top: 110px;
 }
 body.ws-interface > .container {
   padding-bottom: 0;
@@ -7530,63 +7536,59 @@ body,
   position: relative;
   height: 100%;
 }
-#worksheet .ws-search {
+#worksheet #ws_search {
   position: fixed;
-  top: 52px;
   width: 100%;
   margin: 0;
   padding: 10px 0;
+  text-align: center;
   z-index: 1000;
-  background-color: rgba(234, 234, 234, 0.9);
-  border-bottom: 2px solid #cccccc;
-  -webkit-box-shadow: 0 2px 8px #666666;
-  box-shadow: 0 2px 8px #666666;
-  -webkit-transition: top 0.35s ease;
-  -o-transition: top 0.35s ease;
-  transition: top 0.35s ease;
-}
-#worksheet .ws-search > .container {
-  display: table;
-  padding-right: 65px;
-}
-#worksheet .ws-search > .container > .input-group {
-  display: table-row;
-}
-#worksheet .ws-search > .container > .input-group .select2-container,
-#worksheet .ws-search > .container > .input-group .input-group-btn {
-  display: table-cell;
-}
-#worksheet .ws-search > .container > .input-group .btn {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  line-height: 1;
-  width: 50px;
-}
-#worksheet .ws-search .select2-container-multi .select2-choices {
-  padding: 1px 5px 3px 0;
-}
-#worksheet .ws-search .select2-container-multi .select2-choices .select2-search-choice {
-  margin: 3px 0 1px 4px;
-}
-#worksheet .ws-search .select2-container-multi .select2-choices .select2-search-field input {
-  margin-top: 3px;
-  padding: 3px 5px;
-  line-height: inherit;
+  background-color: rgba(239, 239, 239, 0.9);
 }
 #worksheet.search-hidden {
   margin-top: -61px;
 }
-#worksheet.search-hidden .ws-search {
+#worksheet.search-hidden #ws_search {
   top: -7px;
 }
-#worksheet #dragbar {
-  background-color: #cccccc;
+#worksheet #dragbar_horizontal {
   position: absolute;
+  height: 5px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  cursor: row-resize;
+  border-bottom: 2px solid #cccccc;
+}
+#worksheet #dragbar_vertical {
+  position: absolute;
+  background-color: #cccccc;
   height: 100%;
   right: 25%;
   width: 2px;
   cursor: col-resize;
+}
+#worksheet #worksheet_panel {
+  padding-top: 65px;
+}
+#worksheet #worksheet_panel:before,
+#worksheet #worksheet_panel:after {
+  content: " ";
+  display: table;
+}
+#worksheet #worksheet_panel:after {
+  clear: both;
+}
+#worksheet #worksheet_panel:before,
+#worksheet #worksheet_panel:after {
+  content: " ";
+  display: table;
+}
+#worksheet #worksheet_panel:after {
+  clear: both;
+}
+#worksheet #worksheet_panel.actionbar-focus {
+  padding-top: 190px;
 }
 #worksheet .ws-container {
   position: absolute;
@@ -7598,14 +7600,16 @@ body,
 }
 #worksheet .ws-panel {
   width: 25%;
+  min-width: 200px;
   position: absolute;
   right: 0;
   height: 100%;
   overflow: auto;
-  padding: 0 15px;
+  padding: 0 10px;
   background: #fbfbfb;
 }
 #worksheet .ws-panel #panel_content {
+  font-size: 14px;
   margin-top: 12px;
   line-height: 1.2;
   min-height: 480px;
@@ -7617,11 +7621,11 @@ body,
 }
 #worksheet .ws-panel #panel_content .bundle-description {
   font-size: 90%;
-  margin-bottom: 10px;
+  margin: 5px 0;
 }
 #worksheet .ws-panel #panel_content h3 {
   margin-top: 12.5px;
-  margin-bottom: 6.25px;
+  margin-bottom: 12.5px;
   font-size: 24px;
   line-height: 1.1em;
 }
@@ -7635,13 +7639,23 @@ body,
 #worksheet .ws-panel #panel_content h3.ws-name {
   background: url('../img/icon_worksheet_sm.png') no-repeat 0 10px;
   padding-left: 50px;
-  padding-left: 30px;
+  padding-left: 26px;
   background-size: 20px;
   background-position: 0 7px;
 }
 #worksheet .ws-panel #panel_content h4 {
-  font-size: 18px;
-  margin-bottom: 5px;
+  font-size: 20px;
+  margin-bottom: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 2px solid #cccccc;
+}
+#worksheet .ws-panel #panel_content p {
+  margin: 0;
+  line-height: 1.34em;
+}
+#worksheet .ws-panel #panel_content hr {
+  margin: 12px 0;
 }
 #worksheet .ws-panel #panel_content .bundle-links {
   position: relative;
@@ -7651,7 +7665,6 @@ body,
   overflow-x: hidden;
   text-overflow: ellipsis;
   line-height: 29px;
-  font-size: 16px;
   display: inline-block;
   padding-right: 40px;
 }
@@ -7661,15 +7674,36 @@ body,
   z-index: 1;
 }
 #worksheet .ws-panel #panel_content .bundle-meta {
-  font-size: 80%;
+  font-size: 90%;
   margin-bottom: 5px;
 }
-#worksheet .ws-panel #panel_content .bundle-meta th,
-#worksheet .ws-panel #panel_content .bundle-meta td {
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > td,
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > th {
+  background-color: white;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > th,
+#worksheet .ws-panel #panel_content .bundle-meta.table > tbody > tr:nth-child(odd) > td {
+  background-color: #f8f8f8;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table th,
+#worksheet .ws-panel #panel_content .bundle-meta.table td {
   border-top: none;
+  padding: 1px 6px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table > thead > tr > th {
+  border-bottom-width: 1px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta.table a {
+  word-wrap: break-word;
+  word-break: break-all;
 }
 #worksheet .ws-panel #panel_content .bundle-meta .bundle-state {
   font-size: 80%;
+  padding: 1px 4px;
+}
+#worksheet .ws-panel #panel_content .bundle-meta pre {
+  font-size: 11px;
+  padding: 8px;
 }
 #worksheet_content {
   margin-top: 12px;
@@ -7709,9 +7743,13 @@ body,
   margin-right: 5px;
 }
 #worksheet_content .worksheet-name h1 {
-  text-indent: 65px;
+  text-indent: 0;
   margin: 0;
   font-size: 44px;
+  line-height: 1em;
+  padding-top: 5px;
+  padding-left: 65px;
+  min-height: 60px;
 }
 #worksheet_content .worksheet-name .worksheet-author {
   text-indent: 65px;
@@ -7789,8 +7827,9 @@ body,
 fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button {
   cursor: not-allowed;
   pointer-events: none;
-  opacity: 0.65;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=65)";
   filter: alpha(opacity=65);
+  opacity: 0.65;
   -webkit-box-shadow: none;
   box-shadow: none;
 }
@@ -8401,8 +8440,6 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 .progress-message#update_progress {
   top: 63px;
-  left: 40px;
-  right: auto;
 }
 .progress-message#save_error i {
   font-size: 18px;
@@ -8999,6 +9036,19 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   #worksheet_content .type-record table {
     margin-bottom: 16px;
   }
+  #worksheet #worksheet_panel,
+  #worksheet #worksheet_panel.actionbar-focus {
+    padding-top: 0;
+  }
+  #worksheet #ws_search,
+  #worksheet .ws-panel,
+  #worksheet .dragbar {
+    display: none;
+  }
+  #worksheet .ws-container {
+    right: 0;
+    padding: 0;
+  }
 }
 .competition-view {
   margin-top: 15px;
@@ -9374,4 +9424,150 @@ fieldset[disabled] .table.affiliation > tbody > tr > td input {
 textarea.table.affiliation > tbody > tr > th input,
 textarea.table.affiliation > tbody > tr > td input {
   height: auto;
+}
+#command_line {
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1700px;
+}
+.terminal .terminal-output .format,
+.cmd .format,
+.cmd .prompt,
+.cmd .prompt div,
+.terminal .terminal-output div div {
+  display: inline-block;
+}
+.cmd .clipboard {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=1)";
+  filter: alpha(opacity=1);
+  opacity: 0.01;
+  width: 2px;
+}
+.cmd > .clipboard {
+  position: fixed;
+}
+.terminal {
+  padding: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+.cmd {
+  padding: 0;
+  margin: 0;
+  height: 1.3em;
+}
+.cmd .cursor.blink {
+  -webkit-animation: blink 1s infinite steps(1, start);
+  -o-animation: blink 1s infinite steps(1, start);
+  animation: blink 1s infinite steps(1, start);
+}
+@keyframes blink {
+  0%,
+  100% {
+    background-color: #000;
+    color: #aaa;
+  }
+  50% {
+    background-color: #bbb;
+    /* not #aaa because it's seem there is Google Chrome bug */
+    color: #000;
+  }
+}
+@-webkit-keyframes blink {
+  0%,
+  100% {
+    background-color: #000;
+    color: #aaa;
+  }
+  50% {
+    background-color: #bbb;
+    color: #000;
+  }
+}
+@-ms-keyframes blink {
+  0%,
+  100% {
+    background-color: #000;
+    color: #aaa;
+  }
+  50% {
+    background-color: #bbb;
+    color: #000;
+  }
+}
+@-moz-keyframes blink {
+  0%,
+  100% {
+    background-color: #000;
+    color: #aaa;
+  }
+  50% {
+    background-color: #bbb;
+    color: #000;
+  }
+}
+.terminal .terminal-output div div,
+.cmd .prompt {
+  display: block;
+  line-height: 14px;
+  height: auto;
+}
+.cmd .prompt {
+  float: left;
+}
+.terminal,
+.cmd {
+  font-family: FreeMono, monospace;
+  color: #223;
+  background-color: #EFEFEF;
+  font-size: 12px;
+  line-height: 14px;
+}
+.terminal-output > div {
+  /*padding-top: 3px;*/
+  min-height: 14px;
+}
+.terminal .terminal-output div span {
+  display: inline-block;
+}
+.cmd span {
+  float: left;
+  /*display: inline-block; */
+}
+.terminal .inverted,
+.cmd .inverted,
+.cmd .cursor.blink {
+  background-color: #aaa;
+  color: #000;
+}
+.terminal .terminal-output div div::-moz-selection,
+.terminal .terminal-output div span::-moz-selection,
+.terminal .terminal-output div div a::-moz-selection {
+  background-color: #aaa;
+  color: #000;
+}
+.terminal .terminal-output div div::selection,
+.terminal .terminal-output div div a::selection,
+.terminal .terminal-output div span::selection,
+.cmd > span::selection,
+.cmd .prompt span::selection {
+  background-color: #aaa;
+  color: #000;
+}
+.terminal .terminal-output div.error,
+.terminal .terminal-output div.error div {
+  color: red;
+}
+.clear {
+  clear: both;
+}
+.terminal a {
+  color: #0F60FF;
+}
+.terminal a:hover {
+  color: red;
 }

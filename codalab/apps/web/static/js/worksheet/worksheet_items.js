@@ -37,6 +37,9 @@ var WorksheetItemList = React.createClass({
         var fIndex = this.state.focusIndex;
         var eIndex = this.state.editingIndex;
         var focusedItem = this.refs['item' + fIndex];
+        if(!this.props.active){ // if we are not the active component dont bind keys
+            return;
+        }
 
         Mousetrap.bind(['up', 'k'], function(e){
             if(fIndex <= 0){
@@ -276,7 +279,10 @@ var WorksheetItemList = React.createClass({
             return false;
         }
     },
-    setFocus: function(index, event, last_sub_el, direction){
+    setFocus: function(index, event, last_sub_el, direction, scroll){
+        if(typeof(scroll) === 'undefined'){
+            scroll = true;
+        }
         // index : what item index we want to focus on
         // event : the JS click event or keyboar event
         // last_sub_el: True/False force a focus on the last sub element
@@ -304,11 +310,12 @@ var WorksheetItemList = React.createClass({
                     // var throttledScrollToItem = _.throttle(this.scrollToItem, 1000).bind(this);
                     // console.log("again?")
                     // throttledScrollToItem(index, event);
-                    this.scrollToItem(index, event)
+                    if(scroll){
+                        this.scrollToItem(index, event)
+                    }
                 }
-            }
-        }
-        else {
+            }// end of if(index >= 0){
+        }else {
             return false;
         }
     },

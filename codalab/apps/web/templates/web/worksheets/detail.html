@@ -3,9 +3,8 @@
 {% block head_title %}Worksheet details{% endblock head_title %}
 {% block subheader %}{% endblock subheader %}
 
-{% block content %}
+{% block content_wrapper %}
 
-</div>
 <div class="container">
     <div id="worksheet-message" class="ws-detail">
         <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
@@ -35,7 +34,7 @@
                 <h5>General</h5>
                 <table class="table table-striped">
                     <tr>
-                        <td><kbd>/</kbd> Jump to action bar</td>
+                        <td><kbd>c</kbd> Jump to the console</td>
                     </tr>
                     <tr>
                         <td><kbd>E</kbd> Toggle editing mode</td>
@@ -111,7 +110,7 @@
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock content_wrapper %}
 
 
 {% block js %}
@@ -120,7 +119,6 @@
 {% endblock js %}
 
 {% block jsincludes %}
-
     {% if local_mathjax %}
             <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
@@ -129,6 +127,8 @@
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.terminal-0.8.8.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
@@ -140,7 +140,7 @@
 
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     {# ------- JSX FILES  ------- #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_action_bar.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_side_panel.js"></script>
     {# bundle type renders/actions #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
@@ -153,6 +153,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/modal_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/upload_modal_interface.js"></script>
     {# main entrance point for the worksheet and it's items/bundles #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
@@ -175,7 +176,7 @@ $(function () {
     ws_obj = new WorksheetContent(worksheet_url);
     ws_bundle_obj = new BundleContent();
     ws_actions = new WorksheetActions(); // Search bar actions
-
 });
 </script>
+
 {% endblock jsincludes %}
