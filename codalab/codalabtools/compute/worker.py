@@ -8,15 +8,19 @@ import datetime
 import logging
 import logging.config
 import os
+import psutil
 import signal
 import math
 import select
 import shutil
+import socket
+import subprocess
 import sys
 import tempfile
 import time
 import traceback
 import yaml
+
 from os.path import dirname, abspath, join
 from subprocess import Popen, PIPE, call
 from zipfile import ZipFile
@@ -155,9 +159,11 @@ def _send_update(queue, task_id, status, extra=None):
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    body = json.dumps({'id': task_id,
-                       'task_type': 'run_update',
-                       'task_args': task_args})
+    body = json.dumps({
+        'id': task_id,
+        'task_type': 'run_update',
+        'task_args': task_args
+    })
     queue.send_message(body)
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -209,11 +215,27 @@ def get_run_func(config):
                                      reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
+        temp_dir = config.getLocalRoot()
+        try:
+            running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError:
+            running_processes = ''
+        debug_metadata = {
+            "hostname": socket.gethostname(),
+
+            "processes_running_in_temp_dir": running_processes,
+
+            "beginning_virtual_memory_usage": json.dumps(psutil.virtual_memory()._asdict()),
+            "beginning_swap_memory_usage": json.dumps(psutil.swap_memory()._asdict()),
+            "beginning_cpu_usage": psutil.cpu_percent(interval=None),
+
+            # following are filled in after test ran + process SHOULD have been closed
+            "end_virtual_memory_usage": None,
+            "end_swap_memory_usage": None,
+            "end_cpu_usage": None,
+        }
 
         try:
-            # Cleanup any stuck processes or old files
-            temp_dir = config.getLocalRoot()
-
             # Cleanup dir in case any processes didn't clean up properly
             for the_file in os.listdir(temp_dir):
                 file_path = os.path.join(temp_dir, the_file)
@@ -223,9 +245,14 @@ def get_run_func(config):
                     shutil.rmtree(file_path)
 
             # Kill running processes in the temp dir
-            call(["fuser", "-k", temp_dir])
+            try:
+                call(["fuser", "-k", temp_dir])
+            except subprocess.CalledProcessError:
+                pass
 
-            _send_update(queue, task_id, 'running')
+            _send_update(queue, task_id, 'running', extra={
+                'metadata': debug_metadata
+            })
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             # Fetch and stage the bundles
@@ -386,18 +413,39 @@ def get_run_func(config):
                             _upload(blob_service, container, html_file_id, file_to_upload, "html")
                             html_found = True
 
+            # Save extra metadata
+            debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+            debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
+            debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
+
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed')
+                _send_update(queue, task_id, 'failed', extra={
+                    'metadata': debug_metadata
+                })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
+                _send_update(queue, task_id, 'failed', extra={
+                    'traceback': open(stderr_file).read(),
+                    'metadata': debug_metadata
+                })
             else:
-                _send_update(queue, task_id, 'finished')
+                _send_update(queue, task_id, 'finished', extra={
+                    'metadata': debug_metadata
+                })
         except Exception:
+            if debug_metadata['end_virtual_memory_usage'] == None:
+                # We didnt' make it far enough to save end metadata... so do it!
+                debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+                debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
+                debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
+
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={'traceback': traceback.format_exc()})
+            _send_update(queue, task_id, 'failed', extra={
+                'traceback': traceback.format_exc(),
+                'metadata': debug_metadata
+            })
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:

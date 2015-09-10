@@ -1,0 +1,138 @@
+.opacity(@opacity: 1) {
+  @ieOpacity: @opacity * 100;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=@{ieOpacity})";
+  filter: ~"alpha(opacity=@{ieOpacity})";
+  opacity: @opacity;
+}
+#command_line {
+  text-align:left;
+  margin-left: auto;
+  margin-right: auto;
+  max-width:1700px;
+}
+.terminal .terminal-output .format,
+.cmd .format,
+.cmd .prompt,
+.cmd .prompt div,
+.terminal .terminal-output div div{
+    display: inline-block;
+}
+.cmd .clipboard {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    .opacity(0.01);
+    width: 2px;
+}
+.cmd > .clipboard {
+    position: fixed;
+}
+.terminal {
+    padding:0 10px;
+    position: relative;
+    overflow: hidden;
+}
+.cmd {
+    padding: 0;
+    margin: 0;
+    height: 1.3em;
+}
+.cmd .cursor.blink {
+  .animation(blink 1s infinite steps(1, start));
+}
+@keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb; /* not #aaa because it's seem there is Google Chrome bug */
+        color: #000;
+  }
+}
+@-webkit-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+@-ms-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+@-moz-keyframes blink {
+  0%, 100% {
+        background-color: #000;
+        color: #aaa;
+  }
+  50% {
+        background-color: #bbb;
+        color: #000;
+  }
+}
+.terminal .terminal-output div div, .cmd .prompt {
+    display: block;
+    line-height: 14px;
+    height: auto;
+}
+.cmd .prompt {
+    float: left;
+}
+.terminal, .cmd {
+    font-family: FreeMono, monospace;
+    color: #223;
+    background-color: #EFEFEF;
+    font-size: 12px;
+    line-height: 14px;
+}
+.terminal-output > div {
+    /*padding-top: 3px;*/
+    min-height: 14px;
+}
+.terminal .terminal-output div span {
+    display: inline-block;
+}
+.cmd span {
+    float: left;
+    /*display: inline-block; */
+}
+.terminal .inverted, .cmd .inverted, .cmd .cursor.blink {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div div::-moz-selection,
+.terminal .terminal-output div span::-moz-selection,
+.terminal .terminal-output div div a::-moz-selection {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div div::selection,
+.terminal .terminal-output div div a::selection,
+.terminal .terminal-output div span::selection,
+.cmd > span::selection,
+.cmd .prompt span::selection {
+    background-color: #aaa;
+    color: #000;
+}
+.terminal .terminal-output div.error, .terminal .terminal-output div.error div {
+    color: red;
+}
+.clear {
+    clear: both;
+}
+.terminal a {
+    color: #0F60FF;
+}
+.terminal a:hover {
+    color: red;
+}

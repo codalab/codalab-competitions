@@ -184,11 +184,33 @@ class WorksheetsSearchApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet_infos = service.search_worksheets(search_string.split(' '))
-            return Response(worksheet_infos, content_type="application/json")
+            data = {
+                "worksheets": worksheet_infos,
+                "search_string": search_string
+            }
+            return Response(data, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
+class WorksheetsGetUUIDApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        search_string = request.GET.get('spec', '')
+        logger.debug("WorksheetsGetUUIDApi: user_id=%s; spec=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            worksheet_uuid = service.get_worksheet_uuid(search_string)
+            return Response({'uuid': worksheet_uuid}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
 
 
 class WorksheetContentApi(views.APIView):
@@ -388,13 +410,12 @@ class BundleUploadApi(views.APIView):
     """
     def post(self, request):
         user_id = self.request.user.id
-        postdata = json.loads(request.body)
-        # logger.debug("BundleSearch: user_id=%s; search_string=%s.", user_id, search_string)
         service = BundleService(self.request.user)
         try:
-            #TODO CHECKING
-            info = {}
-            new_bundle_uuid = service.upload_bundle_url(postdata['url'], info, postdata['worksheet_uuid'])
+            source_file = request.FILES['file']
+            bundle_type = request.POST['bundle_type']
+            worksheet_uuid = request.POST['worksheet_uuid']
+            new_bundle_uuid = service.upload_bundle(source_file, bundle_type, worksheet_uuid)
             return Response({'uuid': new_bundle_uuid}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
@@ -442,10 +463,10 @@ class BundleFileContentApi(views.APIView):
         # user_id = self.request.user.id
         service = BundleService(self.request.user)
         try:
-            content_type, _encoding = mimetypes.guess_type(path)
-            if not content_type:
-                content_type = 'text/plain'
-            return StreamingHttpResponse(service.read_file(uuid, path), content_type=content_type)
+            stream, name, content_type = service.read_target((uuid, path))
+            response = StreamingHttpResponse(stream, content_type=content_type)
+            response['Content-Disposition'] = 'filename="%s"' % name
+            return response
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
