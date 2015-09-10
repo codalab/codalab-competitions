@@ -145,10 +145,16 @@ var WorksheetActions =  function() {
                         data: get_data,
                         success: function(data, status, jqXHR, callback){
                             var autocomplete_list = [];
-                            for (var i = 0; i < data.length; i++) {
-                                var worksheet = data[i];
+                            for (var i = 0; i < data.worksheets.length; i++) {
+                                var worksheet = data.worksheets[i];
+                                var text = '';
+                                if(data.search_string.indexOf('0x') === 0){
+                                    text = worksheet.uuid
+                                }else{
+                                    text = worksheet.name
+                                }
                                 autocomplete_list.push({
-                                    'text': worksheet.uuid, // UUID
+                                    'text': text,
                                     'display': worksheet.uuid.slice(0, 10)  + " | " +  worksheet.name + ' | Owner: ' + worksheet.owner_name,
                                 });
                             }
@@ -169,12 +175,39 @@ var WorksheetActions =  function() {
                 },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
-                    defer.resolve()
                     if(options[1]){
                         if(options[1].length > 33){ // a full uuid
+                            defer.resolve()
+                            term.echo("Loading Worksheet ...", {raw: true});
                             window.location = '/worksheets/' + options[1] + '/';
                         }else{
-                            term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
+                            var get_data = {
+                                "spec": options[1]
+                            }
+                            $.ajax({
+                                type: 'GET',
+                                url: '/api/worksheets/get_uuid/',
+                                dataType: 'json',
+                                data: get_data,
+                                success: function(data, status, jqXHR, callback){
+                                    defer.resolve()
+                                    term.echo("Loading Worksheet ...", {raw: true});
+                                    window.location = '/worksheets/' + data.uuid + '/';
+
+                                },
+                                error: function(jqHXR, status, error){
+                                    defer.resolve([]);
+                                    var error;
+                                    if(jqHXR.responseJSON){
+                                        error = jqHXR.responseJSON['error'];
+                                    }else{
+                                        error = error
+                                    }
+                                    term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
+                                    defer.resolve()
+                                }
+                            });
+                            // term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
                         }
 
                     }

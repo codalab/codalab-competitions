@@ -17,7 +17,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.bundles import get_bundle_subclass
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from codalab.common import UsageError, PermissionError
-    from codalab.lib import worksheet_util, bundle_cli, metadata_util
+    from codalab.lib import worksheet_util, bundle_cli, metadata_util, spec_util
     from codalab.objects.permission import permission_str, group_permissions_str
     from codalab.lib.codalab_manager import CodaLabManager
     from codalab.server.rpc_file_handle import RPCFileHandle
@@ -93,6 +93,20 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def create_worksheet(self, name):
             return _call_with_retries(lambda: self.client.new_worksheet(name, None))
+
+        def get_worksheet_uuid(self, spec):
+            uuid = None
+            spec = smart_str(spec) # generic clean up just in case
+            try:
+                if(spec_util.UUID_REGEX.match(spec)):
+                    uuid = spec
+                else:
+                    uuid = worksheet_util.get_worksheet_uuid(self.client, None, spec)
+            except UsageError, e:
+                #TODO handle Found multiple worksheets with name
+                raise e
+            return uuid
+
 
         def worksheet(self, uuid, interpreted=False):
             try:

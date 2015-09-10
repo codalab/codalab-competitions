@@ -184,11 +184,33 @@ class WorksheetsSearchApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             worksheet_infos = service.search_worksheets(search_string.split(' '))
-            return Response(worksheet_infos, content_type="application/json")
+            data = {
+                "worksheets": worksheet_infos,
+                "search_string": search_string
+            }
+            return Response(data, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
+class WorksheetsGetUUIDApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        search_string = request.GET.get('spec', '')
+        logger.debug("WorksheetsGetUUIDApi: user_id=%s; spec=%s.", user_id, search_string)
+        service = BundleService(self.request.user)
+        try:
+            worksheet_uuid = service.get_worksheet_uuid(search_string)
+            return Response({'uuid': worksheet_uuid}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
 
 
 class WorksheetContentApi(views.APIView):
