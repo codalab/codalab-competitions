@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load codalab_tags %}
 {% load tz %}
+{% load url from future %}
 
 {% block page_title %}Submissions{% endblock page_title %}
 {% block head_title %}Submissions{% endblock %}
@@ -18,6 +19,8 @@
             {% endfor %}
         </select>
     </div>
+
+    <a href="{% url "competitions:competition_submissions_metadata" competition_id=competition.pk phase_id=selected_phase.id %}">View all submission's metadata</a>
 
     <h4>Select phase description</h4>
     {% if phase.description %}
