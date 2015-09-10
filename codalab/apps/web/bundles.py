@@ -7,7 +7,6 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 
 from xmlrpclib import Fault, ProtocolError
-from codalab.server.rpc_file_handle import RPCFileHandle
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
 
