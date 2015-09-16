@@ -425,10 +425,10 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             if participant.status.codename == models.ParticipantStatus.APPROVED:
                 phase = competition.phases.get(pk=self.kwargs['phase'])
 
-                submissions = set(list(models.CompetitionSubmission.objects.filter(
+                submissions = models.CompetitionSubmission.objects.filter(
                     participant=participant,
                     phase=phase
-                ).select_related('status')))
+                ).select_related('status').order_by('submitted_at')
 
                 # find which submission is in the leaderboard, if any and only if phase allows seeing results.
                 id_of_submission_in_leaderboard = -1
