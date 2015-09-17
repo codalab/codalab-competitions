@@ -7998,6 +7998,19 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-markup h3 {
   font-size: 20px;
 }
+#worksheet_content .type-markup code {
+  font-size: 80%;
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  border: 0;
+  word-break: normal;
+  white-space: pre;
+}
 #worksheet_content .type-markup,
 #worksheet_content .type-inline,
 #worksheet_content .type-worksheet,
