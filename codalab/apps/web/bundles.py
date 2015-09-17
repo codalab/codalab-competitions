@@ -201,7 +201,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def parse_and_update_worksheet(self, uuid, lines):
             worksheet_info = self.client.get_worksheet_info(uuid, True)
             new_items, commands = worksheet_util.parse_worksheet_form(lines, self.client, worksheet_info['uuid'])
-            self.client.update_worksheet(
+            self.client.update_worksheet_items(
                                 worksheet_info,
                                 new_items
                         )
@@ -213,11 +213,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def resolve_interpreted_items(self, interpreted_items):
             return _call_with_retries(lambda: self.client.resolve_interpreted_items(('test', 'test')))
 
-        def get_worksheet_info(self):
-            return _call_with_retries(lambda: self.client.get_worksheet_info())
-
         def delete_worksheet(self, worksheet_uuid):
-            return _call_with_retries(lambda: self.client.delete_worksheet(worksheet_uuid))
+            return _call_with_retries(lambda: self.client.delete_worksheet(worksheet_uuid, False))
 
         # Create an instance of a CLI.
         def _create_cli(self, worksheet_uuid):
