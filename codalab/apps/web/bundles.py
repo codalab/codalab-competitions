@@ -98,7 +98,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def get_worksheet_uuid(self, spec):
             uuid = None
-            spec = smart_str(spec) # generic clean up just in case
+            spec = smart_str(spec)  # generic clean up just in case
             try:
                 if(spec_util.UUID_REGEX.match(spec)):
                     uuid = spec
