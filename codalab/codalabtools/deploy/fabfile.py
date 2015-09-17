@@ -583,6 +583,13 @@ def deploy():
         # Setup new relic
         cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
         run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+
+    # Setup bundle service for worksheets
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd('deploy/bundles'):
+        run('git pull')
+        run('alembic upgrade head')
+
     supervisor()
     maintenance("end")
 
