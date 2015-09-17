@@ -600,6 +600,32 @@ def add_swap_config_and_restart():
         sudo("service walinuxagent restart")
 
 
+@task
+def setup_compute_worker():
+    password = os.environ.get('CODALAB_COMPUTE_MONITOR_PASSWORD', None)
+    assert password, "CODALAB_COMPUTE_MONITOR_PASSWORD environment variable required to setup compute workers!"
+
+    run("source /home/azureuser/venv/bin/activate && pip install bottle==0.12.8")
+
+    put(
+        local_path='configs/upstart/codalab-compute-worker.conf',
+        remote_path='/etc/init/codalab-compute-worker.conf',
+        use_sudo=True
+    )
+    put(
+        local_path='configs/upstart/codalab-monitor.conf',
+        remote_path='/etc/init/codalab-monitor.conf',
+        use_sudo=True
+    )
+    run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % password)
+
+    with settings(warn_only=True):
+        sudo("stop codalab-compute-worker")
+        sudo("stop codalab-monitor")
+        sudo("start codalab-compute-worker")
+        sudo("start codalab-monitor")
+
+
 def setup_env():
     env.SHELL_ENV = dict(
         DJANGO_SETTINGS_MODULE=env.django_settings_module,
