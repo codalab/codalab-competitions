@@ -269,8 +269,6 @@ class WorksheetsCommandApi(views.APIView):
     """
     def post(self, request):
         user = self.request.user
-        if not user.id:
-            return Response(None, status=401)
         data = json.loads(request.body)
         if not data.get('worksheet_uuid', None) or not data.get('command', None):
             return Response("Must have worksheet uuid and command", status=status.HTTP_400_BAD_REQUEST)
