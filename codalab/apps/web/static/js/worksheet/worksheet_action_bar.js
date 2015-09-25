@@ -58,7 +58,7 @@ var WorksheetActionBar = React.createClass({
             },
             // 2nd is helpers and options. Take note of keydown for tab completion
             {
-                greetings: 'Welcome to CodaLab!  Press \'c\' to focus, ESC to unfocus.  Type \'cl help\' to see all commands.',
+                greetings: '[CodaLab web terminal] Press \'c\' to focus, ESC to unfocus.  Type \'cl help\' to see all commands.',
                 name: 'command_line',
                 height: MINIMIZE_HEIGHT,
                 // width: 700,
@@ -90,7 +90,7 @@ var WorksheetActionBar = React.createClass({
                             if(command && command.autocomplete) {
                                 fetch_auto_complete_list = command.autocomplete(args)
                                 if(!paused){
-                                    term.echo('fetching list ....');
+                                    term.echo('...fetching list...');
                                 }
                             }else{ // nothing found just return an empty list
                                 var empty_defer = jQuery.Deferred();

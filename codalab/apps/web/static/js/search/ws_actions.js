@@ -16,7 +16,6 @@ var WorksheetActions =  function() {
         // this is a list of commands that are no front end implmented but we sill want to show
         // for action bar autocomplete
             'help',
-
             'upload',
             'make',
             'run',
@@ -178,7 +177,7 @@ var WorksheetActions =  function() {
                     if(options[1]){
                         if(options[1].length > 33){ // a full uuid
                             defer.resolve()
-                            term.echo("Loading Worksheet ...", {raw: true});
+                            term.echo("Loading worksheet...", {raw: true});
                             window.location = '/worksheets/' + options[1] + '/';
                         }else{
                             var get_data = {
@@ -191,7 +190,7 @@ var WorksheetActions =  function() {
                                 data: get_data,
                                 success: function(data, status, jqXHR, callback){
                                     defer.resolve()
-                                    term.echo("Loading Worksheet ...", {raw: true});
+                                    term.echo("Loading worksheet...", {raw: true});
                                     window.location = '/worksheets/' + data.uuid + '/';
 
                                 },
