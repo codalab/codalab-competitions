@@ -307,6 +307,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return 500
 
         def update_bundle_metadata(self, uuid, new_metadata):
+            # json load only gives string, convert them into needed type
+            new_metadata['request_cpus'] = int(new_metadata['request_cpus']);
+            new_metadata['request_gpus'] = int(new_metadata['request_gpus']);
+            new_metadata['request_priority'] = int(new_metadata['request_priority']);
+            new_metadata['actions'] = new_metadata['actions'].split();
+            new_metadata['exitcode'] = int(new_metadata['exitcode']);
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
 
