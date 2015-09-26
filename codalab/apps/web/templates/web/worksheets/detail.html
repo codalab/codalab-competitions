@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block custom_body_attributes %}{% endblock %}
-{% block head_title %}Worksheet details{% endblock head_title %}
+{% block head_title %}{{worksheet_title}} -  Worksheet details{% endblock head_title %}
+{% block meta %}
+    <meta property="og:title" content="{{worksheet_title}}">
+    <meta property="og:site_name" content="CodaLab">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
+{% endblock %}
 {% block subheader %}{% endblock subheader %}
 
 {% block content_wrapper %}
@@ -10,6 +16,7 @@
         <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
     </div>
 </div>
+
 <div id="worksheet_container">
     <!-- worksheet html wil go here-->
 </div>

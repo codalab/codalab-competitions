@@ -110,16 +110,17 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return uuid
 
 
-        def worksheet(self, uuid, interpreted=False):
+        def worksheet(self, uuid, interpreted=False, fetch_items=True, get_raw=True):
             try:
                 worksheet_info  = self.client.get_worksheet_info(
                                             uuid,
-                                            True,  #fetch_items
+                                            fetch_items,  # fetch_items
                                             True,  # get_permissions
                                 )
             except PermissionError:
                 raise UsageError # forces a not found
-            worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
+            if get_raw:
+                worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
             # set permissions
             worksheet_info['edit_permission'] = False
             if worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL:

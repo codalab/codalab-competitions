@@ -1016,6 +1016,17 @@ class WorksheetDetailView(TemplateView):
     template_name = 'web/worksheets/detail.html'
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
+        service = BundleService(self.request.user)
+        uuid = kwargs.get('uuid', None)
+        worksheet_info = service.worksheet(uuid, interpreted=False, fetch_items=False, get_raw=False)
+        context['worksheet_info'] = worksheet_info
+        context['worksheet_uuid'] = uuid
+        # will sometimes return nill, which doesn false the dict.get call and just returns a None object no matter what.
+        title = worksheet_info.get('title')
+        if(title):
+            context['worksheet_title'] = title
+        else:
+            context['worksheet_title'] = worksheet_info.get('name', '')
         return context
 
 
