@@ -184,6 +184,9 @@ class UserSettingsForm(forms.ModelForm):
             'project_url',
             'publication_url',
             'bibtex',
+            'first_name',
+            'last_name',
+            'email'
         )
         widgets = {
             'team_members': forms.Textarea(attrs={"class": "form-control"}),
