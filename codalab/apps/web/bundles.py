@@ -141,7 +141,16 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
                         # item['name'] in ['stdout', 'stderr']
-                        item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                        if item['interpreted'] is None:
+                            item['interpreted'] = ['MISSING']
+                        else:
+                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                    elif item['mode'] == 'table':
+                        # some of the contents of item['interpreted'] may be None if the associated files don't exist yet. Replace them with 'MISSING'.
+                        for row_map in item['interpreted'][1]:
+                            for k, v in row_map.iteritems():
+                                if v is None:
+                                    row_map[k] = 'MISSING'
                     elif 'bundle_info' in item:
                         for bundle_info in item['bundle_info']:
                             try:
