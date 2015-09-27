@@ -142,6 +142,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                     if item['mode'] in ['html', 'contents']:
                         # item['name'] in ['stdout', 'stderr']
                         item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                    elif item['mode'] == 'table':
+                        for row_map in item['interpreted'][1]:
+                            for k, v in row_map.iteritems():
+                                if v is None:
+                                     row_map[k] = 'MISSING'
                     elif 'bundle_info' in item:
                         for bundle_info in item['bundle_info']:
                             try:
