@@ -354,6 +354,12 @@ class BundleInfoApi(views.APIView):
                     new_metadata['architectures'] = architectures
 
                 # update and return
+                # json load only gives string, convert them into needed type
+                new_metadata['request_cpus'] = int(new_metadata['request_cpus']);
+                new_metadata['request_gpus'] = int(new_metadata['request_gpus']);
+                new_metadata['request_priority'] = int(new_metadata['request_priority']);
+                new_metadata['actions'] = new_metadata['actions'].split();
+                new_metadata['exitcode'] = int(new_metadata['exitcode']);
                 print new_metadata
                 service.update_bundle_metadata(uuid, new_metadata)
                 bundle_info = service.get_bundle_info(uuid)
