@@ -47,11 +47,10 @@
     {% block extra_scripts %}
     {% endblock extra_scripts %}
 
-    <!-- From Charles Sterling for Analytics -->
+
     <script type="text/javascript">
 
     </script>
-    <!-- End of Analytics from Charles -->
 </head>
 
 <body {% block custom_body_attributes %}{% endblock %}>
@@ -144,7 +143,6 @@
         </div>
     {% endblock content_wrapper %}
 
-
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
@@ -165,12 +163,18 @@
     <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
-    <script>
+    <script type="text/javascript">
     {% block js %}
         Competition.initialize();
-    {% endblock js %}
-    </script>
 
+    {% endblock js %}
+        CODAUSER = {
+            username: "{{ request.user.username|safe }}",
+            user_id: {{ request.user.pk|default:0 }},
+            email: "{{ user.email|safe }}",
+            is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+        }
+    </script>
     {% block jsincludes %}
     {% endblock jsincludes %}
 

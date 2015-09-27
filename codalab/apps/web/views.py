@@ -978,8 +978,20 @@ class WorksheetLandingView(TemplateView):
     """
     template_name = 'web/worksheets/detail.html'
     def get(self, request, *args, **kwargs):
+        #did the user give us a worksheet name or uuid
+        requested_ws = request.GET.get('name', None)
+        requested_ws = request.GET.get('uuid', requested_ws)
+        if(requested_ws):
+            service = BundleService(request.user)
+            try:
+                uuid = service.get_worksheet_uuid(requested_ws)
+                return HttpResponseRedirect(reverse('ws_view', kwargs={'uuid': uuid}))
+            except Exception, e:  # UsageError
+                pass
+        # do we have a langing page
         if(len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1):
             return HttpResponseRedirect(reverse("ws_list"))
+
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -1004,6 +1016,17 @@ class WorksheetDetailView(TemplateView):
     template_name = 'web/worksheets/detail.html'
     def get_context_data(self, **kwargs):
         context = super(WorksheetDetailView, self).get_context_data(**kwargs)
+        service = BundleService(self.request.user)
+        uuid = kwargs.get('uuid', None)
+        worksheet_info = service.worksheet(uuid, interpreted=False, fetch_items=False, get_raw=False)
+        context['worksheet_info'] = worksheet_info
+        context['worksheet_uuid'] = uuid
+        # will sometimes return nill, which doesn false the dict.get call and just returns a None object no matter what.
+        title = worksheet_info.get('title')
+        if(title):
+            context['worksheet_title'] = title
+        else:
+            context['worksheet_title'] = worksheet_info.get('name', '')
         return context
 
 

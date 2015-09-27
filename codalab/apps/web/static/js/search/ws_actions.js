@@ -428,6 +428,17 @@ var WorksheetActions =  function() {
                 }, // end of executefn
             }, // end of upload
 
+            'wedit': {
+                helpText: formatHelp('wedit', 'edit the worksheet'),
+                edit_enabled: true,
+                executefn: function(options, term, action_bar) {
+                    var defer = jQuery.Deferred();
+                    defer.resolve([]);
+                    action_bar.props.rawMode();
+                    return defer.promise();
+                }, // end of executefn
+            }, // end of wedit
+
             // 'run': {   // TODO
             //     minimumInputLength: 0,
             //     edit_enabled: true,

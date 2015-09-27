@@ -197,13 +197,20 @@ var WorksheetList = React.createClass({
         } else {
             worksheetList = 'No worksheets matched your criteria'
         }
-        return (
-            <div id="worksheet-list">
-                <div className="checkbox">
+
+        myWorksheetCheckbox = '';
+        if(CODAUSER.is_authenticated){
+            myWorksheetCheckbox = (
                     <label className="my-worksheets-toggle">
                         <input type="checkbox" tabIndex="-1" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
                         Show my worksheets only
                     </label>
+                )
+        }
+        return (
+            <div id="worksheet-list">
+                <div className="checkbox">
+                    {{ myWorksheetCheckbox }}
                 </div>
                 {worksheetList}
             </div>

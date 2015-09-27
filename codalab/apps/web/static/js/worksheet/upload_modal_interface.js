@@ -50,8 +50,14 @@ var UploadModal = React.createClass({
                 this.hide();
             }.bind(this),
             error: function(jqHXR, status, error){
+                var error = "Error uploading file."
+                if(jqHXR.responseJSON){
+                    error = jqHXR.responseJSON['error'];
+                }else{
+                    error = error
+                }
                 this.setState({
-                    "error": "Error uploading file.",
+                    "error": error,
                     "is_uploading": false
                 });
                 console.error(status + ': ' + error);

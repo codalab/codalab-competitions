@@ -62,10 +62,15 @@ var WorksheetSidePanel = React.createClass({
 
     },
     current_focus: function(){
-        var focus = '';
+        var focus = undefined;
         if(this.props.focusIndex > -1){
             focus = ws_obj.state.items[this.props.focusIndex].state;
-            if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
+            if(focus.mode == "markup"){
+                this.focustype = '';
+                focus = undefined;
+                return focus;
+            }
+            if(focus.mode == "worksheet" || focus.mode == "search"){
                 this.focustype = 'worksheet';
                 if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
                      //for lets default it back to showing the main worksheet info

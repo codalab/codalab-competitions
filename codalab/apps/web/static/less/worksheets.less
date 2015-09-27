@@ -113,7 +113,7 @@ html, body, #worksheet_container {height:100%;}
       position: absolute;
       left: 0;
       right:@initial-panel-width;
-      padding: 0 @grid-gutter-width;
+      padding: 0 @grid-gutter-width 50px @grid-gutter-width;
       height:100%;
       overflow:auto;
    }
@@ -362,6 +362,19 @@ html, body, #worksheet_container {height:100%;}
       }
       h3 {
          font-size:20px;
+      }
+      code{
+         font-size:80%;
+         display: inline;
+         max-width: initial;
+         padding: 0;
+         margin: 0;
+         overflow: initial;
+         line-height: inherit;
+         word-wrap: normal;
+         border: 0;
+         word-break: normal;
+         white-space: pre;
       }
    }
    .type-markup,

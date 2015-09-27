@@ -86,7 +86,7 @@ var Worksheet = React.createClass({
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
-        console.log(this.state.activeComponent );
+        // console.log(this.state.activeComponent );
         if(this.state.activeComponent == 'action'){
             // no need for other keys, we have the action bar focused
             return;
@@ -209,11 +209,15 @@ var Worksheet = React.createClass({
             error: function(xhr, status, err) {
                 console.error(ws_obj.url, status, err);
                 this.setState({updating:false});
+
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert');
                 } else {
+                    var error_msg = xhr.responseJSON.error
+                    if(error_msg){ err = error_msg }
                     $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-danger alert');
                 }
+                $('#update_progress').hide();
                 $('#worksheet_container').hide();
             }.bind(this)
         });
@@ -330,6 +334,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
+                    rawMode={this.rawMode}
                 />
             )
 
