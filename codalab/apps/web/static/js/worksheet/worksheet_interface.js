@@ -86,7 +86,7 @@ var Worksheet = React.createClass({
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
-        console.log(this.state.activeComponent );
+        // console.log(this.state.activeComponent );
         if(this.state.activeComponent == 'action'){
             // no need for other keys, we have the action bar focused
             return;
