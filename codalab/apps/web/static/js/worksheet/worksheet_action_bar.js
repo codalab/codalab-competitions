@@ -1,5 +1,9 @@
 /** @jsx React.DOM */
 
+
+var ACTIONBAR_MINIMIZE_HEIGHT = 25;
+var ACTIONBAR_DRAGHEIGHT = 170
+
 var WorksheetActionBar = React.createClass({
     focustype: 'worksheet', // keep track of what the user has focused on worksheet item
     // ********************************************
@@ -9,11 +13,19 @@ var WorksheetActionBar = React.createClass({
     // ********************************************
     componentDidMount: function(){
         // https://github.com/jcubic/jquery.terminal
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
+        console.log("setting hight");
         var self = this;
         $('#dragbar_horizontal').mousedown(function(e){
             self.resizePanel(e);
         });
-        var MINIMIZE_HEIGHT = 25;
+
         var tab_count = 0;
         var paused = false;
         var term = $('#command_line').terminal(
@@ -60,7 +72,7 @@ var WorksheetActionBar = React.createClass({
             {
                 greetings: '[CodaLab web terminal] Press \'c\' to focus, ESC to unfocus.  Type \'cl help\' to see all commands.',
                 name: 'command_line',
-                height: MINIMIZE_HEIGHT,
+                height: ACTIONBAR_MINIMIZE_HEIGHT,
                 // width: 700,
                 prompt: '> ',
                 history: true,
@@ -184,12 +196,12 @@ var WorksheetActionBar = React.createClass({
                         self.props.handleFocus();
                         return false;
                     }
-                    term.resize(term.width(), MINIMIZE_HEIGHT);
+                    term.resize(term.width(), ACTIONBAR_MINIMIZE_HEIGHT);
                     self.props.handleBlur();
                 },
                 onFocus: function(term){
                     if(!term.data('resizing')){
-                        term.resize(term.width(), 170);
+                        term.resize(term.width(), ACTIONBAR_DRAGHEIGHT);
                     }
                     self.props.handleFocus();
                 },
@@ -234,7 +246,8 @@ var WorksheetActionBar = React.createClass({
             if(65 < actionbarHeight && actionbarHeightPercentage < 90){ // minimum height: 65px; maximum height: 90% of worksheet height
                 worksheetPanel.removeClass('actionbar-focus').addClass('actionbar-resized');;
                 actionbar.css('height', actionbarHeight);
-                commandLine.terminal().resize(commandLine.width(), actionbarHeight - 20);
+                ACTIONBAR_DRAGHEIGHT = actionbarHeight - 20
+                commandLine.terminal().resize(commandLine.width(), ACTIONBAR_DRAGHEIGHT);
                 worksheetPanel.css('padding-top', actionbarHeight);
             }
         });
