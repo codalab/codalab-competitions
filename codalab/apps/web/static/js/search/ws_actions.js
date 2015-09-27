@@ -55,7 +55,7 @@ var WorksheetActions =  function() {
         function cl(options, term, action_bar) {
           self.commands['cl'].executefn(options, term, action_bar);
         }
-
+        this.temp_holder = undefined, // used for other temp info from the aciton bar. Can be a multitude of things, alway reset to undefined.
         this.commands = {
             // Dictionary of terms that can be entered and acted
             // and the names of functions they call.
@@ -268,8 +268,8 @@ var WorksheetActions =  function() {
                         data: get_data,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            for(var uuid in data){
-                                var bundle = data[uuid];
+                            for(var uuid in data.bundles){
+                                var bundle = data.bundles[uuid];
                                 var user = bundle.owner_name; // owner is a string <username>(<user_id>)
                                 var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
@@ -335,24 +335,46 @@ var WorksheetActions =  function() {
                 edit_enabled: true,
                 autocomplete: function(options){ // is a promise must resolve and return a promise
                     var defer = jQuery.Deferred();
+                    var search_string = '';
+                    var worksheet_uuid = ws_obj.state.uuid;
+
+                    if(options.length == 3){
+                        search_string = options[options.length-1]
+                    }else{
+                        return defer.resolve([]); // return nothing they already have a bundle uuid
+                    }
+                    if(search_string.indexOf('0x') === 0){ // checking if uuid
+                        worksheet_uuid = undefined; // they are searching bundles show all
+                    }
                     var get_data = {
-                        search_string: options[options.length-1]
+                        search_string: search_string,
+                        worksheet_uuid: worksheet_uuid
                     };
                     $.ajax({
                         type: 'GET',
                         url: '/api/bundles/search/',
                         dataType: 'json',
                         data: get_data,
+                        context: this,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            for(var uuid in data){
-                                var bundle = data[uuid];
+                            console.log("info ajax success");
+                            console.log(data);
+                            for(var uuid in data.bundles){
+                                var bundle = data.bundles[uuid];
                                 var user = bundle.owner_name; // owner is a string <username>(<user_id>)
                                 var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
+                                var text = '';
+                                if(data.search_string.indexOf("0x") == 0){
+                                    text = uuid
+                                }else{ // search a word, lets match on that word
+                                    text = bundle.metadata.name
+                                    self.temp_holder = uuid;
+                                }
                                 autocomplete_list.push({
-                                    'text': uuid,
+                                    'text': text,
                                     'display':  uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
                                 });
                             }
@@ -398,11 +420,16 @@ var WorksheetActions =  function() {
                         }// end of if ^x
 
                         // default handlers
+                        if(self.temp_holder){ // go set from name in lookup
+                            bundle_uuid = self.temp_holder;
+                            self.temp_holder = undefined;
+                        }
                         if(bundle_uuid.length > 33){ // a full uuid
                             var location = '/bundles/' + bundle_uuid + '/';
                             window.open(location,'_blank');
                             output = "loading info page..."
                         }else{
+                            // find uuid
                             output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>";
                         }
                     }
