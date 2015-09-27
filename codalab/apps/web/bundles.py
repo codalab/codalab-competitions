@@ -145,7 +145,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                         if item['interpreted'] is None:
                             item['interpreted'] = ['MISSING']
                         else:
-                            map(base64.b64decode, item['interpreted'])
+                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
                     elif item['mode'] == 'table':
                         for row_map in item['interpreted'][1]:
                             for k, v in row_map.iteritems():
