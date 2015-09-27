@@ -141,7 +141,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
                         # item['name'] in ['stdout', 'stderr']
-                        item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                        if item['interpreted'] is None:
+                            item['interpreted'] = ['MISSING']
+                        else:
+                            map(base64.b64decode, item['interpreted'])
                     elif item['mode'] == 'table':
                         for row_map in item['interpreted'][1]:
                             for k, v in row_map.iteritems():
