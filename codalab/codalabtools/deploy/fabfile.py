@@ -548,8 +548,10 @@ def get_database_dump():
 @task
 def update_compute_worker():
     run('cd codalab && git pull --rebase')
-    sudo('stop codalab-compute-worker')
-    sudo('start codalab-compute-worker')
+    sudo("stop codalab-compute-worker")
+    sudo("stop codalab-monitor")
+    sudo("start codalab-compute-worker")
+    sudo("start codalab-monitor")
 
 
 @task
@@ -605,6 +607,58 @@ def add_swap_config_and_restart():
     with settings(warn_only=True):
         sudo("umount /mnt")
         sudo("service walinuxagent restart")
+
+
+@task
+def setup_compute_worker_and_monitoring():
+    '''
+    For monitoring make sure the azure instance has the port 8000 forwarded
+    '''
+    password = os.environ.get('CODALAB_COMPUTE_MONITOR_PASSWORD', None)
+    assert password, "CODALAB_COMPUTE_MONITOR_PASSWORD environment variable required to setup compute workers!"
+
+    run("source /home/azureuser/venv/bin/activate && pip install bottle==0.12.8")
+
+    put(
+        local_path='configs/upstart/codalab-compute-worker.conf',
+        remote_path='/etc/init/codalab-compute-worker.conf',
+        use_sudo=True
+    )
+    put(
+        local_path='configs/upstart/codalab-monitor.conf',
+        remote_path='/etc/init/codalab-monitor.conf',
+        use_sudo=True
+    )
+    run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % password)
+
+    with settings(warn_only=True):
+        sudo("stop codalab-compute-worker")
+        sudo("stop codalab-monitor")
+        sudo("start codalab-compute-worker")
+        sudo("start codalab-monitor")
+
+
+@task
+def setup_compute_worker_user():
+    # Steps to setup compute worker:
+    #   1) setup_compute_worker_user (only run this once as it creates a user and will probably fail if re-run)
+    #   2) setup_compute_worker_permissions
+    #   3) setup_compute_worker_and_monitoring
+    sudo('adduser --quiet --disabled-password --gecos "" workeruser')
+    sudo('echo workeruser:password | chpasswd')
+
+
+@task
+def setup_compute_worker_permissions():
+    # Make the /codalabtemp/ files readable
+    sudo("apt-get install bindfs")
+    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+
+    # Make private stuff private
+    sudo("chown -R azureuser:azureuser ~/codalab")
+    sudo("chmod -R 700 ~/codalab")
+    sudo("chown azureuser:azureuser ~/.codalabconfig")
+    sudo("chmod 700 ~/.codalabconfig")
 
 
 def setup_env():
