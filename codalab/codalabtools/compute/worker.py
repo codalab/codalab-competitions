@@ -226,12 +226,10 @@ def get_run_func(config):
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
-        #try:
-        #    running_processes = subprocess.check_output(["fuser", temp_dir])
-        #except subprocess.CalledProcessError, e:
-        #    running_processes = ''
-        #    print e.output
-        running_processes=''
+        try:
+           running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError, e:
+           running_processes = ''
         debug_metadata = {
             "hostname": socket.gethostname(),
 
