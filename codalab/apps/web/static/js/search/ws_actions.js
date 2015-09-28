@@ -343,9 +343,6 @@ var WorksheetActions =  function() {
                     }else{
                         return defer.resolve([]); // return nothing they already have a bundle uuid
                     }
-                    if(search_string.indexOf('0x') === 0){ // checking if uuid
-                        worksheet_uuid = undefined; // they are searching bundles show all
-                    }
                     var get_data = {
                         search_string: search_string,
                         worksheet_uuid: worksheet_uuid
@@ -358,12 +355,10 @@ var WorksheetActions =  function() {
                         context: this,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            console.log("info ajax success");
-                            console.log(data);
                             for(var uuid in data.bundles){
                                 var bundle = data.bundles[uuid];
-                                var user = bundle.owner_name; // owner is a string <username>(<user_id>)
-                                var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                                var user = bundle.owner_name;  // owner is a string <username>(<user_id>)
+                                var created_date = new Date(0);  // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
                                 var text = '';
