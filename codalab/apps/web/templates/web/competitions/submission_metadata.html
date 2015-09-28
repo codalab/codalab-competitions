@@ -27,6 +27,7 @@
                     <td width="150">Date</td>
                     <td>Compute worker</td>
                     <td>Submission ID#</td>
+                    <td>Status</td>
                     <td>Prediction/Scoring?</td>
                     <td>Running processes (in temp dir)</td>
                     <td>Start RAM</td>
@@ -46,6 +47,7 @@
                             <td>{{ metadata.submission.submitted_at|date:"Y-m-d h:m" }}</td>
                             <td>{{ metadata.hostname }}</td>
                             <td>{{ metadata.submission.pk }}</td>
+                            <td>{{ metadata.submission.status }}</td>
                             <td>{% if metadata.is_predict %}Prediction{% else %}Scoring{% endif %}</td>
                             <td>{{ metadata.simple.processes_running_in_temp_dir }}</td>
                             <td>{{ metadata.simple.beginning_virtual_memory_usage }}</td>
