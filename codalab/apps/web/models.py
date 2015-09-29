@@ -1334,9 +1334,12 @@ class CompetitionDefBundle(models.Model):
                     phase.scoring_program_organizer_dataset = data_set_cache[phase_spec['scoring_program']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for scoring_program with key %s", phase_spec["scoring_program"])
-                    data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
-                    phase.scoring_program = data_set.data_file.file.name
-                    phase.scoring_program_organizer_dataset = data_set
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["scoring_program"])
+                        phase.scoring_program = data_set.data_file.file.name
+                        phase.scoring_program_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["scoring_program"]
 
             if hasattr(phase, 'reference_data') and phase.reference_data:
                 if phase_spec["reference_data"].endswith(".zip"):
@@ -1354,9 +1357,12 @@ class CompetitionDefBundle(models.Model):
                     phase.reference_data_organizer_dataset = data_set_cache[phase_spec['reference_data']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for reference_data with key %s", phase_spec["reference_data"])
-                    data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
-                    phase.reference_data = data_set.data_file.file.name
-                    phase.reference_data_organizer_dataset = data_set
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["reference_data"])
+                        phase.reference_data = data_set.data_file.file.name
+                        phase.reference_data_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["reference_data"]
 
             if 'input_data' in phase_spec:
                 if phase_spec["input_data"].endswith(".zip"):
@@ -1374,9 +1380,12 @@ class CompetitionDefBundle(models.Model):
                     phase.input_data_organizer_dataset = data_set_cache[phase_spec['input_data']]
                 else:
                     logger.debug("CompetitionDefBundle::unpack getting dataset for input_data with key %s", phase_spec["input_data"])
-                    data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
-                    phase.input_data = data_set.data_file.file.name
-                    phase.input_data_organizer_dataset = data_set
+                    try:
+                        data_set = OrganizerDataSet.objects.get(key=phase_spec["input_data"])
+                        phase.input_data = data_set.data_file.file.name
+                        phase.input_data_organizer_dataset = data_set
+                    except OrganizerDataSet.DoesNotExist:
+                        assert False, "OrganizerDataSet (%s) could not be found" % phase_spec["input_data"]
 
             phase.auto_migration = bool(phase_spec.get('auto_migration', False))
             phase.save()

@@ -8,7 +8,10 @@ import datetime
 import logging
 import logging.config
 import os
+import platform
 import psutil
+import pwd
+import grp
 import signal
 import math
 import select
@@ -188,6 +191,13 @@ def alarm_handler(signum, frame):
     raise ExecutionTimeLimitExceeded
 
 
+def demote(user='workeruser'):
+    def result():
+        os.setgid(grp.getgrnam(user).gr_gid)
+        os.setuid(pwd.getpwnam(user).pw_uid)
+    return result
+
+
 def get_run_func(config):
     """
     Returns the function to invoke in order to do a run given the specified configuration.
@@ -217,9 +227,9 @@ def get_run_func(config):
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
         try:
-            running_processes = subprocess.check_output(["fuser", temp_dir])
-        except subprocess.CalledProcessError:
-            running_processes = ''
+           running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError, e:
+           running_processes = ''
         debug_metadata = {
             "hostname": socket.gethostname(),
 
@@ -315,10 +325,10 @@ def get_run_func(config):
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 # Update command-line with the real paths
                 logger.debug("CMD: %s", prog_cmd)
-                prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
-                                    .replace("$input", join('.', 'input')) \
-                                    .replace("$output", join('.', 'output')) \
-                                    .replace("$tmp", join('.', 'temp')) \
+                prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
+                                    .replace("$input", join(run_dir, 'input')) \
+                                    .replace("$output", join(run_dir, 'output')) \
+                                    .replace("$tmp", join(run_dir, 'temp')) \
                                     .replace("/", os.path.sep) \
                                     .replace("\\", os.path.sep)
                 logger.debug("Invoking program: %s", prog_cmd)
@@ -327,7 +337,23 @@ def get_run_func(config):
                 exit_code = None
                 timed_out = False
 
-                evaluator_process = Popen(prog_cmd.split(' '), stdout=stdout, stderr=stderr, env=os.environ)
+                if 'Darwin' not in platform.platform():
+                    prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/venv/bin/python"))
+                    # Run as separate user
+                    evaluator_process = Popen(
+                        prog_cmd.split(' '),
+                        preexec_fn=demote(),  # this pre-execution function drops into a lower user
+                        stdout=stdout,
+                        stderr=stderr,
+                        env=os.environ
+                    )
+                else:
+                    evaluator_process = Popen(
+                        prog_cmd.split(' '),
+                        stdout=stdout,
+                        stderr=stderr,
+                        env=os.environ
+                    )
 
                 logger.debug("Started process, pid=%s" % evaluator_process.pid)
 
