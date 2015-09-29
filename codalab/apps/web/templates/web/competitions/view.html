@@ -200,6 +200,7 @@
                                 <thead>
                                     <tr>
                                         <th width="40" data-sort="int"><b>#</b></th>
+                                        <th width="40" data-sort="int"><b>Submission Id</b></th>
                                         <th width="125" data-sort="string"><b>User</b></th>
                                         <th width="75" data-sort="string"><b>Phase</b></th>
                                         <th width="125" data-sort="string"><b>Date</b></th>
@@ -219,6 +220,7 @@
                                     {% for submission in public_submissions %}
                                     <tr data-on-leaderboard="{% if submission.leaderboard_entry_result.count %}true{% endif %}">
                                         <td>{{ forloop.counter }}</td>
+                                        <td>{{ submission.id }}</td>
                                         <td><b>{{ submission.participant.user.username }}</b></td>
                                         <td>{{ submission.phase.phasenumber }}</td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
