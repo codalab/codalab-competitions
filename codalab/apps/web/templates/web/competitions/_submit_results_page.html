@@ -65,6 +65,7 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th>Submission Id</th>
                     <th>Filename</th>
                     <th>Submission date</th>
                     <th>Status</th>
@@ -98,6 +99,7 @@
                             <input type="hidden" name="state" value='0' />
                         {% endif %}
                         <td>{{submission_info.number}}</td>
+                        <td>{{ submission_info.id}}</td>
                         <td>{{submission_info.filename}}</td>
                         <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
                         <td class="statusName">{{submission_info.status_name}}</td>
