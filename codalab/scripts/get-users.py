@@ -3,11 +3,8 @@ import sys
 import os.path
 import os
 
-# This is a really, really long way around saying that if the script is in
-# codalab\scripts\users.py, we need to add, ../../../codalab to the
-# sys.path to find the settings
-root_dir = os.path.join(os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
+# Find the root codalab directory and add it to the settings.
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
 
 # Set things for django configurations
@@ -24,4 +21,4 @@ User = get_user_model()
 
 # Print out users.
 for x in User.objects.all():
-    print >>out, '\t'.join(map(str, [x.id, x.username, x.email, x.date_joined, x.last_login]))
+    print '\t'.join(map(str, [x.id, x.username, x.email, x.date_joined, x.last_login]))
