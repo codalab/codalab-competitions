@@ -12,14 +12,11 @@ from django.conf import settings
 from django.core import mail
 # from django.core.urlresolvers import reverse
 
-from apps.web.models import (Competition,
-                             CompetitionParticipant,
-                             CompetitionPhase,
-                             CompetitionSubmission,
-                             CompetitionSubmissionStatus,
-                             ParticipantStatus
-                             )
-from .tasks import update_submission_task
+from apps.jobs.models import Job
+from apps.web.models import Competition, CompetitionParticipant, CompetitionPhase, CompetitionSubmission, \
+    CompetitionSubmissionStatus, ParticipantStatus
+
+from ..tasks import update_submission_task
 
 
 User = get_user_model()
@@ -28,12 +25,9 @@ User = get_user_model()
 class SendEmailTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(
-            email='test@user.com', username='testuser')
-        self.other_user = User.objects.create(
-            email='other@user.com', username='other')
-        self.competition = Competition.objects.create(
-            creator=self.user, modified_by=self.user)
+        self.user = User.objects.create(email='test@user.com', username='testuser')
+        self.other_user = User.objects.create(email='other@user.com', username='other')
+        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
         self.participant_1 = CompetitionParticipant.objects.create(
             user=self.user,
             competition=self.competition,
@@ -77,12 +71,14 @@ class SendEmailTest(TestCase):
         self.client = Client()
 
     def test_send_email_confirmation(self):
+        job = Job.objects.create_job('evaluate_submission', {})
         sender = settings.DEFAULT_FROM_EMAIL
         receiver = self.user.email
 
         # mail.send_mail('Submission Confirmation', 'Submission has finished',
         #                sender, [receiver],
         #                fail_silently=False)
+        update_submission_task(job.pk, job.get_task_args())
 
         self.assertEquals(len(mail.outbox), 1)
         self.assertEquals(mail.outbox[0].to, [receiver])
