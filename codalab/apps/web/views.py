@@ -851,6 +851,10 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'name': 'submitted_by'
             },
             {
+                'label': 'SUBMISSION ID',
+                'name': 'submission_pk'
+            },
+            {
                 'label': 'FILENAME',
                 'name': 'filename'
             },
@@ -885,6 +889,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'exception_details': submission.exception_details,
                 'description': submission.description,
                 'is_public': submission.is_public,
+                'submission_pk': submission.id,
             }
             # add score groups into data columns
             if (submission_info['is_in_leaderboard'] == True):
