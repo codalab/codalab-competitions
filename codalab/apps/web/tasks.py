@@ -11,8 +11,9 @@ import zipfile
 from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
+from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
-from django.core.mail import get_connection, EmailMultiAlternatives
+from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
 from django.db import transaction
 from django.db.models import Count
 from django.template import Context
@@ -458,6 +459,18 @@ def update_submission_task(job_id, args):
                     logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 result = Job.FINISHED
+
+                if submission.participant.user.email_on_submission_finished_successfully:
+                    email = submission.participant.user.email
+                    site_url = "https://%s%s" % (Site.objects.get_current().domain, submission.phase.competition.get_absolute_url())
+                    send_mail(
+                        'Submission has finished successfully!',
+                        'Your submission to the competition "%s" has finished successfully! View it here: %s' %
+                        (submission.phase.competition.title, site_url),
+                        settings.DEFAULT_FROM_EMAIL,
+                        [email],
+                        fail_silently=False
+                    )
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
