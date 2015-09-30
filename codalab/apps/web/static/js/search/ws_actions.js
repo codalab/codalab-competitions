@@ -344,35 +344,33 @@ var WorksheetActions =  function() {
                         return defer.resolve([]); // return nothing they already have a bundle uuid
                     }
                     var get_data = {
-                        search_string: search_string,
                         worksheet_uuid: worksheet_uuid
                     };
+
                     $.ajax({
                         type: 'GET',
-                        url: '/api/bundles/search/',
+                        url: '/api/worksheets/bundle_list/',
                         dataType: 'json',
                         data: get_data,
-                        context: this,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            for(var uuid in data.bundles){
-                                var bundle = data.bundles[uuid];
+                            data.bundles.forEach(function(bundle){
                                 var user = bundle.owner_name;  // owner is a string <username>(<user_id>)
                                 var created_date = new Date(0);  // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
                                 var text = '';
-                                if(data.search_string.indexOf("0x") == 0){
-                                    text = uuid
+                                if(search_string.indexOf("0x") == 0){
+                                    text = bundle.uuid
                                 }else{ // search a word, lets match on that word
                                     text = bundle.metadata.name
-                                    self.temp_holder = uuid;
+                                    self.temp_holder = bundle.uuid;
                                 }
                                 autocomplete_list.push({
                                     'text': text,
-                                    'display':  uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                    'display':  bundle.uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
                                 });
-                            }
+                            });  // end of forEach
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){

@@ -87,6 +87,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             bundle_infos = self.client.get_bundle_infos(bundle_uuids)
             return bundle_infos
 
+        def get_worksheet_bundles(self, worksheet_uuid):
+            worksheet_info = self.client.get_worksheet_info(worksheet_uuid, True, True)
+            bundle_info_list = []
+            for (bundle_info, subworksheet_info, value_obj, item_type) in worksheet_info['items']:
+                if item_type == worksheet_util.TYPE_BUNDLE:
+                    bundle_info_list.append(bundle_info)
+            return bundle_info_list
+
         def worksheets(self):
             return _call_with_retries(lambda: self.client.list_worksheets())
 

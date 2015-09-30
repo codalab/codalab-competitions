@@ -212,6 +212,23 @@ class WorksheetsGetUUIDApi(views.APIView):
             return Response({"error": smart_str(e)}, status=500)
 
 
+class WorksheetsGetBundleListApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        worksheet_uuid = request.GET.get('worksheet_uuid', '')
+        logger.debug("WorksheetsGetBundleListApi: user_id=%s; worksheet_uuid=%s.", user_id, worksheet_uuid)
+        service = BundleService(self.request.user)
+        try:
+            bundle_list = service.get_worksheet_bundles(worksheet_uuid)
+            return Response({'bundles': bundle_list}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
 
 class WorksheetContentApi(views.APIView):
     """
