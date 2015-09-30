@@ -3,10 +3,13 @@ from django.contrib.auth import models as auth_models
 
 
 class ClUser(auth_models.AbstractUser):
+    # Notification settings
     participation_status_updates = models.BooleanField(default=True)
     organizer_status_updates = models.BooleanField(default=True)
     organizer_direct_message_updates = models.BooleanField(default=True)
+    email_on_submission_finished_successfully = models.BooleanField(default=False)
 
+    # Profile details
     organization_or_affiliation = models.CharField(max_length=255, null=True, blank=True)
 
     team_name = models.CharField(max_length=64, null=True, blank=True)
