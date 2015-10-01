@@ -354,6 +354,7 @@ var WorksheetActions =  function() {
                         data: get_data,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
+                            self.temp_holder = data.bundles
                             data.bundles.forEach(function(bundle){
                                 var user = bundle.owner_name;  // owner is a string <username>(<user_id>)
                                 var created_date = new Date(0);  // The 0 there is the key, which sets the date to the epoch
@@ -364,7 +365,6 @@ var WorksheetActions =  function() {
                                     text = bundle.uuid
                                 }else{ // search a word, lets match on that word
                                     text = bundle.metadata.name
-                                    self.temp_holder = bundle.uuid;
                                 }
                                 autocomplete_list.push({
                                     'text': text,
@@ -414,17 +414,33 @@ var WorksheetActions =  function() {
 
                         // default handlers
                         if(self.temp_holder){ // go set from name in lookup
-                            bundle_uuid = self.temp_holder;
+                            // if we have a temp_holder we have a list of bundles in the ws from autocomplete
+                            // bundle_uuid is reallly a name of the bundle.
+                            // need to match it
+                            var temp_bundle_uuid;
+                            for (var i = 0; i < self.temp_holder.length; ++i) {
+                                var bundle = self.temp_holder[i];
+                                if(bundle.metadata.name === bundle_uuid ){
+                                    temp_bundle_uuid = bundle.uuid
+                                    break;
+                                }
+                            }
+                            if(temp_bundle_uuid){ // did we match?
+                                bundle_uuid = temp_bundle_uuid
+                            }else{// no match found
+                                output = output || "<span style='color:red'>No bundle match found</span>";
+                            }
                             self.temp_holder = undefined;
                         }
                         if(bundle_uuid.length > 33){ // a full uuid
-                            var location = '/bundles/' + bundle_uuid + '/';
-                            window.open(location,'_blank');
-                            output = "loading info page..."
+                                var location = '/bundles/' + bundle_uuid + '/';
+                                window.open(location,'_blank');
+                                output = "loading info page..."
                         }else{
                             // find uuid
-                            output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>";
+                            output = output || "<span style='color:red'>Error: Please enter a full uuid or a name. (note you can press tab to autocomplete a uuid or name if valid)</span>";
                         }
+
                     }
                     term.echo(output, {raw: true});
                     return defer.promise();
