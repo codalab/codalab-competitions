@@ -55,7 +55,7 @@ var WorksheetActions =  function() {
         function cl(options, term, action_bar) {
           self.commands['cl'].executefn(options, term, action_bar);
         }
-
+        this.temp_holder = undefined, // used for other temp info from the aciton bar. Can be a multitude of things, alway reset to undefined.
         this.commands = {
             // Dictionary of terms that can be entered and acted
             // and the names of functions they call.
@@ -174,6 +174,7 @@ var WorksheetActions =  function() {
                 },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
+
                     if(options[1]){
                         if(options[1].length > 33){ // a full uuid
                             defer.resolve()
@@ -208,7 +209,8 @@ var WorksheetActions =  function() {
                             });
                             // term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
                         }
-
+                    }else{// no options, resolve
+                        defer.resolve()
                     }
                     return defer.promise();
                 },
@@ -268,8 +270,8 @@ var WorksheetActions =  function() {
                         data: get_data,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            for(var uuid in data){
-                                var bundle = data[uuid];
+                            for(var uuid in data.bundles){
+                                var bundle = data.bundles[uuid];
                                 var user = bundle.owner_name; // owner is a string <username>(<user_id>)
                                 var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
@@ -335,27 +337,42 @@ var WorksheetActions =  function() {
                 edit_enabled: true,
                 autocomplete: function(options){ // is a promise must resolve and return a promise
                     var defer = jQuery.Deferred();
+                    var search_string = '';
+                    var worksheet_uuid = ws_obj.state.uuid;
+
+                    if(options.length == 3){
+                        search_string = options[options.length-1]
+                    }else{
+                        return defer.resolve([]); // return nothing they already have a bundle uuid
+                    }
                     var get_data = {
-                        search_string: options[options.length-1]
+                        worksheet_uuid: worksheet_uuid
                     };
+
                     $.ajax({
                         type: 'GET',
-                        url: '/api/bundles/search/',
+                        url: '/api/worksheets/bundle_list/',
                         dataType: 'json',
                         data: get_data,
                         success: function(data, status, jqXHR){
                             var autocomplete_list = [];
-                            for(var uuid in data){
-                                var bundle = data[uuid];
-                                var user = bundle.owner_name; // owner is a string <username>(<user_id>)
-                                var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                            self.temp_holder = data.bundles
+                            data.bundles.forEach(function(bundle){
+                                var user = bundle.owner_name;  // owner is a string <username>(<user_id>)
+                                var created_date = new Date(0);  // The 0 there is the key, which sets the date to the epoch
                                 created_date.setUTCSeconds(bundle.metadata.created);
                                 created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
+                                var text = '';
+                                if(search_string.indexOf("0x") == 0){
+                                    text = bundle.uuid
+                                }else{ // search a word, lets match on that word
+                                    text = bundle.metadata.name
+                                }
                                 autocomplete_list.push({
-                                    'text': uuid,
-                                    'display':  uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
+                                    'text': text,
+                                    'display':  bundle.uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
                                 });
-                            }
+                            });  // end of forEach
                             defer.resolve(autocomplete_list)
                         },
                         error: function(jqHXR, status, error){
@@ -398,13 +415,34 @@ var WorksheetActions =  function() {
                         }// end of if ^x
 
                         // default handlers
-                        if(bundle_uuid.length > 33){ // a full uuid
-                            var location = '/bundles/' + bundle_uuid + '/';
-                            window.open(location,'_blank');
-                            output = "loading info page..."
-                        }else{
-                            output = output || "<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>";
+                        if(self.temp_holder){ // go set from name in lookup
+                            // if we have a temp_holder we have a list of bundles in the ws from autocomplete
+                            // bundle_uuid is reallly a name of the bundle.
+                            // need to match it
+                            var temp_bundle_uuid;
+                            for (var i = 0; i < self.temp_holder.length; ++i) {
+                                var bundle = self.temp_holder[i];
+                                if(bundle.metadata.name === bundle_uuid ){
+                                    temp_bundle_uuid = bundle.uuid
+                                    break;
+                                }
+                            }
+                            if(temp_bundle_uuid){ // did we match?
+                                bundle_uuid = temp_bundle_uuid
+                            }else{// no match found
+                                output = output || "<span style='color:red'>No bundle match found</span>";
+                            }
+                            self.temp_holder = undefined;
                         }
+                        if(bundle_uuid.length > 33){ // a full uuid
+                                var location = '/bundles/' + bundle_uuid + '/';
+                                window.open(location,'_blank');
+                                output = "loading info page..."
+                        }else{
+                            // find uuid
+                            output = output || "<span style='color:red'>Error: Please enter a full uuid or a name. (note you can press tab to autocomplete a uuid or name if valid)</span>";
+                        }
+
                     }
                     term.echo(output, {raw: true});
                     return defer.promise();

@@ -26,12 +26,17 @@ var WorksheetBundle = React.createClass({
         var className = 'type-worksheet' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
         var ws_url = '/worksheets/' + item.uuid;
+
+        var worksheet_display = item.name
+        if(item.title){
+            worksheet_display =  item.name + ": " + item.title
+        }
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 {checkbox}
                 <div className={className}>
                     <a href={ws_url} target="_blank">
-                        {item.name}
+                        {worksheet_display}
                     </a>
                 </div>
             </div>

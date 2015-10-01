@@ -13,14 +13,6 @@ var WorksheetActionBar = React.createClass({
     // ********************************************
     componentDidMount: function(){
         // https://github.com/jcubic/jquery.terminal
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
-        console.log("setting hight");
         var self = this;
         $('#dragbar_horizontal').mousedown(function(e){
             self.resizePanel(e);
