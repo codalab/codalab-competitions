@@ -212,6 +212,23 @@ class WorksheetsGetUUIDApi(views.APIView):
             return Response({"error": smart_str(e)}, status=500)
 
 
+class WorksheetsGetBundleListApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        worksheet_uuid = request.GET.get('worksheet_uuid', '')
+        logger.debug("WorksheetsGetBundleListApi: user_id=%s; worksheet_uuid=%s.", user_id, worksheet_uuid)
+        service = BundleService(self.request.user)
+        try:
+            bundle_list = service.get_worksheet_bundles(worksheet_uuid)
+            return Response({'bundles': bundle_list}, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
 
 class WorksheetContentApi(views.APIView):
     """
@@ -381,7 +398,29 @@ class BundleSearchApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_infos = service.search_bundles(search_string.split(' '), worksheet_uuid)
-            return Response(bundle_infos, content_type="application/json")
+            data = {
+                "bundles": bundle_infos,
+                "search_string": search_string
+            }
+            return Response(data, content_type="application/json")
+        except Exception as e:
+            tb = traceback.format_exc()
+            log_exception(self, e, tb)
+            return Response({"error": smart_str(e)}, status=500)
+
+class BundleGetUUIDApi(views.APIView):
+    """
+    Provides a web API to obtain a bundle's primary information.
+    """
+    def get(self, request):
+        user_id = self.request.user.id
+        bundle_spec = request.GET.get('spec', '')
+        worksheet_uuid = request.GET.get('worksheet_uuid', None)
+        logger.debug("BundleGetUUIDApi: user_id=%s; spec=%s. worksheet_uuid=%s", user_id, bundle_spec, worksheet_uuid)
+        service = BundleService(self.request.user)
+        try:
+            bundle_uuid = service.get_bundle_uuid(bundle_spec, worksheet_uuid)
+            return Response({'uuid': bundle_uuid}, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
