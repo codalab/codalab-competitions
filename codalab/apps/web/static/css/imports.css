@@ -1351,9 +1351,7 @@ kbd kbd {
 }
 pre {
   display: block;
-  padding-top: 12px;
-  padding-left: 3px;
-  text-indent: 9px;  // so that there is no extra space and padding is the same
+  padding: 12px;
   margin: 0 0 12.5px;
   font-size: 15px;
   line-height: 1.6;
