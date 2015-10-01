@@ -174,6 +174,7 @@ var WorksheetActions =  function() {
                 },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
+
                     if(options[1]){
                         if(options[1].length > 33){ // a full uuid
                             defer.resolve()
@@ -208,7 +209,8 @@ var WorksheetActions =  function() {
                             });
                             // term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
                         }
-
+                    }else{// no options, resolve
+                        defer.resolve()
                     }
                     return defer.promise();
                 },
