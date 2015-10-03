@@ -220,6 +220,22 @@ var TableBundle = React.createClass({
         });
         var focusIndex = this.state.rowFocusIndex;
         var row_items = item.interpreted[1];
+        /* row_items is an array of objects containing table content.
+        For instance row_items may be Array[1] where
+        object0 = {
+            Parameters = {
+                path: "/output",
+                text: "params",
+                uuid: "0xdafcc128243d46fb8a7f76926148ed7a
+            }
+            uuid: "0xdafcc128243d46fb8a7f76926148ed7a"
+         } */
+        var column_with_hyperlinks = [];
+        (Object.keys(row_items[0])).forEach(function(x) {
+            if (typeof row_items[0][x] === 'object' && 'path' in row_items[0][x]){
+                column_with_hyperlinks.push(x);
+            }
+        })
         var body_rows_html = row_items.map(function(row_item, index) {
             var row_ref = 'row' + index;
             var rowFocused = index === focusIndex;
@@ -231,11 +247,13 @@ var TableBundle = React.createClass({
                             index={index}
                             focused={rowFocused}
                             bundleURL={bundle_url}
+                            bundleUuid={bundle_info[index].uuid}
                             headerItems={header_items}
                             columnClasses={column_classes}
                             canEdit={canEdit}
                             checkboxEnabled={focused}
                             handleClick={self.focusOnRow}
+                            columnWithHyperlinks={column_with_hyperlinks}
                     />
         });
         return(
@@ -276,12 +294,15 @@ var TableRow = React.createClass({
         var header_items = this.props.headerItems;
         var column_classes = this.props.columnClasses;
         var bundle_url = this.props.bundleURL;
+        var bundle_uuid = this.props.bundleUuid;
+        var column_with_hyperlinks = this.props.columnWithHyperlinks;
         var checkbox = this.props.canEdit ? <td className="td-checkbox"><input type="checkbox" onChange={this.toggleChecked} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /></td> : null;
         var row_cells = this.props.headerItems.map(function(header_key, index){
             // check if schema is link type  `% add stdout /stdout link`
             // will render out to "/api/bundles/-uuid-"
-            if(typeof row_items[header_key] === 'string'  && row_items[header_key].indexOf("/api/bundles/") != -1){
-                bundle_url = row_items[header_key]
+            var row_content = row_items[header_key];
+            if(typeof row_content === 'string'  && row_content.indexOf("/api/bundles/") != -1){
+                bundle_url = row_content
                 return (
                     <td key={index} className={column_classes[index]}>
                         <a href={bundle_url} className="bundle-link" target="_blank">
@@ -291,11 +312,25 @@ var TableRow = React.createClass({
                 )
             }
             // if first element we want to link to bundle
-            if(index == 0){
+            if(column_with_hyperlinks.indexOf(header_key) >= 0 || index == 0){
+                if(column_with_hyperlinks.indexOf(header_key) >= 0){
+                    bundle_url = '/api/bundles/filecontent/' + bundle_uuid + row_content['path'];
+                    if('text' in row_content){
+                        var content = row_content['text'];
+                    }
+                    else{
+                        // In case text doesn't exist, content will default to basename of the path
+                        // indexing 1 here since the path always starts with '/'
+                        var content = row_content['path'].split('/')[1];
+                    }
+                }
+                else{
+                    var content = row_content;
+                }
                 return (
                     <td key={index} className={column_classes[index]}>
                         <a href={bundle_url} className="bundle-link" target="_blank">
-                            {row_items[header_key]}
+                            {content}
                         </a>
                     </td>
                 )
