@@ -210,7 +210,7 @@ var WorksheetList = React.createClass({
         return (
             <div id="worksheet-list">
                 <div className="checkbox">
-                    {{ myWorksheetCheckbox }}
+                    {myWorksheetCheckbox}
                 </div>
                 {worksheetList}
             </div>
