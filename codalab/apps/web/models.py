@@ -584,6 +584,7 @@ class CompetitionPhase(models.Model):
     input_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="input_data_organizer_dataset", verbose_name="Input Data", on_delete=models.SET_NULL)
     reference_data_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="reference_data_organizer_dataset", verbose_name="Reference Data", on_delete=models.SET_NULL)
     scoring_program_organizer_dataset = models.ForeignKey('OrganizerDataSet', null=True, blank=True, related_name="scoring_program_organizer_dataset", verbose_name="Scoring Program", on_delete=models.SET_NULL)
+    phase_never_ends = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['phasenumber']
@@ -594,15 +595,18 @@ class CompetitionPhase(models.Model):
     @property
     def is_active(self):
         """ Returns true when this phase of the competition is on-going. """
-        next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
-        if (next_phase is not None) and (len(next_phase) > 0):
-            # there is a phase following this phase, thus this phase is active if the current date
-            # is between the start of this phase and the start of the next phase
-            return self.start_date <= now() and (now() < next_phase[0].start_date)
+        if self.phase_never_ends:
+            return True
         else:
-            # there is no phase following this phase, thus this phase is active if the current data
-            # is after the start date of this phase and the competition is "active"
-            return self.start_date <= now() and self.competition.is_active
+            next_phase = self.competition.phases.filter(phasenumber=self.phasenumber+1)
+            if (next_phase is not None) and (len(next_phase) > 0):
+                # there is a phase following this phase, thus this phase is active if the current date
+                # is between the start of this phase and the start of the next phase
+                return self.start_date <= now() and (now() < next_phase[0].start_date)
+            else:
+                # there is no phase following this phase, thus this phase is active if the current data
+                # is after the start date of this phase and the competition is "active"
+                return self.start_date <= now() and self.competition.is_active
 
     @property
     def is_future(self):

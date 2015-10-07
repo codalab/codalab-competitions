@@ -56,6 +56,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'input_data_organizer_dataset',
             'reference_data_organizer_dataset',
             'scoring_program_organizer_dataset',
+            'phase_never_ends',
         )
         widgets = {
             'leaderboard_management_mode' : forms.Select(

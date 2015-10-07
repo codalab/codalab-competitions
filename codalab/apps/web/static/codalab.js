@@ -686,6 +686,7 @@ var Competition;
                             var bibtex = $('#submission_bibtex').val() || '';
                             var team_name = $('#submission_team_name').val() || '';
                             var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
+                            var phase_id = $('#submission_phase_id').val();
 
                             $('#submission_description_textarea').val('');
                             $.ajax({
@@ -696,7 +697,8 @@ var Competition;
                                                                                       '&publication_url=' + encodeURIComponent(publication_url) +
                                                                                       '&team_name=' + encodeURIComponent(team_name) +
                                                                                       '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
-                                                                                      '&bibtex=' + encodeURIComponent(bibtex),
+                                                                                      '&bibtex=' + encodeURIComponent(bibtex) +
+                                                                                      '&phase_id=' + encodeURIComponent(phase_id),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
