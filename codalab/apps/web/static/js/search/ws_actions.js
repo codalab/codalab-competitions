@@ -98,6 +98,13 @@ var WorksheetActions =  function() {
                                 if (data.data.stdout){
                                     console.log(data.data.stdout);
                                     term.echo(data.data.stdout);
+                                    var references = data.data.structured_result['refs'];
+                                    Object.keys(references).forEach(function(k) {
+                                        $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
+                                            var link = '/' + references[k]['type'] + 's/' + references[k]['uuid'];
+                                            return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
+                                        });
+                                    }, this);
                                 }
                                 if (data.data.stderr){
                                     console.error(data.data.stderr);
