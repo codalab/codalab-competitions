@@ -208,7 +208,6 @@
                                         {% for label in competition.get_score_headers %}
                                             <td width="100" data-sort="string"><b>{{ label }}</b></td>
                                         {% endfor %}
-                                        <th width="100" data-sort="string"><b>Score</b></th>
                                         <th width="100" data-sort="string"><b>Likes</b></th>
                                         <th width="125" data-sort="string"><b>Downloads</b></th>
                                         {% if competition.enable_detailed_results %}
@@ -222,7 +221,7 @@
                                         <td>{{ forloop.counter }}</td>
                                         <td>{{ submission.id }}</td>
                                         <td><b>{{ submission.participant.user.username }}</b></td>
-                                        <td>{{ submission.phase.phasenumber }}</td>
+                                        <td>{{ submission.phase.label }}</td>
                                         <td>{{ submission.submitted_at|date:"M d Y" }}</td>
                                         <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
                                         {% for label, value in submission.get_scores_as_tuples %}
