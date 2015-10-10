@@ -194,7 +194,7 @@ var Worksheet = React.createClass({
         this.setState({updating:true});
         ws_obj.fetch({
             success: function(data){
-                console.log("fetch_and_update success");
+                // console.log("fetch_and_update success");
                 // console.log("%c--------------------------------------------------------------", "color: Green; font-size:15px;");
                 if(this.isMounted()){
                     this.refs.list.setState({worksheet: ws_obj.getState()});

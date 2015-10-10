@@ -485,9 +485,9 @@ var WorksheetContent = function() {
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log("WorksheetContent: setting worksheet state:");
-                console.log(data);
-                console.log('');
+                // console.log("WorksheetContent: setting worksheet state:");
+                // console.log(data);
+                // console.log('');
                 this.state = data;
                 var ws_items = [];
                 data.items.map(function(item){

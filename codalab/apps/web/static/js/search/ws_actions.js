@@ -90,21 +90,38 @@ var WorksheetActions =  function() {
                             dataType: 'json',
                             data: JSON.stringify(postdata),
                             success: function(data, status, jqXHR){
-                                console.log('===== Output of command: ' + options);
+                                // console.log('===== Output of command: ' + options);
                                 if (data.data.exception){
                                     console.error(data.data.exception);
                                     term.echo("<span style='color:red'>Error: " + data.data.exception +"</span>", {raw: true});
                                 }
                                 if (data.data.stdout){
-                                    console.log(data.data.stdout);
+                                    // console.log(data.data.stdout);
                                     term.echo(data.data.stdout);
-                                    var references = data.data.structured_result['refs'];
-                                    Object.keys(references).forEach(function(k) {
-                                        $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
-                                            var link = '/' + references[k]['type'] + 's/' + references[k]['uuid'];
-                                            return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
-                                        });
-                                    }, this);
+                                    if (data.data.structured_result && data.data.structured_result.refs) {
+                                        var references = data.data.structured_result['refs'];
+                                        Object.keys(references).forEach(function(k) {
+                                            $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
+                                                var hyperlink_info = references[k];
+                                                if (hyperlink_info.uuid) {
+                                                    if (hyperlink_info.type === 'bundle' || hyperlink_info.type === 'worksheet') {
+                                                        var link = '/' + hyperlink_info['type'] + 's/' + hyperlink_info['uuid'];
+                                                        return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
+                                                    }
+                                                    else {
+                                                        console.warn("Couldn't create hyperlink for", hyperlink_info.uuid, ". Type is neither 'worksheet' nor 'bundle'");
+                                                    }
+                                                }
+                                                else {
+                                                    console.warn("Complete uuid not available for", k, "to create hyperlink");
+                                                }
+                                            }, this);
+                                        }, this);
+                                    }
+                                    else {
+                                        console.warn("No extra information available to create hyperlinks");
+                                    }
+
                                 }
                                 if (data.data.stderr){
                                     console.error(data.data.stderr);
@@ -116,7 +133,7 @@ var WorksheetActions =  function() {
                                     }
 
                                 }
-                                console.log('=====');
+                                // console.log('=====');
                                 defer.resolve();
                                 action_bar.props.refreshWorksheet();
                             },

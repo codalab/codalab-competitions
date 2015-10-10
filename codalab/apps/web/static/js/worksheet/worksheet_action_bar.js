@@ -32,10 +32,10 @@ var WorksheetActionBar = React.createClass({
                 args = args.splice(1, args.length-1)
                 last = args[args.length-1];
 
-                console.log("entered command");
-                console.log(command);
-                console.log(args);
-                console.log("******* PARSE AND RUN *********");
+                // console.log("entered command");
+                // console.log(command);
+                // console.log(args);
+                // console.log("******* PARSE AND RUN *********");
 
                 if(typeof(command) == 'undefined'){  // no command
                     term.echo("<span style='color:red'>Error: not a CodaLab command. Try 'cl help'.</a>", {raw: true});
