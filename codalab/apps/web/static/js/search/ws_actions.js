@@ -121,7 +121,6 @@ var WorksheetActions =  function() {
                                     else {
                                         console.warn("No extra information available to create hyperlinks");
                                     }
-
                                 }
                                 if (data.data.stderr){
                                     console.error(data.data.stderr);
