@@ -269,7 +269,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
                 exception = None
                 try:
-                    cli.do_command(args)
+                    structured_result = cli.do_command(args)
                     success = True
                 except SystemExit as e:
                     pass  # stderr will will tell the user the error
@@ -288,7 +288,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 print '>>> general_command on worksheet %s: %s' % (worksheet_uuid, command)
                 print stdout_str
                 print stderr_str
-                return {'stdout': stdout_str, 'stderr': stderr_str, 'exception': str(exception) if exception else None}
+                return {'structured_result': structured_result, 'stdout': stdout_str, 'stderr': stderr_str, 'exception': str(exception) if exception else None}
             return _call_with_retries(do_command)
 
         MAX_BYTES = 1024*1024
