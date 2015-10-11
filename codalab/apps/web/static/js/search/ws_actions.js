@@ -118,10 +118,6 @@ var WorksheetActions =  function() {
                                             }, this);
                                         }, this);
                                     }
-                                    else {
-                                        console.warn("No extra information available to create hyperlinks");
-                                    }
-
                                 }
                                 if (data.data.stderr){
                                     //console.log(data.data.stderr);

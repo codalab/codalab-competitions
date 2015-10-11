@@ -6427,8 +6427,10 @@ fieldset[disabled] .btn-secondary.active {
   padding-left: 50px;
 }
 .worksheet-icon {
-  text-indent: 75px;
-  background: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
+  margin: 0px 0px 0px 0px;
+  display: inline-block;
+  float: left;
+  content: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
   line-height: 65px;
 }
 .bundle-icon-sm {
@@ -7738,26 +7740,31 @@ body,
 }
 #worksheet_content .worksheet-name {
   min-height: 65px;
+  padding: 0;
 }
 #worksheet_content .worksheet-name label input[type="checkbox"] {
   margin-right: 5px;
 }
-#worksheet_content .worksheet-name h1 {
+#worksheet_content .worksheet-title  {
   text-indent: 0;
   margin: 0;
   font-size: 44px;
-  line-height: 1em;
+  padding-left: 20px;
+  line-height: 1.1em;
   padding-top: 5px;
-  padding-left: 65px;
   min-height: 60px;
+  padding-bottom: 20px;
+}
+#worksheet_content .worksheet-name {
+  font-size: 14px;
+  margin-top: 0;
 }
 #worksheet_content .worksheet-name .worksheet-author {
   text-indent: 65px;
   font-size: 14px;
   margin-top: 0;
 }
-#worksheet_content .worksheet-name .worksheet-permission {
-  text-indent: 65px;
+#worksheet_content .worksheet-name .worksheet-detail {
   font-size: 12px;
   margin-top: 0;
 }
@@ -7766,7 +7773,6 @@ body,
 }
 #worksheet_content .header-row .controls {
   text-align: right;
-  padding-top: 12px;
 }
 #worksheet_content .header-row .controls .edit-features {
   margin-top: 8px;
