@@ -24,11 +24,11 @@ var Worksheet = React.createClass({
         return {
             activeComponent: 'list',
             editMode: false,
-            rawMode: false,
             showActionBar: true,
             editingText: false,
+            // Which worksheet items to be on
             focusIndex: -1,
-            subFocusIndex: 0,
+            subFocusIndex: 0,  // For tables
         };
     },
     _setfocusIndex: function(index){
@@ -53,16 +53,10 @@ var Worksheet = React.createClass({
         return ws_obj.getState().edit_permission;
     },
     viewMode: function(){
-        this.toggleEditing(false);
-        this.toggleRawMode(false);
+        this.toggleEditMode(false);
     },
     editMode: function(){
-        this.toggleEditing(true);
-        this.toggleRawMode(false);
-    },
-    rawMode: function(){
-        this.toggleEditing(false);
-        this.toggleRawMode(true);
+        this.toggleEditMode(true);
     },
     handleActionBarFocus: function(event){
         this.setState({activeComponent:'action'});
@@ -86,28 +80,22 @@ var Worksheet = React.createClass({
         Mousetrap.reset();// reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
-        // console.log(this.state.activeComponent );
-        if(this.state.activeComponent == 'action'){
+        if (this.state.activeComponent == 'action') {
             // no need for other keys, we have the action bar focused
             return;
         }
-        // No keyboard shortcuts are active in raw mode
-        if(this.state.rawMode){
-            Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
-                this.toggleRawMode();
+
+        // No keyboard shortcuts are active in edit mode
+        if (this.state.editMode) {
+            Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e) {
+                this.toggleEditMode();
             }.bind(this));
             return;
         }
-        //No keyboard shortcuts are active in editingText mode
-        if(this.state.editingText){
-            return;
-        }
-        // ? show help, but now while in search
-        if(this.state.activeComponent !== 'search'){
-            Mousetrap.bind(['?'], function(e){
-                $('#glossaryModal').modal('show');
-            });
-        }
+
+        Mousetrap.bind(['?'], function(e){
+            $('#glossaryModal').modal('show');
+        });
 
         Mousetrap.bind(['esc'], function(e){
             if($('#glossaryModal').hasClass('in')){
@@ -120,65 +108,45 @@ var Worksheet = React.createClass({
             return false;
         }.bind(this));
 
-        //toggle search bar - B
-        Mousetrap.bind(['shift+b'], function(e){
+        // Show/hide web terminal
+        Mousetrap.bind(['shift+c'], function(e){
             this.toggleActionBar();
         }.bind(this));
 
-         Mousetrap.bind(['c'], function(e){
-                this.showActionBar();
-                this.setState({activeComponent: 'action'});
-                $('#command_line').terminal().focus();
+        // Focus on web terminal (action bar)
+        Mousetrap.bind(['c'], function(e){
+            this.showActionBar();
+            this.setState({activeComponent: 'action'});
+            $('#command_line').terminal().focus();
         }.bind(this));
 
-        //toggle raw - F
-        Mousetrap.bind(['shift+f'], function(e){
-            this.toggleRawMode();
+        // Toggle edit mode
+        Mousetrap.bind(['e'], function(e){
+            this.toggleEditMode();
             return false;
         }.bind(this));
-
-        //turn on edit mode or turn it off - E
-        Mousetrap.bind(['shift+e'], function(e){
-            this.toggleEditing();
-        }.bind(this));
     },
-    toggleEditingText: function(arg){
-        this.setState({editingText: arg});
-    },
-    toggleEditing: function(arg){
-        if(typeof(arg) !== 'undefined'){
-            this.setState({editMode:arg});
-        }else {
-          this.setState({editMode:!this.state.editMode});
-        }
-    },
-    toggleRawMode: function(val){
-        if(typeof(val)=='undefined'){
-            if(this.state.rawMode){
-                ///TODO grab val the react way
-                ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                if(this.canEdit()){
-                    this.saveAndUpdateWorksheet(true);
-                }
+    toggleEditMode: function(editMode) {
+        if (typeof(editMode) == 'undefined')
+          editMode = !this.state.editMode;  // Toggle by default
 
-            }
-            this.setState({rawMode: !this.state.rawMode});
-        }else {
-            if(val==false){
-                if(this.canEdit()){
-                    ///TODO grab val the react way
-                    ws_obj.state.raw = $("#raw-textarea").val().split('\n');
-                    this.saveAndUpdateWorksheet(true);
-                }
-            }
-            this.setState({rawMode: val});
+        if (!editMode) {
+          // Going out of raw mode - save the worksheet.
+          if (this.canEdit()) {
+            // TODO: grab val the react way
+            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+            this.setState({editMode: editMode});  // Needs to be after getting the raw contents
+            this.saveAndUpdateWorksheet(true);
+          } else {
+            // Not allowed to save worksheet.
+          }
+        } else {
+          // Go into edit mode.
+          this.setState({editMode: editMode});  // Needs to be before focusing
+          this.setState({activeComponent: 'textarea'});
+          // TODO: set cursor intelligently rather than just leaving it at the beginning.
+          $("#raw-textarea").focus();
         }
-        //
-        if(this.state.rawMode){
-            this.setState({activeComponent:'textarea'});
-            $("#raw-textarea").focus();
-        }
-
     },
     toggleActionBar: function(){
         this.setState({showActionBar:!this.state.showActionBar});
@@ -234,7 +202,7 @@ var Worksheet = React.createClass({
                     $('#save_error').show();
                     $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
                     if(from_raw){
-                        this.toggleRawMode(true);
+                        this.toggleEditMode(true);
                     }
                 }else{
                     this.refreshWorksheet();
@@ -265,45 +233,46 @@ var Worksheet = React.createClass({
 
         var serachClassName     = searchHidden ? 'search-hidden' : '';
         var editableClassName   = canEdit ? 'editable' : '';
-        var viewClass           = !canEdit && !this.state.rawMode ? 'active' : '';
-        var editClass           = canEdit && !this.state.rawMode ? 'active' : '';
-        var rawClass            = this.state.rawMode ? 'active' : '';
-        var edit_btn = '';
-        if(editPermission){
+        var viewClass           = !canEdit && !this.state.editMode ? 'active' : '';
+        var editClass           = canEdit && !this.state.editMode ? 'active' : '';
+        var rawClass            = this.state.editMode ? 'active' : '';
+        /*var edit_btn = '';
+        if(editPermission) {
             edit_btn = <button className={editClass} onClick={this.editMode}>Edit</button>
-        }
-        editFeatures = (
-                <div className="edit-features">
-                    <label>Mode:</label>
-                    <div className="btn-group">
-                        <button className={viewClass} onClick={this.viewMode}>View</button>
-                        {edit_btn}
-                        <button className={rawClass} onClick={this.rawMode}>Raw Edit</button>
-                    </div>
+        }*/
+        var sourceStr = editPermission ? 'Edit source' : 'View source';
+        var editFeatures = (
+            <div className="edit-features">
+                <label>Mode:</label>
+                <div className="btn-group">
+                    <button className={viewClass} onClick={this.viewMode}>View</button>
+                    <button className={rawClass} onClick={this.editMode}>{sourceStr}</button>
                 </div>
-            )
+            </div>
+        );
 
-
-        var permission_str = "you(" + ws_obj.state.permission_str + ") "
+        var permission_str = ws_obj.state.permission_str + ' [';
         ws_obj.state.group_permissions.forEach(function(perm) {
-            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
+            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ")";
         });
-        if(ws_obj.state.items.length){
-            // pass
-        }else {
+        permission_str += ' ]';
+        if (ws_obj.state.items.length) {
+            // Non-empty worksheet
+        } else {
             $('.empty-worksheet').fadeIn();
         }
 
         // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-        var raw_display = (
-                    <textarea
-                        id="raw-textarea"
-                        className="form-control mousetrap"
-                        defaultValue={rawWorksheet.content}
-                        rows={rawWorksheet.lines}
-                        ref="textarea"
-                    />
-            )
+        var raw_display = <div>
+            Press ctrl-enter to save.
+            <textarea
+                id="raw-textarea"
+                className="form-control mousetrap"
+                defaultValue={rawWorksheet.content}
+                rows={30}
+                ref="textarea"
+            />
+        </div>;
 
         var items_display = (
                 <WorksheetItemList
@@ -311,14 +280,12 @@ var Worksheet = React.createClass({
                     active={this.state.activeComponent=='list'}
                     canEdit={canEdit}
                     saveAndUpdateWorksheet={this.saveAndUpdateWorksheet}
-                    toggleEditing={this.toggleEditing}
-                    toggleRawMode={this.toggleRawMode}
+                    toggleEditMode={this.toggleEditMode}
                     toggleActionBar={this.toggleActionBar}
                     hideActionBar={this.hideActionBar}
                     updateWorksheetFocusIndex={this._setfocusIndex}
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
                     showActionBar={this.showActionBar}
-                    toggleEditingText={this.toggleEditingText}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             )
@@ -329,12 +296,12 @@ var Worksheet = React.createClass({
                     canEdit={this.canEdit()}
                     handleFocus={this.handleActionBarFocus}
                     handleBlur={this.handleActionBarBlur}
-                    active={this.state.activeComponent=='search'}
+                    active={this.state.activeComponent=='action'}
                     show={this.state.showActionBar}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
-                    rawMode={this.rawMode}
+                    editMode={this.editMode}
                 />
             )
 
@@ -363,8 +330,7 @@ var Worksheet = React.createClass({
                 />
             )
 
-        //simple switch out if raw or items
-        var worksheet_display = this.state.rawMode ? raw_display : items_display
+        var worksheet_display = this.state.editMode ? raw_display : items_display;
 
         return (
             <div id="worksheet" className={serachClassName}>

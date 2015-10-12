@@ -268,6 +268,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 stderr_str = None
 
                 exception = None
+                structured_result = None
                 try:
                     structured_result = cli.do_command(args)
                     success = True

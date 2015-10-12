@@ -124,7 +124,7 @@ var WorksheetActions =  function() {
 
                                 }
                                 if (data.data.stderr){
-                                    console.error(data.data.stderr);
+                                    //console.log(data.data.stderr);
                                     var err;
                                     err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
                                     // 200 is ok response, this is a false flag due to how output is getting defined.
@@ -496,109 +496,10 @@ var WorksheetActions =  function() {
                 executefn: function(options, term, action_bar) {
                     var defer = jQuery.Deferred();
                     defer.resolve([]);
-                    action_bar.props.rawMode();
+                    action_bar.props.editMode();
                     return defer.promise();
                 }, // end of executefn
             }, // end of wedit
-
-            // 'run': {   // TODO
-            //     minimumInputLength: 0,
-            //     edit_enabled: true,
-            //     maximumSelectionSize: function(){
-            //         // jquery isnt supposed to be in here but there is no other way way to get the value in this function
-            //         $('#search').val();
-            //         //TODO
-            //     },
-            //     searchChoice: function(input, term){
-            //         // jquery isnt supposed to be in here but there is no other way way to get the value in this function
-            //         if(ws_actions.checkRunCommandDone($('#search').val())){
-            //             return {};
-            //         }
-            //         if(term.lastIndexOf('\'', 0) === 0){
-            //             return {
-            //                 id: term,
-            //                 text: 'Command: ' + term
-            //             };
-            //         }
-            //         if(term.lastIndexOf(":", 0) === -1){
-            //             return {
-            //                 id: term,
-            //                 text: 'Dependencies (<key>:<bundle>) ' + term
-            //             };
-            //         }
-            //     },
-            //     queryfn: function(query){
-            //         if(ws_actions.checkRunCommandDone(query.element.val())){
-            //             return;
-            //         }
-            //         if(query.term.lastIndexOf('\'', 0) === 0){
-            //             query.callback({
-            //                     results: []
-            //                 });
-            //             return;
-            //         }else if(query.term.lastIndexOf(":") === -1){
-            //             query.callback({
-            //                     results: []
-            //                 });
-            //             return;
-            //         }
-            //         // we are after a command
-            //         var get_data = {
-            //             // only get stuff after the :
-            //             search_string: query.term.slice(query.term.lastIndexOf(':')+1)
-            //         };
-            //         $.ajax({
-            //             type: 'GET',
-            //             url: '/api/bundles/search/',
-            //             dataType: 'json',
-            //             data: get_data,
-            //             success: function(data, status, jqXHR){
-            //                 // select2 wants its options in a certain format, so let's make a new
-            //                 // list it will like
-            //                 var newOptions = [];
-            //                 for(var k in data){
-            //                     newOptions.push({
-            //                         'id': query.term.split(':')[0] + ":" + k, // UUID
-            //                         'text': data[k].metadata.name + ' | ' + k
-            //                     });
-            //                 }
-            //                 query.callback({
-            //                     results: newOptions
-            //                 });
-            //             },
-            //             error: function(jqHXR, status, error){
-            //                 displayError(jqHXR, status);
-            //             }
-            //         });
-            //     },
-            //     executefn: function(params, command, callback){
-            //         console.log("creating run bundle");
-            //         console.log(params);
-            //         worksheet_uuid = ws_obj.state.uuid;
-            //         var postdata = {
-            //             'worksheet_uuid': worksheet_uuid,
-            //             'data': params.splice(1)
-            //         };
-            //         $.ajax({
-            //             type:'POST',
-            //             cache: false,
-            //             url:'/api/bundles/create/',
-            //             contentType:"application/json; charset=utf-8",
-            //             dataType: 'json',
-            //             data: JSON.stringify(postdata),
-            //             success: function(data, status, jqXHR){
-            //                 console.log('run bundles');
-            //                 console.log(data);
-            //                 callback();
-            //             },
-            //             error: function(jqHXR, status, error){
-            //                 displayError(jqHXR, status);
-            //             }
-            //         });
-            //     },
-            // }, // end of run
-
-
         }; // end of commands
     }// endof worksheetActions() init
 

@@ -70,7 +70,7 @@ var WorksheetSidePanel = React.createClass({
                 focus = undefined;
                 return focus;
             }
-            if(focus.mode == "worksheet" || focus.mode == "search"){
+            if(focus.mode == "worksheet" || focus.mode == "action"){
                 this.focustype = 'worksheet';
                 if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
                      //for lets default it back to showing the main worksheet info
@@ -218,12 +218,13 @@ var WorksheetDetailSidePanel = React.createClass({
             )
         }// end of this.state.dependencies.length
 
-
-        var permission_str = "you(" + ws_obj.state.permission_str + ") "
+        // TODO: synchronize with worksheet_interface.js
+        var permission_str = ws_obj.state.permission_str + ' [';
         worksheet.group_permissions = worksheet.group_permissions || []; // check if even exists if not create empty
         worksheet.group_permissions.forEach(function(perm) {
-            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ") "
+            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ")";
         });
+        permission_str += ']';
         return (
             <div id="panel_content">
                 <h3 className="ws-name">{worksheet.name}</h3>
@@ -235,8 +236,6 @@ var WorksheetDetailSidePanel = React.createClass({
         )
     }
 });
-
-
 
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function(){

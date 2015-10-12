@@ -1,5 +1,10 @@
 /** @jsx React.DOM */
 
+/*
+All of the editing functionality here is deprecated, since it's too complicated to maintain
+and to keep in sync the markdown.  We are switching to pure markdown editing.
+*/
+
 var WorksheetItemList = React.createClass({
     getInitialState: function(){
         return {
@@ -28,7 +33,7 @@ var WorksheetItemList = React.createClass({
         if(!this.state.worksheet.items.length){
             $('.empty-worksheet').fadeIn('fast');
         }
-        if(this.state.rawMode){
+        if(this.state.editMode){
             $('#raw-textarea').trigger('focus');
         }
     },
@@ -284,7 +289,7 @@ var WorksheetItemList = React.createClass({
             scroll = true;
         }
         // index : what item index we want to focus on
-        // event : the JS click event or keyboar event
+        // event : the JS click event or keyboard event
         // last_sub_el: True/False force a focus on the last sub element
         if(index < this.state.worksheet.items.length){
             this.setState({focusIndex: index});

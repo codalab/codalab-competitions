@@ -528,9 +528,9 @@ var WorksheetContent = function() {
             dataType:"json",
             data: JSON.stringify(postdata),
             success: function(data) {
-                console.log('Saved worksheet');
-                console.log(data);
-                console.log('');
+                console.log('Saved worksheet ' + this.state.uuid);
+                //console.log(data);
+                //console.log('');
                 props.success(data);
             }.bind(this),
             error: function(xhr, status, err) {
