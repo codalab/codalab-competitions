@@ -2,7 +2,7 @@
 
 /*
 All of the editing functionality here is deprecated, since it's too complicated to maintain
-and to keep in sync the markdown.  We are switching to pure markdown editing.
+and to keep in sync with the markdown.  We are switching to pure markdown editing.
 */
 
 var WorksheetItemList = React.createClass({
