@@ -57,6 +57,20 @@ except ImportError:
 
 User = get_user_model()
 
+class HomePageView(TemplateView):
+    template_name = "web/index.html"
+
+    def get_context_data(self, **kwargs):
+        service = BundleService(self.request.user)
+        worksheets = service.worksheets()
+
+        # latest_worksheets = sorted(worksheets, key='datetime')[0:3]
+
+        context = super(HomePageView, self).get_context_data(**kwargs)
+        context['latest_competitions'] = models.Competition.objects.filter(published=True).order_by('-id')[0:3]
+        context['worksheets'] = worksheets
+        return context
+
 
 def competition_index(request):
     query = request.GET.get('q')
