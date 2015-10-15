@@ -342,11 +342,13 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
+                                        <h4 className="worksheet-title">{ws_obj.state.title}</h4>
                                         <div className="col-sm-6 col-md-8">
+                                            <div className="worksheet-icon"></div>
                                             <div className="worksheet-name">
-                                                <h1 className="worksheet-icon">{ws_obj.state.name}</h1>
-                                                <div className="worksheet-author">{ws_obj.state.owner}</div>
-                                                <div className="worksheet-permission">Permission: {permission_str}</div>
+                                                <div className="worksheet-detail">Name: {ws_obj.state.name}</div>
+                                                <div className="worksheet-detail">Owner: {ws_obj.state.owner}</div>
+                                                <div className="worksheet-detail">Permission: {permission_str}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">
