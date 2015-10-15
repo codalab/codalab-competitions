@@ -227,9 +227,10 @@ var WorksheetDetailSidePanel = React.createClass({
         permission_str += ']';
         return (
             <div id="panel_content">
-                <h3 className="ws-name">{worksheet.name}</h3>
-                <p className="ws-uuid">{worksheet.uuid}</p>
-                <p className="ws-owner">{worksheet.owner}</p>
+                <h4 className="ws-title"> {worksheet.title}</h4>
+                <p className="ws-name">Name: {worksheet.name}</p>
+                <p className="ws-uuid">UUID: {worksheet.uuid}</p>
+                <p className="ws-owner">Owner: {worksheet.owner}</p>
                 <p className="ws-permissions">Permissions: {permission_str}</p>
                 {bundles_html}
             </div>
