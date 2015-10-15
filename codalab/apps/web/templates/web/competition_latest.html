@@ -1,0 +1,34 @@
+{# This page accepts the following params: #}
+{#    competition: The competition to display #}
+{#    managed: True to display admin options #}
+
+{% load static %}
+{% load humanize %}
+
+<div class="competition-tile">
+	<input id="competitionID" type="hidden" value="{{ competition.id }}" />
+	<div class="row">
+		<div class="col-sm-2 col-md-2">
+			<div class="img-container">
+				{% if competition.image_url == None %}
+					<img src="{% static 'img/ProfileImageDummy.jpg' %}" class="img-responsive">
+				{% else %}
+					<img src="{{ competition.image_url }}" class="img-responsive">
+				{% endif %}
+			</div>
+		</div>
+		<div class="col-sm-6 col-md-6">
+			<h3>{{ competition.title }}</h3>
+			<p class="organizer">Organized by {{ competition.creator }}</p>
+		</div>
+    	<div class="col-sm-4 col-md-4 right-panel">
+			{{ competition.get_start_date|date:"M d, Y" }}<br>
+            <b>{{ competition.get_participant_count }}</b> participant{% if competition.get_participant_count > 1 %}s{% endif %}<br>
+            {% if competition.reward and competition.reward > 0 %}
+            	USD <b>${{ competition.reward|intcomma }}</b> reward
+            {% endif %}
+        </div>
+
+        <br><br>
+    </div>
+</div>

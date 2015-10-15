@@ -346,6 +346,9 @@ else:
 
     class BundleService():
 
+        def __init__(self, user=None):
+            pass
+
         def items(self):
             return []
 

@@ -41,6 +41,7 @@ from apps.web import tasks
 from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
+from apps.common.utils import recent_worksheets
 from tasks import evaluate_submission
 from django.contrib.auth import get_user_model
 
@@ -56,6 +57,20 @@ except ImportError:
 
 
 User = get_user_model()
+
+class HomePageView(TemplateView):
+    template_name = "web/index.html"
+
+    def get_context_data(self, **kwargs):
+        service = BundleService(self.request.user)
+        worksheets = service.worksheets()
+        worksheets = recent_worksheets(worksheets)
+
+        context = super(HomePageView, self).get_context_data(**kwargs)
+        context['latest_competitions'] = models.Competition.objects.filter(published=True).order_by('-id')[0:3]
+        context['worksheets'] = worksheets
+
+        return context
 
 
 def competition_index(request):
@@ -1027,6 +1042,7 @@ class WorksheetDetailView(TemplateView):
         worksheet_info = service.worksheet(uuid, interpreted=False, fetch_items=False, get_raw=False)
         context['worksheet_info'] = worksheet_info
         context['worksheet_uuid'] = uuid
+
         # will sometimes return nill, which doesn false the dict.get call and just returns a None object no matter what.
         title = worksheet_info.get('title')
         if(title):

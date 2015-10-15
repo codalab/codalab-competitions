@@ -23,33 +23,50 @@
 
     <div class="container">
         <div class="row">
-            <p>
-            CodaLab (which stands for <b><i>co</i></b>de and <b><i>da</i></b>ta <b><i>lab</i></b>)
-            is an ecosystem for conducting computational
-            research in an efficient, reproducible, and collaborative manner.
-            </p>
             <div class="col-sm-6">
-                <p><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"></a></p>
-                <p><strong>Worksheets</strong> allow you to
-                capture complex research pipelines in a reproducible way
-                and create "executable papers".
-                Use any data format and language &mdash; great for the power user!
-                </p>
-                <ul class="alt-bullet">
-                    <li><a href="/worksheets"><strong>[Explore worksheets]</strong></a></li>
-                </ul>
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                      <div class="btn-group" role="group">
+                            <a role="button" class="btn" href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}">Create an Experiment!</a>
+                      </div>
+                </div>
+                <p><strong>Run reproducible experiments and created executable papers using worksheets.</strong></p>
+               <!-- <button type="button" class="btn btn-danger"><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}">Create an Experiment!</a></button>
+                <p>Run reproducible experiments and created executable papers using worksheets.</p>-->
+            </div>
+            <div class="col-sm-6">
+                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                      <div class="btn-group" role="group">
+                            <a role="button" class="btn" href="/competitions">Join a challenge!</a>
+                      </div>
+                </div>
+                <p><strong>Enter the existing competition to solve challenging data problems, or host your own.</strong></p>
+            </div>
+            <div class="col-sm-6">
+                    <!--<li><a href="/worksheets"><strong>[Explore worksheets]</strong></a></li>-->
+                <h2 class="homepage_headers">Recent Worksheets</h2>
+                {% if not worksheets %}
+                <p><em>There are not worksheets.</em></p>
+                {% else %}
+                    {% for worksheet in worksheets %}
+                    <!--<a href="{% url 'ws_view' worksheet.0 %}">{{worksheet.0}}</a>
+                    <p>{{ worksheet.1 }}</p>
+                    <p>{{ worksheet.2 }}</p>-->
+                        {% include "web/worksheets_latest.html" with worksheet=worksheet %}
+                    {% endfor %}
+                {% endif %}
+
 
             </div>
             <div class="col-sm-6">
-                <p><a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"></a></p>
-                <p><strong>Competitions</strong>
-                bring together the entire community
-                to tackle the most challenging data and computational problems today.
-                You can win prizes and also create your own competition.
-                </p>
-                <ul class="alt-bullet">
-                    <li><a href="/competitions"><strong>[Explore competitions]</strong></a></li>
-                </ul>
+            <h2 class="homepage_headers">Latest Competitions</h2>
+            {% if not latest_competitions %}
+            <p><em>There are no competitions.</em></p>
+        {% else %}
+            {% for competition in latest_competitions %}
+                {% include "web/competition_latest.html" with competition=competition %}
+            {% endfor %}
+        {% endif %}
+
             </div>
         </div>
     </div>
@@ -59,4 +76,36 @@
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
     });
+
+    function populate(frm, data) {
+        $.each(data, function(key, value){
+            var $ctrl = $('[name='+key+']', frm);
+            switch($ctrl.attr("type"))
+            {
+                case "text":
+                case "hidden":
+                    $ctrl.val(value);
+                    break;
+                case "radio":
+                case "checkbox":
+                    $ctrl.each(function(){
+                        if(value=='on') {
+                            $(this).attr("checked",value);
+                        }
+                    });
+                    break;
+                default:
+                    $ctrl.val(value);
+            }
+        });
+    }
+    $('.competition-tile').on('click',function(){
+        var competitionID = $(this).find('#competitionID').val();
+        window.location.href = '/competitions/' + competitionID;
+    });
+
+    var params = {}
+    location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
+
+    populate('#search_form', params);
 {% endblock js %}

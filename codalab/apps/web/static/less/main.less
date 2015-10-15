@@ -192,3 +192,84 @@ input[type="radio"], input[type="checkbox"] {
 .already-disliked {
     color: red;
 }
+
+.col-sm-6 .btn-group .btn-group a{
+    color:#FFFFFF;
+    font-weight: bold;
+    font-size: 18px;
+}
+.col-sm-6 .btn-group{
+    /* Safari 3-4, iOS 1-3.2, Android 1.6- */
+  -webkit-border-radius: 10px;
+  /* Firefox 1-3.6 */
+  -moz-border-radius: 10px;
+  /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
+  border-radius: 10px;
+  background: #FF8C00;
+  border: 1px solid;
+}
+
+.homepage_headers{
+    color:#739cb9;
+}
+
+/*Code for the latest worksheets goes here, only being used in homepage*/
+.worksheets-list {
+   .checkbox {
+      margin:20px 0;
+      .my-worksheets-toggle input {
+         margin-right:5px;
+      }
+
+   }
+   .worksheet-tile {
+      .cl-tile;
+      border-left:1px solid @gray-light;
+      padding:0;
+      position:relative;
+      &:hover {
+         cursor:pointer;
+         h3 {
+            color:@brand-primary;
+         }
+      }
+      &.focused {
+         .box-shadow(0 1px 6px fadeout(black, 75%));
+         .worksheet-inner {
+            border-left-color:@brand-success;
+         }
+      }
+      .worksheet-inner {
+         border-left: 10px solid @brand-success;
+         padding:10px 10px 10px 58px;
+         background:url('/static/img/icon_worksheet.png') no-repeat 5px 10px;
+         min-height:68px;
+         h3 {
+            margin:0;
+            padding-bottom: 0;
+         }
+         .byline {
+            padding-bottom:0.25em;
+         }
+         button.delete-worksheet {
+            position:absolute;
+            bottom:5px;
+            right:5px;
+            opacity:.5;
+            .transition(opacity .35s ease);
+            &:hover {
+               .btn-danger;
+               text-decoration: none;
+               opacity:1;
+            }
+         }
+         .organizer_by{
+            font-size: 14px;
+            color:#999999;
+            font-weight: bold;
+            margin-bottom: 6px;
+         }
+      }
+   }
+}
+
