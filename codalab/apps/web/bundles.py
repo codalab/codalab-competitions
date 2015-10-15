@@ -212,7 +212,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             '''
             # Construct info for creating the bundle.
             bundle_subclass = get_bundle_subclass(bundle_type) # program or data
-            metadata = metadata_util.request_missing_metadata(bundle_subclass, {}, initial_metadata={'name': source_file.name, 'description': 'Upload ' + source_file.name})
+            metadata = metadata_util.fill_missing_metadata(bundle_subclass, {}, initial_metadata={'name': source_file.name, 'description': 'Upload ' + source_file.name})
             info = {'bundle_type': bundle_type, 'metadata': metadata}
 
             # Upload it by creating a file handle and copying source_file to it (see RemoteBundleClient.upload_bundle in the CLI).
