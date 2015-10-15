@@ -1,6 +1,9 @@
 def recent_worksheets(worksheets):
     """Function to return most recent worksheets"""
 
+    if not worksheets:
+    	return worksheets  # just incase the list is empty
+
     sorted_worksheets = sorted(worksheets, key=lambda k: k['id'], reverse=True)
 
     if len(sorted_worksheets) <= 2:
