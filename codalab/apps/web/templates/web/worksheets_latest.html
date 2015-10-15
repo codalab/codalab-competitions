@@ -1,0 +1,12 @@
+<!--This page is to display recent competitions-->
+<!--It takes worksheets as parameter-->
+{% load static %}
+{% load humanize %}
+<div class="worksheets-list">
+	<div class="worksheet-tile">
+		<div class="worksheet-inner">
+			<h3>{{worksheet.1}}</h3>
+			<p class="organizer_by">By {{ worksheet.2 }}</p>
+		</div>
+	</div>
+</div>
