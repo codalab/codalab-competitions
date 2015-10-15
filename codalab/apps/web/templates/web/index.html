@@ -44,6 +44,16 @@
             <div class="col-sm-6">
                     <!--<li><a href="/worksheets"><strong>[Explore worksheets]</strong></a></li>-->
                 <h2 class="homepage_headers">Recent Worksheets</h2>
+                {% if not worksheets %}
+                <p><em>There are not worksheets.</em></p>
+                {% else %}
+                    {% for worksheet in worksheets %}
+                    <!--<a href="{% url 'ws_view' worksheet.0 %}">{{worksheet.0}}</a>
+                    <p>{{ worksheet.1 }}</p>
+                    <p>{{ worksheet.2 }}</p>-->
+                        {% include "web/worksheets_latest.html" with worksheet=worksheet %}
+                    {% endfor %}
+                {% endif %}
 
 
             </div>
