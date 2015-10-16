@@ -172,19 +172,23 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                             for k, v in row_map.iteritems():
                                 if v is None:
                                      row_map[k] = 'MISSING'
-                    elif 'bundle_info' in item:
-                        for bundle_info in item['bundle_info']:
-                            try:
-                                ## sometimes bundle_info is a string. when item['mode'] is image
-                                if isinstance(bundle_info, dict) and bundle_info.get('bundle_type', None) == 'run':
-                                    if 'stdout' in bundle_info.keys():
-                                        bundle_info['stdout'] = base64.b64decode(bundle_info['stdout'])
-                                    if 'stderr' in bundle_info.keys():
-                                        bundle_info['stderr'] = base64.b64decode(bundle_info['stderr'])
-                            except Exception, e:
-                                print e
-                                import ipdb; ipdb.set_trace()
-
+                    if 'bundle_info' in item:
+                        if isinstance(item['bundle_info'], list):
+                            for bundle_info in item['bundle_info']:
+                                try:
+                                    ## sometimes bundle_info is a string. when item['mode'] is image
+                                    if isinstance(bundle_info, dict):
+                                        worksheet_util.format_metadata(bundle_info.get('metadata'))
+                                        if bundle_info.get('bundle_type', None) == 'run':
+                                            if 'stdout' in bundle_info.keys():
+                                                bundle_info['stdout'] = base64.b64decode(bundle_info['stdout'])
+                                            if 'stderr' in bundle_info.keys():
+                                                bundle_info['stderr'] = base64.b64decode(bundle_info['stderr'])
+                                except Exception, e:
+                                    print e
+                                    import ipdb; ipdb.set_trace()
+                        elif isinstance(item['bundle_info'], dict):
+                            worksheet_util.format_metadata(item['bundle_info'].get('metadata'))
 
                 return worksheet_info
             else:
