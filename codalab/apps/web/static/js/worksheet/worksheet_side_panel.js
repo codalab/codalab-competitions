@@ -2,8 +2,7 @@
 var WorksheetSidePanel = React.createClass({
     focustype: 'worksheet', // worksheet, bundle or None
     getInitialState: function(){
-        return {
-        };
+        return { };
     },
     debouncedFetchExtra: undefined,
     componentDidMount: function(e){
@@ -19,16 +18,6 @@ var WorksheetSidePanel = React.createClass({
         });
     },
     capture_keys: function(){
-        Mousetrap.bind(['shift+up', 'shift+k'], function(e){
-            var node = this.getDOMNode();
-            var nodetop = $(node).scrollTop() // get all measurements for node rel to current viewport
-            $(node).stop(true).animate({scrollTop: nodetop-100}, 45);
-        }.bind(this), 'keydown');
-        Mousetrap.bind(['shift+down', 'shift+j'], function(e){
-            var node = this.getDOMNode();
-            var nodetop = $(node).scrollTop() // get all measurements for node rel to current viewport
-            $(node).stop(true).animate({scrollTop: nodetop+100}, 45);
-        }.bind(this), 'keydown');
     },
     _fetch_extra: function(){
         if(this.refs.hasOwnProperty('bundle_info_side_panel')){
@@ -40,7 +29,7 @@ var WorksheetSidePanel = React.createClass({
         var self = this;
         if(this.debouncedFetchExtra === undefined){
             // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 1500).bind(this);
+            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 500).bind(this);
         }
         //set up the wait for fetching extra
         this.debouncedFetchExtra();
@@ -113,7 +102,7 @@ var WorksheetSidePanel = React.createClass({
     },
     render: function(){
         var current_focus = this.current_focus();
-        var side_panel_details = ''
+        var side_panel_details = '';
         switch (this.focustype) {
             case 'worksheet':
                 side_panel_details = <WorksheetDetailSidePanel
@@ -144,20 +133,16 @@ var WorksheetSidePanel = React.createClass({
     }
 });
 
-
-
 /** @jsx React.DOM */
 var WorksheetDetailSidePanel = React.createClass({
     getInitialState: function(){
         return { };
     },
-    componentDidMount: function(){
-
+    componentDidMount: function() {
     },
-    componentWillUnmount: function(){
-
+    componentWillUnmount: function() {
     },
-    render: function(){
+    render: function() {
         var worksheet = this.props.item;
         if(worksheet.hasOwnProperty('subworksheet_info')){
             // are we looking at a sub worksheet. lets get the correct worksheet data.
@@ -181,9 +166,10 @@ var WorksheetDetailSidePanel = React.createClass({
             );
         }
 
-        worksheet.items = worksheet.items || []; // check if even exists if not create empty
-        if(worksheet.items.length){
-            worksheet.items.forEach(function(item, i){
+        // Show all the bundles in the worksheet
+        worksheet.items = worksheet.items || [];
+        if (worksheet.items.length) {
+            worksheet.items.forEach(function(item, i) {
                 var bundle = null;
                 var bundle_info = null;
                 if(item.state.hasOwnProperty('bundle_info') && item.state.bundle_info){
@@ -198,7 +184,7 @@ var WorksheetDetailSidePanel = React.createClass({
                         bundle_push(bundle_info);
                    }
                 }
-            }) // end of foreach
+            }); // end of foreach
 
             bundles_html = (
                 <div className="bundles-table">
@@ -216,27 +202,22 @@ var WorksheetDetailSidePanel = React.createClass({
                     </table>
                 </div>
             )
-        }// end of this.state.dependencies.length
+        }
 
-        // TODO: synchronize with worksheet_interface.js
-        var permission_str = ws_obj.state.permission_str + ' [';
-        worksheet.group_permissions = worksheet.group_permissions || []; // check if even exists if not create empty
-        worksheet.group_permissions.forEach(function(perm) {
-            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ")";
-        });
-        permission_str += ']';
         return (
             <div id="panel_content">
                 <h4 className="ws-title"> {worksheet.title}</h4>
                 <p className="ws-name">Name: {worksheet.name}</p>
                 <p className="ws-uuid">UUID: {worksheet.uuid}</p>
-                <p className="ws-owner">Owner: {worksheet.owner}</p>
-                <p className="ws-permissions">Permissions: {permission_str}</p>
+                <p className="ws-owner">Owner: {worksheet.owner_name}</p>
+                <p className="ws-permissions">Permissions: {render_permissions(worksheet)}</p>
                 {bundles_html}
             </div>
         )
     }
 });
+
+////////////////////////////////////////////////////////////
 
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function(){
@@ -245,7 +226,7 @@ var BundleDetailSidePanel = React.createClass({
         var bundle_info;
         if(item.bundle_info instanceof Array){ //tables are arrays
             bundle_info = item.bundle_info[this.props.subFocusIndex];
-        }else{ // content/images/ect. are not
+        } else { // content/images/etc. are not
             bundle_info = item.bundle_info;
         }
 
@@ -263,15 +244,14 @@ var BundleDetailSidePanel = React.createClass({
         if(ws_bundle_obj.current_uuid == bundle_info.uuid){
             return;
         }
-        console.log(bundle_info.uuid);
+
         //update we are at the correct focus.
         ws_bundle_obj.current_uuid = bundle_info.uuid;
         ws_bundle_obj.fetch({
             success: function(data){
-                console.log("BundleDetailSidePanel fetch  success");
+                console.log("BundleDetailSidePanel.fetch_extra: " + bundle_info.uuid);
                 // do a check since this fires async to double check users intent.
                 if(ws_bundle_obj.current_uuid == bundle_info.uuid){
-                    console.log("UPDATE ***");
                     if(this.isMounted()){
                         this.setState(data)
                     }
@@ -335,38 +315,34 @@ var BundleDetailSidePanel = React.createClass({
             )
         }// end of this.state.dependencies.length
 
-        var metadata = bundle_info.metadata
+        var metadata = bundle_info.metadata;
         var metadata_list_html = [];
-        // lets sort the metadata by key
-        var keys = []
-        var property; // we will reuse this.
-        for (property in metadata){
-            if (metadata.hasOwnProperty(property)){
-                keys.push(property);
-            }
-        }
-        keys.sort(); // sorted, lets get them in the proper order
-        for (var i = 0; i < keys.length; i++){
-            property = keys[i]; //set to current property
-            if (metadata.hasOwnProperty(property)) {
-                metadata_list_html.push(
-                    <tr>
-                        <th>
-                            {property}
-                        </th>
-                        <td>
-                            <span >
-                                {metadata[property]}
-                            </span>
-                        </td>
-                    </tr>
-                )
-            }
-        }// end of for(var i keys.len)
 
+        // Sort the metadata by key.
+        var keys = [];
+        for (var property in metadata) {
+            if (metadata.hasOwnProperty(property))
+                keys.push(property);
+        }
+        keys.sort();
+        for (var i = 0; i < keys.length; i++) {
+            var property = keys[i];
+            metadata_list_html.push(
+                <tr>
+                    <th>
+                        {property}
+                    </th>
+                    <td>
+                        <span >
+                            {metadata[property]}
+                        </span>
+                    </td>
+                </tr>
+            );
+        }
 
         var stdout_html = ''
-        if(bundle_info.stdout){
+        if (bundle_info.stdout) {
             //had to add span since react elm must be wrapped
             stdout_html = (
                 <span>

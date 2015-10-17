@@ -1,10 +1,12 @@
-// Singleton class to manage actions triggered by the general search bar
-var WorksheetActions =  function() {
+/*
+CodaLab action bar (web terminal).
+TODO: revamp this to make the interface more uniform and pass more control to the CLI.
+*/
+
+var WorksheetActions = function() {
     function formatHelp(usage, description) {
       return usage + ' : ' + description;
     }
-    var bundleKeywordsHelp = 'Bundle keywords (example: test name=nlp.* type=run state=running .mine .last ...)';
-    var worksheetKeywordsHelp = 'Worksheet keywords (example: test name=nlp.* .mine .last ...)';
     var displayError = function(jqHXR, status){
         error = jqHXR.responseJSON['error'];
         $("#worksheet-message").html("Action bar error: " + error).addClass('alert-danger alert').show();
@@ -275,82 +277,6 @@ var WorksheetActions =  function() {
                     return defer.promise();
                 }, // end of executefn
             }, // end of new
-
-            'add': {
-                edit_enabled: true,
-                autocomplete: function(options){ // is a promise must resolve and return a promise
-                    var defer = jQuery.Deferred();
-                    var get_data = {
-                        search_string: options[options.length-1]
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/bundles/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR){
-                            var autocomplete_list = [];
-                            for(var uuid in data.bundles){
-                                var bundle = data.bundles[uuid];
-                                var user = bundle.owner_name; // owner is a string <username>(<user_id>)
-                                var created_date = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                                created_date.setUTCSeconds(bundle.metadata.created);
-                                created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
-                                autocomplete_list.push({
-                                    'text': uuid,
-                                    'display': uuid.slice(0, 10)  + " | " +  bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
-                                });
-                            }
-                            defer.resolve(autocomplete_list)
-                        },
-                        error: function(jqHXR, status, error){
-                            defer.resolve([])
-                            var error;
-                            if(jqHXR.responseJSON){
-                                error = jqHXR.responseJSON['error'];
-                            }else{
-                                error = error
-                            }
-                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                    return defer.promise();
-                },
-                executefn: function(options, term, action_bar){
-                    var defer = jQuery.Deferred();
-                    var bundle_uuid = options[options.length-1]
-                    var worksheet_uuid = ws_obj.state.uuid;
-                    var postdata = {
-                        'bundle_uuid': bundle_uuid,
-                        'worksheet_uuid': worksheet_uuid
-                    };
-                    $.ajax({
-                        type:'POST',
-                        cache: false,
-                        url:'/api/worksheets/add/',
-                        contentType:"application/json; charset=utf-8",
-                        dataType: 'json',
-                        data: JSON.stringify(postdata),
-                        success: function(data, status, jqXHR){
-                            defer.resolve([])
-                            action_bar.props.refreshWorksheet();
-                        },
-                        error: function(jqHXR, status, error){
-                            defer.resolve()
-                            var error;
-                            if(jqHXR.responseJSON){
-                                error = jqHXR.responseJSON['error'];
-                            }else{
-                                error = error
-                            }
-                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                    return defer.promise();
-                }
-            }, // end off add
 
             'info': {
                 helpText: formatHelp('info <bundle>', 'go to info page of bundle'),

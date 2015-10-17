@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item representing the file contents of a bundle.
 var ContentsBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function(){
@@ -16,12 +17,7 @@ var ContentsBundle = React.createClass({
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /> : null;
-        var contents = this.state.interpreted.map(function(item) {
-            return item.replace(/%\s/, '');  // TODO: why removing %?
-        });
-        contents = contents.join('');
-        // TODO: make this a monospace font
-        // contents = contents.replace(/%\s/g, '');
+        var contents = this.state.interpreted.join('');
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 {checkbox}
@@ -32,5 +28,5 @@ var ContentsBundle = React.createClass({
                 </div>
             </div>
         );
-    } // end of render function
-}); //end of  ContentsBundle
+    }
+});

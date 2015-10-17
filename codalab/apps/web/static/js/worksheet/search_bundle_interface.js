@@ -1,19 +1,22 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which corresponds to a search result.
+// TODO: make this like a table so we can press up and down.  Perhaps merge classes.
 var SearchBundleItem = React.createClass({
     render: function(){
         var item = this.props.item;
         var key = 'sbi_' + item.mode + '_' + this.props.index;
-        //What is the type so we can set up stuff
-        if(item.mode == "table"){
+
+        if (item.mode == "table") {
             var header_items = item.interpreted[0];
             var row_items = item.interpreted[1];
-            //set up table head
+            // set up table head
             var header_html = header_items.map(function(item, index) {
                 var key = "sbth_" + index;
                 return <th key={key}> {item} </th>;
             });
-            //set up table body
+
+            // set up table body
             var body_rows_html = row_items.map(function(row_item, index) {
                 var key = 'sbtr_' + index;
                 var row_cells = header_items.map(function(header_key, index){
@@ -22,7 +25,8 @@ var SearchBundleItem = React.createClass({
                 }); // end of row_cells = header_items.map
                 return (<tr key={key}>{row_cells}</tr>);
             }); // end of body_rows_html = row_items.map
-            //Mash it all together
+
+            // mash it all together
             return (
                 <table key={key} className="table">
                     <thead>
@@ -35,7 +39,7 @@ var SearchBundleItem = React.createClass({
                     </tbody>
                 </table>
             )
-        }else{ // just a simple markdown type.
+        } else { // just a simple markdown type.
             return (
                 <div key={key} className="result">
                     {item.interpreted}
@@ -44,6 +48,7 @@ var SearchBundleItem = React.createClass({
         }
     }
 })
+
 var SearchBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){

@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Show a modal dialog for uploading bundles.
 var UploadModal = React.createClass({
     getInitialState: function(){
         return{
@@ -120,4 +121,4 @@ var UploadModal = React.createClass({
             </div>
         );
     } // end of render function
-}); //end of  UploadModal
+}); //end of UploadModal

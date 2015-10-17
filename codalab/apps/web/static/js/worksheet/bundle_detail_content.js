@@ -1,5 +1,6 @@
-// 'class' to manage a bundle details for side panel.
-// gets created in worksheet/details.html
+/*
+Information about the current bundle that's selected in the side panel.
+*/
 var BundleContent = function() {
     //init
     function BundleContent() {
@@ -21,12 +22,7 @@ var BundleContent = function() {
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log("BundleContent: setting bundle details state:");
-                // console.log(data);
-                // console.log('');
                 this.state = data;
-                console.log(data.uuid);
-                console.log(this.current_uuid);
                 props.success(this.state);
             }.bind(this),
             error: function(xhr, status, err) {

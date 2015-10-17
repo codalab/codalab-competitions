@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which corresponds to a block of markup items (note this is blocked).
 var MarkdownBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
@@ -9,29 +10,7 @@ var MarkdownBundle = React.createClass({
             editing: false,
         };
     },
-    capture_keys: function(event){
-        if(this.props.editing){
-            console.log("setting up markdown keys");
-            Mousetrap.reset(); // since we are editing reset and only let you save
-            Mousetrap.bind(['ctrl+enter', "meta+enter"], function(e){
-                console.log("ctrl+enter  meta+enter'");
-                this.saveEditedItem(e.target.value);
-            }.bind(this));
-
-            Mousetrap.bind(['esc'], function(e){
-            // TODO remove _owner feels like a hack
-            this._owner.setState({editingIndex: -1});
-            this._owner.props.toggleEditingText(false);
-            if(this.props.editing){
-                if(!$(this.getDOMNode()).find('textarea').val().length || this.state.new_item){
-                    //calling WorksheetItemList unInsert
-                    this.setState({new_item: false});
-                    this._owner.unInsert();
-                }
-            }
-        }.bind(this), 'keydown');
-        }
-
+    capture_keys: function(event) {
     },
     saveEditedItem: function(interpreted){
         this.props.handleSave(this.props.index, interpreted);

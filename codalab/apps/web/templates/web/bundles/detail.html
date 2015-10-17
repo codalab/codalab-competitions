@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
-{% block head_title %}Bundle details{% endblock head_title %}
-{% block page_title %}Bundle details{% endblock page_title %}
+{% block head_title %}Bundle: {{bundle_title}}{% endblock head_title %}
+{% block page_title %}Bundle: {{bundle_title}}{% endblock page_title %}
+{% block meta %}
+    <meta property="og:title" content="Bundle: {{bundle_title}}">
+    <meta property="og:site_name" content="CodaLab">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
+{% endblock %}
 
 {% block content %}
 <div id="bundle-message" class="bundle-detail">
@@ -18,9 +24,7 @@
 
 {% block jsincludes %}
     <script src="{{ STATIC_URL }}js/vendor/markdown.min.js"></script>
-
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
-
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/bundle/bundle_interface.js"></script>

@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which corresponds to a table where each row is a bundle.
 var TableBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
@@ -38,13 +39,6 @@ var TableBundle = React.createClass({
             }
         }.bind(this), 'keydown');
 
-        Mousetrap.bind(['shift+up', 'shift+k'], function(e){
-            if(this.props.canEdit){
-                this.moveRow(-1);
-            }
-        }.bind(this), 'keydown');
-
-
         Mousetrap.bind(['down', 'j'], function(event){
             var item = this.props.item.state;
             var index = this.state.rowFocusIndex;
@@ -57,34 +51,6 @@ var TableBundle = React.createClass({
             }else {
                 this.focusOnRow(index);
                 this.scrollToRow(index, event);
-            }
-        }.bind(this), 'keydown');
-
-        Mousetrap.bind(['shift+down', 'shift+j'], function(e){
-            if(this.props.canEdit){
-                this.moveRow(1);
-            }
-        }.bind(this), 'keydown');
-
-
-        Mousetrap.bind(['x'], function(e){
-            var index = this.state.rowFocusIndex;
-            if(!this.hasOwnProperty('detachCheckedRows')){
-                this.setState({checked: !this.state.checked});
-            }else{
-                // otherwise check whatever row is focused
-                this.refs['row' + index].toggleChecked();
-            }
-        }.bind(this), 'keydown');
-
-        Mousetrap.bind(['shift+x'], function(e){
-            this.setState({checked: !this.state.checked});
-        }.bind(this), 'keydown');
-
-
-        Mousetrap.bind(['d'], function(e){
-            if (this.hasOwnProperty('detachCheckedRows')){
-                    this.detachCheckedRows();
             }
         }.bind(this), 'keydown');
     },
@@ -127,56 +93,6 @@ var TableBundle = React.createClass({
         }
         this.throttledScrollToRow(index, event);
     },
-    moveRow: function(delta){
-        var oldIndex = this.state.rowFocusIndex;
-        var newIndex = oldIndex + delta;
-        new_interpreted_rows = ws_obj.moveRow(this.props.item.state, oldIndex, newIndex);
-        this.setState({
-            interpreted: new_interpreted_rows,
-            rowFocusIndex: newIndex
-        }, this.scrollToRow(newIndex));
-        this.slowSave();
-    },
-    insertBetweenRows: function(rowIndex){
-        var key = this.props.index;
-        var new_key = key + 1;
-        ws_obj.insertBetweenRows(this.props.item.state, rowIndex, key);
-        // TODO: remove _owner
-        this._owner.setState({
-            worksheet: ws_obj.getState(),
-            editingIndex: new_key,
-        });
-        this._owner.setFocus(new_key);
-        this._owner.refs['item' + (new_key)].setState({new_item: true});
-    },
-    detachCheckedRows: function(){
-        var reactRows = this.refs; // react components
-        var interpreted_row_indexes = []; // what indexes of the data do we want gone
-
-        //lets find all rows that are checked
-        for(var k in reactRows){
-            if(reactRows[k].state.checked){
-                //get the raw bundle info, since they are in the same order we can take the same index
-                interpreted_row_indexes.push(reactRows[k].props.index);
-            }
-        }
-        var confirm_string = interpreted_row_indexes.length === 1 ? 'this item?' : 'these ' + interpreted_row_indexes.length + ' items?'
-        if(interpreted_row_indexes.length && window.confirm("Are you sure you want to detach " + confirm_string)){
-            //delete and get our new interpreted. raw is handeled by ws_obj
-            new_interpreted_rows = ws_obj.deleteTableRow(this.props.item.state, interpreted_row_indexes);
-            //uncheck so we don't get any weird checked state hanging around
-            this.unCheckRows();
-            // go through and uncheck all the rows to get rid of lingering states
-            this.setState({
-                interpreted: new_interpreted_rows,
-                rowFocusIndex: Math.max(this.state.rowFocusIndex - 1, 0)
-            });
-            // TODO: REMOVE _OWNER
-            this._owner.props.saveAndUpdateWorksheet();
-        } else {
-            return false;
-        }
-    },
     focusOnLast: function(){
         var item = this.props.item.state;
         var last_index = item.interpreted[1].length - 1;
@@ -187,21 +103,7 @@ var TableBundle = React.createClass({
         this.setState({rowFocusIndex: rowIndex});
         this.props.updateWorksheetSubFocusIndex(rowIndex);
     },
-    saveEditedItem: function(index, interpreted){
-        this.props.handleSave(index, interpreted);
-    },
-    unCheckRows: function(){
-        var reactRows = this.refs;
-        for(var k in reactRows){
-            reactRows[k].setState({checked:false});
-        }
-    },
-    toggleCheckRows: function(){
-        var reactRows = this.refs;
-        for(var k in reactRows){
-            reactRows[k].setState({checked:!this.state.checked});
-        }
-    },
+
     render: function() {
         var self = this;
         var focused = this.props.focused;

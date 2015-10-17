@@ -1,3 +1,10 @@
+'''
+Defines the BundleService class, which is the gateway between the frontend and
+the BundleService/CLI backend (in the codalab-cli repo).
+
+Internally, BundleService just creates a RemoteBundleClient and wraps some of
+the calls.
+'''
 import base64
 from time import sleep
 import mimetypes
@@ -10,9 +17,9 @@ from django.utils.encoding import smart_str
 from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
-
     from apps.authenz.oauth import get_user_token
-    #imports from command line interface
+
+    # Imports from codalab-cli repo.
     from codalab.bundles.make_bundle import MakeBundle
     from codalab.bundles.run_bundle import RunBundle
     from codalab.bundles.uploaded_bundle import UploadedBundle
@@ -52,7 +59,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.search())
 
         def get_bundle_info(self, uuid):
-            ## def get_bundle_infos(self, uuids, get_children=False, get_host_worksheets=False, get_permissions=False):
             bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid, True, True, True))
             # format permission data
             bundle_info['permission_str'] = permission_str(bundle_info['permission'])
@@ -63,7 +69,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             metadata = bundle_info['metadata']
 
             cls = get_bundle_subclass(bundle_info['bundle_type'])
-            # format based on specs from the cli
+            # format based on metadata specs from the cli
+            # TODO: same code as in print_basic_info in bundle_cli.py (refactor this)
             for spec in cls.METADATA_SPECS:
                 key = spec.key
                 if key not in metadata:
@@ -71,8 +78,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 if metadata[key] == '' or metadata[key] == []:
                     continue
                 value = worksheet_util.apply_func(spec.formatting, metadata.get(key))
-                # if isinstance(value, list):
-                #     value = ', '.join(value)
                 metadata[key] = value
 
             bundle_info['metadata'] = metadata
@@ -130,39 +135,45 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 raise e
             return uuid
 
+        def basic_worksheet(self, uuid):
+            return self.worksheet(uuid, fetch_items=False, get_permissions=True, interpreted=False)
 
-        def worksheet(self, uuid, interpreted=False, fetch_items=True, get_raw=True):
+        def full_worksheet(self, uuid):
+            return self.worksheet(uuid, fetch_items=True, get_permissions=True, interpreted=True)
+
+        def worksheet(self, uuid, fetch_items, get_permissions, interpreted):
+            '''
+            Return information about a worksheet. Calls
+            - get_worksheet_info: get basic info
+            - resolve_interpreted_items: get more information about a worksheet.
+            In the future, for large worksheets, might want to break this up so
+            that we can render something basic.
+            '''
             try:
-                worksheet_info  = self.client.get_worksheet_info(
-                                            uuid,
-                                            fetch_items,  # fetch_items
-                                            True,  # get_permissions
-                                )
+                worksheet_info = self.client.get_worksheet_info(uuid, fetch_items, get_permissions)
             except PermissionError:
                 raise UsageError # forces a not found
-            if get_raw:
-                worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
-            # set permissions
-            worksheet_info['edit_permission'] = False
-            if worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL:
-                worksheet_info['edit_permission'] = True
 
+            if fetch_items:
+                worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
+
+            # Set permissions
+            worksheet_info['edit_permission'] = (worksheet_info['permission'] == GROUP_OBJECT_PERMISSION_ALL)
+            # Format permissions into strings
             worksheet_info['permission_str'] = permission_str(worksheet_info['permission'])
-            # format each groups as well
             for group_permission in worksheet_info['group_permissions']:
                 group_permission['permission_str'] = permission_str(group_permission['permission'])
 
-
+            # Go and fetch more information about the worksheet contents by
+            # resolving the interpreted items.
             if interpreted:
                 interpreted_items = worksheet_util.interpret_items(
                                     worksheet_util.get_default_schemas(),
-                                    worksheet_info['items']
-                                )
+                                    worksheet_info['items'])
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
                 # Currently, only certain fields are base64 encoded.
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
-                        # item['name'] in ['stdout', 'stderr']
                         if item['interpreted'] is None:
                             item['interpreted'] = ['MISSING']
                         else:
@@ -177,34 +188,15 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                             try:
                                 ## sometimes bundle_info is a string. when item['mode'] is image
                                 if isinstance(bundle_info, dict) and bundle_info.get('bundle_type', None) == 'run':
-                                    if 'stdout' in bundle_info.keys():
+                                    if 'stdout' in bundle_info:
                                         bundle_info['stdout'] = base64.b64decode(bundle_info['stdout'])
-                                    if 'stderr' in bundle_info.keys():
+                                    if 'stderr' in bundle_info:
                                         bundle_info['stderr'] = base64.b64decode(bundle_info['stderr'])
                             except Exception, e:
                                 print e
                                 import ipdb; ipdb.set_trace()
 
-
-                return worksheet_info
-            else:
-                return worksheet_info
-
-        # TODO: remove this, not necessary
-        def create_run_bundle(self, args, worksheet_uuid):
-            cli = self._create_cli(worksheet_uuid)
-            parser = cli.create_parser('run')
-            parser.add_argument('target_spec', help=cli.TARGET_SPEC_FORMAT, nargs='*')
-            parser.add_argument('command', help='Command-line')
-            metadata_util.add_arguments(RunBundle, set(), parser)
-            metadata_util.add_edit_argument(parser)
-            args = parser.parse_args(args)
-            metadata = metadata_util.request_missing_metadata(RunBundle, args)
-            targets = cli.parse_key_targets(self.client, worksheet_uuid, args.target_spec)
-
-            new_bundle_uuid = self.client.derive_bundle('run', targets, args.command, metadata, worksheet_uuid)
-            return new_bundle_uuid
-
+            return worksheet_info
 
         def upload_bundle(self, source_file, bundle_type, worksheet_uuid):
             '''
@@ -226,22 +218,22 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return new_bundle_uuid
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
+            '''
+            Add bundle uuid to the given worksheet.
+            '''
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
 
         def parse_and_update_worksheet(self, uuid, lines):
+            '''
+            Replace worksheet |uuid| with the raw contents given by |lines|.
+            '''
             worksheet_info = self.client.get_worksheet_info(uuid, True)
             new_items, commands = worksheet_util.parse_worksheet_form(lines, self.client, worksheet_info['uuid'])
-            self.client.update_worksheet_items(
-                                worksheet_info,
-                                new_items
-                        )
-
+            self.client.update_worksheet_items(worksheet_info, new_items)
+            # Note: commands are ignored
 
         def get_target_info(self, target, depth=1):
             return _call_with_retries(lambda: self.client.get_target_info(target, depth))
-
-        def resolve_interpreted_items(self, interpreted_items):
-            return _call_with_retries(lambda: self.client.resolve_interpreted_items(('test', 'test')))
 
         def delete_worksheet(self, worksheet_uuid):
             return _call_with_retries(lambda: self.client.delete_worksheet(worksheet_uuid, False))
@@ -254,6 +246,12 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return cli
 
         def general_command(self, worksheet_uuid, command):
+            '''
+            Executes an arbitrary CLI command with |worksheet_uuid| as the current worksheet.
+            Basically, all CLI functionality should go through this command.
+            The method currently intercepts stdout/stderr and returns it back to the user.
+            TODO: check thread-safety.
+            '''
             cli = self._create_cli(worksheet_uuid)
             args = worksheet_util.string_to_tokens(command)
             def do_command():
@@ -277,10 +275,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 except BaseException as e:
                     exception = smart_str(e)
                     success = False
+
                 stdout_str = sys.stdout.getvalue()
                 sys.stdout.close()
                 sys.stdout = real_stdout
-
 
                 stderr_str = sys.stderr.getvalue()
                 sys.stderr.close()
@@ -289,7 +287,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 print '>>> general_command on worksheet %s: %s' % (worksheet_uuid, command)
                 print stdout_str
                 print stderr_str
-                return {'structured_result': structured_result, 'stdout': stdout_str, 'stderr': stderr_str, 'exception': str(exception) if exception else None}
+                return {
+                    'structured_result': structured_result,
+                    'stdout': stdout_str, 'stderr': stderr_str,
+                    'exception': str(exception) if exception else None
+                }
             return _call_with_retries(do_command)
 
         MAX_BYTES = 1024*1024
@@ -319,6 +321,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 delete = True
 
             def read_file():
+                '''
+                Generates a stream of strings corresponding to the contents of this file.
+                '''
                 try:
                     while True:
                         bytes = self.client.read_file(source_uuid, BundleService.MAX_BYTES)
@@ -341,11 +346,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
 
-
 else:
-
+    # Bundle service not supported
     class BundleService():
-
         def __init__(self, user=None):
             pass
 
@@ -363,4 +366,3 @@ else:
 
         def ls(self, uuid, path):
             raise NotImplementedError
-

@@ -1,6 +1,5 @@
 /** @jsx React.DOM */
 
-
 var ACTIONBAR_MINIMIZE_HEIGHT = 25;
 var ACTIONBAR_DRAGHEIGHT = 170
 
@@ -150,7 +149,6 @@ var WorksheetActionBar = React.createClass({
                                     }else{ // nothing fancy just spit it out with a tab
                                         term.echo(matched.join('\t'));
                                     }
-
 
                                     tab_count = 0;
                                 } else {

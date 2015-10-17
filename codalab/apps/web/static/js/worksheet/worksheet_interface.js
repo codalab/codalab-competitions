@@ -1,5 +1,13 @@
 /** @jsx React.DOM */
 
+/*
+Main worksheet page, which displays information about a single worksheet.
+Consists of three main components:
+- action bar (web terminal)
+- list of worksheets
+- side panel
+*/
+
 var keyMap = {
     13: "enter",
     27: "esc",
@@ -76,8 +84,7 @@ var Worksheet = React.createClass({
         $('#ws_search').removeAttr('style');
     },
     capture_keys: function(){
-        // console.log("-------------------  capture_keys  -------------------");
-        Mousetrap.reset();// reset, since we will call children, lets start fresh.
+        Mousetrap.reset();  // reset, since we will call children, lets start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
         if (this.state.activeComponent == 'action') {
@@ -149,21 +156,19 @@ var Worksheet = React.createClass({
         }
     },
     toggleActionBar: function(){
-        this.setState({showActionBar:!this.state.showActionBar});
+        this.setState({showActionBar: !this.state.showActionBar});
     },
     showActionBar: function(){
-        this.setState({showActionBar:true});
+        this.setState({showActionBar: true});
     },
     hideActionBar: function(){
-        this.setState({showActionBar:false});
+        this.setState({showActionBar: false});
     },
     refreshWorksheet: function(){
         $('#update_progress').show();
-        this.setState({updating:true});
+        this.setState({updating: true});
         ws_obj.fetch({
             success: function(data){
-                // console.log("fetch_and_update success");
-                // console.log("%c--------------------------------------------------------------", "color: Green; font-size:15px;");
                 if(this.isMounted()){
                     this.refs.list.setState({worksheet: ws_obj.getState()});
                 }
@@ -181,8 +186,8 @@ var Worksheet = React.createClass({
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert');
                 } else {
-                    var error_msg = xhr.responseJSON.error
-                    if(error_msg){ err = error_msg }
+                    var error_msg = xhr.responseJSON.error;
+                    if (error_msg) err = error_msg;
                     $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-danger alert');
                 }
                 $('#update_progress').hide();
@@ -197,7 +202,7 @@ var Worksheet = React.createClass({
         ws_obj.saveWorksheet({
             success: function(data){
                 this.setState({updating:false});
-                if('error' in data){ // TEMP REMOVE FDC
+                if ('error' in data) { // TEMP REMOVE FDC
                     $('#update_progress').hide();
                     $('#save_error').show();
                     $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
@@ -207,7 +212,6 @@ var Worksheet = React.createClass({
                 }else{
                     this.refreshWorksheet();
                 }
-                // debugger;
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err);
@@ -227,19 +231,14 @@ var Worksheet = React.createClass({
         var rawWorksheet = ws_obj.getRaw();
         var editPermission = ws_obj.getState().edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
-
-        var searchHidden = !editPermission && !this.state.showActionBar;
         var checkboxEnabled = this.state.checkboxEnabled;
 
-        var serachClassName     = searchHidden ? 'search-hidden' : '';
+        var searchClassName     = !this.state.showActionBar ? 'search-hidden' : '';
         var editableClassName   = canEdit ? 'editable' : '';
         var viewClass           = !canEdit && !this.state.editMode ? 'active' : '';
         var editClass           = canEdit && !this.state.editMode ? 'active' : '';
         var rawClass            = this.state.editMode ? 'active' : '';
-        /*var edit_btn = '';
-        if(editPermission) {
-            edit_btn = <button className={editClass} onClick={this.editMode}>Edit</button>
-        }*/
+
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
             <div className="edit-features">
@@ -251,11 +250,6 @@ var Worksheet = React.createClass({
             </div>
         );
 
-        var permission_str = ws_obj.state.permission_str + ' [';
-        ws_obj.state.group_permissions.forEach(function(perm) {
-            permission_str = permission_str + " " + perm.group_name + "(" + perm.permission_str + ")";
-        });
-        permission_str += ' ]';
         if (ws_obj.state.items.length) {
             // Non-empty worksheet
         } else {
@@ -288,7 +282,7 @@ var Worksheet = React.createClass({
                     showActionBar={this.showActionBar}
                     refreshWorksheet={this.refreshWorksheet}
                 />
-            )
+            );
 
         var action_bar_display = (
                 <WorksheetActionBar
@@ -303,7 +297,7 @@ var Worksheet = React.createClass({
                     refreshWorksheet={this.refreshWorksheet}
                     editMode={this.editMode}
                 />
-            )
+            );
 
         var worksheet_side_panel = null;
         if(ws_obj.state.items.length){
@@ -314,7 +308,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                 />
-            )
+            );
         }
 
         var upload_modal = (
@@ -324,16 +318,10 @@ var Worksheet = React.createClass({
                 />
             )
 
-        var worksheet_modal = (
-                <BootstrapModal
-                    ref={"modal"}
-                />
-            )
-
         var worksheet_display = this.state.editMode ? raw_display : items_display;
 
         return (
-            <div id="worksheet" className={serachClassName}>
+            <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
                 <div id="worksheet_panel" className="actionbar-focus">
                     {worksheet_side_panel}
@@ -347,8 +335,8 @@ var Worksheet = React.createClass({
                                             <div className="worksheet-icon"></div>
                                             <div className="worksheet-name">
                                                 <div className="worksheet-detail">Name: {ws_obj.state.name}</div>
-                                                <div className="worksheet-detail">Owner: {ws_obj.state.owner}</div>
-                                                <div className="worksheet-detail">Permission: {permission_str}</div>
+                                                <div className="worksheet-detail">Owner: {ws_obj.state.owner_name}</div>
+                                                <div className="worksheet-detail">Permission: {render_permissions(ws_obj.state)}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">
@@ -363,7 +351,6 @@ var Worksheet = React.createClass({
                                 {worksheet_display}
                             </div>
                         </div>
-                        {worksheet_modal}
                         {upload_modal}
                     </div>
                 </div>
@@ -373,5 +360,4 @@ var Worksheet = React.createClass({
     }
 });
 
-var worksheet_react = <Worksheet />;
-React.render(worksheet_react, document.getElementById('worksheet_container'));
+React.render(<Worksheet />, document.getElementById('worksheet_container'));

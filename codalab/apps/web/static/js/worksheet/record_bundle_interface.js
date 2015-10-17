@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which corresponds to a record.
 var RecordBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function(){

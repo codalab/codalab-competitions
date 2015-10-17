@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block custom_body_attributes %}{% endblock %}
-{% block head_title %}{{worksheet_title}} -  Worksheet details{% endblock head_title %}
+{% block head_title %}Worksheet: {{worksheet_title}}{% endblock head_title %}
 {% block meta %}
-    <meta property="og:title" content="{{worksheet_title}}">
+    <meta property="og:title" content="Worksheet: {{worksheet_title}}">
     <meta property="og:site_name" content="CodaLab">
     <meta property="og:type" content="article">
     <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
@@ -28,7 +28,7 @@
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Updating...
 </div>
 <div id="save_error" class="progress-message">
-    <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
+    <i class="glyphicon glyphicon-remove-circle"></i> Error saving...
 </div>
 <div id="glossaryModal" class="modal" data-keyboard="true">
     <div class="modal-dialog">
@@ -100,10 +100,11 @@
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
 
+    <script src="{{ STATIC_URL }}js/worksheet/worksheet_utils.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/bundle_detail_content.js"></script>
+    <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
-
 
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     {# ------- JSX FILES  ------- #}
@@ -113,13 +114,11 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_bundle_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/search_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/modal_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/upload_modal_interface.js"></script>
     {# main entrance point for the worksheet and it's items/bundles #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
@@ -139,10 +138,9 @@ var worksheet_url = '/api' + document.location.pathname
     worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
 {% endif %}
 $(function () {
-    //                           /api/worksheets/0x706<...>d5b66e
-    ws_obj = new WorksheetContent(worksheet_url);
-    ws_bundle_obj = new BundleContent();
-    ws_actions = new WorksheetActions(); // Search bar actions
+  ws_actions = new WorksheetActions(); // Action bar (web terminal)
+  ws_obj = new WorksheetContent(worksheet_url);  // Manage current worksheet information
+  ws_bundle_obj = new BundleContent();  // Manage current bundle information
 });
 </script>
 

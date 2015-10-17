@@ -55,7 +55,6 @@ except ImportError:
         "Could not load Azure bindings. "
         "See https://github.com/WindowsAzure/azure-sdk-for-python")
 
-
 User = get_user_model()
 
 class HomePageView(TemplateView):
@@ -933,125 +932,6 @@ class VersionView(TemplateView):
         tasks.echo("version is " + out)
         return ctx
 
-#
-# Bundle Views
-#
-
-class BundleListView(TemplateView):
-    """
-    Displays the list of bundles.
-    """
-    template_name = 'web/bundles/index.html'
-    def get_context_data(self, **kwargs):
-        context = super(BundleListView, self).get_context_data(**kwargs)
-        service = BundleService(self.request.user)
-        results = service.items()
-        context['bundles'] = results
-
-        bundles = results
-        items = []
-        for bundle in bundles:
-            item = {'uuid': bundle['uuid'],
-                    'details_url': '/bundles/{0}'.format(bundle['uuid']),
-                    'name': '',
-                    'title': '<title not specified>',
-                    'creator': '<creator not specified>',
-                    'description': '<description not specified>'}
-            if 'metadata' in bundle:
-                metadata = bundle['metadata']
-                for (key1, key2) in [('title', 'name'), ('creator', None), ('description', None)]:
-                    if key2 is None:
-                        key2 = key1
-                    if key2 in metadata:
-                        item[key1] = metadata[key2]
-            items.append(item)
-        context['items'] = items
-        context['items_label'] = 'bundles'
-
-        return context
-
-class BundleDetailView(TemplateView):
-    """
-    Displays details for a bundle.
-    """
-    template_name = 'web/bundles/detail.html'
-    def get_context_data(self, **kwargs):
-        context = super(BundleDetailView, self).get_context_data(**kwargs)
-        uuid = kwargs.get('uuid')
-        service = BundleService(self.request.user)
-        bundle_info = service.get_bundle_info(uuid)
-        context['bundle'] = bundle_info
-        return context
-
-def BundleDownload(request, uuid):
-    service = BundleService(request.user)
-    stream, name, content_type = service.read_target((uuid, ''))
-    response = StreamingHttpResponse(stream, content_type=content_type)
-    #response['Content-Disposition'] = 'attachment; filename="%s"' % name
-    # Remove 'attachment' so that simple things show up in the browser.
-    response['Content-Disposition'] = 'filename="%s"' % name
-    return response
-
-# Worksheets
-class WorksheetLandingView(TemplateView):
-    """
-    Displays worksheets as a list.
-    """
-    template_name = 'web/worksheets/detail.html'
-    def get(self, request, *args, **kwargs):
-        #did the user give us a worksheet name or uuid
-        requested_ws = request.GET.get('name', None)
-        requested_ws = request.GET.get('uuid', requested_ws)
-        if(requested_ws):
-            service = BundleService(request.user)
-            try:
-                uuid = service.get_worksheet_uuid(requested_ws)
-                return HttpResponseRedirect(reverse('ws_view', kwargs={'uuid': uuid}))
-            except Exception, e:  # UsageError
-                pass
-        # do we have a langing page
-        if(len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1):
-            return HttpResponseRedirect(reverse("ws_list"))
-
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetLandingView, self).get_context_data(**kwargs)
-        context['worksheet_uuid'] = settings.LANDING_PAGE_WORKSHEET_UUID
-        return context
-
-class WorksheetListView(TemplateView):
-    """
-    Displays worksheets as a list.
-    """
-    template_name = 'web/worksheets/index.html'
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetListView, self).get_context_data(**kwargs)
-        return context
-
-class WorksheetDetailView(TemplateView):
-    """
-    Displays details of a worksheet.
-    """
-    template_name = 'web/worksheets/detail.html'
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
-        service = BundleService(self.request.user)
-        uuid = kwargs.get('uuid', None)
-        worksheet_info = service.worksheet(uuid, interpreted=False, fetch_items=False, get_raw=False)
-        context['worksheet_info'] = worksheet_info
-        context['worksheet_uuid'] = uuid
-
-        # will sometimes return nill, which doesn false the dict.get call and just returns a None object no matter what.
-        title = worksheet_info.get('title')
-        if(title):
-            context['worksheet_title'] = title
-        else:
-            context['worksheet_title'] = worksheet_info.get('name', '')
-        return context
-
-
 class OrganizerDataSetListView(LoginRequiredMixin, ListView):
     model = models.OrganizerDataSet
     template_name = "web/my/datasets.html"
@@ -1474,3 +1354,91 @@ def submission_re_run(request, submission_pk):
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
+
+############################################################
+# Worksheets: template views
+
+class WorksheetLandingView(TemplateView):
+    """
+    When we land on the worksheets page, we want to serve.
+    """
+    template_name = 'web/worksheets/detail.html'
+    def get(self, request, *args, **kwargs):
+        # Did the user give us a worksheet name or uuid?
+        # Support /worksheets/?name=... and /worksheets/?uuid=...
+        requested_ws = request.GET.get('name', None)
+        requested_ws = request.GET.get('uuid', requested_ws)
+        if requested_ws:
+            service = BundleService(request.user)
+            try:
+                uuid = service.get_worksheet_uuid(requested_ws)
+                return HttpResponseRedirect(reverse('ws_view', kwargs={'uuid': uuid}))
+            except Exception, e:  # UsageError
+                pass
+
+        # Go to default worksheet.
+        if len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1:
+            return HttpResponseRedirect(reverse("ws_list"))
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(WorksheetLandingView, self).get_context_data(**kwargs)
+        context['worksheet_uuid'] = settings.LANDING_PAGE_WORKSHEET_UUID
+        return context
+
+class WorksheetListView(TemplateView):
+    """
+    Displays worksheets as a list.
+    """
+    template_name = 'web/worksheets/index.html'
+    def get_context_data(self, **kwargs):
+        context = super(WorksheetListView, self).get_context_data(**kwargs)
+        return context
+
+class WorksheetDetailView(TemplateView):
+    """
+    Show information about a worksheet.
+    Displays details of a worksheet.
+    """
+    template_name = 'web/worksheets/detail.html'
+    def get_context_data(self, **kwargs):
+        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
+        service = BundleService(self.request.user)
+        uuid = kwargs.get('uuid', None)
+
+        # Just call to get the title.
+        # TODO: later we call worksheet again to get the contents.
+        # Can we avoid calling get_worksheet_info twice?
+        worksheet_info = service.basic_worksheet(uuid)
+        context['worksheet_info'] = worksheet_info
+        context['worksheet_uuid'] = uuid
+        # Set the title to something sane.
+        context['worksheet_title'] = worksheet_info.get('title', worksheet_info.get('name', ''))
+        return context
+
+class BundleDetailView(TemplateView):
+    """
+    Displays details for a bundle.
+    """
+    template_name = 'web/bundles/detail.html'
+    def get_context_data(self, **kwargs):
+        context = super(BundleDetailView, self).get_context_data(**kwargs)
+        uuid = kwargs.get('uuid')
+        service = BundleService(self.request.user)
+        bundle_info = service.get_bundle_info(uuid)
+        context['bundle'] = bundle_info
+        context['bundle_title'] = bundle_info.get('metadata', {}).get('name', '')
+        return context
+
+def BundleDownload(request, uuid):
+    '''
+    Return a stream with the contents of the bundle (zip file if necessary).
+    This is the same code as BundleFileContentApi.
+    '''
+    service = BundleService(request.user)
+    stream, name, content_type = service.read_target((uuid, ''))
+    response = StreamingHttpResponse(stream, content_type=content_type)
+    response['Content-Disposition'] = 'filename="%s"' % name
+    return response

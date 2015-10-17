@@ -1,3 +1,8 @@
+/*
+TODO: much of this logic should be merged with BundleDetailSidePanel in worksheet_side_panel.
+Some of the functionality like the file browser should just be shared.
+*/
+
 /** @jsx React.DOM */
 var Bundle = React.createClass({
     getInitialState: function(){
@@ -95,13 +100,10 @@ var Bundle = React.createClass({
 
         this.updateFileBrowser();
     },
+
     // File browser is updated based on location.hash!
     updateFileBrowser: function(specific_folder_path, reset_cwd) {
         var folder_path = specific_folder_path || '';
-
-//        if(folder_path == '') {
-//            folder_path = location.hash.replace('#', '');
-//        }
 
         // Special case '..' we go up a directory
         if(folder_path == '..') {
@@ -147,6 +149,7 @@ var Bundle = React.createClass({
             }.bind(this)
         });
     },
+
     render: function() {
         var saveButton;
         var metadata = this.state.metadata;
@@ -155,15 +158,22 @@ var Bundle = React.createClass({
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
         var editButtonText = editing ? 'cancel' : 'edit';
-        /// ------------------------------------------------------------------
-        if(editing){
+
+        if (editing)
             saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
+
+        var keys = [];
+        for (var property in metadata) {
+            if (metadata.hasOwnProperty(property))
+                keys.push(property);
         }
-        /// ------------------------------------------------------------------
-        for(var k in metadata) {
+        keys.sort();
+        for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            // TODO: only allow editing on the keys; needs to be passed in from Python.
             bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
         }
-        /// ------------------------------------------------------------------
+
         var dependencies_table = []
         var dep_bundle_url = ''
         var dependencies_html = ''
@@ -468,8 +478,6 @@ var BundleAttr = React.createClass({
         }
     }
 });
-
-
 
 var FileBrowser = React.createClass({
     render: function() {

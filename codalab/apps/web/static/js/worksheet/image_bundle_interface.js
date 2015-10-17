@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which is an image file in a bundle.
 var ImageBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function(){
