@@ -40,7 +40,7 @@ var WorksheetSidePanel = React.createClass({
         var self = this;
         if(this.debouncedFetchExtra === undefined){
             // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 1500).bind(this);
+            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 500).bind(this);
         }
         //set up the wait for fetching extra
         this.debouncedFetchExtra();
