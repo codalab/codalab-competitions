@@ -41,7 +41,7 @@ from apps.web import tasks
 from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
-from apps.common.utils import recent_worksheets
+from apps.common.worksheet_utils import recent_worksheets
 from tasks import evaluate_submission
 from django.contrib.auth import get_user_model
 

@@ -1,6 +1,6 @@
 This file describes the structure of the code relevant to CodaLab worksheets.
 
-Maps URLs to views:
+Maps URLs to views
   ./apps/api/routers.py
   ./apps/web/urls/bundles.py
   ./apps/web/urls/worksheets.py
@@ -30,6 +30,9 @@ API views (./apps/api/views/worksheet_views.py):
   BundleFileContentApi
 
 BundleService (./apps/web/bundles.py): talks to RemoteBundleClient (codalab-cli repo)
+
+Utilities
+  ./apps/common/worksheet_utils.py
 
 ############################################################
 
