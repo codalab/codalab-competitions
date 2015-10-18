@@ -264,23 +264,7 @@ class BundleInfoApi(views.APIView):
         try:
             bundle_info = service.get_bundle_info(uuid)
             target = (uuid, '')
-            info = service.get_target_info(target, 2) # 2 is the depth to retrieve
-            bundle_info['stdout'] = None
-            bundle_info['stderr'] = None
-
-            contents = info.get('contents')
-            if contents:
-                for item in contents:
-                    if item['name'] in ['stdout', 'stderr']:
-                        lines = service.head_target((uuid, item['name']), 100)
-                        if lines:
-                            import base64
-                            lines = ' '.join(map(base64.b64decode, lines))
-                            bundle_info[item['name']] = lines
-
-            bundle_info['edit_permission'] = False
-            if bundle_info['owner_id'] == str(self.request.user.id):
-                bundle_info['edit_permission'] = True
+            bundle_info.update(service.get_target_info_with_stdout_stderr(target))
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
@@ -298,8 +282,7 @@ class BundleInfoApi(views.APIView):
         try:
             bundle_info = service.get_bundle_info(uuid)
             # Save only if we're the owner.
-            # TODO: allow saving if you have edit permission.
-            if bundle_info['owner_id'] == str(self.request.user.id):
+            if bundle_info['edit_permission']:
                 data = json.loads(request.body)
                 new_metadata = data['metadata']
 
@@ -307,7 +290,7 @@ class BundleInfoApi(views.APIView):
                 # Remove generated fields.
                 for key in ['data_size', 'created', 'time', 'memory', 'exitcode', 'actions']:
                     if key in new_metadata:
-                        new_metadata.pop(key)
+                        del new_metadata[key]
 
                 # Convert to arrays
                 for key in ['tags', 'language', 'architectures']:
@@ -393,24 +376,12 @@ class BundleContentApi(views.APIView):
     If |path| is unspecified, then return stdout and stderr for a bundle.
     """
     def get(self, request, uuid, path=''):
-        maxlines = 100
         user_id = self.request.user.id
         logger.debug("BundleContent: user_id=%s; uuid=%s; path=%s.", user_id, uuid, path)
         service = BundleService(self.request.user)
         try:
-            # Get the file listing and get the contents
             target = (uuid, path)
-            info = service.get_target_info(target, 2)
-            contents = info.get('contents')
-            if contents:
-                contents = sorted(contents, key=lambda r: r['name'])
-                for item in contents:
-                    if item['name'] in ['stdout', 'stderr']:
-                        lines = service.head_target((uuid, item['name']), maxlines)
-                        if lines:
-                            import base64
-                            lines = ' '.join(map(base64.b64decode, lines))
-                            info[item['name']] = lines
+            info = service.get_target_info_with_stdout_stderr(target)
             return Response(info)
         except Exception as e:
             tb = traceback.format_exc()

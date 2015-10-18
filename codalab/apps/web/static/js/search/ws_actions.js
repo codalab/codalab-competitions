@@ -34,7 +34,7 @@ var WorksheetActions = function() {
             'kill',
             // Commands for worksheets:
             // 'new',  // overrode see below
-            // 'add',  // overrode see below
+            'add',
             // 'work', // overrode see below
             'wadd',
             'wrm',

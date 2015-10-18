@@ -160,7 +160,7 @@ var Bundle = React.createClass({
         var editButtonText = editing ? 'cancel' : 'edit';
 
         if (editing)
-            saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
+            saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>;
 
         var keys = [];
         for (var property in metadata) {
@@ -170,44 +170,27 @@ var Bundle = React.createClass({
         keys.sort();
         for (var i = 0; i < keys.length; i++) {
             var k = keys[i];
-            // TODO: only allow editing on the keys; needs to be passed in from Python.
+            // TODO: only allow editing on certain keys; needs to be passed in from Python.
             bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
         }
 
-        var dependencies_table = []
-        var dep_bundle_url = ''
-        var dependencies_html = ''
-        if(this.state.dependencies.length){
-            this.state.dependencies.forEach(function(dep, i){
-                dep_bundle_url = "/bundles/" + dep.parent_uuid;
+        var dependencies_table = [];
+        if (this.state.dependencies.length) {
+            this.state.dependencies.forEach(function(dep, i) {
+                var dep_bundle_url = "/bundles/" + dep.parent_uuid;
                 dependencies_table.push(
                     <tr>
                         <td>
                             {dep.child_path}
                         </td>
                         <td>
-                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
-                        </td>
-                        <td>
-                            {dep.parent_name}
+                            {dep.parent_name}(<a href={dep_bundle_url}>{dep.parent_uuid}</a>){dep.parent_path ? '/' + dep.parent_path : ''}
                         </td>
                     </tr>
-                    )
+                );
             }) // end of foreach
-            if(dependencies_table.length == 0){
-                dependencies_table.push(
-                    <tr>
-                        <td>
-                            None
-                        </td>
-                        <td>
-                            None
-                        </td>
-                    </tr>
-                    )
-            }
 
-            dependencies_html = (
+            var dependencies_html = (
                 <div className="row">
                     <div className="col-sm-10">
                         <div className="dependencies-table">
@@ -215,8 +198,7 @@ var Bundle = React.createClass({
                                 <thead>
                                     <tr>
                                         <th>Path</th>
-                                        <th>UUID</th>
-                                        <th>Bundle Name</th>
+                                        <th>Target</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -226,12 +208,11 @@ var Bundle = React.createClass({
                         </div>
                     </div>
                 </div>
-            )
-        }// end of this.state.dependencies.length
+            );
+        }
 
-        /// ------------------------------------------------------------------
-        var stdout_html = ''
-        if(this.state.stdout){
+        var stdout_html = '';
+        if(this.state.stdout) {
             //had to add span since react elm must be wrapped
             stdout_html = (
                 <span>
@@ -244,8 +225,8 @@ var Bundle = React.createClass({
                 </span>
             )
         }
-        var stderr_html = ''
-        if(this.state.stderr){
+        var stderr_html = '';
+        if(this.state.stderr) {
             //had to add span since react elm must be wrapped
             stderr_html = (
                 <span>
@@ -312,50 +293,7 @@ var Bundle = React.createClass({
                             </div>
                         </div>
             )
-
         }
-        group_permissions_html = ''
-        if(this.state.edit_permission){
-            if(this.state.group_permissions.length){
-                group_permissions_rows = []
-                this.state.group_permissions.forEach(function(group, i){
-                    group_permissions_rows.push(
-                        <tr>
-                            <td>
-                                {group.group_name}
-                            </td>
-                            <td>
-                               {group.group_uuid}
-                            </td>
-                            <td>
-                               {group.permission_str}
-                            </td>
-                        </tr>
-                    );
-                }) // end of foreach
-                group_permissions_html = (
-                            <div className="row">
-                                <div className="col-sm-10">
-                                    <div className="dependencies-table">
-                                        <table id="dependencies_table" >
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>UUID</th>
-                                                    <th>Permissions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {group_permissions_rows}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                )
-            } // end of if group_permissions.len
-        }// end of if edit.permission
-        /// ------------------------------------------------------------------
 
         return (
             <div className="bundle-tile">
@@ -366,6 +304,7 @@ var Bundle = React.createClass({
                                 {this.state.metadata.name}
                             </h2>
                             <em> Owner: {this.state.owner_name}</em>
+                <p className="ws-permissions">Permissions: {render_permissions(this.state)}</p>
                         </div>
                         <div className="col-sm-6">
                             <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
@@ -406,6 +345,21 @@ var Bundle = React.createClass({
                             </tr>
                         </table>
                     </div>
+
+                {dependencies_html ? <h3> Dependencies</h3> : null}
+                {dependencies_html ? dependencies_html : null}
+
+                <div className="row">
+                    <div className="col-sm-10">
+                        {stdout_html}
+                        {stderr_html}
+                    </div>
+                </div>
+
+                <div className="bundle-file-view-container">
+                    {this.state.fileBrowserData.contents ? fileBrowser : null}
+                </div>
+
                 <h3>
                     Metadata
                     {edit}
@@ -423,26 +377,9 @@ var Bundle = React.createClass({
                         </div>
                     </div>
                 </div>
-                <div className="bundle-file-view-container">
-                    {this.state.fileBrowserData.contents ? fileBrowser : null}
-                </div>
-                {dependencies_html ? <h3> Dependencies</h3> : null}
-                {dependencies_html ? dependencies_html : null}
-                <div className="row">
-                    <div className="col-sm-10">
-                        {stdout_html}
-                        {stderr_html}
-                    </div>
-                </div>
 
                 {host_worksheets_html ? <h3>Host Worksheets</h3> : null}
                 {host_worksheets_html ? host_worksheets_html : null}
-
-                {group_permissions_html ? <h3>Group Permissions</h3> : null}
-                {group_permissions_html ? group_permissions_html : null}
-
-
-
             </div>
         );
     }

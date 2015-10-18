@@ -51,6 +51,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             raise e
 
     class BundleService():
+        # Maximum number of lines of files to show
+        HEAD_MAX_LINES = 100
+
         def __init__(self, user=None):
             self.client = RemoteBundleClient(settings.BUNDLE_SERVICE_URL,
                                              lambda command: get_user_token(user), verbose=1)
@@ -60,9 +63,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         def get_bundle_info(self, uuid):
             bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid, True, True, True))
-            # format permission data
+
+            # Set permissions
+            bundle_info['edit_permission'] = (bundle_info['permission'] == GROUP_OBJECT_PERMISSION_ALL)
+            # Format permissions into strings
             bundle_info['permission_str'] = permission_str(bundle_info['permission'])
-            # format each groups as well
             for group_permission in bundle_info['group_permissions']:
                 group_permission['permission_str'] = permission_str(group_permission['permission'])
 
@@ -231,6 +236,27 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             new_items, commands = worksheet_util.parse_worksheet_form(lines, self.client, worksheet_info['uuid'])
             self.client.update_worksheet_items(worksheet_info, new_items)
             # Note: commands are ignored
+
+        def get_target_info_with_stdout_stderr(self, target):
+            '''
+            Add contents to stdout and stderr contents to bundle_info.
+            '''
+            uuid, path = target
+            info = self.get_target_info(target, 2)  # List files
+            info['stdout'] = None
+            info['stderr'] = None
+            contents = info.get('contents')
+            # Get stdout and stderr.
+            if contents and path == '':
+                for item in contents:
+                    name = item['name']
+                    if name in ['stdout', 'stderr']:
+                        lines = self.head_target((uuid, name), self.HEAD_MAX_LINES)
+                        if lines:
+                            import base64
+                            lines = ''.join(map(base64.b64decode, lines))
+                            info[name] = lines
+            return info
 
         def get_target_info(self, target, depth=1):
             return _call_with_retries(lambda: self.client.get_target_info(target, depth))
