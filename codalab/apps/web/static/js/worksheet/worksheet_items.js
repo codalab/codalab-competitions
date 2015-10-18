@@ -52,19 +52,20 @@ var WorksheetItemList = React.createClass({
 
         // Go up
         Mousetrap.bind(['up', 'k'], function(e){
-            if(fIndex <= 0){
+            if (fIndex <= 0) {
                 // if we're already at the top of the worksheet, we can't go higher
                 fIndex = -1;
-            }else {
+            } else {
                 fIndex = Math.max(this.state.focusIndex - 1, 0);
             }
-            this.setFocus(fIndex, e, null, 'up');
+            this.setFocus(fIndex);
         }.bind(this), 'keydown');
 
         // Go to the top
         Mousetrap.bind(['1 shift+g'], function(e){
             $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0, e, null, null);
+            this.setFocus(0, 'top');
+            this.scrollToItem(0, e);
         }.bind(this), 'keydown');
 
         // Go down
@@ -73,13 +74,13 @@ var WorksheetItemList = React.createClass({
             // not be the same as the number of item objects because of editing/inserting/whatever,
             // count the actual divs instead
             fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex, e, null, 'down');
+            this.setFocus(fIndex, null);
         }.bind(this), 'keydown');
 
         // Go to the bottom
         Mousetrap.bind(['shift+g'], function(e){
             fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex, e, null, true);
+            this.setFocus(fIndex, 'bottom');
             $("html, body").animate({ scrollTop: $(document).height() }, "fast");
         }.bind(this), 'keydown');
 
@@ -89,7 +90,30 @@ var WorksheetItemList = React.createClass({
         }
     },
 
-    scrollToItem: function(index, event){
+    setFocus: function(index, where) {
+        // index: what item index we want to focus on
+        // event: the JS click event or keyboard event
+        // scroll: if we want to scroll
+        if (index >= this.state.worksheet.items.length) return;
+        this.setState({focusIndex: index});
+        this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection
+        if (index < 0) return;
+
+        var react_el = this.refs['item'+index];
+        if (where == 'bottom') {
+          if (react_el.hasOwnProperty('focusOnLast'))
+              react_el.focusOnLast();
+        } else if (where == 'top') {
+          if (react_el.hasOwnProperty('focusOnRow'))
+              react_el.focusOnRow(0);
+        }
+    },
+
+    resetFocusIndex: function(){
+        this.setState({focusIndex: -1});
+    },
+
+    scrollToItem: function(index, event) {
         // scroll the window to keep the focused element in view if needed
         var __innerScrollToItem = function(index, event){
             var container = $(".ws-container")
@@ -122,53 +146,6 @@ var WorksheetItemList = React.createClass({
             this.throttledScrollToItem = _.throttle(__innerScrollToItem, 75).bind(this);
         }
         this.throttledScrollToItem(index, event);
-    },
-    resetFocusIndex: function(){
-        this.setState({focusIndex: -1});
-    },
-
-    setFocus: function(index, event, last_sub_el, direction, scroll) {
-        if(typeof(scroll) === 'undefined'){
-            scroll = true;
-        }
-        // index : what item index we want to focus on
-        // event : the JS click event or keyboard event
-        // last_sub_el: True/False force a focus on the last sub element
-        if(index < this.state.worksheet.items.length){
-            this.setState({focusIndex: index});
-            //pass back up to workshet interface so the app knows which item is slected
-            this.props.updateWorksheetFocusIndex(index);
-            if(index >= 0) {
-                var mode = ws_obj.state.items[index].state.mode;
-                var react_el = this.refs['item'+index]
-                if(mode === 'table'){
-                    this.toggleCheckboxEnable(false);
-                    if(direction == 'up'){
-                        last_sub_el = true;
-                    }
-                }else {
-                    this.toggleCheckboxEnable(true);
-                }
-                if(react_el && last_sub_el){ //we have a react item and wish to force last sub item (usefulll for tables)
-                    if(react_el.hasOwnProperty('focusOnLast')){
-                        react_el.focusOnLast(event);
-                    }
-                }
-                if(typeof(event) !== 'undefined'){
-                    // var throttledScrollToItem = _.throttle(this.scrollToItem, 1000).bind(this);
-                    // console.log("again?")
-                    // throttledScrollToItem(index, event);
-                    if(scroll){
-                        this.scrollToItem(index, event)
-                    }
-                }
-            }
-        }else {
-            return false;
-        }
-    },
-    toggleCheckboxEnable: function(enabled){
-        this.setState({checkboxEnabled: enabled});
     },
 
     render: function(){

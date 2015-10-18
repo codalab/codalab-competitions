@@ -2,7 +2,6 @@
 Information about the current bundle that's selected in the side panel.
 */
 var BundleContent = function() {
-    //init
     function BundleContent() {
         this.url = null;
         this.current_uuid = null;
@@ -10,8 +9,8 @@ var BundleContent = function() {
             name: '',
         };
     }
-    //add functions and calls below
-     BundleContent.prototype.fetch = function(props) {
+
+    BundleContent.prototype.fetch = function(props) {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
@@ -30,7 +29,6 @@ var BundleContent = function() {
             }.bind(this)
         });
     };
-
 
     return BundleContent;
 }();

@@ -26,7 +26,7 @@ var Bundle = React.createClass({
         };
     },
     toggleEditing: function(){
-        this.setState({editing:!this.state.editing});
+        this.setState({editing: !this.state.editing});
     },
     saveMetadata: function(){
         var new_metadata = this.state.metadata;

@@ -30,7 +30,7 @@ var WorksheetBundle = React.createClass({
 
         var worksheet_display = item.name
         if(item.title){
-            worksheet_display =  item.name + ": " + item.title
+            worksheet_display = item.title + " [" + item.name + "]";
         }
         return(
             <div className="ws-item" onClick={this.handleClick}>

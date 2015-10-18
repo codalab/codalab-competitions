@@ -22,14 +22,14 @@ var WorksheetSidePanel = React.createClass({
             self.resetPanel();
         });
     },
-    capture_keys: function(){
+    capture_keys: function() {
     },
-    _fetch_extra: function(){
+    _fetch_extra: function() {
         if(this.refs.hasOwnProperty('bundle_info_side_panel')){
             this.refs.bundle_info_side_panel.fetch_extra();
         }
     },
-    componentDidUpdate:function(){
+    componentDidUpdate: function() {
         this.capture_keys();
         var self = this;
         if(this.debouncedFetchExtra === undefined){
@@ -44,12 +44,12 @@ var WorksheetSidePanel = React.createClass({
             var current_focus = this.current_focus();
             var subFocusIndex = this.props.subFocusIndex;
             var bundle_info;
-            if(current_focus.bundle_info instanceof Array){ //tables are arrays
+            if (current_focus.bundle_info instanceof Array) { // tables are arrays
                 bundle_info = current_focus.bundle_info[this.props.subFocusIndex]
-            }else{ // content/images/ect. are not
-                bundle_info = current_focus.bundle_info
+            } else { // content/images/ect. are not
+                bundle_info = current_focus.bundle_info;
             }
-            if(this.refs.hasOwnProperty('bundle_info_side_panel')){ // just to double check so no errors
+            if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
                 this.refs.bundle_info_side_panel.setState(bundle_info);
             }
         }
@@ -226,7 +226,7 @@ var BundleDetailSidePanel = React.createClass({
     getInitialState: function() {
         // Set the state from the props and leave props.item alone
         var item = this.props.item;
-        var bundle_info;
+        var bundle_info = {};
         if (item.bundle_info instanceof Array) { // Is a table
           bundle_info = item.bundle_info[this.props.subFocusIndex];
         } else {
@@ -244,9 +244,7 @@ var BundleDetailSidePanel = React.createClass({
         ws_bundle_obj.state = bundle_info;
 
         // Break out if we don't match. The user has moved on.
-        if(ws_bundle_obj.current_uuid == bundle_info.uuid){
-            return;
-        }
+        //if(ws_bundle_obj.current_uuid == bundle_info.uuid){ return; }
 
         //update we are at the correct focus.
         ws_bundle_obj.current_uuid = bundle_info.uuid;
@@ -268,19 +266,15 @@ var BundleDetailSidePanel = React.createClass({
     componentDidMount: function(){},
     componentWillUnmount: function(){},
     componentWillMount: function() {
-      this.updateFileBrowser();
+      this.updateFileBrowser('');
     },
 
-    updateFileBrowser: function(folder_path, reset_cwd) {
-        folder_path = folder_path || '';
-        if (folder_path == '..')
+    updateFileBrowser: function(folder_path) {
+        if (folder_path == '..')  // Go to parent directory
           folder_path = this.state.currentWorkingDirectory.replace(/\/[^\/]*$/, '');
 
-        if(reset_cwd) {
-        } else {
-          if (this.state.currentWorkingDirectory != '')
-              folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
-        }
+        if (this.state.currentWorkingDirectory != '')
+            folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
         this.setState({"currentWorkingDirectory": folder_path});
 
         var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
@@ -304,13 +298,17 @@ var BundleDetailSidePanel = React.createClass({
     },
 
     render: function() {
-      var fileBrowser = (<FileBrowser
-        bundle_uuid={this.state.uuid}
-        fileBrowserData={this.state.fileBrowserData}
-        updateFileBrowser={this.updateFileBrowser}
-        currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
-
       var bundle_info = this.state;
+
+      var fileBrowser = '';
+      if (bundle_info.type == 'directory') {
+        fileBrowser = (<FileBrowser
+          bundle_uuid={this.state.uuid}
+          fileBrowserData={this.state.fileBrowserData}
+          updateFileBrowser={this.updateFileBrowser}
+          currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
+      }
+
       return (<div id="panel_content">
         {renderHeader(bundle_info)}
         {renderDependencies(bundle_info)}
@@ -424,9 +422,7 @@ function renderContents(bundle_info) {
     stdout_html = (<span>
       <h4><a href={stdout_url} target="_blank">stdout</a></h4>
       <div className="bundle-meta">
-          <pre>
-              {bundle_info.stdout}
-          </pre>
+        <pre>{bundle_info.stdout}</pre>
       </div>
     </span>);
   }
@@ -437,14 +433,23 @@ function renderContents(bundle_info) {
     stderr_html = (<span>
       <h4><a href={stderr_url} target="_blank">stderr</a></h4>
       <div className="bundle-meta">
-          <pre>
-              {bundle_info.stderr}
-          </pre>
+        <pre>{bundle_info.stderr}</pre>
+      </div>
+    </span>);
+  }
+
+  var contents_html = '';
+  if (bundle_info.type == 'file') {
+    contents_html = (<span>
+      <h4>contents</h4>
+      <div className="bundle-meta">
+        <pre>{bundle_info.file_contents}</pre>
       </div>
     </span>);
   }
 
   return (<div>
+    {contents_html}
     {stdout_html}
     {stderr_html}
   </div>);
@@ -528,7 +533,7 @@ var FileBrowser = React.createClass({
 var FileBrowserBreadCrumbs = React.createClass({
     breadCrumbClicked: function(path) {
         console.log("breadcrumb -> "+path);
-        //this.props.updateFileBrowser(path, true);
+        this.props.updateFileBrowser(path);
     },
     render: function() {
         var links = [];

@@ -299,9 +299,7 @@ var Worksheet = React.createClass({
                 />
             );
 
-        var worksheet_side_panel = null;
-        if(ws_obj.state.items.length){
-            worksheet_side_panel = (
+        var worksheet_side_panel = (
                 <WorksheetSidePanel
                     ref={"panel"}
                     active={this.state.activeComponent=='side_panel'}
@@ -309,14 +307,13 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                 />
             );
-        }
 
         var upload_modal = (
                 <UploadModal
                     ref={"modal"}
                     refreshWorksheet={this.refreshWorksheet}
                 />
-            )
+            );
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
 

@@ -241,21 +241,27 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             '''
             Add contents to stdout and stderr contents to bundle_info.
             '''
+            def get_lines(name):
+                lines = self.head_target((uuid, name), self.HEAD_MAX_LINES)
+                if lines is not None:
+                    import base64
+                    lines = ''.join(map(base64.b64decode, lines))
+                return lines
+                
             uuid, path = target
             info = self.get_target_info(target, 2)  # List files
-            info['stdout'] = None
-            info['stderr'] = None
-            contents = info.get('contents')
-            # Get stdout and stderr.
-            if contents and path == '':
-                for item in contents:
-                    name = item['name']
-                    if name in ['stdout', 'stderr']:
-                        lines = self.head_target((uuid, name), self.HEAD_MAX_LINES)
-                        if lines:
-                            import base64
-                            lines = ''.join(map(base64.b64decode, lines))
-                            info[name] = lines
+            if info['type'] == 'file':
+                info['file_contents'] = get_lines('')
+            else:
+                # Get stdout and stderr.
+                info['stdout'] = None
+                info['stderr'] = None
+                contents = info.get('contents')
+                if contents and path == '':
+                    for item in contents:
+                        name = item['name']
+                        if name in ['stdout', 'stderr']:
+                            info[name] = get_lines(name)
             return info
 
         def get_target_info(self, target, depth=1):
