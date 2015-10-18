@@ -332,11 +332,11 @@ var Worksheet = React.createClass({
                                     <div className="row">
                                         <h4 className="worksheet-title">{ws_obj.state.title}</h4>
                                         <div className="col-sm-6 col-md-8">
-                                            <div className="worksheet-icon"></div>
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail">Name: {ws_obj.state.name}</div>
-                                                <div className="worksheet-detail">Owner: {ws_obj.state.owner_name}</div>
-                                                <div className="worksheet-detail">Permission: {render_permissions(ws_obj.state)}</div>
+                                                <div className="worksheet-detail"><b>name:</b> {ws_obj.state.name}</div>
+                                                <div className="worksheet-detail"><b>uuid:</b> {ws_obj.state.uuid}</div>
+                                                <div className="worksheet-detail"><b>owner:</b> {ws_obj.state.owner_name}</div>
+                                                <div className="worksheet-detail"><b>permissions:</b> {render_permissions(ws_obj.state)}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">

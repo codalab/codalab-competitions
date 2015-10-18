@@ -1,3 +1,8 @@
+/*
+Shows the side panel which contains information about the current bundle or
+worksheet (with the focus).
+*/
+
 /** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
     focustype: 'worksheet', // worksheet, bundle or None
@@ -133,7 +138,10 @@ var WorksheetSidePanel = React.createClass({
     }
 });
 
+////////////////////////////////////////////////////////////
+
 /** @jsx React.DOM */
+// When selecting a worksheet.
 var WorksheetDetailSidePanel = React.createClass({
     getInitialState: function(){
         return { };
@@ -143,104 +151,99 @@ var WorksheetDetailSidePanel = React.createClass({
     componentWillUnmount: function() {
     },
     render: function() {
-        var worksheet = this.props.item;
-        if(worksheet.hasOwnProperty('subworksheet_info')){
-            // are we looking at a sub worksheet. lets get the correct worksheet data.
-            worksheet = worksheet.subworksheet_info;
-        }
-        var bundles_html = ''
-        var bundles_table = [];
-        // helper function for showing all bundles.
-        var bundle_push = function(b){
-            var b_url =  "/bundles/" + b.uuid;
-            var short_uuid = b.uuid.slice(0,8);
-            bundles_table.push(
-                <tr>
-                    <td>
-                        {b.metadata.name}
-                    </td>
-                    <td>
-                        <a href={b_url}>{short_uuid}</a>
-                    </td>
-                </tr>
-            );
-        }
+      // Select the current worksheet or the subworksheet.
+      var worksheet = this.props.item;
+      if (worksheet.hasOwnProperty('subworksheet_info'))
+        worksheet = worksheet.subworksheet_info;
 
-        // Show all the bundles in the worksheet
-        worksheet.items = worksheet.items || [];
-        if (worksheet.items.length) {
-            worksheet.items.forEach(function(item, i) {
-                var bundle = null;
-                var bundle_info = null;
-                if(item.state.hasOwnProperty('bundle_info') && item.state.bundle_info){
-                   bundle_info = item.state.bundle_info;
-                   if(Array.isArray(bundle_info)){
-                        bundle_info.forEach(function(bi, i){
-                            if(bi.hasOwnProperty('data_hash')){
-                                bundle_push(bi);
-                            }
-                        });
-                   }else{
-                        bundle_push(bundle_info);
-                   }
-                }
-            }); // end of foreach
+      // Show brief summary of contents
+      var rows = [];
+      if (worksheet.items) {
+        worksheet.items.forEach(function(item) {
+          if (item.state.bundle_info) {
+            // Show bundle
+            var bundle_infos = item.state.bundle_info;
+            if (!(bundle_infos instanceof Array))
+              bundle_infos = [bundle_infos];
 
-            bundles_html = (
-                <div className="bundles-table">
-                    <h4>Bundles</h4>
-                    <table className="bundle-meta table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>UUID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bundles_table}
-                        </tbody>
-                    </table>
-                </div>
-            )
-        }
+            bundle_infos.forEach(function(b) {
+              var url = "/bundles/" + b.uuid;
+              var short_uuid = shorten_uuid(b.uuid);
+              rows.push(<tr>
+                <td>{b.bundle_type}</td>
+                <td><a href={url} target="_blank">{b.metadata.name}({short_uuid})</a></td>
+              </tr>);
+            });
+          } else if (item.state.mode == 'worksheet') {
+            // Show worksheet
+            var info = item.state.subworksheet_info;
+            var title = info.title || info.name;
+            var url = '/worksheets/' + info.uuid;
+            rows.push(<tr>
+              <td>worksheet</td>
+              <td><a href={url} target="_blank">{title}</a></td>
+            </tr>);
+          }
+        });
+      }
 
-        return (
-            <div id="panel_content">
-                <h4 className="ws-title"> {worksheet.title}</h4>
-                <p className="ws-name">Name: {worksheet.name}</p>
-                <p className="ws-uuid">UUID: {worksheet.uuid}</p>
-                <p className="ws-owner">Owner: {worksheet.owner_name}</p>
-                <p className="ws-permissions">Permissions: {render_permissions(worksheet)}</p>
-                {bundles_html}
-            </div>
-        )
+      var bundles_html = (
+        <div className="bundles-table">
+            <table className="bundle-meta table">
+                <thead>
+                  <tr>
+                    <th>type</th>
+                    <th>name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows}
+                </tbody>
+            </table>
+        </div>
+      );
+
+      return (
+          <div id="panel_content">
+              <h4 className="ws-title">{worksheet.title}</h4>
+              <table className="bundle-meta table">
+                <tr><th>name</th><td>{worksheet.name}</td></tr>
+                <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
+                <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
+                <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
+              </table>
+              {bundles_html}
+          </div>
+      );
     }
 });
 
 ////////////////////////////////////////////////////////////
 
+/** @jsx React.DOM */
+// When selecting a bundle.
 var BundleDetailSidePanel = React.createClass({
-    getInitialState: function(){
-        //set the state from the props and leave props.item alone
+    getInitialState: function() {
+        // Set the state from the props and leave props.item alone
         var item = this.props.item;
         var bundle_info;
-        if(item.bundle_info instanceof Array){ //tables are arrays
-            bundle_info = item.bundle_info[this.props.subFocusIndex];
-        } else { // content/images/etc. are not
-            bundle_info = item.bundle_info;
+        if (item.bundle_info instanceof Array) { // Is a table
+          bundle_info = item.bundle_info[this.props.subFocusIndex];
+        } else {
+          bundle_info = item.bundle_info;
         }
 
-        bundle_info.host_worksheets   = bundle_info.host_worksheets || [];
-        bundle_info.dependencies      = bundle_info.dependencies || [];
-        bundle_info.group_permissions = bundle_info.group_permissions || [];
-        bundle_info.stdout = bundle_info.stdout || null;
-        bundle_info.stderr = bundle_info.stderr || null;
+        bundle_info.fileBrowserData = {};
+        bundle_info.currentWorkingDirectory = '';
+
         return bundle_info;
     },
-    fetch_extra: function(){ // grab detailed infomation about this bundle info.
+    fetch_extra: function() {
+        // Fetch detailed information about this bundle.
         var bundle_info = this.state;
         ws_bundle_obj.state = bundle_info;
-        //break out if we don't match. The user has moved on.
+
+        // Break out if we don't match. The user has moved on.
         if(ws_bundle_obj.current_uuid == bundle_info.uuid){
             return;
         }
@@ -261,239 +264,334 @@ var BundleDetailSidePanel = React.createClass({
                 console.error(ws_obj.url, status, err);
             }.bind(this)
         });
-
     },
     componentDidMount: function(){},
     componentWillUnmount: function(){},
-    render: function(){
-        var bundle_info = this.state;
-        var bundle_url = '/bundles/' + bundle_info.uuid;
-        var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
-        var bundle_name;
-        if(bundle_info.metadata.name){
-            bundle_name = <h3 className="bundle-name">{ bundle_info.metadata.name }</h3>
-        }
-        var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready')
-        var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
+    componentWillMount: function() {
+      this.updateFileBrowser();
+    },
 
-        // setup various parts of the side panel.
-        /// ------------------------------------------------------------------
-        var dependencies = bundle_info.dependencies
-        var dependencies_table = []
-        var dep_bundle_url = ''
-        var dependencies_html = ''
-        if(dependencies.length){
-            dependencies.forEach(function(dep, i){
-                dep_bundle_url = "/bundles/" + dep.parent_uuid;
-                dependencies_table.push(
-                    <tr>
-                        <td>
-                            {dep.child_path}
-                        </td>
-                        <td>
-                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
-                        </td>
-                    </tr>
-                )
-            }) // end of foreach
+    updateFileBrowser: function(folder_path, reset_cwd) {
+        folder_path = folder_path || '';
+        if (folder_path == '..')
+          folder_path = this.state.currentWorkingDirectory.replace(/\/[^\/]*$/, '');
 
-            dependencies_html = (
-                <div className="dependencies-table">
-                    <h4>Dependencies</h4>
-                    <table className="bundle-meta table">
-                        <thead>
-                            <tr>
-                                <th>Path</th>
-                                <th>UUID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dependencies_table}
-                        </tbody>
-                    </table>
-                </div>
-            )
-        }// end of this.state.dependencies.length
+        if(reset_cwd) {
+        } else {
+          if (this.state.currentWorkingDirectory != '')
+              folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+        }
+        this.setState({"currentWorkingDirectory": folder_path});
 
-        var metadata = bundle_info.metadata;
-        var metadata_list_html = [];
+        var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({"fileBrowserData": data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                if (xhr.status != 404) {
+                    $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
+                } else {
+                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
+                }
+                $('.bundle-file-view-container').hide();
+            }.bind(this)
+        });
+    },
 
-        // Sort the metadata by key.
-        var keys = [];
-        for (var property in metadata) {
-            if (metadata.hasOwnProperty(property))
-                keys.push(property);
-        }
-        keys.sort();
-        for (var i = 0; i < keys.length; i++) {
-            var property = keys[i];
-            metadata_list_html.push(
-                <tr>
-                    <th>
-                        {property}
-                    </th>
-                    <td>
-                        <span >
-                            {metadata[property]}
-                        </span>
-                    </td>
-                </tr>
-            );
+    render: function() {
+      var fileBrowser = (<FileBrowser
+        bundle_uuid={this.state.uuid}
+        fileBrowserData={this.state.fileBrowserData}
+        updateFileBrowser={this.updateFileBrowser}
+        currentWorkingDirectory={this.state.currentWorkingDirectory}/>);
+
+      var bundle_info = this.state;
+      return (<div id="panel_content">
+        {renderHeader(bundle_info)}
+        {renderDependencies(bundle_info)}
+        {renderContents(bundle_info)}
+        {fileBrowser}
+        {renderMetadata(bundle_info)}
+        {renderHostWorksheets(bundle_info)}
+      </div>);
+    }
+});
+
+function renderDependencies(bundle_info) {
+  var dependencies_table = [];
+  if (!bundle_info.dependencies || bundle_info.dependencies.length == 0) return <div/>;
+
+  bundle_info.dependencies.forEach(function(dep, i) {
+    var dep_bundle_url = "/bundles/" + dep.parent_uuid;
+    dependencies_table.push(<tr>
+      <td>
+          {dep.child_path}
+      </td>
+      <td>
+          &rarr; {dep.parent_name}(<a href={dep_bundle_url}>{shorten_uuid(dep.parent_uuid)}</a>){dep.parent_path ? '/' + dep.parent_path : ''}
+      </td>
+    </tr>);
+  });
+
+  return (<div>
+    <h4>dependencies</h4>
+    <table className="bundle-meta table">
+      <tbody>{dependencies_table}</tbody>
+    </table>
+  </div>);
+}
+
+function renderMetadata(bundle_info) {
+  // TODO: allow editing
+  var metadata = bundle_info.metadata;
+  var metadata_list_html = [];
+
+  // Sort the metadata by key.
+  var keys = [];
+  for (var property in metadata) {
+    if (metadata.hasOwnProperty(property))
+      keys.push(property);
+  }
+  keys.sort();
+  for (var i = 0; i < keys.length; i++) {
+    var property = keys[i];
+    metadata_list_html.push(<tr>
+      <th>{property}</th>
+      <td><span>{metadata[property]}</span></td>
+    </tr>);
+  }
+
+  return (<div>
+    <h4>metadata</h4>
+    <table className="bundle-meta table">
+      <tbody>{metadata_list_html}</tbody>
+    </table>
+  </div>);
+}
+
+function renderHeader(bundle_info) {
+  var bundle_url = '/bundles/' + bundle_info.uuid;
+  var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
+  var bundle_name;
+  if (bundle_info.metadata.name) {
+    // TODO: allow editing
+    bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>
+  }
+  var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
+  var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
+
+  // Display basic information
+  function createRow(key, value) {
+    return (<tr>
+      <th>{key}:</th>
+      <td>{value}</td>
+    </tr>);
+  }
+  var rows = [];
+  rows.push(createRow('uuid', bundle_info.uuid));
+  rows.push(createRow('owner', bundle_info.owner_name));
+  rows.push(createRow('permissions', render_permissions(bundle_info)));
+  if (bundle_info.bundle_type == 'run') {
+    rows.push(createRow('command', bundle_info.command));
+    rows.push(createRow('state', <span className={bundle_state_class}>{bundle_info.state}</span>));
+  }
+
+  return (<div>
+    <div className="bundle-header">
+      <a href={bundle_url} className="bundle-link" target="_blank">{bundle_name}</a>
+      {bundle_description}
+    </div>
+    <table className="bundle-meta table">
+      <tbody>{rows}</tbody>
+    </table>
+    <div className="bundle-links">
+      <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
+        <span className="glyphicon glyphicon-download-alt"></span>
+      </a>
+    </div>
+  </div>);
+}
+
+function renderContents(bundle_info) {
+  var stdout_html = '';
+  if (bundle_info.stdout) {
+    var stdout_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stdout';
+    stdout_html = (<span>
+      <h4><a href={stdout_url} target="_blank">stdout</a></h4>
+      <div className="bundle-meta">
+          <pre>
+              {bundle_info.stdout}
+          </pre>
+      </div>
+    </span>);
+  }
+
+  var stderr_html = '';
+  if (bundle_info.stderr) {
+    var stderr_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stderr';
+    stderr_html = (<span>
+      <h4><a href={stderr_url} target="_blank">stderr</a></h4>
+      <div className="bundle-meta">
+          <pre>
+              {bundle_info.stderr}
+          </pre>
+      </div>
+    </span>);
+  }
+
+  return (<div>
+    {stdout_html}
+    {stderr_html}
+  </div>);
+}
+
+function renderHostWorksheets(bundle_info) {
+  if (!bundle_info.host_worksheets) return <div/>;
+
+  var host_worksheets_rows = [];
+  bundle_info.host_worksheets.forEach(function(worksheet) {
+    var host_worksheets_url = "/worksheets/" + worksheet.uuid;
+    host_worksheets_rows.push(<tr>
+      <td>
+          <a href={host_worksheets_url}>{worksheet.name}</a>
+      </td>
+    </tr>);
+  });
+  
+  return (
+    <div className="host-worksheets-table">
+        <h4>host worksheets</h4>
+        <table className="bundle-meta table">
+          <tbody>
+              {host_worksheets_rows}
+          </tbody>
+        </table>
+    </div>
+  );
+}
+
+////////////////////////////////////////////////////////////
+// FileBrowser
+
+var FileBrowser = React.createClass({
+    render: function() {
+        var items = [];
+        if (this.props.fileBrowserData.contents) {
+          // Parent directory (..)
+          if(this.props.currentWorkingDirectory) {
+            items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
+          }
+
+          // Show directories
+          for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
+            var item = this.props.fileBrowserData.contents[i];
+            if (item.type == 'directory')
+              items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+          }
+
+          // Show files
+          for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
+            var item = this.props.fileBrowserData.contents[i];
+            if (item.type != 'directory')
+              items.push(<FileBrowserItem bundle_uuid={this.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
+          }
+
+          file_browser = (
+            <table className="file-browser-table">
+              <tbody>{items}</tbody>
+            </table>
+          );
+        } else {
+          file_browser = (<b>(no files)</b>);
         }
 
-        var stdout_html = ''
-        if (bundle_info.stdout) {
-            //had to add span since react elm must be wrapped
-            stdout_html = (
-                <span>
-                    <h4>stdout</h4>
-                    <div className="bundle-meta">
-                        <pre>
-                            {bundle_info.stdout}
-                        </pre>
-                    </div>
-                </span>
-            )
-        }
-        var stderr_html = ''
-        if(bundle_info.stderr){
-            //had to add span since react elm must be wrapped
-            stderr_html = (
-                <span>
-                    <h4>stderr</h4>
-                    <div className="bundle-meta">
-                        <pre>
-                            {bundle_info.stderr}
-                        </pre>
-                    </div>
-                </span>
-            )
-        }
-        var host_worksheets_html = ''
-        if(bundle_info.host_worksheets){
-            if(bundle_info.host_worksheets.length){
-                var host_worksheets_url = ''
-                host_worksheets_rows = []
-                bundle_info.host_worksheets.forEach(function(worksheet, i){
-                    host_worksheets_url = "/worksheets/" + worksheet.uuid;
-                    host_worksheets_rows.push(
-                        <tr>
-                            <td>
-                                {worksheet.name}
-                            </td>
-                            <td>
-                                <a href={host_worksheets_url}>{worksheet.uuid}</a>
-                            </td>
-                        </tr>
-                    );
-                }) // end of foreach
-                host_worksheets_html = (
-                            <div className="host-worksheets-table">
-                                <h4>Host Worksheets</h4>
-                                <table className="bundle-meta table">
-                                    <thead>
-                                        <tr>
-                                            <th width="40%">Name</th>
-                                            <th width="60%">UUID</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {host_worksheets_rows}
-                                    </tbody>
-                                </table>
-                            </div>
-                )
+        var bread_crumbs = (<FileBrowserBreadCrumbs
+            updateFileBrowser={this.props.updateFileBrowser}
+            currentWorkingDirectory={this.props.currentWorkingDirectory}/>);
+
+        return (<div>
+          <div className="panel panel-default">
+              {bread_crumbs.props.currentWorkingDirectory.length ? bread_crumbs : null}
+              <div className="panel-body">
+                  {file_browser}
+              </div>
+          </div>
+        </div>);
+    }
+});
+
+var FileBrowserBreadCrumbs = React.createClass({
+    breadCrumbClicked: function(path) {
+        console.log("breadcrumb -> "+path);
+        //this.props.updateFileBrowser(path, true);
+    },
+    render: function() {
+        var links = [];
+        var splitDirs = this.props.currentWorkingDirectory.split('/');
+        var currentDirectory = '';
+
+        // Generate list of breadcrumbs separated by ' / '
+        for(var i=0; i < splitDirs.length; i++) {
+            if(i == 0) {
+                currentDirectory += splitDirs[i];
+            } else {
+                currentDirectory += "/" + splitDirs[i];
             }
-        }// end of if host_worksheets
+            links.push(<span key={splitDirs[i]} index={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
+        }
 
-        var group_permissions_html = ''
-        if(bundle_info.edit_permission){
-            if(bundle_info.group_permissions.length){
-                group_permissions_rows = []
-                bundle_info.group_permissions.forEach(function(group, i){
-                    group_permissions_rows.push(
-                        <tr>
-                            <td>
-                                {group.group_name}
-                            </td>
-                            <td>
-                               {group.group_uuid}
-                            </td>
-                            <td>
-                               {group.permission_str}
-                            </td>
-                        </tr>
-                    );
-                }) // end of foreach
-                group_permissions_html = (
-                            <div className="row">
-                                <div className="col-sm-10">
-                                    <div className="dependencies-table">
-                                        <table id="dependencies_table" >
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>UUID</th>
-                                                    <th>Permissions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {group_permissions_rows}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                )
-            } // end of if group_permissions.len
-        }// end of if edit.permission
-        /// ------------------------------------------------------------------
-        // put it all together.
         return (
-            <div id="panel_content">
-                <div className="bundle-header">
-                    {bundle_name}
-                    <div className="bundle-links">
-                        <a href={bundle_url} className="bundle-link" target="_blank">{bundle_info.uuid}</a>
-                        <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
-                            <span className="glyphicon glyphicon-download-alt"></span>
-                        </a>
+            <div className="panel-heading">{links}</div>
+        );
+    }
+});
+
+var FileBrowserItem = React.createClass({
+    browseToFolder: function(type) {
+        this.props.updateFileBrowser(this.props.index);
+    },
+    render: function() {
+        // Type can be 'file' or 'folder'
+        var icon = "glyphicon-folder-close";
+        if (this.props.type == "file") {
+          icon = "glyphicon-file";
+        }
+        icon += " glyphicon";
+
+        var file_location = '';
+        if (this.props.currentWorkingDirectory) {
+          file_location = this.props.currentWorkingDirectory + '/' + this.props.index;
+        } else {
+          file_location = this.props.index;
+        }
+
+        var file_link = '/api/bundles/filecontent/' + this.props.bundle_uuid + '/' + file_location;
+        var size = '';
+        if(this.props.hasOwnProperty('size')){
+            if(this.props.size == 0 || this.props.size === undefined)
+                size = "0 bytes"
+            else{ // we have a real size create a nice human readable version
+                var k = 1000;
+                var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                var i = Math.floor(Math.log(this.props.size) / Math.log(k));
+                size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
+        }
+        return (
+            <tr>
+                <td>
+                    <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
+                        <span className={icon} alt="More"></span>
+                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
+                        <span className="pull-right"> {size} </span>
                     </div>
-                    { bundle_description }
-                </div>
-                <table className="bundle-meta table">
-                    <tbody>
-                        <tr>
-                            <th>
-                                state:
-                            </th>
-                            <td>
-                                <span className={bundle_state_class}>
-                                    {bundle_info.state || 'ready'}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                command:
-                            </th>
-                            <td>
-                                {bundle_info.command || "<none>"}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <h4>metadata </h4>
-                <table className="bundle-meta table">
-                    <tbody>
-                        {metadata_list_html}
-                    </tbody>
-                </table>
-                {dependencies_html}
-                {host_worksheets_html}
-                {stdout_html}
-                {stderr_html}
-            </div>
-        )
+                </td>
+            </tr>
+        );
     }
 });

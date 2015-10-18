@@ -1,6 +1,5 @@
 /*
-TODO: much of this logic should be merged with BundleDetailSidePanel in worksheet_side_panel.
-Some of the functionality like the file browser should just be shared.
+TODO: replace this with WorksheetSidePanel.
 */
 
 /** @jsx React.DOM */
@@ -223,7 +222,7 @@ var Bundle = React.createClass({
                         </pre>
                     </div>
                 </span>
-            )
+            );
         }
         var stderr_html = '';
         if(this.state.stderr) {
@@ -237,7 +236,7 @@ var Bundle = React.createClass({
                         </pre>
                     </div>
                 </span>
-            )
+            );
         }
         /// ------------------------------------------------------------------
         var fileBrowser = (
@@ -304,7 +303,6 @@ var Bundle = React.createClass({
                                 {this.state.metadata.name}
                             </h2>
                             <em> Owner: {this.state.owner_name}</em>
-                <p className="ws-permissions">Permissions: {render_permissions(this.state)}</p>
                         </div>
                         <div className="col-sm-6">
                             <a href={bundle_download_url} className="bundle-download btn btn-default btn-sm" alt="Download Bundle">
