@@ -124,10 +124,11 @@ var WorksheetItemList = React.createClass({
     render: function() {
         this.capture_keys(); // each item capture keys are handled dynamically after this call
 
-        var focusIndex      = this.state.focusIndex;
-        var canEdit         = this.props.canEdit;
-        var setFocus        = this.setFocus;
-        var updateWSFI      = this.props.updateWorksheetSubFocusIndex; // when on a table, understand which bundle user has selected
+        var active = this.props.active;
+        var focusIndex = this.state.focusIndex;
+        var canEdit = this.props.canEdit;
+        var setFocus = this.setFocus;
+        var updateWorksheetSubFocusIndex = this.props.updateWorksheetSubFocusIndex;
 
         // Create items
         var items_display;
@@ -135,7 +136,16 @@ var WorksheetItemList = React.createClass({
             var worksheet_items = [];
             ws_obj.state.items.forEach(function(item, index) {
                 var focused = (index === focusIndex);
-                worksheet_items.push(WorksheetItemFactory(item, index, focused, canEdit, setFocus, updateWSFI));
+                var props = {
+                  item: item,
+                  index: index,
+                  active: active,
+                  focused: focused,
+                  canEdit: canEdit,
+                  setFocus: setFocus,
+                  updateWorksheetSubFocusIndex: updateWorksheetSubFocusIndex
+                };
+                worksheet_items.push(createWorksheetItem(props));
             });
             items_display = worksheet_items;
         } else {
@@ -155,120 +165,38 @@ var WorksheetItemList = React.createClass({
 // - canEdit: whether we're allowed to edit this item
 // - setFocus: call back to select this item
 // - updateWorksheetSubFocusIndex: call back to notify parent of which row is selected (for tables)
-var WorksheetItemFactory = function(item, index, focused, canEdit, setFocus, updateWorksheetSubFocusIndex) {
-    var ref = 'item' + index;
-
+var createWorksheetItem = function(props) {
     // Determine URL corresponding to item.
+    var state = props.item.state;
     var url = null;
-    if (item.state.bundle_info && item.state.bundle_info.uuid)
-      url = '/bundles/' + item.state.bundle_info.uuid;
-    if (item.state.subworksheet_info)
-      url = '/worksheets/' + item.state.subworksheet_info.uuid;
+    if (state.bundle_info && state.bundle_info.uuid)
+      url = '/bundles/' + state.bundle_info.uuid;
+    if (state.subworksheet_info)
+      url = '/worksheets/' + state.subworksheet_info.uuid;
 
-    switch (item.state.mode) {
-        case 'markup':
-            return <MarkdownBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'table':
-            return <TableBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'contents':
-            return <ContentsBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'html':
-            return <HTMLBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'record':
-            return <RecordBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'image':
-            return <ImageBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                   />;
-        case 'worksheet':
-            return <WorksheetBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                    />;
-        case 'search':
-            return <SearchBundle
-                     key={ref}
-                     ref={ref}
-                     url={url}
-                     item={item}
-                     index={index}
-                     focused={focused}
-                     canEdit={canEdit}
-                     setFocus={setFocus}
-                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                    />;
-        default:  // something new or something we dont yet handle
-            return (
-                <div>
-                    <strong>
-                        Not supported yet: {item.state.mode}
-                    </strong>
-                </div>
-            );
+    props.key = props.ref = 'item' + props.index;
+    props.url = url;
+
+    var constructor = {
+      'markup': MarkdownBundle,
+      'table': TableBundle,
+      'contents': ContentsBundle,
+      'worksheet': WorksheetBundle,
+      'html': HTMLBundle,
+      'record': RecordBundle,
+      'image': ImageBundle,
+      'search': SearchBundle
+    }[state.mode];
+
+    if (constructor) {
+      return React.createElement(constructor, props);
+    } else {
+      return (
+          <div>
+              <strong>
+                  Not supported yet: {state.mode}
+              </strong>
+          </div>
+      );
     }
 }

@@ -66,7 +66,7 @@ var TableBundle = React.createClass({
     render: function() {
         //console.log('TableBundle.render', this.state.rowFocusIndex);
 
-        if (this.props.focused)
+        if (this.props.active && this.props.focused)
           this.capture_keys();
 
         var self = this;

@@ -267,6 +267,21 @@ var Worksheet = React.createClass({
             />
         </div>;
 
+        var action_bar_display = (
+                <WorksheetActionBar
+                    ref={"action"}
+                    canEdit={this.canEdit()}
+                    handleFocus={this.handleActionBarFocus}
+                    handleBlur={this.handleActionBarBlur}
+                    active={this.state.activeComponent=='action'}
+                    show={this.state.showActionBar}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
+                    refreshWorksheet={this.refreshWorksheet}
+                    editMode={this.editMode}
+                />
+            );
+
         var items_display = (
                 <WorksheetItemList
                     ref={"list"}
@@ -280,21 +295,6 @@ var Worksheet = React.createClass({
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
                     showActionBar={this.showActionBar}
                     refreshWorksheet={this.refreshWorksheet}
-                />
-            );
-
-        var action_bar_display = (
-                <WorksheetActionBar
-                    ref={"action"}
-                    canEdit={this.canEdit()}
-                    handleFocus={this.handleActionBarFocus}
-                    handleBlur={this.handleActionBarBlur}
-                    active={this.state.activeComponent=='action'}
-                    show={this.state.showActionBar}
-                    focusIndex={this.state.focusIndex}
-                    subFocusIndex={this.state.subFocusIndex}
-                    refreshWorksheet={this.refreshWorksheet}
-                    editMode={this.editMode}
                 />
             );
 
