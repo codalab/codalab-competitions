@@ -23,41 +23,38 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-6 worksheet-random-list">
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                       <div class="btn-group" role="group">
-                            <a role="button" class="btn" href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}">Create an Experiment!</a>
+                            <a role="button" class="btn" href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}">Worksheets</a>
                       </div>
                 </div>
-                <p><strong>Run reproducible experiments and created executable papers using worksheets.</strong></p>
+                <p><strong>Run reproducible experiments and create executable papers using worksheets.</strong></p>
                <!-- <button type="button" class="btn btn-danger"><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}">Create an Experiment!</a></button>
                 <p>Run reproducible experiments and created executable papers using worksheets.</p>-->
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-6 competition-latest-list">
                  <div class="btn-group btn-group-justified" role="group" aria-label="...">
                       <div class="btn-group" role="group">
-                            <a role="button" class="btn" href="/competitions">Join a challenge!</a>
+                            <a role="button" class="btn" href="/competitions">Competitions</a>
                       </div>
                 </div>
-                <p><strong>Enter the existing competition to solve challenging data problems, or host your own.</strong></p>
+                <p><strong>Enter an existing competition to solve challenging data problems, or host your own.</strong></p>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-6 worksheet-random-list">
                     <!--<li><a href="/worksheets"><strong>[Explore worksheets]</strong></a></li>-->
-                <h2 class="homepage_headers">Recent Worksheets</h2>
+                <h2 class="homepage_headers">Random Worksheets</h2>
                 {% if not worksheets %}
                 <p><em>There are not worksheets.</em></p>
                 {% else %}
                     {% for worksheet in worksheets %}
-                    <!--<a href="{% url 'ws_view' worksheet.0 %}">{{worksheet.0}}</a>
-                    <p>{{ worksheet.1 }}</p>
-                    <p>{{ worksheet.2 }}</p>-->
                         {% include "web/worksheets_latest.html" with worksheet=worksheet %}
                     {% endfor %}
                 {% endif %}
 
 
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-6 competition-latest-list">
             <h2 class="homepage_headers">Latest Competitions</h2>
             {% if not latest_competitions %}
             <p><em>There are no competitions.</em></p>
