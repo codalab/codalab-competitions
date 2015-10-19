@@ -64,7 +64,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% block title %}
-                    <a class="navbar-brand" href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo.png" alt="Home"></a>
+                    <a class="navbar-brand" href="/" tabIndex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo.png" alt="Home"></a>
                 {% endblock title %}
             </div>
             {% block top_bar_right_menus %}
@@ -78,7 +78,7 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                         {% if PREVIEW_WORKSHEETS %}
-                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
+                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
                         {% endif %}
                         <li class="{% active request '/my/' %}">
                             {% if user.is_authenticated %}
@@ -91,9 +91,9 @@
                                 {% if user.is_authenticated %}
                                     <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="{% url 'my_datasets' %}" tabindex=4 target="_self">My Datasets</a></li>
+                                    <li><a href="{% url 'my_datasets' %}" tabIndex=4 target="_self">My Datasets</a></li>
                                 {% else %}
-                                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
+                                    <li><a href="{% url 'account_login' %}" tabIndex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
                                 {% endif %}
                             </ul>
                             -->

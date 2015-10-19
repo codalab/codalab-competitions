@@ -52,30 +52,13 @@ var SearchBundleItem = React.createClass({
 var SearchBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
-        this.props.item.state.checked = false;
         return this.props.item.state;
     },
     handleClick: function(event){
-        var index = this.props.index;
-        var last_sub_el = undefined;
-        var direction = undefined;
-        var scroll = false;
-        this.props.setFocus(this.props.index, event, last_sub_el, direction, scroll);
+        this.props.setFocus(this.props.index);
     },
     render: function() {
         var className = 'type-search' + (this.props.focused ? ' focused' : '');
-        var checkbox = null;
-        if(this.props.canEdit){
-            checkbox = (
-                <input
-                    type="checkbox"
-                    className="ws-checkbox"
-                    onChange={this.handleCheck}
-                    checked={this.state.checked}
-                    disabled={!this.props.checkboxEnabled}
-                />
-            )
-        }
         var search_items = this.props.item.state.interpreted.items;
         var search_items_interpreted;
         var parentIndex = this.props.index;
@@ -91,11 +74,10 @@ var SearchBundle = React.createClass({
                     />
             });
         }else {
-            search_items_interpreted = <div className="result empty"><em>Nothing Found</em></div>
+            search_items_interpreted = <div className="result empty">(no results)</div>
         }
         return(
             <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
                 <div className={className}>
                     {search_items_interpreted}
                 </div>

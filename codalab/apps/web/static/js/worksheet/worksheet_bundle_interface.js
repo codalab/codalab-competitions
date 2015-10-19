@@ -3,23 +3,19 @@
 // Display a worksheet item which corresponds to a (sub)worksheet.
 var WorksheetBundle = React.createClass({
     mixins: [CheckboxMixin],
-    getInitialState: function(){
+    getInitialState: function() {
         this.props.item.state.checked = false;
         return this.props.item.state;
     },
-    capture_keys: function(event){
-        Mousetrap.bind(['enter'], function(e){
+    capture_keys: function(event) {
+        Mousetrap.bind(['enter'], function(e) {
             this.goToWorksheet();
         }.bind(this), 'keydown');
     },
-    handleClick: function(event){
-        var index = this.props.index;
-        var last_sub_el = undefined;
-        var direction = undefined;
-        var scroll = false;
-        this.props.setFocus(this.props.index, event, last_sub_el, direction, scroll);
+    handleClick: function(event) {
+        this.props.setFocus(this.props.index);
     },
-    goToWorksheet: function(){
+    goToWorksheet: function() {
         window.open('/worksheets/' + this.props.item.state.interpreted.uuid);
     },
     render: function() {
@@ -29,7 +25,7 @@ var WorksheetBundle = React.createClass({
         var ws_url = '/worksheets/' + item.uuid;
 
         var worksheet_display = item.name
-        if(item.title){
+        if (item.title) {
             worksheet_display = item.title + " [" + item.name + "]";
         }
         return(

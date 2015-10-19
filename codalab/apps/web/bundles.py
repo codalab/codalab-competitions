@@ -30,7 +30,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     from codalab.objects.permission import permission_str, group_permissions_str
     from codalab.lib.codalab_manager import CodaLabManager
     from codalab.server.rpc_file_handle import RPCFileHandle
-    from codalab.lib import file_util
+    from codalab.lib import file_util, formatting
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -237,9 +237,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             self.client.update_worksheet_items(worksheet_info, new_items)
             # Note: commands are ignored
 
-        def get_target_info_with_stdout_stderr(self, target):
+        def get_bundle_contents(self, uuid):
             '''
-            Add contents to stdout and stderr contents to bundle_info.
+            If bundle is a single file, get file contents.
+            Otherwise, get stdout and stderr.
+            For each file, only return the first few lines.
             '''
             def get_lines(name):
                 lines = self.head_target((uuid, name), self.HEAD_MAX_LINES)
@@ -248,16 +250,15 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                     lines = ''.join(map(base64.b64decode, lines))
                 return lines
                 
-            uuid, path = target
-            info = self.get_target_info(target, 2)  # List files
+            info = self.get_target_info((uuid, ''), 2)  # List files
             if info['type'] == 'file':
                 info['file_contents'] = get_lines('')
             else:
-                # Get stdout and stderr.
+                # Read contents of stdout and stderr.
                 info['stdout'] = None
                 info['stderr'] = None
                 contents = info.get('contents')
-                if contents and path == '':
+                if contents:
                     for item in contents:
                         name = item['name']
                         if name in ['stdout', 'stderr']:
@@ -265,7 +266,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return info
 
         def get_target_info(self, target, depth=1):
-            return _call_with_retries(lambda: self.client.get_target_info(target, depth))
+            info = _call_with_retries(lambda: self.client.get_target_info(target, depth))
+            contents = info.get('contents')
+            # Render the sizes
+            if contents:
+                for item in contents:
+                    if 'size' in item:
+                        item['size_str'] = formatting.size_str(item['size'])
+            return info
 
         def delete_worksheet(self, worksheet_uuid):
             return _call_with_retries(lambda: self.client.delete_worksheet(worksheet_uuid, False))

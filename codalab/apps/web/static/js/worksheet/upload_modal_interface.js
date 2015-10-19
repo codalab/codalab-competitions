@@ -88,7 +88,7 @@ var UploadModal = React.createClass({
                             )
         }
         return (
-            <div className="modal fade" id="ws-bundle-upload" tabindex="-1" role="dialog" aria-hidden="true">
+            <div className="modal fade" id="ws-bundle-upload" tabIndex="-1" role="dialog" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -98,7 +98,7 @@ var UploadModal = React.createClass({
                             </button>
                             <h4 className="modal-title" >Upload bundle</h4>
                         </div>
-                        <form name="uploadForm" onSubmit={this.onSubmit} ref="uploadForm" enctype="multipart/form-data" method="post"  >
+                        <form name="uploadForm" onSubmit={this.onSubmit} ref="uploadForm" encType="multipart/form-data" method="post"  >
                             <div className="modal-body">
                                 <p>
                                     Bundle type: &nbsp;

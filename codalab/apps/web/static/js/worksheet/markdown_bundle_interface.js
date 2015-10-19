@@ -3,19 +3,14 @@
 // Display a worksheet item which corresponds to a block of markup items (note this is blocked).
 var MarkdownBundle = React.createClass({
     mixins: [CheckboxMixin],
-    getInitialState: function(){
+    getInitialState: function() {
         return {
             checked: false,
             new_item: false,
             editing: false,
         };
     },
-    capture_keys: function(event) {
-    },
-    saveEditedItem: function(interpreted){
-        this.props.handleSave(this.props.index, interpreted);
-    },
-    processMathJax: function(){
+    processMathJax: function() {
         MathJax.Hub.Queue([
             'Typeset',
             MathJax.Hub,
@@ -24,12 +19,12 @@ var MarkdownBundle = React.createClass({
     },
     componentDidMount: function() {
         this.processMathJax();
-        if(this.props.editing){
+        if (this.props.editing) {
             $(this.getDOMNode()).find('textarea').focus();
         }
     },
-    componentDidUpdate: function(){
-        if(this.props.editing){
+    componentDidUpdate: function() {
+        if (this.props.editing) {
             $(this.getDOMNode()).find('textarea').focus();
         }else {
             // TODO: there may be a more efficient way to do this,
@@ -37,14 +32,10 @@ var MarkdownBundle = React.createClass({
             this.processMathJax();
         }
     },
-    handleClick: function(event){
-        var index = this.props.index;
-        var last_sub_el = undefined;
-        var direction = undefined;
-        var scroll = false;
-        this.props.setFocus(this.props.index, event, last_sub_el, direction, scroll);
+    handleClick: function(event) {
+        this.props.setFocus(this.props.index);
     },
-    processMarkdown: function(text){
+    processMarkdown: function(text) {
         text = this.removeMathJax(text)
         text = marked(text)
         text = this.replaceMathJax(text);
@@ -81,16 +72,16 @@ var MarkdownBundle = React.createClass({
 
     /// helper functions for making markdown and mathjax work together
     conentMathjaxText: [],
-    removeMathJax: function(text){
+    removeMathJax: function(text) {
         var start = 0;
         var end = -1;
         var len = 0
         // we need to rip out and replace the math wiht placeholder for markdown
         // to not interfere witht it
-        while(text.indexOf("$", start) > 0){
+        while(text.indexOf("$", start) > 0) {
             start = text.indexOf("$", start)
             end = text.indexOf("$", start+1)
-            if(end === -1){ //we've reached the end
+            if (end === -1){ //we've reached the end
                 start =-1
                 break;
             }
@@ -102,7 +93,7 @@ var MarkdownBundle = React.createClass({
             var sencondHalf = text.slice(end)
             /// has to be the same length for replace to work and the start/end counting system
             var middle = "@"
-            for(var i = 0; MathText.length-2 > i; i++){
+            for(var i = 0; MathText.length-2 > i; i++) {
                 middle = middle + "p"
             }
             middle = middle + "@"
@@ -111,15 +102,15 @@ var MarkdownBundle = React.createClass({
         }
         return text
     },
-    replaceMathJax: function(text){
+    replaceMathJax: function(text) {
         var start = 0;
         var end = -1;
         var len = 0
         var MathText = ''
-        for(var i = 0; this.conentMathjaxText.length > i; i++){
+        for(var i = 0; this.conentMathjaxText.length > i; i++) {
             MathText = this.conentMathjaxText[i];
             var placeholder = "@"
-            for(var j = 0; MathText.length-2 > j; j++){
+            for(var j = 0; MathText.length-2 > j; j++) {
                 placeholder = placeholder + "p"
             }
             placeholder = placeholder + "@"

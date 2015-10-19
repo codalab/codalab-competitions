@@ -10,12 +10,11 @@ and to keep in sync with the markdown.  We are switching to pure markdown editin
 */
 
 var WorksheetItemList = React.createClass({
-    getInitialState: function(){
+    getInitialState: function() {
         return {
             focusIndex: -1, // Index of item that we're focused on.
-            editingIndex: -1,
             checkboxEnabled: true,
-            worksheet: {
+            worksheet: {  // TODO: how is this different from ws_obj?
                 last_item_id: 0,
                 name: '',
                 owner: null,
@@ -30,146 +29,117 @@ var WorksheetItemList = React.createClass({
     throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
         this.props.refreshWorksheet();
-        // Set up the debounced version of the save method here so we can call it later
-        this.slowSave = _.debounce(this.props.saveAndUpdateWorksheet, 1000);
     },
-    componentDidUpdate: function(){
-        if(!this.state.worksheet.items.length){
+    componentDidUpdate: function() {
+        if (!this.state.worksheet.items.length) {
             $('.empty-worksheet').fadeIn('fast');
         }
-        if(this.state.editMode){
+        if (this.state.editMode) {
             $('#raw-textarea').trigger('focus');
         }
     },
-    capture_keys: function(){
-        // console.log("bind keys for the WorksheetItemList");
-        var fIndex = this.state.focusIndex;
-        var eIndex = this.state.editingIndex;
-        var focusedItem = this.refs['item' + fIndex];
-        if(!this.props.active){ // if we are not the active component dont bind keys
+
+    capture_keys: function() {
+        if (!this.props.active)  // If we're not the active component, don't bind keys
             return;
-        }
 
-        // Go up
-        Mousetrap.bind(['up', 'k'], function(e){
-            if (fIndex <= 0) {
-                // if we're already at the top of the worksheet, we can't go higher
-                fIndex = -1;
-            } else {
-                fIndex = Math.max(this.state.focusIndex - 1, 0);
-            }
-            this.setFocus(fIndex);
+        // Open a new window (really should be handled at the item level)
+        Mousetrap.bind(['enter'], function(e) {
+            var url = this.refs['item' + this.state.focusIndex].props.url;
+            if (url)
+              window.open(url, '_blank');
         }.bind(this), 'keydown');
 
-        // Go to the top
-        Mousetrap.bind(['1 shift+g'], function(e){
-            $('body').stop(true).animate({scrollTop: 0}, 50);
-            this.setFocus(0, 'top');
-            this.scrollToItem(0, e);
+        // Move focus up one
+        Mousetrap.bind(['up', 'k'], function(e) {
+            this.setFocus(this.state.focusIndex - 1, 'end');
         }.bind(this), 'keydown');
 
-        // Go down
-        Mousetrap.bind(['down', 'j'], function(e){
-            // Don't allow moving past the last item. Because the number of ws-item divs might
-            // not be the same as the number of item objects because of editing/inserting/whatever,
-            // count the actual divs instead
-            fIndex = Math.min(this.state.focusIndex + 1, $('#worksheet_content .ws-item').length - 1);
-            this.setFocus(fIndex, null);
+        // Move focus to the top
+        Mousetrap.bind(['g g'], function(e) {
+            $('body').stop(true).animate({scrollTop: 0}, 'fast');
+            this.setFocus(-1, 0);
         }.bind(this), 'keydown');
 
-        // Go to the bottom
-        Mousetrap.bind(['shift+g'], function(e){
-            fIndex = $('#worksheet_content .ws-item').length - 1;
-            this.setFocus(fIndex, 'bottom');
-            $("html, body").animate({ scrollTop: $(document).height() }, "fast");
+        // Move focus down one
+        Mousetrap.bind(['down', 'j'], function(e) {
+            this.setFocus(this.state.focusIndex + 1, 0);
         }.bind(this), 'keydown');
 
-        if (focusedItem && focusedItem.hasOwnProperty('capture_keys')) {
-            // pass the event along to the element
-            focusedItem.capture_keys();
-        }
+        // Move focus to the bottom
+        Mousetrap.bind(['shift+g'], function(e) {
+            this.setFocus(this.state.worksheet.items.length - 1, 'end');
+            $("html, body").animate({ scrollTop: $(document).height() }, 'fast');
+        }.bind(this), 'keydown');
     },
 
-    setFocus: function(index, where) {
-        // index: what item index we want to focus on
-        // event: the JS click event or keyboard event
-        // scroll: if we want to scroll
-        if (index >= this.state.worksheet.items.length) return;
+    setFocus: function(index, subIndex) {
+        if (index < -1 || index >= this.state.worksheet.items.length)
+          return;  // Out of bounds (note -1 is okay)
+        //console.log('WorksheetItemList.setFocus', index, subIndex);
+
         this.setState({focusIndex: index});
-        this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection
-        if (index < 0) return;
-
-        var react_el = this.refs['item'+index];
-        if (where == 'bottom') {
-          if (react_el.hasOwnProperty('focusOnLast'))
-              react_el.focusOnLast();
-        } else if (where == 'top') {
-          if (react_el.hasOwnProperty('focusOnRow'))
-              react_el.focusOnRow(0);
+        this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
+        if (index != -1 && subIndex != null) {
+          // Change subindex (for tables)
+          var item = this.state.worksheet.items[index].state;
+          if (item.mode == 'table') {
+            if (subIndex == 'end') {
+              subIndex = item.bundle_info.length - 1;  // Last row of table
+            }
+            this.props.updateWorksheetSubFocusIndex(subIndex);  // Notify parent of selection
+            this.refs['item' + index].focusOnRow(subIndex); // Notify child
+          }
         }
+        this.scrollToItem(index);
     },
 
-    resetFocusIndex: function(){
+    resetFocusIndex: function() {
         this.setState({focusIndex: -1});
     },
 
-    scrollToItem: function(index, event) {
+    scrollToItem: function(index) {
         // scroll the window to keep the focused element in view if needed
-        var __innerScrollToItem = function(index, event){
-            var container = $(".ws-container")
-            var navbarHeight = parseInt($('body').css('padding-top'));
-            var viewportHeight = Math.max($(".ws-container").innerHeight() || 0);
-
+        var __innerScrollToItem = function(index) {
+          // Compute the current position of the focused item.
+          var pos;
+          if (index == -1) {
+            pos = -1000000;  // Scroll all the way to the top
+          } else {
             var item = this.refs['item' + index];
+            if (item.props.item.state.mode == 'table')  // Table scrolling is handled at the row level
+              return;
             var node = item.getDOMNode();
-            var nodePos = node.getBoundingClientRect(); // get all measurements for node rel to current viewport
-             // where is the top of the elm on the page and does it fit in the the upper forth of the page
-            var scrollTo = $(".ws-container").scrollTop() + nodePos.top - navbarHeight - (viewportHeight/4);
-            // how far node top is from top of viewport
-            var distanceFromTopViewPort = nodePos.top - navbarHeight;
-            // TODO if moving up aka K we should focus on the bottom rather then the top, maybe? only for large elements?
-            // the elm is down the page and we should scrol to put it more in focus
-            // console.log('scrolling');
-            if(distanceFromTopViewPort > viewportHeight/3){
-                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
-                return;
-            }
-            // if the elment is not in the viewport (way up top), just scroll
-            if(distanceFromTopViewPort < 0){
-                $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 45);
-                return;
-            }
-        }; // end of __innerScrollToItem
+            pos = node.getBoundingClientRect().top;
+          }
+          keepPosInView(pos);
+        };
 
-        //throttle it becasue of keydown and holding keys
-        if(this.throttledScrollToItem === undefined){ //create if we dont already have it.
-            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 75).bind(this);
-        }
-        this.throttledScrollToItem(index, event);
+        // Throttle so that if keys are held down, we don't suffer a huge lag.
+        if (this.throttledScrollToItem === undefined)
+            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 50).bind(this);
+        this.throttledScrollToItem(index);
     },
 
-    render: function(){
+    render: function() {
         this.capture_keys(); // each item capture keys are handled dynamically after this call
-        // shortcut naming
-        var canEdit         = this.props.canEdit;
-        var updateWSFI      = this.props.updateWorksheetSubFocusIndex; // when on a table, understand which bundle user has selected
-        var checkboxEnabled = this.state.checkboxEnabled;
-        var editingIndex    = this.state.editingIndex;
-        var focusIndex      = this.state.focusIndex;
-        var handleSave      = this.saveItem;
-        var setFocus        = this.setFocus;
 
-        var worksheet_items = [];
-        var items_display = <p className="empty-worksheet">This worksheet is empty</p>
+        var focusIndex      = this.state.focusIndex;
+        var canEdit         = this.props.canEdit;
+        var setFocus        = this.setFocus;
+        var updateWSFI      = this.props.updateWorksheetSubFocusIndex; // when on a table, understand which bundle user has selected
+
+        // Create items
+        var items_display;
         if (ws_obj.state.items.length > 0) {
-            ws_obj.state.items.forEach(function(item, i){
-                var ref = 'item' + i;
-                var focused = i === focusIndex;
-                var editing = i === editingIndex;
-                //create the item of the correct type and add it to the list.
-                worksheet_items.push(WorksheetItemFactory(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWSFI));
+            var worksheet_items = [];
+            ws_obj.state.items.forEach(function(item, index) {
+                var focused = (index === focusIndex);
+                worksheet_items.push(WorksheetItemFactory(item, index, focused, canEdit, setFocus, updateWSFI));
             });
-            items_display = worksheet_items
+            items_display = worksheet_items;
+        } else {
+          items_display = <p className="empty-worksheet">(empty)</p>;
         }
 
         return <div id="worksheet_items">{items_display}</div>
@@ -179,143 +149,126 @@ var WorksheetItemList = React.createClass({
 ////////////////////////////////////////////////////////////
 
 // Create a worksheet item.
-var WorksheetItemFactory = function(item, ref, focused, editing, i, handleSave, setFocus, canEdit, checkboxEnabled, updateWorksheetSubFocusIndex) {
+// - item: information about the table to display
+// - index: integer representing the index in the list of items
+// - focused: whether this item has the focus
+// - canEdit: whether we're allowed to edit this item
+// - setFocus: call back to select this item
+// - updateWorksheetSubFocusIndex: call back to notify parent of which row is selected (for tables)
+var WorksheetItemFactory = function(item, index, focused, canEdit, setFocus, updateWorksheetSubFocusIndex) {
+    var ref = 'item' + index;
+
+    // Determine URL corresponding to item.
+    var url = null;
+    if (item.state.bundle_info && item.state.bundle_info.uuid)
+      url = '/bundles/' + item.state.bundle_info.uuid;
+    if (item.state.subworksheet_info)
+      url = '/worksheets/' + item.state.subworksheet_info.uuid;
+
     switch (item.state.mode) {
         case 'markup':
             return <MarkdownBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                        handleSave={handleSave}
-                />
-            break;
-        case 'inline':
-            return <InlineBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'table':
             return <TableBundle
-                        key={'tb'+i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-
-                        handleSave={handleSave}
-                    />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'contents':
             return <ContentsBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'html':
             return <HTMLBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'record':
             return <RecordBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'image':
             return <ImageBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                   />;
         case 'worksheet':
             return <WorksheetBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                        updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                    />;
         case 'search':
             return <SearchBundle
-                        key={i}
-                        index={i}
-                        item={item}
-                        ref={ref}
-                        focused={focused}
-                        editing={editing}
-                        canEdit={canEdit}
-                        setFocus={setFocus}
-                        checkboxEnabled={checkboxEnabled}
-                />
-            break;
+                     key={ref}
+                     ref={ref}
+                     url={url}
+                     item={item}
+                     index={index}
+                     focused={focused}
+                     canEdit={canEdit}
+                     setFocus={setFocus}
+                     updateWorksheetSubFocusIndex={updateWorksheetSubFocusIndex}
+                    />;
         default:  // something new or something we dont yet handle
             return (
                 <div>
                     <strong>
-                        {item.state.mode}
+                        Not supported yet: {item.state.mode}
                     </strong>
                 </div>
-            )
+            );
     }
 }

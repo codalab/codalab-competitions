@@ -5,136 +5,117 @@ worksheet (with the focus).
 
 /** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
-    focustype: 'worksheet', // worksheet, bundle or None
-    getInitialState: function(){
+    getInitialState: function() {
         return { };
     },
-    debouncedFetchExtra: undefined,
-    componentDidMount: function(e){
+    componentDidMount: function(e) {
         var self = this;
-        $('#dragbar_vertical').mousedown(function(e){
+        $('#dragbar_vertical').mousedown(function(e) {
             self.resizePanel(e);
         });
-        $(document).mouseup(function(e){
+        $(document).mouseup(function(e) {
             $(this).unbind('mousemove');
         });
-        $(window).resize(function(e){
+        $(window).resize(function(e) {
             self.resetPanel();
         });
     },
-    capture_keys: function() {
-    },
-    _fetch_extra: function() {
-        if(this.refs.hasOwnProperty('bundle_info_side_panel')){
-            this.refs.bundle_info_side_panel.fetch_extra();
-        }
-    },
+
     componentDidUpdate: function() {
-        this.capture_keys();
-        var self = this;
-        if(this.debouncedFetchExtra === undefined){
-            // debounce it to wait for user to stop for X time.
-            this.debouncedFetchExtra = _.debounce(self._fetch_extra, 500).bind(this);
+        var __innerFetchExtra = function() {
+          //console.log('__innerFetchExtra');
+          if (this.refs.hasOwnProperty('bundle_info_side_panel'))
+            this.refs.bundle_info_side_panel.fetchExtra();
         }
-        //set up the wait for fetching extra
+        if (this.debouncedFetchExtra === undefined)
+            this.debouncedFetchExtra = _.debounce(__innerFetchExtra, 200).bind(this);
         this.debouncedFetchExtra();
-
-        // update the child if bundle
-        if(this.focustype == 'bundle'){
-            var current_focus = this.current_focus();
-            var subFocusIndex = this.props.subFocusIndex;
-            var bundle_info;
-            if (current_focus.bundle_info instanceof Array) { // tables are arrays
-                bundle_info = current_focus.bundle_info[this.props.subFocusIndex]
-            } else { // content/images/ect. are not
-                bundle_info = current_focus.bundle_info;
-            }
-            if (this.refs.hasOwnProperty('bundle_info_side_panel')) {
-                this.refs.bundle_info_side_panel.setState(bundle_info);
-            }
-        }
-
     },
-    current_focus: function(){
-        var focus = undefined;
-        if(this.props.focusIndex > -1){
-            focus = ws_obj.state.items[this.props.focusIndex].state;
-            if(focus.mode == "markup"){
-                this.focustype = '';
-                focus = undefined;
-                return focus;
-            }
-            if(focus.mode == "worksheet" || focus.mode == "action"){
-                this.focustype = 'worksheet';
-                if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
-                     //for lets default it back to showing the main worksheet info
-                     focus = ws_obj.state;
-                }
-            }else{
-                this.focustype = 'bundle';
-            }// end of if focus.modes
-        }else{// there is no focus index, just show the worksheet infomation
-            focus = ws_obj.state;
-            this.focustype = 'worksheet';
-        }
-        return  focus;
+
+    getFocus: function() {
+        // Return the state to show on the side panel
+        if (this.props.focusIndex == -1)
+          return ws_obj.state;  // Show current worksheet
+        return ws_obj.state.items[this.props.focusIndex].state;
     },
-    resizePanel: function(e){
+
+    // What kind of thing is it?
+    isFocusWorksheet: function(focus) {
+      return focus.mode === undefined || focus.mode == 'worksheet';
+    },
+    isFocusMarkup: function(focus) {
+      return focus.mode == 'markup';
+    },
+    isFocusBundle: function(focus) {
+      return !this.isFocusWorksheet(focus) && !this.isFocusMarkup(focus);
+    },
+    getBundleInfo: function(focus) {
+      if (focus.mode == 'table')  // Drill down into row of table
+          return focus.bundle_info[this.props.subFocusIndex];
+      else
+          return focus.bundle_info;
+    },
+
+    resizePanel: function(e) {
         e.preventDefault();
-        $(document).mousemove(function(e){
+        $(document).mousemove(function(e) {
             var windowWidth = $(window).width();
             var panelWidth = windowWidth - e.pageX;
             var panelWidthPercentage = (windowWidth - e.pageX) / windowWidth * 100;
-            console.log('########')
-            console.log(panelWidth);
-            console.log(panelWidthPercentage);
-            if(240 < panelWidth && panelWidthPercentage < 55){
+            if (240 < panelWidth && panelWidthPercentage < 55) {
                 $('.ws-container').css('width', e.pageX);
                 $('.ws-panel').css('width', panelWidthPercentage + '%');
                 $('#dragbar_vertical').css('right', panelWidthPercentage + '%');
             }
         });
     },
-    resetPanel: function(){
+    resetPanel: function() {
         var windowWidth = $(window).width();
-        if(windowWidth < 768){
+        if (windowWidth < 768) {
             $('.ws-container').removeAttr('style');
-        }else {
+        } else {
             var panelWidth = parseInt($('.ws-panel').css('width'));
             var containerWidth = windowWidth - panelWidth;
             $('.ws-container').css('width', containerWidth);
         }
     },
-    render: function(){
-        var current_focus = this.current_focus();
+
+    render: function() {
+        //console.log('WorksheetSidePanel.render');
+        var focus = this.getFocus();
         var side_panel_details = '';
-        switch (this.focustype) {
-            case 'worksheet':
-                side_panel_details = <WorksheetDetailSidePanel
-                                        key={'ws' + this.props.focusIndex}
-                                        item={current_focus}
-                                        ref="worksheet_info_side_panel"
-                                    />
-                break;
-            case 'bundle':
-                // TODO TODO set bundle detail state
-                side_panel_details = <BundleDetailSidePanel
-                                        key={this.props.focusIndex + this.props.subFocusIndex}
-                                        item={current_focus}
-                                        subFocusIndex={this.props.subFocusIndex}
-                                        ref="bundle_info_side_panel"
-                                    />
-                break;
-            default:
-                break;
+        if (this.isFocusWorksheet(focus)) {
+          // Show worksheet (either main worksheet or subworksheet)
+          var worksheet_info;
+          if (focus.mode == 'worksheet')
+            worksheet_info = focus.subworksheet_info;
+          else
+            worksheet_info = focus;
+
+          side_panel_details = <WorksheetDetailSidePanel
+                                 key={'ws' + this.props.focusIndex}
+                                 worksheet_info={worksheet_info}
+                                 ref="worksheet_info_side_panel"
+                               />;
+        } else if (this.isFocusMarkup(focus)) {
+          // Show nothing (maybe later show markdown just for fun?)
+        } else if (this.isFocusBundle(focus)) {
+          // Show bundle (either full bundle or row in table)
+          var bundle_info = this.getBundleInfo(focus);
+          if (bundle_info) {
+            side_panel_details = <BundleDetailSidePanel
+                                   key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
+                                   bundle_info={bundle_info}
+                                   ref="bundle_info_side_panel"
+                                 />;
+          }
         }
 
-
         return (
-            <div className="ws-panel">
-                {side_panel_details}
-            </div>
-        )
+          <div className="ws-panel">
+              {side_panel_details}
+          </div>
+        );
     }
 });
 
@@ -143,20 +124,15 @@ var WorksheetSidePanel = React.createClass({
 /** @jsx React.DOM */
 // When selecting a worksheet.
 var WorksheetDetailSidePanel = React.createClass({
-    getInitialState: function(){
+    getInitialState: function() {
         return { };
     },
-    componentDidMount: function() {
-    },
-    componentWillUnmount: function() {
-    },
+
     render: function() {
       // Select the current worksheet or the subworksheet.
-      var worksheet = this.props.item;
-      if (worksheet.hasOwnProperty('subworksheet_info'))
-        worksheet = worksheet.subworksheet_info;
+      var worksheet = this.props.worksheet_info;
 
-      // Show brief summary of contents
+      // Show brief summary of contents.
       var rows = [];
       if (worksheet.items) {
         worksheet.items.forEach(function(item) {
@@ -222,51 +198,39 @@ var WorksheetDetailSidePanel = React.createClass({
 
 /** @jsx React.DOM */
 // When selecting a bundle.
+// props:
+// - bundle_info: contains information about the bundle to render
 var BundleDetailSidePanel = React.createClass({
     getInitialState: function() {
-        // Set the state from the props and leave props.item alone
-        var item = this.props.item;
-        var bundle_info = {};
-        if (item.bundle_info instanceof Array) { // Is a table
-          bundle_info = item.bundle_info[this.props.subFocusIndex];
-        } else {
-          bundle_info = item.bundle_info;
-        }
+        var bundle_info = this.props.bundle_info;
 
+        // State associated with file browser
         bundle_info.fileBrowserData = {};
         bundle_info.currentWorkingDirectory = '';
 
         return bundle_info;
     },
-    fetch_extra: function() {
-        // Fetch detailed information about this bundle.
-        var bundle_info = this.state;
-        ws_bundle_obj.state = bundle_info;
 
-        // Break out if we don't match. The user has moved on.
-        //if(ws_bundle_obj.current_uuid == bundle_info.uuid){ return; }
-
-        //update we are at the correct focus.
-        ws_bundle_obj.current_uuid = bundle_info.uuid;
-        ws_bundle_obj.fetch({
-            success: function(data){
-                console.log("BundleDetailSidePanel.fetch_extra: " + bundle_info.uuid);
-                // do a check since this fires async to double check users intent.
-                if(ws_bundle_obj.current_uuid == bundle_info.uuid){
-                    if(this.isMounted()){
-                        this.setState(data)
-                    }
-                }
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(ws_obj.url, status, err);
-            }.bind(this)
-        });
-    },
-    componentDidMount: function(){},
-    componentWillUnmount: function(){},
-    componentWillMount: function() {
-      this.updateFileBrowser('');
+    fetchExtra: function() {
+      // Fetch detailed information about this bundle.
+      var bundle_info = this.state;
+      //console.log('BundleDetailSidePanel.fetchExtra', bundle_info.uuid);
+      $.ajax({
+          type: "GET",
+          url: "/api/bundles/" + bundle_info.uuid,
+          dataType: 'json',
+          cache: false,
+          success: function(data) {
+              //console.log("BundleDetailSidePanel.fetchExtra success: " + bundle_info.uuid);
+              if (this.isMounted()) {
+                  this.setState(data);
+                  this.updateFileBrowser('');
+              }
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.log(xhr, status, err);
+          }.bind(this)
+      });
     },
 
     updateFileBrowser: function(folder_path) {
@@ -279,12 +243,13 @@ var BundleDetailSidePanel = React.createClass({
 
         var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
         $.ajax({
-            type: "GET",
+            type: 'GET',
             url: url,
             dataType: 'json',
             cache: false,
             success: function(data) {
-                this.setState({"fileBrowserData": data});
+                if (this.isMounted())
+                  this.setState({'fileBrowserData': data});
             }.bind(this),
             error: function(xhr, status, err) {
                 if (xhr.status != 404) {
@@ -298,6 +263,7 @@ var BundleDetailSidePanel = React.createClass({
     },
 
     render: function() {
+      //console.log('BundleDetailSidePanel.render');
       var bundle_info = this.state;
 
       var fileBrowser = '';
@@ -488,23 +454,30 @@ var FileBrowser = React.createClass({
         var items = [];
         if (this.props.fileBrowserData.contents) {
           // Parent directory (..)
-          if(this.props.currentWorkingDirectory) {
+          if (this.props.currentWorkingDirectory) {
             items.push(<FileBrowserItem key=".." index=".."type=".." updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory} />);
           }
 
+          // Sort by name
+          var entities = this.props.fileBrowserData.contents;
+          entities.sort(function(a, b) {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return +1;
+            return 0;
+          });
+          var self = this;
+
           // Show directories
-          for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
-            var item = this.props.fileBrowserData.contents[i];
+          entities.forEach(function(item) {
             if (item.type == 'directory')
-              items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
-          }
+              items.push(<FileBrowserItem key={item.name} index={item.name} type={item.type} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory}  />);
+          });
 
           // Show files
-          for (var i = 0; i < this.props.fileBrowserData.contents.length; i++) {
-            var item = this.props.fileBrowserData.contents[i];
-            if (item.type != 'directory')
-              items.push(<FileBrowserItem bundle_uuid={this.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} updateFileBrowser={this.props.updateFileBrowser} currentWorkingDirectory={this.props.currentWorkingDirectory}  />);
-          }
+          entities.forEach(function(item) {
+            if (item.type == 'file')
+              items.push(<FileBrowserItem bundle_uuid={self.props.bundle_uuid} key={item.name} index={item.name} type={item.type} size={item.size} size_str={item.size_str} updateFileBrowser={self.props.updateFileBrowser} currentWorkingDirectory={self.props.currentWorkingDirectory} />);
+          });
 
           file_browser = (
             <table className="file-browser-table">
@@ -521,7 +494,7 @@ var FileBrowser = React.createClass({
 
         return (<div>
           <div className="panel panel-default">
-              {bread_crumbs.props.currentWorkingDirectory.length ? bread_crumbs : null}
+              {bread_crumbs}
               <div className="panel-body">
                   {file_browser}
               </div>
@@ -532,27 +505,22 @@ var FileBrowser = React.createClass({
 
 var FileBrowserBreadCrumbs = React.createClass({
     breadCrumbClicked: function(path) {
-        console.log("breadcrumb -> "+path);
-        this.props.updateFileBrowser(path);
+      this.props.updateFileBrowser(path);
     },
     render: function() {
-        var links = [];
-        var splitDirs = this.props.currentWorkingDirectory.split('/');
-        var currentDirectory = '';
+      var links = [];
+      var splitDirs = this.props.currentWorkingDirectory.split('/');
+      var currentDirectory = '';
 
-        // Generate list of breadcrumbs separated by ' / '
-        for(var i=0; i < splitDirs.length; i++) {
-            if(i == 0) {
-                currentDirectory += splitDirs[i];
-            } else {
-                currentDirectory += "/" + splitDirs[i];
-            }
-            links.push(<span key={splitDirs[i]} index={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
-        }
+      // Generate list of breadcrumbs separated by ' / '
+      for (var i=0; i < splitDirs.length; i++) {
+        if (i > 0)
+          currentDirectory += '/';
+        currentDirectory += splitDirs[i];
+        links.push(<span key={splitDirs[i]} index={splitDirs[i]} onClick={this.breadCrumbClicked.bind(null, currentDirectory)}> / {splitDirs[i]}</span>);
+      }
 
-        return (
-            <div className="panel-heading">{links}</div>
-        );
+      return <div className="panel-heading">{links}</div>;
     }
 });
 
@@ -577,23 +545,15 @@ var FileBrowserItem = React.createClass({
 
         var file_link = '/api/bundles/filecontent/' + this.props.bundle_uuid + '/' + file_location;
         var size = '';
-        if(this.props.hasOwnProperty('size')){
-            if(this.props.size == 0 || this.props.size === undefined)
-                size = "0 bytes"
-            else{ // we have a real size create a nice human readable version
-                var k = 1000;
-                var sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-                var i = Math.floor(Math.log(this.props.size) / Math.log(k));
-                size = (this.props.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-            }
-        }
+        if (this.props.hasOwnProperty('size_str'))
+          size = this.props['size_str'];
         return (
             <tr>
                 <td>
                     <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
                         <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
-                        <span className="pull-right"> {size} </span>
+                        <span className="pull-right">{size}</span>
                     </div>
                 </td>
             </tr>

@@ -8,11 +8,7 @@ var ContentsBundle = React.createClass({
         return this.props.item.state;
     },
     handleClick: function(event){
-        var index = this.props.index;
-        var last_sub_el = undefined;
-        var direction = undefined;
-        var scroll = false;
-        this.props.setFocus(this.props.index, event, last_sub_el, direction, scroll);
+        this.props.setFocus(this.props.index);
     },
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');

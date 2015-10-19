@@ -64,7 +64,7 @@
                       <td><kbd>shift+g</kbd></td><td>Move to end of worksheet</td>
                     </tr>
                     <tr>
-                      <td><kbd>1 shift+g</kbd></td><td>Move to beginning of worksheet</td>
+                      <td><kbd>g g</kbd></td><td>Move to beginning of worksheet</td>
                     </tr>
                     <tr>
                       <td><kbd>enter</kbd></td><td>Open current bundle or worksheet</td>
@@ -102,7 +102,6 @@
 
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_utils.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
-    <script src="{{ STATIC_URL }}js/worksheet/bundle_detail_content.js"></script>
     <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
 
@@ -140,7 +139,6 @@ var worksheet_url = '/api' + document.location.pathname
 $(function () {
   ws_actions = new WorksheetActions(); // Action bar (web terminal)
   ws_obj = new WorksheetContent(worksheet_url);  // Manage current worksheet information
-  ws_bundle_obj = new BundleContent();  // Manage current bundle information
 });
 </script>
 

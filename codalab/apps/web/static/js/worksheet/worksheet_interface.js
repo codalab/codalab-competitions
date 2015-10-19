@@ -27,46 +27,43 @@ var keyMap = {
 };
 
 var Worksheet = React.createClass({
-    // master parent that controls the page
-    getInitialState: function(){
+    getInitialState: function() {
         return {
-            activeComponent: 'list',
-            editMode: false,
-            showActionBar: true,
-            editingText: false,
-            // Which worksheet items to be on
-            focusIndex: -1,
-            subFocusIndex: 0,  // For tables
+            activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
+            editMode: false,  // Whether we're editing the worksheet
+            showActionBar: true,  // Whether the action bar is shown
+            focusIndex: -1, // Which worksheet items to be on (-1 is none)
+            subFocusIndex: -1,  // For tables, which row in the table
         };
     },
-    _setfocusIndex: function(index){
+    _setfocusIndex: function(index) {
         this.setState({focusIndex: index});
     },
-    _setWorksheetSubFocusIndex: function(index){
+    _setWorksheetSubFocusIndex: function(index) {
         this.setState({subFocusIndex: index});
     },
     componentDidMount: function() {
         this.bindEvents();
         $('body').addClass('ws-interface');
     },
-    componentWillUnmount: function(){
+    componentWillUnmount: function() {
         this.unbindEvents();
     },
-    bindEvents: function(){
+    bindEvents: function() {
     },
-    unbindEvents: function(){
+    unbindEvents: function() {
         // window.removeEventListener('keydown');
     },
-    canEdit: function(){
+    canEdit: function() {
         return ws_obj.getState().edit_permission;
     },
-    viewMode: function(){
+    viewMode: function() {
         this.toggleEditMode(false);
     },
-    editMode: function(){
+    editMode: function() {
         this.toggleEditMode(true);
     },
-    handleActionBarFocus: function(event){
+    handleActionBarFocus: function(event) {
         this.setState({activeComponent:'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
@@ -75,7 +72,7 @@ var Worksheet = React.createClass({
         $('#command_line').data('resizing', null);
         $('body').stop(true).animate({scrollTop: 0}, 250);
     },
-    handleActionBarBlur: function(event){
+    handleActionBarBlur: function(event) {
         // explicitly close term because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
         this.setState({activeComponent:'list'});
@@ -83,8 +80,8 @@ var Worksheet = React.createClass({
         $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
         $('#ws_search').removeAttr('style');
     },
-    capture_keys: function(){
-        Mousetrap.reset();  // reset, since we will call children, lets start fresh.
+    capture_keys: function() {
+        Mousetrap.reset();  // reset, since we will call children, let's start fresh.
 
         var activeComponent = this.refs[this.state.activeComponent];
         if (this.state.activeComponent == 'action') {
@@ -100,35 +97,35 @@ var Worksheet = React.createClass({
             return;
         }
 
-        Mousetrap.bind(['?'], function(e){
+        Mousetrap.bind(['?'], function(e) {
             $('#glossaryModal').modal('show');
         });
 
-        Mousetrap.bind(['esc'], function(e){
-            if($('#glossaryModal').hasClass('in')){
+        Mousetrap.bind(['esc'], function(e) {
+            if ($('#glossaryModal').hasClass('in')) {
                 $('#glossaryModal').modal('hide');
             }
         });
 
-        Mousetrap.bind(['shift+r',], function(e){
+        Mousetrap.bind(['shift+r',], function(e) {
             this.refreshWorksheet();
             return false;
         }.bind(this));
 
         // Show/hide web terminal
-        Mousetrap.bind(['shift+c'], function(e){
+        Mousetrap.bind(['shift+c'], function(e) {
             this.toggleActionBar();
         }.bind(this));
 
         // Focus on web terminal (action bar)
-        Mousetrap.bind(['c'], function(e){
+        Mousetrap.bind(['c'], function(e) {
             this.showActionBar();
             this.setState({activeComponent: 'action'});
             $('#command_line').terminal().focus();
         }.bind(this));
 
         // Toggle edit mode
-        Mousetrap.bind(['e'], function(e){
+        Mousetrap.bind(['e'], function(e) {
             this.toggleEditMode();
             return false;
         }.bind(this));
@@ -155,26 +152,26 @@ var Worksheet = React.createClass({
           $("#raw-textarea").focus();
         }
     },
-    toggleActionBar: function(){
+    toggleActionBar: function() {
         this.setState({showActionBar: !this.state.showActionBar});
     },
-    showActionBar: function(){
+    showActionBar: function() {
         this.setState({showActionBar: true});
     },
-    hideActionBar: function(){
+    hideActionBar: function() {
         this.setState({showActionBar: false});
     },
-    refreshWorksheet: function(){
+    refreshWorksheet: function() {
         $('#update_progress').show();
         this.setState({updating: true});
         ws_obj.fetch({
-            success: function(data){
-                if(this.isMounted()){
+            success: function(data) {
+                if (this.isMounted()) {
                     this.refs.list.setState({worksheet: ws_obj.getState()});
                 }
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                if(ws_obj.getState().items.length === 0){
+                if (ws_obj.getState().items.length === 0) {
                     this.refs.list.resetFocusIndex();
                 }
                 this.setState({updating:false});
@@ -195,21 +192,21 @@ var Worksheet = React.createClass({
             }.bind(this)
         });
     },
-    saveAndUpdateWorksheet: function(from_raw){
+    saveAndUpdateWorksheet: function(from_raw) {
         $("#worksheet-message").hide();
         // does a save and a update
         this.setState({updating:true});
         ws_obj.saveWorksheet({
-            success: function(data){
+            success: function(data) {
                 this.setState({updating:false});
                 if ('error' in data) { // TEMP REMOVE FDC
                     $('#update_progress').hide();
                     $('#save_error').show();
                     $("#worksheet-message").html("A save error occurred: <em>" + data.error + "</em> <br /> Please try refreshing the page or saving again").addClass('alert-danger alert').show();
-                    if(from_raw){
+                    if (from_raw) {
                         this.toggleEditMode(true);
                     }
-                }else{
+                }else {
                     this.refreshWorksheet();
                 }
             }.bind(this),
@@ -218,7 +215,7 @@ var Worksheet = React.createClass({
                 this.setState({updating:false});
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert').show();
-                } else if (xhr.status == 401){
+                } else if (xhr.status == 401) {
                     $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
                 } else {
                     $("#worksheet-message").html("A save error occurred: <em>" + err.string() + "</em> <br /> Please try refreshing the page or saving again.").addClass('alert-danger alert').show();
@@ -226,7 +223,8 @@ var Worksheet = React.createClass({
             }
         });
     },
-    render: function(){
+    render: function() {
+        //console.log('WorksheetInterface.render');
         this.capture_keys();
         var rawWorksheet = ws_obj.getRaw();
         var editPermission = ws_obj.getState().edit_permission;
@@ -301,7 +299,7 @@ var Worksheet = React.createClass({
 
         var worksheet_side_panel = (
                 <WorksheetSidePanel
-                    ref={"panel"}
+                    ref={"side_panel"}
                     active={this.state.activeComponent=='side_panel'}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}

@@ -263,8 +263,7 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_info = service.get_bundle_info(uuid)
-            target = (uuid, '')
-            bundle_info.update(service.get_target_info_with_stdout_stderr(target))
+            bundle_info.update(service.get_bundle_contents(uuid))
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
@@ -381,7 +380,7 @@ class BundleContentApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             target = (uuid, path)
-            info = service.get_target_info_with_stdout_stderr(target)
+            info = service.get_target_info(target)
             return Response(info)
         except Exception as e:
             tb = traceback.format_exc()
