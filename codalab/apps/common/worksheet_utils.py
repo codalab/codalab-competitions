@@ -1,22 +1,26 @@
 '''
 This file contains utilities specific to worksheets.
 '''
+import random
+from django.conf import settings
+from apps.web.bundles import BundleService
 
-def recent_worksheets(worksheets):
+def get_worksheets(request_user, worksheet_uuids, limit=3):
     '''
-    Return the most recent worksheets (for featuring on the home page).
-    TODO: return the title too.
+    Get worksheets to display on the front page.
+    Keep only |worksheet_uuids|.
     '''
+    service = BundleService(request_user)
+    list_worksheets = service.worksheets()
+    list_worksheets = [(val['uuid'], val.get('title') or val['name'], val['name'], val['owner_name']) for val in list_worksheets]
 
-    if not worksheets:
-    	return worksheets  # just incase the list is empty
+    # Filter only if it's non-empty.
+    filtered_list_worksheets = [val for val in list_worksheets if val[0] in worksheet_uuids]
+    if len(filtered_list_worksheets) > 0:
+        list_worksheets = filtered_list_worksheets
 
-    sorted_worksheets = sorted(worksheets, key=lambda k: k['id'], reverse=True)
-
-    if len(sorted_worksheets) <= 2:
-        worksheets = [(val['uuid'], val['name'], val['owner_name']) for val in sorted_worksheets]
-        return worksheets
+    if len(list_worksheets) <= 2:
+        return list_worksheets
     else:
-        worksheets = sorted_worksheets[0:3]
-        worksheets = [(val['uuid'], val['name'], val['owner_name']) for val in worksheets]
-        return worksheets
+        list_worksheets = random.sample(list_worksheets, 3)
+        return list_worksheets
