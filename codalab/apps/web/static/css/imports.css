@@ -7458,6 +7458,7 @@ input[type="checkbox"] {
 .already-disliked {
   color: red;
 }
+/* Everything below correspondes to the latest homepage*/
 .col-sm-6 .btn-group .btn-group a {
   color: #FFFFFF;
   font-weight: bold;
@@ -7470,13 +7471,16 @@ input[type="checkbox"] {
   -moz-border-radius: 10px;
   /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
   border-radius: 10px;
-  background: #FF8C00;
+  background: #FFC266;
   border: 1px solid;
 }
 .homepage_headers {
   color: #739cb9;
 }
 /*Code for the latest worksheets goes here, only being used in homepage*/
+.container .worksheet-random-list {
+  padding-left: 5px;
+}
 .worksheets-list .checkbox {
   margin: 20px 0;
 }
@@ -7556,8 +7560,8 @@ input[type="checkbox"] {
   margin: 0;
   padding-bottom: 0;
 }
-.worksheets-list .worksheet-tile .worksheet-inner .byline {
-  padding-bottom: 0.25em;
+.worksheets-list .worksheet-tile .worksheet-inner h3 a {
+  word-wrap: break-word;
 }
 .worksheets-list .worksheet-tile .worksheet-inner button.delete-worksheet {
   position: absolute;
@@ -7616,6 +7620,18 @@ fieldset[disabled] .worksheets-list .worksheet-tile .worksheet-inner button.dele
   color: #999999;
   font-weight: bold;
   margin-bottom: 6px;
+}
+/*Code for latest competitions in homepage*/
+.competition-tile .row .right-panel-homepage {
+  line-height: 20px;
+}
+.container .row .competition-latest-list {
+  padding-left: 35px;
+}
+@media (max-width: 992px) {
+  .container .row .competition-latest-list {
+    padding-left: 5px;
+  }
 }
 .panel-frame {
   margin-top: 12px;
