@@ -221,6 +221,7 @@ class Base(Settings):
         'apps.analytics',
         'apps.forums',
         'apps.coopetitions',
+        'apps.common',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -310,7 +311,7 @@ class Base(Settings):
         '0x8967960a7c644492974871ee60198401',
         '0xc6edf0c9bec643ac9e74418bd6ad4136',
         '0xfcace41fdeec45f3bc6ddf31107b829f',
-)
+    )
 
     BUNDLE_SERVICE_URL = ""
     LANDING_PAGE_WORKSHEET_UUID = '';
