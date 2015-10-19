@@ -273,7 +273,7 @@ var Worksheet = React.createClass({
                     canEdit={this.canEdit()}
                     handleFocus={this.handleActionBarFocus}
                     handleBlur={this.handleActionBarBlur}
-                    active={this.state.activeComponent=='action'}
+                    active={this.state.activeComponent == 'action'}
                     show={this.state.showActionBar}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
@@ -285,15 +285,10 @@ var Worksheet = React.createClass({
         var items_display = (
                 <WorksheetItemList
                     ref={"list"}
-                    active={this.state.activeComponent=='list'}
+                    active={this.state.activeComponent == 'list'}
                     canEdit={canEdit}
-                    saveAndUpdateWorksheet={this.saveAndUpdateWorksheet}
-                    toggleEditMode={this.toggleEditMode}
-                    toggleActionBar={this.toggleActionBar}
-                    hideActionBar={this.hideActionBar}
                     updateWorksheetFocusIndex={this._setfocusIndex}
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
-                    showActionBar={this.showActionBar}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             );
@@ -301,7 +296,7 @@ var Worksheet = React.createClass({
         var worksheet_side_panel = (
                 <WorksheetSidePanel
                     ref={"side_panel"}
-                    active={this.state.activeComponent=='side_panel'}
+                    active={this.state.activeComponent == 'side_panel'}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                 />
