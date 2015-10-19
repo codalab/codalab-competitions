@@ -167,6 +167,7 @@ var Worksheet = React.createClass({
         ws_obj.fetch({
             success: function(data) {
                 if (this.isMounted()) {
+                    // TODO: change this so that it doesn't modify refs.
                     this.refs.list.setState({worksheet: ws_obj.getState()});
                 }
                 $('#update_progress, #worksheet-message').hide();
