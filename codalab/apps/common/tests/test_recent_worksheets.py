@@ -16,7 +16,7 @@ class WorksheetHelperTests(TestCase):
 		self.user = User.objects.create_user(username="organizer", password="pass")
 
 	def test_recent_worksheets(self):
-		with mock.patch('apps.common.utils.BundleService.worksheets') as worksheet_endpoint_mock:
+		with mock.patch('apps.common.worksheet_utils.BundleService.worksheets') as worksheet_endpoint_mock:
 			worksheet_endpoint_mock.return_value = [
 				{
 					'id': 1,
