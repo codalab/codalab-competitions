@@ -1,15 +1,18 @@
-def recent_worksheets(worksheets):
-    """Function to return most recent worksheets"""
+import random
 
-    if not worksheets:
-    	return worksheets  # just incase the list is empty
+from django.conf import settings
 
-    sorted_worksheets = sorted(worksheets, key=lambda k: k['id'], reverse=True)
 
-    if len(sorted_worksheets) <= 2:
-        worksheets = [(val['uuid'], val['name'], val['owner_name'])for val in sorted_worksheets]
-        return worksheets
+def random_worksheets(list_worksheets):
+    """Function to return most random worksheets, if any"""
+
+    if not list_worksheets:
+        return list_worksheets  # just incase the list is empty
+
+    list_worksheets = [(val['uuid'], val['name'], val['owner_name']) for val in list_worksheets if val['uuid'] in settings.FRONTPAGE_WORKSHEET_UUIDS ]
+
+    if len(list_worksheets) <= 2:
+        return list_worksheets
     else:
-        worksheets = sorted_worksheets[0:3]
-        worksheets = [(val['uuid'], val['name'], val['owner_name'])for val in worksheets]
-        return worksheets
+        list_worksheets = random.sample(list_worksheets, 3)
+        return list_worksheets
