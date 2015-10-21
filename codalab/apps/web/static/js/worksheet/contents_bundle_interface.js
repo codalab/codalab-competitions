@@ -13,7 +13,7 @@ var ContentsBundle = React.createClass({
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
         var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled} /> : null;
-        var contents = this.state.interpreted.join('');
+        var contents = this.props.item.state.interpreted.join('');
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 {checkbox}
