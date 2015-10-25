@@ -298,9 +298,9 @@ class BundleInfoApi(views.APIView):
 
                 # Convert to ints
                 for key in ['request_cpus', 'request_gpus', 'request_priority']:
-                    new_metadata[key] = int(new_metadata[key])
+                    if key in new_metadata:
+                        new_metadata[key] = int(new_metadata[key])
 
-                print new_metadata
                 service.update_bundle_metadata(uuid, new_metadata)
                 bundle_info = service.get_bundle_info(uuid)
                 return Response(bundle_info, content_type="application/json")

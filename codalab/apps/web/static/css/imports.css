@@ -3404,6 +3404,9 @@ tbody.collapse.in {
   filter: alpha(opacity=0);
   opacity: 0;
 }
+.greyed-out {
+   opacity:0.4;
+}
 .input-group {
   position: relative;
   display: table;
