@@ -4,8 +4,7 @@ INSTALLATION
 
 For installing selenium, run the following while inside your virtualenv
 
-	source venv/bin/activate
-	pip install -U selenium
+	venv/bin/pip -U selenium
 
 For Google Chrome support:
 	
