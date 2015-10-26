@@ -74,18 +74,11 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             metadata = bundle_info['metadata']
 
             cls = get_bundle_subclass(bundle_info['bundle_type'])
-            # format based on metadata specs from the cli
-            # TODO: same code as in print_basic_info in bundle_cli.py (refactor this)
-            for spec in cls.METADATA_SPECS:
-                key = spec.key
-                if key not in metadata:
-                    continue
-                if metadata[key] == '' or metadata[key] == []:
-                    continue
-                value = worksheet_util.apply_func(spec.formatting, metadata.get(key))
+            for key, value in worksheet_util.get_formatted_metadata(cls, metadata):
                 metadata[key] = value
 
             bundle_info['metadata'] = metadata
+            bundle_info['editable_metadata_fields'] = worksheet_util.get_editable_metadata_fields(cls, metadata)
 
             return bundle_info
 

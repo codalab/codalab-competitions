@@ -317,6 +317,7 @@ function renderMetadata(bundle_info) {
 
   // Sort the metadata by key.
   var keys = [];
+  var editableMetadataFields = bundle_info.editable_metadata_fields;
   for (var property in metadata) {
     if (metadata.hasOwnProperty(property))
       keys.push(property);
@@ -324,11 +325,34 @@ function renderMetadata(bundle_info) {
   keys.sort();
   for (var i = 0; i < keys.length; i++) {
     var property = keys[i];
-    metadata_list_html.push(<tr>
-      <th>{property}</th>
-      <td><span>{metadata[property]}</span></td>
-    </tr>);
+    if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
+      metadata_list_html.push(<tr>
+        <th>{property}</th>
+        <td><a href="#" className='editable-metadata' id={property} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{metadata[property]}</a></td>
+      </tr>);
+    }
+    else{
+      metadata_list_html.push(<tr>
+        <th>{property}</th>
+        <td><span className='greyed-out'>{metadata[property]}</span></td>
+      </tr>);
+    }
   }
+  $.fn.editable.defaults.mode = 'inline';
+    $(document).ready(function() {
+      $('.editable-metadata').editable({
+        send: 'always',
+        params: function(params) {
+          var data = {};
+          metadata[params.name] = params.value;
+          data['metadata'] = metadata;
+         return JSON.stringify(data);
+        },
+        success: function(response, newValue) {
+            if(response.error) return response.error;
+        }
+      });
+    });
 
   return (<div>
     <h4>metadata</h4>
