@@ -347,6 +347,9 @@ function renderMetadata(bundle_info) {
           metadata[params.name] = params.value;
           data['metadata'] = metadata;
          return JSON.stringify(data);
+        },
+        success: function(response, newValue) {
+            if(response.error) return response.error;
         }
       });
     });
