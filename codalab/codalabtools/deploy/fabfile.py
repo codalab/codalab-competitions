@@ -555,6 +555,11 @@ def update_compute_worker():
 
 
 @task
+def update_filemode_to_false():
+    run('cd codalab && git config core.filemode false')
+
+
+@task
 def update_conda():
     with settings(warn_only=True):
         if not run('conda'):
