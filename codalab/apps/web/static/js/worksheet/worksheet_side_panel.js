@@ -234,11 +234,17 @@ var BundleDetailSidePanel = React.createClass({
     },
 
     updateFileBrowser: function(folder_path) {
-        if (folder_path == '..')  // Go to parent directory
-          folder_path = this.state.currentWorkingDirectory.replace(/\/[^\/]*$/, '');
-
-        if (this.state.currentWorkingDirectory != '')
-            folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+        if (folder_path == '..') {  // Go to parent directory
+            folder_path = this.state.currentWorkingDirectory.substring(0, this.state.currentWorkingDirectory.lastIndexOf('/'));
+        }
+        else if (this.state.currentWorkingDirectory != '') {
+            if (folder_path != '') {
+                folder_path = this.state.currentWorkingDirectory + "/" + folder_path;
+            }
+            else {
+                folder_path = this.state.currentWorkingDirectory;
+            }
+        }
         this.setState({"currentWorkingDirectory": folder_path});
 
         var url = '/api/bundles/content/' + this.state.uuid + '/' + folder_path;
@@ -554,7 +560,7 @@ var FileBrowserItem = React.createClass({
     },
     render: function() {
         // Type can be 'file' or 'folder'
-        var icon = "glyphicon-folder-close";
+        var icon = "glyphicon-folder-open";
         if (this.props.type == "file") {
           icon = "glyphicon-file";
         }
@@ -576,7 +582,7 @@ var FileBrowserItem = React.createClass({
                 <td>
                     <div className={this.props.type} onClick={this.props.type != 'file' ? this.browseToFolder : null}>
                         <span className={icon} alt="More"></span>
-                        <a href={this.props.type == 'file' ? file_link : null} target="_blank">{this.props.index}</a>
+                        <a href={this.props.type == 'file' ? file_link : null} target="_blank" className='sidepanel-file-viewer-contents'>{this.props.index}</a>
                         <span className="pull-right">{size}</span>
                     </div>
                 </td>
