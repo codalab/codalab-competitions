@@ -173,14 +173,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
                         if item['interpreted'] is None:
-                            item['interpreted'] = ['MISSING']
+                            item['interpreted'] = [formatting.contents_str(item['interpreted'])]
                         else:
                             item['interpreted'] = map(base64.b64decode, item['interpreted'])
                     elif item['mode'] == 'table':
                         for row_map in item['interpreted'][1]:
                             for k, v in row_map.iteritems():
                                 if v is None:
-                                     row_map[k] = 'MISSING'
+                                     row_map[k] = formatting.contents_str(v)
                     elif 'bundle_info' in item:
                         infos = []
                         if isinstance(item['bundle_info'], list):
