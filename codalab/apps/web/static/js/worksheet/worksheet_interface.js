@@ -233,6 +233,10 @@ var Worksheet = React.createClass({
       });
     },
 
+    uploadBundle: function() {
+      ws_actions.execute(['cl', 'upload']);
+    },
+
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
@@ -309,6 +313,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     myHomeWorksheet={this.myHomeWorksheet}
+                    uploadBundle={this.uploadBundle}
                 />
             );
 

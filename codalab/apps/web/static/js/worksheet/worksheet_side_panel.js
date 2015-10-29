@@ -88,6 +88,8 @@ var WorksheetSidePanel = React.createClass({
         if (home_worksheet_name) {
           buttons = <div>
             <button className="active" onClick={this.props.myHomeWorksheet}>My home worksheet</button>
+            &nbsp;
+            <button className="active" onClick={this.props.uploadBundle}>Upload bundle</button>
           </div>;
         }
 
