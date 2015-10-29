@@ -78,7 +78,7 @@ var WorksheetActions = function() {
                     var defer = jQuery.Deferred();
                     if(options.length) {
                         options = options.join(' ');
-                        worksheet_uuid = ws_obj.state.uuid;
+                        worksheet_uuid = this.props.this.props.ws.state.uuid;
                         var postdata = {
                             'worksheet_uuid': worksheet_uuid,
                             'command': options
@@ -284,7 +284,7 @@ var WorksheetActions = function() {
                 autocomplete: function(options){ // is a promise must resolve and return a promise
                     var defer = jQuery.Deferred();
                     var search_string = '';
-                    var worksheet_uuid = ws_obj.state.uuid;
+                    var worksheet_uuid = this.props.ws.state.uuid;
 
                     if(options.length == 3){
                         search_string = options[options.length-1]
