@@ -9,6 +9,7 @@ import base64
 from time import sleep
 import mimetypes
 import os
+import shlex
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -279,6 +280,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             cli = bundle_cli.BundleCLI(manager, headless=True)
             return cli
 
+        def complete_command(self, worksheet_uuid, command):
+            '''
+            Given a command string, return a list of suggestions to complete the last token.
+            '''
+            cli = self._create_cli(worksheet_uuid)
+            return cli.complete_command(command)
+
         def get_command(self, raw_command_map):
             '''
             Return a cli-command corresponding to raw_command_map contents.
@@ -295,7 +303,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             TODO: check thread-safety.
             '''
             cli = self._create_cli(worksheet_uuid)
-            args = worksheet_util.string_to_tokens(command)
+            if isinstance(command, basestring):
+                args = shlex.split(command)
+            else:
+                args = list(command)
+            if args[0] == 'cl':
+                args = args[1:]
+
             def do_command():
                 from cStringIO import StringIO
                 import sys
@@ -387,6 +401,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def update_bundle_metadata(self, uuid, new_metadata):
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
+
+        def home_worksheet(self, username):
+            return spec_util.home_worksheet(username)
 
 else:
     # Bundle service not supported

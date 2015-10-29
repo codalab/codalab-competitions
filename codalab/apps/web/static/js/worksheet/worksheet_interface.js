@@ -224,6 +224,19 @@ var Worksheet = React.createClass({
             }
         });
     },
+
+    // Go to the home worksheet
+    myHomeWorksheet: function() {
+      // Make sure the worksheet exists (
+      this.refs.action.executeCommand(['cl', 'new', '-p', home_worksheet_name]).then(function() {
+        this.refs.action.executeCommand(['cl', 'work', home_worksheet_name]);
+      }.bind(this));
+    },
+
+    uploadBundle: function() {
+      this.refs.action.executeCommand(['cl', 'upload', 'dataset']);
+    },
+
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
@@ -299,6 +312,8 @@ var Worksheet = React.createClass({
                     active={this.state.activeComponent == 'side_panel'}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
+                    myHomeWorksheet={this.myHomeWorksheet}
+                    uploadBundle={this.uploadBundle}
                 />
             );
 

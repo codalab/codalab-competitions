@@ -1368,6 +1368,7 @@ class WorksheetLandingView(TemplateView):
         # Support /worksheets/?name=... and /worksheets/?uuid=...
         requested_ws = request.GET.get('name', None)
         requested_ws = request.GET.get('uuid', requested_ws)
+        requested_ws = requested_ws or settings.LANDING_PAGE_WORKSHEET_UUID
         if requested_ws:
             service = BundleService(request.user)
             try:
@@ -1376,17 +1377,7 @@ class WorksheetLandingView(TemplateView):
             except Exception, e:  # UsageError
                 pass
 
-        # Go to default worksheet.
-        if len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1:
-            return HttpResponseRedirect(reverse("ws_list"))
-
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetLandingView, self).get_context_data(**kwargs)
-        context['worksheet_uuid'] = settings.LANDING_PAGE_WORKSHEET_UUID
-        return context
+        return HttpResponseRedirect(reverse("ws_list"))
 
 class WorksheetListView(TemplateView):
     """
@@ -1411,10 +1402,11 @@ class WorksheetDetailView(TemplateView):
         # Just call to get the title.
         # TODO: later we call worksheet again to get the contents.
         # Can we avoid calling get_worksheet_info twice?
-        worksheet_info = service.basic_worksheet(uuid)
-        context['worksheet_info'] = worksheet_info
-        context['worksheet_uuid'] = uuid
+        if self.request.user.is_authenticated():
+            context['home_worksheet_name'] = service.home_worksheet(self.request.user.username)
         # Set the title to something sane.
+        worksheet_info = service.basic_worksheet(uuid)
+        context['worksheet_uuid'] = worksheet_info['uuid']
         context['worksheet_title'] = worksheet_info.get('title', worksheet_info.get('name', ''))
         return context
 
