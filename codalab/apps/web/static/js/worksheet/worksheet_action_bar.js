@@ -105,7 +105,7 @@ var WorksheetActionBar = React.createClass({
             contentType:"application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({
-                'worksheet_uuid': ws_obj.state.uuid,
+                'worksheet_uuid': this.props.ws.state.uuid,
                 'command': command,
             }),
             success: function(data, status, jqXHR) {
@@ -185,7 +185,7 @@ var WorksheetActionBar = React.createClass({
             contentType:"application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({
-                'worksheet_uuid': ws_obj.state.uuid,
+                'worksheet_uuid': this.props.ws.state.uuid,
                 'command': command,
                 'autocomplete': true,
             }),
