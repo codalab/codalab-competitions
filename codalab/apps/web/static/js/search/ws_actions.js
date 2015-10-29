@@ -10,7 +10,7 @@ TODO: revamp this to make the interface more uniform and pass more control to th
 
     var WorksheetActions = function(){};
 
-    WorksheetActions.prototype.execute = function(command, term, action_bar) { // is a promise must resolve and return a promise
+    WorksheetActions.prototype.execute = function(command, term) { // is a promise must resolve and return a promise
         var defer = jQuery.Deferred();
 
         $.ajax({
@@ -29,7 +29,7 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                     console.error(data.data.exception);
                     echoError(term, data.data.exception);
                 }
-                if (data.data.stdout){
+                if (data.data.stdout) {
                     // console.log(data.data.stdout);
                     term.echo(data.data.stdout);
                     if (data.data.structured_result && data.data.structured_result.refs) {
@@ -53,7 +53,7 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                         }, this);
                     }
                 }
-                if (data.data.stderr){
+                if (data.data.stderr) {
                     //console.log(data.data.stderr);
                     var err;
                     err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
@@ -63,9 +63,11 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                     }
 
                 }
+                if (data.data.structured_result) {
+
+                }
                 // console.log('=====');
                 defer.resolve();
-                action_bar.props.refreshWorksheet();
             },
             error: function(jqHXR, status, error){
                 echoError(term, error);

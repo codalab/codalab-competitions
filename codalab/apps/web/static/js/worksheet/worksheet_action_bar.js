@@ -45,9 +45,10 @@ var WorksheetActionBar = React.createClass({
                 terminal.pause();
                 paused = true;
 
-                ws_actions.execute(command, terminal, self).always(function(data) {
+                ws_actions.execute(command, terminal).always(function(data) {
                     term.resume();
                     paused = false;
+                    self.props.refreshWorksheet();
                 });
 
                 // var ws_action_command = ws_actions.checkAndReturnCommand(command);
