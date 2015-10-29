@@ -22,7 +22,7 @@
     {% block css %}
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
-        <link rel="stylesheet" href="http:{{ STATIC_URL }}css/jquery-editable.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
