@@ -237,6 +237,9 @@ class WorksheetsCommandApi(views.APIView):
     def post(self, request):
         user = self.request.user
         data = json.loads(request.body)
+        service = BundleService(self.request.user)
+        if data.get('raw_command', None):
+            data['command'] = service.get_command(data['raw_command'])
         if not data.get('worksheet_uuid', None) or not data.get('command', None):
             return Response("Must have worksheet uuid and command", status=status.HTTP_400_BAD_REQUEST)
 
@@ -248,16 +251,15 @@ class WorksheetsCommandApi(views.APIView):
                 'completions': service.complete_command(data['worksheet_uuid'], data['command'])
             })
 
-        try:
-            data = service.general_command(data['worksheet_uuid'], data['command'])
+        result = service.general_command(data['worksheet_uuid'], data['command'])
+        if result['exception'] is None:
             return Response({
                 'success': True,
-                'data': data
-            })
-        except Exception as e:
-            tb = traceback.format_exc()
-            log_exception(self, e, tb)
-            return Response({"error": smart_str(e)}, status=500)
+                'data': result,
+                'input_data': data
+                })
+        else:
+            return Response(result['exception'], status=500)
 
 ############################################################
 
@@ -285,7 +287,6 @@ class BundleInfoApi(views.APIView):
         user_id = self.request.user.id
         logger.debug("BundleInfo: user_id=%s; uuid=%s.", user_id, uuid)
         service = BundleService(self.request.user)
-
         try:
             bundle_info = service.get_bundle_info(uuid)
             # Save only if we're the owner.

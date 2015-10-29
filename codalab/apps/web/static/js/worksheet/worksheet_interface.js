@@ -224,6 +224,19 @@ var Worksheet = React.createClass({
             }
         });
     },
+
+    // Go to the home worksheet
+    myHomeWorksheet: function() {
+      // Make sure the worksheet exists (
+      ws_actions.execute(['cl', 'new', '-p', home_worksheet_name]).then(function() {
+        ws_actions.execute(['cl', 'work', home_worksheet_name]);
+      });
+    },
+
+    uploadBundle: function() {
+      ws_actions.execute(['cl', 'upload']);
+    },
+
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
@@ -299,6 +312,8 @@ var Worksheet = React.createClass({
                     active={this.state.activeComponent == 'side_panel'}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
+                    myHomeWorksheet={this.myHomeWorksheet}
+                    uploadBundle={this.uploadBundle}
                 />
             );
 
@@ -311,6 +326,31 @@ var Worksheet = React.createClass({
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
 
+        $.fn.editable.defaults.mode = 'inline';
+        $(document).ready(function() {
+          $('.editable-field').editable({
+            send: 'always',
+            type: 'text',
+            params: function(params) {
+              var data = {};
+              var rawCommand = {}
+              data['worksheet_uuid'] = ws_obj.state.uuid;
+              rawCommand['k'] = params['name'];
+              rawCommand['v'] = params['value'];
+              rawCommand['action'] = 'worksheet-edit';
+              data['raw_command'] = rawCommand;
+             return JSON.stringify(data);
+            },
+            success: function(response, newValue) {
+                if(response.error){
+                    return response.error;
+                }
+                ws_obj.state[response.input_data.raw_command['k']] = newValue;
+                this.refs.side_panel.forceUpdate();
+
+            }.bind(this)
+          });
+        }.bind(this));
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -321,10 +361,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className="worksheet-title">{ws_obj.state.title}</h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-type="text" data-url="/api/worksheets/command/"> {ws_obj.state.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name:</b> {ws_obj.state.name}</div>
+                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-type="text" data-url="/api/worksheets/command/"> {ws_obj.state.name}</a></div>
                                                 <div className="worksheet-detail"><b>uuid:</b> {ws_obj.state.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner:</b> {ws_obj.state.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions:</b> {render_permissions(ws_obj.state)}</div>

@@ -133,11 +133,12 @@ MathJax.Hub.Config({
     }
 });
 // mixing django and javascript to get uuid if not a normal worksheet page
-var worksheet_url = '/api' + document.location.pathname
+var worksheet_url = '/api' + document.location.pathname;
 {% if worksheet_uuid %}
     worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
 {% endif %}
 $(function () {
+  home_worksheet_name = "{{home_worksheet_name}}";
   ws_actions = new WorksheetActions(); // Action bar (web terminal)
   ws_obj = new WorksheetContent(worksheet_url);  // Manage current worksheet information
 });

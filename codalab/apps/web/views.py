@@ -57,6 +57,9 @@ except ImportError:
 
 User = get_user_model()
 
+############################################################
+# General: template views
+
 class HomePageView(TemplateView):
     template_name = "web/index.html"
 
@@ -67,6 +70,22 @@ class HomePageView(TemplateView):
         context['worksheets'] = worksheets
         return context
 
+class LoginRequiredMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+
+class UserSettingsView(LoginRequiredMixin, UpdateView):
+    template_name = "web/my/settings.html"
+    form_class = forms.UserSettingsForm
+    model = User
+    success_url = "/my/settings/"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+############################################################
+# Competitions: template views
 
 def competition_index(request):
     query = request.GET.get('q')
@@ -117,11 +136,6 @@ def sort_data_table(request, context, list):
     def sortkey(x):
         return x[order] if order in x and x[order] is not None else ''
     list.sort(key=sortkey, reverse=reverse)
-
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 #
 # Competition Views
@@ -1029,16 +1043,6 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
         return obj
 
 
-class UserSettingsView(LoginRequiredMixin, UpdateView):
-    template_name = "web/my/settings.html"
-    form_class = forms.UserSettingsForm
-    model = User
-    success_url = "/my/settings/"
-
-    def get_object(self, queryset=None):
-        return self.request.user
-
-
 def download_dataset(request, dataset_key):
     try:
         dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
@@ -1364,6 +1368,7 @@ class WorksheetLandingView(TemplateView):
         # Support /worksheets/?name=... and /worksheets/?uuid=...
         requested_ws = request.GET.get('name', None)
         requested_ws = request.GET.get('uuid', requested_ws)
+        requested_ws = requested_ws or settings.LANDING_PAGE_WORKSHEET_UUID
         if requested_ws:
             service = BundleService(request.user)
             try:
@@ -1372,17 +1377,7 @@ class WorksheetLandingView(TemplateView):
             except Exception, e:  # UsageError
                 pass
 
-        # Go to default worksheet.
-        if len(settings.LANDING_PAGE_WORKSHEET_UUID) < 1:
-            return HttpResponseRedirect(reverse("ws_list"))
-
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetLandingView, self).get_context_data(**kwargs)
-        context['worksheet_uuid'] = settings.LANDING_PAGE_WORKSHEET_UUID
-        return context
+        return HttpResponseRedirect(reverse("ws_list"))
 
 class WorksheetListView(TemplateView):
     """
@@ -1407,10 +1402,11 @@ class WorksheetDetailView(TemplateView):
         # Just call to get the title.
         # TODO: later we call worksheet again to get the contents.
         # Can we avoid calling get_worksheet_info twice?
-        worksheet_info = service.basic_worksheet(uuid)
-        context['worksheet_info'] = worksheet_info
-        context['worksheet_uuid'] = uuid
+        if self.request.user.is_authenticated():
+            context['home_worksheet_name'] = service.home_worksheet(self.request.user.username)
         # Set the title to something sane.
+        worksheet_info = service.basic_worksheet(uuid)
+        context['worksheet_uuid'] = worksheet_info['uuid']
         context['worksheet_title'] = worksheet_info.get('title', worksheet_info.get('name', ''))
         return context
 
