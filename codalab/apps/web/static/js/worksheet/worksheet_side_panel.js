@@ -84,9 +84,12 @@ var WorksheetSidePanel = React.createClass({
         //console.log('WorksheetSidePanel.render');
 
         // General buttons
-        var buttons = <div>
-          <button className="active" onClick={this.props.myHomeWorksheet}>My home worksheet</button>
-        </div>;
+        var buttons = '';
+        if (home_worksheet_name) {
+          buttons = <div>
+            <button className="active" onClick={this.props.myHomeWorksheet}>My home worksheet</button>
+          </div>;
+        }
 
         var focus = this.getFocus();
         var side_panel_details = '';

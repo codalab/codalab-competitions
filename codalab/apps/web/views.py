@@ -1402,7 +1402,8 @@ class WorksheetDetailView(TemplateView):
         # Just call to get the title.
         # TODO: later we call worksheet again to get the contents.
         # Can we avoid calling get_worksheet_info twice?
-        context['home_worksheet_name'] = service.home_worksheet(self.request.user.username)
+        if self.request.user.is_authenticated():
+            context['home_worksheet_name'] = service.home_worksheet(self.request.user.username)
         # Set the title to something sane.
         worksheet_info = service.basic_worksheet(uuid)
         context['worksheet_uuid'] = worksheet_info['uuid']
