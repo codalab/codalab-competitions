@@ -29,7 +29,7 @@ var keyMap = {
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
-            refresh:false,
+            refresh: false,
             ws: new WorksheetContent(this.props.url),
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
