@@ -35,8 +35,8 @@ var WorksheetSidePanel = React.createClass({
     getFocus: function() {
         // Return the state to show on the side panel
         if (this.props.focusIndex == -1)
-          return ws_obj.state;  // Show current worksheet
-        return ws_obj.state.items[this.props.focusIndex].state;
+          return this.props.ws.state;  // Show current worksheet
+        return this.props.ws.state.items[this.props.focusIndex].state;
     },
 
     // What kind of thing is it?
