@@ -228,13 +228,13 @@ var Worksheet = React.createClass({
     // Go to the home worksheet
     myHomeWorksheet: function() {
       // Make sure the worksheet exists (
-      ws_actions.execute(['cl', 'new', '-p', home_worksheet_name]).then(function() {
-        ws_actions.execute(['cl', 'work', home_worksheet_name]);
-      });
+      this.refs.action.executeCommand(['cl', 'new', '-p', home_worksheet_name]).then(function() {
+        this.refs.action.executeCommand(['cl', 'work', home_worksheet_name]);
+      }.bind(this));
     },
 
     uploadBundle: function() {
-      ws_actions.execute(['cl', 'upload']);
+      this.refs.action.executeCommand(['cl', 'upload', 'dataset']);
     },
 
     render: function() {
