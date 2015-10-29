@@ -33,9 +33,10 @@
         </div>
     {% endif %}
 
+    <h3><b>Basic settings {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</b></h3>
+
     <div class="row">
         <div class="col-sm-12">
-            <h4>Basic settings {% if user.is_staff %}<span class="label label-info">Staff</span>{% endif %}{% if user.is_superuser %} <span class="label label-success">Admin</span>{% endif %}</h4>
             <table class="table table-striped account">
                 <tbody>
                     <tr>
@@ -59,9 +60,10 @@
         </div>
     </div>
 
+    <h3><b>Competition settings</b></h3>
+
     <div class="row">
         <div class="col-sm-12">
-            <h4>Team</h4>
             <table class="table table-striped affiliation">
                 <tbody>
                     <tr>
@@ -79,8 +81,6 @@
 
     <div class="row">
         <div class="col-sm-12">
-
-            <h4>Competition settings</h4>
 
             <table class="table table-striped subscriptions">
                 <tbody>

@@ -287,6 +287,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             cli = self._create_cli(worksheet_uuid)
             return cli.complete_command(command)
 
+        def get_command(self, raw_command_map):
+            '''
+            Return a cli-command corresponding to raw_command_map contents.
+            Input:
+                raw_command_map: a map containing the info to edit, new_value and the action to perform
+            '''
+            return worksheet_util.get_worksheet_info_edit_command(raw_command_map)
+
         def general_command(self, worksheet_uuid, command):
             '''
             Executes an arbitrary CLI command with |worksheet_uuid| as the current worksheet.
