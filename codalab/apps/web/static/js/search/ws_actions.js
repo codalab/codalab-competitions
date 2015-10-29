@@ -15,7 +15,7 @@ var WorksheetActions = function() {
 
     function WorksheetActions() {
         this.not_implemented_commands = [
-        // this is a list of commands that are no front end implmented but we sill want to show
+        // this is a list of commands that are not front end implemented but we still want to show
         // for action bar autocomplete
             'help',
             'upload',
@@ -66,8 +66,6 @@ var WorksheetActions = function() {
             // 'commandname'{  // what the user enters
             //  *  executefn: a promise function that happens when they hit enter
             //  *  edit_enabled: is this a command that is only allowed when able to edit
-            //  *  autocomplete: a promise function that returns either a dict {"test" : autocompletetext, "display": displaytet}
-            //                   or an array of just things you wish to match vs what the user has typed
             // }
             // ------------------------------------
             'cl': { // default lets just run abrary commands commands fall back to this if no other command is found
@@ -154,46 +152,6 @@ var WorksheetActions = function() {
                 helpText: formatHelp('work <worksheet>', 'go to worksheet'),
                 minimumInputLength: 0,
                 edit_enabled: false,
-                autocomplete: function(options){ // is a promise must resolve and return a promise
-                    var defer = jQuery.Deferred();
-                    var get_data = {
-                        search_string: options[options.length-1]
-                    };
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/worksheets/search/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR, callback){
-                            var autocomplete_list = [];
-                            for (var i = 0; i < data.worksheets.length; i++) {
-                                var worksheet = data.worksheets[i];
-                                var text = '';
-                                if(data.search_string.indexOf('0x') === 0){
-                                    text = worksheet.uuid
-                                }else{
-                                    text = worksheet.name
-                                }
-                                autocomplete_list.push({
-                                    'text': text,
-                                    'display': worksheet.uuid.slice(0, 10)  + " | " +  worksheet.name + ' | Owner: ' + worksheet.owner_name,
-                                });
-                            }
-                            defer.resolve(autocomplete_list)
-                        },
-                        error: function(jqHXR, status, error){
-                            defer.resolve([]);
-                            var error;
-                            if(jqHXR.responseJSON){
-                                error = jqHXR.responseJSON['error'];
-                            }else{
-                                error = error
-                            }
-                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                        }
-                    });
-                    return defer.promise();
-                },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
 
@@ -229,7 +187,6 @@ var WorksheetActions = function() {
                                     defer.resolve()
                                 }
                             });
-                            // term.echo("<span style='color:red'>Error: Please enter a full uuid. (note you can press tab to autocomplete a uuid if valid)</span>", {raw: true});
                         }
                     }else{// no options, resolve
                         defer.resolve()
@@ -242,11 +199,6 @@ var WorksheetActions = function() {
                 helpText: formatHelp('new <name>', 'create new worksheet with given name'),
                 minimumInputLength: 0,
                 edit_enabled: false,
-                autocomplete: function(options){ // is a promise must resolve and return a promise
-                    var defer = jQuery.Deferred();
-                    defer.resolve([])
-                    return defer.promise();
-                },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
                     var postdata = {
@@ -281,60 +233,6 @@ var WorksheetActions = function() {
             'info': {
                 helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
                 edit_enabled: true,
-                autocomplete: function(options){ // is a promise must resolve and return a promise
-                    var defer = jQuery.Deferred();
-                    var search_string = '';
-                    var worksheet_uuid = ws_obj.state.uuid;
-
-                    if(options.length == 3){
-                        search_string = options[options.length-1]
-                    }else{
-                        return defer.resolve([]); // return nothing they already have a bundle uuid
-                    }
-                    var get_data = {
-                        worksheet_uuid: worksheet_uuid
-                    };
-
-                    $.ajax({
-                        type: 'GET',
-                        url: '/api/worksheets/bundle_list/',
-                        dataType: 'json',
-                        data: get_data,
-                        success: function(data, status, jqXHR){
-                            var autocomplete_list = [];
-                            self.temp_holder = data.bundles
-                            data.bundles.forEach(function(bundle){
-                                var user = bundle.owner_name;  // owner is a string <username>(<user_id>)
-                                var created_date = new Date(0);  // The 0 there is the key, which sets the date to the epoch
-                                created_date.setUTCSeconds(bundle.metadata.created);
-                                created_date = created_date.toLocaleDateString() + " at " + created_date.toLocaleTimeString();
-                                var text = '';
-                                if(search_string.indexOf("0x") == 0){
-                                    text = bundle.uuid
-                                }else{ // search a word, lets match on that word
-                                    text = bundle.metadata.name
-                                }
-                                autocomplete_list.push({
-                                    'text': text,
-                                    'display':  bundle.uuid.slice(0, 10)  + " | " + bundle.metadata.name + ' | Owner: ' + user + ' | Created: ' + created_date,
-                                });
-                            });  // end of forEach
-                            defer.resolve(autocomplete_list)
-                        },
-                        error: function(jqHXR, status, error){
-                            defer.resolve([])
-                            var error;
-                            if(jqHXR.responseJSON){
-                                error = jqHXR.responseJSON['error'];
-                            }else{
-                                error = error
-                            }
-                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                            console.error(status + ': ' + error);
-                        }
-                    });
-                    return defer.promise();
-                },
                 executefn: function(options, term, action_bar){
                     var defer = jQuery.Deferred();
                     var bundle_uuid = options[options.length-1]
@@ -429,7 +327,6 @@ var WorksheetActions = function() {
     WorksheetActions.prototype.getCommands = function(can_edit, all){
         all = all || false
         // grab relevant parts of the command dict into an array it can work with
-        // this is derfered since getCommands is used for autocomplete.
         // if used else where don't forget your .then()
         var defer = jQuery.Deferred();
 
