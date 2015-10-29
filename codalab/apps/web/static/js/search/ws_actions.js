@@ -1,6 +1,5 @@
 /*
 CodaLab action bar (web terminal).
-TODO: revamp this to make the interface more uniform and pass more control to the CLI.
 */
 
 (function() {
@@ -8,7 +7,7 @@ TODO: revamp this to make the interface more uniform and pass more control to th
     var WorksheetActions = function(){};
 
     WorksheetActions.prototype.execute = function(command) { // is a promise must resolve and return a promise
-        var defer = jQuery.Deferred();
+        var deferred = jQuery.Deferred();
 
         $.ajax({
             type:'POST',
@@ -21,14 +20,18 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                 'command': command,
             }),
             success: function(data, status, jqXHR) {
-                // console.log('===== Output of command: ' + options);
+                result = {};
+
                 if (data.data.exception){
                     console.error(data.data.exception);
-                    defer.reject(data.data.exception);
+                    deferred.reject(data.data.exception);
+                    return;
                 }
+
                 if (data.data.stdout) {
-                    // console.log(data.data.stdout);
-                    defer.resolve(data.data.stdout);
+                    result.stdout = data.data.stdout;
+
+                    // Patch in hyperlinks to bundles
                     if (data.data.structured_result && data.data.structured_result.refs) {
                         var references = data.data.structured_result['refs'];
                         Object.keys(references).forEach(function(k) {
@@ -50,28 +53,37 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                         }, this);
                     }
                 }
+
                 if (data.data.stderr) {
-                    //console.log(data.data.stderr);
-                    var err;
-                    err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
+                    var err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
                     // 200 is ok response, this is a false flag due to how output is getting defined.
                     if (err.indexOf("200") === -1) { //-1 is not found
-                        defer.reject(err);
+                        deferred.reject(err);
                         return;
                     }
-
                 }
-                if (data.data.structured_result) {
 
+                // The bundle service can respond with instructions back to the UI.
+                // These come in the form of an array of 2-arrays, with the first element
+                // representing the type of action, and the second element parameterizing
+                // that action.
+                //
+                // Possible actions:
+                // ['openWorksheet', WORKSHEET_UUID]   - load worksheet
+                // ['setEditMode', true|false]         - set edit mode
+                // ['openBundle', BUNDLE_UUID]         - load bundle info in new tab
+                // ['upload', null]                    - open upload modal
+                if (data.data.structured_result && data.data.structured_result.ui_actions) {
+                    result.ui_actions = data.data.structured_result.ui_actions;
                 }
-                // console.log('=====');
-                defer.resolve();
+
+                deferred.resolve(result);
             },
             error: function(jqHXR, status, error){
-                defer.reject(error);
+                deferred.reject(error);
             }
         });
-        return defer.promise();
+        return deferred.promise();
     };
 
     WorksheetActions.prototype.completeCommand = function(command) {

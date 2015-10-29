@@ -22,57 +22,28 @@ var WorksheetActionBar = React.createClass({
         var term = $('#command_line').terminal(
             // 1st argument is handle commands entered
             function(command, terminal) {
-                // lets clean and cut up what the enterd
-                // var command = entered.trim(); // cut of any extra whitespace
-                // var args;
-                // var last;
-                // args = command.split(' '); //command.get_command().split(' ')
-                // command = args[1]; // the command they enterd, minus cl
-                // args = args.splice(1, args.length-1)
-                // last = args[args.length-1];
-
-                // console.log("entered command");
-                // console.log(command);
-                // console.log(args);
-                // console.log("******* PARSE AND RUN *********");
-
-                // if (typeof(command) == 'undefined'){  // no command
-                //     term.echo("<span style='color:red'>Error: not a CodaLab command. Try 'cl help'.</a>", {raw: true});
-                //     return;
-                // }
-                //
-
                 terminal.pause();
                 paused = true;
-                ws_actions.execute(command).then(function(output) {
-                    terminal.echo(output);
+                ws_actions.execute(command).then(function(data) {
+                    if (data.stdout) {
+                        terminal.echo(data.stdout);
+                    }
+
+                    if (data.ui_actions) {
+                        _.each(data.ui_actions, function(action) {
+                            self.doUIAction(action[0], action[1]);
+                        });
+                    }
                 }).fail(function(error) {
                     terminal.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                }).always(function(data) {
+                }).always(function() {
                     term.resume();
                     paused = false;
                     self.props.refreshWorksheet();
                 });
 
-                // var ws_action_command = ws_actions.checkAndReturnCommand(command);
-                // if(typeof(ws_action_command) == 'undefined'){  // no command
-                //     // didnt find anything take all extra text throw it in cl command and hope for the best
-                //     ws_action_command = ws_actions.checkAndReturnCommand('cl');
-                // }
-                // var executefn = ws_action_command.executefn(args, term, self)
-                // // lets lock the term, do the command enterd and unlock stops the user from typing
-                // // executefn is a promise
-                // term.pause();
-                // paused = true;
-                // executefn.always(function (data) {
-                //     term.resume();
-                //     paused = false;
-                //     // console.log(data);
-                // });
-
-
             },
-            // 2nd is helpers and options. Take note of keydown for tab completion
+            // 2nd is helpers and options
             {
                 greetings: '[CodaLab web terminal] Press \'c\' to focus, ESC to unfocus.  Type \'cl help\' to see all commands.',
                 name: 'command_line',
@@ -111,6 +82,23 @@ var WorksheetActionBar = React.createClass({
         //turn off focus by default
         term.focus(false);
 
+    },
+    doUIAction: function(action, parameter) {
+        var self = this;
+        ({
+            openWorksheet: function(uuid) {
+                window.location = '/worksheets/' + uuid + '/';
+            },
+            setEditMode: function(editMode) {
+                self.props.editMode();
+            },
+            openBundle: function(uuid) {
+                window.open('/bundles/' + uuid + '/', '_blank');
+            },
+            upload: function() {
+                $("#ws-bundle-upload").modal();
+            },
+        })[action](parameter);
     },
     current_focus: function(){  //get current focus of the user in the worksheet item list
         var focus = '';
