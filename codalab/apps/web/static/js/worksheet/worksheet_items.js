@@ -14,7 +14,7 @@ var WorksheetItemList = React.createClass({
         return {
             focusIndex: -1, // Index of item that we're focused on.
             checkboxEnabled: true,
-            worksheet: {  // TODO: how is this different from ws_obj?
+            worksheet: {  // TODO: how is this different from this.props.ws?
                 last_item_id: 0,
                 name: '',
                 owner: null,
@@ -132,9 +132,9 @@ var WorksheetItemList = React.createClass({
 
         // Create items
         var items_display;
-        if (ws_obj.state.items.length > 0) {
+        if (this.props.ws.state.items.length > 0) {
             var worksheet_items = [];
-            ws_obj.state.items.forEach(function(item, index) {
+            this.props.ws.state.items.forEach(function(item, index) {
                 var focused = (index === focusIndex);
                 var props = {
                   item: item,

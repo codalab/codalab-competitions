@@ -29,6 +29,8 @@ var keyMap = {
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
+            refresh:false,
+            ws: new WorksheetContent(this.props.url),
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             showActionBar: true,  // Whether the action bar is shown
@@ -45,6 +47,30 @@ var Worksheet = React.createClass({
     componentDidMount: function() {
         this.bindEvents();
         $('body').addClass('ws-interface');
+        this.state.ws.fetch({async: false});
+        $.fn.editable.defaults.mode = 'inline';
+          $('.editable-field').editable({
+            send: 'always',
+            type: 'text',
+            params: function(params) {
+              var data = {};
+              var rawCommand = {}
+              data['worksheet_uuid'] = this.state.ws.state.uuid;
+              rawCommand['k'] = params['name'];
+              rawCommand['v'] = params['value'];
+              rawCommand['action'] = 'worksheet-edit';
+              data['raw_command'] = rawCommand;
+             return JSON.stringify(data);
+            }.bind(this),
+            success: function(response, newValue) {
+                if(response.error){
+                    return response.error;
+                }
+                this.state.ws.fetch({async:false});
+                this.setState({refresh:!this.state.refresh});
+
+            }.bind(this)
+          });
     },
     componentWillUnmount: function() {
         this.unbindEvents();
@@ -55,7 +81,7 @@ var Worksheet = React.createClass({
         // window.removeEventListener('keydown');
     },
     canEdit: function() {
-        return ws_obj.getState().edit_permission;
+        return this.state.ws.getState().edit_permission;
     },
     viewMode: function() {
         this.toggleEditMode(false);
@@ -138,7 +164,7 @@ var Worksheet = React.createClass({
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
             // TODO: grab val the react way
-            ws_obj.state.raw = $("#raw-textarea").val().split('\n');
+            this.state.ws.state.raw = $("#raw-textarea").val().split('\n');
             this.setState({editMode: editMode});  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
@@ -164,21 +190,21 @@ var Worksheet = React.createClass({
     refreshWorksheet: function() {
         $('#update_progress').show();
         this.setState({updating: true});
-        ws_obj.fetch({
+        this.state.ws.fetch({
             success: function(data) {
                 if (this.isMounted()) {
                     // TODO: change this so that it doesn't modify refs.
-                    this.refs.list.setState({worksheet: ws_obj.getState()});
+                    this.refs.list.setState({worksheet: this.state.ws.getState()});
                 }
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                if (ws_obj.getState().items.length === 0) {
+                if (this.state.ws.getState().items.length === 0) {
                     this.refs.list.resetFocusIndex();
                 }
                 this.setState({updating:false});
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(ws_obj.url, status, err);
+                console.error(this.state.ws.url, status, err);
                 this.setState({updating:false});
 
                 if (xhr.status == 404) {
@@ -197,7 +223,7 @@ var Worksheet = React.createClass({
         $("#worksheet-message").hide();
         // does a save and a update
         this.setState({updating:true});
-        ws_obj.saveWorksheet({
+        this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating:false});
                 if ('error' in data) { // TEMP REMOVE FDC
@@ -240,8 +266,8 @@ var Worksheet = React.createClass({
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
-        var rawWorksheet = ws_obj.getRaw();
-        var editPermission = ws_obj.getState().edit_permission;
+        var rawWorksheet = this.state.ws.getRaw();
+        var editPermission = this.state.ws.getState().edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
         var checkboxEnabled = this.state.checkboxEnabled;
 
@@ -262,7 +288,7 @@ var Worksheet = React.createClass({
             </div>
         );
 
-        if (ws_obj.state.items.length) {
+        if (this.state.ws.state.items.length) {
             // Non-empty worksheet
         } else {
             $('.empty-worksheet').fadeIn();
@@ -273,6 +299,7 @@ var Worksheet = React.createClass({
             Press ctrl-enter to save.
             <textarea
                 id="raw-textarea"
+                ws={this.state.ws}
                 className="form-control mousetrap"
                 defaultValue={rawWorksheet.content}
                 rows={30}
@@ -284,6 +311,7 @@ var Worksheet = React.createClass({
                 <WorksheetActionBar
                     ref={"action"}
                     canEdit={this.canEdit()}
+                    ws={this.state.ws}
                     handleFocus={this.handleActionBarFocus}
                     handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent == 'action'}
@@ -297,6 +325,7 @@ var Worksheet = React.createClass({
 
         var items_display = (
                 <WorksheetItemList
+                    ws={this.state.ws}
                     ref={"list"}
                     active={this.state.activeComponent == 'list'}
                     canEdit={canEdit}
@@ -308,6 +337,7 @@ var Worksheet = React.createClass({
 
         var worksheet_side_panel = (
                 <WorksheetSidePanel
+                    ws={this.state.ws}
                     ref={"side_panel"}
                     active={this.state.activeComponent == 'side_panel'}
                     focusIndex={this.state.focusIndex}
@@ -319,38 +349,13 @@ var Worksheet = React.createClass({
 
         var upload_modal = (
                 <UploadModal
+                    ws={this.state.ws}
                     ref={"modal"}
                     refreshWorksheet={this.refreshWorksheet}
                 />
             );
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
-
-        $.fn.editable.defaults.mode = 'inline';
-        $(document).ready(function() {
-          $('.editable-field').editable({
-            send: 'always',
-            type: 'text',
-            params: function(params) {
-              var data = {};
-              var rawCommand = {}
-              data['worksheet_uuid'] = ws_obj.state.uuid;
-              rawCommand['k'] = params['name'];
-              rawCommand['v'] = params['value'];
-              rawCommand['action'] = 'worksheet-edit';
-              data['raw_command'] = rawCommand;
-             return JSON.stringify(data);
-            },
-            success: function(response, newValue) {
-                if(response.error){
-                    return response.error;
-                }
-                ws_obj.state[response.input_data.raw_command['k']] = newValue;
-                this.refs.side_panel.forceUpdate();
-
-            }.bind(this)
-          });
-        }.bind(this));
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -361,13 +366,13 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-type="text" data-url="/api/worksheets/command/"> {ws_obj.state.title}</a></h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' emptytext={this.state.ws.state.title} value={this.state.ws.state.title} placeholder={this.state.ws.state.title} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-type="text" data-url="/api/worksheets/command/"> {ws_obj.state.name}</a></div>
-                                                <div className="worksheet-detail"><b>uuid:</b> {ws_obj.state.uuid}</div>
-                                                <div className="worksheet-detail"><b>owner:</b> {ws_obj.state.owner_name}</div>
-                                                <div className="worksheet-detail"><b>permissions:</b> {render_permissions(ws_obj.state)}</div>
+                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
+                                                <div className="worksheet-detail"><b>uuid:</b> {this.state.ws.state.uuid}</div>
+                                                <div className="worksheet-detail"><b>owner:</b> {this.state.ws.state.owner_name}</div>
+                                                <div className="worksheet-detail"><b>permissions:</b> {render_permissions(this.state.ws.state)}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">
@@ -390,5 +395,3 @@ var Worksheet = React.createClass({
         )
     }
 });
-
-React.render(<Worksheet />, document.getElementById('worksheet_container'));

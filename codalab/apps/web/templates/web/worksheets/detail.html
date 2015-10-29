@@ -124,7 +124,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     {# ------- END JSX FILES  ------- #}
 
-<script>
+<script type="text/jsx">
 MathJax.Hub.Config({
     tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
@@ -137,9 +137,10 @@ var worksheet_url = '/api' + document.location.pathname;
     worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
 {% endif %}
 $(function () {
-  home_worksheet_name = "{{home_worksheet_name}}";
   ws_obj = new WorksheetContent(worksheet_url);  // Manage current worksheet information
 });
+
+React.render(<Worksheet url={worksheet_url}/>, document.getElementById('worksheet_container'));
 </script>
 
 {% endblock jsincludes %}

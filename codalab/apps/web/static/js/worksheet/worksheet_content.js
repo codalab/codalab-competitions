@@ -233,10 +233,14 @@ var WorksheetContent = function() {
         props = props || {};
         props.success = props.success || function(data){};
         props.error = props.error || function(xhr, status, err){};
+        if (props.async === undefined){
+            props.async = true;
+        }
 
         $.ajax({
             type: "GET",
             url: this.url,
+            async: props.async,
             dataType: 'json',
             cache: false,
             success: function(data) {

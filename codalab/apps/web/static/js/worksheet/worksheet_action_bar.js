@@ -202,18 +202,18 @@ var WorksheetActionBar = React.createClass({
     current_focus: function(){  //get current focus of the user in the worksheet item list
         var focus = '';
         if(this.props.focusIndex > -1){
-            focus = ws_obj.state.items[this.props.focusIndex].state;
+            focus = this.props.ws.state.items[this.props.focusIndex].state;
             if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
                 this.focustype = 'worksheet';
                 if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
                      //for lets default it back to the main worksheet info
-                     focus = ws_obj.state;
+                     focus = this.props.ws.state;
                 }
             }else{
                 this.focustype = 'bundle';
             }// end of if focus.modes
         }else{// there is no focus index, just show the worksheet infomation
-            focus = ws_obj.state;
+            focus = this.props.ws.state;
             this.focustype = 'worksheet';
         }
         return  focus;

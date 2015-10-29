@@ -38,7 +38,7 @@ var UploadModal = React.createClass({
         var fd = new FormData();
         fd.append('file', this.refs.file.getDOMNode().files[0]);
         fd.append('bundle_type', this.state.bundle_type);
-        fd.append('worksheet_uuid', ws_obj.state.uuid);
+        fd.append('worksheet_uuid', this.props.ws.state.uuid);
         $.ajax({
             url:'/api/bundles/upload/',
             data: fd,
