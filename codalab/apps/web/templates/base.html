@@ -87,17 +87,6 @@
                             {% else %}
                                 <a href="/competitions/">Competitions</a>
                             {% endif %}
-                            <!--
-                            <ul class="dropdown-menu" role="menu">
-                                {% if user.is_authenticated %}
-                                    <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'my_datasets' %}" tabIndex=4 target="_self">My Datasets</a></li>
-                                {% else %}
-                                    <li><a href="{% url 'account_login' %}" tabIndex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
-                                {% endif %}
-                            </ul>
-                            -->
                         </li>
                         <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                         {% if user.is_authenticated %}
@@ -115,7 +104,10 @@
                             </li>
                         {% else %}
                             <li>
-                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
+                                <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">Sign In</a>
                             </li>
                         {% endif %}
                     </ul>
