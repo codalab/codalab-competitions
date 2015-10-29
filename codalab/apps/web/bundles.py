@@ -295,7 +295,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             TODO: check thread-safety.
             '''
             cli = self._create_cli(worksheet_uuid)
-            args = shlex.split(command)
+            if isinstance(command, basestring):
+                args = shlex.split(command)
+            else:
+                args = list(command)
             if args[0] == 'cl':
                 args = args[1:]
 

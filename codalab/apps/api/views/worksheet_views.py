@@ -253,7 +253,7 @@ class WorksheetsCommandApi(views.APIView):
             return Response({
                 'success': True,
                 'data': data
-                })
+            })
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
