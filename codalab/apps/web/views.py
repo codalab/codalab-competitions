@@ -57,6 +57,9 @@ except ImportError:
 
 User = get_user_model()
 
+############################################################
+# General: template views
+
 class HomePageView(TemplateView):
     template_name = "web/index.html"
 
@@ -67,6 +70,22 @@ class HomePageView(TemplateView):
         context['worksheets'] = worksheets
         return context
 
+class LoginRequiredMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+
+class UserSettingsView(LoginRequiredMixin, UpdateView):
+    template_name = "web/my/settings.html"
+    form_class = forms.UserSettingsForm
+    model = User
+    success_url = "/my/settings/"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+############################################################
+# Competitions: template views
 
 def competition_index(request):
     query = request.GET.get('q')
@@ -117,11 +136,6 @@ def sort_data_table(request, context, list):
     def sortkey(x):
         return x[order] if order in x and x[order] is not None else ''
     list.sort(key=sortkey, reverse=reverse)
-
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 #
 # Competition Views
@@ -1027,16 +1041,6 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
             raise Http404()
 
         return obj
-
-
-class UserSettingsView(LoginRequiredMixin, UpdateView):
-    template_name = "web/my/settings.html"
-    form_class = forms.UserSettingsForm
-    model = User
-    success_url = "/my/settings/"
-
-    def get_object(self, queryset=None):
-        return self.request.user
 
 
 def download_dataset(request, dataset_key):
