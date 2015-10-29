@@ -48,7 +48,6 @@ Worksheet lists page (./apps/web/templates/web/worksheets/index.html)
 
 Worksheet page (./apps/web/templates/web/worksheets/detail.html)
   WorksheetContent (./apps/web/static/js/worksheet/worksheet_content.js)
-  WorksheetActions (./apps/web/static/js/search/ws_actions.js): control search bar
   react Worksheet (./apps/web/static/js/worksheet/worksheet_interface.js)
     react WorksheetActionBar (./apps/web/static/js/worksheet/worksheet_action_bar.js)
     react WorksheetSidePanel, WorksheetDetailSidePanel, BundleDetailSidePanel (./apps/web/static/js/worksheet/worksheet_side_panel.js)

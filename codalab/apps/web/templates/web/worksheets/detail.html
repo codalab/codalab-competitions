@@ -139,7 +139,6 @@ var worksheet_url = '/api' + document.location.pathname;
 {% endif %}
 $(function () {
   home_worksheet_name = "{{home_worksheet_name}}";
-  ws_actions = new WorksheetActions(); // Action bar (web terminal)
   ws_obj = new WorksheetContent(worksheet_url);  // Manage current worksheet information
 });
 </script>
