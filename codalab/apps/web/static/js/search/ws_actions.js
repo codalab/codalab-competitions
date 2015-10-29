@@ -4,13 +4,10 @@ TODO: revamp this to make the interface more uniform and pass more control to th
 */
 
 (function() {
-    var echoError = function(term, message) {
-        term.echo("<span style='color:red'>Error: " + message +"</span>", {raw: true});
-    };
 
     var WorksheetActions = function(){};
 
-    WorksheetActions.prototype.execute = function(command, term) { // is a promise must resolve and return a promise
+    WorksheetActions.prototype.execute = function(command) { // is a promise must resolve and return a promise
         var defer = jQuery.Deferred();
 
         $.ajax({
@@ -27,11 +24,11 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                 // console.log('===== Output of command: ' + options);
                 if (data.data.exception){
                     console.error(data.data.exception);
-                    echoError(term, data.data.exception);
+                    defer.reject(data.data.exception);
                 }
                 if (data.data.stdout) {
                     // console.log(data.data.stdout);
-                    term.echo(data.data.stdout);
+                    defer.resolve(data.data.stdout);
                     if (data.data.structured_result && data.data.structured_result.refs) {
                         var references = data.data.structured_result['refs'];
                         Object.keys(references).forEach(function(k) {
@@ -58,8 +55,9 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                     var err;
                     err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
                     // 200 is ok response, this is a false flag due to how output is getting defined.
-                    if(err.indexOf("200") === -1){ //-1 is not found
-                        echoError(term, err);
+                    if (err.indexOf("200") === -1) { //-1 is not found
+                        defer.reject(err);
+                        return;
                     }
 
                 }
@@ -70,8 +68,7 @@ TODO: revamp this to make the interface more uniform and pass more control to th
                 defer.resolve();
             },
             error: function(jqHXR, status, error){
-                echoError(term, error);
-                defer.reject();
+                defer.reject(error);
             }
         });
         return defer.promise();
