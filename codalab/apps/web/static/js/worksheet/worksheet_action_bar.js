@@ -94,39 +94,9 @@ var WorksheetActionBar = React.createClass({
             },
         })[action](parameter);
     },
-    getCurrentBundle: function() {
-        var current_focus = this.current_focus(); // will update focustype
-        var subFocusIndex = this.props.subFocusIndex;
-        if (this.focustype == 'bundle') {
-            var bundle_info;
-            if (current_focus.bundle_info instanceof Array) { //tables are arrays
-                return current_focus.bundle_info[this.props.subFocusIndex];
-            } else { // content/images/ect. are not
-                return current_focus.bundle_info;
-            }
-        }
-        return null;
-    },
     executeCommand: function(command) { // is a promise must resolve and return a promise
         var self = this;
         var deferred = jQuery.Deferred();
-
-        // Resolve ^x to uuid of currently selected bundle
-        // (Hack until we can find a better solution for this)
-        command = (function(command) {
-            var tokens = command.split(' ');
-            var i = tokens.indexOf('^x');
-            if (i < 0) {
-                return command;
-            }
-            var bundle_info = self.getCurrentBundle();
-            if (bundle_info) {
-                tokens[i] = bundle_info.uuid;
-                return tokens.join(' ');
-            } else {
-                return command;
-            }
-        })(command);
 
         $.ajax({
             type:'POST',
