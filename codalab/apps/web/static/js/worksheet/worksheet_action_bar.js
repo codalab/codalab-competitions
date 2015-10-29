@@ -170,8 +170,8 @@ var WorksheetActionBar = React.createClass({
 
                 deferred.resolve(result);
             },
-            error: function(jqHXR, status, error){
-                deferred.reject(error);
+            error: function(jqXHR, status, error){
+                deferred.reject(jqXHR.responseText);
             }
         });
         return deferred.promise();
