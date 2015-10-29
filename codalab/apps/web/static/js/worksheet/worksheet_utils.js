@@ -30,3 +30,21 @@ function keepPosInView(pos) {
     $(".ws-container").stop(true).animate({scrollTop: scrollTo}, 50);
   }
 }
+
+// Calls the backend
+/*function executeCommand(opts) {
+  var postdata = {
+    'worksheet_uuid': opts.worksheet_uuid,
+    'command': opts.args.join(' '),  // Fix this
+  };
+  $.ajax({
+      type: 'POST',
+      cache: false,
+      url: '/api/worksheets/command/',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      data: JSON.stringify(postdata),
+      success: opts.success,
+      error: opts.error,
+  });
+}*/

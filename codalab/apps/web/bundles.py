@@ -394,6 +394,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             self.client.update_bundle_metadata(uuid, new_metadata)
             return
 
+        def home_worksheet(self, username):
+            return spec_util.home_worksheet(username)
+
 else:
     # Bundle service not supported
     class BundleService():

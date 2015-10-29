@@ -224,6 +224,15 @@ var Worksheet = React.createClass({
             }
         });
     },
+
+    // Go to the home worksheet
+    myHomeWorksheet: function() {
+      // Make sure the worksheet exists (
+      ws_actions.execute(['cl', 'new', '-p', home_worksheet_name]).then(function() {
+        ws_actions.execute(['cl', 'work', home_worksheet_name]);
+      });
+    },
+
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
@@ -299,6 +308,7 @@ var Worksheet = React.createClass({
                     active={this.state.activeComponent == 'side_panel'}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
+                    myHomeWorksheet={this.myHomeWorksheet}
                 />
             );
 
