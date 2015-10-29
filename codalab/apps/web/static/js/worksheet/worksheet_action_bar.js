@@ -28,6 +28,26 @@ var WorksheetActionBar = React.createClass({
                     if (data.stdout) {
                         terminal.echo(data.stdout);
                     }
+
+                    // Patch in hyperlinks to bundles
+                    if (data.refs) {
+                        var references = data.refs;
+                        Object.keys(references).forEach(function(k) {
+                            $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
+                                var hyperlink_info = references[k];
+                                if (hyperlink_info.uuid) {
+                                    if (hyperlink_info.type === 'bundle' || hyperlink_info.type === 'worksheet') {
+                                        var link = '/' + hyperlink_info['type'] + 's/' + hyperlink_info['uuid'];
+                                        return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
+                                    } else {
+                                        console.warn("Couldn't create hyperlink for", hyperlink_info.uuid, ". Type is neither 'worksheet' nor 'bundle'");
+                                    }
+                                } else {
+                                    console.warn("Complete uuid not available for", k, "to create hyperlink");
+                                }
+                            }, this);
+                        }, this);
+                    }
                 }).fail(function(error) {
                     terminal.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
                 }).always(function() {
@@ -117,32 +137,6 @@ var WorksheetActionBar = React.createClass({
                     return;
                 }
 
-                if (data.data.stdout) {
-                    result.stdout = data.data.stdout;
-
-                    // Patch in hyperlinks to bundles
-                    if (data.data.structured_result && data.data.structured_result.refs) {
-                        var references = data.data.structured_result['refs'];
-                        Object.keys(references).forEach(function(k) {
-                            $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
-                                var hyperlink_info = references[k];
-                                if (hyperlink_info.uuid) {
-                                    if (hyperlink_info.type === 'bundle' || hyperlink_info.type === 'worksheet') {
-                                        var link = '/' + hyperlink_info['type'] + 's/' + hyperlink_info['uuid'];
-                                        return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
-                                    }
-                                    else {
-                                        console.warn("Couldn't create hyperlink for", hyperlink_info.uuid, ". Type is neither 'worksheet' nor 'bundle'");
-                                    }
-                                }
-                                else {
-                                    console.warn("Complete uuid not available for", k, "to create hyperlink");
-                                }
-                            }, this);
-                        }, this);
-                    }
-                }
-
                 if (data.data.stderr) {
                     var err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
                     // 200 is ok response, this is a false flag due to how output is getting defined.
@@ -150,6 +144,14 @@ var WorksheetActionBar = React.createClass({
                         deferred.reject(err);
                         return;
                     }
+                }
+
+                if (data.data.stdout) {
+                    result.stdout = data.data.stdout;
+                }
+
+                if (data.data.structured_result && data.data.structured_result.refs) {
+                    result.refs = data.data.structured_result.refs;
                 }
 
                 // The bundle service can respond with instructions back to the UI.
