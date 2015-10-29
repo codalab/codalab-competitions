@@ -279,6 +279,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             cli = bundle_cli.BundleCLI(manager, headless=True)
             return cli
 
+        def complete_command(self, worksheet_uuid, command):
+            '''
+            Given a command string, return a list of suggestions to complete the last token.
+            '''
+            cli = self._create_cli(worksheet_uuid)
+            return cli.complete_command(command)
+
         def general_command(self, worksheet_uuid, command):
             '''
             Executes an arbitrary CLI command with |worksheet_uuid| as the current worksheet.

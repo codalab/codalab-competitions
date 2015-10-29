@@ -239,7 +239,15 @@ class WorksheetsCommandApi(views.APIView):
         data = json.loads(request.body)
         if not data.get('worksheet_uuid', None) or not data.get('command', None):
             return Response("Must have worksheet uuid and command", status=status.HTTP_400_BAD_REQUEST)
+
         service = BundleService(self.request.user)
+
+        # If 'autocomplete' field is set, return a list of completions instead
+        if data.get('autocomplete', False):
+            return Response({
+                'completions': service.complete_command(data['worksheet_uuid'], data['command'])
+            })
+
         try:
             data = service.general_command(data['worksheet_uuid'], data['command'])
             return Response({

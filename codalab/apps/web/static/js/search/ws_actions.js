@@ -457,5 +457,30 @@ var WorksheetActions = function() {
         return command_dict;
     };
 
+    WorksheetActions.prototype.completeCommand = function(command) {
+
+        var deferred = jQuery.Deferred();
+        $.ajax({
+            type:'POST',
+            cache: false,
+            url:'/api/worksheets/command/',
+            contentType:"application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({
+                'worksheet_uuid': ws_obj.state.uuid,
+                'command': command,
+                'autocomplete': true,
+            }),
+            success: function(data, status, jqXHR) {
+                deferred.resolve(data.completions);
+            },
+            error: function(jqHXR, status, error) {
+                console.error(error);
+                deferred.reject();
+            }
+        });
+        return deferred.promise();
+    };
+
     return WorksheetActions;
 }();
