@@ -9,6 +9,7 @@ import base64
 from time import sleep
 import mimetypes
 import os
+import shlex
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -294,7 +295,10 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             TODO: check thread-safety.
             '''
             cli = self._create_cli(worksheet_uuid)
-            args = worksheet_util.string_to_tokens(command)
+            args = shlex.split(command)
+            if args[0] == 'cl':
+                args = args[1:]
+
             def do_command():
                 from cStringIO import StringIO
                 import sys

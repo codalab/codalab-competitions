@@ -21,41 +21,50 @@ var WorksheetActionBar = React.createClass({
         var paused = false;
         var term = $('#command_line').terminal(
             // 1st argument is handle commands entered
-            function(entered, term) {
+            function(command, terminal) {
                 // lets clean and cut up what the enterd
-                var command = entered.trim(); // cut of any extra whitespace
-                var args;
-                var last;
-                args = command.split(' '); //command.get_command().split(' ')
-                command = args[1]; // the command they enterd, minus cl
-                args = args.splice(1, args.length-1)
-                last = args[args.length-1];
+                // var command = entered.trim(); // cut of any extra whitespace
+                // var args;
+                // var last;
+                // args = command.split(' '); //command.get_command().split(' ')
+                // command = args[1]; // the command they enterd, minus cl
+                // args = args.splice(1, args.length-1)
+                // last = args[args.length-1];
 
                 // console.log("entered command");
                 // console.log(command);
                 // console.log(args);
                 // console.log("******* PARSE AND RUN *********");
 
-                if(typeof(command) == 'undefined'){  // no command
-                    term.echo("<span style='color:red'>Error: not a CodaLab command. Try 'cl help'.</a>", {raw: true});
-                    return;
-                }
+                // if (typeof(command) == 'undefined'){  // no command
+                //     term.echo("<span style='color:red'>Error: not a CodaLab command. Try 'cl help'.</a>", {raw: true});
+                //     return;
+                // }
+                //
 
-                var ws_action_command = ws_actions.checkAndReturnCommand(command);
-                if(typeof(ws_action_command) == 'undefined'){  // no command
-                    // didnt find anything take all extra text throw it in cl command and hope for the best
-                    ws_action_command = ws_actions.checkAndReturnCommand('cl');
-                }
-                var executefn = ws_action_command.executefn(args, term, self)
-                // lets lock the term, do the command enterd and unlock stops the user from typing
-                // executefn is a promise
-                term.pause();
+                terminal.pause();
                 paused = true;
-                executefn.always(function (data) {
+
+                ws_actions.execute(command, terminal, self).always(function(data) {
                     term.resume();
                     paused = false;
-                    // console.log(data);
                 });
+
+                // var ws_action_command = ws_actions.checkAndReturnCommand(command);
+                // if(typeof(ws_action_command) == 'undefined'){  // no command
+                //     // didnt find anything take all extra text throw it in cl command and hope for the best
+                //     ws_action_command = ws_actions.checkAndReturnCommand('cl');
+                // }
+                // var executefn = ws_action_command.executefn(args, term, self)
+                // // lets lock the term, do the command enterd and unlock stops the user from typing
+                // // executefn is a promise
+                // term.pause();
+                // paused = true;
+                // executefn.always(function (data) {
+                //     term.resume();
+                //     paused = false;
+                //     // console.log(data);
+                // });
 
 
             },
@@ -88,7 +97,6 @@ var WorksheetActionBar = React.createClass({
                 },
                 completion: function(terminal, lastToken, callback) {
                     var command = terminal.get_command();
-                    console.log(lastToken, command);
 
                     ws_actions.completeCommand(command).then(function(completions) {
                         callback(completions);

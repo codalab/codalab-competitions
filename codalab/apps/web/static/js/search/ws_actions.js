@@ -3,359 +3,79 @@ CodaLab action bar (web terminal).
 TODO: revamp this to make the interface more uniform and pass more control to the CLI.
 */
 
-var WorksheetActions = function() {
-    function formatHelp(usage, description) {
-      return usage + ' : ' + description;
-    }
-    var displayError = function(jqHXR, status){
-        error = jqHXR.responseJSON['error'];
-        $("#worksheet-message").html("Action bar error: " + error).addClass('alert-danger alert').show();
-        console.error(status + ': ' + error);
-    }
+(function() {
+    var echoError = function(term, message) {
+        term.echo("<span style='color:red'>Error: " + message +"</span>", {raw: true});
+    };
 
-    function WorksheetActions() {
-        this.not_implemented_commands = [
-        // this is a list of commands that are not front end implemented but we still want to show
-        // for action bar autocomplete
-            'help',
-            'upload',
-            'make',
-            'run',
-            // 'detach',
-            // 'rm',
-            'search',
-            'ls',
-            // 'info', // overrode see below
-            // 'cat',
-            // 'wait',
-            'cp',
-            'mimic',
-            // 'macro',
-            'kill',
-            // Commands for worksheets:
-            // 'new',  // overrode see below
-            'add',
-            // 'work', // overrode see below
-            'wadd',
-            'wrm',
-            'wls',
-            'wcp',
-            // Commands for groups and permissions:
-            'gls',
-            'gnew',
-            'grm',
-            'ginfo',
-            'uadd',
-            'urm',
-            'perm',
-            'wperm',
-            'chown',
-        ];
+    var WorksheetActions = function(){};
 
-        // If we override a command, sometimes we want to fall back to 'cl' depending on what the arguments are.
-        var self = this;
-        function cl(options, term, action_bar) {
-          self.commands['cl'].executefn(options, term, action_bar);
-        }
-        this.temp_holder = undefined, // used for other temp info from the aciton bar. Can be a multitude of things, alway reset to undefined.
-        this.commands = {
-            // Dictionary of terms that can be entered and acted
-            // and the names of functions they call.
-            // ------------------------------------
-            // Example (* starred are required)
-            // 'commandname'{  // what the user enters
-            //  *  executefn: a promise function that happens when they hit enter
-            //  *  edit_enabled: is this a command that is only allowed when able to edit
-            // }
-            // ------------------------------------
-            'cl': { // default lets just run abrary commands commands fall back to this if no other command is found
-                helpText: formatHelp('cl <command>', 'run CLI command'),
-                minimumInputLength: 0,
-                edit_enabled: false,
-                executefn: function(options, term, action_bar){ // is a promise must resolve and return a promise
-                    var defer = jQuery.Deferred();
-                    if(options.length) {
-                        options = options.join(' ');
-                        worksheet_uuid = ws_obj.state.uuid;
-                        var postdata = {
-                            'worksheet_uuid': worksheet_uuid,
-                            'command': options
-                        };
-
-                        $.ajax({
-                            type:'POST',
-                            cache: false,
-                            url:'/api/worksheets/command/',
-                            contentType:"application/json; charset=utf-8",
-                            dataType: 'json',
-                            data: JSON.stringify(postdata),
-                            success: function(data, status, jqXHR){
-                                // console.log('===== Output of command: ' + options);
-                                if (data.data.exception){
-                                    console.error(data.data.exception);
-                                    term.echo("<span style='color:red'>Error: " + data.data.exception +"</span>", {raw: true});
-                                }
-                                if (data.data.stdout){
-                                    // console.log(data.data.stdout);
-                                    term.echo(data.data.stdout);
-                                    if (data.data.structured_result && data.data.structured_result.refs) {
-                                        var references = data.data.structured_result['refs'];
-                                        Object.keys(references).forEach(function(k) {
-                                            $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
-                                                var hyperlink_info = references[k];
-                                                if (hyperlink_info.uuid) {
-                                                    if (hyperlink_info.type === 'bundle' || hyperlink_info.type === 'worksheet') {
-                                                        var link = '/' + hyperlink_info['type'] + 's/' + hyperlink_info['uuid'];
-                                                        return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
-                                                    }
-                                                    else {
-                                                        console.warn("Couldn't create hyperlink for", hyperlink_info.uuid, ". Type is neither 'worksheet' nor 'bundle'");
-                                                    }
-                                                }
-                                                else {
-                                                    console.warn("Complete uuid not available for", k, "to create hyperlink");
-                                                }
-                                            }, this);
-                                        }, this);
-                                    }
-                                }
-                                if (data.data.stderr){
-                                    //console.log(data.data.stderr);
-                                    var err;
-                                    err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
-                                    // 200 is ok response, this is a false flag due to how output is getting defined.
-                                    if(err.indexOf("200") === -1){ //-1 is not found
-                                        term.echo("<span style='color:red'>" + err +"</span>", {raw: true});
-                                    }
-
-                                }
-                                // console.log('=====');
-                                defer.resolve();
-                                action_bar.props.refreshWorksheet();
-                            },
-                            error: function(jqHXR, status, error){
-                                term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                                // displayError(jqHXR, status);
-                                defer.reject();
-                            }
-                        });
-                    }else {
-                        alert('invalid syntax');
-                        defer.reject();
-                    }
-                    return defer.promise();
-                }, // end of executefn
-            }, // end of cl
-
-            // real commands  and implementation start here
-            'work': {
-                helpText: formatHelp('work <worksheet>', 'go to worksheet'),
-                minimumInputLength: 0,
-                edit_enabled: false,
-                executefn: function(options, term, action_bar){
-                    var defer = jQuery.Deferred();
-
-                    if(options[1]){
-                        if(options[1].length > 33){ // a full uuid
-                            defer.resolve()
-                            term.echo("Loading worksheet...", {raw: true});
-                            window.location = '/worksheets/' + options[1] + '/';
-                        }else{
-                            var get_data = {
-                                "spec": options[1]
-                            }
-                            $.ajax({
-                                type: 'GET',
-                                url: '/api/worksheets/get_uuid/',
-                                dataType: 'json',
-                                data: get_data,
-                                success: function(data, status, jqXHR, callback){
-                                    defer.resolve()
-                                    term.echo("Loading worksheet...", {raw: true});
-                                    window.location = '/worksheets/' + data.uuid + '/';
-
-                                },
-                                error: function(jqHXR, status, error){
-                                    defer.resolve([]);
-                                    var error;
-                                    if(jqHXR.responseJSON){
-                                        error = jqHXR.responseJSON['error'];
-                                    }else{
-                                        error = error
-                                    }
-                                    term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                                    defer.resolve()
-                                }
-                            });
-                        }
-                    }else{// no options, resolve
-                        defer.resolve()
-                    }
-                    return defer.promise();
-                },
-            }, // end off work
-
-            'new': {
-                helpText: formatHelp('new <name>', 'create new worksheet with given name'),
-                minimumInputLength: 0,
-                edit_enabled: false,
-                executefn: function(options, term, action_bar){
-                    var defer = jQuery.Deferred();
-                    var postdata = {
-                        name: options[options.length-1]
-                    };
-                    $.ajax({
-                        type:'POST',
-                        cache: false,
-                        url:'/api/worksheets/',
-                        contentType:"application/json; charset=utf-8",
-                        dataType: 'json',
-                        data: JSON.stringify(postdata),
-                        success: function(data, status, jqXHR){
-                            defer.resolve([])
-                            window.location = '/worksheets/' + data.uuid + '/';
-                        },
-                        error: function(jqHXR, status, error){
-                            defer.resolve([])
-                            var error;
-                            if(jqHXR.responseJSON){
-                                error = jqHXR.responseJSON['error'];
-                            }else{
-                                error = error
-                            }
-                            term.echo("<span style='color:red'>Error: " + error +"</span>", {raw: true});
-                        }
-                    });
-                    return defer.promise();
-                }, // end of executefn
-            }, // end of new
-
-            'info': {
-                helpText: formatHelp('info <bundle>', 'go to info page of bundle'),
-                edit_enabled: true,
-                executefn: function(options, term, action_bar){
-                    var defer = jQuery.Deferred();
-                    var bundle_uuid = options[options.length-1]
-                    defer.resolve([])
-                    var output = undefined;
-                    if(bundle_uuid){
-                        // ^x will open info on user selected bundle from worksheet list
-                        if(bundle_uuid.toLocaleLowerCase() === "^x"){
-                            var current_focus = action_bar.current_focus(); // will update focustype
-                            var subFocusIndex = action_bar.props.subFocusIndex;
-                            if(action_bar.focustype == 'bundle'){
-                                var bundle_info;
-                                if(current_focus.bundle_info instanceof Array){ //tables are arrays
-                                    bundle_info = current_focus.bundle_info[action_bar.props.subFocusIndex]
-                                }else{ // content/images/ect. are not
-                                    bundle_info = current_focus.bundle_info
-                                }
-                                if(bundle_info){
-                                    bundle_uuid = bundle_info.uuid; // set bundle_uuid will fall through and open bundle
-                                }
-                            }else{
-                                 output = output || "<span style='color:red'>Error: Please select a valid bundle</span>";
-                            }
-                        }// end of if ^x
-
-                        // default handlers
-                        if(self.temp_holder){ // go set from name in lookup
-                            // if we have a temp_holder we have a list of bundles in the ws from autocomplete
-                            // bundle_uuid is reallly a name of the bundle.
-                            // need to match it
-                            var temp_bundle_uuid;
-                            for (var i = 0; i < self.temp_holder.length; ++i) {
-                                var bundle = self.temp_holder[i];
-                                if(bundle.metadata.name === bundle_uuid ){
-                                    temp_bundle_uuid = bundle.uuid
-                                    break;
-                                }
-                            }
-                            if(temp_bundle_uuid){ // did we match?
-                                bundle_uuid = temp_bundle_uuid
-                            }else{// no match found
-                                output = output || "<span style='color:red'>No bundle match found</span>";
-                            }
-                            self.temp_holder = undefined;
-                        }
-                        if(bundle_uuid.length > 33){ // a full uuid
-                                var location = '/bundles/' + bundle_uuid + '/';
-                                window.open(location,'_blank');
-                                output = "loading info page..."
-                        }else{
-                            // find uuid
-                            output = output || "<span style='color:red'>Error: Please enter a full uuid or a name. (note you can press tab to autocomplete a uuid or name if valid)</span>";
-                        }
-
-                    }
-                    term.echo(output, {raw: true});
-                    return defer.promise();
-                }
-            }, // end off info
-
-            'upload': {
-                helpText: formatHelp('upload', 'upload a program or dataset'),
-                edit_enabled: true,
-                executefn: function(options, term, action_bar) {
-                    var defer = jQuery.Deferred();
-                    defer.resolve([]);
-                    if (options.length == 1) {
-                      // If no arguments specified, then launch modal to select.
-                      $("#ws-bundle-upload").modal();
-                    } else {
-                      // Else, backoff to a regular cl call.
-                      cl(options, term, action_bar);
-                    }
-                    return defer.promise();
-                }, // end of executefn
-            }, // end of upload
-
-            'wedit': {
-                helpText: formatHelp('wedit', 'edit the worksheet'),
-                edit_enabled: true,
-                executefn: function(options, term, action_bar) {
-                    var defer = jQuery.Deferred();
-                    defer.resolve([]);
-                    action_bar.props.editMode();
-                    return defer.promise();
-                }, // end of executefn
-            }, // end of wedit
-        }; // end of commands
-    }// endof worksheetActions() init
-
-    // helper commands ----------- helper commands ------------ helper commands
-    WorksheetActions.prototype.getCommands = function(can_edit, all){
-        all = all || false
-        // grab relevant parts of the command dict into an array it can work with
-        // if used else where don't forget your .then()
+    WorksheetActions.prototype.execute = function(command, term, action_bar) { // is a promise must resolve and return a promise
         var defer = jQuery.Deferred();
 
-        can_edit = typeof can_edit !== 'undefined' ? can_edit : true;
-        var commandDict = this.commands;
-        var commandList = [];
-        for(var key in commandDict) {
-            if (can_edit || !commandDict[key].edit_enabled) {
-                commandList.push(key);
-            }
-        }
-        commandList = _.without(commandList, 'cl'); // no need for cl
-        if(all){
-            commandList = commandList.concat(this.not_implemented_commands)
-        }
-        defer.resolve(commandList); // resolve immediately since this isnt ajax
-        return defer.promise();
-    }; // end of getCommands
+        $.ajax({
+            type:'POST',
+            cache: false,
+            url:'/api/worksheets/command/',
+            contentType:"application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({
+                'worksheet_uuid': ws_obj.state.uuid,
+                'command': command,
+            }),
+            success: function(data, status, jqXHR) {
+                // console.log('===== Output of command: ' + options);
+                if (data.data.exception){
+                    console.error(data.data.exception);
+                    echoError(term, data.data.exception);
+                }
+                if (data.data.stdout){
+                    // console.log(data.data.stdout);
+                    term.echo(data.data.stdout);
+                    if (data.data.structured_result && data.data.structured_result.refs) {
+                        var references = data.data.structured_result['refs'];
+                        Object.keys(references).forEach(function(k) {
+                            $(".terminal-output div div:contains(" + k + ")").html(function(idx, html) {
+                                var hyperlink_info = references[k];
+                                if (hyperlink_info.uuid) {
+                                    if (hyperlink_info.type === 'bundle' || hyperlink_info.type === 'worksheet') {
+                                        var link = '/' + hyperlink_info['type'] + 's/' + hyperlink_info['uuid'];
+                                        return html.replace(k, "<a href=" + link + " target='_blank'>" + k + "</a>");
+                                    }
+                                    else {
+                                        console.warn("Couldn't create hyperlink for", hyperlink_info.uuid, ". Type is neither 'worksheet' nor 'bundle'");
+                                    }
+                                }
+                                else {
+                                    console.warn("Complete uuid not available for", k, "to create hyperlink");
+                                }
+                            }, this);
+                        }, this);
+                    }
+                }
+                if (data.data.stderr){
+                    //console.log(data.data.stderr);
+                    var err;
+                    err = data.data.stderr.replace(/\n/g, "<br>&emsp;"); // new line and a tab in
+                    // 200 is ok response, this is a false flag due to how output is getting defined.
+                    if(err.indexOf("200") === -1){ //-1 is not found
+                        echoError(term, err);
+                    }
 
-    WorksheetActions.prototype.checkAndReturnCommand = function(command){
-        var command_dict;
-        if(this.commands.hasOwnProperty(command)){
-            command_dict = ws_actions.commands[command];
-        }
-        return command_dict;
+                }
+                // console.log('=====');
+                defer.resolve();
+                action_bar.props.refreshWorksheet();
+            },
+            error: function(jqHXR, status, error){
+                echoError(term, error);
+                defer.reject();
+            }
+        });
+        return defer.promise();
     };
 
     WorksheetActions.prototype.completeCommand = function(command) {
-
         var deferred = jQuery.Deferred();
         $.ajax({
             type:'POST',
@@ -379,5 +99,5 @@ var WorksheetActions = function() {
         return deferred.promise();
     };
 
-    return WorksheetActions;
-}();
+    window.WorksheetActions = WorksheetActions;
+})();
