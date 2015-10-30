@@ -227,7 +227,7 @@
                                         {% for label, value in submission.get_scores_as_tuples %}
                                             <td>{{ value|floatformat:4 }}</td>
                                         {% endfor %}
-                                        <td>{{ submission.get_default_score|floatformat:3 }}</td>
+                                        <!--<td>{{ submission.get_default_score|floatformat:3 }}</td>-->
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
