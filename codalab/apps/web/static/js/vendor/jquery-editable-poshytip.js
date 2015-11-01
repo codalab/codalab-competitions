@@ -1752,7 +1752,6 @@ Makes editable any HTML element on the page. Applied as jQuery method.
                     this.isEmpty = $.trim(this.$element.html()) === '';
                 }
             }           
-            
             //emptytext shown only for enabled
             if(!this.options.disabled) {
                 if (this.isEmpty) {
@@ -2187,7 +2186,7 @@ Makes editable any HTML element on the page. Applied as jQuery method.
         @type string
         @default 'Empty'
         **/         
-        emptytext: 'Empty',
+        emptytext: '&lt;none&gt;',
         /**
         Allows to automatically set element's text based on it's value. Can be <code>auto|always|never</code>. Useful for select and date.
         For example, if dropdown list is <code>{1: 'a', 2: 'b'}</code> and element's value set to <code>1</code>, it's html will be automatically set to <code>'a'</code>.  

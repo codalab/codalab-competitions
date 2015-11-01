@@ -44,12 +44,14 @@ var Worksheet = React.createClass({
     _setWorksheetSubFocusIndex: function(index) {
         this.setState({subFocusIndex: index});
     },
+    componentWillMount: function() {
+        this.state.ws.fetch({async: false});
+    },
     componentDidMount: function() {
         this.bindEvents();
         $('body').addClass('ws-interface');
-        this.state.ws.fetch({async: false});
         $.fn.editable.defaults.mode = 'inline';
-          $('.editable-field').editable({
+        $('.editable-field').editable({
             send: 'always',
             type: 'text',
             params: function(params) {
@@ -70,7 +72,7 @@ var Worksheet = React.createClass({
                 this.setState({refresh:!this.state.refresh});
 
             }.bind(this)
-          });
+        });
     },
     componentWillUnmount: function() {
         this.unbindEvents();
@@ -344,6 +346,7 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     myHomeWorksheet={this.myHomeWorksheet}
                     uploadBundle={this.uploadBundle}
+                    bundleMetadataChanged={this.refreshWorksheet}
                 />
             );
 
@@ -366,10 +369,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' emptytext={this.state.ws.state.title} value={this.state.ws.state.title} placeholder={this.state.ws.state.title} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.title}</a></h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={this.state.ws.state.title} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
+                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-value={this.state.ws.state.name} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
                                                 <div className="worksheet-detail"><b>uuid:</b> {this.state.ws.state.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner:</b> {this.state.ws.state.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions:</b> {render_permissions(this.state.ws.state)}</div>
