@@ -118,6 +118,7 @@ var WorksheetSidePanel = React.createClass({
                                    key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
                                    bundle_info={bundle_info}
                                    ref="bundle_info_side_panel"
+                                   bundleMetadataChanged={this.props.bundleMetadataChanged}
                                  />;
           }
         }
@@ -298,7 +299,7 @@ var BundleDetailSidePanel = React.createClass({
         {renderDependencies(bundle_info)}
         {renderContents(bundle_info)}
         {fileBrowser}
-        {renderMetadata(bundle_info)}
+        {renderMetadata(bundle_info, this.props.bundleMetadataChanged)}
         {renderHostWorksheets(bundle_info)}
       </div>);
     }
@@ -328,8 +329,15 @@ function renderDependencies(bundle_info) {
   </div>);
 }
 
-function renderMetadata(bundle_info) {
-  // TODO: allow editing
+function renderMetadata(bundle_info, bundleMetadataChanged) {
+/*
+In the current implementaiton, refreshWorksheet method of worksheet_content
+is passed in as bundleMetadataChanged and is just called inorder to reflect
+changes made in the side-panel on the main page.
+TODO: The response object contains the uuid of the modified object.
+      Use that to update the main view instead of refrsehing the
+      entire worksheet.
+*/
   var metadata = bundle_info.metadata;
   var metadata_list_html = [];
 
@@ -346,31 +354,34 @@ function renderMetadata(bundle_info) {
     if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
       metadata_list_html.push(<tr>
         <th>{property}</th>
-        <td><a href="#" className='editable-metadata' id={property} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{metadata[property]}</a></td>
+        <td><a href="#" className='editable-field' id={property} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{metadata[property]}</a></td>
       </tr>);
     }
     else{
       metadata_list_html.push(<tr>
         <th>{property}</th>
-        <td><span className='greyed-out'>{metadata[property]}</span></td>
+        <td><span>{metadata[property]}</span></td>
       </tr>);
     }
   }
   $.fn.editable.defaults.mode = 'inline';
-    $(document).ready(function() {
-      $('.editable-metadata').editable({
-        send: 'always',
-        params: function(params) {
-          var data = {};
-          metadata[params.name] = params.value;
-          data['metadata'] = metadata;
-         return JSON.stringify(data);
-        },
-        success: function(response, newValue) {
-            if(response.error) return response.error;
+  $(document).ready(function() {
+    $('.editable-field').editable({
+      send: 'always',
+      params: function(params) {
+        var data = {};
+        metadata[params.name] = params.value;
+        data['metadata'] = metadata;
+       return JSON.stringify(data);
+      },
+      success: function(response, newValue) {
+          if(response.error) return response.error;
+          if (bundleMetadataChanged != undefined) {
+            bundleMetadataChanged();
         }
-      });
+      }
     });
+  });
 
   return (<div>
     <h4>metadata</h4>
