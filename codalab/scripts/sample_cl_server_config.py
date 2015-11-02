@@ -15,11 +15,8 @@ importer.install()
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
-username = 'codalab'
-
-print 'Checking that confidential client exists for user %s\n' % username
-user = User.objects.get(username=username)
+user = User.objects.all()[0]
+print 'Checking that confidential client exists for user %s\n' % user
 
 from oauth2_provider.models import Application
 

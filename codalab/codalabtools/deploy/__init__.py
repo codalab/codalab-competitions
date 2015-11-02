@@ -901,7 +901,7 @@ class Deployment(object):
         """
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
-        allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
+        allowed_hosts.extend(['www.codalab.org', 'codalab.org', 'localhost'])
         ssl_allowed_hosts = self.config.getSslRewriteHosts();
         if len(ssl_allowed_hosts) == 0:
             ssl_allowed_hosts = allowed_hosts
@@ -920,6 +920,7 @@ class Deployment(object):
         bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
 
         lines = [
+            "# THIS FILE IS AUTO-GENERATED - DON'T EDIT!",
             "from base import Base",
             "from default import *",
             "from configurations import Settings",
@@ -931,7 +932,7 @@ class Deployment(object):
             "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
-            "    DEBUG=False",
+            "    DEBUG = False",
             "",
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
@@ -993,7 +994,7 @@ class Deployment(object):
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
             "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
-            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))",
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
