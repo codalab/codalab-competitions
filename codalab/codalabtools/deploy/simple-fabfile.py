@@ -170,7 +170,7 @@ def install_mysql(choice='all'):
 
 @roles('web')
 @task
-def install_config_files():
+def install_config():
     '''
     Install configuration files (do multiple times).
     '''
@@ -246,7 +246,7 @@ def maintenance(mode):
 
     require('configuration')
     #env.SHELL_ENV['MAINTENANCE_MODE'] = modes[mode]
-    install_config_files()
+    install_config()
     nginx_restart()
 
 @roles('web')
@@ -265,7 +265,7 @@ def _deploy():
         run('git pull')
         run('./dev_setup.sh')
 
-    install_config_files()
+    install_config()
 
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
