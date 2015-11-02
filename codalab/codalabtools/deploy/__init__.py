@@ -994,6 +994,7 @@ class Deployment(object):
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
             "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
+            "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
             "    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))",
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",

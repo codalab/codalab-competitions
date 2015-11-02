@@ -413,18 +413,3 @@ class DevBase(Base):
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
         Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
-        }
-    }
-
-    # Send e-mails to the console during development
-    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
