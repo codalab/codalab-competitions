@@ -211,6 +211,7 @@ def supervisor(command):
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
         if command == 'start':
+            run('mkdir -p ~/logs')
             run('supervisord -c codalab/config/generated/supervisor.conf')
         elif command == 'stop':
             run('supervisorctl -c codalab/config/generated/supervisor.conf stop all')
