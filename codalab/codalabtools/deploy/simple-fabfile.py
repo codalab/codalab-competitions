@@ -253,11 +253,11 @@ def maintenance(mode):
 @roles('web')
 @task
 def deploy():
-    #maintenance("begin")
+    maintenance('begin')
     supervisor('stop')
     _deploy()
     supervisor('start')
-    #maintenance("end")
+    maintenance('end')
 
 def _deploy():
     # Setup website
