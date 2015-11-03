@@ -77,14 +77,15 @@ def config(label):
     env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
 
     env.configuration = True
+    env.SHELL_ENV = {}
 
 def setup_env():
-    env.SHELL_ENV = dict(
+    env.SHELL_ENV.update(dict(
         DJANGO_SETTINGS_MODULE=env.django_settings_module,
         DJANGO_CONFIGURATION=env.django_configuration,
         CONFIG_HTTP_PORT=env.config_http_port,
         CONFIG_SERVER_NAME=env.config_server_name,
-    )
+    ))
     return prefix('source ~/%s/venv/bin/activate' % env.deploy_codalab_dir), shell_env(**env.SHELL_ENV)
 
 ############################################################
@@ -245,7 +246,7 @@ def maintenance(mode):
         sys.exit(1)
 
     require('configuration')
-    #env.SHELL_ENV['MAINTENANCE_MODE'] = modes[mode]
+    env.SHELL_ENV['MAINTENANCE_MODE'] = modes[mode]
     install_config()
     nginx_restart()
 
