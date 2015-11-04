@@ -408,13 +408,13 @@ class Competition(models.Model):
             participants = {}
 
             for s in submissions:
-                participants[s.participant] = s
+                if s.is_migrated is False:
+                    participants[s.participant] = s
 
             from tasks import evaluate_submission
 
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
-
 
                 new_submission = CompetitionSubmission(
                     participant=participant,
@@ -422,6 +422,7 @@ class Competition(models.Model):
                     phase=next_phase
                 )
                 new_submission.save(ignore_submission_limits=True)
+
                 submission.is_migrated = True
                 submission.save()
 
