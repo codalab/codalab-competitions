@@ -305,7 +305,6 @@ class Competition(models.Model):
         Checks that the requested competition has all submissions in the current phase, none trailing in the previous
         phase
         '''
-        # import pdb; pdb.set_trace()
         if self.is_migrating:
             logger.info('Trying to check migrations on competition pk=%s, but it is already being migrated!' % self.pk)
             return
@@ -432,9 +431,9 @@ class Competition(models.Model):
 
         # To check for submissions being migrated, does not allow to enter new submission
         next_phase.is_migrated = True
-        current_phase.save()
+        next_phase.save()
 
-        # import pdb; pdb.set_trace()
+
         # TODO: ONLY IF SUCCESSFUL
         self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
         self.is_migrating_delayed = False
