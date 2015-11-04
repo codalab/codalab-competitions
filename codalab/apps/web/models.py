@@ -406,7 +406,7 @@ class Competition(models.Model):
                 submissions.append(submission.result)
 
             participants = {}
-            import pdb; pdb.set_trace()
+
             for s in submissions:
                 participants[s.participant] = s
 
@@ -414,7 +414,7 @@ class Competition(models.Model):
 
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
-
+                print "Just testing for migration here"
 
                 new_submission = CompetitionSubmission(
                     participant=participant,
@@ -427,9 +427,11 @@ class Competition(models.Model):
         except PhaseLeaderBoard.DoesNotExist:
             pass
 
-        current_phase.is_migrated = True
+        # To check for submissions being migrated, does not allow to enter new submission
+        next_phase.is_migrated = True
         current_phase.save()
 
+        # import pdb; pdb.set_trace()
         # TODO: ONLY IF SUCCESSFUL
         self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
         self.is_migrating_delayed = False
@@ -1036,6 +1038,8 @@ class CompetitionSubmission(models.Model):
 
     like_count = models.IntegerField(default=0)
     dislike_count = models.IntegerField(default=0)
+
+    is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
