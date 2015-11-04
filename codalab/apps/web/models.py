@@ -414,7 +414,7 @@ class Competition(models.Model):
 
             for participant, submission in participants.items():
                 logger.info('Moving submission %s over' % submission)
-                print "Just testing for migration here"
+
 
                 new_submission = CompetitionSubmission(
                     participant=participant,
@@ -422,6 +422,8 @@ class Competition(models.Model):
                     phase=next_phase
                 )
                 new_submission.save(ignore_submission_limits=True)
+                submission.is_migrated = True
+                submission.save()
 
                 evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
         except PhaseLeaderBoard.DoesNotExist:
