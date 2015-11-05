@@ -329,6 +329,117 @@ class Competition(models.Model):
             if current_phase.auto_migration:
                 self.do_phase_migration(current_phase, last_phase)
 
+    def check_future_phase_sumbmissions(self):
+        '''
+        Checks for if we need to migrate current phase submissions to next phase
+        1. First will check if competition phase is being migrated
+        2. We need to keep track of current phase and next phase
+        3. Iteration:
+            1. If phase is active, it becomes our current phase
+            2. If current phasenumbers is less than last phase, then we know there is a next phase
+        4. Break the foor loop to proceed
+        5. Check if either current_phase or next_phase is None, if true just return
+        6. Just log some info
+        '''
+
+        if self.is_migrating:
+            logger.info("Checking for migrations on competition pk=%s, but it is already being migrated" % self.pk)
+            return
+
+        current_phase = None
+        next_phase = None
+
+        phases = self.phases.all()
+        last_phase = phases.reverse()[0]
+
+        for index, phase in enumerate(phases):
+            if phase.is_active:
+                current_phase = phase
+                if current_phase.phasenumber < last_phase.phasenumber:
+                    next_phase = phases[index + 1]
+                break
+
+        if current_phase is None or next_phase is None:
+            return
+
+        logger.info("Checking for needed migrations on competition pk=%s, current phase: %s, next phase: %s" %
+                    (self.pk, current_phase.phasenumber, next_phase.phasenumber))
+
+        if next_phase.phasenumber > self.last_phase_migration:
+            if next_phase.auto_migration:
+                self.apply_phase_migration(current_phase, next_phase)
+
+    def apply_phase_migration(self, current_phase, next_phase):
+        '''
+        Does the actual migrating of submissions from last_phase to current_phase
+
+        current_phase: The new phase object we are entering
+        last_phase: The phase object to transfer submissions from
+        '''
+        logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
+
+        if current_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
+            logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
+            self.is_migrating_delayed = True
+            self.save()
+            return
+        else:
+            logger.info("No submissions running for competition pk=%s" % self.pk)
+
+        logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
+                    (self.pk, current_phase.phasenumber, next_phase.phasenumber))
+
+        if self.is_migrating:
+            logger.info('Trying to migrate competition pk=%s, but it is already being migrated!' % self.pk)
+            return
+
+        self.is_migrating = True
+        self.save()
+
+        try:
+            submissions = []
+            leader_board = PhaseLeaderBoard.objects.get(phase=current_phase)
+
+            leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
+            for submission in leader_board_entries:
+                submissions.append(submission.result)
+
+            participants = {}
+
+            for s in submissions:
+                if s.is_migrated is False:
+                    participants[s.participant] = s
+
+            from tasks import evaluate_submission
+
+            for participant, submission in participants.items():
+                logger.info('Moving submission %s over' % submission)
+
+                new_submission = CompetitionSubmission(
+                    participant=participant,
+                    file=submission.file,
+                    phase=next_phase
+                )
+                new_submission.save(ignore_submission_limits=True)
+
+                submission.is_migrated = True
+                submission.save()
+
+                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+        except PhaseLeaderBoard.DoesNotExist:
+            pass
+
+        # To check for submissions being migrated, does not allow to enter new submission
+        next_phase.is_migrated = True
+        next_phase.save()
+
+
+        # TODO: ONLY IF SUCCESSFUL
+        self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
+        self.is_migrating_delayed = False
+        self.last_phase_migration = current_phase.phasenumber
+        self.save()
+
     def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False):
         phase = self.phases.get(pk=phase_pk)
         if phase.is_blind:
@@ -929,6 +1040,8 @@ class CompetitionSubmission(models.Model):
 
     like_count = models.IntegerField(default=0)
     dislike_count = models.IntegerField(default=0)
+
+    is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
     class Meta:
         unique_together = (('submission_number','phase','participant'),)

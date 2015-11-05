@@ -79,11 +79,11 @@ class CompetitionPhaseToPhase(TestCase):
 
         self.client = Client()
 
-    def test_scheduler_url_calls_competition_phase_migration_check(self):
-        with mock.patch('apps.web.models.Competition.check_trailing_phase_submissions') as check_trailing_mock:
-            resp = self.client.get('/competitions/check_phase_migrations')
+    # def test_scheduler_url_calls_competition_phase_migration_check(self):
+    #     with mock.patch('apps.web.models.Competition.check_trailing_phase_submissions') as check_trailing_mock:
+    #         resp = self.client.get('/competitions/check_phase_migrations')
 
-        self.assertTrue(check_trailing_mock.called)
+    #     self.assertTrue(check_trailing_mock.called)
 
     def test_check_trailing_phase_submissions_doesnt_trigger_migrations_if_they_are_done(self):
         with mock.patch('apps.web.models.Competition.do_phase_migration') as do_migration_mock:
