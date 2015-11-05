@@ -89,7 +89,7 @@ class CodalabTestCase(unittest.TestCase):
         # test paragraph content inserted at top of temp_worksheet
         self.assertIn(temp_worksheet_paragraph_content, self.browser.page_source)
         # check table in worksheet
-        table_content = ['uuid','name', temp_file_name, 'description', 'bundle_type', 'dataset', 'created', 'dependencies', 'command', 'MISSING', 'data_size', '0','state', 'ready']
+        table_content = ['uuid','name', temp_file_name, 'description', 'bundle_type', 'dataset', 'created', 'dependencies', 'command', 'data_size', '0','state', 'ready']
         for item in table_content:
             self.assertIn(item, self.browser.page_source)
 
