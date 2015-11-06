@@ -545,7 +545,7 @@ class CompetitionCheckMigrations(View):
         competitions = models.Competition.objects.filter(is_migrating=False)
 
         for c in competitions:
-            c.check_trailing_phase_submissions()
+            c.check_future_phase_sumbmissions()
 
         return HttpResponse()
 
