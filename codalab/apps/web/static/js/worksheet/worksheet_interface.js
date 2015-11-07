@@ -372,10 +372,10 @@ var Worksheet = React.createClass({
                                         <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={this.state.ws.state.title} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name:</b><a href="#" id='name' className='editable-field' data-value={this.state.ws.state.name} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
-                                                <div className="worksheet-detail"><b>uuid:</b> {this.state.ws.state.uuid}</div>
-                                                <div className="worksheet-detail"><b>owner:</b> {this.state.ws.state.owner_name}</div>
-                                                <div className="worksheet-detail"><b>permissions:</b> {render_permissions(this.state.ws.state)}</div>
+                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className='editable-field' data-value={this.state.ws.state.name} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
+                                                <div className="worksheet-detail"><b>uuid: </b>{this.state.ws.state.uuid}</div>
+                                                <div className="worksheet-detail"><b>owner: </b>{this.state.ws.state.owner_name}</div>
+                                                <div className="worksheet-detail"><b>permissions: </b>{render_permissions(this.state.ws.state)}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">

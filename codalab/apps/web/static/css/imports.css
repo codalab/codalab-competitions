@@ -8778,6 +8778,11 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   background-color: #d9534f;
   border-color: #d43f3a;
 }
+.editable-field:hover {
+    cursor: text;
+     border-radius: 4px;
+    box-shadow: 1px 1px 1px 1px grey;
+}
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover .badge {
   color: #d9534f;
   background-color: #fff;

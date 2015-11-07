@@ -65,6 +65,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def get_bundle_info(self, uuid):
             bundle_info = _call_with_retries(lambda: self.client.get_bundle_info(uuid, True, True, True))
 
+            if bundle_info is None:
+                return None
             # Set permissions
             bundle_info['edit_permission'] = (bundle_info['permission'] == GROUP_OBJECT_PERMISSION_ALL)
             # Format permissions into strings

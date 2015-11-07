@@ -34,9 +34,11 @@ var WorksheetSidePanel = React.createClass({
 
     getFocus: function() {
         // Return the state to show on the side panel
-        if (this.props.focusIndex == -1)
+        var focusedBundle = this.props.ws.state.items[this.props.focusIndex];
+        if (this.props.focusIndex == -1 || focusedBundle === undefined) {
           return this.props.ws.state;  // Show current worksheet
-        return this.props.ws.state.items[this.props.focusIndex].state;
+        }
+        return focusedBundle.state;
     },
 
     // What kind of thing is it?
@@ -194,9 +196,9 @@ var WorksheetDetailSidePanel = React.createClass({
 
       return (
           <div id="panel_content">
-              <h4 className="ws-title">{worksheet.title}</h4>
+              <h4 className="ws-title"><a href="#" id='title' className='editable-field' data-value={worksheet.title} data-type="text" data-url="/api/worksheets/command/">{worksheet.title}</a></h4>
               <table className="bundle-meta table">
-                <tr><th>name</th><td>{worksheet.name}</td></tr>
+                <tr><th>name</th><td><a href="#" id='name' className='editable-field' data-value={worksheet.name} data-type="text" data-url="/api/worksheets/command/">{worksheet.name}</a></td></tr>
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
                 <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
                 <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
@@ -396,8 +398,7 @@ function renderHeader(bundle_info) {
   var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
   var bundle_name;
   if (bundle_info.metadata.name) {
-    // TODO: allow editing
-    bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>
+    bundle_name = <h3 className="bundle-name"><a href="#" id='title' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url="/api/worksheets/command/">{bundle_info.metadata.name}</a></h3>
   }
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
   var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
@@ -420,7 +421,7 @@ function renderHeader(bundle_info) {
 
   return (<div>
     <div className="bundle-header">
-      <a href={bundle_url} className="bundle-link" target="_blank">{bundle_name}</a>
+      {bundle_name}
       {bundle_description}
     </div>
     <table className="bundle-meta table">

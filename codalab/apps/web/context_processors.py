@@ -6,6 +6,6 @@ from django.conf import settings
 
 def beta(request):
     return {
-        'BETA' : settings.SHOW_BETA_FEATURES,
-        'PREVIEW_WORKSHEETS': getattr(settings, 'PREVIEW_WORKSHEETS', False)
+        'ENABLE_WORKSHEETS': getattr(settings, 'ENABLE_WORKSHEETS', False),
+        'ENABLE_COMPETITIONS': getattr(settings, 'ENABLE_COMPETITIONS', False)
     }
