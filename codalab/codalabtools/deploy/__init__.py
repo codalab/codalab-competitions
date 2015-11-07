@@ -189,6 +189,14 @@ class DeploymentConfig(BaseConfig):
         """
         return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
 
+    def getEnableWorksheets(self):
+        """Return whether worksheets are enabled"""
+        return self._svc['django'].get('enable-worksheets', False)
+
+    def getEnableCompetitions(self):
+        """Return whether competitions are enabled"""
+        return self._svc['django'].get('enable-competitions', False)
+
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -999,13 +1007,8 @@ class Deployment(object):
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
             "",
         ]
-        preview = self.config.getShowPreviewFeatures()
-        if preview >= 1:
-            if preview == 1:
-                lines.append("    PREVIEW_WORKSHEETS = True")
-            if preview > 1:
-                lines.append("    SHOW_BETA_FEATURES = True")
-            lines.append("")
+        lines.append("    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets())
+        lines.append("    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions())
         return '\n'.join(lines)
 
 if __name__ == "__main__":

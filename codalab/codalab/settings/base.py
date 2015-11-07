@@ -316,9 +316,6 @@ class Base(Settings):
     BUNDLE_SERVICE_URL = ""
     LANDING_PAGE_WORKSHEET_UUID = '';
 
-    # Currently the search bar is hidden using this flag
-    SHOW_BETA_FEATURES = False
-
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
     # the site admins on every HTTP 500 error when DEBUG=False.
