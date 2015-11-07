@@ -273,6 +273,8 @@ class BundleInfoApi(views.APIView):
         service = BundleService(self.request.user)
         try:
             bundle_info = service.get_bundle_info(uuid)
+            if bundle_info is None:
+                return Response({'error': 'The bundle is not availble'})
             bundle_info.update(service.get_bundle_contents(uuid))
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
