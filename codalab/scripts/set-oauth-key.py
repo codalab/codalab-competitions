@@ -3,6 +3,10 @@ import os
 import os.path
 import sys
 
+# CodaLab website supplies an OAuth server.
+# This script takes in a config.json file for the bundle service and
+# substitutes the proper OAuth information.
+
 root_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "codalab")
 sys.path.append(root_dir)
 
@@ -16,7 +20,6 @@ importer.install()
 from django.contrib.auth import get_user_model
 User = get_user_model()
 user = User.objects.all()[0]
-print 'Checking that confidential client exists for user %s\n' % user
 
 from oauth2_provider.models import Application
 
@@ -26,22 +29,13 @@ client, created = Application.objects.get_or_create(
                     authorization_grant_type=Application.GRANT_CLIENT_CREDENTIALS,
                     name='Bundle service client')
 
-if created:
-    print 'Created new OAuth client:'
-    print '  Client id: %s' % client.client_id
-    print '  Client secret: %s' % client.client_secret
-else:
-    print 'Client already exists.'
+if len(sys.argv) != 2:
+    print 'Usage: %s <bundle service config json file>' % sys.argv[0]
+    sys.exit(1)
+json_path = sys.argv[1]
 
-print '\nAdd the following server block to your CLI config:\n'
-cfg = { 'class': 'SQLiteModel',
-        'host': 'localhost',
-        'port': 2800,
-        'auth': {
-            'class': 'OAuthHandler',
-            'address': 'http://localhost:8000',
-            'app_id': client.client_id,
-            'app_key': client.client_secret
-        } 
-      }
-print '"server": %s\n' % json.dumps(cfg, sort_keys=True, indent=4, separators=(',', ': '))
+cfg = json.loads(open(json_path).read())
+auth = cfg['server']['auth']
+auth['app_id'] = client.client_id
+auth['app_key'] = client.client_secret
+print json.dumps(cfg, sort_keys=True, indent=4, separators=(',', ': '))

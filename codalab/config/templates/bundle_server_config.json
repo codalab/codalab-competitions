@@ -9,7 +9,6 @@
     "cli": {
         "verbose": 1
     },
-    "editor": "vim",
     "server": {
         "host": "localhost",
         "port": 2800,
@@ -26,7 +25,7 @@
     "workers": {
         "q": {
             "verbose": 1,
-            "docker_image": "codalab/ubuntu:1.7",
+            "docker_image": "codalab/ubuntu:1.9",
             "dispatch_command": "{{VIRTUAL_ENV}}/bin/python {{BUNDLE_SERVICE_CODE_PATH}}/scripts/dispatch-q.py"
         }
     }

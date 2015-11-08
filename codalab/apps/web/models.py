@@ -350,6 +350,9 @@ class Competition(models.Model):
         next_phase = None
 
         phases = self.phases.all()
+        if len(phases) == 0:
+            return
+
         last_phase = phases.reverse()[0]
 
         for index, phase in enumerate(phases):

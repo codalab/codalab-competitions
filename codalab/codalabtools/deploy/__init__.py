@@ -189,6 +189,14 @@ class DeploymentConfig(BaseConfig):
         """
         return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
 
+    def getEnableWorksheets(self):
+        """Return whether worksheets are enabled"""
+        return self._svc['django'].get('enable-worksheets', False)
+
+    def getEnableCompetitions(self):
+        """Return whether competitions are enabled"""
+        return self._svc['django'].get('enable-competitions', False)
+
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -330,11 +338,11 @@ class DeploymentConfig(BaseConfig):
 
     def getBundleServiceAppId(self):
         """Gets the value of the OAuth client ID assigned to the bundle service."""
-        return self._svc['django']['bundle-app-id']
+        return self._svc['django'].get('bundle-app-id', None)
 
     def getBundleServiceAppKey(self):
         """Gets the value of the OAuth client secret assigned to the bundle service."""
-        return self._svc['django']['bundle-app-key']
+        return self._svc['django'].get('bundle-app-key', None)
 
 
 class Deployment(object):
@@ -901,13 +909,16 @@ class Deployment(object):
         """
         allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
         allowed_hosts.extend(self.config.getWebHostnames())
-        allowed_hosts.extend(['www.codalab.org', 'codalab.org'])
+        allowed_hosts.extend(['www.codalab.org', 'codalab.org', 'localhost'])
         ssl_allowed_hosts = self.config.getSslRewriteHosts();
         if len(ssl_allowed_hosts) == 0:
             ssl_allowed_hosts = allowed_hosts
 
-        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
+        storage_key = None
+        namespace = None
+        if self.config.getEnableCompetitions():
+            storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
+            namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
             bundle_auth_scheme = "https"
@@ -920,6 +931,7 @@ class Deployment(object):
         bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
 
         lines = [
+            "# THIS FILE IS AUTO-GENERATED - DON'T EDIT!",
             "from base import Base",
             "from default import *",
             "from configurations import Settings",
@@ -931,7 +943,7 @@ class Deployment(object):
             "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
-            "    DEBUG=False",
+            "    DEBUG = False",
             "",
             "    ALLOWED_HOSTS = {0}".format(allowed_hosts),
             "",
@@ -950,7 +962,7 @@ class Deployment(object):
             "",
             "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
             "    SBS_ISSUER = 'owner'",
-            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key),
+            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key if namespace else 'n/a'),
             "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
             "    SBS_COMPUTE_QUEUE = 'windowscomputequeue'",
             "",
@@ -993,19 +1005,15 @@ class Deployment(object):
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
             "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
-            "    BUNDLE_SERVICE_CODE_PATH = '/home/{0}/deploy/bundles'".format(self.config.getVirtualMachineLogonUsername()),
+            "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
+            "    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))",
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
             "",
         ]
-        preview = self.config.getShowPreviewFeatures()
-        if preview >= 1:
-            if preview == 1:
-                lines.append("    PREVIEW_WORKSHEETS = True")
-            if preview > 1:
-                lines.append("    SHOW_BETA_FEATURES = True")
-            lines.append("")
+        lines.append("    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets())
+        lines.append("    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions())
         return '\n'.join(lines)
 
 if __name__ == "__main__":

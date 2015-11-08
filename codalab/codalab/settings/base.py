@@ -316,9 +316,6 @@ class Base(Settings):
     BUNDLE_SERVICE_URL = ""
     LANDING_PAGE_WORKSHEET_UUID = '';
 
-    # Currently the search bar is hidden using this flag
-    SHOW_BETA_FEATURES = False
-
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
     # the site admins on every HTTP 500 error when DEBUG=False.
@@ -413,18 +410,3 @@ class DevBase(Base):
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
         Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
-        }
-    }
-
-    # Send e-mails to the console during development
-    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
