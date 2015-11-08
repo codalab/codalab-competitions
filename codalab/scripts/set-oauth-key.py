@@ -36,6 +36,6 @@ json_path = sys.argv[1]
 
 cfg = json.loads(open(json_path).read())
 auth = cfg['server']['auth']
-auth['app_id'] = client.client_id,
+auth['app_id'] = client.client_id
 auth['app_key'] = client.client_secret
 print json.dumps(cfg, sort_keys=True, indent=4, separators=(',', ': '))
