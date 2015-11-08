@@ -108,10 +108,18 @@ def install():
     ensure_repo_exists('https://github.com/codalab/codalab', env.deploy_codalab_dir)
     ensure_repo_exists('https://github.com/codalab/codalab-cli', env.deploy_codalab_cli_dir)
     # Have the two repos share virtual environments
-    run('ln -s ../%s/venv %s' % (env.deploy_codalab_dir, env.deploy_codalab_cli_dir))
+    run('ln -sf ../%s/venv %s' % (env.deploy_codalab_dir, env.deploy_codalab_cli_dir))
 
     # Create MySQL database
     install_mysql()
+
+    # Initial setup
+    with cd(env.deploy_codalab_dir):
+        run('git checkout %s' % env.git_codalab_tag)
+        run('./dev_setup.sh')
+    with cd(env.deploy_codalab_cli_dir):
+        run('git checkout %s' % env.git_codalab_cli_tag)
+        run('./setup.sh')
 
     # Deploy!
     _deploy()
@@ -186,7 +194,7 @@ def install_config():
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
             run('python manage.py config_gen')
-            run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
+            run('mkdir -p ~/.codalab && python scripts/set-oauth-key.py ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
             sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
             sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
             # Setup new relic
@@ -263,6 +271,7 @@ def _deploy():
     # Setup website
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
+        run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
         run('./dev_setup.sh')
 
@@ -275,6 +284,8 @@ def _deploy():
 
     # Setup bundle service
     with cd(env.deploy_codalab_cli_dir):
+        run('git checkout %s' % env.git_codalab_cli_tag)
+        run('git pull')
         run('./setup.sh')
 
     # Setup bundle service for worksheets

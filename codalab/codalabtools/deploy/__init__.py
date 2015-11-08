@@ -914,8 +914,11 @@ class Deployment(object):
         if len(ssl_allowed_hosts) == 0:
             ssl_allowed_hosts = allowed_hosts
 
-        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
+        storage_key = None
+        namespace = None
+        if self.config.getEnableCompetitions():
+            storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
+            namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
             bundle_auth_scheme = "https"
@@ -959,7 +962,7 @@ class Deployment(object):
             "",
             "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
             "    SBS_ISSUER = 'owner'",
-            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key),
+            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key if namespace else 'n/a'),
             "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
             "    SBS_COMPUTE_QUEUE = 'windowscomputequeue'",
             "",
