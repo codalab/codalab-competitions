@@ -32,9 +32,9 @@ client, created = Application.objects.get_or_create(
 if len(sys.argv) != 2:
     print 'Usage: %s <bundle service config json file>' % sys.argv[0]
     sys.exit(1)
-json_path = sys.argv[0]
+json_path = sys.argv[1]
 
-cfg = json.loads(open(json_path))
+cfg = json.loads(open(json_path).read())
 auth = cfg['server']['auth']
 auth['app_id'] = client.client_id,
 auth['app_key'] = client.client_secret

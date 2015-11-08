@@ -338,11 +338,11 @@ class DeploymentConfig(BaseConfig):
 
     def getBundleServiceAppId(self):
         """Gets the value of the OAuth client ID assigned to the bundle service."""
-        return self._svc['django']['bundle-app-id']
+        return self._svc['django'].get('bundle-app-id', None)
 
     def getBundleServiceAppKey(self):
         """Gets the value of the OAuth client secret assigned to the bundle service."""
-        return self._svc['django']['bundle-app-key']
+        return self._svc['django'].get('bundle-app-key', None)
 
 
 class Deployment(object):
