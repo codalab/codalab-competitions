@@ -914,6 +914,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'description': submission.description,
                 'is_public': submission.is_public,
                 'submission_pk': submission.id,
+                'is_migrated': submission.is_migrated
             }
             # add score groups into data columns
             if (submission_info['is_in_leaderboard'] == True):

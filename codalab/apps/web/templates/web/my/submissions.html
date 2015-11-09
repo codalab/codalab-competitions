@@ -67,6 +67,7 @@
                     <th width="40"></th>
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -104,6 +105,13 @@
                         </td>
                         <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
                         <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
+                        {% if submission.is_in_leaderboard %}
+                            {% if submission.is_migrated %}
+                            <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">MIGRATED</button></td>
+                            {% else %}
+                            <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">MIGRATE</button></td>
+                            {% endif %}
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
