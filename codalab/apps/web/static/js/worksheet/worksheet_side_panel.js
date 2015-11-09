@@ -398,7 +398,7 @@ function renderHeader(bundle_info) {
   var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
   var bundle_name;
   if (bundle_info.metadata.name) {
-    bundle_name = <h3 className="bundle-name"><a href="#" id='title' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url="/api/worksheets/command/">{bundle_info.metadata.name}</a></h3>
+    bundle_name = <h3 className="bundle-name"><a href="#" id='name' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.name}</a></h3>
   }
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
   var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
