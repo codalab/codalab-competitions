@@ -929,6 +929,13 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context['columns'] = columns
         context['submission_info_list'] = submission_info_list
 
+        # We need a way to check if next phase.auto_migration = True
+        try:
+            next_phase = competition.phases.get(phasenumber=submission.phase.phasenumber+1)
+            context['next_phase'] = next_phase.auto_migration
+        except Exception:
+            sys.exc_clear()
+
         return context
 
 class VersionView(TemplateView):
@@ -1352,6 +1359,36 @@ def submission_re_run(request, submission_pk):
             evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
 
             return HttpResponse()
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
+    raise Http404()
+
+
+@login_required
+def submission_migrate(request, pk):
+    '''
+    Will allow to migrate to submissions manually to next phase
+    '''
+    if request.method == "POST":
+        try:
+            submission = models.CompetitionSubmission.objects.get(pk=pk)
+            competition = submission.phase.competition
+            if request.user.id != competition.creator and request.user not in competition.admins.all():
+                raise Http404()
+
+            current_phase_phasenumber = submission.phase.phasenumber
+            next_phase = competition.phase.get(phasenumber=current_phase_phasenumber+1)
+
+            new_submission = models.CompetitionSubmission(
+                participant=submission.participant,
+                file=submission.file,
+                phase=next_phase)
+
+            new_submission.save(ignore_submission_limits=True)
+
+            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+
+            return HttpResponse
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
