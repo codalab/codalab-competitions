@@ -67,6 +67,7 @@
                     <th width="40"></th>
                     <th width="40"></th>
                     <th width="40"></th>
+                    <th width="40"></th>
                 </tr>
             </thead>
             <tbody>
@@ -104,6 +105,13 @@
                         </td>
                         <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
                         <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
+                        {% if submission.is_in_leaderboard and next_phase %}
+                            {% if submission.is_migrated %}
+                            <td align="center"><button class="btn btn-primary btn-xs">MIGRATED</button></td>
+                            {% else %}
+                            <td align="center"><button class="btn btn-danger btn-xs submission_migrate_button">MIGRATE</button></td>
+                            {% endif %}
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
@@ -116,6 +124,7 @@
 {% endblock %}
 
 {% block js %}
+
     $(function () {
         $("#phase_selector").change(function(){
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
@@ -168,5 +177,23 @@
                     alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
                 });
         });
+
+        //Function to submit the new submission for new phase
+        $('.submission_migrate_button').click(function(){
+            var parent_tr = $(this).parents('tr');
+            console.log(parent_tr);
+            var pk = parent_tr.prop('id');
+            $.ajax({
+                url: '/competitions/submission_migrate/' + pk,
+                type: 'POST',
+            })
+            .done(function() {
+                alert("Migrating to next phase, please refresh the page");
+            })
+            .fail(function() {
+                alert("Failed to migrate, try again later and if the problem persists contact an admin");
+            })
+        });
     });
 {% endblock js %}
+
