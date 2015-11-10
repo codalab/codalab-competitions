@@ -43,7 +43,7 @@ if [ -f $venv_pip ]; then
         echo "Installing development requirements from: $requirements_file"
         echo "The following requirements will be installed:"
         cat "$requirements_file"
-        $venv_pip install -v -M -r "$requirements_file"
+        $venv_pip install -v -r "$requirements_file"
         pip_res=$?
         if [ ! $pip_res -eq 0 ]; then
                 echo "ERROR: Failed to install requirements: $requirements_file"

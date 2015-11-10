@@ -37,6 +37,7 @@ print '\nAdd the following server block to your CLI config:\n'
 cfg = { 'class': 'SQLiteModel',
         'host': 'localhost',
         'port': 2800,
+        'verbose': 1,
         'auth': {
             'class': 'OAuthHandler',
             'address': 'http://localhost:8000',
