@@ -1423,8 +1423,11 @@ class BundleDetailView(TemplateView):
         uuid = kwargs.get('uuid')
         service = BundleService(self.request.user)
         bundle_info = service.get_bundle_info(uuid)
-        context['bundle'] = bundle_info
-        context['bundle_title'] = bundle_info.get('metadata', {}).get('name', '')
+        if bundle_info:
+            context['bundle'] = bundle_info
+            context['bundle_title'] = bundle_info.get('metadata', {}).get('name', '')
+        else:
+            context['error'] = 'Invalid or inaccessible bundle uuid: ' + uuid
         return context
 
 def BundleDownload(request, uuid):
