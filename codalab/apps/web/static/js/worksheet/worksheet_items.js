@@ -2,36 +2,25 @@
 
 /*
 Displays the list of items on the worksheet page.
-A worksheet item is either a contiguous block of markup or a table, record, image, contents.
-The main difference between the interpreted_items is that markup is grouped together.
-
-All of the editing functionality here is deprecated, since it's too complicated to maintain
-and to keep in sync with the markdown.  We are switching to pure markdown editing.
+A worksheet item is an interpreted items (either a contiguous block of markup
+or a table, record, image, contents).  Note: different from worksheet item in
+the bundle service.
 */
 
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
         return {
-            focusIndex: -1, // Index of item that we're focused on.
-            checkboxEnabled: true,
-            worksheet: {  // TODO: how is this different from this.props.ws?
-                last_item_id: 0,
-                name: '',
-                owner: null,
-                owner_id: 0,
-                uuid: 0,
-                items: [],
-                edit_permission: false,
-                raw: []
-            }
+            focusIndex: -1, // Index of worksheet item that we're focused on.
         };
     },
     throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
+        console.log('componentDidMount');
         this.props.refreshWorksheet();
     },
     componentDidUpdate: function() {
-        if (!this.state.worksheet.items.length) {
+        var info = this.props.ws.info;
+        if (!info || !info.items.length) {
             $('.empty-worksheet').fadeIn('fast');
         }
         if (this.state.editMode) {
@@ -68,13 +57,13 @@ var WorksheetItemList = React.createClass({
 
         // Move focus to the bottom
         Mousetrap.bind(['shift+g'], function(e) {
-            this.setFocus(this.state.worksheet.items.length - 1, 'end');
+            this.setFocus(this.props.ws.info.items.length - 1, 'end');
             $("html, body").animate({ scrollTop: $(document).height() }, 'fast');
         }.bind(this), 'keydown');
     },
 
     setFocus: function(index, subIndex) {
-        if (index < -1 || index >= this.state.worksheet.items.length)
+        if (index < -1 || index >= this.props.ws.info.items.length)
           return;  // Out of bounds (note -1 is okay)
         //console.log('WorksheetItemList.setFocus', index, subIndex);
 
@@ -82,7 +71,7 @@ var WorksheetItemList = React.createClass({
         this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
         if (index != -1 && subIndex != null) {
           // Change subindex (for tables)
-          var item = this.state.worksheet.items[index].state;
+          var item = this.props.ws.info.items[index];
           if (item.mode == 'table') {
             if (subIndex == 'end') {
               subIndex = item.bundle_info.length - 1;  // Last row of table
@@ -107,7 +96,7 @@ var WorksheetItemList = React.createClass({
             pos = -1000000;  // Scroll all the way to the top
           } else {
             var item = this.refs['item' + index];
-            if (item.props.item.state.mode == 'table')  // Table scrolling is handled at the row level
+            if (item.props.item.mode == 'table')  // Table scrolling is handled at the row level
               return;
             var node = item.getDOMNode();
             pos = node.getBoundingClientRect().top;
@@ -132,9 +121,10 @@ var WorksheetItemList = React.createClass({
 
         // Create items
         var items_display;
-        if (this.props.ws.state.items.length > 0) {
+        var info = this.props.ws.info;
+        if (info && info.items.length > 0) {
             var worksheet_items = [];
-            this.props.ws.state.items.forEach(function(item, index) {
+            info.items.forEach(function(item, index) {
                 var focused = (index === focusIndex);
                 var props = {
                   item: item,
@@ -151,6 +141,8 @@ var WorksheetItemList = React.createClass({
         } else {
           items_display = <p className="empty-worksheet">(empty)</p>;
         }
+        if (info && info.error)
+          items_display = <p className="alert-danger">Error in worksheet: {info.error}</p>;
 
         return <div id="worksheet_items">{items_display}</div>
     }
@@ -167,7 +159,7 @@ var WorksheetItemList = React.createClass({
 // - updateWorksheetSubFocusIndex: call back to notify parent of which row is selected (for tables)
 var createWorksheetItem = function(props) {
     // Determine URL corresponding to item.
-    var state = props.item.state;
+    var state = props.item;
     var url = null;
     if (state.bundle_info && state.bundle_info.uuid)
       url = '/bundles/' + state.bundle_info.uuid;
@@ -185,7 +177,7 @@ var createWorksheetItem = function(props) {
       'html': HTMLBundle,
       'record': RecordBundle,
       'image': ImageBundle,
-      'search': SearchBundle
+      'search': SearchBundle,
     }[state.mode];
 
     if (constructor) {

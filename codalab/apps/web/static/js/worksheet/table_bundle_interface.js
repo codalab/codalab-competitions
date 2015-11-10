@@ -26,7 +26,7 @@ var TableBundle = React.createClass({
         Mousetrap.bind(['down', 'j'], function(event) {
             var newIndex = this.state.rowFocusIndex + 1;
             var index = this.state.rowFocusIndex;
-            var numRows = this.props.item.state.interpreted[1].length;
+            var numRows = this.props.item.interpreted[1].length;
             if (newIndex >= numRows)
               this.props.setFocus(this.props.index + 1, 0);  // Move out of this table
             else
@@ -71,7 +71,7 @@ var TableBundle = React.createClass({
 
         var self = this;
         var tableClassName = (this.props.focused ? 'table focused' : 'table');
-        var item = this.props.item.state;
+        var item = this.props.item;
         var canEdit = this.props.canEdit;
         var bundle_info = item.bundle_info;
         var header_items = item.interpreted[0];

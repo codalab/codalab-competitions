@@ -125,7 +125,7 @@ var WorksheetActionBar = React.createClass({
             contentType:"application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({
-                'worksheet_uuid': this.props.ws.state.uuid,
+                'worksheet_uuid': this.props.ws.info.uuid,
                 'command': command,
             }),
             success: function(data, status, jqXHR) {
@@ -187,7 +187,7 @@ var WorksheetActionBar = React.createClass({
             contentType:"application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({
-                'worksheet_uuid': this.props.ws.state.uuid,
+                'worksheet_uuid': this.props.ws.info.uuid,
                 'command': command,
                 'autocomplete': true,
             }),
@@ -204,18 +204,18 @@ var WorksheetActionBar = React.createClass({
     current_focus: function(){  //get current focus of the user in the worksheet item list
         var focus = '';
         if(this.props.focusIndex > -1){
-            focus = this.props.ws.state.items[this.props.focusIndex].state;
+            focus = this.props.ws.info.items[this.props.focusIndex];
             if(focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search"){
                 this.focustype = 'worksheet';
                 if(focus.mode != "worksheet"){ // are we not looking at a sub worksheet
                      //for lets default it back to the main worksheet info
-                     focus = this.props.ws.state;
+                     focus = this.props.ws.info;
                 }
             }else{
                 this.focustype = 'bundle';
             }// end of if focus.modes
         }else{// there is no focus index, just show the worksheet infomation
-            focus = this.props.ws.state;
+            focus = this.props.ws.info;
             this.focustype = 'worksheet';
         }
         return  focus;

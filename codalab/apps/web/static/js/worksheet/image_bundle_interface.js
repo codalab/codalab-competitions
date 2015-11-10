@@ -4,16 +4,14 @@
 var ImageBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
     getInitialState: function() {
-        this.props.item.state.checked = false;
-        return this.props.item.state;
+        return {};
     },
     handleClick: function(event) {
         this.props.setFocus(this.props.index);
     },
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
-        var src= "data:image/png;base64," + this.props.item.state.interpreted;
+        var src= "data:image/png;base64," + this.props.item.interpreted;
         var styles = {};
         if (this.state.properties) {
             if (this.state.properties.hasOwnProperty('height')) {
@@ -25,8 +23,7 @@ var ImageBundle = React.createClass({
         }
         return(
             <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
-                <div className={className} ref={this.props.item.state.ref}>
+                <div className={className} ref={this.props.item.ref}>
                     <img style={styles} src={src} />
                 </div>
             </div>

@@ -4,11 +4,7 @@
 var MarkdownBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function() {
-        return {
-            checked: false,
-            new_item: false,
-            editing: false,
-        };
+        return {};
     },
     processMathJax: function() {
         MathJax.Hub.Queue([
@@ -42,32 +38,19 @@ var MarkdownBundle = React.createClass({
         return text
     },
     render: function() {
-        var content = this.props.item.state.interpreted;
+        var content = this.props.item.interpreted;
         var className = 'type-markup ' + (this.props.focused ? ' focused' : '') + (this.props.editing ? ' form-control mousetrap' : '');
-        //if we can edit show checkbox if not show nothing(null)
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
 
-        if (this.props.editing){ // are we editing show a text area
-            var lines = Math.max(this.props.item.state.interpreted.split(/\r\n|\r|\n/).length, 3);
-            return(
-                <div className="ws-item" onClick={this.handleClick}>
-                    {checkbox}
-                    <textarea className={className} rows={lines} onKeyDown={this.handleKeydown} defaultValue={content} />
-                </div>
-            )
-        }else { // just render the markdown
-            var text = this.processMarkdown(content);
-            // create a string of html for innerHTML rendering
-            // more info about dangerouslySetInnerHTML
-            // http://facebook.github.io/react/docs/special-non-dom-attributes.html
-            // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
-            return(
-                <div className="ws-item" onClick={this.handleClick}>
-                    {checkbox}
-                    <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
-                </div>
-            );
-        }
+        var text = this.processMarkdown(content);
+        // create a string of html for innerHTML rendering
+        // more info about dangerouslySetInnerHTML
+        // http://facebook.github.io/react/docs/special-non-dom-attributes.html
+        // http://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
+        return(
+            <div className="ws-item" onClick={this.handleClick}>
+                <div className={className} dangerouslySetInnerHTML={{__html: text}} onKeyDown={this.handleKeydown} />
+            </div>
+        );
     }, // end of render function
 
     /// helper functions for making markdown and mathjax work together

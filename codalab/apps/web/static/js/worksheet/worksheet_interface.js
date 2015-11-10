@@ -57,7 +57,7 @@ var Worksheet = React.createClass({
             params: function(params) {
               var data = {};
               var rawCommand = {}
-              data['worksheet_uuid'] = this.state.ws.state.uuid;
+              data['worksheet_uuid'] = this.state.ws.info.uuid;
               rawCommand['k'] = params['name'];
               rawCommand['v'] = params['value'];
               rawCommand['action'] = 'worksheet-edit';
@@ -68,8 +68,8 @@ var Worksheet = React.createClass({
                 if(response.error){
                     return response.error;
                 }
-                this.state.ws.fetch({async:false});
-                this.setState({refresh:!this.state.refresh});
+                this.state.ws.fetch({async: false});
+                this.setState({refresh: !this.state.refresh});
 
             }.bind(this)
         });
@@ -83,7 +83,8 @@ var Worksheet = React.createClass({
         // window.removeEventListener('keydown');
     },
     canEdit: function() {
-        return this.state.ws.getState().edit_permission;
+        var info = this.state.ws.info;
+        return info && info.edit_permission;
     },
     viewMode: function() {
         this.toggleEditMode(false);
@@ -166,7 +167,7 @@ var Worksheet = React.createClass({
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
             // TODO: grab val the react way
-            this.state.ws.state.raw = $("#raw-textarea").val().split('\n');
+            this.state.ws.info.raw = $("#raw-textarea").val().split('\n');
             this.setState({editMode: editMode});  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
@@ -194,15 +195,8 @@ var Worksheet = React.createClass({
         this.setState({updating: true});
         this.state.ws.fetch({
             success: function(data) {
-                if (this.isMounted()) {
-                    // TODO: change this so that it doesn't modify refs.
-                    this.refs.list.setState({worksheet: this.state.ws.getState()});
-                }
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                if (this.state.ws.getState().items.length === 0) {
-                    this.refs.list.resetFocusIndex();
-                }
                 this.setState({updating:false});
             }.bind(this),
             error: function(xhr, status, err) {
@@ -210,11 +204,11 @@ var Worksheet = React.createClass({
                 this.setState({updating:false});
 
                 if (xhr.status == 404) {
-                    $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert');
+                    $("#worksheet-message").html('Worksheet was not found.').addClass('alert-danger alert');
                 } else {
                     var error_msg = xhr.responseJSON.error;
                     if (error_msg) err = error_msg;
-                    $("#worksheet-message").html("An error occurred: <code>'" + status + "' " + err + " (" + xhr.status + ")</code>. Please try refreshing the page.").addClass('alert-danger alert');
+                    $("#worksheet-message").html('Worksheet error: ' + err).addClass('alert-danger alert');
                 }
                 $('#update_progress').hide();
                 $('#worksheet_container').hide();
@@ -266,10 +260,11 @@ var Worksheet = React.createClass({
     },
 
     render: function() {
-        //console.log('WorksheetInterface.render');
+        console.log('WorksheetInterface.render');
         this.capture_keys();
-        var rawWorksheet = this.state.ws.getRaw();
-        var editPermission = this.state.ws.getState().edit_permission;
+        var info = this.state.ws.info;
+        var rawWorksheet = info && info.raw.join('\n');
+        var editPermission = info && info.edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
         var checkboxEnabled = this.state.checkboxEnabled;
 
@@ -290,7 +285,7 @@ var Worksheet = React.createClass({
             </div>
         );
 
-        if (this.state.ws.state.items.length) {
+        if (info && info.items.length) {
             // Non-empty worksheet
         } else {
             $('.empty-worksheet').fadeIn();
@@ -303,7 +298,7 @@ var Worksheet = React.createClass({
                 id="raw-textarea"
                 ws={this.state.ws}
                 className="form-control mousetrap"
-                defaultValue={rawWorksheet.content}
+                defaultValue={rawWorksheet}
                 rows={30}
                 ref="textarea"
             />
@@ -369,13 +364,13 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={this.state.ws.state.title} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.title}</a></h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className='editable-field' data-value={this.state.ws.state.name} data-type="text" data-url="/api/worksheets/command/">{this.state.ws.state.name}</a></div>
-                                                <div className="worksheet-detail"><b>uuid: </b>{this.state.ws.state.uuid}</div>
-                                                <div className="worksheet-detail"><b>owner: </b>{this.state.ws.state.owner_name}</div>
-                                                <div className="worksheet-detail"><b>permissions: </b>{render_permissions(this.state.ws.state)}</div>
+                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className='editable-field' data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
+                                                <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
+                                                <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
+                                                <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>
                                             </div>
                                         </div>
                                         <div className="col-sm-6 col-md-4">

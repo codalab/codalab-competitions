@@ -6,7 +6,7 @@ worksheet (with the focus).
 /** @jsx React.DOM */
 var WorksheetSidePanel = React.createClass({
     getInitialState: function() {
-        return { };
+        return {};
     },
     componentDidMount: function(e) {
         var self = this;
@@ -34,11 +34,12 @@ var WorksheetSidePanel = React.createClass({
 
     getFocus: function() {
         // Return the state to show on the side panel
-        var focusedBundle = this.props.ws.state.items[this.props.focusIndex];
-        if (this.props.focusIndex == -1 || focusedBundle === undefined) {
-          return this.props.ws.state;  // Show current worksheet
+        var info = this.props.ws.info;
+        var focusedBundle = info && info.items[this.props.focusIndex];
+        if (this.props.focusIndex == -1 || !focusedBundle) {
+          return info;  // Show current worksheet
         }
-        return focusedBundle.state;
+        return focusedBundle;
     },
 
     // What kind of thing is it?
@@ -97,31 +98,33 @@ var WorksheetSidePanel = React.createClass({
 
         var focus = this.getFocus();
         var side_panel_details = '';
-        if (this.isFocusWorksheet(focus)) {
-          // Show worksheet (either main worksheet or subworksheet)
-          var worksheet_info;
-          if (focus.mode == 'worksheet')
-            worksheet_info = focus.subworksheet_info;
-          else
-            worksheet_info = focus;
+        if (focus) {
+          if (this.isFocusWorksheet(focus)) {
+            // Show worksheet (either main worksheet or subworksheet)
+            var worksheet_info;
+            if (focus.mode == 'worksheet')
+              worksheet_info = focus.subworksheet_info;
+            else
+              worksheet_info = focus;
 
-          side_panel_details = <WorksheetDetailSidePanel
-                                 key={'ws' + this.props.focusIndex}
-                                 worksheet_info={worksheet_info}
-                                 ref="worksheet_info_side_panel"
-                               />;
-        } else if (this.isFocusMarkup(focus)) {
-          // Show nothing (maybe later show markdown just for fun?)
-        } else if (this.isFocusBundle(focus)) {
-          // Show bundle (either full bundle or row in table)
-          var bundle_info = this.getBundleInfo(focus);
-          if (bundle_info) {
-            side_panel_details = <BundleDetailSidePanel
-                                   key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
-                                   bundle_info={bundle_info}
-                                   ref="bundle_info_side_panel"
-                                   bundleMetadataChanged={this.props.bundleMetadataChanged}
+            side_panel_details = <WorksheetDetailSidePanel
+                                   key={'ws' + this.props.focusIndex}
+                                   worksheet_info={worksheet_info}
+                                   ref="worksheet_info_side_panel"
                                  />;
+          } else if (this.isFocusMarkup(focus)) {
+            // Show nothing (maybe later show markdown just for fun?)
+          } else if (this.isFocusBundle(focus)) {
+            // Show bundle (either full bundle or row in table)
+            var bundle_info = this.getBundleInfo(focus);
+            if (bundle_info) {
+              side_panel_details = <BundleDetailSidePanel
+                                     key={'table' + this.props.focusIndex + ',' + this.props.subFocusIndex}
+                                     bundle_info={bundle_info}
+                                     ref="bundle_info_side_panel"
+                                     bundleMetadataChanged={this.props.bundleMetadataChanged}
+                                   />;
+            }
           }
         }
 
@@ -151,9 +154,9 @@ var WorksheetDetailSidePanel = React.createClass({
       var rows = [];
       if (worksheet.items) {
         worksheet.items.forEach(function(item) {
-          if (item.state.bundle_info) {
+          if (item.bundle_info) {
             // Show bundle
-            var bundle_infos = item.state.bundle_info;
+            var bundle_infos = item.bundle_info;
             if (!(bundle_infos instanceof Array))
               bundle_infos = [bundle_infos];
 
@@ -165,9 +168,9 @@ var WorksheetDetailSidePanel = React.createClass({
                 <td><a href={url} target="_blank">{b.metadata.name}({short_uuid})</a></td>
               </tr>);
             });
-          } else if (item.state.mode == 'worksheet') {
+          } else if (item.mode == 'worksheet') {
             // Show worksheet
-            var info = item.state.subworksheet_info;
+            var info = item.subworksheet_info;
             var title = info.title || info.name;
             var url = '/worksheets/' + info.uuid;
             rows.push(<tr>

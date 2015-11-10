@@ -52,14 +52,14 @@ var SearchBundleItem = React.createClass({
 var SearchBundle = React.createClass({
     mixins: [CheckboxMixin],
     getInitialState: function(){
-        return this.props.item.state;
+        return {};
     },
     handleClick: function(event){
         this.props.setFocus(this.props.index);
     },
     render: function() {
         var className = 'type-search' + (this.props.focused ? ' focused' : '');
-        var search_items = this.props.item.state.interpreted.items;
+        var search_items = this.props.item.interpreted.items;
         var search_items_interpreted;
         var parentIndex = this.props.index;
         if(search_items.length){

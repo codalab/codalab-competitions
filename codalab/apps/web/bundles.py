@@ -113,27 +113,19 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
         def get_worksheet_uuid(self, spec):
             uuid = None
             spec = smart_str(spec)  # generic clean up just in case
-            try:
-                if(spec_util.UUID_REGEX.match(spec)): # generic function sometimes get uuid already just return it.
-                    uuid = spec
-                else:
-                    uuid = worksheet_util.get_worksheet_uuid(self.client, None, spec)
-            except UsageError, e:
-                #TODO handle Found multiple worksheets with name
-                raise e
+            if(spec_util.UUID_REGEX.match(spec)): # generic function sometimes get uuid already just return it.
+                uuid = spec
+            else:
+                uuid = worksheet_util.get_worksheet_uuid(self.client, None, spec)
             return uuid
 
         def get_bundle_uuid(self, bundle_spec, worksheet_uuid=None):
             uuid = None
             spec = smart_str(spec)  # generic clean up just in case
-            try:
-                if(spec_util.UUID_REGEX.match(spec)):  # generic function sometimes get uuid already just return it.
-                    uuid = spec
-                else:
-                    uuid = worksheet_util.get_bundle_uuid(client, worksheet_uuid, bundle_spec)
-            except UsageError, e:
-                #TODO handle Found multiple worksheets with name
-                raise e
+            if(spec_util.UUID_REGEX.match(spec)):  # generic function sometimes get uuid already just return it.
+                uuid = spec
+            else:
+                uuid = worksheet_util.get_bundle_uuid(client, worksheet_uuid, bundle_spec)
             return uuid
 
         def basic_worksheet(self, uuid):
@@ -150,10 +142,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             In the future, for large worksheets, might want to break this up so
             that we can render something basic.
             '''
-            try:
-                worksheet_info = self.client.get_worksheet_info(uuid, fetch_items, get_permissions)
-            except PermissionError:
-                raise UsageError # forces a not found
+            worksheet_info = self.client.get_worksheet_info(uuid, fetch_items, get_permissions)
 
             if fetch_items:
                 worksheet_info['raw'] = worksheet_util.get_worksheet_lines(worksheet_info)
@@ -168,9 +157,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             # Go and fetch more information about the worksheet contents by
             # resolving the interpreted items.
             if interpreted:
-                interpreted_items = worksheet_util.interpret_items(
-                                    worksheet_util.get_default_schemas(),
-                                    worksheet_info['items'])
+                try:
+                    interpreted_items = worksheet_util.interpret_items(
+                                        worksheet_util.get_default_schemas(),
+                                        worksheet_info['items'])
+                except UsageError, e:
+                    interpreted_items = {'items': []}
+                    worksheet_info['error'] = str(e)
+
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
                 # Currently, only certain fields are base64 encoded.
                 for item in worksheet_info['items']:
@@ -246,7 +240,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                     import base64
                     lines = ''.join(map(base64.b64decode, lines))
                 return lines
-                
+
             info = self.get_target_info((uuid, ''), 2)  # List files
             if info['type'] == 'file':
                 info['file_contents'] = get_lines('')
