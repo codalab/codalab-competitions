@@ -260,7 +260,7 @@ var Worksheet = React.createClass({
     },
 
     render: function() {
-        console.log('WorksheetInterface.render');
+        //console.log('WorksheetInterface.render');
         this.capture_keys();
         var info = this.state.ws.info;
         var rawWorksheet = info && info.raw.join('\n');

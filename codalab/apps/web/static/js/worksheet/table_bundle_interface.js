@@ -17,7 +17,7 @@ var TableBundle = React.createClass({
         Mousetrap.bind(['up', 'k'], function(e) {
             var newIndex = this.state.rowFocusIndex - 1;
             if (newIndex < 0)
-              this.props.setFocus(this.props.index - 1, -1);  // Move out of this table
+              this.props.setFocus(this.props.index - 1, 'end');  // Move out of this table
             else
               this.focusOnRow(newIndex);
         }.bind(this), 'keydown');
@@ -82,22 +82,11 @@ var TableBundle = React.createClass({
             return <th key={index} className={column_classes[index]}>{item}</th>;
         });
         var focusIndex = this.state.rowFocusIndex;
-        var row_items = item.interpreted[1];
-        /* row_items is an array of objects containing table content.
-        For instance row_items may be Array[1] where
-        object0 = {
-            Parameters = {
-                path: "/output",
-                text: "params",
-                uuid: "0xdafcc128243d46fb8a7f76926148ed7a
-            }
-            uuid: "0xdafcc128243d46fb8a7f76926148ed7a"
-         } */
+        var row_items = item.interpreted[1];  // Array of {header: value, ...} objects
         var column_with_hyperlinks = [];
         (Object.keys(row_items[0])).forEach(function(x) {
-            if (typeof row_items[0][x] === 'object' && 'path' in row_items[0][x]) {
+            if (row_items[0][x] && row_items[0][x]['path'])
                 column_with_hyperlinks.push(x);
-            }
         })
         var body_rows_html = row_items.map(function(row_item, index) {
             var row_ref = 'row' + index;

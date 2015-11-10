@@ -15,7 +15,6 @@ var WorksheetItemList = React.createClass({
     },
     throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
-        console.log('componentDidMount');
         this.props.refreshWorksheet();
     },
     componentDidUpdate: function() {
@@ -62,8 +61,18 @@ var WorksheetItemList = React.createClass({
         }.bind(this), 'keydown');
     },
 
+    // If |item| is a table or search with table embedded inside, then return the number of rows
+    _numTableRows: function(item) {
+      if (item.mode == 'table')
+        return item.bundle_info.length;
+      if (item.mode == 'search')
+        return this._numTableRows(item.interpreted.items[0]);
+      return null;
+    },
+
     setFocus: function(index, subIndex) {
-        if (index < -1 || index >= this.props.ws.info.items.length)
+        var info = this.props.ws.info;
+        if (index < -1 || index >= info.items.length)
           return;  // Out of bounds (note -1 is okay)
         //console.log('WorksheetItemList.setFocus', index, subIndex);
 
@@ -71,11 +80,12 @@ var WorksheetItemList = React.createClass({
         this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
         if (index != -1 && subIndex != null) {
           // Change subindex (for tables)
-          var item = this.props.ws.info.items[index];
-          if (item.mode == 'table') {
-            if (subIndex == 'end') {
-              subIndex = item.bundle_info.length - 1;  // Last row of table
-            }
+          var item = info.items[index];
+          console.log('EEEEEEEEEEE', item);
+          var numTableRows = this._numTableRows(item);
+          if (numTableRows != null) {
+            if (subIndex == 'end')
+              subIndex = numTableRows - 1;  // Last row of table
             this.props.updateWorksheetSubFocusIndex(subIndex);  // Notify parent of selection
             this.refs['item' + index].focusOnRow(subIndex); // Notify child
           }
@@ -96,7 +106,7 @@ var WorksheetItemList = React.createClass({
             pos = -1000000;  // Scroll all the way to the top
           } else {
             var item = this.refs['item' + index];
-            if (item.props.item.mode == 'table')  // Table scrolling is handled at the row level
+            if (this._numTableRows(item.props.item) != null)  // Table scrolling is handled at the row level
               return;
             var node = item.getDOMNode();
             pos = node.getBoundingClientRect().top;
@@ -135,7 +145,7 @@ var WorksheetItemList = React.createClass({
                   setFocus: setFocus,
                   updateWorksheetSubFocusIndex: updateWorksheetSubFocusIndex
                 };
-                worksheet_items.push(createWorksheetItem(props));
+                addWorksheetItems(props, worksheet_items);
             });
             items_display = worksheet_items;
         } else {
@@ -150,21 +160,37 @@ var WorksheetItemList = React.createClass({
 
 ////////////////////////////////////////////////////////////
 
-// Create a worksheet item.
+// Create a worksheet item based on props and add it to worksheet_items.
 // - item: information about the table to display
 // - index: integer representing the index in the list of items
 // - focused: whether this item has the focus
 // - canEdit: whether we're allowed to edit this item
 // - setFocus: call back to select this item
 // - updateWorksheetSubFocusIndex: call back to notify parent of which row is selected (for tables)
-var createWorksheetItem = function(props) {
+var addWorksheetItems = function(props, worksheet_items) {
+    var item = props.item;
+
+    // These worksheet items unpack into multiple interpreted items.
+    if (item.mode == 'search') {
+      if (item.interpreted.items.length != 1) {
+          console.error('Expected exactly one item, but got', item.interpreted.items);
+      } else {
+        var subitem = item.interpreted.items[0];
+        var subprops = {};
+        for (var k in props) subprops[k] = props[k];
+        subprops.item = subitem;
+        subprops.index = props.index;
+        addWorksheetItems(subprops, worksheet_items);
+      }
+      return;
+    }
+
     // Determine URL corresponding to item.
-    var state = props.item;
     var url = null;
-    if (state.bundle_info && state.bundle_info.uuid)
-      url = '/bundles/' + state.bundle_info.uuid;
-    if (state.subworksheet_info)
-      url = '/worksheets/' + state.subworksheet_info.uuid;
+    if (item.bundle_info && item.bundle_info.uuid)
+      url = '/bundles/' + item.bundle_info.uuid;
+    if (item.subworksheet_info)
+      url = '/worksheets/' + item.subworksheet_info.uuid;
 
     props.key = props.ref = 'item' + props.index;
     props.url = url;
@@ -177,13 +203,13 @@ var createWorksheetItem = function(props) {
       'html': HTMLBundle,
       'record': RecordBundle,
       'image': ImageBundle,
-      'search': SearchBundle,
-    }[state.mode];
+    }[item.mode];
 
+    var elem;
     if (constructor) {
-      return React.createElement(constructor, props);
+      elem = React.createElement(constructor, props);
     } else {
-      return (
+      elem = (
           <div>
               <strong>
                   Not supported yet: {state.mode}
@@ -191,4 +217,5 @@ var createWorksheetItem = function(props) {
           </div>
       );
     }
+    worksheet_items.push(elem);
 }
