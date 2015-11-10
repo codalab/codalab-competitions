@@ -122,7 +122,7 @@
 
 </div>
 {% endblock %}
-<script type="text/javascript">
+
 {% block js %}
 
     $(function () {
@@ -186,8 +186,6 @@
             $.ajax({
                 url: '/competitions/submission_migrate/' + pk,
                 type: 'POST',
-                // dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
-                // data: {param1: 'value1'},
             })
             .done(function() {
                 alert("Migrating to next phase");
@@ -198,4 +196,4 @@
         });
     });
 {% endblock js %}
-</script>
+
