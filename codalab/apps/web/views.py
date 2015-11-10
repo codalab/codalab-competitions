@@ -1373,11 +1373,11 @@ def submission_migrate(request, pk):
         try:
             submission = models.CompetitionSubmission.objects.get(pk=pk)
             competition = submission.phase.competition
-            if request.user.id != competition.creator and request.user not in competition.admins.all():
+            if request.user.id != competition.creator.id and request.user not in competition.admins.all():
                 raise Http404()
 
             current_phase_phasenumber = submission.phase.phasenumber
-            next_phase = competition.phase.get(phasenumber=current_phase_phasenumber+1)
+            next_phase = competition.phases.get(phasenumber=current_phase_phasenumber+1)
 
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
@@ -1387,8 +1387,10 @@ def submission_migrate(request, pk):
             new_submission.save(ignore_submission_limits=True)
 
             evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            submission.is_migrated = True
+            submission.save()
 
-            return HttpResponse
+            return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()

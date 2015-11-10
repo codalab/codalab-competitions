@@ -107,9 +107,9 @@
                         <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
                         {% if submission.is_in_leaderboard and next_phase %}
                             {% if submission.is_migrated %}
-                            <td align="center"><button class="btn btn-primary btn-xs re_run_submission_button">MIGRATED</button></td>
+                            <td align="center"><button class="btn btn-primary btn-xs">MIGRATED</button></td>
                             {% else %}
-                            <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">MIGRATE</button></td>
+                            <td align="center"><button class="btn btn-danger btn-xs submission_migrate_button">MIGRATE</button></td>
                             {% endif %}
                         {% endif %}
                     </tr>
@@ -122,8 +122,9 @@
 
 </div>
 {% endblock %}
-
+<script type="text/javascript">
 {% block js %}
+
     $(function () {
         $("#phase_selector").change(function(){
             window.location = "/my/competition/{{competition.id}}/submissions/?phase=" + $(this).val();
@@ -176,5 +177,25 @@
                     alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
                 });
         });
+
+        //Function to submit the new submission for new phase
+        $('.submission_migrate_button').click(function(){
+            var parent_tr = $(this).parents('tr');
+            console.log(parent_tr);
+            var pk = parent_tr.prop('id');
+            $.ajax({
+                url: '/competitions/submission_migrate/' + pk,
+                type: 'POST',
+                // dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+                // data: {param1: 'value1'},
+            })
+            .done(function() {
+                alert("Migrating to next phase");
+            })
+            .fail(function() {
+                alert("Failed to migrate, try again later and if the problem persists contact an admin");
+            })
+        });
     });
 {% endblock js %}
+</script>
