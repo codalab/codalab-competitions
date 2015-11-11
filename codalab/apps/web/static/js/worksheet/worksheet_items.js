@@ -63,6 +63,7 @@ var WorksheetItemList = React.createClass({
 
     // If |item| is a table or search with table embedded inside, then return the number of rows
     _numTableRows: function(item) {
+      if (!item) return null;
       if (item.mode == 'table')
         return item.bundle_info.length;
       if (item.mode == 'worksheet')
@@ -177,8 +178,8 @@ var addWorksheetItems = function(props, worksheet_items) {
     if (item.mode == 'search') {
       var subitem = item.interpreted.items[0];
       if (!subitem) {
-        subitem = {'interpreted': '**Error with search**', 'mode': 'markup'};
-        console.error('Invalid item', item);
+        subitem = {'interpreted': '(no results)', 'mode': 'markup'};
+        //console.error('Invalid item', item);
       }
       var subprops = {};
       for (var k in props) subprops[k] = props[k];

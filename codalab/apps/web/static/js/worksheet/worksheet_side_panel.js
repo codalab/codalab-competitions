@@ -46,7 +46,8 @@ var WorksheetSidePanel = React.createClass({
       return focus.mode === undefined || focus.mode == 'worksheet' || focus.mode == 'wsearch';
     },
     isFocusMarkup: function(focus) {
-      return focus.mode == 'markup' || (focus.mode == 'search' && focus.interpreted.items[0].bundle_info === undefined);
+      // If search and didn't return bundles, then count as markup
+      return focus.mode == 'markup' || (focus.mode == 'search' && (!focus.interpreted.items[0] || focus.interpreted.items[0].bundle_info === undefined));
     },
     isFocusBundle: function(focus) {
       return !this.isFocusWorksheet(focus) && !this.isFocusMarkup(focus);
