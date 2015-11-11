@@ -165,8 +165,8 @@ var Worksheet = React.createClass({
         if (!editMode) {
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
-            // TODO: grab val the react way
-            this.state.ws.state.raw = $("#raw-textarea").val().split('\n');
+            var editor = ace.edit('worksheet-editor');
+            this.state.ws.state.raw = editor.getValue().split('\n');
             this.setState({editMode: editMode});  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
@@ -178,6 +178,15 @@ var Worksheet = React.createClass({
           this.setState({activeComponent: 'textarea'});
           // TODO: set cursor intelligently rather than just leaving it at the beginning.
           $("#raw-textarea").focus();
+        }
+    },
+    componentDidUpdate: function() {
+        try {
+            var editor = ace.edit('worksheet-editor');
+            editor.setTheme("ace/theme/twilight");
+            editor.session.setMode("ace/mode/python");
+        }
+        catch(error) {
         }
     },
     toggleActionBar: function() {
@@ -296,18 +305,7 @@ var Worksheet = React.createClass({
             $('.empty-worksheet').fadeIn();
         }
 
-        // http://facebook.github.io/react/docs/forms.html#why-textarea-value
-        var raw_display = <div>
-            Press ctrl-enter to save.
-            <textarea
-                id="raw-textarea"
-                ws={this.state.ws}
-                className="form-control mousetrap"
-                defaultValue={rawWorksheet.content}
-                rows={30}
-                ref="textarea"
-            />
-        </div>;
+        var raw_display = <div id='worksheet-editor'>{this.state.ws.state.raw.join('\n')}</div>;
 
         var action_bar_display = (
                 <WorksheetActionBar

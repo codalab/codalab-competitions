@@ -8783,6 +8783,16 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
      border-radius: 4px;
     box-shadow: 1px 1px 1px 1px grey;
 }
+#worksheet-editor {
+        margin: 0;
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 1000px;
+        height: 700px;
+}
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover .badge {
   color: #d9534f;
   background-color: #fff;
