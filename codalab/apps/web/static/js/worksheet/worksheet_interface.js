@@ -26,11 +26,13 @@ var keyMap = {
     191: "fslash"
 };
 
+var HOME_WORKSHEET = '/';
+
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
             refresh: false,
-            ws: new WorksheetContent(this.props.url),
+            ws: new WorksheetContent(this.props.uuid),
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             showActionBar: true,  // Whether the action bar is shown
@@ -93,7 +95,7 @@ var Worksheet = React.createClass({
         this.toggleEditMode(true);
     },
     handleActionBarFocus: function(event) {
-        this.setState({activeComponent:'action'});
+        this.setState({activeComponent: 'action'});
         // just scroll to the top of the page.
         // Add the stop() to keep animation events from building up in the queue
         // See also scrollTo* methods
@@ -104,7 +106,7 @@ var Worksheet = React.createClass({
     handleActionBarBlur: function(event) {
         // explicitly close term because we're leaving the action bar
         // $('#command_line').terminal().focus(false);
-        this.setState({activeComponent:'list'});
+        this.setState({activeComponent: 'list'});
         $('#command_line').data('resizing', null);
         $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
         $('#ws_search').removeAttr('style');
@@ -160,18 +162,18 @@ var Worksheet = React.createClass({
         }.bind(this));
     },
     toggleEditMode: function(editMode) {
-        if (typeof(editMode) == 'undefined')
+        if (editMode === undefined)
           editMode = !this.state.editMode;  // Toggle by default
 
         if (!editMode) {
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
-            // TODO: grab val the react way
+            // TODO: This should be done by the editing control in WorksheetItemList 
             this.state.ws.info.raw = $("#raw-textarea").val().split('\n');
             this.setState({editMode: editMode});  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
-            // Not allowed to save worksheet.
+            // Not allowed to save worksheet (shouldn't happen).
           }
         } else {
           // Go into edit mode.
@@ -215,10 +217,15 @@ var Worksheet = React.createClass({
             }.bind(this)
         });
     },
+
+    openWorksheet: function(uuid) {
+      this.setState({ws: new WorksheetContent(uuid)});
+    },
+
     saveAndUpdateWorksheet: function(from_raw) {
         $("#worksheet-message").hide();
         // does a save and a update
-        this.setState({updating:true});
+        this.setState({updating: true});
         this.state.ws.saveWorksheet({
             success: function(data) {
                 this.setState({updating:false});
@@ -235,13 +242,13 @@ var Worksheet = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(xhr, status, err);
-                this.setState({updating:false});
+                this.setState({updating: false});
                 if (xhr.status == 404) {
                     $("#worksheet-message").html("Worksheet was not found.").addClass('alert-danger alert').show();
                 } else if (xhr.status == 401) {
                     $("#worksheet-message").html("You do not have permission to edit this worksheet.").addClass('alert-danger alert').show();
                 } else {
-                    $("#worksheet-message").html("A save error occurred: <em>" + err.string() + "</em> <br /> Please try refreshing the page or saving again.").addClass('alert-danger alert').show();
+                    $("#worksheet-message").html('Saving failed: ' + err).addClass('alert-danger alert').show();
                 }
             }
         });
@@ -249,14 +256,14 @@ var Worksheet = React.createClass({
 
     // Go to the home worksheet
     myHomeWorksheet: function() {
-      // Make sure the worksheet exists (
-      this.refs.action.executeCommand(['cl', 'new', '-p', home_worksheet_name]).then(function() {
-        this.refs.action.executeCommand(['cl', 'work', home_worksheet_name]);
+      // Make sure the worksheet exists
+      this.refs.action.executeCommand(['cl', 'new', '-p', HOME_WORKSHEET]).then(function() {
+        this.refs.action.executeCommand(['cl', 'work', HOME_WORKSHEET]);
       }.bind(this));
     },
 
     uploadBundle: function() {
-      this.refs.action.executeCommand(['cl', 'upload', 'dataset']);
+      this.refs.action.executeCommand(['cl', 'upload']);
     },
 
     render: function() {
@@ -316,6 +323,7 @@ var Worksheet = React.createClass({
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
+                    openWorksheet={this.openWorksheet}
                     editMode={this.editMode}
                 />
             );

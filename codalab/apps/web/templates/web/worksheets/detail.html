@@ -130,16 +130,8 @@ MathJax.Hub.Config({
         inlineMath: [['$','$']]
     }
 });
-// mixing django and javascript to get uuid if not a normal worksheet page
-var worksheet_url = '/api' + document.location.pathname;
-{% if worksheet_uuid %}
-    worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
-{% endif %}
-$(function () {
-  home_worksheet_name = "{{home_worksheet_name}}";
-});
 
-React.render(<Worksheet url={worksheet_url}/>, document.getElementById('worksheet_container'));
+React.render(<Worksheet uuid="{{worksheet_uuid}}"/>, document.getElementById('worksheet_container'));
 </script>
 
 {% endblock jsincludes %}

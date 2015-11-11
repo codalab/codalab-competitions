@@ -3,9 +3,10 @@ Information about the current worksheet and its items.
 */
 
 var WorksheetContent = function() {
-    function WorksheetContent(url) {
-        this.url = url;
+    function WorksheetContent(uuid) {
+        this.uuid = uuid;
         this.info = null;  // Worksheet info
+        this.url = '/api/worksheets/' + this.uuid + '/';
     }
 
     WorksheetContent.prototype.fetch = function(props) {

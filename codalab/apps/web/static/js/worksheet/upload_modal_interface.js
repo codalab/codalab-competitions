@@ -3,10 +3,10 @@
 // Show a modal dialog for uploading bundles.
 var UploadModal = React.createClass({
     getInitialState: function(){
-        return{
-            "bundle_type": 'dataset',
-            "error": null,
-            "is_uploading": false
+        return {
+            'bundle_type': 'dataset',
+            'error': null,
+            'is_uploading': false
         }
     },
     componentDidMount: function() {
@@ -18,7 +18,7 @@ var UploadModal = React.createClass({
         $(this.getDOMNode()).off('hidden');
     },
     resetState: function(){
-        this.setState({"error": null, "is_uploading": false});
+        this.setState({'error': null, 'is_uploading': false});
     },
     show: function(){
         $(this.getDOMNode()).modal('show');
@@ -28,8 +28,6 @@ var UploadModal = React.createClass({
         $(this.getDOMNode()).modal('hide');
         this.resetState();
     },
-    onDataset: function(e) { this.setState({'bundle_type': 'dataset'}); },
-    onProgram: function(e) { this.setState({'bundle_type': 'program'}); },
     onSubmit: function(e){
         this.setState({"error": null, "is_uploading": true});
         e.stopPropagation();
@@ -58,8 +56,8 @@ var UploadModal = React.createClass({
                     error = error
                 }
                 this.setState({
-                    "error": error,
-                    "is_uploading": false
+                    'error': error,
+                    'is_uploading': false
                 });
                 console.error(status + ': ' + error);
             }.bind(this)
@@ -100,11 +98,6 @@ var UploadModal = React.createClass({
                         </div>
                         <form name="uploadForm" onSubmit={this.onSubmit} ref="uploadForm" encType="multipart/form-data" method="post"  >
                             <div className="modal-body">
-                                <p>
-                                    Bundle type: &nbsp;
-                                    <input type="radio" name="bundleType" value="dataset" onChange={this.onDataset} checked={this.state.bundle_type == 'dataset'}>Dataset</input> &nbsp;
-                                    <input type="radio" name="bundleType" value="program" onChange={this.onProgram} checked={this.state.bundle_type == 'program'}>Program</input>
-                                </p>
                                 <p>
                                     <input id="uploadInput" type="file" ref="file" name="file"/>
                                 </p>

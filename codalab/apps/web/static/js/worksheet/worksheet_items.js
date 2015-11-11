@@ -81,7 +81,6 @@ var WorksheetItemList = React.createClass({
         if (index != -1 && subIndex != null) {
           // Change subindex (for tables)
           var item = info.items[index];
-          console.log('EEEEEEEEEEE', item);
           var numTableRows = this._numTableRows(item);
           if (numTableRows != null) {
             if (subIndex == 'end')

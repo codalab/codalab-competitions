@@ -101,7 +101,7 @@ var WorksheetActionBar = React.createClass({
         var self = this;
         ({
             openWorksheet: function(uuid) {
-                window.location = '/worksheets/' + uuid + '/';
+                self.props.openWorksheet(uuid);
             },
             setEditMode: function(editMode) {
                 self.props.editMode();
