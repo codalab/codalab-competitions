@@ -274,13 +274,13 @@ class BundleInfoApi(views.APIView):
         try:
             bundle_info = service.get_bundle_info(uuid)
             if bundle_info is None:
-                return Response({'error': 'The bundle is not availble'})
+                return Response({'error': 'The bundle is not available'})
             bundle_info.update(service.get_bundle_contents(uuid))
             return Response(bundle_info, content_type="application/json")
         except Exception as e:
             tb = traceback.format_exc()
             log_exception(self, e, tb)
-            return Response({"error": smart_str(e)}, status=500)
+            return Response({'error': smart_str(e)}, status=500)
 
     def post(self, request, uuid):
         '''

@@ -68,7 +68,7 @@ var Bundle = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
-                $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
+                $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
                 $("#bundle-message").show();
             }.bind(this)
         });
@@ -91,7 +91,7 @@ var Bundle = React.createClass({
                 if (xhr.status == 404) {
                     $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
                 } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
+                    $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
                 }
                 $('#bundle-content').hide();
             }.bind(this)
