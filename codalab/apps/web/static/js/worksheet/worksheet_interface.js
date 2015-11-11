@@ -8,24 +8,6 @@ Consists of three main components:
 - side panel
 */
 
-var keyMap = {
-    13: "enter",
-    27: "esc",
-    69: "e",
-    70: "f",
-    38: "up",
-    40: "down",
-    65: "a",
-    66: "b",
-    68: "d",
-    73: "i",
-    74: "j",
-    75: "k",
-    79: "o",
-    88: "x",
-    191: "fslash"
-};
-
 var HOME_WORKSHEET = '/';
 
 var Worksheet = React.createClass({

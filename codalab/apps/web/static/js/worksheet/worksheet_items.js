@@ -175,16 +175,16 @@ var addWorksheetItems = function(props, worksheet_items) {
 
     // These worksheet items unpack into multiple interpreted items.
     if (item.mode == 'search') {
-      if (item.interpreted.items.length != 1) {
-          console.error('Expected exactly one item, but got', item.interpreted.items);
-      } else {
-        var subitem = item.interpreted.items[0];
-        var subprops = {};
-        for (var k in props) subprops[k] = props[k];
-        subprops.item = subitem;
-        subprops.index = props.index;
-        addWorksheetItems(subprops, worksheet_items);
+      var subitem = item.interpreted.items[0];
+      if (!subitem) {
+        subitem = {'interpreted': '**Error with search**', 'mode': 'markup'};
+        console.error('Invalid item', item);
       }
+      var subprops = {};
+      for (var k in props) subprops[k] = props[k];
+      subprops.item = subitem;
+      subprops.index = props.index;
+      addWorksheetItems(subprops, worksheet_items);
       return;
     }
 
@@ -216,7 +216,7 @@ var addWorksheetItems = function(props, worksheet_items) {
       elem = (
           <div>
               <strong>
-                  Not supported yet: {state.mode}
+                  Internal error: {item.mode}
               </strong>
           </div>
       );
