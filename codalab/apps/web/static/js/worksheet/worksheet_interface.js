@@ -219,7 +219,10 @@ var Worksheet = React.createClass({
     },
 
     openWorksheet: function(uuid) {
-      this.setState({ws: new WorksheetContent(uuid)});
+      window.location = '/worksheets/' + uuid + '/';
+      // TODO: need to update the URL in the action bar (need to probably
+      // switch over to #), and make sure everything gets updated.
+      //this.setState({ws: new WorksheetContent(uuid)});
     },
 
     saveAndUpdateWorksheet: function(from_raw) {
