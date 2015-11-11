@@ -130,9 +130,9 @@ var WorksheetContent = function() {
                             // the bundle_info may be an object or an array of objects
                             var bundle = below_item.state.bundle_info;
                             if(_.isArray(bundle)){
-                                bundle = bundle[0]
+                                bundle = bundle[0];
                             }
-                            for(i=last_raw_index; i < raw.length; i++){
+                            for(i = last_raw_index; i < raw.length && i >= 0; i++){
                                 // that bundle may be the start of the next non-markdown block
                                 // or a line that begins with %, which means another bundle display type
                                 if(bundle){
