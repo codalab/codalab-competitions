@@ -53,7 +53,7 @@ var WorksheetSidePanel = React.createClass({
     },
     getBundleInfo: function(focus) {
       if (focus.mode == 'table')  // Drill down into row of table
-          return focus.bundle_info[this.props.subFocusIndex];
+          return this.props.subFocusIndex != -1 ? focus.bundle_info[this.props.subFocusIndex] : null;
       else
           return focus.bundle_info;
     },
@@ -61,7 +61,7 @@ var WorksheetSidePanel = React.createClass({
       if (focus.mode == 'worksheet')
         return focus.subworksheet_info;
       else if (focus.mode == 'wsearch')
-        return focus.interpreted.items[this.props.subFocusIndex].subworksheet_info;
+        return this.props.subFocusIndex != -1 ? focus.interpreted.items[this.props.subFocusIndex].subworksheet_info : null;
       else
         return focus;
     },
@@ -151,6 +151,7 @@ var WorksheetDetailSidePanel = React.createClass({
     render: function() {
       // Select the current worksheet or the subworksheet.
       var worksheet = this.props.worksheet_info;
+      if (!worksheet) return <div />;
 
       // Show brief summary of contents.
       var rows = [];
