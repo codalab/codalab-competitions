@@ -53,7 +53,7 @@ var TableBundle = React.createClass({
         this.throttledScrollToRow(index);
     },
 
-    focusOnRow: function(rowIndex, event) {
+    focusOnRow: function(rowIndex) {
         this.setState({rowFocusIndex: rowIndex});
         this.props.updateWorksheetSubFocusIndex(rowIndex);
         this.scrollToRow(rowIndex);

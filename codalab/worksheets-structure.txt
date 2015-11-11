@@ -34,6 +34,11 @@ BundleService (./apps/web/bundles.py): talks to RemoteBundleClient (codalab-cli 
 Utilities
   ./apps/common/worksheet_utils.py
 
+CSS
+  ./apps/web/static/less/imports.less
+  # Should be auto-generated, but currently the primary version
+  ./apps/web/static/css/imports.css
+
 ############################################################
 
 Template page (./apps/web/templates/base.html)

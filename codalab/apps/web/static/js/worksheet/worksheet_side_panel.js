@@ -35,16 +35,15 @@ var WorksheetSidePanel = React.createClass({
     getFocus: function() {
         // Return the state to show on the side panel
         var info = this.props.ws.info;
-        var focusedBundle = info && info.items[this.props.focusIndex];
-        if (this.props.focusIndex == -1 || !focusedBundle) {
-          return info;  // Show current worksheet
-        }
-        return focusedBundle;
+        if (!info) return null;
+        if (this.props.focusIndex == -1)  // Not focus on anything, show worksheet
+          return info;
+        return info.items[this.props.focusIndex];
     },
 
     // What kind of thing is it?
     isFocusWorksheet: function(focus) {
-      return focus.mode === undefined || focus.mode == 'worksheet';
+      return focus.mode === undefined || focus.mode == 'worksheet' || focus.mode == 'wsearch';
     },
     isFocusMarkup: function(focus) {
       return focus.mode == 'markup';
@@ -57,6 +56,14 @@ var WorksheetSidePanel = React.createClass({
           return focus.bundle_info[this.props.subFocusIndex];
       else
           return focus.bundle_info;
+    },
+    getWorksheetInfo: function(focus) {
+      if (focus.mode == 'worksheet')
+        return focus.subworksheet_info;
+      else if (focus.mode == 'wsearch')
+        return focus.interpreted.items[this.props.subFocusIndex].subworksheet_info;
+      else
+        return focus;
     },
 
     resizePanel: function(e) {
@@ -98,11 +105,7 @@ var WorksheetSidePanel = React.createClass({
         if (focus) {
           if (this.isFocusWorksheet(focus)) {
             // Show worksheet (either main worksheet or subworksheet)
-            var worksheet_info;
-            if (focus.mode == 'worksheet')
-              worksheet_info = focus.subworksheet_info;
-            else
-              worksheet_info = focus;
+            var worksheet_info = this.getWorksheetInfo(focus);
 
             side_panel_details = <WorksheetDetailSidePanel
                                    key={'ws' + this.props.focusIndex}
@@ -122,6 +125,8 @@ var WorksheetSidePanel = React.createClass({
                                      bundleMetadataChanged={this.props.bundleMetadataChanged}
                                    />;
             }
+          } else {
+            console.error('Unknown mode: ' + focus.mode);
           }
         }
 

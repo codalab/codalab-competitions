@@ -65,6 +65,10 @@ var WorksheetItemList = React.createClass({
     _numTableRows: function(item) {
       if (item.mode == 'table')
         return item.bundle_info.length;
+      if (item.mode == 'worksheet')
+        return 1;
+      if (item.mode == 'wsearch')
+        return item.interpreted.items.length;
       if (item.mode == 'search')
         return this._numTableRows(item.interpreted.items[0]);
       return null;
@@ -199,6 +203,7 @@ var addWorksheetItems = function(props, worksheet_items) {
       'table': TableBundle,
       'contents': ContentsBundle,
       'worksheet': WorksheetBundle,
+      'wsearch': WorksheetBundle,
       'html': HTMLBundle,
       'record': RecordBundle,
       'image': ImageBundle,
