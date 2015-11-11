@@ -28,4 +28,5 @@ urlpatterns = patterns(
     url(r'^mark_as_failed/(?P<submission_pk>\d+)', views.submission_mark_as_failed, name="submission_mark_as_failed"),
     url(r'^toggle_leaderboard/(?P<submission_pk>\d+)', views.submission_toggle_leaderboard, name="submission_toggle_leaderboard"),
     url(r'^submission_re_run/(?P<submission_pk>\d+)', views.submission_re_run, name="submission_re_run"),
+    url(r'^submission_migrate/(?P<pk>\d+)', views.submission_migrate, name="submission_migrate"),
 )
