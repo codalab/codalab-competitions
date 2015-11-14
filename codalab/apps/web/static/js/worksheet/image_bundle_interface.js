@@ -11,14 +11,15 @@ var ImageBundle = React.createClass({
     },
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
-        var src= "data:image/png;base64," + this.props.item.interpreted;
+        var src = "data:image/png;base64," + this.props.item.interpreted;
         var styles = {};
-        if (this.state.properties) {
-            if (this.state.properties.hasOwnProperty('height')) {
-                styles['height'] = this.state.properties.height + "px;"
+        var properties = this.props.item.properties;
+        if (properties) {
+            if (properties.hasOwnProperty('height')) {
+                styles['height'] = properties.height + "px;"
             }
-            if (this.state.properties.hasOwnProperty('width')) {
-                styles['width'] = this.state.properties.width + "px;"
+            if (properties.hasOwnProperty('width')) {
+                styles['width'] = properties.width + "px;"
             }
         }
         return(
@@ -28,5 +29,5 @@ var ImageBundle = React.createClass({
                 </div>
             </div>
         );
-    } // end of render function
-}); //end of  ContentsBundle
+    }
+});
