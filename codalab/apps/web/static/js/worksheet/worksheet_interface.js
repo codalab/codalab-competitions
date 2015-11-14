@@ -286,6 +286,7 @@ var Worksheet = React.createClass({
         // http://facebook.github.io/react/docs/forms.html#why-textarea-value
         var raw_display = <div>
             Press ctrl-enter to save.
+            See <a href="https://github.com/codalab/codalab/wiki/User_Worksheet-Markdown">markdown syntax</a>.
             <textarea
                 id="raw-textarea"
                 ws={this.state.ws}
