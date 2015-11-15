@@ -9777,3 +9777,9 @@ textarea.table.affiliation > tbody > tr > td input {
 .terminal a:hover {
   color: red;
 }
+
+.frontpage_code {
+  font-family: monospace;
+  font-size: 14px;
+  color: #33aa33;
+}

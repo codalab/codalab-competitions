@@ -79,7 +79,12 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                         {% if ENABLE_WORKSHEETS %}
+                          {% if ENABLE_COMPETITIONS %}
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
+                          {% else %}
+                            <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
+                            <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
+                          {% endif %}
                         {% endif %}
                         {% if ENABLE_COMPETITIONS %}
                           <li class="{% active request '/my/' %}">
@@ -90,7 +95,15 @@
                               {% endif %}
                           </li>
                         {% endif %}
-                        <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
+                        <li>
+                          {% if ENABLE_WORKSHEETS and ENABLE_COMPETITIONS %}
+                            <a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a>
+                          {% elif ENABLE_WORKSHEETS %}
+                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Worksheets" target="_blank">Help</a>
+                          {% elif ENABLE_COMPETITIONS %}
+                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Competitions" target="_blank">Help</a>
+                          {% endif %}
+                        </li>
                         {% if user.is_authenticated %}
                             <li class="dropdown {% active request '/accounts/' %}">
                                 <a href="{% url 'user_settings' %}">

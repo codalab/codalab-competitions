@@ -64,10 +64,9 @@ class HomePageView(TemplateView):
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
-        worksheets = get_worksheets(self.request.user, settings.FRONTPAGE_WORKSHEET_UUIDS)
         context = super(HomePageView, self).get_context_data(**kwargs)
         context['latest_competitions'] = models.Competition.objects.filter(published=True).order_by('-id')[0:3]
-        context['worksheets'] = worksheets
+        context['worksheets'] = get_worksheets(self.request.user)
         return context
 
 class LoginRequiredMixin(object):
@@ -1404,17 +1403,18 @@ class WorksheetLandingView(TemplateView):
     """
     template_name = 'web/worksheets/detail.html'
     def get(self, request, *args, **kwargs):
-        # Did the user give us a worksheet name or uuid?
-        # Support /worksheets/?name=... and /worksheets/?uuid=...
-        requested_ws = request.GET.get('name', None)
-        requested_ws = request.GET.get('uuid', requested_ws)
-        requested_ws = requested_ws or settings.LANDING_PAGE_WORKSHEET_UUID
+        # Jump to a worksheet based on uuid or name:
+        # - /worksheets/?uuid=
+        # - /worksheets/?name=
+        # - 'home' worksheet
+        requested_ws = request.GET.get('uuid', request.GET.get('name', 'home'))
         if requested_ws:
             service = BundleService(request.user)
             try:
                 uuid = service.get_worksheet_uuid(requested_ws)
                 return HttpResponseRedirect(reverse('ws_view', kwargs={'uuid': uuid}))
             except Exception, e:  # UsageError
+                print 'Unable to get worksheet:', e
                 pass
 
         return HttpResponseRedirect(reverse("ws_list"))

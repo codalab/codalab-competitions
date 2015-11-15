@@ -39,11 +39,16 @@ CSS
   # Should be auto-generated, but currently the primary version
   ./apps/web/static/css/imports.css
 
+Configuration
+  codalab/settings/local.py
+
 ############################################################
 
 Template page (./apps/web/templates/base.html)
 Main page (./apps/web/templates/web/index.html)
   ./apps/web/templates/web/worksheets_latest.html
+  ./apps/web/templates/404.html
+  ./apps/web/templates/500.html
 
 Worksheet lists page (./apps/web/templates/web/worksheets/index.html)
   react Worksheets (./apps/web/static/js/worksheet/worksheet_list.js)

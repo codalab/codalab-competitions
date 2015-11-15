@@ -24,14 +24,36 @@
     <div class="container">
         <div class="row">
             {% if ENABLE_WORKSHEETS %}
-              <div class="col-sm-6 worksheet-random-list">
-                  <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                        <div class="btn-group" role="group">
-                              <a role="button" class="btn" href="/worksheets">Worksheets</a>
-                        </div>
-                  </div>
-                  <p><strong>Run reproducible experiments and create executable papers using worksheets.</strong></p>
-              </div>
+              {% if ENABLE_COMPETITIONS %}
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                                <a role="button" class="btn" href="/worksheets">Worksheets</a>
+                          </div>
+                    </div>
+                    <p><strong>Run reproducible experiments and create executable papers using worksheets.</strong></p>
+                </div>
+              {% else %}
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                                <a role="button" class="btn" href="/worksheets">Browse Worksheets</a>
+                          </div>
+                    </div>
+                    <p><strong>Browse our growing collection of code, datasets,
+                      and executable papers containing the full provenance of the results.
+                    </strong></p>
+                </div>
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                                <a role="button" class="btn" href="/worksheets/?name=/">My Worksheet</a>
+                          </div>
+                    </div>
+                    <p><strong>Create reproducible experiments in any
+                      programming language by running arbitrary commands.</strong></p>
+                </div>
+              {% endif %}
             {% endif %}
 
             {% if ENABLE_COMPETITIONS %}
@@ -44,10 +66,12 @@
                   <p><strong>Enter an existing competition to solve challenging data problems, or host your own.</strong></p>
               </div>
             {% endif %}
+        </div>
 
+        <div class="row">
             {% if ENABLE_WORKSHEETS %}
               <div class="col-sm-6 worksheet-random-list">
-                  <h2 class="homepage_headers">Example Worksheets</h2>
+                  <h2 class="homepage_headers">Random Worksheets</h2>
                   {% if not worksheets %}
                   <p><em>There are no worksheets.</em></p>
                   {% else %}
@@ -56,6 +80,20 @@
                       {% endfor %}
                   {% endif %}
               </div>
+              {% if not ENABLE_COMPETITIONS %}
+                <div class="col-sm-6 worksheet-random-list">
+                  <h2 class="homepage_headers">How It Works</h2>
+                  <b>1. Upload programs or datasets (bundles):</b>
+                  <blockquote>
+                    <div class="frontpage_code">cl upload train.py</div>
+                  </blockquote>
+                  <b>2. Run commands depending on previous bundles:</b>
+                  <blockquote>
+                    <div class="frontpage_code">cl run :train.py 'python train.py' -n exp1</div>
+                  </blockquote>
+                  <b>3. Manage the runs / describe the results in the worksheet.</b>
+                </div>
+              {% endif %}
             {% endif %}
 
             {% if ENABLE_COMPETITIONS %}
