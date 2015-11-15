@@ -110,9 +110,6 @@ def install():
     # Have the two repos share virtual environments
     run('ln -sf ../%s/venv %s' % (env.deploy_codalab_dir, env.deploy_codalab_cli_dir))
 
-    # Create MySQL database
-    install_mysql()
-
     # Initial setup
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)

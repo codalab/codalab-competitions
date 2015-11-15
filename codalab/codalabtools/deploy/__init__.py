@@ -299,8 +299,8 @@ class DeploymentConfig(BaseConfig):
         """
         Gets the list of web instances. Each name in the list if of the form '<service-name>.cloudapp.net:<port>'.
         """
-        service_name = self.getServiceName()
-        vm_numbers = range(1, 1 + self.getServiceInstanceCount())
+        service_name = self.getServiceName()  # e.g., codalab
+        vm_numbers = range(1, 1 + self.getServiceInstanceCount())  # e.g., prod
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
 
@@ -907,12 +907,10 @@ class Deployment(object):
         """
         Generates the content of the local Django settings file.
         """
-        allowed_hosts = ['{0}.cloudapp.net'.format(self.config.getServiceName())]
-        allowed_hosts.extend(self.config.getWebHostnames())
-        allowed_hosts.extend(['www.codalab.org', 'codalab.org', 'localhost'])
-        ssl_allowed_hosts = self.config.getSslRewriteHosts();
-        if len(ssl_allowed_hosts) == 0:
-            ssl_allowed_hosts = allowed_hosts
+        # Use the same allowed hosts for SSL and not SSL
+        allowed_hosts = ssl_allowed_hosts = \
+            self.config.getSslRewriteHosts() + \
+            ['{0}.cloudapp.net'.format(self.config.getServiceName())]
 
         storage_key = None
         namespace = None
@@ -924,10 +922,7 @@ class Deployment(object):
             bundle_auth_scheme = "https"
         else:
             bundle_auth_scheme = "http"
-        if len(ssl_allowed_hosts) == 0:
-            bundle_auth_host = '{0}.cloudapp.net'.format(self.config.getServiceName())
-        else:
-            bundle_auth_host = ssl_allowed_hosts[0]
+        bundle_auth_host = allowed_hosts[0]
         bundle_auth_url = "{0}://{1}".format(bundle_auth_scheme, bundle_auth_host)
 
         lines = [
@@ -1011,24 +1006,7 @@ class Deployment(object):
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
             "",
+            "    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets(),
+            "    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions(),
         ]
-        lines.append("    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets())
-        lines.append("    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions())
-        return '\n'.join(lines)
-
-if __name__ == "__main__":
-
-    configuration = DeploymentConfig('dev', r'c:\cygwin64\home\cpoulain\.devconfig')
-    logging.config.dictConfig(configuration.getLoggerDictConfig())
-    logger.info("Loaded configuration from file: %s", configuration.getFilename())
-    assets_to_deploy = {} # {'build', 'web'}
-    assets_to_teardown = {} # {'web', 'build', 'rest'}
-    try:
-        dep = Deployment(configuration)
-        if len(assets_to_deploy) > 0:
-            dep.Deploy(assets_to_deploy)
-        if len(assets_to_teardown) > 0:
-            dep.Teardown(assets_to_teardown)
-    except Exception:
-        logger.exception("An unexpected error occurred.")
-
+        return '\n'.join(lines) + '\n'
