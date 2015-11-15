@@ -6,24 +6,21 @@ Internally, BundleService just creates a RemoteBundleClient and wraps some of
 the calls.
 '''
 import base64
-from time import sleep
 import mimetypes
 import os
 import shlex
+from cStringIO import StringIO
+from time import sleep
+from xmlrpclib import Fault, ProtocolError
 
 from django.conf import settings
-from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_str
 
-from xmlrpclib import Fault, ProtocolError
 
 if len(settings.BUNDLE_SERVICE_URL) > 0:
     from apps.authenz.oauth import get_user_token
 
     # Imports from codalab-cli repo.
-    from codalab.bundles.make_bundle import MakeBundle
-    from codalab.bundles.run_bundle import RunBundle
-    from codalab.bundles.uploaded_bundle import UploadedBundle
     from codalab.bundles import get_bundle_subclass
     from codalab.client.remote_bundle_client import RemoteBundleClient
     from codalab.common import UsageError, PermissionError
@@ -51,7 +48,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 return _call_with_retries(f, retry_count=retry_count+1)
             raise e
 
-    class BundleService():
+    class BundleService(object):
         # Maximum number of lines of files to show
         HEAD_MAX_LINES = 100
 
@@ -117,15 +114,6 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 uuid = spec
             else:
                 uuid = worksheet_util.get_worksheet_uuid(self.client, None, spec)
-            return uuid
-
-        def get_bundle_uuid(self, bundle_spec, worksheet_uuid=None):
-            uuid = None
-            spec = smart_str(spec)  # generic clean up just in case
-            if(spec_util.UUID_REGEX.match(spec)):  # generic function sometimes get uuid already just return it.
-                uuid = spec
-            else:
-                uuid = worksheet_util.get_bundle_uuid(client, worksheet_uuid, bundle_spec)
             return uuid
 
         def basic_worksheet(self, uuid):
@@ -271,16 +259,22 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         # Create an instance of a CLI.
         def _create_cli(self, worksheet_uuid):
+            output_buffer = StringIO()
             manager = CodaLabManager(temporary=True, clients={settings.BUNDLE_SERVICE_URL: self.client})
             manager.set_current_worksheet_uuid(self.client, worksheet_uuid)
-            cli = bundle_cli.BundleCLI(manager, headless=True)
-            return cli
+            cli = bundle_cli.BundleCLI(manager, headless=True, stdout=output_buffer, stderr=output_buffer)
+            return cli, output_buffer
 
         def complete_command(self, worksheet_uuid, command):
             '''
             Given a command string, return a list of suggestions to complete the last token.
             '''
             cli = self._create_cli(worksheet_uuid)
+
+            command = command.lstrip()
+            if not command.startswith('cl'):
+                command = 'cl ' + command
+
             return cli.complete_command(command)
 
         def get_command(self, raw_command_map):
@@ -296,54 +290,40 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             Executes an arbitrary CLI command with |worksheet_uuid| as the current worksheet.
             Basically, all CLI functionality should go through this command.
             The method currently intercepts stdout/stderr and returns it back to the user.
-            TODO: check thread-safety.
             '''
-            cli = self._create_cli(worksheet_uuid)
+            # Tokenize
             if isinstance(command, basestring):
                 args = shlex.split(command)
             else:
                 args = list(command)
+
+            # Ensure command always starts with 'cl'
             if args[0] == 'cl':
                 args = args[1:]
 
             def do_command():
-                from cStringIO import StringIO
-                import sys
-                real_stdout = sys.stdout
-                sys.stdout = StringIO()
-                stdout_str = None
-
-                real_stderr = sys.stderr
-                sys.stderr = StringIO()
-                stderr_str = None
-
+                cli, output_buffer = self._create_cli(worksheet_uuid)
                 exception = None
                 structured_result = None
                 try:
                     structured_result = cli.do_command(args)
-                    success = True
-                except SystemExit as e:
-                    pass  # stderr will will tell the user the error
+                except SystemExit:  # as exitcode:
+                    # this should not happen under normal circumstances
+                    pass
                 except BaseException as e:
                     exception = smart_str(e)
-                    success = False
 
-                stdout_str = sys.stdout.getvalue()
-                sys.stdout.close()
-                sys.stdout = real_stdout
-
-                stderr_str = sys.stderr.getvalue()
-                sys.stderr.close()
-                sys.stderr = real_stderr
+                output_str = output_buffer.getvalue()
+                output_buffer.close()
 
                 print '>>> general_command on worksheet %s: %s' % (worksheet_uuid, command)
-                print stdout_str
-                print stderr_str
+                print output_str
                 return {
                     'structured_result': structured_result,
-                    'stdout': stdout_str, 'stderr': stderr_str,
-                    'exception': str(exception) if exception else None
+                    'output': output_str,
+                    'exception': exception
                 }
+
             return _call_with_retries(do_command)
 
         MAX_BYTES = 1024*1024
@@ -403,7 +383,7 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
 else:
     # Bundle service not supported
-    class BundleService():
+    class BundleService(object):
         def __init__(self, user=None):
             pass
 
@@ -420,4 +400,13 @@ else:
             raise NotImplementedError
 
         def ls(self, uuid, path):
+            raise NotImplementedError
+
+        def get_command(self, raw_command_map):
+            raise NotImplementedError
+
+        def complete_command(self, worksheet_uuid, command):
+            raise NotImplementedError
+
+        def general_command(self, worksheet_uuid, command):
             raise NotImplementedError
