@@ -40,23 +40,23 @@ var WorksheetItemList = React.createClass({
 
         // Move focus up one
         Mousetrap.bind(['up', 'k'], function(e) {
-            this.setFocus(this.state.focusIndex - 1, 'end');
+            this.setFocus(this.state.focusIndex - 1, -1);
         }.bind(this), 'keydown');
 
         // Move focus to the top
         Mousetrap.bind(['g g'], function(e) {
             $('body').stop(true).animate({scrollTop: 0}, 'fast');
-            this.setFocus(-1, 0);
+            this.setFocus(-1, -1);
         }.bind(this), 'keydown');
 
         // Move focus down one
         Mousetrap.bind(['down', 'j'], function(e) {
-            this.setFocus(this.state.focusIndex + 1, 0);
+            this.setFocus(this.state.focusIndex + 1, -1);
         }.bind(this), 'keydown');
 
         // Move focus to the bottom
         Mousetrap.bind(['shift+g'], function(e) {
-            this.setFocus(this.props.ws.info.items.length - 1, 'end');
+            this.setFocus(this.props.ws.info.items.length - 1, -1);
             $("html, body").animate({ scrollTop: $(document).height() }, 'fast');
         }.bind(this), 'keydown');
     },
@@ -82,15 +82,15 @@ var WorksheetItemList = React.createClass({
 
         this.setState({focusIndex: index});
         this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
-        if (index != -1 && subIndex != null) {
+        this.props.updateWorksheetSubFocusIndex(subIndex);
+        if (index != -1 && subIndex != undefined) {
           // Change subindex (for tables)
           var item = info.items[index];
           var numTableRows = this._numTableRows(item);
           if (numTableRows != null) {
             if (subIndex == 'end')
               subIndex = numTableRows - 1;  // Last row of table
-            this.props.updateWorksheetSubFocusIndex(subIndex);  // Notify parent of selection
-            this.refs['item' + index].focusOnRow(subIndex); // Notify child
+            this.refs['item' + index].updateRowFocusindex(subIndex); // Notify child
           }
         }
         this.scrollToItem(index);

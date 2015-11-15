@@ -155,6 +155,8 @@ if settings.ENABLE_WORKSHEETS:
                     worksheet_info['error'] = str(e)
 
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
+                worksheet_info['raw_interpreted_map'] = interpreted_items['raw_interpreted_map']
+                worksheet_info['interpreted_raw_map'] = interpreted_items['interpreted_raw_map']
                 # Currently, only certain fields are base64 encoded.
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:

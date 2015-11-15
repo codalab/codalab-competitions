@@ -20,6 +20,8 @@ var Worksheet = React.createClass({
             showActionBar: true,  // Whether the action bar is shown
             focusIndex: -1, // Which worksheet items to be on (-1 is none)
             subFocusIndex: -1,  // For tables, which row in the table
+            editorEnabled: false, // by default, editor is disabled
+            editorCursorPosition: 1, // by default, editor starts on line 1
         };
     },
     _setfocusIndex: function(index) {
@@ -72,6 +74,9 @@ var Worksheet = React.createClass({
     },
     viewMode: function() {
         this.toggleEditMode(false);
+    },
+    discardChanges: function() {
+        this.toggleEditMode(false, false);
     },
     editMode: function() {
         this.toggleEditMode(true);
@@ -140,16 +145,22 @@ var Worksheet = React.createClass({
             return false;
         }.bind(this));
     },
-    toggleEditMode: function(editMode) {
+    toggleEditMode: function(editMode, saveChanges) {
         if (editMode === undefined)
           editMode = !this.state.editMode;  // Toggle by default
+
+        if (typeof saveChanges === 'undefined')
+            saveChanges = true;
 
         if (!editMode) {
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
-            // TODO: This should be done by the editing control in WorksheetItemList 
-            this.state.ws.info.raw = $("#raw-textarea").val().split('\n');
-            this.setState({editMode: editMode});  // Needs to be after getting the raw contents
+            // TODO: This should be done by the editing control in WorksheetItemList
+            var editor = ace.edit('worksheet-editor');
+            if (saveChanges) {
+                this.state.ws.info.raw = editor.getValue().split('\n');
+            }
+            this.setState({editMode: editMode, editorEnabled: false, editorCursorPosition: editor.getCursorPosition().row});  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
             // Not allowed to save worksheet (shouldn't happen).
@@ -157,9 +168,41 @@ var Worksheet = React.createClass({
         } else {
           // Go into edit mode.
           this.setState({editMode: editMode});  // Needs to be before focusing
-          this.setState({activeComponent: 'textarea'});
-          // TODO: set cursor intelligently rather than just leaving it at the beginning.
-          $("#raw-textarea").focus();
+          $("#worksheet-editor").focus();
+        }
+    },
+    componentDidUpdate: function(props,state,root) {
+        try {
+            if (this.state.editMode && !this.state.editorEnabled) {
+                this.setState({editorEnabled: true});
+                var editor = ace.edit('worksheet-editor');
+                editor.$blockScrolling = Infinity;
+                editor.session.setUseWrapMode(false);
+                editor.setShowPrintMargin(false);
+                editor.session.setMode('ace/mode/markdown');
+                editor.commands.addCommand({
+                    name: 'save',
+                    bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
+                    exec: function(editor) {
+                        this.toggleEditMode();
+                    }.bind(this),
+                    readOnly: true
+                });
+                editor.focus();
+
+                var index = this.state.focusIndex + ',' + this.state.subFocusIndex;
+                var defaultIndex = this.state.focusIndex + ',' + '-1';
+                var cursorRowPosition = this.state.ws.info.interpreted_raw_map[index] || this.state.ws.info.interpreted_raw_map[defaultIndex];
+                if (cursorRowPosition === undefined) {
+                    console.error("Cannot find element with focusIndex: %d subFocusIndex: %d in interpreted_raw_map", this.state.focusIndex, this.state.subFocusIndex);
+                    return;
+                }
+                var cursorColumnPosition = editor.session.getLine(cursorRowPosition).length;
+                editor.gotoLine(cursorRowPosition + 1, cursorColumnPosition);
+                editor.renderer.scrollToRow(cursorRowPosition);
+            }
+        }
+        catch(error) {
         }
     },
     toggleActionBar: function() {
@@ -178,6 +221,15 @@ var Worksheet = React.createClass({
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
                 this.setState({updating:false});
+                var focusIndex = this.state.ws.info.raw_interpreted_map[this.state.editorCursorPosition] || [0, -1];
+                if (focusIndex[0] >= this.state.ws.info.items.length) {
+                    // maps empty trailing lines to the last interpreted_item
+                    focusIndex[0] = this.state.ws.info.items.length - 1;
+                    this.refs.list.setFocus(focusIndex[0], 'end');
+                }
+                else {
+                    this.refs.list.setFocus(focusIndex[0], focusIndex[1]);
+                }
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.state.ws.url, status, err);
@@ -271,25 +323,27 @@ var Worksheet = React.createClass({
             </div>
         );
 
+        var editModeFeatures = (
+            <div className="edit-features">
+                <label>Mode:</label>
+                <div className="btn-group">
+                    <button className={viewClass} onClick={this.viewMode}>Save</button>
+                    <button className={viewClass} onClick={this.discardChanges}>Discard</button>
+                </div>
+            </div>
+        );
+
         if (info && info.items.length) {
             // Non-empty worksheet
         } else {
             $('.empty-worksheet').fadeIn();
         }
 
-        // http://facebook.github.io/react/docs/forms.html#why-textarea-value
         var raw_display = <div>
             Press ctrl-enter to save.
             See <a href="https://github.com/codalab/codalab/wiki/User_Worksheet-Markdown">markdown syntax</a>.
-            <textarea
-                id="raw-textarea"
-                ws={this.state.ws}
-                className="form-control mousetrap"
-                defaultValue={rawWorksheet}
-                rows={30}
-                ref="textarea"
-            />
-        </div>;
+            <div id='worksheet-editor'>{rawWorksheet}</div>
+            </div>;
 
         var action_bar_display = (
                 <WorksheetActionBar
@@ -343,6 +397,7 @@ var Worksheet = React.createClass({
             );
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
+        var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -365,7 +420,7 @@ var Worksheet = React.createClass({
                                         <div className="col-sm-6 col-md-4">
                                             <div className="controls">
                                                 <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                                {editFeatures}
+                                                {editButtons}
                                             </div>
                                         </div>
                                     </div>

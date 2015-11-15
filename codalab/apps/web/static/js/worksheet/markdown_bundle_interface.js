@@ -19,7 +19,7 @@ var MarkdownBundle = React.createClass({
         this.processMathJax();
     },
     handleClick: function(event) {
-        this.props.setFocus(this.props.index);
+        this.props.setFocus(this.props.index, -1);
     },
     processMarkdown: function(text) {
         // 'we have $x^2$' => 'we have @ppp@'
