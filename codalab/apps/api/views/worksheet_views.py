@@ -4,40 +4,18 @@ Defines Django views for 'apps.api' app for worksheets.
 import json
 import logging
 import traceback
-import mimetypes
-
-from uuid import uuid4
 
 from rest_framework import (permissions, status, viewsets, views, generics, filters)
-from rest_framework.decorators import action, link, permission_classes
-from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
-from django.core.files.base import ContentFile
-from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
-from django.http import Http404, StreamingHttpResponse
-from django.template import Context
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
+from django.http import StreamingHttpResponse
 from django.utils.encoding import smart_str
 
-from apps.api import serializers
-from apps.authenz.models import ClUser
-from apps.jobs.models import Job
-from apps.web import models as webmodels
 from apps.web.bundles import BundleService
-from apps.web.tasks import (create_competition, evaluate_submission)
 
-from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
 logger = logging.getLogger(__name__)
+
 
 def log_exception(func, exception, traceback):
     logging.error(func.__str__())
@@ -46,6 +24,7 @@ def log_exception(func, exception, traceback):
     logging.error('-------------------------')
     logging.error(traceback)
     logging.error('-------------------------')
+
 
 class WorksheetsListApi(views.APIView):
     """
@@ -108,6 +87,7 @@ class WorksheetsAddApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+
 class WorksheetsDeleteApi(views.APIView):
     """
     Provides a web API to add a bundle to a worksheet
@@ -132,6 +112,7 @@ class WorksheetsDeleteApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+
 class WorksheetsSearchApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
@@ -152,6 +133,7 @@ class WorksheetsSearchApi(views.APIView):
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
 
 class WorksheetsGetUUIDApi(views.APIView):
     """
@@ -230,20 +212,20 @@ class WorksheetContentApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+
 class WorksheetsCommandApi(views.APIView):
     """
     Run an arbitrary CLI command.
     """
     def post(self, request):
-        user = self.request.user
         data = json.loads(request.body)
         service = BundleService(self.request.user)
+
         if data.get('raw_command', None):
             data['command'] = service.get_command(data['raw_command'])
+
         if not data.get('worksheet_uuid', None) or not data.get('command', None):
             return Response("Must have worksheet uuid and command", status=status.HTTP_400_BAD_REQUEST)
-
-        service = BundleService(self.request.user)
 
         # If 'autocomplete' field is set, return a list of completions instead
         if data.get('autocomplete', False):
@@ -252,16 +234,11 @@ class WorksheetsCommandApi(views.APIView):
             })
 
         result = service.general_command(data['worksheet_uuid'], data['command'])
-        if result['exception'] is None:
-            return Response({
-                'success': True,
-                'data': result,
-                'input_data': data
-                })
-        else:
-            return Response(result['exception'], status=500)
+        return Response(result)
+
 
 ############################################################
+
 
 class BundleInfoApi(views.APIView):
     """
@@ -322,6 +299,7 @@ class BundleInfoApi(views.APIView):
             log_exception(self, e, tb)
             return Response({'error': smart_str(e)})
 
+
 class BundleSearchApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
@@ -344,6 +322,7 @@ class BundleSearchApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+
 class BundleGetUUIDApi(views.APIView):
     """
     Provides a web API to obtain a bundle's primary information.
@@ -361,6 +340,7 @@ class BundleGetUUIDApi(views.APIView):
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
+
 
 class BundleUploadApi(views.APIView):
     """
@@ -380,6 +360,7 @@ class BundleUploadApi(views.APIView):
             log_exception(self, e, tb)
             return Response({"error": smart_str(e)}, status=500)
 
+
 class BundleContentApi(views.APIView):
     """
     Return files (map from file name to list of lines) inside the bundle.
@@ -397,6 +378,7 @@ class BundleContentApi(views.APIView):
             tb = traceback.format_exc()
             log_exception(self, e, tb)
             return Response({'error': smart_str(e)})
+
 
 class BundleFileContentApi(views.APIView):
     """
