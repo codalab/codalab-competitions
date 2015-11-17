@@ -228,10 +228,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 if lines is not None:
                     import base64
                     lines = ''.join(map(base64.b64decode, lines))
-                try:
-                    return lines.decode("utf-8")
-                except UnicodeDecodeError:
-                    return u'... binary file ...'
+
+                return formatting.verbose_contents_str(lines)
 
             info = self.get_target_info((uuid, ''), 2)  # List files
             if info['type'] == 'file':
