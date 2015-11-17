@@ -1,10 +1,10 @@
-'''
+"""
 Defines the BundleService class, which is the gateway between the frontend and
 the BundleService/CLI backend (in the codalab-cli repo).
 
 Internally, BundleService just creates a RemoteBundleClient and wraps some of
 the calls.
-'''
+"""
 import base64
 import mimetypes
 import os
@@ -82,8 +82,8 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
             return bundle_info
 
-        def head_target(self, target, maxlines=100):
-            return self.client.head_target(target, maxlines)
+        def head_target(self, target, max_num_lines=HEAD_MAX_LINES):
+            return self.client.head_target(target, max_num_lines)
 
         def search_bundles(self, keywords, worksheet_uuid=None):
             bundle_uuids = self.client.search_bundle_uuids(worksheet_uuid, keywords)
@@ -108,13 +108,14 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return _call_with_retries(lambda: self.client.new_worksheet(name, None))
 
         def get_worksheet_uuid(self, spec):
-            uuid = None
-            spec = smart_str(spec)  # generic clean up just in case
-            if(spec_util.UUID_REGEX.match(spec)): # generic function sometimes get uuid already just return it.
-                uuid = spec
+            # generic clean up just in case
+            spec = smart_str(spec)
+
+            # generic function sometimes get uuid already just return it.
+            if spec_util.UUID_REGEX.match(spec):
+                return spec
             else:
-                uuid = worksheet_util.get_worksheet_uuid(self.client, None, spec)
-            return uuid
+                return worksheet_util.get_worksheet_uuid(self.client, None, spec)
 
         def basic_worksheet(self, uuid):
             return self.worksheet(uuid, fetch_items=False, get_permissions=True, interpreted=False)
@@ -123,13 +124,13 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return self.worksheet(uuid, fetch_items=True, get_permissions=True, interpreted=True)
 
         def worksheet(self, uuid, fetch_items, get_permissions, interpreted):
-            '''
+            """
             Return information about a worksheet. Calls
             - get_worksheet_info: get basic info
             - resolve_interpreted_items: get more information about a worksheet.
             In the future, for large worksheets, might want to break this up so
             that we can render something basic.
-            '''
+            """
             worksheet_info = self.client.get_worksheet_info(uuid, fetch_items, get_permissions)
 
             if fetch_items:
@@ -183,9 +184,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return worksheet_info
 
         def upload_bundle(self, source_file, bundle_type, worksheet_uuid):
-            '''
+            """
             Upload |source_file| (a stream) to |worksheet_uuid|.
-            '''
+            """
             # Construct info for creating the bundle.
             bundle_subclass = get_bundle_subclass(bundle_type) # program or data
             metadata = metadata_util.fill_missing_metadata(bundle_subclass, {}, initial_metadata={'name': source_file.name, 'description': 'Upload ' + source_file.name})
@@ -202,32 +203,35 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return new_bundle_uuid
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
-            '''
+            """
             Add bundle uuid to the given worksheet.
-            '''
+            """
             self.client.add_worksheet_item(worksheet_uuid, worksheet_util.bundle_item(bundle_uuid))
 
         def parse_and_update_worksheet(self, uuid, lines):
-            '''
+            """
             Replace worksheet |uuid| with the raw contents given by |lines|.
-            '''
+            """
             worksheet_info = self.client.get_worksheet_info(uuid, True)
             new_items, commands = worksheet_util.parse_worksheet_form(lines, self.client, worksheet_info['uuid'])
             self.client.update_worksheet_items(worksheet_info, new_items)
             # Note: commands are ignored
 
         def get_bundle_contents(self, uuid):
-            '''
+            """
             If bundle is a single file, get file contents.
             Otherwise, get stdout and stderr.
             For each file, only return the first few lines.
-            '''
+            """
             def get_lines(name):
                 lines = self.head_target((uuid, name), self.HEAD_MAX_LINES)
                 if lines is not None:
                     import base64
                     lines = ''.join(map(base64.b64decode, lines))
-                return lines
+                try:
+                    return lines.decode("utf-8")
+                except UnicodeDecodeError:
+                    return u'... binary file ...'
 
             info = self.get_target_info((uuid, ''), 2)  # List files
             if info['type'] == 'file':
@@ -266,9 +270,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return cli, output_buffer
 
         def complete_command(self, worksheet_uuid, command):
-            '''
+            """
             Given a command string, return a list of suggestions to complete the last token.
-            '''
+            """
             cli = self._create_cli(worksheet_uuid)
 
             command = command.lstrip()
@@ -278,19 +282,19 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
             return cli.complete_command(command)
 
         def get_command(self, raw_command_map):
-            '''
+            """
             Return a cli-command corresponding to raw_command_map contents.
             Input:
                 raw_command_map: a map containing the info to edit, new_value and the action to perform
-            '''
+            """
             return worksheet_util.get_worksheet_info_edit_command(raw_command_map)
 
         def general_command(self, worksheet_uuid, command):
-            '''
+            """
             Executes an arbitrary CLI command with |worksheet_uuid| as the current worksheet.
             Basically, all CLI functionality should go through this command.
             The method currently intercepts stdout/stderr and returns it back to the user.
-            '''
+            """
             # Tokenize
             if isinstance(command, basestring):
                 args = shlex.split(command)
@@ -328,9 +332,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
 
         MAX_BYTES = 1024*1024
         def read_target(self, target):
-            '''
+            """
             Given target (bundle uuid, path), return (stream, name, content_type).
-            '''
+            """
             uuid, path = target
             bundle_info = self.client.get_bundle_info(uuid, False, False, False)
             if path == '':
@@ -353,9 +357,9 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
                 delete = True
 
             def read_file():
-                '''
+                """
                 Generates a stream of strings corresponding to the contents of this file.
-                '''
+                """
                 try:
                     while True:
                         bytes = self.client.read_file(source_uuid, BundleService.MAX_BYTES)
