@@ -46,8 +46,8 @@ var TableBundle = React.createClass({
         // Paste args of focused bundle into console
         Mousetrap.bind(['a'], function(e) {
             var bundleInfo = this.refs['row' + this.state.rowFocusIndex].props.bundleInfo;
-            if (bundleInfo.command != null) {
-                $('#command_line').terminal().insert(bundleInfo.command);
+            if (bundleInfo.args != null) {
+                $('#command_line').terminal().insert(bundleInfo.args);
             }
         }.bind(this), 'keydown');
     },
