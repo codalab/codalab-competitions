@@ -32,20 +32,11 @@ var TableBundle = React.createClass({
             else
               this.focusOnRow(newIndex);
         }.bind(this), 'keydown');
-
-        Mousetrap.bind(['enter'], function(e) {
-            window.open(this.refs['row' + this.state.rowFocusIndex].props.url, '_blank');
-        }.bind(this), 'keydown');
-
-        // Paste uuid of focused bundle into console
-        Mousetrap.bind(['t'], function(e) {
-            var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
-            $('#command_line').terminal().insert(uuid);
-        }.bind(this), 'keydown');
     },
 
     scrollToRow: function(index) {
         var __innerScrollToRow = function(index) {
+            //console.log('__innerScrollToRow', index);
             // Compute the current position of the focused row.
             var node = this.getDOMNode();
             var nodePos = node.getBoundingClientRect();
@@ -73,6 +64,8 @@ var TableBundle = React.createClass({
     },
 
     render: function() {
+        //console.log('TableBundle.render', this.state.rowFocusIndex);
+
         if (this.props.active && this.props.focused)
           this.capture_keys();
 
@@ -91,10 +84,10 @@ var TableBundle = React.createClass({
         var focusIndex = this.state.rowFocusIndex;
         var row_items = item.interpreted[1];  // Array of {header: value, ...} objects
         var column_with_hyperlinks = [];
-        Object.keys(row_items[0]).forEach(function(x) {
+        (Object.keys(row_items[0])).forEach(function(x) {
             if (row_items[0][x] && row_items[0][x]['path'])
                 column_with_hyperlinks.push(x);
-        });
+        })
         var body_rows_html = row_items.map(function(row_item, index) {
             var row_ref = 'row' + index;
             var rowFocused = self.props.focused && (index == focusIndex);
@@ -143,9 +136,20 @@ var TableRow = React.createClass({
         this.props.handleClick(this.props.index);
     },
 
+    capture_keys: function() {
+        Mousetrap.bind(['enter'], function(e) {
+            window.open(this.props.url, '_blank');
+        }.bind(this), 'keydown');
+    },
+
     render: function() {
+        //console.log('TableRow.render', this.props.focused);
+        if (this.props.focused)
+          this.capture_keys();
+
         var focusedClass = this.props.focused ? 'focused' : '';
         var row_items = this.props.item;
+        var header_items = this.props.headerItems;
         var column_classes = this.props.columnClasses;
         var base_url = this.props.url;
         var uuid = this.props.uuid;
