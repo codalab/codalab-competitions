@@ -42,6 +42,7 @@ var WorksheetBundle = React.createClass({
         Mousetrap.bind(['u'], function(e) {
             var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
             $('#command_line').terminal().insert(uuid);
+            this.props.focusActionBar();
         }.bind(this), 'keydown');
     },
 

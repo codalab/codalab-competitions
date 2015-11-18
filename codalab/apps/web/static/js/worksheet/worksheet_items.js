@@ -79,7 +79,6 @@ var WorksheetItemList = React.createClass({
         var info = this.props.ws.info;
         if (index < -1 || index >= info.items.length)
           return;  // Out of bounds (note -1 is okay)
-        //console.log('WorksheetItemList.setFocus', index, subIndex);
 
         this.setState({focusIndex: index});
         this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
@@ -147,10 +146,11 @@ var WorksheetItemList = React.createClass({
                   focused: focused,
                   canEdit: canEdit,
                   setFocus: setFocus,
-                  updateWorksheetSubFocusIndex: updateWorksheetSubFocusIndex
+                  updateWorksheetSubFocusIndex: updateWorksheetSubFocusIndex,
+                  focusActionBar: this.props.focusActionBar
                 };
                 addWorksheetItems(props, worksheet_items);
-            });
+            }.bind(this));
             items_display = worksheet_items;
         } else {
           items_display = <p className="empty-worksheet">(empty)</p>;
@@ -223,4 +223,4 @@ var addWorksheetItems = function(props, worksheet_items) {
       );
     }
     worksheet_items.push(elem);
-}
+};

@@ -131,9 +131,7 @@ var Worksheet = React.createClass({
 
         // Focus on web terminal (action bar)
         Mousetrap.bind(['c'], function(e) {
-            this.showActionBar();
-            this.setState({activeComponent: 'action'});
-            $('#command_line').terminal().focus();
+            this.focusActionBar();
         }.bind(this));
 
         // Toggle edit mode
@@ -167,11 +165,10 @@ var Worksheet = React.createClass({
     toggleActionBar: function() {
         this.setState({showActionBar: !this.state.showActionBar});
     },
-    showActionBar: function() {
+    focusActionBar: function() {
+        this.setState({activeComponent: 'action'});
         this.setState({showActionBar: true});
-    },
-    hideActionBar: function() {
-        this.setState({showActionBar: false});
+        $('#command_line').terminal().focus();
     },
     refreshWorksheet: function() {
         $('#update_progress').show();
@@ -257,12 +254,10 @@ var Worksheet = React.createClass({
         var rawWorksheet = info && info.raw.join('\n');
         var editPermission = info && info.edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
-        var checkboxEnabled = this.state.checkboxEnabled;
 
         var searchClassName     = !this.state.showActionBar ? 'search-hidden' : '';
         var editableClassName   = canEdit ? 'editable' : '';
         var viewClass           = !canEdit && !this.state.editMode ? 'active' : '';
-        var editClass           = canEdit && !this.state.editMode ? 'active' : '';
         var rawClass            = this.state.editMode ? 'active' : '';
 
         var sourceStr = editPermission ? 'Edit source' : 'View source';
@@ -322,6 +317,7 @@ var Worksheet = React.createClass({
                     updateWorksheetFocusIndex={this._setfocusIndex}
                     updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
+                    focusActionBar={this.focusActionBar}
                 />
             );
 
