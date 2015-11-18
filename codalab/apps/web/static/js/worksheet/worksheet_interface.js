@@ -96,7 +96,6 @@ var Worksheet = React.createClass({
     capture_keys: function() {
         Mousetrap.reset();  // reset, since we will call children, let's start fresh.
 
-        var activeComponent = this.refs[this.state.activeComponent];
         if (this.state.activeComponent == 'action') {
             // no need for other keys, we have the action bar focused
             return;
@@ -120,7 +119,7 @@ var Worksheet = React.createClass({
             }
         });
 
-        Mousetrap.bind(['shift+r',], function(e) {
+        Mousetrap.bind(['shift+r'], function(e) {
             this.refreshWorksheet();
             return false;
         }.bind(this));

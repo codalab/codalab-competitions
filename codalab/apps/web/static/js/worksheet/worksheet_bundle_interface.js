@@ -32,6 +32,17 @@ var WorksheetBundle = React.createClass({
             else
               this.focusOnRow(newIndex);
         }.bind(this), 'keydown');
+
+        // Open worksheet in new window/tab
+        Mousetrap.bind(['enter'], function(e) {
+            window.open(this.refs['row' + this.state.rowFocusIndex].props.url, '_blank');
+        }.bind(this), 'keydown');
+
+        // Paste uuid of focused worksheet into console
+        Mousetrap.bind(['t'], function(e) {
+            var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
+            $('#command_line').terminal().insert(uuid);
+        }.bind(this), 'keydown');
     },
 
     scrollToRow: function(index) {
@@ -123,17 +134,7 @@ var TableWorksheetRow = React.createClass({
       this.props.handleClick(this.props.index);
     },
 
-    capture_keys: function() {
-        Mousetrap.bind(['enter'], function(e) {
-            window.open(this.props.url, '_blank');
-        }.bind(this), 'keydown');
-    },
-
     render: function() {
-        //console.log('TableRow.render', this.props.focused);
-        if (this.props.focused)
-          this.capture_keys();
-
         var item = this.props.item.interpreted;
         var className = /*'type-worksheet' + */(this.props.focused ? ' focused' : '');
         var ws_url = '/worksheets/' + item.uuid;
