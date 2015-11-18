@@ -38,9 +38,17 @@ var TableBundle = React.createClass({
         }.bind(this), 'keydown');
 
         // Paste uuid of focused bundle into console
-        Mousetrap.bind(['t'], function(e) {
+        Mousetrap.bind(['u'], function(e) {
             var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
             $('#command_line').terminal().insert(uuid);
+        }.bind(this), 'keydown');
+
+        // Paste args of focused bundle into console
+        Mousetrap.bind(['a'], function(e) {
+            var bundleInfo = this.refs['row' + this.state.rowFocusIndex].props.bundleInfo;
+            if (bundleInfo.command != null) {
+                $('#command_line').terminal().insert(bundleInfo.command);
+            }
         }.bind(this), 'keydown');
     },
 
@@ -106,6 +114,7 @@ var TableBundle = React.createClass({
                      index={index}
                      focused={rowFocused}
                      url={url}
+                     bundleInfo={bundle_info[index]}
                      uuid={bundle_info[index].uuid}
                      headerItems={header_items}
                      columnClasses={column_classes}

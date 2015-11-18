@@ -39,7 +39,7 @@ var WorksheetBundle = React.createClass({
         }.bind(this), 'keydown');
 
         // Paste uuid of focused worksheet into console
-        Mousetrap.bind(['t'], function(e) {
+        Mousetrap.bind(['u'], function(e) {
             var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
             $('#command_line').terminal().insert(uuid);
         }.bind(this), 'keydown');
