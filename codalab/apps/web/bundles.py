@@ -23,16 +23,15 @@ if len(settings.BUNDLE_SERVICE_URL) > 0:
     # Imports from codalab-cli repo.
     from codalab.bundles import get_bundle_subclass
     from codalab.client.remote_bundle_client import RemoteBundleClient
-    from codalab.common import UsageError, PermissionError
+    from codalab.common import UsageError
     from codalab.lib import worksheet_util, bundle_cli, metadata_util, spec_util
-    from codalab.objects.permission import permission_str, group_permissions_str
+    from codalab.objects.permission import permission_str
     from codalab.lib.codalab_manager import CodaLabManager
     from codalab.server.rpc_file_handle import RPCFileHandle
     from codalab.lib import file_util, formatting
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
-        GROUP_OBJECT_PERMISSION_READ,
     )
 
     from codalab.bundles import (
