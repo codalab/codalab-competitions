@@ -254,6 +254,7 @@ def _deploy():
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('git pull')
         run('./setup.sh')
+        run('venv/bin/pip install MySQL-Python')
         run('venv/bin/alembic upgrade head')
 
     # Create local.py
