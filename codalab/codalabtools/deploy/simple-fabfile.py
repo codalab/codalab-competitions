@@ -95,7 +95,7 @@ def setup_env():
 @task
 def install():
     '''
-    Install everything from scratch.
+    Install everything from scratch (idempotent).
     '''
     # Install Linux packages
     sudo('apt-get install -y git xclip python-virtualenv virtualenvwrapper zip ruby')
@@ -174,36 +174,6 @@ def install_mysql(choice='all'):
                 "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'localhost' WITH GRANT OPTION;".format(db_name, db_user)]
         run('mysql --user=root --password={0} --execute="{1}"'.format(dba_password, " ".join(cmds)))
 
-@roles('web')
-@task
-def install_config():
-    '''
-    Install configuration files (do multiple times).
-    '''
-    # Create local.py
-    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
-    dep = Deployment(cfg)
-    buf = StringIO()
-    buf.write(dep.getSettingsFileContent())
-    settings_file = os.path.join(env.deploy_codalab_dir, 'codalab', 'codalab', 'settings', 'local.py')
-    put(buf, settings_file)
-
-    env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
-            run('python manage.py config_gen')
-            run('mkdir -p ~/.codalab && python scripts/set-oauth-key.py ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
-            sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
-            sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
-            # Setup new relic
-            run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
-
-    # Install SSL certficates (/etc/ssl/certs/)
-    require('configuration')
-    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
-        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
-        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
-    else:
-        logger.info("Skipping certificate installation because both files are not specified.")
 
 ############################################################
 # Deployment
@@ -252,12 +222,20 @@ def maintenance(mode):
 
     require('configuration')
     env.SHELL_ENV['MAINTENANCE_MODE'] = modes[mode]
-    install_config()
+
+    # Update nginx.conf
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+        run('python manage.py config_gen')
+
     nginx_restart()
 
 @roles('web')
 @task
 def deploy():
+    """
+    Put a maintenance message, deploy, and then restore website.
+    """
     maintenance('begin')
     supervisor('stop')
     _deploy()
@@ -265,28 +243,53 @@ def deploy():
     maintenance('end')
 
 def _deploy():
-    # Setup website
+    # Update website
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
         run('./dev_setup.sh')
 
-    install_config()
-
-    env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
-        run('python manage.py syncdb --migrate')
-        run('python manage.py collectstatic --noinput')
-
-    # Setup bundle service
+    # Update bundle service
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('git pull')
         run('./setup.sh')
+        run('venv/bin/alembic upgrade head')
 
-    # Setup bundle service for worksheets
+    # Create local.py
+    cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+    dep = Deployment(cfg)
+    buf = StringIO()
+    buf.write(dep.getSettingsFileContent())
+    settings_file = os.path.join(env.deploy_codalab_dir, 'codalab', 'codalab', 'settings', 'local.py')
+    put(buf, settings_file)
+
+    # Update the website configuration
     env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_cli_dir):
-        run('git pull')
-        run('alembic upgrade head')
+    with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+        # Generate configuration files (bundle_server_config, nginx, etc.)
+        run('python manage.py config_gen')
+        # Migrate database
+        run('python manage.py syncdb --migrate')
+        # Create static pages
+        run('python manage.py collectstatic --noinput')
+        # For sending email, have the right domain name.
+        run('python manage.py set_site %s' % cfg.getSslRewriteHosts()[0])
+        # Create a superuser for OAuth
+        run('python manage.py create_codalab_user %s' % cfg.getDatabaseAdminPassword())
+        # Allow bundle service to connect to website for OAuth
+        run('mkdir -p ~/.codalab && python manage.py set_oauth_key ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
+        # Put nginx and supervisor configuration files in place
+        sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+        sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+        # Setup new relic
+        run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+
+    # Install SSL certficates (/etc/ssl/certs/)
+    require('configuration')
+    if (len(cfg.getSslCertificateInstalledPath()) > 0) and (len(cfg.getSslCertificateKeyInstalledPath()) > 0):
+        put(cfg.getSslCertificatePath(), cfg.getSslCertificateInstalledPath(), use_sudo=True)
+        put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
+    else:
+        logger.info("Skipping certificate installation because both files are not specified.")
