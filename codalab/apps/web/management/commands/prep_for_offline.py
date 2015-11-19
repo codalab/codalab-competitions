@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand
 User = get_user_model()
 
 class Command(BaseCommand):
-    help = """Sets up Codalab for offline useage."""
+    help = """Sets up Codalab for offline usage."""
 
     option_list = BaseCommand.option_list + (
         make_option('--delete', '-d',

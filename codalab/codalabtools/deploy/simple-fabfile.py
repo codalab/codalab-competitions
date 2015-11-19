@@ -191,7 +191,8 @@ def install_config():
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
             run('python manage.py config_gen')
-            run('mkdir -p ~/.codalab && python scripts/set-oauth-key.py ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
+            run('python manage.py set_site %s' % cfg.getSslRewriteHosts()[0])
+            run('mkdir -p ~/.codalab && python manage.py set_oauth_key ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
             sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
             sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
             # Setup new relic

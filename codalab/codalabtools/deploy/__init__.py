@@ -275,7 +275,7 @@ class DeploymentConfig(BaseConfig):
         """Gets the list of hosts for which HTTP requests are automatically re-written as HTTPS requests."""
         if 'ssl' in self._svc and 'rewrite-hosts' in self._svc['ssl']:
             return self._svc['ssl']['rewrite-hosts']
-        return ''
+        return []
 
     def getBuildServiceName(self):
         """Gets the cloud service name for the build instance."""
