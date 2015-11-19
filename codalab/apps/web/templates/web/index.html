@@ -35,13 +35,13 @@
             {% endif %}
 
             {% if ENABLE_COMPETITIONS %}
-              <div class="col-sm-6 competition-latest-list">
-                   <div class="btn-group btn-group-justified" role="group" aria-label="...">
+              <div class="col-sm-6 col-md-offset-3 competition-latest-list">
+                   <!--<div class="btn-group btn-group-justified" role="group" aria-label="...">
                         <div class="btn-group" role="group">
                               <a role="button" class="btn" href="/competitions">Competitions</a>
                         </div>
-                  </div>
-                  <p><strong>Enter an existing competition to solve challenging data problems, or host your own.</strong></p>
+                  </div>-->
+                  <!--<p><strong>Enter an existing competition to solve challenging data problems, or host your own.</strong></p>-->
               </div>
             {% endif %}
 
@@ -59,7 +59,7 @@
             {% endif %}
 
             {% if ENABLE_COMPETITIONS %}
-              <div class="col-sm-6 competition-latest-list">
+              <div class="col-sm-10 col-md-offset-1 competition-latest-list">
                 <h2 class="homepage_headers">Latest Competitions</h2>
                 {% if not latest_competitions %}
                 <p><em>There are no competitions.</em></p>
