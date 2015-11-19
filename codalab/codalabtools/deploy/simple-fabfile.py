@@ -107,8 +107,6 @@ def install():
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
     ensure_repo_exists('https://github.com/codalab/codalab', env.deploy_codalab_dir)
     ensure_repo_exists('https://github.com/codalab/codalab-cli', env.deploy_codalab_cli_dir)
-    # Have the two repos share virtual environments
-    run('ln -sf ../%s/venv %s' % (env.deploy_codalab_dir, env.deploy_codalab_cli_dir))
 
     # Initial setup
     with cd(env.deploy_codalab_dir):
@@ -117,6 +115,7 @@ def install():
     with cd(env.deploy_codalab_cli_dir):
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('./setup.sh')
+        run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
     _deploy()

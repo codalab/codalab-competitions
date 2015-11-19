@@ -60,6 +60,8 @@
         </div>
     </div>
 
+    {% if ENABLE_COMPETITIONS %}
+
     <h3><b>Competition settings</b></h3>
 
     <div class="row">
@@ -105,47 +107,7 @@
         </div>
     </div>
 
-    <!--
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Profile information</h4>
-            <table class="table table-striped affiliation">
-                <tbody>
-                    <tr>
-                        <th>{{ form.organization_or_affiliation.label }}</th>
-                        <td>{{ form.organization_or_affiliation }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.method_name.label }}</th>
-                        <td>{{ form.method_name }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.method_description.label }}</th>
-                        <td>{{ form.method_description }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.contact_email.label }}</th>
-                        <td>{{ form.contact_email }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.project_url.label }}</th>
-                        <td>{{ form.project_url }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.publication_url.label }}</th>
-                        <td>{{ form.publication_url }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.bibtex.label }}</th>
-                        <td>{{ form.bibtex }}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
-        </div>
-    </div>
-    -->
+    {% endif %}
 
     <input type="submit" class="btn btn-primary margin-top" value="Save Changes">
 </form>
