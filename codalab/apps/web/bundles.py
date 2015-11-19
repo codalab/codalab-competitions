@@ -17,7 +17,7 @@ from django.utils.encoding import smart_str
 
 from xmlrpclib import Fault, ProtocolError
 
-if len(settings.BUNDLE_SERVICE_URL) > 0:
+if settings.ENABLE_WORKSHEETS:
     from apps.authenz.oauth import get_user_token
 
     # Imports from codalab-cli repo.
