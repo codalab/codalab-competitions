@@ -190,13 +190,17 @@ def install_config():
 
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
-            run('python manage.py config_gen')
-            run('python manage.py set_site %s' % cfg.getSslRewriteHosts()[0])
-            run('mkdir -p ~/.codalab && python manage.py set_oauth_key ./config/generated/bundle_server_config.json > ~/.codalab/config.json')
-            sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
-            sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
-            # Setup new relic
-            run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+        run('python manage.py config_gen')  # Generate configuration files
+        run('python manage.py syncdb --migrate')  # Migrate database
+        # One time configuration
+        run('python manage.py set_site %s' % cfg.getSslRewriteHosts()[0])  # For sending email
+        run('python manage.py createsuperuser --username=codalab --email invalid@codalab.org --noinput')  # Create a superuser for OAuth
+        run('mkdir -p ~/.codalab && python manage.py set_oauth_key ./config/generated/bundle_server_config.json > ~/.codalab/config.json')  # Get OAuth
+        # nginx and supervisor
+        sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+        sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+        # Setup new relic
+        run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
 
     # Install SSL certficates (/etc/ssl/certs/)
     require('configuration')
@@ -285,9 +289,4 @@ def _deploy():
         run('git checkout %s' % env.git_codalab_cli_tag)
         run('git pull')
         run('./setup.sh')
-
-    # Setup bundle service for worksheets
-    env_prefix, env_shell = setup_env()
-    with env_prefix, env_shell, cd(env.deploy_codalab_cli_dir):
-        run('git pull')
-        run('alembic upgrade head')
+        run('venv/bin/alembic upgrade head')
