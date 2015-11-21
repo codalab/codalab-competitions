@@ -271,7 +271,7 @@ if settings.ENABLE_WORKSHEETS:
             """
             Given a command string, return a list of suggestions to complete the last token.
             """
-            cli = self._create_cli(worksheet_uuid)
+            cli, output_buffer = self._create_cli(worksheet_uuid)
 
             command = command.lstrip()
             if not command.startswith('cl'):
