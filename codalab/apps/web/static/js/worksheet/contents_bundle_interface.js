@@ -16,7 +16,7 @@ var ContentsBundle = React.createClass({
             <div className="ws-item" onClick={this.handleClick}>
                 <div className={className} ref={this.props.item.ref}>
                     <blockquote>
-                        <p dangerouslySetInnerHTML={{__html: contents}} />
+                        <p>{contents}</p>
                     </blockquote>
                 </div>
             </div>
