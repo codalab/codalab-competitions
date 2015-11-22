@@ -83,7 +83,9 @@
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
                           {% else %}
                             <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
-                            <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
+                            {% if user.is_authenticated %}
+                              <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
+                            {% endif %}
                           {% endif %}
                         {% endif %}
                         {% if ENABLE_COMPETITIONS %}
@@ -153,11 +155,15 @@
 
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
+            <ul class="nav navbar-nav navbar-left">
+              <li>v{{ CODALAB_VERSION }}</li>
+            </ul>
             <ul class="nav navbar-nav navbar-right">
-                <!-- <li>CodaLab v.0 ()</li> -->
                 <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
-                <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
+                {% if ENABLE_COMPETITIONS %}
+                  <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
+                  <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
+                {% endif %}
                 <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
             </ul>
         </div>
