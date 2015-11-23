@@ -1,7 +1,7 @@
 from rest_framework import routers
 from . import views
 from django.conf.urls import patterns, url
-router = routers.DefaultRouter()
+router = routers.DefaultRouter(trailing_slash=False)
 
 router.register(r'competition/(?P<competition_id>\d+)/participants', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
@@ -44,7 +44,7 @@ urlpatterns += (
 
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
     url(r'^bundles/content/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleContentApi.as_view(), name='api_bundle_content'),
-    url(r'^bundles/filecontent/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)/$', views.BundleFileContentApi.as_view(), name='api_bundle_filecontent'),
+    url(r'^bundles/filecontent/(?P<uuid>[A-Za-z0-9]+)/(?P<path>\S*)$', views.BundleFileContentApi.as_view(), name='api_bundle_filecontent'),
     url(r'^bundles/search/$', views.BundleSearchApi.as_view(), name='api_bundle_search'),
     url(r'^bundles/get_uuid/$', views.BundleGetUUIDApi.as_view(), name='api_bundle_get_uuid'),
     url(r'^bundles/upload/$', views.BundleUploadApi.as_view(), name='api_bundle_upload'),
