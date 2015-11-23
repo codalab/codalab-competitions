@@ -85,6 +85,8 @@
                             <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
                             {% if user.is_authenticated %}
                               <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
+                            {% else %}
+                              <li><a href="/accounts/login/?next=/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
                             {% endif %}
                           {% endif %}
                         {% endif %}
@@ -155,9 +157,6 @@
 
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
-            <ul class="nav navbar-nav navbar-left">
-              <li>v{{ CODALAB_VERSION }}</li>
-            </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
                 {% if ENABLE_COMPETITIONS %}
@@ -165,6 +164,7 @@
                   <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
                 {% endif %}
                 <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+              <li><a href="https://github.com/codalab/codalab/wiki/Worksheet-Features" target="_blank">v{{ CODALAB_VERSION }}</a></li>
             </ul>
         </div>
     </footer>
