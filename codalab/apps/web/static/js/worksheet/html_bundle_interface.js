@@ -11,7 +11,7 @@ var HTMLBundle = React.createClass({
     },
     render: function() {
         var className = 'type-html' + (this.props.focused ? ' focused' : '');
-        var contents = this.props.item.interpreted.join('');
+        var contents = html_sanitize(this.props.item.interpreted.join(''));
         return(
             <div className="ws-item" onClick={this.handleClick}>
                 <div className={className} ref={this.props.item.ref}>
