@@ -66,8 +66,12 @@ var WorksheetBundle = React.createClass({
     },
 
     focusOnRow: function(rowIndex) {
+        this.props.setFocus(this.props.index, rowIndex);
+        this.updateRowFocusindex(rowIndex);
+    },
+
+    updateRowFocusindex: function(rowIndex) {
         this.setState({rowFocusIndex: rowIndex});
-        this.props.updateWorksheetSubFocusIndex(rowIndex);
         this.scrollToRow(rowIndex);
     },
 
@@ -82,9 +86,6 @@ var WorksheetBundle = React.createClass({
       }
     },
 
-    handleClick: function(event) {
-        this.props.setFocus(this.props.index);
-    },
     render: function() {
         if (this.props.active && this.props.focused)
           this.capture_keys();
@@ -114,7 +115,7 @@ var WorksheetBundle = React.createClass({
         return (
             <div className="ws-item">
                 <div className="type-table table-responsive">
-                    <table className={tableClassName} onClick={this.handleClick}>
+                    <table className={tableClassName}>
                       <tbody>
                           {body_rows_html}
                       </tbody>

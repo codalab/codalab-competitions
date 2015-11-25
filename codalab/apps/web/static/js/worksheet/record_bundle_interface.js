@@ -7,7 +7,7 @@ var RecordBundle = React.createClass({
         return {};
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.index);
+        this.props.setFocus(this.props.index, -1);
     },
     render: function() {
         var item = this.props.item;

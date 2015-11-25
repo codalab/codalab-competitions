@@ -97,6 +97,13 @@
     {% else %}
             <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
+
+    {% if local_ace_editor %}
+            <script src="{{ STATIC_URL }}js/vendor/ace-editor/src-min-noconflict/ace.js"></script>
+    {% else %}
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js"></script>
+    {% endif %}
+
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/html4-defs.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/html-sanitizer.js"></script>
