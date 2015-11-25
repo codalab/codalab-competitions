@@ -149,7 +149,7 @@ var Worksheet = React.createClass({
         if (editMode === undefined)
           editMode = !this.state.editMode;  // Toggle by default
 
-        if (typeof saveChanges === 'undefined')
+        if (saveChanges === undefined)
             saveChanges = true;
 
         if (!editMode) {
@@ -160,7 +160,14 @@ var Worksheet = React.createClass({
             if (saveChanges) {
                 this.state.ws.info.raw = editor.getValue().split('\n');
             }
-            this.setState({editMode: editMode, editorEnabled: false, editorCursorPosition: editor.getCursorPosition().row});  // Needs to be after getting the raw contents
+            var focusIndeces = this.state.ws.info.raw_interpreted_map[editor.getCursorPosition().row] || [0, -1];
+            this.setState({
+                editMode: editMode,
+                editorEnabled: false,
+                focusIndex: focusIndeces[0],
+                subFocusIndex: focusIndeces[1],
+                editorCursorPosition: editor.getCursorPosition().row
+            });  // Needs to be after getting the raw contents
             this.saveAndUpdateWorksheet(true);
           } else {
             // Not allowed to save worksheet (shouldn't happen).
@@ -195,6 +202,7 @@ var Worksheet = React.createClass({
                 var cursorRowPosition = this.state.ws.info.interpreted_raw_map[index] || this.state.ws.info.interpreted_raw_map[defaultIndex];
                 if (cursorRowPosition === undefined) {
                     console.error("Cannot find element with focusIndex: %d subFocusIndex: %d in interpreted_raw_map", this.state.focusIndex, this.state.subFocusIndex);
+                    cursorRowPosition = this.state.editorCursorPosition;
                     return;
                 }
                 var cursorColumnPosition = editor.session.getLine(cursorRowPosition).length;
@@ -221,14 +229,13 @@ var Worksheet = React.createClass({
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
                 this.setState({updating:false});
-                var focusIndex = this.state.ws.info.raw_interpreted_map[this.state.editorCursorPosition] || [0, -1];
-                if (focusIndex[0] >= this.state.ws.info.items.length) {
+                if (this.state.focusIndex >= this.state.ws.info.items.length) {
                     // maps empty trailing lines to the last interpreted_item
-                    focusIndex[0] = this.state.ws.info.items.length - 1;
-                    this.refs.list.setFocus(focusIndex[0], 'end');
+                    this.setState({focusIndex: this.state.ws.info.items.length - 1});
+                    this.refs.list.setFocus(focusIndex, 'end');
                 }
                 else {
-                    this.refs.list.setFocus(focusIndex[0], focusIndex[1]);
+                    this.refs.list.setFocus(this.state.focusIndex, this.state.subFocusIndex);
                 }
             }.bind(this),
             error: function(xhr, status, err) {
