@@ -346,22 +346,29 @@ if settings.ENABLE_WORKSHEETS:
             """
             uuid, path = target
             bundle_info = self.client.get_bundle_info(uuid, False, False, False)
+            if bundle_info is None:
+                raise UsageError('Bundle %s does not exist' % (uuid,))
             if path == '':
                 name = bundle_info['metadata']['name']
             else:
                 name = os.path.basename(path)
 
             target_info = self.client.get_target_info(target, 0)
-            if target_info['type'] == 'file':
+            if target_info is None:
+                raise UsageError('Target does not exist: %s' % (target,))
+            target_type = target_info.get('type')
+            if target_type == 'file':
                 # Is a file, don't need to zip it up
                 content_type = mimetypes.guess_type(name)[0]
                 if not content_type: content_type = 'text/plain'
                 source_uuid = self.client.open_target(target)
-            else:
+            elif target_type == 'directory':
                 # Is a directory, need to zip it up
                 content_type = 'application/x-gzip'
                 source_uuid = self.client.open_target_archive(target)
                 name += '.tar.gz'
+            else:
+                raise UsageError('Target is not file/directory: %s' % (target,))
 
             def read_file():
                 """
