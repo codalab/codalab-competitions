@@ -63,8 +63,12 @@ var WorksheetSidePanel = React.createClass({
     getWorksheetInfo: function(focus) {
       if (focus.mode == 'worksheet')
         return focus.subworksheet_info;
-      else if (focus.mode == 'wsearch')
-        return this.props.subFocusIndex != -1 ? focus.interpreted.items[this.props.subFocusIndex].subworksheet_info : null;
+      else if (focus.mode == 'wsearch') {
+        if (this.props.subFocusIndex == -1)
+          return null;
+        var item = focus.interpreted.items[this.props.subFocusIndex];
+        return item ? item.subworksheet_info : null;
+      }
       else
         return focus;
     },

@@ -5,11 +5,6 @@ var ACTIONBAR_DRAGHEIGHT = 350;
 
 var WorksheetActionBar = React.createClass({
   focustype: 'worksheet', // keep track of what the user has focused on worksheet item
-  // ********************************************
-  // please see ws_actions The goal of WorksheetActionbar
-  // is to be a generic front end link for all actions and jqueryterminal
-  // for all new actions please add in ws_actions.js
-  // ********************************************
   componentDidMount: function () {
     var self = this;
     $('#dragbar_horizontal').mousedown(function (e) {
@@ -175,25 +170,6 @@ var WorksheetActionBar = React.createClass({
       }
     });
     return deferred.promise();
-  },
-  current_focus: function () {  //get current focus of the user in the worksheet item list
-    var focus = '';
-    if (this.props.focusIndex > -1) {
-      focus = this.props.ws.info.items[this.props.focusIndex];
-      if (focus.mode == "markup" || focus.mode == "worksheet" || focus.mode == "search") {
-        this.focustype = 'worksheet';
-        if (focus.mode != "worksheet") { // are we not looking at a sub worksheet
-          //for lets default it back to the main worksheet info
-          focus = this.props.ws.info;
-        }
-      } else {
-        this.focustype = 'bundle';
-      }// end of if focus.modes
-    } else {// there is no focus index, just show the worksheet infomation
-      focus = this.props.ws.info;
-      this.focustype = 'worksheet';
-    }
-    return focus;
   },
   componentWillUnmount: function () {
   },

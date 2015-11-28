@@ -7,7 +7,7 @@ var RecordBundle = React.createClass({
         return {};
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.index, -1);
+        this.props.setFocus(this.props.focusIndex, 0);
     },
     render: function() {
         var item = this.props.item;
@@ -15,13 +15,10 @@ var RecordBundle = React.createClass({
         var header = item.interpreted[0];
         var k = header[0];
         var v = header[1];
-        var focusIndex = item.rowFocusIndex;
-        var items = item.interpreted[1].map(function(item, index){
+        var items = item.interpreted[1].map(function(item, index) {
             var ref = 'row' + index;
-            var focused = index === focusIndex;
-            var focusedClass = focused ? 'focused' : '';
             return(
-                <tr ref={ref} key={index} focused={focused} className={focusedClass}>
+                <tr ref={ref} key={index}>
                     <th>
                         {item[k]}
                     </th>

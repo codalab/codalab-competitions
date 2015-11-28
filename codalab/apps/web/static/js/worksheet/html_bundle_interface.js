@@ -7,7 +7,7 @@ var HTMLBundle = React.createClass({
         return {};
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.index, -1);
+        this.props.setFocus(this.props.focusIndex, 0);
     },
     render: function() {
         var className = 'type-html' + (this.props.focused ? ' focused' : '');
