@@ -9,6 +9,7 @@ var GraphBundle = React.createClass({
     handleClick: function(event) {
         this.props.setFocus(this.props.focusIndex, 0);
     },
+
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
         var item = this.props.item;
@@ -48,17 +49,24 @@ var GraphBundle = React.createClass({
 
         // Create the chart
         var chartId = 'chart-' + this.props.focusIndex;
-        var chart = c3.generate({
-          bindto: '#' + chartId,
-          data: {
-            xs: ytox,
-            columns: columns,
-          },
-          axis: {
-            x: {label: {text: xlabel, position: 'outer-middle'}},
-            y: {label: {text: ylabel, position: 'outer-middle'}},
-          },
-        });
+        function renderChart() {
+          c3.generate({
+            bindto: '#' + chartId,
+            data: {
+              xs: ytox,
+              columns: columns,
+            },
+            axis: {
+              x: {label: {text: xlabel, position: 'outer-middle'}},
+              y: {label: {text: ylabel, position: 'outer-middle'}},
+            },
+          });
+        }
+
+        // Rendering the chart is slow, so throttle it.
+        if (this.throttledRenderChart === undefined)
+            this.throttledRenderChart = _.throttle(renderChart, 2000).bind(this);
+        this.throttledRenderChart();
 
         return(
             <div className="ws-item" onClick={this.handleClick}>
