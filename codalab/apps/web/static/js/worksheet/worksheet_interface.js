@@ -13,8 +13,8 @@ var HOME_WORKSHEET = '/';
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
-            refresh: false,
             ws: new WorksheetContent(this.props.uuid),
+            version: 0,  // Increment when we refresh
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
             editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
@@ -110,7 +110,6 @@ var Worksheet = React.createClass({
                     return response.error;
                 }
                 this.state.ws.fetch({async: false});
-                this.setState({refresh: !this.state.refresh});
             }.bind(this)
         });
     },
@@ -296,7 +295,7 @@ var Worksheet = React.createClass({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                this.setState({updating: false});
+                this.setState({updating: false, version: this.state.version + 1});
                 // Fix out of bounds.
                 var items = this.state.ws.info.items;
                 if (this.state.focusIndex >= items.length)
@@ -331,7 +330,7 @@ var Worksheet = React.createClass({
         this.setState({updating: true});
         this.state.ws.saveWorksheet({
             success: function(data) {
-                this.setState({updating:false});
+                this.setState({updating: false});
                 if ('error' in data) { // TEMP REMOVE FDC
                     $('#update_progress').hide();
                     $('#save_error').show();
@@ -374,10 +373,10 @@ var Worksheet = React.createClass({
         var editPermission = info && info.edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
 
-        var searchClassName     = !this.state.showActionBar ? 'search-hidden' : '';
-        var editableClassName   = canEdit ? 'editable' : '';
-        var viewClass           = !canEdit && !this.state.editMode ? 'active' : '';
-        var rawClass            = this.state.editMode ? 'active' : '';
+        var searchClassName   = !this.state.showActionBar ? 'search-hidden' : '';
+        var editableClassName = canEdit ? 'editable' : '';
+        var viewClass         = !canEdit && !this.state.editMode ? 'active' : '';
+        var rawClass          = this.state.editMode ? 'active' : '';
 
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
@@ -430,6 +429,7 @@ var Worksheet = React.createClass({
                     ref={"list"}
                     active={this.state.activeComponent == 'list'}
                     ws={this.state.ws}
+                    version={this.state.version}
                     canEdit={canEdit}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}

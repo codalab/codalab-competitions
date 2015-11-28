@@ -30,6 +30,11 @@ var MarkdownBundle = React.createClass({
         text = this.replaceMathJax(text);
         return text;
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var contents = html_sanitize(this.props.item.interpreted);
         contents = this.processMarkdown(contents);

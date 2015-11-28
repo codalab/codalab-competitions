@@ -76,14 +76,20 @@ var GraphBundle = React.createClass({
       this.setState({'chart': chart});
     },
 
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         //console.log('GraphBundle.render', this.state.chart);
 
         // Rendering the chart is slow, so throttle it.
         var self = this;
         function renderChart() {
-          if (self.state.chart)
+          if (self.state.chart) {
+            // TODO: unload only trajectories which are outdated.
             self.state.chart.load(self._getData());
+          }
         }
         if (this.throttledRenderChart === undefined)
             this.throttledRenderChart = _.throttle(renderChart, 2000).bind(this);

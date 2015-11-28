@@ -55,6 +55,10 @@ var WorksheetBundle = React.createClass({
       }
     },
 
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         if (this.props.active && this.props.focused)
           this.capture_keys();

@@ -8,8 +8,6 @@ var TableBundle = React.createClass({
       return { };
     },
 
-    throttledScrollToRow: undefined,
-
     capture_keys: function() {
         // Move focus up one
         Mousetrap.bind(['up', 'k'], function(e) {
@@ -51,6 +49,10 @@ var TableBundle = React.createClass({
 
     updateRowIndex: function(rowIndex) {
         this.props.setFocus(this.props.focusIndex, rowIndex);
+    },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
     },
 
     render: function() {

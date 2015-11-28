@@ -71,6 +71,7 @@ var WorksheetItemList = React.createClass({
                 var focused = (index == this.props.focusIndex);
                 var props = {
                   item: item,
+                  version: this.props.version,
                   active: this.props.active,
                   focused: focused,
                   canEdit: this.props.canEdit,

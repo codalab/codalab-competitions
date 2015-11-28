@@ -3,12 +3,17 @@
 // Display a worksheet item which corresponds to a record.
 var RecordBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
-    getInitialState: function(){
+    getInitialState: function() {
         return {};
     },
-    handleClick: function(event){
+    handleClick: function(event) {
         this.props.setFocus(this.props.focusIndex, 0);
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var item = this.props.item;
         var className = 'table table-record' + (this.props.focused ? ' focused' : '');
@@ -39,5 +44,5 @@ var RecordBundle = React.createClass({
                 </div>
             </div>
         );
-    } // end of render function
-}); //end of  RecordBundle
+    }
+});

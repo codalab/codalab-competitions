@@ -9,6 +9,11 @@ var ImageBundle = React.createClass({
     handleClick: function(event) {
         this.props.setFocus(this.props.focusIndex, 0);
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var className = 'type-image' + (this.props.focused ? ' focused' : '');
         var src = "data:image/png;base64," + this.props.item.interpreted;
