@@ -106,12 +106,11 @@ var Worksheet = React.createClass({
              return JSON.stringify(data);
             }.bind(this),
             success: function(response, newValue) {
-                if(response.error){
+                if (response.error) {
                     return response.error;
                 }
                 this.state.ws.fetch({async: false});
                 this.setState({refresh: !this.state.refresh});
-
             }.bind(this)
         });
     },
