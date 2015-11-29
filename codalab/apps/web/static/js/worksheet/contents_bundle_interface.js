@@ -7,8 +7,13 @@ var ContentsBundle = React.createClass({
         return {};
     },
     handleClick: function(event){
-        this.props.setFocus(this.props.index, -1);
+        this.props.setFocus(this.props.focusIndex, 0);
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var className = 'type-contents' + (this.props.focused ? ' focused' : '');
         var contents = this.props.item.interpreted.join('');

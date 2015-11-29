@@ -31,7 +31,7 @@ class Command(BaseCommand):
         # list containing |(package_name, destination, download_url, file_name, dir_name, success_message )| tuples for packages
         packages = [
             ('MathJax', 'apps/web/static/js/vendor/mathjax', 'https://github.com/mathjax/MathJax/archive/master.zip', 'mathjax.zip', 'MathJax-master', 'LOCAL_MATHJAX = True'),
-            ('Ace-editor', 'apps/web/static/js/vendor/ace-editor', 'https://github.com/ajaxorg/ace-builds/archive/master.zip', 'ace-builds-master.zip', 'ace-builds-master', 'LOCAL_ACE_EDITOR = True')
+            ('Ace-editor', 'apps/web/static/js/vendor/ace-editor', 'https://github.com/ajaxorg/ace-builds/archive/master.zip', 'ace-builds-master.zip', 'ace-builds-master', 'LOCAL_ACE_EDITOR = True'),
         ]
         print " ----- "
         if options['delete']:
@@ -78,9 +78,7 @@ class Command(BaseCommand):
 
             success_message_list.append(success_message)
 
-        print "\n"
-        print "Please put"
+        print '\n'
+        print 'Please put the following in your `codalab/settings/local.py` file to enable offline usage:'
         for success_message in success_message_list:
             print success_message
-        print "in your local.py settings file to load files for offline usage"
-        print "\n"

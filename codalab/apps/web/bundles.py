@@ -155,15 +155,20 @@ if settings.ENABLE_WORKSHEETS:
                     worksheet_info['error'] = str(e)
 
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
-                worksheet_info['raw_interpreted_map'] = interpreted_items['raw_interpreted_map']
-                worksheet_info['interpreted_raw_map'] = interpreted_items['interpreted_raw_map']
+                worksheet_info['raw_to_interpreted'] = interpreted_items['raw_to_interpreted']
+                worksheet_info['interpreted_to_raw'] = interpreted_items['interpreted_to_raw']
+
+                def decode_lines(interpreted):
+                    # interpreted is None or list of base64 encoded lines
+                    if interpreted is None:
+                        return formatting.contents_str(None)
+                    else:
+                        return map(base64.b64decode, interpreted)
+
                 # Currently, only certain fields are base64 encoded.
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
-                        if item['interpreted'] is None:
-                            item['interpreted'] = [formatting.contents_str(item['interpreted'])]
-                        else:
-                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                        item['interpreted'] = decode_lines(item['interpreted'])
                     elif item['mode'] == 'table':
                         for row_map in item['interpreted'][1]:
                             for k, v in row_map.iteritems():

@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 /*
+   TODO: REMOVE THIS CLASS
 Displays a list of worksheets with a search bar.
 TODO: this is currently not exposed in the interface.
 In the future, should morph this into a search results page.

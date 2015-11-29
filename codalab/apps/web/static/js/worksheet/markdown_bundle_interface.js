@@ -19,7 +19,7 @@ var MarkdownBundle = React.createClass({
         this.processMathJax();
     },
     handleClick: function(event) {
-        this.props.setFocus(this.props.index, -1);
+        this.props.setFocus(this.props.focusIndex, 0);
     },
     processMarkdown: function(text) {
         // 'we have $x^2$' => 'we have @ppp@'
@@ -30,6 +30,11 @@ var MarkdownBundle = React.createClass({
         text = this.replaceMathJax(text);
         return text;
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var contents = html_sanitize(this.props.item.interpreted);
         contents = this.processMarkdown(contents);

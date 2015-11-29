@@ -5,74 +5,43 @@ var WorksheetBundle = React.createClass({
     mixins: [CheckboxMixin],
 
     getInitialState: function() {
-      return {
-        rowFocusIndex: -1,  // Which row of the table has the focus?
-      };
+      return { };
     },
 
     throttledScrollToRow: undefined,
 
-    capture_keys: function(event) {
+    capture_keys: function() {
         // Move focus up one
         Mousetrap.bind(['up', 'k'], function(e) {
-            var newIndex = this.state.rowFocusIndex - 1;
-            if (newIndex < 0)
-              this.props.setFocus(this.props.index - 1, 'end');  // Move out of this table
+            if (this.props.subFocusIndex - 1 < 0)
+              this.props.setFocus(this.props.focusIndex - 1, 'end');  // Move out of this table
             else
-              this.focusOnRow(newIndex);
+              this.props.setFocus(this.props.focusIndex, this.props.subFocusIndex - 1);
         }.bind(this), 'keydown');
 
         // Move focus down one
-        Mousetrap.bind(['down', 'j'], function(event) {
-            var newIndex = this.state.rowFocusIndex + 1;
-            var index = this.state.rowFocusIndex;
-            var numRows = this._getItems().length;
-            if (newIndex >= numRows)
-              this.props.setFocus(this.props.index + 1, 0);  // Move out of this table
+        Mousetrap.bind(['down', 'j'], function() {
+            if (this.props.subFocusIndex + 1 >= this._getItems().length)
+              this.props.setFocus(this.props.focusIndex + 1, 0);  // Move out of this table
             else
-              this.focusOnRow(newIndex);
+              this.props.setFocus(this.props.focusIndex, this.props.subFocusIndex + 1);
         }.bind(this), 'keydown');
 
         // Open worksheet in new window/tab
         Mousetrap.bind(['enter'], function(e) {
-            window.open(this.refs['row' + this.state.rowFocusIndex].props.url, '_blank');
+            window.open(this.refs['row' + this.props.subFocusIndex].props.url, '_blank');
         }.bind(this), 'keydown');
 
         // Paste uuid of focused worksheet into console
         Mousetrap.bind(['u'], function(e) {
-            var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
-            $('#command_line').terminal().insert(uuid);
-            this.props.focusActionBar();
+            var uuid = this.refs['row' + this.props.subFocusIndex].props.uuid;
+            $('#command_line').terminal().insert(uuid + ' ');
+            //this.props.focusActionBar();
         }.bind(this), 'keydown');
     },
 
-    scrollToRow: function(index) {
-        var __innerScrollToRow = function(index) {
-            //console.log('__innerScrollToRow', index);
-            // Compute the current position of the focused row.
-            var node = this.getDOMNode();
-            var nodePos = node.getBoundingClientRect();
-            var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
-            var tablePos = nodePos.top;
-            var pos = tablePos + (index * rowHeight);
-            // Make sure it's visible
-            keepPosInView(pos);
-        };
-
-        // Throttle so that if keys are held down, we don't suffer a huge lag.
-        if (this.throttledScrollToRow === undefined)
-            this.throttledScrollToRow = _.throttle(__innerScrollToRow, 50).bind(this);
-        this.throttledScrollToRow(index);
-    },
-
-    focusOnRow: function(rowIndex) {
-        this.props.setFocus(this.props.index, rowIndex);
-        this.updateRowFocusindex(rowIndex);
-    },
-
-    updateRowFocusindex: function(rowIndex) {
-        this.setState({rowFocusIndex: rowIndex});
-        this.scrollToRow(rowIndex);
+    updateRowIndex: function(rowIndex) {
+        this.props.setFocus(this.props.focusIndex, rowIndex);
     },
 
     _getItems: function() {
@@ -86,6 +55,10 @@ var WorksheetBundle = React.createClass({
       }
     },
 
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         if (this.props.active && this.props.focused)
           this.capture_keys();
@@ -95,21 +68,20 @@ var WorksheetBundle = React.createClass({
         var canEdit = this.props.canEdit;
         var items = this._getItems();
 
-        var focusIndex = this.state.rowFocusIndex;
-        var body_rows_html = items.map(function(item, index) {
-            var row_ref = 'row' + index;
-            var rowFocused = self.props.focused && (index == focusIndex);
-            var url = '/worksheets/' + item.interpreted.uuid;
+        var body_rows_html = items.map(function(row_item, row_index) {
+            var row_ref = 'row' + row_index;
+            var row_focused = self.props.focused && (row_index == self.props.subFocusIndex);
+            var url = '/worksheets/' + row_item.interpreted.uuid;
             return <TableWorksheetRow
-                     key={index}
+                     key={row_index}
                      ref={row_ref}
-                     item={item}
-                     index={index}
-                     focused={rowFocused}
+                     item={row_item}
+                     rowIndex={row_index}
+                     focused={row_focused}
                      url={url}
-                     uuid={item.interpreted.uuid}
+                     uuid={row_item.interpreted.uuid}
                      canEdit={canEdit}
-                     handleClick={self.focusOnRow}
+                     updateRowIndex={self.updateRowIndex}
                    />;
         });
         return (
@@ -130,10 +102,10 @@ var WorksheetBundle = React.createClass({
 
 var TableWorksheetRow = React.createClass({
     getInitialState: function() {
-        return { };
+        return {};
     },
     handleClick: function() {
-      this.props.handleClick(this.props.index);
+      this.props.updateRowIndex(this.props.rowIndex);
     },
 
     render: function() {

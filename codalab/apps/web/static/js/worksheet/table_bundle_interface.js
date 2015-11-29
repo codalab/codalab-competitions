@@ -5,48 +5,41 @@ var TableBundle = React.createClass({
     mixins: [CheckboxMixin],
 
     getInitialState: function() {
-      return {
-        rowFocusIndex: -1,  // Which row of the table has the focus?
-      };
+      return { };
     },
-
-    throttledScrollToRow: undefined,
 
     capture_keys: function() {
         // Move focus up one
         Mousetrap.bind(['up', 'k'], function(e) {
-            var newIndex = this.state.rowFocusIndex - 1;
-            if (newIndex < 0)
-              this.props.setFocus(this.props.index - 1, 'end');  // Move out of this table
+            if (this.props.subFocusIndex - 1 < 0)
+              this.props.setFocus(this.props.focusIndex - 1, 'end');  // Move out of this table
             else
-              this.focusOnRow(newIndex);
+              this.updateRowIndex(this.props.subFocusIndex - 1);
         }.bind(this), 'keydown');
 
         // Move focus down one
-        Mousetrap.bind(['down', 'j'], function(event) {
-            var newIndex = this.state.rowFocusIndex + 1;
-            var index = this.state.rowFocusIndex;
-            var numRows = this.props.item.interpreted[1].length;
-            if (newIndex >= numRows)
-              this.props.setFocus(this.props.index + 1, 0);  // Move out of this table
+        Mousetrap.bind(['down', 'j'], function() {
+            if (this.props.subFocusIndex + 1 >= this.props.item.interpreted[1].length)
+              this.props.setFocus(this.props.focusIndex + 1, 0);  // Move out of this table
             else
-              this.focusOnRow(newIndex);
+              this.updateRowIndex(this.props.subFocusIndex + 1);
         }.bind(this), 'keydown');
 
+        // Open worksheet in new window/tab
         Mousetrap.bind(['enter'], function(e) {
-            window.open(this.refs['row' + this.state.rowFocusIndex].props.url, '_blank');
+            window.open(this.refs['row' + this.props.subFocusIndex].props.url, '_blank');
         }.bind(this), 'keydown');
 
         // Paste uuid of focused bundle into console
         Mousetrap.bind(['u'], function(e) {
-            var uuid = this.refs['row' + this.state.rowFocusIndex].props.uuid;
-            $('#command_line').terminal().insert(uuid);
-            this.props.focusActionBar();
+            var uuid = this.refs['row' + this.props.subFocusIndex].props.uuid;
+            $('#command_line').terminal().insert(uuid + ' ');
+            //this.props.focusActionBar();
         }.bind(this), 'keydown');
 
         // Paste args of focused bundle into console
         Mousetrap.bind(['a'], function(e) {
-            var bundleInfo = this.refs['row' + this.state.rowFocusIndex].props.bundleInfo;
+            var bundleInfo = this.refs['row' + this.props.subFocusIndex].props.bundleInfo;
             if (bundleInfo.args != null) {
                 $('#command_line').terminal().insert(bundleInfo.args);
                 this.props.focusActionBar();
@@ -54,32 +47,14 @@ var TableBundle = React.createClass({
         }.bind(this), 'keydown');
     },
 
-    scrollToRow: function(index) {
-        var __innerScrollToRow = function(index) {
-            // Compute the current position of the focused row.
-            var node = this.getDOMNode();
-            var nodePos = node.getBoundingClientRect();
-            var rowHeight = this.refs.row0.getDOMNode().offsetHeight;
-            var tablePos = nodePos.top;
-            var pos = tablePos + (index * rowHeight);
-            // Make sure it's visible
-            keepPosInView(pos);
-        };
-
-        // Throttle so that if keys are held down, we don't suffer a huge lag.
-        if (this.throttledScrollToRow === undefined)
-            this.throttledScrollToRow = _.throttle(__innerScrollToRow, 50).bind(this);
-        this.throttledScrollToRow(index);
+    updateRowIndex: function(rowIndex) {
+        this.props.setFocus(this.props.focusIndex, rowIndex);
     },
 
-    focusOnRow: function(rowIndex) {
-        this.props.setFocus(this.props.index, rowIndex);
-        this.updateRowFocusindex(rowIndex);
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
     },
-    updateRowFocusindex : function(rowIndex) {
-        this.setState({rowFocusIndex: rowIndex});
-        this.scrollToRow(rowIndex);
-    },
+
     render: function() {
         if (this.props.active && this.props.focused)
           this.capture_keys();
@@ -96,30 +71,29 @@ var TableBundle = React.createClass({
         var header_html = header_items.map(function(item, index) {
             return <th key={index} className={column_classes[index]}>{item}</th>;
         });
-        var focusIndex = this.state.rowFocusIndex;
         var row_items = item.interpreted[1];  // Array of {header: value, ...} objects
         var column_with_hyperlinks = [];
         Object.keys(row_items[0]).forEach(function(x) {
             if (row_items[0][x] && row_items[0][x]['path'])
                 column_with_hyperlinks.push(x);
         });
-        var body_rows_html = row_items.map(function(row_item, index) {
-            var row_ref = 'row' + index;
-            var rowFocused = self.props.focused && (index == focusIndex);
-            var url = '/bundles/' + bundle_info[index].uuid;
+        var body_rows_html = row_items.map(function(row_item, row_index) {
+            var row_ref = 'row' + row_index;
+            var row_focused = self.props.focused && (row_index == self.props.subFocusIndex);
+            var url = '/bundles/' + bundle_info[row_index].uuid;
             return <TableRow
-                     key={index}
+                     key={row_index}
                      ref={row_ref}
                      item={row_item}
-                     index={index}
-                     focused={rowFocused}
+                     rowIndex={row_index}
+                     focused={row_focused}
                      url={url}
-                     bundleInfo={bundle_info[index]}
-                     uuid={bundle_info[index].uuid}
+                     bundleInfo={bundle_info[row_index]}
+                     uuid={bundle_info[row_index].uuid}
                      headerItems={header_items}
                      columnClasses={column_classes}
                      canEdit={canEdit}
-                     handleClick={self.focusOnRow}
+                     updateRowIndex={self.updateRowIndex}
                      columnWithHyperlinks={column_with_hyperlinks}
                    />;
         });
@@ -149,7 +123,7 @@ var TableRow = React.createClass({
         return { };
     },
     handleClick: function() {
-        this.props.handleClick(this.props.index);
+        this.props.updateRowIndex(this.props.rowIndex);
     },
 
     render: function() {
@@ -159,12 +133,12 @@ var TableRow = React.createClass({
         var base_url = this.props.url;
         var uuid = this.props.uuid;
         var column_with_hyperlinks = this.props.columnWithHyperlinks;
-        var row_cells = this.props.headerItems.map(function(header_key, index) {
+        var row_cells = this.props.headerItems.map(function(header_key, col) {
             var row_content = row_items[header_key];
 
             // See if there's a link
             var url;
-            if (index == 0) {
+            if (col == 0) {
               url = base_url;
             } else if (column_with_hyperlinks.indexOf(header_key) != -1) {
               url = '/api/bundles/filecontent/' + uuid + row_content['path'];
@@ -180,7 +154,7 @@ var TableRow = React.createClass({
               row_content = <a href={url} className="bundle-link" target="_blank">{row_content}</a>;
 
             return (
-              <td key={index} className={column_classes[index]}>
+              <td key={col} className={column_classes[col]}>
                 {row_content}
               </td>
             );
