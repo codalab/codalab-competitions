@@ -1,7 +1,17 @@
 from rest_framework import routers
-from . import views
+
 from django.conf.urls import patterns, url
-router = routers.DefaultRouter(trailing_slash=False)
+from django.conf import settings
+
+from . import views
+
+if settings.ENABLE_COMPETITIONS:
+    router = routers.DefaultRouter()
+elif settings.ENABLE_WORKSHEETS:
+    router = routers.DefaultRouter(trailing_slash=False)
+else:
+    router = routers.DefaultRouter()
+
 
 router.register(r'competition/(?P<competition_id>\d+)/participants', views.CompetitionParticipantAPIViewSet)
 router.register(r'competition', views.CompetitionAPIViewSet)
@@ -12,6 +22,7 @@ urlpatterns = router.urls
 
 urlpatterns += (
     ### Competitions
+
     url(r'^competition/create$', views.CompetitionCreationApi.as_view(), name='api_competition_creation'),
     url(r'^competition/create/sas$', views.CompetitionCreationSasApi.as_view(), name='api_competition_creation_sas'),
     url(r'^competition/create/(?P<token>\d+)$', views.CompetitionCreationStatusApi.as_view(), name='api_competition_creation_status'),
