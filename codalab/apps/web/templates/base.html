@@ -92,10 +92,11 @@
                         {% endif %}
                         {% if ENABLE_COMPETITIONS %}
                           <li class="{% active request '/my/' %}">
+
                               {% if user.is_authenticated %}
-                                  <a href="/my">Competitions</a>
+                                  <a href="/my">Search Competitions</a>
                               {% else %}
-                                  <a href="/competitions/">Competitions</a>
+                                  <a href="/competitions/">Search Competitions</a>
                               {% endif %}
                           </li>
                         {% endif %}
