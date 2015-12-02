@@ -82,7 +82,7 @@
                           {% if ENABLE_COMPETITIONS %}
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
                           {% else %}
-                            <li><a href="https://worksheets-test.codalab.org/" tabIndex=2 target="_self">Competitions</a></li>
+                            <li><a href="https://competitions-test.codalab.org/" tabIndex=2 target="_self">Competitions</a></li>
                             <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
                             {% if user.is_authenticated %}
                               <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
