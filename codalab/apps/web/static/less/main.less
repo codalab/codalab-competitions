@@ -281,6 +281,47 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /*Code for latest competitions in homepage*/
+/*
+This code is for 768px and up
+*/
+@media screen and (min-width: @screen-sm-min) {
+    .competition-tile {
+        height: 110px;
+        .row{
+            height: 95%;
+            .col-sm-6{
+              height: 100%;
+              overflow: scroll;
+            }
+            .col-sm-4{
+              padding-top: 15px;
+            }
+        }
+    }
+}
+
+/*
+This cde is for 992px and up
+*/
+@media screen and (min-width: @screen-md-min) {
+    .competition-tile {
+        height: 110px;
+        .row{
+          height: 95%;
+        .col-sm-6{
+          height: 100%;
+          overflow: scroll;
+          padding-bottom: 10px;
+        }
+        .col-sm-4{
+          padding-top: 35px;
+        }
+        }
+    }
+}
+
+
+
 .competition-tile .row .right-panel-homepage{
   line-height: 20px;
 }

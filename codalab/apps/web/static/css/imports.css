@@ -255,12 +255,7 @@ th {
   src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 .glyphicon {
-  cursor: pointer;
   position: relative;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
   top: 1px;
   display: inline-block;
   font-family: 'Glyphicons Halflings';
@@ -6432,10 +6427,8 @@ fieldset[disabled] .btn-secondary.active {
   padding-left: 50px;
 }
 .worksheet-icon {
-  margin: 0px 0px 0px 0px;
-  display: inline-block;
-  float: left;
-  content: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
+  text-indent: 75px;
+  background: url('/static/img/icon_worksheet.png') no-repeat 0 10px;
   line-height: 65px;
 }
 .bundle-icon-sm {
@@ -7418,9 +7411,6 @@ kbd {
   margin-left: -15px;
   top: 7px;
 }
-.sidepanel-file-viewer-contents {
-  cursor: pointer;
-}
 .select2-container-multi .select2-choices .select2-search-field input:focus {
   border: none;
   -webkit-box-shadow: none;
@@ -7470,7 +7460,7 @@ input[type="checkbox"] {
 }
 /* Everything below correspondes to the latest homepage*/
 .col-sm-6 .btn-group .btn-group a {
-  color: #777777;
+  color: #FFFFFF;
   font-weight: bold;
   font-size: 18px;
 }
@@ -7482,6 +7472,7 @@ input[type="checkbox"] {
   /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
   border-radius: 10px;
   background: #FFC266;
+  border: 1px solid;
 }
 .homepage_headers {
   color: #739cb9;
@@ -7631,6 +7622,43 @@ fieldset[disabled] .worksheets-list .worksheet-tile .worksheet-inner button.dele
   margin-bottom: 6px;
 }
 /*Code for latest competitions in homepage*/
+/*
+This code is for 768px and up
+*/
+@media screen and (min-width: 768px) {
+  .competition-tile {
+    height: 110px;
+  }
+  .competition-tile .row {
+    height: 95%;
+  }
+  .competition-tile .row .col-sm-6 {
+    height: 100%;
+    overflow: scroll;
+  }
+  .competition-tile .row .col-sm-4 {
+    padding-top: 15px;
+  }
+}
+/*
+This cde is for 992px and up
+*/
+@media screen and (min-width: 992px) {
+  .competition-tile {
+    height: 110px;
+  }
+  .competition-tile .row {
+    height: 95%;
+  }
+  .competition-tile .row .col-sm-6 {
+    height: 100%;
+    overflow: scroll;
+    padding-bottom: 10px;
+  }
+  .competition-tile .row .col-sm-4 {
+    padding-top: 35px;
+  }
+}
 .competition-tile .row .right-panel-homepage {
   line-height: 20px;
 }
@@ -7922,31 +7950,26 @@ body,
 }
 #worksheet_content .worksheet-name {
   min-height: 65px;
-  padding: 0;
 }
 #worksheet_content .worksheet-name label input[type="checkbox"] {
   margin-right: 5px;
 }
-#worksheet_content .worksheet-title  {
+#worksheet_content .worksheet-name h1 {
   text-indent: 0;
   margin: 0;
-  font-size: 32px;
-  padding-left: 10px;
-  line-height: 1.1em;
+  font-size: 44px;
+  line-height: 1em;
   padding-top: 5px;
+  padding-left: 65px;
   min-height: 60px;
-  padding-bottom: 20px;
-}
-#worksheet_content .worksheet-name {
-  font-size: 14px;
-  margin-top: 0;
 }
 #worksheet_content .worksheet-name .worksheet-author {
   text-indent: 65px;
   font-size: 14px;
   margin-top: 0;
 }
-#worksheet_content .worksheet-name .worksheet-detail {
+#worksheet_content .worksheet-name .worksheet-permission {
+  text-indent: 65px;
   font-size: 12px;
   margin-top: 0;
 }
@@ -7955,6 +7978,7 @@ body,
 }
 #worksheet_content .header-row .controls {
   text-align: right;
+  padding-top: 12px;
 }
 #worksheet_content .header-row .controls .edit-features {
   margin-top: 8px;
@@ -8778,24 +8802,6 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   background-color: #d9534f;
   border-color: #d43f3a;
 }
-.editable-field:hover {
-    cursor: text;
-    border-radius: 4px;
-    box-shadow: 1px 1px 1px 1px grey;
-}
-.editable-error-block {
-  font-size: 16px;
-}
-#worksheet-editor {
-        margin: 0;
-        position: relative;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 1000px;
-        height: 700px;
-}
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover .badge {
   color: #d9534f;
   background-color: #fff;
@@ -9115,7 +9121,7 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   cursor: pointer;
   color: #739cb9;
 }
-.file-browser-table {
+#bundle-content .bundle-tile .bundle-file-view-container .file-browser-table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 25px;
@@ -9789,10 +9795,4 @@ textarea.table.affiliation > tbody > tr > td input {
 }
 .terminal a:hover {
   color: red;
-}
-
-.frontpage_code {
-  font-family: monospace;
-  font-size: 14px;
-  color: #33aa33;
 }
