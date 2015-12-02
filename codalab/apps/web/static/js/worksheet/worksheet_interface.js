@@ -106,8 +106,8 @@ var Worksheet = React.createClass({
              return JSON.stringify(data);
             }.bind(this),
             success: function(response, newValue) {
-                if (response.error) {
-                    return response.error;
+                if (response.exception) {
+                    return response.exception;
                 }
                 this.state.ws.fetch({async: false});
             }.bind(this)
@@ -375,6 +375,7 @@ var Worksheet = React.createClass({
 
         var searchClassName   = !this.state.showActionBar ? 'search-hidden' : '';
         var editableClassName = canEdit ? 'editable' : '';
+        var editableFieldName = this.canEdit() ? 'editable-field' : '';
         var viewClass         = !canEdit && !this.state.editMode ? 'active' : '';
         var rawClass          = this.state.editMode ? 'active' : '';
 
@@ -471,10 +472,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className={editableFieldName} data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className='editable-field' data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
+                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className={editableFieldName} data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
                                                 <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>

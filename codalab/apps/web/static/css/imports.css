@@ -8780,8 +8780,11 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 }
 .editable-field:hover {
     cursor: text;
-     border-radius: 4px;
+    border-radius: 4px;
     box-shadow: 1px 1px 1px 1px grey;
+}
+.editable-error-block {
+  font-size: 16px;
 }
 #worksheet-editor {
         margin: 0;
