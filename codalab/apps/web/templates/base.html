@@ -82,7 +82,7 @@
                           {% if ENABLE_COMPETITIONS %}
                             <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
                           {% else %}
-                            <li><a href="https://competitions-test.codalab.org/" tabIndex=2 target="_self">Competitions</a></li>
+                            <li><a href="https://competitions-test.codalab.org/" tabIndex=2 target="_blank">Competitions</a></li>
                             <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
                             {% if user.is_authenticated %}
                               <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
@@ -92,13 +92,18 @@
                           {% endif %}
                         {% endif %}
                         {% if ENABLE_COMPETITIONS %}
-                          <li><a href="https://worksheets-test.codalab.org/" tabIndex=2 target="_self">Worksheets</a></li>
+                          <li><a href="https://worksheets-test.codalab.org/" tabIndex=2 target="_blank">Worksheets</a></li>
                           <li class="{% active request '/my/' %}">
                               {% if user.is_authenticated %}
-                                  <a href="/my">Search Competitions</a>
+                                  <a href="/my">My Competitions</a>
                               {% else %}
                                   <a href="/competitions/">Search Competitions</a>
                               {% endif %}
+                          </li>
+                          <li class="{% active request '/my/' %}">
+                          {% if not user.is_authenticated %}
+                          <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">My Competitions</a>
+                          {% endif %}
                           </li>
                         {% endif %}
                         <li>
