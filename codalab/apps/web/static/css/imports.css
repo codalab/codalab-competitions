@@ -7804,7 +7804,7 @@ body,
   text-overflow: ellipsis;
 }
 #worksheet .ws-panel #panel_content .bundle-description {
-  font-size: 90%;
+  font-size: 16px;
   margin: 5px 0;
 }
 #worksheet .ws-panel #panel_content h3 {
