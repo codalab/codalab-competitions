@@ -7472,7 +7472,7 @@ input[type="checkbox"] {
   /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
   border-radius: 10px;
   background: #FFC266;
-  /*border: 1px solid;*/
+  border: 1px solid;
 }
 .homepage_headers {
   color: #739cb9;
@@ -7626,36 +7626,33 @@ fieldset[disabled] .worksheets-list .worksheet-tile .worksheet-inner button.dele
 This code is for 768px and up
 */
 @media screen and (min-width: 768px) {
-  .competition-tile {
+  .homepage-competition-tile {
     height: 110px;
   }
-  .competition-tile .row {
+  .homepage-competition-tile .row {
     height: 95%;
   }
-  .competition-tile .row .col-sm-6 {
+  .homepage-competition-tile .row .col-sm-6 {
     height: 100%;
     overflow: scroll;
   }
-  .competition-tile .row .col-sm-4 {
+  .homepage-competition-tile .row .col-sm-4 {
     padding-top: 15px;
   }
 }
-/*
-This cde is for 992px and up
-*/
 @media screen and (min-width: 992px) {
-  .competition-tile {
+  .homepage-competition-tile {
     height: 110px;
   }
-  .competition-tile .row {
+  .homepage-competition-tile .row {
     height: 95%;
   }
-  .competition-tile .row .col-sm-6 {
+  .homepage-competition-tile .row .col-sm-6 {
     height: 100%;
     overflow: scroll;
     padding-bottom: 10px;
   }
-  .competition-tile .row .col-sm-4 {
+  .homepage-competition-tile .row .col-sm-4 {
     padding-top: 20px;
   }
 }
@@ -7832,7 +7829,7 @@ body,
   text-overflow: ellipsis;
 }
 #worksheet .ws-panel #panel_content .bundle-description {
-  font-size: 16px;
+  font-size: 90%;
   margin: 5px 0;
 }
 #worksheet .ws-panel #panel_content h3 {
@@ -8041,7 +8038,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   pointer-events: none;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=65)";
   filter: alpha(opacity=65);
-  background-color: #A9A9A9;
+  opacity: 0.65;
   -webkit-box-shadow: none;
   box-shadow: none;
 }
@@ -8063,6 +8060,24 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .header-row .controls .edit-features .btn-group button.active,
 .open > .dropdown-toggle#worksheet_content .header-row .controls .edit-features .btn-group button {
   background-image: none;
+}
+#worksheet_content .header-row .controls .edit-features .btn-group button.disabled,
+#worksheet_content .header-row .controls .edit-features .btn-group button[disabled],
+fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button,
+#worksheet_content .header-row .controls .edit-features .btn-group button.disabled:hover,
+#worksheet_content .header-row .controls .edit-features .btn-group button[disabled]:hover,
+fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button:hover,
+#worksheet_content .header-row .controls .edit-features .btn-group button.disabled:focus,
+#worksheet_content .header-row .controls .edit-features .btn-group button[disabled]:focus,
+fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button:focus,
+#worksheet_content .header-row .controls .edit-features .btn-group button.disabled:active,
+#worksheet_content .header-row .controls .edit-features .btn-group button[disabled]:active,
+fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button:active,
+#worksheet_content .header-row .controls .edit-features .btn-group button.disabled.active,
+#worksheet_content .header-row .controls .edit-features .btn-group button[disabled].active,
+fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-group button.active {
+  background-color: #fafafa;
+  border-color: #ccc;
 }
 #worksheet_content .header-row .controls .edit-features .btn-group button .badge {
   color: #fafafa;
@@ -8751,24 +8766,6 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-color: #d43f3a;
   text-decoration: none;
   opacity: 1;
-}
-.editable-field:hover {
-    cursor: text;
-    border-radius: 4px;
-    box-shadow: 1px 1px 1px 1px grey;
-}
-.editable-error-block {
-  font-size: 16px
-}
-#worksheet-editor {
-        margin: 0
-        position: relative;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 1000px;
-        height: 700px;
 }
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover:hover,
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover:focus,
