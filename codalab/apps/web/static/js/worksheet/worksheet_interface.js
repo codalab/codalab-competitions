@@ -225,10 +225,13 @@ var Worksheet = React.createClass({
                 focusIndex: focusIndexPair[0],
                 subFocusIndex: focusIndexPair[1],
             });  // Needs to be after getting the raw contents
-            this.saveAndUpdateWorksheet(true);
+            this.saveAndUpdateWorksheet(saveChanges);
           } else {
-            // Not allowed to save worksheet (shouldn't happen).
-            console.log('No permissions to save worksheet.');
+            // Not allowed to edit the worksheet.
+            this.setState({
+                editMode: editMode,
+                editorEnabled: false,
+            });
           }
         } else {
           // Go into edit mode.
@@ -245,37 +248,46 @@ var Worksheet = React.createClass({
             editor.session.setUseWrapMode(false);
             editor.setShowPrintMargin(false);
             editor.session.setMode('ace/mode/markdown');
-            editor.commands.addCommand({
-                name: 'save',
-                bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
-                exec: function(editor) {
-                    this.toggleEditMode();
-                }.bind(this),
-                readOnly: true
-            });
-            editor.focus();
-
-            var rawIndex;
-            var cursorColumnPosition;
-            if (this.state.focusIndex == -1) { // Above the first item
-              rawIndex = 0;
-              cursorColumnPosition = 0;
+            if (!this.canEdit()) {
+              editor.setOptions({
+                  readOnly: true,
+                  highlightActiveLine: false,
+                  highlightGutterLine: false
+              });
+              editor.renderer.$cursorLayer.element.style.opacity=0;
             } else {
-              var item = this.state.ws.info.items[this.state.focusIndex];
-              // For non-tables such as search and wsearch, we have subFocusIndex, but not backed by raw items, so use 0.
-              var focusIndexPair = this.state.focusIndex + ',' + (item.mode == 'table' ? this.state.subFocusIndex : 0);
-              rawIndex = this.state.ws.info.interpreted_to_raw[focusIndexPair];
-            }
+              editor.commands.addCommand({
+                  name: 'save',
+                  bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
+                  exec: function(editor) {
+                      this.toggleEditMode();
+                  }.bind(this),
+                  readOnly: true
+              });
+              editor.focus();
 
-            if (rawIndex === undefined) {
-                console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
-                console.log(this.state.ws.info.interpreted_to_raw);
-                return;
+              var rawIndex;
+              var cursorColumnPosition;
+              if (this.state.focusIndex == -1) { // Above the first item
+                rawIndex = 0;
+                cursorColumnPosition = 0;
+              } else {
+                var item = this.state.ws.info.items[this.state.focusIndex];
+                // For non-tables such as search and wsearch, we have subFocusIndex, but not backed by raw items, so use 0.
+                var focusIndexPair = this.state.focusIndex + ',' + (item.mode == 'table' ? this.state.subFocusIndex : 0);
+                rawIndex = this.state.ws.info.interpreted_to_raw[focusIndexPair];
+              }
+
+              if (rawIndex === undefined) {
+                  console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
+                  console.log(this.state.ws.info.interpreted_to_raw);
+                  return;
+              }
+              if (cursorColumnPosition === undefined)
+                cursorColumnPosition = editor.session.getLine(rawIndex).length;  // End of line
+              editor.gotoLine(rawIndex + 1, cursorColumnPosition);
+              editor.renderer.scrollToRow(rawIndex);
             }
-            if (cursorColumnPosition === undefined)
-              cursorColumnPosition = editor.session.getLine(rawIndex).length;  // End of line
-            editor.gotoLine(rawIndex + 1, cursorColumnPosition);
-            editor.renderer.scrollToRow(rawIndex);
         }
     },
 
@@ -378,7 +390,7 @@ var Worksheet = React.createClass({
         var editableFieldName = this.canEdit() ? 'editable-field' : '';
         var viewClass         = !canEdit && !this.state.editMode ? 'active' : '';
         var rawClass          = this.state.editMode ? 'active' : '';
-
+        var disableWorksheetEditing = this.canEdit() ? '' : 'disabled';
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
             <div className="edit-features">
@@ -394,7 +406,7 @@ var Worksheet = React.createClass({
             <div className="edit-features">
                 <label>Mode:</label>
                 <div className="btn-group">
-                    <button className={viewClass} onClick={this.viewMode}>Save</button>
+                    <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
                     <button className={viewClass} onClick={this.discardChanges}>Discard</button>
                 </div>
             </div>
