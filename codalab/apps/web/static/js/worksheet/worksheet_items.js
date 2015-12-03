@@ -9,9 +9,7 @@ the bundle service.
 
 var WorksheetItemList = React.createClass({
     getInitialState: function() {
-        return {
-            focusIndex: -1, // Index of worksheet item that we're focused on.
-        };
+        return {};
     },
     throttledScrollToItem: undefined, // for use later
     componentDidMount: function() {
@@ -32,105 +30,37 @@ var WorksheetItemList = React.createClass({
             return;
 
         // Open a new window (really should be handled at the item level)
-        Mousetrap.bind(['enter'], function(e) {
-            var url = this.refs['item' + this.state.focusIndex].props.url;
+        Mousetrap.bind(['enter'], function() {
+            var url = this.refs['item' + this.props.focusIndex].props.url;
             if (url)
               window.open(url, '_blank');
         }.bind(this), 'keydown');
 
         // Move focus up one
-        Mousetrap.bind(['up', 'k'], function(e) {
-            this.setFocus(this.state.focusIndex - 1, 'end');
+        Mousetrap.bind(['up', 'k'], function() {
+            this.props.setFocus(this.props.focusIndex - 1, 'end');
         }.bind(this), 'keydown');
 
         // Move focus to the top
-        Mousetrap.bind(['g g'], function(e) {
+        Mousetrap.bind(['g g'], function() {
             $('body').stop(true).animate({scrollTop: 0}, 'fast');
-            this.setFocus(-1, 0);
+            this.props.setFocus(-1, 0);
         }.bind(this), 'keydown');
 
         // Move focus down one
-        Mousetrap.bind(['down', 'j'], function(e) {
-            this.setFocus(this.state.focusIndex + 1, 0);
+        Mousetrap.bind(['down', 'j'], function() {
+            this.props.setFocus(this.props.focusIndex + 1, 0);
         }.bind(this), 'keydown');
 
         // Move focus to the bottom
-        Mousetrap.bind(['shift+g'], function(e) {
-            this.setFocus(this.props.ws.info.items.length - 1, 'end');
-            $("html, body").animate({ scrollTop: $(document).height() }, 'fast');
+        Mousetrap.bind(['shift+g'], function() {
+            this.props.setFocus(this.props.ws.info.items.length - 1, 'end');
+            $('html, body').animate({scrollTop: $(document).height()}, 'fast');
         }.bind(this), 'keydown');
-    },
-
-    // If |item| is a table or search with table embedded inside, then return the number of rows
-    _numTableRows: function(item) {
-      if (!item) return null;
-      if (item.mode == 'table')
-        return item.bundle_info.length;
-      if (item.mode == 'worksheet')
-        return 1;
-      if (item.mode == 'wsearch')
-        return item.interpreted.items.length;
-      if (item.mode == 'search')
-        return this._numTableRows(item.interpreted.items[0]);
-      return null;
-    },
-
-    setFocus: function(index, subIndex) {
-        var info = this.props.ws.info;
-        if (index < -1 || index >= info.items.length)
-          return;  // Out of bounds (note -1 is okay)
-
-        this.setState({focusIndex: index});
-        this.props.updateWorksheetFocusIndex(index);  // Notify parent of selection (so we can show the right thing on the side panel)
-        if (index != -1 && subIndex != null) {
-          // Change subindex (for tables)
-          var item = info.items[index];
-          var numTableRows = this._numTableRows(item);
-          if (numTableRows != null) {
-            if (subIndex == 'end')
-              subIndex = numTableRows - 1;  // Last row of table
-            this.props.updateWorksheetSubFocusIndex(subIndex);  // Notify parent of selection
-            this.refs['item' + index].focusOnRow(subIndex); // Notify child
-          }
-        }
-        this.scrollToItem(index);
-    },
-
-    resetFocusIndex: function() {
-        this.setState({focusIndex: -1});
-    },
-
-    scrollToItem: function(index) {
-        // scroll the window to keep the focused element in view if needed
-        var __innerScrollToItem = function(index) {
-          // Compute the current position of the focused item.
-          var pos;
-          if (index == -1) {
-            pos = -1000000;  // Scroll all the way to the top
-          } else {
-            var item = this.refs['item' + index];
-            if (this._numTableRows(item.props.item) != null)  // Table scrolling is handled at the row level
-              return;
-            var node = item.getDOMNode();
-            pos = node.getBoundingClientRect().top;
-          }
-          keepPosInView(pos);
-        };
-
-        // Throttle so that if keys are held down, we don't suffer a huge lag.
-        if (this.throttledScrollToItem === undefined)
-            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 50).bind(this);
-        this.throttledScrollToItem(index);
     },
 
     render: function() {
         this.capture_keys(); // each item capture keys are handled dynamically after this call
-
-        var active = this.props.active;
-        var focusIndex = this.state.focusIndex;
-        var canEdit = this.props.canEdit;
-        var setFocus = this.setFocus;
-        var updateWorksheetSubFocusIndex = this.props.updateWorksheetSubFocusIndex;
 
         // Create items
         var items_display;
@@ -138,15 +68,16 @@ var WorksheetItemList = React.createClass({
         if (info && info.items.length > 0) {
             var worksheet_items = [];
             info.items.forEach(function(item, index) {
-                var focused = (index === focusIndex);
+                var focused = (index == this.props.focusIndex);
                 var props = {
                   item: item,
-                  index: index,
-                  active: active,
+                  version: this.props.version,
+                  active: this.props.active,
                   focused: focused,
-                  canEdit: canEdit,
-                  setFocus: setFocus,
-                  updateWorksheetSubFocusIndex: updateWorksheetSubFocusIndex,
+                  canEdit: this.props.canEdit,
+                  focusIndex: index,
+                  subFocusIndex: focused ? this.props.subFocusIndex : null,
+                  setFocus: this.props.setFocus,
                   focusActionBar: this.props.focusActionBar
                 };
                 addWorksheetItems(props, worksheet_items);
@@ -158,7 +89,7 @@ var WorksheetItemList = React.createClass({
         if (info && info.error)
           items_display = <p className="alert-danger">Error in worksheet: {info.error}</p>;
 
-        return <div id="worksheet_items">{items_display}</div>
+        return <div id="worksheet_items">{items_display}</div>;
     }
 });
 
@@ -174,7 +105,7 @@ var WorksheetItemList = React.createClass({
 var addWorksheetItems = function(props, worksheet_items) {
     var item = props.item;
 
-    // These worksheet items unpack into multiple interpreted items.
+    // Unpack search item into a table.
     if (item.mode == 'search') {
       var subitem = item.interpreted.items[0];
       if (!subitem) {
@@ -184,7 +115,7 @@ var addWorksheetItems = function(props, worksheet_items) {
       var subprops = {};
       for (var k in props) subprops[k] = props[k];
       subprops.item = subitem;
-      subprops.index = props.index;
+      subprops.focusIndex = props.focusIndex;
       addWorksheetItems(subprops, worksheet_items);
       return;
     }
@@ -196,7 +127,7 @@ var addWorksheetItems = function(props, worksheet_items) {
     if (item.subworksheet_info)
       url = '/worksheets/' + item.subworksheet_info.uuid;
 
-    props.key = props.ref = 'item' + props.index;
+    props.key = props.ref = 'item' + props.focusIndex;
     props.url = url;
 
     var constructor = {
@@ -208,6 +139,7 @@ var addWorksheetItems = function(props, worksheet_items) {
       'html': HTMLBundle,
       'record': RecordBundle,
       'image': ImageBundle,
+      'graph': GraphBundle,
     }[item.mode];
 
     var elem;

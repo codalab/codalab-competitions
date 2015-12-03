@@ -28,7 +28,7 @@ if settings.ENABLE_WORKSHEETS:
     from codalab.objects.permission import permission_str, group_permissions_str
     from codalab.lib.codalab_manager import CodaLabManager
     from codalab.server.rpc_file_handle import RPCFileHandle
-    from codalab.lib import file_util, formatting
+    from codalab.lib import file_util, zip_util, formatting
 
     from codalab.model.tables import (
         GROUP_OBJECT_PERMISSION_ALL,
@@ -155,13 +155,20 @@ if settings.ENABLE_WORKSHEETS:
                     worksheet_info['error'] = str(e)
 
                 worksheet_info['items'] = self.client.resolve_interpreted_items(interpreted_items['items'])
+                worksheet_info['raw_to_interpreted'] = interpreted_items['raw_to_interpreted']
+                worksheet_info['interpreted_to_raw'] = interpreted_items['interpreted_to_raw']
+
+                def decode_lines(interpreted):
+                    # interpreted is None or list of base64 encoded lines
+                    if interpreted is None:
+                        return formatting.contents_str(None)
+                    else:
+                        return map(base64.b64decode, interpreted)
+
                 # Currently, only certain fields are base64 encoded.
                 for item in worksheet_info['items']:
                     if item['mode'] in ['html', 'contents']:
-                        if item['interpreted'] is None:
-                            item['interpreted'] = [formatting.contents_str(item['interpreted'])]
-                        else:
-                            item['interpreted'] = map(base64.b64decode, item['interpreted'])
+                        item['interpreted'] = decode_lines(item['interpreted'])
                     elif item['mode'] == 'table':
                         for row_map in item['interpreted'][1]:
                             for k, v in row_map.iteritems():
@@ -193,13 +200,22 @@ if settings.ENABLE_WORKSHEETS:
             info = {'bundle_type': bundle_type, 'metadata': metadata}
 
             # Upload it by creating a file handle and copying source_file to it (see RemoteBundleClient.upload_bundle in the CLI).
-            remote_file_uuid = self.client.open_temp_file()
+            remote_file_uuid = self.client.open_temp_file(metadata['name'])
             dest = RPCFileHandle(remote_file_uuid, self.client.proxy)
-            file_util.copy(source_file, dest, autoflush=False, print_status='Uploading %s' % info['metadata']['name'])
+            file_util.copy(source_file, dest, autoflush=False, print_status='Uploading %s' % metadata['name'])
             dest.close()
 
+            pack = False  # For now, always unpack (note: do this after set remote_file_uuid, which needs the extension)
+            if not pack and zip_util.path_is_archive(metadata['name']):
+                metadata['name'] = zip_util.strip_archive_ext(metadata['name'])
+
             # Then tell the client that the uploaded file handle is there.
-            new_bundle_uuid = self.client.upload_bundle_zip(remote_file_uuid, info, worksheet_uuid, False, True)
+            new_bundle_uuid = self.client.finish_upload_bundle(
+                [remote_file_uuid],
+                not pack,  # unpack
+                info,
+                worksheet_uuid,
+                True)  # add_to_worksheet
             return new_bundle_uuid
 
         def add_worksheet_item(self, worksheet_uuid, bundle_uuid):
@@ -335,24 +351,29 @@ if settings.ENABLE_WORKSHEETS:
             """
             uuid, path = target
             bundle_info = self.client.get_bundle_info(uuid, False, False, False)
+            if bundle_info is None:
+                raise UsageError('Bundle %s does not exist' % (uuid,))
             if path == '':
                 name = bundle_info['metadata']['name']
             else:
                 name = os.path.basename(path)
 
             target_info = self.client.get_target_info(target, 0)
-            if target_info['type'] == 'file':
-                # Is a file, Don't need to zip it up
+            if target_info is None:
+                raise UsageError('Target does not exist: %s' % (target,))
+            target_type = target_info.get('type')
+            if target_type == 'file':
+                # Is a file, don't need to zip it up
                 content_type = mimetypes.guess_type(name)[0]
                 if not content_type: content_type = 'text/plain'
                 source_uuid = self.client.open_target(target)
-                delete = False
-            else:
+            elif target_type == 'directory':
                 # Is a directory, need to zip it up
-                content_type = 'zip'
-                source_uuid, _ = self.client.open_target_zip(target, False)
-                name += '.zip'
-                delete = True
+                content_type = 'application/x-gzip'
+                source_uuid = self.client.open_target_archive(target)
+                name += '.tar.gz'
+            else:
+                raise UsageError('Target is not file/directory: %s' % (target,))
 
             def read_file():
                 """
@@ -365,7 +386,7 @@ if settings.ENABLE_WORKSHEETS:
                         if len(bytes.data) < BundleService.MAX_BYTES:
                             break
                 finally:
-                    self.client.finalize_file(source_uuid, delete)
+                    self.client.finalize_file(source_uuid)
 
             print 'Downloading bundle uuid %s => %s %s' % (uuid, name, content_type)
             return read_file(), name, content_type

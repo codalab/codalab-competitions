@@ -275,7 +275,7 @@ class BundleInfoApi(views.APIView):
 
                 # TODO: do this generally based on the CLI specs.
                 # Remove generated fields.
-                for key in ['data_size', 'created', 'time', 'memory', 'exitcode', 'actions']:
+                for key in ['data_size', 'created', 'time', 'memory', 'exitcode', 'actions', 'started', 'last_updated']:
                     if key in new_metadata:
                         del new_metadata[key]
 

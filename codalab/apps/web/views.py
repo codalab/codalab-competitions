@@ -32,6 +32,7 @@ from django.views.generic import View, TemplateView, DetailView, ListView, FormV
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
 from django.core.servers.basehttp import FileWrapper
+from django.conf import settings
 
 from mimetypes import MimeTypes
 
@@ -42,6 +43,7 @@ from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.worksheet_utils import get_worksheets
+from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from tasks import evaluate_submission
 from django.contrib.auth import get_user_model
 
@@ -65,8 +67,10 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
-        context['latest_competitions'] = models.Competition.objects.filter(published=True).order_by('-id')[0:3]
-        context['worksheets'] = get_worksheets(self.request.user)
+        context['latest_competitions'] = get_most_popular_competitions()
+        context['featured_competitions'] = get_featured_competitions()
+        if settings.ENABLE_WORKSHEETS:
+            context['worksheets'] = get_worksheets(self.request.user)
         return context
 
 class LoginRequiredMixin(object):

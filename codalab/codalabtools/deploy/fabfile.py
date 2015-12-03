@@ -674,3 +674,52 @@ def setup_env():
         CONFIG_SERVER_NAME=env.config_server_name,
     )
     return prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV)
+
+
+@task
+def update_anaconda_library():
+    '''
+    1. Will get the new version of Ananconda from the repository
+    2. Will deleted old version of anaconda
+    '''
+    with cd('/home/azureuser'):
+        sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
+        sudo("rm -rf anaconda/")
+
+
+@task
+def set_permissions_on_codalab_temp():
+    '''
+    Permissions keeps ressetting for some reason
+    Runing this command will set the proper permissions
+    '''
+    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+
+
+@task
+def stop_compute_workers_and_monitors():
+    '''
+    Command to stop compute workers and monitor
+    '''
+    sudo("stop codalab-compute-worker")
+    sudo("stop codalab-monitor")
+
+
+@task
+def start_codalab_workers_and_monitor():
+    '''
+    Command to start compute workers
+    Command to start monitor
+    '''
+    sudo("start codalab-compute-worker")
+    sudo("start codalab-monitor")
+
+
+@task
+def check_compute_worker_status_and_monitor_status():
+    '''
+    Command to check for compute worker status
+    Command to check for monitor status
+    '''
+    run("status codalab-compute-worker")
+    run("status codalab-monitor")

@@ -7,26 +7,19 @@ from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
 
-__version__ = 'N/A'
-try:
-    import codalab.version
-    __version__ = codalab.version.__version__
-except ImportError:
-    pass
-
-
 class Base(Settings):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
     PORT = '8000'
-    DOMAIN_NAME='localhost'
-    SERVER_NAME='localhost'
+    DOMAIN_NAME = 'localhost'
+    SERVER_NAME = 'localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
+    LOCAL_ACE_EDITOR = False # see prep_for_offline
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -60,7 +53,8 @@ class Base(Settings):
 
     AUTH_USER_MODEL = 'authenz.ClUser'
 
-    CODALAB_VERSION = __version__
+    # Keep in sync with codalab-cli
+    CODALAB_VERSION = '0.1.0'
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -251,8 +245,8 @@ class Base(Settings):
     EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'
-    SERVER_EMAIL = 'info@codalab.org'
+    DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
+    SERVER_EMAIL = 'noreply@codalab.org'
 
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
@@ -262,9 +256,6 @@ class Base(Settings):
     ACCOUNT_USERNAME_REQUIRED=True
     ACCOUNT_EMAIL_VERIFICATION='mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
-
-    # Our versioning
-    CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
 
     # Django Analytical configuration
     GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'

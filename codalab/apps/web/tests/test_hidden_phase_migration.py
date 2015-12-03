@@ -37,7 +37,7 @@ class CompetitionHiddenPhaseMigration(TestCase):
         self.user = User.objects.create(email='test@user.com', username='testuser')
         self.other_user = User.objects.create(email='other@user.com', username='other')
         self.third_user = User.objects.create(email='third@user.com', username="third")
-        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user)
+        self.competition = Competition.objects.create(creator=self.user, modified_by=self.user, published=True)
         self.participant_1 = CompetitionParticipant.objects.create(
             user=self.user,
             competition=self.competition,

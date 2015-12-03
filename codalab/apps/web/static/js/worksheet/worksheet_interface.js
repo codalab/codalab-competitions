@@ -13,26 +13,83 @@ var HOME_WORKSHEET = '/';
 var Worksheet = React.createClass({
     getInitialState: function() {
         return {
-            refresh: false,
             ws: new WorksheetContent(this.props.uuid),
+            version: 0,  // Increment when we refresh
             activeComponent: 'list',  // Where the focus is (action, list, or side_panel)
             editMode: false,  // Whether we're editing the worksheet
+            editorEnabled: false, // Whether the editor is actually showing (sometimes lags behind editMode)
             showActionBar: true,  // Whether the action bar is shown
             focusIndex: -1, // Which worksheet items to be on (-1 is none)
-            subFocusIndex: -1,  // For tables, which row in the table
+            subFocusIndex: 0,  // For tables, which row in the table
         };
     },
+
     _setfocusIndex: function(index) {
         this.setState({focusIndex: index});
     },
     _setWorksheetSubFocusIndex: function(index) {
         this.setState({subFocusIndex: index});
     },
+
+    // Return the number of rows occupied by this item.
+    _numTableRows: function(item) {
+      if (item) {
+        if (item.mode == 'table')
+          return item.bundle_info.length;
+        if (item.mode == 'wsearch')
+          return item.interpreted.items.length;
+        if (item.mode == 'search') {
+          var subitem = item.interpreted.items[0];
+          return subitem != null ? subitem.bundle_info.length : null;
+        }
+      } else {
+        return null;
+      }
+    },
+
+    setFocus: function(index, subIndex) {
+        //console.log('setFocus', index, subIndex);
+        var info = this.state.ws.info;
+        if (index < -1 || index >= info.items.length)
+          return;  // Out of bounds (note index = -1 is okay)
+
+        // Resolve to last row of table
+        if (subIndex == 'end')
+          subIndex = (this._numTableRows(info.items[index]) || 1) - 1;
+          
+        // Change the focus - triggers updating of all descendants.
+        this.setState({focusIndex: index, subFocusIndex: subIndex});
+        this.scrollToItem(index, subIndex);
+    },
+
+    scrollToItem: function(index, subIndex) {
+        // scroll the window to keep the focused element in view if needed
+        var __innerScrollToItem = function(index, subIndex) {
+          // Compute the current position of the focused item.
+          var pos;
+          if (index == -1) {
+            pos = -1000000;  // Scroll all the way to the top
+          } else {
+            var item = this.refs.list.refs['item' + index];
+            if (this._numTableRows(item.props.item) != null)
+              item = item.refs['row' + subIndex];  // Specifically, the row
+            var node = item.getDOMNode();
+            pos = node.getBoundingClientRect().top;
+          }
+          keepPosInView(pos);
+        };
+
+        // Throttle so that if keys are held down, we don't suffer a huge lag.
+        if (this.throttledScrollToItem === undefined)
+            this.throttledScrollToItem = _.throttle(__innerScrollToItem, 50).bind(this);
+        this.throttledScrollToItem(index, subIndex);
+    },
+
+
     componentWillMount: function() {
         this.state.ws.fetch({async: false});
     },
     componentDidMount: function() {
-        this.bindEvents();
         $('body').addClass('ws-interface');
         $.fn.editable.defaults.mode = 'inline';
         $('.editable-field').editable({
@@ -49,29 +106,23 @@ var Worksheet = React.createClass({
              return JSON.stringify(data);
             }.bind(this),
             success: function(response, newValue) {
-                if(response.error){
-                    return response.error;
+                if (response.exception) {
+                    return response.exception;
                 }
                 this.state.ws.fetch({async: false});
-                this.setState({refresh: !this.state.refresh});
-
             }.bind(this)
         });
     },
-    componentWillUnmount: function() {
-        this.unbindEvents();
-    },
-    bindEvents: function() {
-    },
-    unbindEvents: function() {
-        // window.removeEventListener('keydown');
-    },
+
     canEdit: function() {
         var info = this.state.ws.info;
         return info && info.edit_permission;
     },
     viewMode: function() {
-        this.toggleEditMode(false);
+        this.toggleEditMode(false, true);
+    },
+    discardChanges: function() {
+        this.toggleEditMode(false, false);
     },
     editMode: function() {
         this.toggleEditMode(true);
@@ -94,7 +145,7 @@ var Worksheet = React.createClass({
         $('#ws_search').removeAttr('style');
     },
     capture_keys: function() {
-        Mousetrap.reset();  // reset, since we will call children, let's start fresh.
+        Mousetrap.reset();
 
         if (this.state.activeComponent == 'action') {
             // no need for other keys, we have the action bar focused
@@ -124,7 +175,7 @@ var Worksheet = React.createClass({
             return false;
         }.bind(this));
 
-        // Show/hide web terminal
+        // Show/hide web terminal (action bar)
         Mousetrap.bind(['shift+c'], function(e) {
             this.toggleActionBar();
         }.bind(this));
@@ -140,28 +191,106 @@ var Worksheet = React.createClass({
             return false;
         }.bind(this));
     },
-    toggleEditMode: function(editMode) {
+
+    toggleEditMode: function(editMode, saveChanges) {
         if (editMode === undefined)
           editMode = !this.state.editMode;  // Toggle by default
+
+        if (saveChanges === undefined)
+          saveChanges = true;
 
         if (!editMode) {
           // Going out of raw mode - save the worksheet.
           if (this.canEdit()) {
-            // TODO: This should be done by the editing control in WorksheetItemList 
-            this.state.ws.info.raw = $("#raw-textarea").val().split('\n');
-            this.setState({editMode: editMode});  // Needs to be after getting the raw contents
-            this.saveAndUpdateWorksheet(true);
+            var info = this.state.ws.info;
+            var editor = ace.edit('worksheet-editor');
+            if (saveChanges) {
+              info.raw = editor.getValue().split('\n');
+            }
+            var rawIndex = editor.getCursorPosition().row;
+            var focusIndexPair;
+            if (rawIndex >= info.raw_to_interpreted.length) {
+              // Happens when things are inserted at the end
+              focusIndexPair = [info.raw_to_interpreted.length - 1, 0];
+            } else {
+              focusIndexPair = info.raw_to_interpreted[rawIndex];
+            }
+            if (focusIndexPair == null) {
+              console.error('Can\'t map raw index ' + rawIndex + ' to item index pair');
+              focusIndexPair = [0, 0];  // Fall back to default
+            }
+            this.setState({
+                editMode: editMode,
+                editorEnabled: false,
+                focusIndex: focusIndexPair[0],
+                subFocusIndex: focusIndexPair[1],
+            });  // Needs to be after getting the raw contents
+            this.saveAndUpdateWorksheet(saveChanges);
           } else {
-            // Not allowed to save worksheet (shouldn't happen).
+            // Not allowed to edit the worksheet.
+            this.setState({
+                editMode: editMode,
+                editorEnabled: false,
+            });
           }
         } else {
           // Go into edit mode.
           this.setState({editMode: editMode});  // Needs to be before focusing
-          this.setState({activeComponent: 'textarea'});
-          // TODO: set cursor intelligently rather than just leaving it at the beginning.
-          $("#raw-textarea").focus();
+          $("#worksheet-editor").focus();
         }
     },
+
+    componentDidUpdate: function(props,state,root) {
+        if (this.state.editMode && !this.state.editorEnabled) {
+            this.setState({editorEnabled: true});
+            var editor = ace.edit('worksheet-editor');
+            editor.$blockScrolling = Infinity;
+            editor.session.setUseWrapMode(false);
+            editor.setShowPrintMargin(false);
+            editor.session.setMode('ace/mode/markdown');
+            if (!this.canEdit()) {
+              editor.setOptions({
+                  readOnly: true,
+                  highlightActiveLine: false,
+                  highlightGutterLine: false
+              });
+              editor.renderer.$cursorLayer.element.style.opacity=0;
+            } else {
+              editor.commands.addCommand({
+                  name: 'save',
+                  bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
+                  exec: function(editor) {
+                      this.toggleEditMode();
+                  }.bind(this),
+                  readOnly: true
+              });
+              editor.focus();
+
+              var rawIndex;
+              var cursorColumnPosition;
+              if (this.state.focusIndex == -1) { // Above the first item
+                rawIndex = 0;
+                cursorColumnPosition = 0;
+              } else {
+                var item = this.state.ws.info.items[this.state.focusIndex];
+                // For non-tables such as search and wsearch, we have subFocusIndex, but not backed by raw items, so use 0.
+                var focusIndexPair = this.state.focusIndex + ',' + (item.mode == 'table' ? this.state.subFocusIndex : 0);
+                rawIndex = this.state.ws.info.interpreted_to_raw[focusIndexPair];
+              }
+
+              if (rawIndex === undefined) {
+                  console.error('Can\'t map %s (focusIndex %d, subFocusIndex %d) to raw index', focusIndexPair, this.state.focusIndex, this.state.subFocusIndex);
+                  console.log(this.state.ws.info.interpreted_to_raw);
+                  return;
+              }
+              if (cursorColumnPosition === undefined)
+                cursorColumnPosition = editor.session.getLine(rawIndex).length;  // End of line
+              editor.gotoLine(rawIndex + 1, cursorColumnPosition);
+              editor.renderer.scrollToRow(rawIndex);
+            }
+        }
+    },
+
     toggleActionBar: function() {
         this.setState({showActionBar: !this.state.showActionBar});
     },
@@ -170,6 +299,7 @@ var Worksheet = React.createClass({
         this.setState({showActionBar: true});
         $('#command_line').terminal().focus();
     },
+
     refreshWorksheet: function() {
         $('#update_progress').show();
         this.setState({updating: true});
@@ -177,11 +307,15 @@ var Worksheet = React.createClass({
             success: function(data) {
                 $('#update_progress, #worksheet-message').hide();
                 $('#worksheet_content').show();
-                this.setState({updating:false});
+                this.setState({updating: false, version: this.state.version + 1});
+                // Fix out of bounds.
+                var items = this.state.ws.info.items;
+                if (this.state.focusIndex >= items.length)
+                  this.setFocus(items.length - 1, 'end');
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.state.ws.url, status, err);
-                this.setState({updating:false});
+                this.setState({updating: false});
 
                 if (xhr.status == 404) {
                     $("#worksheet-message").html('Worksheet was not found.').addClass('alert-danger alert');
@@ -205,11 +339,10 @@ var Worksheet = React.createClass({
 
     saveAndUpdateWorksheet: function(from_raw) {
         $("#worksheet-message").hide();
-        // does a save and a update
         this.setState({updating: true});
         this.state.ws.saveWorksheet({
             success: function(data) {
-                this.setState({updating:false});
+                this.setState({updating: false});
                 if ('error' in data) { // TEMP REMOVE FDC
                     $('#update_progress').hide();
                     $('#save_error').show();
@@ -237,10 +370,7 @@ var Worksheet = React.createClass({
 
     // Go to the home worksheet
     myHomeWorksheet: function() {
-      // Make sure the worksheet exists
-      this.refs.action.executeCommand(['cl', 'new', '-p', HOME_WORKSHEET]).then(function() {
-        this.refs.action.executeCommand(['cl', 'work', HOME_WORKSHEET]);
-      }.bind(this));
+      this.refs.action.executeCommand(['cl', 'work', HOME_WORKSHEET]);
     },
 
     uploadBundle: function() {
@@ -255,11 +385,12 @@ var Worksheet = React.createClass({
         var editPermission = info && info.edit_permission;
         var canEdit = this.canEdit() && this.state.editMode;
 
-        var searchClassName     = !this.state.showActionBar ? 'search-hidden' : '';
-        var editableClassName   = canEdit ? 'editable' : '';
-        var viewClass           = !canEdit && !this.state.editMode ? 'active' : '';
-        var rawClass            = this.state.editMode ? 'active' : '';
-
+        var searchClassName   = !this.state.showActionBar ? 'search-hidden' : '';
+        var editableClassName = canEdit ? 'editable' : '';
+        var editableFieldName = this.canEdit() ? 'editable-field' : '';
+        var viewClass         = !canEdit && !this.state.editMode ? 'active' : '';
+        var rawClass          = this.state.editMode ? 'active' : '';
+        var disableWorksheetEditing = this.canEdit() ? '' : 'disabled';
         var sourceStr = editPermission ? 'Edit source' : 'View source';
         var editFeatures = (
             <div className="edit-features">
@@ -271,37 +402,35 @@ var Worksheet = React.createClass({
             </div>
         );
 
+        var editModeFeatures = (
+            <div className="edit-features">
+                <label>Mode:</label>
+                <div className="btn-group">
+                    <button className={viewClass} onClick={this.viewMode} disabled={disableWorksheetEditing}>Save</button>
+                    <button className={viewClass} onClick={this.discardChanges}>Discard</button>
+                </div>
+            </div>
+        );
+
         if (info && info.items.length) {
             // Non-empty worksheet
         } else {
             $('.empty-worksheet').fadeIn();
         }
 
-        // http://facebook.github.io/react/docs/forms.html#why-textarea-value
         var raw_display = <div>
             Press ctrl-enter to save.
             See <a href="https://github.com/codalab/codalab/wiki/User_Worksheet-Markdown">markdown syntax</a>.
-            <textarea
-                id="raw-textarea"
-                ws={this.state.ws}
-                className="form-control mousetrap"
-                defaultValue={rawWorksheet}
-                rows={30}
-                ref="textarea"
-            />
-        </div>;
+            <div id='worksheet-editor'>{rawWorksheet}</div>
+            </div>;
 
         var action_bar_display = (
                 <WorksheetActionBar
                     ref={"action"}
-                    canEdit={this.canEdit()}
                     ws={this.state.ws}
                     handleFocus={this.handleActionBarFocus}
                     handleBlur={this.handleActionBarBlur}
                     active={this.state.activeComponent == 'action'}
-                    show={this.state.showActionBar}
-                    focusIndex={this.state.focusIndex}
-                    subFocusIndex={this.state.subFocusIndex}
                     refreshWorksheet={this.refreshWorksheet}
                     openWorksheet={this.openWorksheet}
                     editMode={this.editMode}
@@ -310,12 +439,14 @@ var Worksheet = React.createClass({
 
         var items_display = (
                 <WorksheetItemList
-                    ws={this.state.ws}
                     ref={"list"}
                     active={this.state.activeComponent == 'list'}
+                    ws={this.state.ws}
+                    version={this.state.version}
                     canEdit={canEdit}
-                    updateWorksheetFocusIndex={this._setfocusIndex}
-                    updateWorksheetSubFocusIndex={this._setWorksheetSubFocusIndex}
+                    focusIndex={this.state.focusIndex}
+                    subFocusIndex={this.state.subFocusIndex}
+                    setFocus={this.setFocus}
                     refreshWorksheet={this.refreshWorksheet}
                     focusActionBar={this.focusActionBar}
                 />
@@ -323,12 +454,11 @@ var Worksheet = React.createClass({
 
         var worksheet_side_panel = (
                 <WorksheetSidePanel
-                    ws={this.state.ws}
                     ref={"side_panel"}
                     active={this.state.activeComponent == 'side_panel'}
+                    ws={this.state.ws}
                     focusIndex={this.state.focusIndex}
                     subFocusIndex={this.state.subFocusIndex}
-                    myHomeWorksheet={this.myHomeWorksheet}
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
                 />
@@ -343,6 +473,7 @@ var Worksheet = React.createClass({
             );
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
+        var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
@@ -353,10 +484,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className='editable-field' data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
+                                        <h4 className='worksheet-title'><a href="#" id='title' className={editableFieldName} data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className='editable-field' data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
+                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className={editableFieldName} data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
                                                 <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>
@@ -365,7 +496,7 @@ var Worksheet = React.createClass({
                                         <div className="col-sm-6 col-md-4">
                                             <div className="controls">
                                                 <a href="#" data-toggle="modal" data-target="#glossaryModal" className="glossary-link"><code>?</code> Keyboard Shortcuts</a>
-                                                {editFeatures}
+                                                {editButtons}
                                             </div>
                                         </div>
                                     </div>

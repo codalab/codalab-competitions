@@ -97,7 +97,21 @@
     {% else %}
             <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
+
+    {% if local_ace_editor %}
+            <script src="{{ STATIC_URL }}js/vendor/ace-editor/src-min-noconflict/ace.js"></script>
+    {% else %}
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js"></script>
+    {% endif %}
+
+    {# https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js #}
+    <link href="{{ STATIC_URL }}js/vendor/c3.min.css" rel="stylesheet" type="text/css">
+    <script src="{{ STATIC_URL }}js/vendor/d3.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/c3.min.js"></script>
+
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/html4-defs.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/html-sanitizer.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/jquery-editable-poshytip.js"></script>
@@ -119,6 +133,7 @@
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/graph_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
