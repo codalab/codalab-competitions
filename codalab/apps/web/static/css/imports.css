@@ -7472,7 +7472,7 @@ input[type="checkbox"] {
   /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
   border-radius: 10px;
   background: #FFC266;
-  border: 1px solid;
+  /*border: 1px solid;*/
 }
 .homepage_headers {
   color: #739cb9;
@@ -8751,6 +8751,24 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-color: #d43f3a;
   text-decoration: none;
   opacity: 1;
+}
+.editable-field:hover {
+    cursor: text;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px 1px grey;
+}
+.editable-error-block {
+  font-size: 16px
+}
+#worksheet-editor {
+        margin: 0
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 1000px;
+        height: 700px;
 }
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover:hover,
 #worksheet-list .worksheet-tile .worksheet-inner button.delete-worksheet:hover:focus,
