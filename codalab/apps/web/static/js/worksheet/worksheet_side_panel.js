@@ -408,11 +408,17 @@ function renderHeader(bundle_info) {
   var bundle_url = '/bundles/' + bundle_info.uuid;
   var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
   var bundle_name;
+  var bundle_description;
   if (bundle_info.metadata.name) {
-    bundle_name = <h3 className="bundle-name"><a href="#" id='name' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.name}</a></h3>
+    if (bundle_info.edit_permission) {
+      bundle_name = <h3 className="bundle-name"><a href="#" id='name' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.name}</a></h3>;
+      bundle_description = <h3 className="bundle-description">Description: <a href="#" className="editable-field" id={'description'} data-value={bundle_info.metadata.description} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.description}</a></h3>;
+    } else {
+      bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>;
+      bundle_description = <h3 className="bundle-description">Description: {bundle_info.metadata.description}</h3>;
+    }
   }
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
-  var bundle_description = bundle_info.metadata.description ? <p className="bundle-description">{bundle_info.metadata.description}</p> : ''
 
   // Display basic information
   function createRow(key, value) {
