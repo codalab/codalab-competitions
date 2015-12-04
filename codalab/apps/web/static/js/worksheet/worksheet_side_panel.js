@@ -19,6 +19,15 @@ var WorksheetSidePanel = React.createClass({
         $(window).resize(function(e) {
             self.resetPanel();
         });
+        $(document.body).on('click', '.collapsible-header' ,function(){
+          $header = $(this);
+          $content = $header.next();
+          $content.slideToggle(150, function () {
+            $header.text(function () {
+              return $content.is(":visible") ? ($header.text()).replace(/\u25B8/, '\u25BE') : ($header.text()).replace(/\u25BE/, '\u25B8');
+            });
+          });
+        });
     },
 
     componentDidUpdate: function() {
@@ -236,7 +245,6 @@ var BundleDetailSidePanel = React.createClass({
 
         return bundle_info;
     },
-
     fetchExtra: function() {
       // Fetch detailed information about this bundle.
       var bundle_info = this.state;
@@ -397,10 +405,12 @@ TODO: The response object contains the uuid of the modified object.
   });
 
   return (<div>
-    <h4>metadata</h4>
-    <table className="bundle-meta table">
-      <tbody>{metadata_list_html}</tbody>
-    </table>
+    <div className="collapsible-header"><span><p>Metadata &#x25BE;</p></span></div>
+    <div className="collapsible-content">
+      <table className="bundle-meta table">
+        <tbody>{metadata_list_html}</tbody>
+      </table>
+    </div>
   </div>);
 }
 
@@ -486,9 +496,12 @@ function renderContents(bundle_info) {
   }
 
   return (<div>
-    {contents_html}
-    {stdout_html}
-    {stderr_html}
+    <div className="collapsible-header"><span><p>Contents &#x25BE;</p></span></div>
+    <div className="collapsible-content">
+      {contents_html}
+      {stdout_html}
+      {stderr_html}
+    </div>
   </div>);
 }
 
@@ -505,15 +518,18 @@ function renderHostWorksheets(bundle_info) {
     </tr>);
   });
   
-  return (
-    <div className="host-worksheets-table">
-        <h4>host worksheets</h4>
+  return (<div>
+    <div className="collapsible-header"><span><p>Host Worksheets &#x25BE;</p></span></div>
+    <div className="collapsible-content">
+      <div className="host-worksheets-table">
         <table className="bundle-meta table">
           <tbody>
               {host_worksheets_rows}
           </tbody>
         </table>
+      </div>
     </div>
+  </div>
   );
 }
 
@@ -564,11 +580,14 @@ var FileBrowser = React.createClass({
             currentWorkingDirectory={this.props.currentWorkingDirectory}/>);
 
         return (<div>
-          <div className="panel panel-default">
-              {bread_crumbs}
-              <div className="panel-body">
+          <div className="collapsible-header"><span><p>File Browser &#x25BE;</p></span></div>
+          <div className="collapsible-content">
+            <div className="panel panel-default">
+                {bread_crumbs}
+                <div className="panel-body">
                   {file_browser}
-              </div>
+                </div>
+            </div>
           </div>
         </div>);
     }

@@ -7647,6 +7647,17 @@ fieldset[disabled] .worksheets-list .worksheet-tile .worksheet-inner button.dele
   font-weight: bold;
   margin-bottom: 6px;
 }
+.collapsible-header {
+    padding: 2px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 20px;
+    margin: 5px;
+    border-bottom: 1px solid grey;
+}
+.collapsible-content {
+    padding : 5px;
+}
 /*Code for latest competitions in homepage*/
 /*
 This code is for 768px and up
