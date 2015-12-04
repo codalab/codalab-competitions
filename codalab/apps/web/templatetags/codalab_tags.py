@@ -69,7 +69,7 @@ def get_sas(value):
 @register.simple_tag
 def active(request, pattern):
     import re
-    if re.search(pattern, request.path):
+    if request and re.search(pattern, request.path):
         return 'active'
     return ''
 

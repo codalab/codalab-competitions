@@ -1,4 +1,11 @@
 /** @jsx React.DOM */
+/*
+   TODO: REMOVE THIS CLASS
+Displays a list of worksheets with a search bar.
+TODO: this is currently not exposed in the interface.
+In the future, should morph this into a search results page.
+The search should adaptively load worksheets instead of loading them all.
+*/
 
 // key mapping for convenience. we can move this into the global scope at some point.
 var keyMap = {
@@ -71,6 +78,8 @@ var Worksheets = React.createClass({
         )
     }
 });
+
+////////////////////////////////////////////////////////////
 
 var WorksheetList = React.createClass({
     getInitialState: function(){
@@ -197,13 +206,20 @@ var WorksheetList = React.createClass({
         } else {
             worksheetList = 'No worksheets matched your criteria'
         }
-        return (
-            <div id="worksheet-list">
-                <div className="checkbox">
+
+        myWorksheetCheckbox = '';
+        if(CODAUSER.is_authenticated){
+            myWorksheetCheckbox = (
                     <label className="my-worksheets-toggle">
                         <input type="checkbox" tabIndex="-1" onChange={this.toggleMyWorksheets} checked={this.state.myWorksheets} />
                         Show my worksheets only
                     </label>
+                )
+        }
+        return (
+            <div id="worksheet-list">
+                <div className="checkbox">
+                    {myWorksheetCheckbox}
                 </div>
                 {worksheetList}
             </div>
@@ -219,7 +235,7 @@ var Worksheet = React.createClass({
         }
     },
     handleDelete: function(){
-        if(window.confirm('Are you sure you want to forget this worksheet?')){
+        if(window.confirm('Are you sure you want to permanently delete this worksheet?')){
             this.setState({ display:false });
             this.props.deleteWorksheet(this);
         }else {
@@ -232,8 +248,8 @@ var Worksheet = React.createClass({
         var focused = this.props.focused ? ' focused' : '';
         var classString = 'worksheet-tile' + focused;
         var byline = '';
-        if(ws.owner){
-            byline += 'by ' + ws.owner;
+        if (ws.owner_name) {
+            byline += 'by ' + ws.owner_name;
             if(ws.permission == 1){
                 byline += ' (read-only)';
             }
@@ -256,6 +272,8 @@ var Worksheet = React.createClass({
     }
 });
 
+////////////////////////////////////////////////////////////
+
 var WorksheetSearch = React.createClass({
     // the search bar at the top. it only does three things, all of them in the parent's state:
     //   1. if it's focused, make it the active component
@@ -269,4 +287,3 @@ var WorksheetSearch = React.createClass({
 });
 
 React.render(<Worksheets />, document.getElementById('ws_list_container'));
-

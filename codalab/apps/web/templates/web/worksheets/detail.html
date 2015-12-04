@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 {% block custom_body_attributes %}{% endblock %}
-{% block head_title %}Worksheet details{% endblock head_title %}
+{% block head_title %}Worksheet: {{worksheet_title}}{% endblock head_title %}
+{% block meta %}
+    <meta property="og:title" content="Worksheet: {{worksheet_title}}">
+    <meta property="og:site_name" content="CodaLab">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="{{ request.META.HTTP_HOST }}{{STATIC_URL}}img/codalab-logo.png">
+{% endblock %}
 {% block subheader %}{% endblock subheader %}
 
-{% block content %}
+{% block content_wrapper %}
 
-</div>
 <div class="container">
     <div id="worksheet-message" class="ws-detail">
         <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Loading worksheet...
     </div>
 </div>
+
 <div id="worksheet_container">
     <!-- worksheet html wil go here-->
 </div>
@@ -22,7 +28,7 @@
     <img src="{{ STATIC_URL }}img/Preloader_Small.gif" /> Updating...
 </div>
 <div id="save_error" class="progress-message">
-    <i class="glyphicon glyphicon-remove-circle"></i> Error Saving...
+    <i class="glyphicon glyphicon-remove-circle"></i> Error saving...
 </div>
 <div id="glossaryModal" class="modal" data-keyboard="true">
     <div class="modal-dialog">
@@ -32,86 +38,52 @@
                 <h4>Keyboard Shortcuts</h4>
             </div>
             <div class="modal-body">
-                <h5>General</h5>
                 <table class="table table-striped">
                     <tr>
-                        <td><kbd>/</kbd> Jump to action bar</td>
+                      <td><kbd>c</kbd></td><td>Focus on web terminal</td>
                     </tr>
                     <tr>
-                        <td><kbd>E</kbd> Toggle editing mode</td>
+                      <td><kbd>esc</kbd></td><td>Focus on worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>F</kbd> Raw editing mode for worksheet</td>
+                      <td><kbd>shift+c</kbd></td><td>Show/hide web terminal</td>
                     </tr>
                     <tr>
-                        <td><kbd>j</kbd> or <kbd>↓</kbd> Highlight next worksheet item or table row</td>
+                      <td><kbd>e</kbd></td><td>Edit worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>k</kbd> or <kbd>↑</kbd> Highlight previous worksheet item or table row</td>
+                      <td><kbd>shift+r</kbd></td><td>Refresh worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + j</kbd> or <kbd>⌘ + j</kbd> Move highlighted worksheet item down</td>
+                      <td><kbd>j</kbd> or <kbd>↓</kbd></td><td>Move cursor down</td>
                     </tr>
                     <tr>
-                        <td><kbd>ctrl + k</kbd> or <kbd>⌘ + k</kbd> Move highlighted worksheet item up</td>
+                      <td><kbd>k</kbd> or <kbd>↑</kbd></td><td>Move cursor up</td>
                     </tr>
                     <tr>
-                        <td><kbd>G</kbd> Jump to end of worksheet</td>
+                      <td><kbd>shift+g</kbd></td><td>Move to end of worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>1 G</kbd> Jump to beginning of worksheet</td>
+                      <td><kbd>g g</kbd></td><td>Move to beginning of worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>R</kbd> Refresh worksheet</td>
+                      <td><kbd>enter</kbd></td><td>Open current bundle or worksheet</td>
                     </tr>
                     <tr>
-                        <td><kbd>?</kbd> Open keyboard shortcut help</td>
-                    </tr>
-                </table>
-                <h5>In edit mode</h5>
-                <table class="table table-striped">
-                    <tr>
-                        <td><kbd>x</kbd> Select highlighted item</td>
+                        <td><kbd>u</kbd></td><td>Paste UUID of current bundle or worksheet into web terminal</td>
                     </tr>
                     <tr>
-                        <td><kbd>d</kbd> Detach selected items from worksheet (doesn't delete)</td>
+                        <td><kbd>a</kbd></td><td>Paste arguments to recreate current bundle into web terminal</td>
                     </tr>
                     <tr>
-                        <td><kbd>O</kbd> Insert markup before highlighted item or row</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>o</kbd> Insert markup after highlighted item or row</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>e</kbd> Edit highlighted item</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>ctrl + enter</kbd> or <kbd>⌘ + enter</kbd> Save edits</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>esc</kbd> Exit edit mode</td>
-                    </tr>
-                </table>
-                <h5>Tables</h5>
-                <table class="table table-striped">
-                    <tr>
-                        <td><kbd>enter</kbd> Go to details page of highlighted bundle</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>shift + x</kbd> Select table of highlighted row</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>shift + j</kbd> Move highlighted row down</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>shift + k</kbd> Move highlighted row up</td>
+                      <td><kbd>?</kbd></td><td>Show keyboard shortcut help</td>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock content_wrapper %}
 
 
 {% block js %}
@@ -120,58 +92,67 @@
 {% endblock js %}
 
 {% block jsincludes %}
-
     {% if local_mathjax %}
             <script src="{{ STATIC_URL }}js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% else %}
             <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     {% endif %}
+
+    {% if local_ace_editor %}
+            <script src="{{ STATIC_URL }}js/vendor/ace-editor/src-min-noconflict/ace.js"></script>
+    {% else %}
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js"></script>
+    {% endif %}
+
+    {# https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js #}
+    <link href="{{ STATIC_URL }}js/vendor/c3.min.css" rel="stylesheet" type="text/css">
+    <script src="{{ STATIC_URL }}js/vendor/d3.min.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/c3.min.js"></script>
+
     <script src="{{ STATIC_URL }}js/vendor/marked.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/html4-defs.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/html-sanitizer.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/react-0.12.2.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery-editable-poshytip.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.terminal-0.8.8.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.js"></script>
 
     {# TODO: remove JSX and move to deploy processing of JSX #}
     <script src="{{ STATIC_URL }}js/vendor/JSXTransformer-0.12.2.js"></script>
 
+    <script src="{{ STATIC_URL }}js/worksheet/worksheet_utils.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/worksheet_content.js"></script>
     <script src="{{ STATIC_URL }}js/worksheet/ws_mousetrap_fork.js"></script>
 
-
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/ws_mixins.js"></script>
     {# ------- JSX FILES  ------- #}
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_search.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_action_bar.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_side_panel.js"></script>
     {# bundle type renders/actions #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/contents_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/html_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/image_bundle_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/inline_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/graph_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/markdown_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/record_bundle_interface.js"></script>
-    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/search_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/table_bundle_interface.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_bundle_interface.js"></script>
+    <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/upload_modal_interface.js"></script>
     {# main entrance point for the worksheet and it's items/bundles #}
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_items.js"></script>
     <script type="text/jsx" src="{{ STATIC_URL }}js/worksheet/worksheet_interface.js"></script>
     {# ------- END JSX FILES  ------- #}
 
-<script>
+<script type="text/jsx">
 MathJax.Hub.Config({
     tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
         inlineMath: [['$','$']]
     }
 });
-// mixing django and javascript to get uuid if not a normal worksheet page
-var worksheet_url = '/api' + document.location.pathname
-{% if worksheet_uuid %}
-    worksheet_url = '/api/worksheets/{{worksheet_uuid}}/'
-{% endif %}
-$(function () {
-    //                           /api/worksheets/0x706<...>d5b66e
-    ws_obj = new WorksheetContent(worksheet_url);
-    ws_actions = new WorksheetActions(); // Search bar actions
 
-});
+React.render(<Worksheet uuid="{{worksheet_uuid}}"/>, document.getElementById('worksheet_container'));
 </script>
+
 {% endblock jsincludes %}

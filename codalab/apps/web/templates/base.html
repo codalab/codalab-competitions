@@ -9,6 +9,7 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="globalsign-domain-verification" content="1lsowFdlUrrtcRyvAiFS11btFe-ChVU8h2FmxHw7sD" />
 
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +22,7 @@
     {% block css %}
         <!-- Included CSS Files (Compressed) -->
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
@@ -46,11 +48,10 @@
     {% block extra_scripts %}
     {% endblock extra_scripts %}
 
-    <!-- From Charles Sterling for Analytics -->
+
     <script type="text/javascript">
 
     </script>
-    <!-- End of Analytics from Charles -->
 </head>
 
 <body {% block custom_body_attributes %}{% endblock %}>
@@ -64,7 +65,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% block title %}
-                    <a class="navbar-brand" href="/" tabindex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo.png" alt="Home"></a>
+                    <a class="navbar-brand" href="/" tabIndex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo.png" alt="Home"></a>
                 {% endblock title %}
             </div>
             {% block top_bar_right_menus %}
@@ -77,28 +78,41 @@
                         </form>
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
-                        {% if PREVIEW_WORKSHEETS %}
-                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabindex=2 target="_self">Worksheets</a></li>
-                        {% endif %}
-                        <li class="{% active request '/my/' %}">
+                        {% if ENABLE_WORKSHEETS %}
+                          {% if ENABLE_COMPETITIONS %}
+                            <li class="{% active request '/worksheets/' %}{% active request '/bundles/' %}"><a href="/worksheets" tabIndex=2 target="_self">Worksheets</a></li>
+                          {% else %}
+                            <li><a href="/worksheets" tabIndex=2 target="_self">Browse Worksheets</a></li>
                             {% if user.is_authenticated %}
-                                <a href="/my">Competitions</a>
+                              <li><a href="/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
                             {% else %}
-                                <a href="/competitions/">Competitions</a>
+                              <li><a href="/accounts/login/?next=/worksheets/?name=/" tabIndex=2 target="_self">My Worksheet</a></li>
                             {% endif %}
-                            <!--
-                            <ul class="dropdown-menu" role="menu">
-                                {% if user.is_authenticated %}
-                                    <li class="{% active request '/my/$' %}"><a href="/my">My CodaLab</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'my_datasets' %}" tabindex=4 target="_self">My Datasets</a></li>
-                                {% else %}
-                                    <li><a href="{% url 'account_login' %}" tabindex=4 name="next" value="/my" target="_self">My CodaLab</a></li>
-                                {% endif %}
-                            </ul>
-                            -->
+                          {% endif %}
+                        {% endif %}
+                        {% if ENABLE_COMPETITIONS %}
+                          <li class="{% active request '/my/' %}">
+                              {% if user.is_authenticated %}
+                                  <a href="/my">My Competitions</a>
+                              {% else %}
+                                  <a href="/competitions/">Search Competitions</a>
+                              {% endif %}
+                          </li>
+                          <li class="{% active request '/my/' %}">
+                          {% if not user.is_authenticated %}
+                          <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">My Competitions</a>
+                          {% endif %}
+                          </li>
+                        {% endif %}
+                        <li>
+                          {% if ENABLE_WORKSHEETS and ENABLE_COMPETITIONS %}
+                            <a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a>
+                          {% elif ENABLE_WORKSHEETS %}
+                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Worksheets" target="_blank">Help</a>
+                          {% elif ENABLE_COMPETITIONS %}
+                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Competitions" target="_blank">Help</a>
+                          {% endif %}
                         </li>
-                        <li><a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a></li>
                         {% if user.is_authenticated %}
                             <li class="dropdown {% active request '/accounts/' %}">
                                 <a href="{% url 'user_settings' %}">
@@ -114,7 +128,10 @@
                             </li>
                         {% else %}
                             <li>
-                                <a href="{% url 'account_login' %}" target="_self"><img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="Sign In"> Sign In</a>
+                                <a href="{% url 'account_signup' %}?next={{request.path}}" target="_self">Sign Up</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'account_login' %}?next={{request.path}}" target="_self">Sign In</a>
                             </li>
                         {% endif %}
                     </ul>
@@ -137,21 +154,22 @@
     {% endblock hero_subheader %}
 
     {% block content_wrapper %}
-        <div class="{% if not on_competition_detail %}container{% else %}container-fluid{% endif %}">
+        <div class="{% if stretch_100_percent_width %}container-fluid{% else %}container{% endif %}" style="padding-bottom: 40px;">
             {% block content %}
             {% endblock content %}
         </div>
-        {% endblock content_wrapper %}
-    </div>
+    {% endblock content_wrapper %}
 
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                <!-- <li>CodaLab v.0 ()</li> -->
                 <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
-                <li><a href="http://go.microsoft.com/?linkid=9837806" target="_blank">Survey</a></li>
+                {% if ENABLE_COMPETITIONS %}
+                  <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
+                  <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
+                {% endif %}
                 <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+              <li><a href="https://github.com/codalab/codalab/wiki/Worksheet-Features" target="_blank">v{{ CODALAB_VERSION }}</a></li>
             </ul>
         </div>
     </footer>
@@ -161,15 +179,20 @@
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
     <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
-    <script src="{{ STATIC_URL }}js/search/ws_actions.js"></script>
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
 
-    <script>
+    <script type="text/javascript">
     {% block js %}
         Competition.initialize();
-    {% endblock js %}
-    </script>
 
+    {% endblock js %}
+        CODAUSER = {
+            username: "{{ request.user.username|safe }}",
+            user_id: {{ request.user.pk|default:0 }},
+            email: "{{ user.email|safe }}",
+            is_authenticated: {{ user.is_authenticated|yesno:"true,false" }},
+        }
+    </script>
     {% block jsincludes %}
     {% endblock jsincludes %}
 

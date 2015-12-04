@@ -7,26 +7,19 @@ from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
 
-__version__ = 'N/A'
-try:
-    import codalab.version
-    __version__ = codalab.version.__version__
-except ImportError:
-    pass
-
-
 class Base(Settings):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
     PROJECT_DIR = os.path.dirname(PROJECT_APP_DIR)
     ROOT_DIR = os.path.dirname(PROJECT_DIR)
     PORT = '8000'
-    DOMAIN_NAME='localhost'
-    SERVER_NAME='localhost'
+    DOMAIN_NAME = 'localhost'
+    SERVER_NAME = 'localhost'
     DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
+    LOCAL_ACE_EDITOR = False # see prep_for_offline
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -40,6 +33,7 @@ class Base(Settings):
     STARTUP_ENV = {
         'DJANGO_CONFIGURATION': os.environ['DJANGO_CONFIGURATION'],
         'DJANGO_SETTINGS_MODULE': os.environ['DJANGO_SETTINGS_MODULE'],
+        'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
     SSL_PORT = ''
@@ -59,7 +53,8 @@ class Base(Settings):
 
     AUTH_USER_MODEL = 'authenz.ClUser'
 
-    CODALAB_VERSION = __version__
+    # Keep in sync with codalab-cli
+    CODALAB_VERSION = '0.1.0'
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -219,6 +214,8 @@ class Base(Settings):
         'apps.health',
         'apps.analytics',
         'apps.forums',
+        'apps.coopetitions',
+        'apps.common',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -230,6 +227,8 @@ class Base(Settings):
         # Search
         'haystack'
     )
+
+    ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
 
     OPTIONAL_APPS = []
     INTERNAL_IPS = []
@@ -246,8 +245,8 @@ class Base(Settings):
     EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'
-    SERVER_EMAIL = 'info@codalab.org'
+    DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
+    SERVER_EMAIL = 'noreply@codalab.org'
 
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
@@ -257,9 +256,6 @@ class Base(Settings):
     ACCOUNT_USERNAME_REQUIRED=True
     ACCOUNT_EMAIL_VERIFICATION='mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
-
-    # Our versioning
-    CODALAB_LAST_COMMIT = "https://github.com/codalab/codalab/commit/%s" % CODALAB_VERSION.split()[0]
 
     # Django Analytical configuration
     GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
@@ -296,10 +292,6 @@ class Base(Settings):
     }
 
     BUNDLE_SERVICE_URL = ""
-    LANDING_PAGE_WORKSHEET_UUID = '';
-
-    # Currently the search bar is hidden using this flag
-    SHOW_BETA_FEATURES = False
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
@@ -368,6 +360,8 @@ class Base(Settings):
                     print e
                 else:
                     cls.INSTALLED_APPS += (a,)
+        if hasattr(cls, 'EXTRA_MIDDLEWARE_CLASSES'):
+            cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME })
         if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
@@ -393,18 +387,3 @@ class DevBase(Base):
     # Increase amount of logging output in Dev mode.
     for logger_name in ('codalab', 'apps'):
         Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': os.path.join(Base.PROJECT_DIR,'dev_db.sqlite'), # Or path to database file if using sqlite3.
-            # The following settings are not used with sqlite3:
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-            'PORT': '',                      # Set to empty string for default.
-        }
-    }
-
-    # Send e-mails to the console during development
-    #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

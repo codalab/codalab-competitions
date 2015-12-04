@@ -30,6 +30,7 @@ class CompetitionForm(forms.ModelForm):
             'enable_per_submission_metadata',
             'allow_public_submissions',
             'enable_forum',
+            'anonymous_leaderboard',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
@@ -55,6 +56,7 @@ class CompetitionPhaseForm(forms.ModelForm):
             'input_data_organizer_dataset',
             'reference_data_organizer_dataset',
             'scoring_program_organizer_dataset',
+            'phase_never_ends',
         )
         widgets = {
             'leaderboard_management_mode' : forms.Select(
@@ -62,7 +64,7 @@ class CompetitionPhaseForm(forms.ModelForm):
                 choices=(('default', 'Default'), ('hide_results', 'Hide Results'))
             ),
             'DELETE' : forms.HiddenInput,
-            'phasenumber': forms.HiddenInput
+            #'phasenumber': forms.HiddenInput
         }
 
     def clean_reference_data_organizer_dataset(self):
@@ -175,6 +177,7 @@ class UserSettingsForm(forms.ModelForm):
             'organizer_status_updates',
             'organizer_direct_message_updates',
             'organization_or_affiliation',
+            'email_on_submission_finished_successfully',
             'team_name',
             'team_members',
             'method_name',
@@ -183,6 +186,9 @@ class UserSettingsForm(forms.ModelForm):
             'project_url',
             'publication_url',
             'bibtex',
+            'first_name',
+            'last_name',
+            'email'
         )
         widgets = {
             'team_members': forms.Textarea(attrs={"class": "form-control"}),

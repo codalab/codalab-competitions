@@ -24,11 +24,15 @@
 		</div>
     	<div class="col-sm-4 col-md-4 right-panel">
 			{{ competition.get_start_date|date:"M d, Y" }}-{% if competition.end_date %}{{ competition.end_date|date:"M d, Y" }}{% else %}<i>No end date</i>{% endif %}<br>
-            <b>{{ competition.participants.all.count }}</b> participant{% if competition.participants.all.count > 1 %}s{% endif %}<br>
+            <b>{{ competition.get_participant_count }}</b> participant{% if competition.get_participant_count > 1 %}s{% endif %}<br>
             {% if competition.reward and competition.reward > 0 %}
             	USD <b>${{ competition.reward|intcomma }}</b> reward
             {% endif %}
         </div>
+
+        <br><br>
+    </div>
+    <div class="row">
     	{% if managed %}
     	<div class="competition-actions" published="{{competition.published}}" class="columns cursor-default myCompetitionButtons">
 			<div class="btn-group btn-group-justified">

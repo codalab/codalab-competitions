@@ -8,24 +8,30 @@ import datetime
 import logging
 import logging.config
 import os
+import platform
+import psutil
+import pwd
+import grp
 import signal
 import math
 import select
 import shutil
+import socket
+import subprocess
 import sys
 import tempfile
 import time
 import traceback
 import yaml
+
 from os.path import dirname, abspath, join
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 from zipfile import ZipFile
 
 
 # Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
-import async_process
 from azure.storage import BlobService
 from codalabtools import BaseWorker, BaseConfig
 from codalabtools.azure_extensions import AzureServiceBusQueue
@@ -156,9 +162,11 @@ def _send_update(queue, task_id, status, extra=None):
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    body = json.dumps({'id': task_id,
-                       'task_type': 'run_update',
-                       'task_args': task_args})
+    body = json.dumps({
+        'id': task_id,
+        'task_type': 'run_update',
+        'task_args': task_args
+    })
     queue.send_message(body)
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -181,6 +189,13 @@ class ExecutionTimeLimitExceeded(Exception):
 
 def alarm_handler(signum, frame):
     raise ExecutionTimeLimitExceeded
+
+
+def demote(user='workeruser'):
+    def result():
+        os.setgid(grp.getgrnam(user).gr_gid)
+        os.setuid(pwd.getpwnam(user).pw_uid)
+    return result
 
 
 def get_run_func(config):
@@ -210,9 +225,44 @@ def get_run_func(config):
                                      reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
+        temp_dir = config.getLocalRoot()
+        try:
+           running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError, e:
+           running_processes = ''
+        debug_metadata = {
+            "hostname": socket.gethostname(),
+
+            "processes_running_in_temp_dir": running_processes,
+
+            "beginning_virtual_memory_usage": json.dumps(psutil.virtual_memory()._asdict()),
+            "beginning_swap_memory_usage": json.dumps(psutil.swap_memory()._asdict()),
+            "beginning_cpu_usage": psutil.cpu_percent(interval=None),
+
+            # following are filled in after test ran + process SHOULD have been closed
+            "end_virtual_memory_usage": None,
+            "end_swap_memory_usage": None,
+            "end_cpu_usage": None,
+        }
 
         try:
-            _send_update(queue, task_id, 'running')
+            # Cleanup dir in case any processes didn't clean up properly
+            for the_file in os.listdir(temp_dir):
+                file_path = os.path.join(temp_dir, the_file)
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
+            # Kill running processes in the temp dir
+            try:
+                call(["fuser", "-k", temp_dir])
+            except subprocess.CalledProcessError:
+                pass
+
+            _send_update(queue, task_id, 'running', extra={
+                'metadata': debug_metadata
+            })
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             # Fetch and stage the bundles
@@ -270,17 +320,15 @@ def get_run_func(config):
             stderr_file = join(run_dir, stderr_file_name)
             stdout = open(stdout_file, "a+")
             stderr = open(stderr_file, "a+")
-            stdout_buffer = ''
-            stderr_buffer = ''
             prog_status = []
 
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 # Update command-line with the real paths
                 logger.debug("CMD: %s", prog_cmd)
-                prog_cmd = prog_cmd.replace("$program", join('.', 'program')) \
-                                    .replace("$input", join('.', 'input')) \
-                                    .replace("$output", join('.', 'output')) \
-                                    .replace("$tmp", join('.', 'temp')) \
+                prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
+                                    .replace("$input", join(run_dir, 'input')) \
+                                    .replace("$output", join(run_dir, 'output')) \
+                                    .replace("$tmp", join(run_dir, 'temp')) \
                                     .replace("/", os.path.sep) \
                                     .replace("\\", os.path.sep)
                 logger.debug("Invoking program: %s", prog_cmd)
@@ -289,10 +337,23 @@ def get_run_func(config):
                 exit_code = None
                 timed_out = False
 
-                evaluator_process = Popen(prog_cmd.split(' '), stdout=PIPE, stderr=PIPE, env=os.environ)
-
-                async_process.make_async(evaluator_process.stdout)
-                async_process.make_async(evaluator_process.stderr)
+                if 'Darwin' not in platform.platform():
+                    prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
+                    # Run as separate user
+                    evaluator_process = Popen(
+                        prog_cmd.split(' '),
+                        preexec_fn=demote(),  # this pre-execution function drops into a lower user
+                        stdout=stdout,
+                        stderr=stderr,
+                        env=os.environ
+                    )
+                else:
+                    evaluator_process = Popen(
+                        prog_cmd.split(' '),
+                        stdout=stdout,
+                        stderr=stderr,
+                        env=os.environ
+                    )
 
                 logger.debug("Started process, pid=%s" % evaluator_process.pid)
 
@@ -306,10 +367,6 @@ def get_run_func(config):
 
                 try:
                     while exit_code == None:
-                        new_stdout = async_process.read_async(evaluator_process.stdout)
-                        new_stderr = async_process.read_async(evaluator_process.stderr)
-                        stdout_buffer += new_stdout
-                        stderr_buffer += new_stderr
                         time.sleep(1)
                         exit_code = evaluator_process.poll()
                 except (ValueError, OSError):
@@ -322,15 +379,13 @@ def get_run_func(config):
                     timed_out = True
 
                 signal.alarm(0)
-                stdout.write(stdout_buffer)
-                stderr.write(stderr_buffer)
 
                 logger.debug("Exit Code: %d", exit_code)
 
                 endTime = time.time()
                 elapsedTime = endTime - startTime
 
-                if len(prog_cmd_list) > 1:
+                if len(prog_cmd_list) == 1:
                     # Overwrite prog_status array with dict
                     prog_status = {
                         'exitCode': exit_code,
@@ -381,22 +436,42 @@ def get_run_func(config):
                         file_ext = os.path.splitext(file_to_upload)[1]
                         if file_ext.lower() ==".html":
                             html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
-                            print "file_to_upload:%s" % file_to_upload
                             _upload(blob_service, container, html_file_id, file_to_upload, "html")
                             html_found = True
+
+            # Save extra metadata
+            debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+            debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
+            debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed')
+                _send_update(queue, task_id, 'failed', extra={
+                    'metadata': debug_metadata
+                })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={'traceback': open(stderr_file).read()})
+                _send_update(queue, task_id, 'failed', extra={
+                    'traceback': open(stderr_file).read(),
+                    'metadata': debug_metadata
+                })
             else:
-                _send_update(queue, task_id, 'finished')
+                _send_update(queue, task_id, 'finished', extra={
+                    'metadata': debug_metadata
+                })
         except Exception:
+            if debug_metadata['end_virtual_memory_usage'] == None:
+                # We didnt' make it far enough to save end metadata... so do it!
+                debug_metadata["end_virtual_memory_usage"] = json.dumps(psutil.virtual_memory()._asdict())
+                debug_metadata["end_swap_memory_usage"] = json.dumps(psutil.swap_memory()._asdict())
+                debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
+
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={'traceback': traceback.format_exc()})
+            _send_update(queue, task_id, 'failed', extra={
+                'traceback': traceback.format_exc(),
+                'metadata': debug_metadata
+            })
 
         # comment out for dev and viewing of raw folder outputs.
         if root_dir is not None:

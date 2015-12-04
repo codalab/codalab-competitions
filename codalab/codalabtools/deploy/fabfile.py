@@ -233,6 +233,7 @@ def build():
     with settings(warn_only=True):
         run('mkdir -p %s' % src_dir)
     with cd(src_dir):
+        # TODO: why do we have the --branch and --single-branch tags here, this causes problems
         run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_tag, env.git_repo_url))
         # Generate settings file (local.py)
         configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
@@ -250,6 +251,7 @@ def build():
         with settings(warn_only=True):
             run('mkdir -p %s' % src_dir_b)
         with cd(src_dir_b):
+            # TODO: why do we have the --branch and --single-branch tags here, this causes problems
             run('git clone --depth=1 --branch %s --single-branch %s .' % (env.git_bundles_tag, env.git_bundles_repo_url))
         # Replace current bundles dir in main CodaLab other bundles repo.
         bundles_dir = "/".join([src_dir, 'bundles'])
@@ -309,6 +311,10 @@ def deploy_web():
                 run('python manage.py collectstatic --noinput')
                 sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
                 sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+
+                # Setup new relic
+                cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+                run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
 
 @roles('web')
 @task
@@ -406,9 +412,11 @@ def supervisor_stop():
     """
     with cd(env.deploy_dir):
         with prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'):
+            run('supervisorctl -c codalab/config/generated/supervisor.conf stop all')
             run('supervisorctl -c codalab/config/generated/supervisor.conf shutdown')
     # since worker is muli threaded, we need to kill all running processes
-    run('pkill -9 -f worker.py')
+    with settings(warn_only=True):
+        run('pkill -9 -f worker.py')
 
 @roles('web')
 @task
@@ -454,6 +462,7 @@ def maintenance(mode):
                     nginx_restart()
     else:
         print "Invalid mode. Valid values are 'begin' or 'end'"
+
 
 @roles('web')
 @task
@@ -534,3 +543,183 @@ def get_database_dump():
 
     backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
     get('/tmp/%s' % dump_file_name, backup_dir)
+
+
+@task
+def update_compute_worker():
+    run('cd codalab && git pull --rebase')
+    sudo("stop codalab-compute-worker")
+    sudo("stop codalab-monitor")
+    sudo("start codalab-compute-worker")
+    sudo("start codalab-monitor")
+
+
+@task
+def update_filemode_to_false():
+    run('cd codalab && git config core.filemode false')
+
+
+@task
+def update_conda():
+    with settings(warn_only=True):
+        if not run('conda'):
+            # If we can't run conda add it to the path
+            run('echo "export PATH=~/anaconda/bin:$PATH" >> ~/.bashrc')
+    run('conda update --yes --prefix /home/azureuser/anaconda anaconda')
+
+
+@roles('web')
+@task
+def deploy():
+    maintenance("begin")
+    supervisor_stop()
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd('deploy/codalab'):
+        run('git pull')
+        run('pip install -r requirements/dev_azure_nix.txt')
+        run('python manage.py syncdb --migrate')
+        run('python manage.py collectstatic --noinput')
+
+        # Generate config
+        run('python manage.py config_gen')
+        run('mkdir -p ~/.codalab && cp ./config/generated/bundle_server_config.json ~/.codalab/config.json')
+        sudo('ln -sf `pwd`/config/generated/nginx.conf /etc/nginx/sites-enabled/codalab.conf')
+        sudo('ln -sf `pwd`/config/generated/supervisor.conf /etc/supervisor/conf.d/codalab.conf')
+        # run('python scripts/initialize.py')  # maybe not needed
+
+        # Setup new relic
+        cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
+        run('newrelic-admin generate-config %s newrelic.ini' % cfg.getNewRelicKey())
+
+    # Setup bundle service for worksheets
+    env_prefix, env_shell = setup_env()
+    with env_prefix, env_shell, cd('deploy/bundles'):
+        run('git pull')
+        run('alembic upgrade head')
+
+    supervisor()
+    maintenance("end")
+
+
+@task
+def add_swap_config_and_restart():
+    sudo('echo "ResourceDisk.Format=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.Filesystem=ext4" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.MountPoint=/mnt/resource" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.EnableSwap=y" >> /etc/waagent.conf')
+    sudo('echo "ResourceDisk.SwapSizeMB=2048" >> /etc/waagent.conf')
+
+    with settings(warn_only=True):
+        sudo("umount /mnt")
+        sudo("service walinuxagent restart")
+
+
+@task
+def setup_compute_worker_and_monitoring():
+    '''
+    For monitoring make sure the azure instance has the port 8000 forwarded
+    '''
+    password = os.environ.get('CODALAB_COMPUTE_MONITOR_PASSWORD', None)
+    assert password, "CODALAB_COMPUTE_MONITOR_PASSWORD environment variable required to setup compute workers!"
+
+    run("source /home/azureuser/venv/bin/activate && pip install bottle==0.12.8")
+
+    put(
+        local_path='configs/upstart/codalab-compute-worker.conf',
+        remote_path='/etc/init/codalab-compute-worker.conf',
+        use_sudo=True
+    )
+    put(
+        local_path='configs/upstart/codalab-monitor.conf',
+        remote_path='/etc/init/codalab-monitor.conf',
+        use_sudo=True
+    )
+    run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % password)
+
+    with settings(warn_only=True):
+        sudo("stop codalab-compute-worker")
+        sudo("stop codalab-monitor")
+        sudo("start codalab-compute-worker")
+        sudo("start codalab-monitor")
+
+
+@task
+def setup_compute_worker_user():
+    # Steps to setup compute worker:
+    #   1) setup_compute_worker_user (only run this once as it creates a user and will probably fail if re-run)
+    #   2) setup_compute_worker_permissions
+    #   3) setup_compute_worker_and_monitoring
+    sudo('adduser --quiet --disabled-password --gecos "" workeruser')
+    sudo('echo workeruser:password | chpasswd')
+
+
+@task
+def setup_compute_worker_permissions():
+    # Make the /codalabtemp/ files readable
+    sudo("apt-get install bindfs")
+    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+
+    # Make private stuff private
+    sudo("chown -R azureuser:azureuser ~/codalab")
+    sudo("chmod -R 700 ~/codalab")
+    sudo("chown azureuser:azureuser ~/.codalabconfig")
+    sudo("chmod 700 ~/.codalabconfig")
+
+
+def setup_env():
+    env.SHELL_ENV = dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,
+    )
+    return prefix('source /usr/local/bin/virtualenvwrapper.sh && workon venv'), shell_env(**env.SHELL_ENV)
+
+
+@task
+def update_anaconda_library():
+    '''
+    1. Will get the new version of Ananconda from the repository
+    2. Will deleted old version of anaconda
+    '''
+    with cd('/home/azureuser'):
+        sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
+        sudo("rm -rf anaconda/")
+
+
+@task
+def set_permissions_on_codalab_temp():
+    '''
+    Permissions keeps ressetting for some reason
+    Runing this command will set the proper permissions
+    '''
+    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+
+
+@task
+def stop_compute_workers_and_monitors():
+    '''
+    Command to stop compute workers and monitor
+    '''
+    sudo("stop codalab-compute-worker")
+    sudo("stop codalab-monitor")
+
+
+@task
+def start_codalab_workers_and_monitor():
+    '''
+    Command to start compute workers
+    Command to start monitor
+    '''
+    sudo("start codalab-compute-worker")
+    sudo("start codalab-monitor")
+
+
+@task
+def check_compute_worker_status_and_monitor_status():
+    '''
+    Command to check for compute worker status
+    Command to check for monitor status
+    '''
+    run("status codalab-compute-worker")
+    run("status codalab-monitor")

@@ -9,7 +9,7 @@ from apps.web.models import Competition
 from .. import views
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='web/index.html'), name='home'),
+    url(r'^$', views.HomePageView.as_view(), name='home'),
     url(r'^_ver', views.VersionView.as_view(),name='_version'),
     url(r'^my/', include('apps.web.urls.my')),
     url(r'^profile/(?P<pk>\d+)$', views.UserDetailView.as_view(), name='user_details'),
@@ -22,11 +22,14 @@ urlpatterns = patterns('',
     url(r'^analytics/', include('apps.analytics.urls')),
     url(r'^forums/', include('apps.forums.urls')),
     url(r'^captcha/', include('captcha.urls')),
+    url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
 
     # Direct URL redirects
     url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),
     url(r'^(?i)ChalearnLAP_Pose/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2231')),
     url(r'^(?i)ChalearnLAP_Action/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2241')),
+    url(r'^(?i)Age/?', RedirectView.as_view(url='https://www.codalab.org/competitions/4711')),
+    url(r'^(?i)Caption/?', RedirectView.as_view(url='https://www.codalab.org/competitions/3221')),
 )
 
 

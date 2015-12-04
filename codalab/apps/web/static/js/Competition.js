@@ -139,6 +139,7 @@ var Competition;
                             var bibtex = $('#submission_bibtex').val() || '';
                             var team_name = $('#submission_team_name').val() || '';
                             var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
+                            var phase_id = $('#submission_phase_id').val();
 
                             $('#submission_description_textarea').val('');
                             $.ajax({
@@ -149,7 +150,8 @@ var Competition;
                                                                                       '&publication_url=' + encodeURIComponent(publication_url) +
                                                                                       '&team_name=' + encodeURIComponent(team_name) +
                                                                                       '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
-                                                                                      '&bibtex=' + encodeURIComponent(bibtex),
+                                                                                      '&bibtex=' + encodeURIComponent(bibtex) +
+                                                                                      '&phase_id=' + encodeURIComponent(phase_id),
                                 type: 'post',
                                 cache: false,
                                 data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
@@ -363,8 +365,8 @@ var Competition;
                         return s;
                     };
                     var dt = new Date(response.submitted_at);
-                    var d = dt.getDate().toString() + '/' + dt.getMonth().toString() + '/' + dt.getFullYear();
-                    var h = dt.getHours().toString();
+                    var d = ('0' + (dt.getMonth() + 1).toString()).slice(-2) + '/' + dt.getDate().toString() + '/' + dt.getFullYear();
+                    var h = ('0' + dt.getHours().toString()).slice(-2);
                     var m = fmt(dt.getMinutes());
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + ' ' + h + ':' + m + ':' + s);
@@ -419,6 +421,31 @@ var Competition;
         return false;
     };
 
+    Competition.updateSubmissionDescription = function(event) {
+        event.preventDefault();
+
+        var element = this;
+
+        // Remove focus from link
+        element.blur();
+
+        var submission_id = $(this).attr('submission-id');
+        var new_description = $(this).parent().find('textarea[name="updated_description"]').val() || '';
+        // Escape html
+        new_description = new_description.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
+            .success(function() {
+                $(element).parent().find('.submission_description').html("<b>Description:</b> <br><pre>" + new_description + "</pre>");
+                $(element).parent().find('textarea[name="updated_description"]').val('').hide();
+                $(element).parent().find('.update_description_btn').removeClass('hide').show();
+                $(element).hide();
+            })
+            .error(function() {
+                alert('Error updating description, is your Internet connection working?')
+            });
+    };
+
     Competition.showOrHideSubmissionDetails = function(obj) {
         var nTr = $(obj).parents('tr')[0];
         if ($(obj).hasClass('glyphicon-minus')) {
@@ -465,6 +492,21 @@ var Competition;
             elem.find('.public_link').html('Make your submission ' + isPublic);
             elem.find('.public_link').click(Competition.toggleSubmissionPublic);
             elem.find('.public_link').attr('submission-id', nTr.id);
+
+            elem.find('.save_description_btn').click(Competition.updateSubmissionDescription);
+            elem.find('.save_description_btn').attr('submission-id', nTr.id);
+
+            elem.find('.update_description_btn').click(function() {
+                var current_text = $(this).parent().find('.submission_description').text();
+                if(current_text.indexOf('Description: ') !== -1) {
+                    current_text = current_text.substr('Description: '.length);
+                } else {
+                    current_text = '';
+                }
+                $(this).parent().find('.save_description_btn').removeClass('hide').show();
+                $(this).parent().find('textarea[name="updated_description"]').removeClass('hide').show().val(current_text);
+                $(this).hide();
+            });
 
             var phasestate = $('#phasestate').val();
             var state = $(nTr).find("input[name='state']").val();

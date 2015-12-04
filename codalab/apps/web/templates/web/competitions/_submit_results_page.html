@@ -20,6 +20,9 @@
         {% else %}
             <p>None</p>
         {% endif %}
+
+        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
+        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
 
     {% if phase.is_active %}
@@ -55,6 +58,7 @@
     <div class="user_results">
     {% if phase.is_active and not phase.is_blind %}
         <input type="hidden" id="phasestate" value="1" />
+        <input type="hidden" id="submission_phase_id" class="form-control" value="{{ phase.id }}">
     {% else %}
         <input type="hidden" id="phasestate" value="0" />
     {% endif %}

@@ -21,42 +21,145 @@
     <!-- <a href="{% url 'account_signup' %}" class="button">Sign Up</a>-->
     <!-- {% endif %}-->
 
-    <div class="row">
-        <p>
-        CodaLab is an ecosystem for conducting computational
-        research in a more efficient, reproducible, and collaborative manner.
-        </p>
-        <div class="col-sm-6">
-            <p><a href="{%if PREVIEW_WORKSHEETS %}/worksheets{% else %}#{% endif %}"><img src="{{STATIC_URL}}img/icon_experiments.png" alt="CodaLab Worksheets"></a></p>
-            <p><strong>Worksheets</strong> allow you to
-            capture complex research pipelines in a reproducible way
-            and create "executable papers".
-            Use any data format or programming language &mdash; great for the power user!
-            </p>
-            <ul class="alt-bullet">
-                <li><a href="/worksheets"><strong>Explore worksheets</strong></a></li>
-            </ul>
+    <div class="container">
+        <div class="row">
+            {% if ENABLE_WORKSHEETS %}
+              {% if ENABLE_COMPETITIONS %}
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                                <a role="button" class="btn" href="/worksheets">Worksheets</a>
+                          </div>
+                    </div>
+                    <p><strong>Run reproducible experiments and create executable papers using worksheets.</strong></p>
+                </div>
+              {% else %}
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                                <a role="button" class="btn" href="/worksheets">Browse Worksheets</a>
+                          </div>
+                    </div>
+                    <p><strong>Browse our growing collection of code, datasets,
+                      and executable papers containing the full provenance of the results.
+                    </strong></p>
+                </div>
+                <div class="col-sm-6 worksheet-random-list">
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                          <div class="btn-group" role="group">
+                            {% if user.is_authenticated %}
+                                <a role="button" class="btn" href="/worksheets/?name=/">My Worksheet</a>
+                            {% else %}
+                                <a role="button" class="btn" href="/accounts/login/?next=/worksheets/?name=/">My Worksheet</a>
+                            {% endif %}
+                          </div>
+                    </div>
+                    <p><strong>Create reproducible experiments in any
+                      programming language by running arbitrary commands.</strong></p>
+                </div>
+              {% endif %}
+            {% endif %}
 
+            {% if ENABLE_COMPETITIONS %}
+              <div class="col-sm-6 col-md-offset-3 competition-latest-list">
+                   <!--<div class="btn-group btn-group-justified" role="group" aria-label="...">
+                        <div class="btn-group" role="group">
+                              <a role="button" class="btn" href="/competitions">Competitions</a>
+                        </div>
+                  </div>-->
+                  <!--<p><strong>Enter an existing competition to solve challenging data problems, or host your own.</strong></p>-->
+              </div>
+            {% endif %}
         </div>
-        <div class="col-sm-6">
-            <p><a href="/competitions"><img src="{{STATIC_URL}}img/icon_competitions.png" alt="CodaLab Competitions"></a></p>
-            <p><strong>Competitions</strong>
-            bring together the entire community
-            to tackle the most challenging data and computational problems today.
-            You can win prizes and also create your own competition.
-            </p>
-            <ul class="alt-bullet">
-                <li><a href="/competitions"><strong>Explore competitions</strong></a></li>
-            </ul>
+
+        <div class="row">
+            {% if ENABLE_WORKSHEETS %}
+              <div class="col-sm-6 worksheet-random-list">
+                  <h2 class="homepage_headers">Random Worksheets</h2>
+                  {% if not worksheets %}
+                  <p><em>There are no worksheets.</em></p>
+                  {% else %}
+                      {% for worksheet in worksheets %}
+                          {% include "web/worksheets_latest.html" with worksheet=worksheet %}
+                      {% endfor %}
+                  {% endif %}
+              </div>
+              {% if not ENABLE_COMPETITIONS %}
+                <div class="col-sm-6 worksheet-random-list">
+                  <h2 class="homepage_headers">How It Works</h2>
+                  <b>1. Upload programs or datasets (bundles):</b>
+                  <blockquote>
+                    <div class="frontpage_code">cl upload train.py</div>
+                  </blockquote>
+                  <b>2. Run commands depending on previous bundles:</b>
+                  <blockquote>
+                    <div class="frontpage_code">cl run :train.py 'python train.py'</div>
+                  </blockquote>
+                  <b>3. Manage the runs / describe the results in the worksheet.</b>
+                </div>
+              {% endif %}
+            {% endif %}
+
+            {% if ENABLE_COMPETITIONS %}
+              <div class="col-sm-6 competition-latest-list">
+                <h2 class="homepage_headers">Popular Competitions</h2>
+                {% if not latest_competitions %}
+                <p><em>There are no competitions.</em></p>
+                {% else %}
+                    {% for competition in latest_competitions %}
+                        {% include "web/competition_latest.html" with competition=competition %}
+                    {% endfor %}
+                {% endif %}
+              </div>
+                <div class="col-sm-6 competition-latest-list">
+                <h2 class="homepage_headers">Featured Competitions</h2>
+                {% if not latest_competitions %}
+                <p><em>There are no competitions.</em></p>
+                {% else %}
+                    {% for competition in featured_competitions %}
+                        {% include "web/competition_latest.html" with competition=competition %}
+                    {% endfor %}
+                {% endif %}
+              </div>
+            {% endif %}
         </div>
     </div>
-
-    <p class="text-center pad-top pad-bottom"><a href="https://github.com/codalab/codalab/wiki/Dev_How-to-Contribute"><strong>Contribute your skills</strong></a> to help develop the CodaLab platform!</p>
-
 {% endblock content %}
 
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
     });
+
+    function populate(frm, data) {
+        $.each(data, function(key, value){
+            var $ctrl = $('[name='+key+']', frm);
+            switch($ctrl.attr("type"))
+            {
+                case "text":
+                case "hidden":
+                    $ctrl.val(value);
+                    break;
+                case "radio":
+                case "checkbox":
+                    $ctrl.each(function(){
+                        if(value=='on') {
+                            $(this).attr("checked",value);
+                        }
+                    });
+                    break;
+                default:
+                    $ctrl.val(value);
+            }
+        });
+    }
+    $('.competition-tile').on('click',function(){
+        var competitionID = $(this).find('#competitionID').val();
+        window.location.href = '/competitions/' + competitionID;
+    });
+
+    var params = {}
+    location.search.substr(1).split("&").forEach(function(item) {params[item.split("=")[0]] = item.split("=")[1]})
+
+    populate('#search_form', params);
 {% endblock js %}

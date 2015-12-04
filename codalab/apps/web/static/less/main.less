@@ -1,11 +1,10 @@
 body {
     padding-top:@navbar-height + 2px; // include bottom border;
-    padding-bottom:@footer-height * 2;
+    padding-bottom:@footer-height;
     > .container {
         padding-bottom:36px;
     }
     &.ws-interface {
-        padding-top:@navbar-height + 2 + 59 + 2; // same as above plus height of ws searchbar and its border
         > .container {
             padding-bottom:0;
         }
@@ -179,5 +178,160 @@ input[type="radio"], input[type="checkbox"] {
 @media (min-width:@screen-xs) {
     .form-horizontal .control-label {
         padding-top:4px;
+    }
+}
+
+/* Competition detail page */
+.like, .dislike {
+    cursor: pointer;
+    cursor: hand;
+}
+.already-liked {
+    color: green;
+}
+.already-disliked {
+    color: red;
+}
+
+/* Everything below correspondes to the latest homepage*/
+.col-sm-6 .btn-group .btn-group a{
+    color:#FFFFFF;
+    font-weight: bold;
+    font-size: 18px;
+}
+.col-sm-6 .btn-group{
+    /* Safari 3-4, iOS 1-3.2, Android 1.6- */
+  -webkit-border-radius: 10px;
+  /* Firefox 1-3.6 */
+  -moz-border-radius: 10px;
+  /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
+  border-radius: 10px;
+  background: #FFC266;
+  border: 1px solid;
+
+}
+
+.homepage_headers{
+    color:#739cb9;
+}
+
+/*Code for the latest worksheets goes here, only being used in homepage*/
+.container .worksheet-random-list{
+  padding-left: 5px;
+}
+.worksheets-list {
+   .checkbox {
+      margin:20px 0;
+      .my-worksheets-toggle input {
+         margin-right:5px;
+      }
+
+   }
+   .worksheet-tile {
+      .cl-tile;
+      border-left:1px solid @gray-light;
+      padding:0;
+      position:relative;
+      &:hover {
+         cursor:pointer;
+         h3 {
+            color:@brand-primary;
+         }
+      }
+      &.focused {
+         .box-shadow(0 1px 6px fadeout(black, 75%));
+         .worksheet-inner {
+            border-left-color:@brand-success;
+         }
+      }
+      .worksheet-inner {
+         border-left: 10px solid @brand-success;
+         padding:10px 10px 10px 58px;
+         background:url('/static/img/icon_worksheet.png') no-repeat 5px 10px;
+         min-height:68px;
+         h3 {
+            margin:0;
+            padding-bottom: 0;
+
+            a{
+              word-wrap: break-word;
+            }
+         }
+
+         button.delete-worksheet {
+            position:absolute;
+            bottom:5px;
+            right:5px;
+            opacity:.5;
+            .transition(opacity .35s ease);
+            &:hover {
+               .btn-danger;
+               text-decoration: none;
+               opacity:1;
+            }
+         }
+         .organizer_by{
+            font-size: 14px;
+            color:#999999;
+            font-weight: bold;
+            margin-bottom: 6px;
+         }
+      }
+   }
+}
+
+/*Code for latest competitions in homepage*/
+/*
+This code is for 768px and up
+*/
+@media screen and (min-width: @screen-sm-min) {
+    .homepage-competition-tile {
+        height: 110px;
+        .row{
+            height: 95%;
+            .col-sm-6{
+              height: 100%;
+              overflow: scroll;
+            }
+            .col-sm-4{
+              padding-top: 15px;
+            }
+        }
+    }
+}
+
+
+// This cde is for 992px and up
+
+@media screen and (min-width: @screen-md-min) {
+    .homepage-competition-tile {
+        height: 110px;
+        .row{
+          height: 95%;
+        .col-sm-6{
+          height: 100%;
+          overflow: scroll;
+          padding-bottom: 10px;
+        }
+        .col-sm-4{
+          padding-top: 20px;
+        }
+        }
+    }
+}
+
+
+
+.competition-tile .row .right-panel-homepage{
+  line-height: 20px;
+}
+
+.container .row .competition-latest-list{
+  padding-left: 35px;
+}
+
+@media (max-width:@screen-md) {
+    .container .row .competition-latest-list {
+        padding-left:5px;
     }
 }

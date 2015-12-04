@@ -1,9 +1,8 @@
 #!/bin/bash
 
-
 source ./config/generated/startup_env.sh
 source ../venv/bin/activate
-echo " .... "
-echo "$DJANGO_CONFIGURATION Configuration"
-echo " .... "
+#echo " .... "
+#echo "$DJANGO_CONFIGURATION Configuration"
+#echo " .... "
 exec python2.7 manage.py "$@"

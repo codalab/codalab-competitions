@@ -1,3 +1,7 @@
+/*
+TODO: replace this with WorksheetSidePanel.
+*/
+
 /** @jsx React.DOM */
 var Bundle = React.createClass({
     getInitialState: function(){
@@ -22,7 +26,7 @@ var Bundle = React.createClass({
         };
     },
     toggleEditing: function(){
-        this.setState({editing:!this.state.editing});
+        this.setState({editing: !this.state.editing});
     },
     saveMetadata: function(){
         var new_metadata = this.state.metadata;
@@ -64,7 +68,7 @@ var Bundle = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
-                $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
+                $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
                 $("#bundle-message").show();
             }.bind(this)
         });
@@ -87,7 +91,7 @@ var Bundle = React.createClass({
                 if (xhr.status == 404) {
                     $("#bundle-message").html("Bundle was not found.").addClass('alert-danger alert');
                 } else {
-                    $("#bundle-message").html("An error occurred. Please try refreshing the page.").addClass('alert-danger alert');
+                    $("#bundle-message").html('Error loading bundle: ' + err).addClass('alert-danger alert');
                 }
                 $('#bundle-content').hide();
             }.bind(this)
@@ -95,13 +99,10 @@ var Bundle = React.createClass({
 
         this.updateFileBrowser();
     },
+
     // File browser is updated based on location.hash!
     updateFileBrowser: function(specific_folder_path, reset_cwd) {
         var folder_path = specific_folder_path || '';
-
-//        if(folder_path == '') {
-//            folder_path = location.hash.replace('#', '');
-//        }
 
         // Special case '..' we go up a directory
         if(folder_path == '..') {
@@ -147,6 +148,7 @@ var Bundle = React.createClass({
             }.bind(this)
         });
     },
+
     render: function() {
         var saveButton;
         var metadata = this.state.metadata;
@@ -155,49 +157,39 @@ var Bundle = React.createClass({
         var editing = this.state.editing;
         var tableClassName = 'table' + (editing ? ' editing' : '');
         var editButtonText = editing ? 'cancel' : 'edit';
-        /// ------------------------------------------------------------------
-        if(editing){
-            saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>
+
+        if (editing)
+            saveButton = <button className="btn btn-success btn-sm" onClick={this.saveMetadata}>save</button>;
+
+        var keys = [];
+        for (var property in metadata) {
+            if (metadata.hasOwnProperty(property))
+                keys.push(property);
         }
-        /// ------------------------------------------------------------------
-        for(var k in metadata) {
+        keys.sort();
+        for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            // TODO: only allow editing on certain keys; needs to be passed in from Python.
             bundleAttrs.push(<BundleAttr key={k} index={k}val={metadata[k]} editing={editing} />);
         }
-        /// ------------------------------------------------------------------
-        var dependencies_table = []
-        var dep_bundle_url = ''
-        var dependencies_html = ''
-        if(this.state.dependencies.length){
-            this.state.dependencies.forEach(function(dep, i){
-                dep_bundle_url = "/bundles/" + dep.parent_uuid;
+
+        var dependencies_table = [];
+        if (this.state.dependencies.length) {
+            this.state.dependencies.forEach(function(dep, i) {
+                var dep_bundle_url = "/bundles/" + dep.parent_uuid;
                 dependencies_table.push(
                     <tr>
                         <td>
                             {dep.child_path}
                         </td>
                         <td>
-                            <a href={dep_bundle_url}>{dep.parent_uuid}</a>
-                        </td>
-                        <td>
-                            {dep.parent_name}
+                            {dep.parent_name}(<a href={dep_bundle_url}>{dep.parent_uuid}</a>){dep.parent_path ? '/' + dep.parent_path : ''}
                         </td>
                     </tr>
-                    )
+                );
             }) // end of foreach
-            if(dependencies_table.length == 0){
-                dependencies_table.push(
-                    <tr>
-                        <td>
-                            None
-                        </td>
-                        <td>
-                            None
-                        </td>
-                    </tr>
-                    )
-            }
 
-            dependencies_html = (
+            var dependencies_html = (
                 <div className="row">
                     <div className="col-sm-10">
                         <div className="dependencies-table">
@@ -205,8 +197,7 @@ var Bundle = React.createClass({
                                 <thead>
                                     <tr>
                                         <th>Path</th>
-                                        <th>UUID</th>
-                                        <th>Bundle Name</th>
+                                        <th>Target</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -216,12 +207,11 @@ var Bundle = React.createClass({
                         </div>
                     </div>
                 </div>
-            )
-        }// end of this.state.dependencies.length
+            );
+        }
 
-        /// ------------------------------------------------------------------
-        var stdout_html = ''
-        if(this.state.stdout){
+        var stdout_html = '';
+        if(this.state.stdout) {
             //had to add span since react elm must be wrapped
             stdout_html = (
                 <span>
@@ -232,10 +222,10 @@ var Bundle = React.createClass({
                         </pre>
                     </div>
                 </span>
-            )
+            );
         }
-        var stderr_html = ''
-        if(this.state.stderr){
+        var stderr_html = '';
+        if(this.state.stderr) {
             //had to add span since react elm must be wrapped
             stderr_html = (
                 <span>
@@ -246,7 +236,7 @@ var Bundle = React.createClass({
                         </pre>
                     </div>
                 </span>
-            )
+            );
         }
         /// ------------------------------------------------------------------
         var fileBrowser = (
@@ -302,50 +292,7 @@ var Bundle = React.createClass({
                             </div>
                         </div>
             )
-
         }
-        group_permissions_html = ''
-        if(this.state.edit_permission){
-            if(this.state.group_permissions.length){
-                group_permissions_rows = []
-                this.state.group_permissions.forEach(function(group, i){
-                    group_permissions_rows.push(
-                        <tr>
-                            <td>
-                                {group.group_name}
-                            </td>
-                            <td>
-                               {group.group_uuid}
-                            </td>
-                            <td>
-                               {group.permission_str}
-                            </td>
-                        </tr>
-                    );
-                }) // end of foreach
-                group_permissions_html = (
-                            <div className="row">
-                                <div className="col-sm-10">
-                                    <div className="dependencies-table">
-                                        <table id="dependencies_table" >
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>UUID</th>
-                                                    <th>Permissions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {group_permissions_rows}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                )
-            } // end of if group_permissions.len
-        }// end of if edit.permission
-        /// ------------------------------------------------------------------
 
         return (
             <div className="bundle-tile">
@@ -396,6 +343,21 @@ var Bundle = React.createClass({
                             </tr>
                         </table>
                     </div>
+
+                {dependencies_html ? <h3> Dependencies</h3> : null}
+                {dependencies_html ? dependencies_html : null}
+
+                <div className="row">
+                    <div className="col-sm-10">
+                        {stdout_html}
+                        {stderr_html}
+                    </div>
+                </div>
+
+                <div className="bundle-file-view-container">
+                    {this.state.fileBrowserData.contents ? fileBrowser : null}
+                </div>
+
                 <h3>
                     Metadata
                     {edit}
@@ -413,26 +375,9 @@ var Bundle = React.createClass({
                         </div>
                     </div>
                 </div>
-                <div className="bundle-file-view-container">
-                    {this.state.fileBrowserData.contents ? fileBrowser : null}
-                </div>
-                {dependencies_html ? <h3> Dependencies</h3> : null}
-                {dependencies_html ? dependencies_html : null}
-                <div className="row">
-                    <div className="col-sm-10">
-                        {stdout_html}
-                        {stderr_html}
-                    </div>
-                </div>
 
                 {host_worksheets_html ? <h3>Host Worksheets</h3> : null}
                 {host_worksheets_html ? host_worksheets_html : null}
-
-                {group_permissions_html ? <h3>Group Permissions</h3> : null}
-                {group_permissions_html ? group_permissions_html : null}
-
-
-
             </div>
         );
     }
@@ -468,8 +413,6 @@ var BundleAttr = React.createClass({
         }
     }
 });
-
-
 
 var FileBrowser = React.createClass({
     render: function() {

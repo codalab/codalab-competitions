@@ -1,17 +1,21 @@
 """
 Defines background tasks needed by the web site.
 """
+import csv
 import io
 import json
 import logging
-import yaml
+import StringIO
+import zipfile
 
 from urllib import pathname2url
 from zipfile import ZipFile
 from django.conf import settings
+from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
-from django.core.mail import get_connection, EmailMultiAlternatives
+from django.core.mail import get_connection, EmailMultiAlternatives, send_mail
 from django.db import transaction
+from django.db.models import Count
 from django.template import Context
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
@@ -31,10 +35,14 @@ from apps.web.models import (add_submission_to_leaderboard,
                              submission_stdout_filename,
                              submission_stderr_filename,
                              submission_history_file_name,
-                            predict_submission_stdout_filename,
-                            predict_submission_stderr_filename,
+                             submission_scores_file_name,
+                             submission_coopetition_file_name,
+                             predict_submission_stdout_filename,
+                             predict_submission_stderr_filename,
                              SubmissionScore,
-                             SubmissionScoreDef)
+                             SubmissionScoreDef,
+                             CompetitionSubmissionMetadata)
+from apps.coopetitions.models import DownloadRecord
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +209,6 @@ def score(submission, job_id):
     last_submissions = CompetitionSubmission.objects.filter(
         participant=submission.participant,
         status__codename=CompetitionSubmissionStatus.FINISHED
-
     ).order_by('-submitted_at')
 
 
@@ -225,6 +232,72 @@ def score(submission, job_id):
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
 
+    score_csv = submission.phase.competition.get_results_csv(submission.phase.pk)
+    submission.scores_file.save('scores.txt', ContentFile(score_csv))
+
+    # Extra submission info
+    coopetition_zip_buffer = StringIO.StringIO()
+    coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
+
+    for phase in submission.phase.competition.phases.all():
+        coopetition_field_names = (
+            "participant__user__username",
+            "pk",
+            "when_made_public",
+            "when_unmade_public",
+            "started_at",
+            "completed_at",
+            "download_count",
+            "submission_number",
+        )
+        annotated_submissions = phase.submissions.filter(status__codename=CompetitionSubmissionStatus.FINISHED).values(
+            *coopetition_field_names
+        ).annotate(like_count=Count("likes"), dislike_count=Count("dislikes"))
+
+        # Add this after fetching annotated count from db
+        coopetition_field_names += ("like_count", "dislike_count")
+
+        coopetition_csv = StringIO.StringIO()
+        writer = csv.DictWriter(coopetition_csv, coopetition_field_names)
+        writer.writeheader()
+        for row in annotated_submissions:
+            writer.writerow(row)
+
+        coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue().encode('utf-8'))
+
+    # Scores metadata
+    for phase in submission.phase.competition.phases.all():
+        coopetition_zip_file.writestr(
+            'coopetition_scores_phase_%s.txt' % phase.phasenumber,
+            phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True).encode('utf-8')
+        )
+
+    # Download metadata
+    coopetition_downloads_csv = StringIO.StringIO()
+    writer = csv.writer(coopetition_downloads_csv)
+    writer.writerow((
+        "submission_pk",
+        "submission_owner",
+        "downloaded_by",
+        "time_of_download",
+    ))
+    for download in DownloadRecord.objects.filter(submission__phase__competition=submission.phase.competition):
+        writer.writerow((
+            download.submission.pk,
+            download.submission.participant.user.username,
+            download.user.username,
+            str(download.timestamp),
+        ))
+
+    coopetition_zip_file.writestr('coopetition_downloads.txt', coopetition_downloads_csv.getvalue().encode('utf-8'))
+
+    # Current user
+    coopetition_zip_file.writestr('current_user.txt', submission.participant.user.username.encode('utf-8'))
+    coopetition_zip_file.close()
+
+    # Save them all
+    submission.coopetition_file.save('coopetition.zip', ContentFile(coopetition_zip_buffer.getvalue()))
+
     # Generate metadata-only bundle describing the inputs. Reference data is an optional
     # dataset provided by the competition organizer. Results are provided by the participant
     # either indirectly (has_generated_predictions is True i.e. participant provides a program
@@ -240,6 +313,8 @@ def score(submission, job_id):
         raise ValueError("Results are missing.")
 
     lines.append("history: %s" % submission_history_file_name(submission))
+    lines.append("scores: %s" % submission_scores_file_name(submission))
+    lines.append("coopetition: %s" % submission_coopetition_file_name(submission))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
@@ -312,7 +387,7 @@ def update_submission_task(job_id, args):
         args['status']: The evaluation status, which is one of 'running', 'finished' or 'failed'.
     """
 
-    def update_submission(submission, status, job_id, traceback=None):
+    def update_submission(submission, status, job_id, traceback=None, metadata=None):
         """
         Updates the status of a submission.
 
@@ -320,16 +395,29 @@ def update_submission_task(job_id, args):
         status: The new status string: 'running', 'finished' or 'failed'.
         job_id: The job ID used to track the progress of the evaluation.
         """
+        state = {}
+        if len(submission.execution_key) > 0:
+            logger.debug("update_submission_task loading state: %s", submission.execution_key)
+            state = json.loads(submission.execution_key)
+            logger.debug("update_submission_task state = %s" % submission.execution_key)
+
+        if metadata:
+            is_predict = 'score' not in state
+            sub_metadata, created = CompetitionSubmissionMetadata.objects.get_or_create(
+                is_predict=is_predict,
+                is_scoring=not is_predict,
+                submission=submission,
+            )
+            sub_metadata.__dict__.update(metadata)
+            sub_metadata.save()
+            logger.debug("saving extra metadata, was a new object created? %s" % created)
+
         if status == 'running':
             _set_submission_status(submission.id, CompetitionSubmissionStatus.RUNNING)
             return Job.RUNNING
 
         if status == 'finished':
             result = Job.FAILED
-            state = {}
-            if len(submission.execution_key) > 0:
-                logger.debug("update_submission_task loading state: %s", submission.execution_key)
-                state = json.loads(submission.execution_key)
             if 'score' in state:
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
                 submission.output_file.name = pathname2url(submission_output_filename(submission))
@@ -371,6 +459,18 @@ def update_submission_task(job_id, args):
                     logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
 
                 result = Job.FINISHED
+
+                if submission.participant.user.email_on_submission_finished_successfully:
+                    email = submission.participant.user.email
+                    site_url = "https://%s%s" % (Site.objects.get_current().domain, submission.phase.competition.get_absolute_url())
+                    send_mail(
+                        'Submission has finished successfully!',
+                        'Your submission to the competition "%s" has finished successfully! View it here: %s' %
+                        (submission.phase.competition.title, site_url),
+                        settings.DEFAULT_FROM_EMAIL,
+                        [email],
+                        fail_silently=False
+                    )
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
                 url_name = pathname2url(submission_prediction_output_filename(submission))
@@ -392,6 +492,7 @@ def update_submission_task(job_id, args):
         if traceback:
             submission.exception_details = traceback
             submission.save()
+
         _set_submission_status(submission.id, CompetitionSubmissionStatus.FAILED)
 
     def handle_update_exception(job, ex):
@@ -424,9 +525,15 @@ def update_submission_task(job_id, args):
         result = None
         try:
             traceback = None
-            if 'extra' in args and 'traceback' in args['extra']:
-                traceback = args['extra']['traceback']
-            result = update_submission(submission, status, job.id, traceback)
+            metadata = None
+            if 'extra' in args:
+                if 'traceback' in args['extra']:
+                    traceback = args['extra']['traceback']
+
+                if 'metadata' in args['extra']:
+                    metadata = args['extra']['metadata']
+
+            result = update_submission(submission, status, job.id, traceback, metadata)
         except Exception as e:
             logger.exception("Failed to update submission (job_id=%s, submission_id=%s, status=%s)",
                              job.id, submission_id, status)

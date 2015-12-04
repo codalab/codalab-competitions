@@ -6,6 +6,9 @@
                     <div class="submission_details">
                         <div class="bundle__meta__desc">
                             <p class="submission_description">No description given.</p>
+                            <textarea name="updated_description" class="hide" placeholder="new description" style="display: block; width: 100%; margin-bottom: 12px;"></textarea>
+                            <button class="btn btn-primary save_description_btn hide">save description</button>
+                            <button class="btn btn-primary update_description_btn">update description</button>
                             <p class="submission_team_name"></p>
                             <p class="submission_method_name"></p>
                             <p class="submission_method_description"></p>
@@ -23,11 +26,11 @@
                                     {% if phase.is_blind %}
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank" class="hide">View standard error log</a></li>
                                     {% else %}
-                                        <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict output log</a></li>
-                                        <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict error log</a></li>
                                         <li><a href="/my/competition/submission/_/stdout.txt" target="_blank">View scoring output log</a></li>
                                         <li><a href="/my/competition/submission/_/stderr.txt" target="_blank">View scoring error log</a></li>
                                         {% if not phase.is_scoring_only %}
+                                            <li><a href="/my/competition/submission/_/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                                            <li><a href="/my/competition/submission/_/predict_stderr.txt" target="_blank">View predict error log</a></li>
                                             <li><a href="/my/competition/submission/_/prediction-output.zip">Download evaluation output from prediction step</a></li>
                                         {% endif %}
                                         {% if phase.competition.enable_detailed_results %}

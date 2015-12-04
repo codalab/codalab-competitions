@@ -21,6 +21,9 @@
         {% else %}
             <p>None</p>
         {% endif %}
+
+        <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
+        <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
     {% if groups|length > 0 %}
         <a class="icon-excel btn btn-default" href="/competitions/{{phase.competition.id}}/results/{{phase.id}}/data">Download CSV</a>
@@ -69,12 +72,16 @@
                     </tr>
                 {% else %}
                     {% for pk, scoredata in group.scores %}
-                        <tr>
+                        <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
                             <td class="row-position">
                                 {{ forloop.counter }}
                             </td>
                             <td>
-                                {{scoredata.username}}
+                                {% if phase.competition.anonymous_leaderboard %}
+                                    <i>Anonymous</i>
+                                {% else %}
+                                    {{scoredata.username}}
+                                {% endif %}
                             </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{scoredata.team_name|default_if_none:""}}</td>

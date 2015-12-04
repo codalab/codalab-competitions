@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+{% block page_title %}Submissions Metadata{% endblock page_title %}
+{% block head_title %}Submissions Metadata{% endblock %}
+
+{% block content %}
+<div class="submissions">
+    <div class="well submission-phase-select">
+        <h4>Phase</h4>
+        <select id="phase_selector" class="form-control">
+            {% for phase in competition.phases.all %}
+                <option {% if phase == selected_phase %}selected{% endif %} value="{{ phase.pk }}">{{ phase.label }} - {{ phase.start_date|utc }} UTC</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <h4>Submissions</h4>
+
+    {% if selected_phase.submissions.all %}
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr style="text-align: center; font-weight: bold;">
+                    <td>Submitted by</td>
+                    <td width="150">Date</td>
+                    <td>Compute worker</td>
+                    <td>Submission ID#</td>
+                    <td>Status</td>
+                    <td>Prediction/Scoring?</td>
+                    <td>Running processes (in temp dir)</td>
+                    <td>Start RAM</td>
+                    <td>End RAM</td>
+                    <td>Start CPU</td>
+                    <td>End CPU</td>
+                    <td>Start swap</td>
+                    <td>End swap</td>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for submission in selected_phase.submissions.all %}
+                    {% for metadata in submission.metadatas.all %}
+                        <tr>
+                            <td>{{ metadata.submission.participant.user.username }}</td>
+                            <td>{{ metadata.submission.submitted_at|date:"Y-m-d h:m" }}</td>
+                            <td>{{ metadata.hostname }}</td>
+                            <td>{{ metadata.submission.pk }}</td>
+                            <td>{{ metadata.submission.status }}</td>
+                            <td>{% if metadata.is_predict %}Prediction{% else %}Scoring{% endif %}</td>
+                            <td>{{ metadata.simple.processes_running_in_temp_dir }}</td>
+                            <td>{{ metadata.simple.beginning_virtual_memory_usage }}</td>
+                            <td>{{ metadata.simple.beginning_swap_memory_usage }}</td>
+                            <td>{{ metadata.simple.beginning_cpu_usage }}</td>
+                            <td>{{ metadata.simple.end_virtual_memory_usage }}</td>
+                            <td>{{ metadata.simple.end_swap_memory_usage }}</td>
+                            <td>{{ metadata.simple.end_cpu_usage }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <i>No submissions!</i>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+    $(function () {
+        $("#phase_selector").change(function(){
+            window.location = "/competitions/{{ competition.pk }}/submission_metadata/" + $(this).val();
+        });
+    });
+{% endblock js %}

@@ -15,6 +15,8 @@ class Dev(DevBase):
     ############################################################
     ### For competitions
 
+    ENABLE_COMPETITIONS = True
+
     # Azure storage
     DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
     AZURE_ACCOUNT_NAME = 'your_account_name'
@@ -37,9 +39,10 @@ class Dev(DevBase):
     ############################################################
     ### For worksheets
 
+    ENABLE_WORKSHEETS = True
+
     # Bundle service: leave this URL blank to by-pass this functionality
     BUNDLE_SERVICE_URL = "http://localhost:2800"
-    PREVIEW_WORKSHEETS = True
 
     # Following config is necessary to use a bundle service
     # CODE_PATH points to local source code for bundles repo. Path is relative to this file.

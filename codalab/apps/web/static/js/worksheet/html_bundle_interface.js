@@ -1,33 +1,29 @@
 /** @jsx React.DOM */
 
+// Display a worksheet item which is the HTML file in a bundle.
 var HTMLBundle = React.createClass({
     mixins: [CheckboxMixin, GoToBundleMixin],
-    getInitialState: function(){
-        this.props.item.state.checked = false;
-        return this.props.item.state;
+    getInitialState: function() {
+        return {};
     },
-    handleClick: function(event){
-        this.props.setFocus(this.props.index, event);
+    handleClick: function(event) {
+        this.props.setFocus(this.props.focusIndex, 0);
     },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return worksheetItemPropsChanged(this.props, nextProps);
+    },
+
     render: function() {
         var className = 'type-html' + (this.props.focused ? ' focused' : '');
-        var checkbox = this.props.canEdit ? <input type="checkbox" className="ws-checkbox" onChange={this.handleCheck} checked={this.state.checked} disabled={!this.props.checkboxEnabled}/> : null;
-        // if there is an error with the file path interpreted is null
-        var contents = ["null"]
-        if(this.state.interpreted){
-            contents = this.state.interpreted.map(function(item){
-                return item.replace(/%\s/, '');
-            });
-        }
-        contents = contents.join('');
+        var contents = html_sanitize(this.props.item.interpreted.join(''));
         return(
             <div className="ws-item" onClick={this.handleClick}>
-                {checkbox}
-                <div className={className} ref={this.props.item.state.ref}>
+                <div className={className} ref={this.props.item.ref}>
                     <div className="html-bundle" dangerouslySetInnerHTML={{__html: contents}}>
                     </div>
                 </div>
             </div>
         );
-    } // end of render function
-}); //end of  ContentsBundle
+    }
+});
