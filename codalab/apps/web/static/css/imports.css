@@ -7338,6 +7338,9 @@ body.ws-interface > .container {
   background-position: 10px 15px;
   padding-left: 32px;
 }
+.editable-error-block {
+  font-size: 16px;
+}
 .tab-content > .tab-pane {
   background-color: white;
 }
@@ -7460,7 +7463,7 @@ input[type="checkbox"] {
 }
 /* Everything below correspondes to the latest homepage*/
 .col-sm-6 .btn-group .btn-group a {
-  color: #FFFFFF;
+  color: #777777;
   font-weight: bold;
   font-size: 18px;
 }
@@ -7472,7 +7475,6 @@ input[type="checkbox"] {
   /* Opera 10.5, IE 9, Safari 5, Chrome, Firefox 4, iOS 4, Android 2.1+ */
   border-radius: 10px;
   background: #FFC266;
-  border: 1px solid;
 }
 .homepage_headers {
   color: #739cb9;
@@ -7667,6 +7669,11 @@ This code is for 768px and up
     padding-left: 5px;
   }
 }
+.frontpage_code {
+  font-family: monospace;
+  font-size: 14px;
+  color: #33aa33;
+}
 .panel-frame {
   margin-top: 12px;
   line-height: 1.2;
@@ -7744,6 +7751,11 @@ body,
   transition: margin-top 0.35s ease;
   position: relative;
   height: 100%;
+}
+#worksheet .editable-field:hover {
+  cursor: text;
+  border-radius: 4px;
+  box-shadow: 1px 1px 1px 1px gray;
 }
 #worksheet #ws_search {
   position: fixed;
@@ -7945,29 +7957,19 @@ body,
   text-align: center;
   display: none;
 }
-#worksheet_content .worksheet-name {
-  min-height: 65px;
-}
-#worksheet_content .worksheet-name label input[type="checkbox"] {
-  margin-right: 5px;
-}
-#worksheet_content .worksheet-name h1 {
+#worksheet_content .worksheet-title {
   text-indent: 0;
   margin: 0;
   font-size: 44px;
-  line-height: 1em;
-  padding-top: 5px;
-  padding-left: 65px;
+  line-height: 1.1em;
+  padding: 5px 0 20px 15px;
   min-height: 60px;
 }
-#worksheet_content .worksheet-name .worksheet-author {
-  text-indent: 65px;
+#worksheet_content .worksheet-name {
   font-size: 14px;
-  margin-top: 0;
+  min-height: 65px;
 }
-#worksheet_content .worksheet-name .worksheet-permission {
-  text-indent: 65px;
-  font-size: 12px;
+#worksheet_content .worksheet-name .worksheet-detail {
   margin-top: 0;
 }
 #worksheet_content .header-row hr {
@@ -9241,6 +9243,16 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
   word-wrap: normal;
   white-space: pre;
   font-size: 80%;
+}
+#worksheet-editor {
+  margin: 0;
+  position: relative;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 1000px;
+  height: 700px;
 }
 #glossaryModal .modal-header h4 {
   margin: 0;
