@@ -7794,7 +7794,7 @@ body,
   cursor: col-resize;
 }
 #worksheet #worksheet_panel {
-  padding-top: 45px;
+  padding-top: 45px !important;
 }
 #worksheet #worksheet_panel:before,
 #worksheet #worksheet_panel:after {
@@ -7813,7 +7813,7 @@ body,
   clear: both;
 }
 #worksheet #worksheet_panel.actionbar-focus {
-  padding-top: 45px;
+  padding-top: 45px !important;
 }
 #worksheet .ws-container {
   position: absolute;
