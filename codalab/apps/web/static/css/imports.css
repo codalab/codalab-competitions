@@ -8140,6 +8140,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 #worksheet_content .ws-item {
   position: relative;
+  margin-bottom: 20px;
 }
 #worksheet_content .ws-item .ws-checkbox {
   margin: 0;
@@ -8172,7 +8173,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   min-height: 480px;
 }
 #worksheet_content .type-markup {
-  line-height: 1.6;
+  line-height: 1.5;
 }
 #worksheet_content .type-markup:before,
 #worksheet_content .type-markup:after {
@@ -8190,19 +8191,16 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-markup:after {
   clear: both;
 }
-#worksheet_content .type-markup p {
-  margin-bottom: 18px;
+#worksheet_content .type-markup > * {
+  margin-bottom: 20px;
+}
+#worksheet_content .type-markup > *:last-child {
+  margin-bottom: 0;
 }
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
-  margin: 0 0 16px 0;
+  margin: 0;
   padding-left: 40px;
-}
-#worksheet_content .type-markup ul ul,
-#worksheet_content .type-markup ol ul,
-#worksheet_content .type-markup ul ol,
-#worksheet_content .type-markup ol ol {
-  margin-bottom: 0;
 }
 #worksheet_content .type-markup ul {
   list-style-type: disc;
@@ -8218,7 +8216,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-markup h2,
 #worksheet_content .type-markup h3,
 #worksheet_content .type-markup h4 {
-  margin: .5em 0 12px;
+  margin-top: .5em;
   padding: 0;
   font-weight: bold;
 }
@@ -8288,7 +8286,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-table,
 #worksheet_content .type-record,
 #worksheet_content .type-search {
-  margin: 6px 45px 18px 0;
+  margin-right: 45px;
   display: inline-block;
   min-width: 100%;
 }
