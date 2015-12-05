@@ -750,47 +750,6 @@ html, body, #worksheet_container {height:100%;}
                color:@link-color;
             }
          }
-         .file-browser-table {
-            .table;
-            .table-striped;
-            margin-bottom:0;
-            > thead,
-            > tbody,
-            > tfoot {
-               > tr {
-                  > th,
-                  > td {
-                     line-height:1.2;
-                     font-size:@font-size-med;
-                     border-width:0;
-                     a, span {
-                        cursor:pointer;
-                     }
-                     .directory {
-                        font-weight:bold;
-                     }
-                     .file {
-                        font-weight:normal;
-                        .size {
-                           width:5em;
-                           float:right;
-                           font-family:@font-family-monospace;
-                           font-size:80%;
-                           line-height:@line-height-base;
-                        }
-                     }
-                  }
-               }
-            }
-            .glyphicon {
-               font-size:@font-size-med;
-               color:@link-color;
-               margin-right:6px;
-               &.glyphicon-file {
-                  color:@gray;
-               }
-            }
-         }
       }
       .stdout-container, .stderr-container {
          border-top:1px solid @gray-light;
@@ -800,6 +759,49 @@ html, body, #worksheet_container {height:100%;}
             white-space: pre;
             font-size:80%;
          }
+      }
+   }
+}
+
+// File Browser
+.file-browser-table {
+   .table;
+   .table-striped;
+   margin-bottom:0;
+   > thead,
+   > tbody,
+   > tfoot {
+      > tr {
+         > th,
+         > td {
+            line-height:1.2;
+            font-size:@font-size-med;
+            border-width:0;
+            a, span {
+               cursor:pointer;
+            }
+            .directory {
+               font-weight:bold;
+            }
+            .file {
+               font-weight:normal;
+               .size {
+                  width:5em;
+                  float:right;
+                  font-family:@font-family-monospace;
+                  font-size:80%;
+                  line-height:@line-height-base;
+               }
+            }
+         }
+      }
+   }
+   .glyphicon {
+      font-size:@font-size-med;
+      color:@link-color;
+      margin-right:6px;
+      &.glyphicon-file {
+         color:@gray;
       }
    }
 }
