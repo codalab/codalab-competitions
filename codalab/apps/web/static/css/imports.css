@@ -7687,6 +7687,7 @@ This code is for 768px and up
 }
 .panel-frame {
   margin-top: 12px;
+  margin-bottom: 24px;
   line-height: 1.2;
   min-height: 480px;
 }
@@ -7747,7 +7748,10 @@ body,
   height: 100%;
 }
 #worksheet-message {
-  padding: 20px 0;
+  position: absolute;
+  left: 20px;
+  top: 100px;
+  padding: 20px;
 }
 #worksheet-message.alert {
   padding: 10px;
@@ -7761,7 +7765,7 @@ body,
   -o-transition: margin-top 0.35s ease;
   transition: margin-top 0.35s ease;
   position: relative;
-  height: 100%;
+  height: calc(100% - 20px - 25px);
 }
 #worksheet .editable-field:hover {
   cursor: text;
@@ -7801,7 +7805,7 @@ body,
   cursor: col-resize;
 }
 #worksheet #worksheet_panel {
-  padding-top: 65px;
+  padding-top: 45px !important;
 }
 #worksheet #worksheet_panel:before,
 #worksheet #worksheet_panel:after {
@@ -7820,7 +7824,7 @@ body,
   clear: both;
 }
 #worksheet #worksheet_panel.actionbar-focus {
-  padding-top: 190px;
+  padding-top: 45px !important;
 }
 #worksheet .ws-container {
   position: absolute;
@@ -7837,12 +7841,13 @@ body,
   right: 0;
   height: 100%;
   overflow: auto;
-  padding: 0 10px;
+  padding: 10px 10px;
   background: #FBFBFB;
+  font-size: 14px;
 }
 #worksheet .ws-panel #panel_content {
-  font-size: 14px;
   margin-top: 12px;
+  margin-bottom: 24px;
   line-height: 1.2;
   min-height: 480px;
 }
@@ -7938,15 +7943,13 @@ body,
 }
 #worksheet_content {
   margin-top: 12px;
+  margin-bottom: 24px;
   line-height: 1.2;
   min-height: 480px;
   display: none;
 }
 #worksheet_content hr {
   margin: 12px 0;
-}
-#worksheet_content p {
-  margin-bottom: 12px;
 }
 #worksheet_content .glossary-link,
 #worksheet_content .controls label {
@@ -7971,8 +7974,9 @@ body,
   text-indent: 0;
   margin: 0;
   font-size: 44px;
+  font-weight: bold;
   line-height: 1.1em;
-  padding: 5px 0 20px 15px;
+  padding: 20px 0 20px 15px;
   min-height: 60px;
 }
 #worksheet_content .worksheet-name {
@@ -8146,6 +8150,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 #worksheet_content .ws-item {
   position: relative;
+  margin-bottom: 20px;
 }
 #worksheet_content .ws-item .ws-checkbox {
   margin: 0;
@@ -8155,8 +8160,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   font-size: 16px;
 }
 #worksheet_content .ws-item > .focused {
-  background-color: #fffef4;
-  box-shadow: 0 0 3px #739cb9;
+  background-color: #e2f0f5;
+  box-shadow: 0 0 5px 5px #e2f0f5;
 }
 #worksheet_content.editable .ws-item {
   margin-left: 24px;
@@ -8177,13 +8182,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content textarea.raw-textarea {
   min-height: 480px;
 }
-#worksheet_content .type-markup:before,
-#worksheet_content .type-markup:after {
-  content: " ";
-  display: table;
-}
-#worksheet_content .type-markup:after {
-  clear: both;
+#worksheet_content .type-markup {
+  line-height: 1.5;
 }
 #worksheet_content .type-markup:before,
 #worksheet_content .type-markup:after {
@@ -8192,10 +8192,24 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 }
 #worksheet_content .type-markup:after {
   clear: both;
+}
+#worksheet_content .type-markup:before,
+#worksheet_content .type-markup:after {
+  content: " ";
+  display: table;
+}
+#worksheet_content .type-markup:after {
+  clear: both;
+}
+#worksheet_content .type-markup > * {
+  margin-bottom: 20px;
+}
+#worksheet_content .type-markup > *:last-child {
+  margin-bottom: 0;
 }
 #worksheet_content .type-markup ul,
 #worksheet_content .type-markup ol {
-  margin: 0 0 16px 0;
+  margin: 0;
   padding-left: 40px;
 }
 #worksheet_content .type-markup ul {
@@ -8204,11 +8218,17 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-markup ol {
   list-style-type: decimal;
 }
+#worksheet_content .type-markup li {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
 #worksheet_content .type-markup h1,
 #worksheet_content .type-markup h2,
-#worksheet_content .type-markup h3 {
-  margin: 0 0 12px 0;
+#worksheet_content .type-markup h3,
+#worksheet_content .type-markup h4 {
+  margin-top: .5em;
   padding: 0;
+  font-weight: bold;
 }
 #worksheet_content .type-markup h1 {
   font-size: 36px;
@@ -8220,11 +8240,11 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   font-size: 20px;
 }
 #worksheet_content .type-markup code {
-  font-size: 80%;
+  font-size: 90%;
   display: inline;
   max-width: initial;
   padding: 0;
-  margin: 0;
+  margin: 0 2px;
   overflow: initial;
   line-height: inherit;
   word-wrap: normal;
@@ -8236,8 +8256,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-inline,
 #worksheet_content .type-worksheet,
 #worksheet_content .type-image {
-  min-height: 24px;
-  margin-bottom: 20px;
+  min-height: 0;
 }
 #worksheet_content .type-image img {
   width: 98%;
@@ -8277,7 +8296,9 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-table,
 #worksheet_content .type-record,
 #worksheet_content .type-search {
-  margin-bottom: 28px;
+  margin-right: 45px;
+  display: inline-block;
+  min-width: 100%;
 }
 #worksheet_content .type-table table,
 #worksheet_content .type-record table,
@@ -8289,6 +8310,7 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
   border-width: 2px;
   border-color: white;
   margin-bottom: 0;
+  border-top: 3px solid #DDDDDD;
 }
 #worksheet_content .type-table table > thead > tr > th,
 #worksheet_content .type-record table > thead > tr > th,
@@ -8517,7 +8539,8 @@ fieldset[disabled] #worksheet_content .header-row .controls .edit-features .btn-
 #worksheet_content .type-record table.focused,
 #worksheet_content .type-search table.focused {
   border-color: #fffef4;
-  box-shadow: 0 0 3px #739cb9;
+  box-shadow: 0 0 5px 5px #e2f0f5;
+  border-top: 3px solid #DDDDDD;
 }
 #worksheet_content .type-table table.focused > thead > tr > th,
 #worksheet_content .type-record table.focused > thead > tr > th,
@@ -9674,6 +9697,7 @@ textarea.table.affiliation > tbody > tr > td input {
   margin-left: auto;
   margin-right: auto;
   max-width: 1700px;
+  background-color: inherit;
 }
 .terminal .terminal-output .format,
 .cmd .format,

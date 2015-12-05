@@ -1,10 +1,14 @@
 @initial-panel-width: 25%;
 @panel-bg: #FBFBFB;
-@actionbar-focus-height: 170px + 20px;
-@actionbar-blur-height: 45px + 20px;
+//@actionbar-focus-height: 170px + 20px;
+//@actionbar-blur-height: 45px + 20px;
+@actionbar-focus-height: 45px;
+@actionbar-blur-height: 45px;
+@item-margin-bottom: 20px;
 
 .panel-frame {
    margin-top:12px;
+   margin-bottom:24px;
    line-height:1.2;
    min-height:480px;
 }
@@ -26,8 +30,11 @@
    }
 }
 html, body, #worksheet_container {height:100%;}
-#worksheet-message {
-   padding:20px 0;
+#worksheet-message { 
+   position:absolute;
+   left:20px;
+   top:100px;
+   padding:20px;
    &.alert {
       padding:10px;
       margin-top:20px;
@@ -39,7 +46,7 @@ html, body, #worksheet_container {height:100%;}
 #worksheet {
    .transition(margin-top .35s ease);
    position:relative;
-   height:100%;
+   height:calc(~"100% - 20px -"@footer-height);
    .editable-field:hover {
       cursor:text;
       border-radius:4px;
@@ -109,10 +116,11 @@ html, body, #worksheet_container {height:100%;}
    }
    #worksheet_panel {
       .clearfix();
-      padding-top:@actionbar-blur-height;
+      padding-top:@actionbar-blur-height !important;
       &.actionbar-focus {
-         padding-top:@actionbar-focus-height;
+         padding-top:@actionbar-focus-height !important;
       }
+      
    }
    .ws-container {
       position: absolute;
@@ -129,10 +137,10 @@ html, body, #worksheet_container {height:100%;}
       right:0;
       height:100%;
       overflow:auto;
-      padding: 0 @grid-gutter-width/3;
+      padding: 10px @grid-gutter-width/3;
       background:@panel-bg;
+      font-size:14px;
       #panel_content {
-         font-size:14px;
          .panel-frame;
          .ws-uuid {
             .panel-text-overflow;
@@ -229,9 +237,6 @@ html, body, #worksheet_container {height:100%;}
    hr {
       margin:12px 0;
    }
-   p {
-      margin-bottom:12px;
-   }
    .glossary-link,
    .controls label {
       font-weight:normal;
@@ -253,8 +258,9 @@ html, body, #worksheet_container {height:100%;}
       text-indent:0;
       margin:0;
       font-size:44px;
+      font-weight:bold;
       line-height:1.1em;
-      padding:5px 0 20px 15px;
+      padding:20px 0 20px 15px;
       min-height:60px;
    }
    .worksheet-name {
@@ -300,6 +306,7 @@ html, body, #worksheet_container {height:100%;}
    }
    .ws-item {
       position:relative;
+      margin-bottom:@item-margin-bottom;
       .ws-checkbox {
          margin:0;
          position:absolute;
@@ -308,8 +315,10 @@ html, body, #worksheet_container {height:100%;}
          font-size:16px;
       }
       > .focused {
-         background-color:@focused-bg;
-         box-shadow:0 0 3px @brand-primary;
+         //background-color:@focused-bg;
+         //box-shadow:0 0 3px @brand-primary;
+         background-color:@glow-bg;
+         box-shadow:0 0 5px 5px @glow-feather;
       }
    }
    &.editable .ws-item {
@@ -335,8 +344,16 @@ html, body, #worksheet_container {height:100%;}
    // Bundle Types
    .type-markup {
       .clearfix;
+      line-height:1.5;
+      // Margin for non-last children
+      > * {
+        margin-bottom:@item-margin-bottom;
+      }
+      > *:last-child {
+        margin-bottom: 0;
+      }
       ul, ol {
-         margin: 0 0 16px 0;
+         margin: 0;
          padding-left:40px;
       }
       ul {
@@ -345,9 +362,14 @@ html, body, #worksheet_container {height:100%;}
       ol {
          list-style-type:decimal;
       }
-      h1, h2, h3 {
-         margin:0 0 12px 0;
+      li {
+         margin-top:6px;
+         margin-bottom:6px;
+      }
+      h1, h2, h3, h4 {
+         margin-top:.5em;
          padding:0;
+         font-weight:bold;
       }
       h1 {
          font-size:36px;
@@ -358,12 +380,12 @@ html, body, #worksheet_container {height:100%;}
       h3 {
          font-size:20px;
       }
-      code{
-         font-size:80%;
+      code {
+         font-size:90%;
          display: inline;
          max-width: initial;
          padding: 0;
-         margin: 0;
+         margin: 0 2px;
          overflow: initial;
          line-height: inherit;
          word-wrap: normal;
@@ -376,8 +398,7 @@ html, body, #worksheet_container {height:100%;}
    .type-inline,
    .type-worksheet,
    .type-image {
-      min-height:24px;
-      margin-bottom:20px;
+      min-height: 0;
    }
    .type-image img {
       width:98%;
@@ -419,7 +440,9 @@ html, body, #worksheet_container {height:100%;}
       background-size:32px;
    }
    .type-table, .type-record, .type-search {
-      margin-bottom: 28px;
+      margin-right: 45px;
+      display: inline-block;
+      min-width: 100%;
       table {
          .table;
          .table-bordered;
@@ -427,6 +450,7 @@ html, body, #worksheet_container {height:100%;}
          border-width:2px;
          border-color:white;
          margin-bottom:0;
+         border-top: 3px solid #DDDDDD;
          > thead,
          > tbody,
          > tfoot {
@@ -460,7 +484,9 @@ html, body, #worksheet_container {height:100%;}
          }
          &.focused {
             border-color:@focused-bg;
-            box-shadow:0 0 3px @brand-primary;
+            //box-shadow:0 0 3px @brand-primary;
+            box-shadow:0 0 5px 5px @glow-feather;
+            border-top: 3px solid #DDDDDD;
             > thead,
             > tbody,
             > tfoot {
