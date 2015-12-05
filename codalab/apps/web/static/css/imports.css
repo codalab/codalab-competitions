@@ -7892,9 +7892,8 @@ body,
 #worksheet .ws-panel #panel_content h4 {
   font-size: 20px;
   margin-bottom: 8px;
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 2px solid #ccc;
+  margin-top: 0px;
+  padding-top: 2px;
 }
 #worksheet .ws-panel #panel_content p {
   margin: 0;
