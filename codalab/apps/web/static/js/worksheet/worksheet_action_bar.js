@@ -13,7 +13,11 @@ var WorksheetActionBar = React.createClass({
 
     // See JQuery Terminal API reference for more info about this plugin:
     // http://terminal.jcubic.pl/api_reference.php
-    var term = $('#command_line').terminal(function (command, terminal) {
+    this.terminal = $('#command_line').terminal(function (command, terminal) {
+      if (command.length === 0) {
+        return;
+      }
+
       terminal.pause();
       self.executeCommand(command).then(function (data) {
         if (data.output) {
@@ -69,7 +73,7 @@ var WorksheetActionBar = React.createClass({
     });
 
     // Start with terminal focus off.
-    term.focus(false);
+    this.terminal.focus(false);
   },
   renderHyperlinks: function (references) {
     Object.keys(references).forEach(function (key) {
@@ -106,7 +110,10 @@ var WorksheetActionBar = React.createClass({
         window.open('/bundles/' + uuid + '/', '_blank');
       },
       upload: function () {
-        $("#ws-bundle-upload").modal();
+        // Just switch focus to the upload button.
+        self.props.setFocus(-1, null);
+        self.terminal.focus(false);
+        $("#upload-bundle-button").focus();
       }
     })[action](parameter);
   },

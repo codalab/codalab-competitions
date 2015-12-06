@@ -368,15 +368,6 @@ var Worksheet = React.createClass({
         });
     },
 
-    // Go to the home worksheet
-    myHomeWorksheet: function() {
-      this.refs.action.executeCommand(['cl', 'work', HOME_WORKSHEET]);
-    },
-
-    uploadBundle: function() {
-      this.refs.action.executeCommand(['cl', 'upload']);
-    },
-
     render: function() {
         //console.log('WorksheetInterface.render');
         this.capture_keys();
@@ -434,6 +425,7 @@ var Worksheet = React.createClass({
                     refreshWorksheet={this.refreshWorksheet}
                     openWorksheet={this.openWorksheet}
                     editMode={this.editMode}
+                    setFocus={this.setFocus}
                 />
             );
 
@@ -461,14 +453,6 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     uploadBundle={this.uploadBundle}
                     bundleMetadataChanged={this.refreshWorksheet}
-                />
-            );
-
-        var upload_modal = (
-                <UploadModal
-                    ws={this.state.ws}
-                    ref={"modal"}
-                    refreshWorksheet={this.refreshWorksheet}
                 />
             );
 
@@ -505,7 +489,6 @@ var Worksheet = React.createClass({
                                 {worksheet_display}
                             </div>
                         </div>
-                        {upload_modal}
                     </div>
                 </div>
                 <div id="dragbar_vertical" className="dragbar"></div>
