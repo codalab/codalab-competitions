@@ -10,13 +10,22 @@ var GraphBundle = React.createClass({
       this.props.setFocus(this.props.focusIndex, 0);
     },
 
+    _xi: function() {
+      var props = this.props.item.properties;
+      return props.x ? parseInt(props.x) : 0;
+    },
+    _yi: function() {
+      var props = this.props.item.properties;
+      return props.y ? parseInt(props.y) : 1;
+    },
+
     // Return data for C3
     _getData: function() {
       var item = this.props.item;
 
       // Index in the table to find x and y
-      var xi = parseInt(item.properties.x) || 0;
-      var yi = parseInt(item.properties.y) || 1;
+      var xi = this._xi();
+      var yi = this._yi();
 
       // Create a bunch of C3 'columns', each of which is a label followed by a sequence of numbers.
       // For example: ['accuracy', 3, 5, 7].
@@ -61,8 +70,8 @@ var GraphBundle = React.createClass({
 
       // Axis labels
       var item = this.props.item;
-      var xlabel = item.properties.xlabel || x;
-      var ylabel = item.properties.ylabel || y;
+      var xlabel = item.properties.xlabel || this._xi();
+      var ylabel = item.properties.ylabel || this._yi();
 
       var chart = c3.generate({
         bindto: '#' + this._chartId(),
