@@ -20,12 +20,19 @@
             "address": "{{BUNDLE_AUTH_URL}}",
             "app_id": "{{BUNDLE_APP_ID}}",
             "app_key": "{{BUNDLE_APP_KEY}}"
+        },
+        "default_user_info": {
+            "time_quota": "7d",
+            "disk_quota": "10g"
         }
     },
     "workers": {
         "q": {
             "verbose": 1,
             "docker_image": "codalab/ubuntu:1.9",
+            "max_request_time": "7d",
+            "max_request_memory": "10g",
+            "max_request_disk": "10g",
             "dispatch_command": "{{VIRTUAL_ENV}}/bin/python {{BUNDLE_SERVICE_CODE_PATH}}/scripts/dispatch-q.py"
         }
     }
