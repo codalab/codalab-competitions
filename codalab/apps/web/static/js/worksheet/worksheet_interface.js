@@ -90,6 +90,9 @@ var Worksheet = React.createClass({
         this.state.ws.fetch({async: false});
     },
     componentDidMount: function() {
+        // Initialize history stack
+        window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
+
         $('body').addClass('ws-interface');
         $.fn.editable.defaults.mode = 'inline';
         $('.editable-field').editable({
@@ -144,7 +147,13 @@ var Worksheet = React.createClass({
         $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
         $('#ws_search').removeAttr('style');
     },
-    capture_keys: function() {
+    setupEventHandlers: function() {
+        // Load worksheet from history when back/forward buttons are used.
+        window.onpopstate = function(event) {
+            this.setState({ws: new WorksheetContent(event.state.uuid)});
+            this.refreshWorksheet();
+        }.bind(this);
+
         Mousetrap.reset();
 
         if (this.state.activeComponent == 'action') {
@@ -331,10 +340,11 @@ var Worksheet = React.createClass({
     },
 
     openWorksheet: function(uuid) {
-      window.location = '/worksheets/' + uuid + '/';
-      // TODO: need to update the URL in the action bar (need to probably
-      // switch over to #), and make sure everything gets updated.
-      //this.setState({ws: new WorksheetContent(uuid)});
+      // Change to a different worksheet. This does not call refreshWorksheet().
+      this.setState({ws: new WorksheetContent(uuid)});
+
+      // Create a new entry in the browser history with new URL.
+      window.history.pushState({uuid: this.state.ws.uuid}, '', '/worksheets/' + uuid + '/');
     },
 
     saveAndUpdateWorksheet: function(from_raw) {
@@ -378,8 +388,7 @@ var Worksheet = React.createClass({
     },
 
     render: function() {
-        //console.log('WorksheetInterface.render');
-        this.capture_keys();
+        this.setupEventHandlers();
         var info = this.state.ws.info;
         var rawWorksheet = info && info.raw.join('\n');
         var editPermission = info && info.edit_permission;
