@@ -3,6 +3,8 @@
 // Show a modal dialog for uploading bundles.
 var BundleUploader = React.createClass({
   getInitialState: function() {
+    // Maintain a table of the currently uploading bundles.
+    // The `uploading` table maps from arbitrary string keys to Web API File objects.
     return {
       uploading: {}
     };
@@ -26,7 +28,6 @@ var BundleUploader = React.createClass({
     e.preventDefault();
 
     var file = this.refs.fileDialog.getDOMNode().files[0];
-
     if (!file) {
       return;
     }
@@ -85,6 +86,7 @@ var BundleUploader = React.createClass({
 
         <div id="bundle-upload-progress-bars">
           {_.mapObject(this.state.uploading, function(file, key) {
+            // TODO: show actual upload progress
             return (
               <div className="bundle-upload-progress-bar progress-bar progress-bar-striped active" role="progressbar">
                 Uploading {file.name}...
