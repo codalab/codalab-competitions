@@ -31,6 +31,7 @@ var WorksheetItemList = React.createClass({
 
         // Open a new window (really should be handled at the item level)
         Mousetrap.bind(['enter'], function() {
+            if (this.props.focusIndex < 0) return;
             var url = this.refs['item' + this.props.focusIndex].props.url;
             if (url)
               window.open(url, '_blank');
