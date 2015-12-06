@@ -1,6 +1,5 @@
 /** @jsx React.DOM */
 
-// Show a modal dialog for uploading bundles.
 var BundleUploader = React.createClass({
   getInitialState: function() {
     // Maintain a table of the currently uploading bundles.

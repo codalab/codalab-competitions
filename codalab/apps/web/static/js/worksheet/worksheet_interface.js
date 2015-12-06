@@ -90,28 +90,10 @@ var Worksheet = React.createClass({
         this.state.ws.fetch({async: false});
     },
     componentDidMount: function() {
+        // Initialize history stack
+        window.history.replaceState({uuid: this.state.ws.uuid}, '', window.location.pathname);
+
         $('body').addClass('ws-interface');
-        $.fn.editable.defaults.mode = 'inline';
-        $('.editable-field').editable({
-            send: 'always',
-            type: 'text',
-            params: function(params) {
-              var data = {};
-              var rawCommand = {}
-              data['worksheet_uuid'] = this.state.ws.info.uuid;
-              rawCommand['k'] = params['name'];
-              rawCommand['v'] = params['value'];
-              rawCommand['action'] = 'worksheet-edit';
-              data['raw_command'] = rawCommand;
-             return JSON.stringify(data);
-            }.bind(this),
-            success: function(response, newValue) {
-                if (response.exception) {
-                    return response.exception;
-                }
-                this.state.ws.fetch({async: false});
-            }.bind(this)
-        });
     },
 
     canEdit: function() {
@@ -144,7 +126,14 @@ var Worksheet = React.createClass({
         $('#worksheet_panel').removeClass('actionbar-focus').removeAttr('style');
         $('#ws_search').removeAttr('style');
     },
-    capture_keys: function() {
+    setupEventHandlers: function() {
+        // Load worksheet from history when back/forward buttons are used.
+        window.onpopstate = function(event) {
+            if (event.state == null) return;
+            this.setState({ws: new WorksheetContent(event.state.uuid)});
+            this.refreshWorksheet();
+        }.bind(this);
+
         Mousetrap.reset();
 
         if (this.state.activeComponent == 'action') {
@@ -331,10 +320,11 @@ var Worksheet = React.createClass({
     },
 
     openWorksheet: function(uuid) {
-      window.location = '/worksheets/' + uuid + '/';
-      // TODO: need to update the URL in the action bar (need to probably
-      // switch over to #), and make sure everything gets updated.
-      //this.setState({ws: new WorksheetContent(uuid)});
+      // Change to a different worksheet. This does not call refreshWorksheet().
+      this.setState({ws: new WorksheetContent(uuid)});
+
+      // Create a new entry in the browser history with new URL.
+      window.history.pushState({uuid: this.state.ws.uuid}, '', '/worksheets/' + uuid + '/');
     },
 
     saveAndUpdateWorksheet: function(from_raw) {
@@ -369,8 +359,7 @@ var Worksheet = React.createClass({
     },
 
     render: function() {
-        //console.log('WorksheetInterface.render');
-        this.capture_keys();
+        this.setupEventHandlers();
         var info = this.state.ws.info;
         var rawWorksheet = info && info.raw.join('\n');
         var editPermission = info && info.edit_permission;
@@ -378,7 +367,6 @@ var Worksheet = React.createClass({
 
         var searchClassName   = !this.state.showActionBar ? 'search-hidden' : '';
         var editableClassName = canEdit ? 'editable' : '';
-        var editableFieldName = this.canEdit() ? 'editable-field' : '';
         var viewClass         = !canEdit && !this.state.editMode ? 'active' : '';
         var rawClass          = this.state.editMode ? 'active' : '';
         var disableWorksheetEditing = this.canEdit() ? '' : 'disabled';
@@ -468,10 +456,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><a href="#" id='title' className={editableFieldName} data-value={info && info.title} data-type="text" data-url="/api/worksheets/command/">{info && info.title}</a></h4>
+                                        <h4 className='worksheet-title'><EditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} wsUuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><a href="#" id='name' className={editableFieldName} data-value={info && info.name} data-type="text" data-url="/api/worksheets/command/">{info && info.name}</a></div>
+                                                <div className="worksheet-detail"><b>name: </b><EditableField canEdit={this.canEdit()} fieldName="name" value={info && info.name} wsUuid={info && info.uuid} onChange={this.refreshWorksheet} /></div>
                                                 <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>
