@@ -40,8 +40,10 @@ var MarkdownBundle = React.createClass({
     },
 
     render: function() {
-        var contents = html_sanitize(this.props.item.interpreted);
+        var contents = this.props.item.interpreted;
+        // Order is important!
         contents = this.processMarkdown(contents);
+        contents = html_sanitize(contents);
 
         // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
@@ -91,7 +93,7 @@ var MarkdownBundle = React.createClass({
         var newText = '';
         var curr = 0;
         for (var i = 0; i < mathSegments.length; i++) {
-            var start = text.indexOf(this.placeholderText);
+            var start = text.indexOf(this.placeholderText, curr);
             if (start == -1) {
               console.error('Internal error: shouldn\'t happen');
               break;
