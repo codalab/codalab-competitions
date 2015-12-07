@@ -36,8 +36,8 @@ var MarkdownBundle = React.createClass({
     },
 
     render: function() {
-        var contents = html_sanitize(this.props.item.interpreted);
-        contents = this.processMarkdown(contents);
+        var contents = this.processMarkdown(this.props.item.interpreted);
+        contents = html_sanitize(contents);
 
         // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
