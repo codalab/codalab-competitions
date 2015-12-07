@@ -819,7 +819,7 @@
         }
         // -----------------------------------------------------------------------
         // :: Search through command line history. If next is not defined or false
-        // :: it searches for the first item from the end. If true it search for
+        // :: it searches for the first item from the end. If true it search for 
         // :: the next item
         // -----------------------------------------------------------------------
         function reverse_history_search(next) {
@@ -2389,8 +2389,8 @@
     // :: $('<div/>').terminal().echo('foo bar').appendTo('body');
     // -----------------------------------------------------------------------
     function char_size() {
-        var temp = $('<div class="terminal"><div class="cmd"><span>&nbsp;' +
-                     '</span></div></div>').appendTo('body');
+        var temp = $('<div class="terminal temp"><div class="cmd"><span cla' +
+          'ss="cursor">&nbsp;</span></div></div>').appendTo('body');
         var span = temp.find('span');
         var result = {
             width: span.width(),
@@ -2403,8 +2403,19 @@
     // :: calculate numbers of characters
     // -----------------------------------------------------------------------
     function get_num_chars(terminal) {
-        var width = char_size().width;
+        var temp = $('<div class="terminal wrap"><span class="cursor">' +
+                     '</span></div>').appendTo('body').css('padding', 0);
+        var span = temp.find('span');
+        // use more characters to get width of single character as a fraction
+        var max = 60;
+        var spaces = '';
+        for (var i=0;i<=max; ++i) {
+            spaces += '&nbsp;';
+        }
+        span.html(spaces);
+        var width = span.width()/max;
         var result = Math.floor(terminal.width() / width);
+        temp.remove();
         if (have_scrollbars(terminal)) {
             var SCROLLBAR_WIDTH = 20;
             // assume that scrollbars are 20px - in my Laptop with
@@ -3632,7 +3643,7 @@
                 },
                 // -----------------------------------------------------------------------
                 // :: Make the terminal in focus or blur depending on the first argument.
-                // :: If there is more then one terminal it will switch to next one,
+                // :: If there is more then one terminal it will switch to next one, 
                 // :: if the second argument is set to true the events will be not fired.
                 // :: Used on init
                 // -----------------------------------------------------------------------
