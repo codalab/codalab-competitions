@@ -87,11 +87,19 @@ var MarkdownBundle = React.createClass({
     },
 
     restoreMathJax: function(text, mathSegments) {
-        // Restore the MathJax.
+        // Restore the MathJax, replacing placeholders with the elements of mathSegments.
+        var newText = '';
+        var curr = 0;
         for (var i = 0; i < mathSegments.length; i++) {
-            var mathText = mathSegments[i];
-            text = text.replace(this.placeholderText, mathText);  // Only replace first occurrence
+            var start = text.indexOf(this.placeholderText);
+            if (start == -1) {
+              console.error('Internal error: shouldn\'t happen');
+              break;
+            }
+            newText += text.slice(curr, start) + mathSegments[i];
+            curr = start + this.placeholderText.length;  // Advance cursor
         }
-        return text;
+        newText += text.slice(curr);
+        return newText;
     },
 });

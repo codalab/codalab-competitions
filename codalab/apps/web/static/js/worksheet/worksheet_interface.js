@@ -323,6 +323,10 @@ var Worksheet = React.createClass({
       // Change to a different worksheet. This does not call refreshWorksheet().
       this.setState({ws: new WorksheetContent(uuid)});
 
+      // Note: this is redundant if we're doing 'cl work' from the action bar,
+      // but is necessary if triggered in other ways.
+      this.refreshWorksheet();
+
       // Create a new entry in the browser history with new URL.
       window.history.pushState({uuid: this.state.ws.uuid}, '', '/worksheets/' + uuid + '/');
     },
@@ -428,6 +432,7 @@ var Worksheet = React.createClass({
                     subFocusIndex={this.state.subFocusIndex}
                     setFocus={this.setFocus}
                     refreshWorksheet={this.refreshWorksheet}
+                    openWorksheet={this.openWorksheet}
                     focusActionBar={this.focusActionBar}
                 />
             );

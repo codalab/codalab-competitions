@@ -79,7 +79,8 @@ var WorksheetItemList = React.createClass({
                   focusIndex: index,
                   subFocusIndex: focused ? this.props.subFocusIndex : null,
                   setFocus: this.props.setFocus,
-                  focusActionBar: this.props.focusActionBar
+                  focusActionBar: this.props.focusActionBar,
+                  openWorksheet: this.props.openWorksheet,
                 };
                 addWorksheetItems(props, worksheet_items);
             }.bind(this));
