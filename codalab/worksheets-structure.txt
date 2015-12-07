@@ -70,7 +70,6 @@ Worksheet page (./apps/web/templates/web/worksheets/detail.html)
       react RecordBundle (./apps/web/static/js/worksheet/record_bundle_interface.js)
       react TableBundle, TableRow (./apps/web/static/js/worksheet/table_bundle_interface.js)
       react WorksheetBundle (./apps/web/static/js/worksheet/worksheet_bundle_interface.js)
-      react UploadModal (./apps/web/static/js/worksheet/upload_modal_interface.js)
 
 Bundle page (./apps/web/templates/web/bundles/detail.html)
   react Bundle (./apps/web/static/js/bundle/bundle_interface.js)

@@ -21,13 +21,17 @@ var MarkdownBundle = React.createClass({
     handleClick: function(event) {
         this.props.setFocus(this.props.focusIndex, 0);
     },
+
+    placeholderText: '@MATH@',
+
     processMarkdown: function(text) {
-        // 'we have $x^2$' => 'we have @ppp@'
-        text = this.removeMathJax(text);
-        // 'we have @ppp@' => '<p>we have @ppp@</p>'
+        var mathSegments = [];
+        // 'we have $x^2$' => 'we have @MATH@'
+        text = this.removeMathJax(text, mathSegments);
+        // 'we have @ppp@' => '<p>we have @MATH@</p>'
         text = marked(text);
         // '<p>we have @ppp@</p>' => '<p>we have @x^2@</p>'
-        text = this.replaceMathJax(text);
+        text = this.restoreMathJax(text, mathSegments);
         return text;
     },
 
@@ -52,52 +56,42 @@ var MarkdownBundle = React.createClass({
     }, // end of render function
 
     /// helper functions for making markdown and mathjax work together
-    contentMathjaxText: [],
-    removeMathJax: function(text) {
-        var start = 0;
-        var end = -1;
-        var len = 0
-        // Replace math (e.g., $x^2$) with placeholder so that it doesn't interfere with Markdown.
-        while (text.indexOf("$", start) > 0) {
-            start = text.indexOf("$", start);
-            end = text.indexOf("$", start+1);
-            if (end === -1) {  // We've reached the end
-                start =-1
+    removeMathJax: function(text, mathSegments) {
+        var curr = 0;  // Current position
+        // Replace math (e.g., $x^2$ or $$x^2$$) with placeholder so that it
+        // doesn't interfere with Markdown.
+        var newText = '';
+        while (true) {
+            // Figure out next block of math from current position.
+            // Example:
+            //   0123456 [indices]
+            //   $$x^2$$ [text]
+            //   start = 0, inStart = 2, inEnd = 5, end = 7
+            start = text.indexOf("$", curr);
+            if (start == -1) break;  // No more math
+            var inStart = (text[start + 1] == '$' ? start + 2 : start + 1);
+            var inEnd = text.indexOf('$', inStart);
+            if (inEnd === -1) {  // We've reached the end without closing
+                console.error('Math \'$\' not matched', text);
                 break;
             }
-            end++; // Add 1 for later cutting
+            var end = (text[inEnd + 1] == '$' ? inEnd + 2 : inEnd + 1);
+
             var mathText = text.slice(start, end);  // e.g., "$\sum_z p_\theta$"
-            this.contentMathjaxText.push(mathText);
-            // Cut out the math and replace with @pppppp@ since markdown doesnt care about @
-            var firstHalf = text.slice(0, start);
-            var sencondHalf = text.slice(end);
-            /// New string has to be the same length for replace to work and the start/end counting system
-            var middle = "@";
-            for(var i = 0; i < mathText.length-2; i++) {
-                middle = middle + "p";
-            }
-            middle = middle + "@";
-            text = firstHalf + middle + sencondHalf;
-            start = end; // Look for the next occurrence of math
+            mathSegments.push(mathText);
+            newText += text.slice(curr, start) + this.placeholderText;
+            curr = end; // Look for the next occurrence of math
         }
-        return text
+        newText += text.slice(curr);
+        return newText;
     },
-    replaceMathJax: function(text) {
+
+    restoreMathJax: function(text, mathSegments) {
         // Restore the MathJax.
-        var start = 0;
-        var end = -1;
-        var len = 0
-        var mathText = '';
-        for(var i = 0; i < this.contentMathjaxText.length; i++) {
-            mathText = this.contentMathjaxText[i];
-            var placeholder = "@";
-            for(var j = 0; j < mathText.length-2; j++) {
-                placeholder = placeholder + "p";
-            }
-            placeholder = placeholder + "@";
-            text = text.replace(placeholder, mathText);
+        for (var i = 0; i < mathSegments.length; i++) {
+            var mathText = mathSegments[i];
+            text = text.replace(this.placeholderText, mathText);  // Only replace first occurrence
         }
-        this.contentMathjaxText = [];
         return text;
     },
 });
