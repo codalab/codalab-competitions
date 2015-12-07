@@ -446,6 +446,7 @@ var Worksheet = React.createClass({
 
         var worksheet_display = this.state.editMode ? raw_display : items_display;
         var editButtons = this.state.editMode ? editModeFeatures: editFeatures;
+        $.fn.editable.defaults.mode = 'inline';
         return (
             <div id="worksheet" className={searchClassName}>
                 {action_bar_display}
