@@ -27,8 +27,13 @@ var WorksheetBundle = React.createClass({
               this.props.setFocus(this.props.focusIndex, this.props.subFocusIndex + 1);
         }.bind(this), 'keydown');
 
-        // Open worksheet in new window/tab
+        // Open worksheet in same tab
         Mousetrap.bind(['enter'], function(e) {
+            this.props.openWorksheet(this.refs['row' + this.props.subFocusIndex].props.uuid);
+        }.bind(this), 'keydown');
+
+        // Open worksheet in new window/tab
+        Mousetrap.bind(['shift+enter'], function(e) {
             window.open(this.refs['row' + this.props.subFocusIndex].props.url, '_blank');
         }.bind(this), 'keydown');
 
@@ -40,8 +45,15 @@ var WorksheetBundle = React.createClass({
         }.bind(this), 'keydown');
     },
 
-    updateRowIndex: function(rowIndex) {
-        this.props.setFocus(this.props.focusIndex, rowIndex);
+    updateRowIndex: function(rowIndex, open) {
+        if (!open) {
+          // Just highlight it
+          this.props.setFocus(this.props.focusIndex, rowIndex);
+        } else {
+          // Actually open this worksheet.
+          var uuid = this.refs['row' + rowIndex].props.uuid;
+          this.props.openWorksheet(uuid);
+        }
     },
 
     _getItems: function() {
@@ -104,24 +116,39 @@ var TableWorksheetRow = React.createClass({
     getInitialState: function() {
         return {};
     },
-    handleClick: function() {
-      this.props.updateRowIndex(this.props.rowIndex);
+
+    handleRowClick: function() {
+      // Select row
+      this.props.updateRowIndex(this.props.rowIndex, false);
+    },
+
+    handleTextClick: function(event) {
+      var newWindow = true;
+      // TODO: same window is broken, so always open in new window
+      //var newWindow = event.ctrlKey;
+      if (newWindow) {
+        // Open in new window
+        var item = this.props.item.interpreted;
+        var ws_url = '/worksheets/' + item.uuid;
+        window.open(ws_url, '_blank');
+      } else {
+        // Open in same window
+        this.props.updateRowIndex(this.props.rowIndex, true);
+      }
     },
 
     render: function() {
         var item = this.props.item.interpreted;
-        var className = /*'type-worksheet' + */(this.props.focused ? ' focused' : '');
-        var ws_url = '/worksheets/' + item.uuid;
-
         var worksheet_display = item.name;
         if (item.title) {
             worksheet_display = item.title + " [" + item.name + "]";
         }
 
+        var className = /*'type-worksheet' + */(this.props.focused ? ' focused' : '');
         return (
             <tr className={className}><td>
-              <div onClick={this.handleClick}>
-                <a href={ws_url} target="_blank">
+              <div onClick={this.handleRowClick}>
+                <a href="javascript:0" onClick={this.handleTextClick}>
                     {worksheet_display}
                 </a>
               </div>

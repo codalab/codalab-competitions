@@ -351,14 +351,14 @@ function renderDependencies(bundle_info) {
 }
 
 function renderMetadata(bundle_info, bundleMetadataChanged) {
-/*
-In the current implementaiton, refreshWorksheet method of worksheet_content
-is passed in as bundleMetadataChanged and is just called inorder to reflect
-changes made in the side-panel on the main page.
-TODO: The response object contains the uuid of the modified object.
-      Use that to update the main view instead of refrsehing the
-      entire worksheet.
-*/
+  /*
+  In the current implementaiton, refreshWorksheet method of worksheet_content
+  is passed in as bundleMetadataChanged and is just called in order to reflect
+  changes made in the side-panel on the main page.
+  TODO: The response object contains the uuid of the modified object.
+        Use that to update the main view instead of refrsehing the
+        entire worksheet.
+  */
   var metadata = bundle_info.metadata;
   var metadata_list_html = [];
 
@@ -405,7 +405,7 @@ TODO: The response object contains the uuid of the modified object.
   });
 
   return (<div>
-    <div className="collapsible-header"><span><p>Metadata &#x25BE;</p></span></div>
+    <div className="collapsible-header"><span><p>metadata &#x25BE;</p></span></div>
     <div className="collapsible-content">
       <table className="bundle-meta table">
         <tbody>{metadata_list_html}</tbody>
@@ -422,10 +422,10 @@ function renderHeader(bundle_info) {
   if (bundle_info.metadata.name) {
     if (bundle_info.edit_permission) {
       bundle_name = <h3 className="bundle-name"><a href="#" id='name' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.name}</a></h3>;
-      bundle_description = <h3 className="bundle-description">Description: <a href="#" className="editable-field" id={'description'} data-value={bundle_info.metadata.description} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.description}</a></h3>;
+      bundle_description = <h3 className="bundle-description"><b>description:</b> <a href="#" className="editable-field" id={'description'} data-value={bundle_info.metadata.description} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.description}</a></h3>;
     } else {
       bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>;
-      bundle_description = <h3 className="bundle-description">Description: {bundle_info.metadata.description}</h3>;
+      bundle_description = <h3 className="bundle-description"><b>description:</b> {bundle_info.metadata.description}</h3>;
     }
   }
   var bundle_state_class = 'bundle-state state-' + (bundle_info.state || 'ready');
@@ -466,42 +466,43 @@ function renderContents(bundle_info) {
   var stdout_html = '';
   if (bundle_info.stdout) {
     var stdout_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stdout';
-    stdout_html = (<span>
-      <h4><a href={stdout_url} target="_blank">stdout</a></h4>
-      <div className="bundle-meta">
+    stdout_html = (<div>
+      <span><a href={stdout_url} target="_blank">stdout</a></span>
+      &nbsp;
+      <span className="collapsible-header">&#x25BE;</span>
+      <div className="collapsible-content bundle-meta">
         <pre>{bundle_info.stdout}</pre>
       </div>
-    </span>);
+    </div>);
   }
 
   var stderr_html = '';
   if (bundle_info.stderr) {
     var stderr_url = '/api/bundles/filecontent/' + bundle_info.uuid + '/stderr';
-    stderr_html = (<span>
-      <h4><a href={stderr_url} target="_blank">stderr</a></h4>
-      <div className="bundle-meta">
+    stderr_html = (<div>
+      <span><a href={stderr_url} target="_blank">stderr</a></span>
+      &nbsp;
+      <span className="collapsible-header">&#x25BE;</span>
+      <div className="collapsible-content bundle-meta">
         <pre>{bundle_info.stderr}</pre>
       </div>
-    </span>);
+    </div>);
   }
 
   var contents_html = '';
   if (bundle_info.type == 'file') {
-    contents_html = (<span>
-      <h4>contents</h4>
-      <div className="bundle-meta">
+    contents_html = (<div>
+      <div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>
+      <div className="collapsible-content bundle-meta">
         <pre>{bundle_info.file_contents}</pre>
       </div>
-    </span>);
+    </div>);
   }
 
   return (<div>
-    <div className="collapsible-header"><span><p>Contents &#x25BE;</p></span></div>
-    <div className="collapsible-content">
-      {contents_html}
-      {stdout_html}
-      {stderr_html}
-    </div>
+    {contents_html}
+    {stdout_html}
+    {stderr_html}
   </div>);
 }
 
@@ -519,7 +520,7 @@ function renderHostWorksheets(bundle_info) {
   });
   
   return (<div>
-    <div className="collapsible-header"><span><p>Host Worksheets &#x25BE;</p></span></div>
+    <div className="collapsible-header"><span><p>host worksheets &#x25BE;</p></span></div>
     <div className="collapsible-content">
       <div className="host-worksheets-table">
         <table className="bundle-meta table">
@@ -580,7 +581,7 @@ var FileBrowser = React.createClass({
             currentWorkingDirectory={this.props.currentWorkingDirectory}/>);
 
         return (<div>
-          <div className="collapsible-header"><span><p>File Browser &#x25BE;</p></span></div>
+          <div className="collapsible-header"><span><p>contents &#x25BE;</p></span></div>
           <div className="collapsible-content">
             <div className="panel panel-default">
                 {bread_crumbs}
