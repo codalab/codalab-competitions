@@ -1,37 +1,43 @@
-import exceptions
-import logging
-import random
-import operator
-import os, io
-from os.path import abspath, basename, dirname, join, normpath, split
-import zipfile
-import yaml
-import tempfile
-import json
+import csv
 import datetime
 import django.dispatch
-import time
+import exceptions
+import io
+import json
+import logging
+import operator
+import os
+import random
 import string
 import StringIO
-import csv
+import tempfile
+import time
 import uuid
-from django.db import models
-from django.db import IntegrityError
-from django.db.models import Max
-from django.db.models.signals import post_save
-from django.db import transaction
-from django.dispatch import receiver
+import yaml
+import zipfile
+
+from os.path import abspath, basename, dirname, join, normpath, split
+
 from django.conf import settings
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import IntegrityError
+from django.db import models
+from django.db import transaction
+from django.db.models import Max
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 from django.utils.timezone import now
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+
 from mptt.models import MPTTModel, TreeForeignKey
+
 from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
@@ -210,6 +216,8 @@ class Competition(models.Model):
             self.start_date = phases[0].start_date.replace(tzinfo=None)
 
         # Do the real save
+        # cache bust TODO.
+        # cache.set("c(id)_one at a time", None, 30)
         return super(Competition,self).save(*args,**kwargs)
 
     @cached_property
@@ -435,7 +443,6 @@ class Competition(models.Model):
         # To check for submissions being migrated, does not allow to enter new submission
         next_phase.is_migrated = True
         next_phase.save()
-
 
         # TODO: ONLY IF SUCCESSFUL
         self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
@@ -1142,6 +1149,8 @@ class CompetitionSubmission(models.Model):
         self.file_url_base = self.file.storage.url('')
 
         print "Calling super save."
+        c_key = "c%s_public_submissions" % self.phase.competition.id
+        cache.set(c_key, None, 30)  # cache busting for CompetitionDetailView
         res = super(CompetitionSubmission,self).save(*args,**kwargs)
         return res
 
