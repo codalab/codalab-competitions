@@ -70,7 +70,7 @@ var MarkdownBundle = React.createClass({
             //   $$x^2$$ [text]
             //   start = 0, inStart = 2, inEnd = 5, end = 7
             start = text.indexOf("$", curr);
-            if (start == -1) break;  // No more math
+            if (start === -1) break;  // No more math blocks
             var inStart = (text[start + 1] == '$' ? start + 2 : start + 1);
             var inEnd = text.indexOf('$', inStart);
             if (inEnd === -1) {  // We've reached the end without closing
@@ -94,7 +94,7 @@ var MarkdownBundle = React.createClass({
         var curr = 0;
         for (var i = 0; i < mathSegments.length; i++) {
             var start = text.indexOf(this.placeholderText, curr);
-            if (start == -1) {
+            if (start === -1) {
               console.error('Internal error: shouldn\'t happen');
               break;
             }
