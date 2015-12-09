@@ -295,12 +295,12 @@ class Base(Settings):
     BUNDLE_SERVICE_URL = ""
 
     # Added for catching certain parts on competitions side
-    # CACHES = {
-    #     'default': {
-    #         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-    #         'LOCATION': '127.0.0.1:11211',
-    #     }
-    # }
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+        }
+    }
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
