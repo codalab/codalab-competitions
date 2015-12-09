@@ -1,25 +1,28 @@
-import datetime
-import StringIO
 import csv
+import datetime
 import json
-import zipfile
+import mimetypes
 import os
+import StringIO
 import sys
 import traceback
 import yaml
-import mimetypes
+import zipfile
 
 from os.path import splitext
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db.models import Q
 from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
@@ -31,8 +34,6 @@ from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
-from django.core.servers.basehttp import FileWrapper
-from django.conf import settings
 
 from mimetypes import MimeTypes
 
@@ -45,7 +46,7 @@ from apps.forums.models import Forum
 from apps.common.worksheet_utils import get_worksheets
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from tasks import evaluate_submission
-from django.contrib.auth import get_user_model
+
 
 from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 from extra_views import generic
@@ -358,6 +359,7 @@ class CompetitionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionDetailView, self).get_context_data(**kwargs)
         competition = context['object']
+        all_phases = competition.phases.all()
 
         # This assumes the tabs were created in the correct order
         # TODO Add a rank, order by on ContentCategory
@@ -374,9 +376,14 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
         context['public_submissions'] = []
-        public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                         is_public=True,
-                                                                         status__codename="finished").prefetch_related()
+
+        c_key = "c%s_public_submissions" % competition.id
+        public_submissions = cache.get(c_key)
+        if not public_submissions:
+            public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                             is_public=True,
+                                                                             status__codename="finished").prefetch_related()
+            cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
         for submission in public_submissions:
             # Let's process all public submissions and figure out which ones we've already liked
             if self.request.user.is_authenticated():
@@ -392,7 +399,7 @@ class CompetitionDetailView(DetailView):
             context["previous_phase"] = None
             context["next_phase"] = None
             context["first_phase"] = None
-            phase_iterator = iter(competition.phases.all())
+            phase_iterator = iter(all_phases)
             for phase in phase_iterator:
                 if context["first_phase"] is None:
                     # Set the first phase if it hasn't been saved yet
@@ -409,10 +416,15 @@ class CompetitionDetailView(DetailView):
                     # Set trailing phase since active one hasn't been found yet
                     context["previous_phase"] = phase
 
-            if self.request.user.is_authenticated() and self.request.user in [x.user for x in competition.participants.all()]:
-                context['my_status'] = [x.status for x in competition.participants.all() if x.user == self.request.user][0].codename
+            c_key = "c%s_all_participants" % competition.id
+            all_participants = cache.get(c_key)
+            if not all_participants:
+                all_participants = competition.participants.all().select_related('user')
+                cache.set(c_key, all_participants, 60 * 5)# Caching for five minutes
+            if self.request.user.is_authenticated() and self.request.user in [x.user for x in all_participants]:
+                context['my_status'] = [x.status for x in all_participants if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
-                phase_iterator = iter(competition.phases.all())
+                phase_iterator = iter(all_phases)
                 for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
@@ -420,7 +432,7 @@ class CompetitionDetailView(DetailView):
                 context['my_submissions'] = submissions
             else:
                 context['my_status'] = "unknown"
-                for phase in competition.phases.all():
+                for phase in all_phases:
                     if phase.is_active:
                         context['active_phase'] = phase
                     all_submissions[phase] = phase.submissions.all()
@@ -436,6 +448,7 @@ class CompetitionDetailView(DetailView):
         context['on_competition_detail'] = True
 
         return context
+
 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the Participate tab of a competition.
