@@ -376,7 +376,7 @@ function renderMetadata(bundle_info, bundleMetadataChanged) {
     if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
       metadata_list_html.push(<tr>
         <th>{property}</th>
-        <td><BundleEditableField canEdit={true} fieldName={property} uuid={bundle_info.uuid} metadata={metadata} onChange={bundleMetadataChanged} /></td>
+        <td><BundleEditableField canEdit={true} fieldName={property} uuid={bundle_info.uuid} value={metadata[property]} onChange={bundleMetadataChanged} /></td>
       </tr>);
     }
     else{
@@ -404,8 +404,8 @@ function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_description;
   if (bundle_info.metadata.name) {
     if (bundle_info.edit_permission) {
-      bundle_name = <h3 className="bundle-name"><BundleEditableField canEdit={true} fieldName="name" uuid={bundle_info.uuid} metadata={bundle_info.metadata} onChange={bundleMetadataChanged} /></h3>;
-      bundle_description = <h3 className="bundle-description">description: <BundleEditableField canEdit={true} fieldName="description" uuid={bundle_info.uuid} metadata={bundle_info.metadata} onChange={bundleMetadataChanged} /></h3>;
+      bundle_name = <h3 className="bundle-name"><BundleEditableField canEdit={true} fieldName="name" uuid={bundle_info.uuid} value={bundle_info.metadata.name} onChange={bundleMetadataChanged} /></h3>;
+      bundle_description = <h3 className="bundle-description">description: <BundleEditableField canEdit={true} fieldName="description" uuid={bundle_info.uuid} value={bundle_info.metadata.description} onChange={bundleMetadataChanged} /></h3>;
     } else {
       bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>;
       bundle_description = <h3 className="bundle-description"><b>description:</b> {bundle_info.metadata.description}</h3>;

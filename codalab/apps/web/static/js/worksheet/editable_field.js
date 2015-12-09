@@ -2,7 +2,7 @@
 
 var EditableField = React.createClass({
   propTypes: {
-    value: React.PropTypes.string,
+    value: React.PropTypes.any,
     url: React.PropTypes.string.isRequired,
     buildParams: React.PropTypes.func.isRequired,
     onChange: React.PropTypes.func,
@@ -74,15 +74,15 @@ var BundleEditableField = React.createClass({
     fieldName: React.PropTypes.string
   },
   buildParams: function(params) {
-    var metadata = _.clone(this.props.metadata);
-    metadata[this.props.fieldName] = params.value;
+    var newMetadata = {};
+    newMetadata[this.props.fieldName] = params.value;
     return {
-      metadata: metadata
+      metadata: newMetadata
     };
   },
   render: function () {
     return (
-      <EditableField {...this.props} value={String(this.props.metadata[this.props.fieldName])} url={"/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
+      <EditableField {...this.props} url={"/api/bundles/" + this.props.uuid + "/"} buildParams={this.buildParams} />
     );
   }
 });
