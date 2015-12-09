@@ -214,11 +214,12 @@ var WorksheetDetailSidePanel = React.createClass({
         </div>
       );
 
+      // TODO: Allow editing of worksheet metadata from side panel.
       return (
           <div id="panel_content">
-              <h4 className="ws-title"><a href="#" id='title' className='editable-field' data-value={worksheet.title} data-type="text" data-url="/api/worksheets/command/">{worksheet.title}</a></h4>
+              <h4 className="ws-title"><WorksheetEditableField canEdit={false} fieldName="title" value={worksheet.title} uuid={worksheet.uuid} /></h4>
               <table className="bundle-meta table">
-                <tr><th>name</th><td><a href="#" id='name' className='editable-field' data-value={worksheet.name} data-type="text" data-url="/api/worksheets/command/">{worksheet.name}</a></td></tr>
+                <tr><th>name</th><td><WorksheetEditableField canEdit={false} fieldName="name" value={worksheet.name} uuid={worksheet.uuid} /></td></tr>
                 <tr><th>uuid</th><td>{worksheet.uuid}</td></tr>
                 <tr><th>owner</th><td>{worksheet.owner_name}</td></tr>
                 <tr><th>permissions</th><td>{render_permissions(worksheet)}</td></tr>
@@ -316,7 +317,7 @@ var BundleDetailSidePanel = React.createClass({
       }
 
       return (<div id="panel_content">
-        {renderHeader(bundle_info)}
+        {renderHeader(bundle_info, this.props.bundleMetadataChanged)}
         {renderDependencies(bundle_info)}
         {renderContents(bundle_info)}
         {fileBrowser}
@@ -375,7 +376,7 @@ TODO: The response object contains the uuid of the modified object.
     if (bundle_info.edit_permission && editableMetadataFields && editableMetadataFields.indexOf(property) >= 0){
       metadata_list_html.push(<tr>
         <th>{property}</th>
-        <td><a href="#" className='editable-field' id={property} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{metadata[property]}</a></td>
+        <td><BundleEditableField canEdit={true} fieldName={property} uuid={bundle_info.uuid} metadata={metadata} onChange={bundleMetadataChanged} /></td>
       </tr>);
     }
     else{
@@ -385,24 +386,6 @@ TODO: The response object contains the uuid of the modified object.
       </tr>);
     }
   }
-  $.fn.editable.defaults.mode = 'inline';
-  $(document).ready(function() {
-    $('.editable-field').editable({
-      send: 'always',
-      params: function(params) {
-        var data = {};
-        metadata[params.name] = params.value;
-        data['metadata'] = metadata;
-       return JSON.stringify(data);
-      },
-      success: function(response, newValue) {
-          if(response.error) return response.error;
-          if (bundleMetadataChanged != undefined) {
-            bundleMetadataChanged();
-        }
-      }
-    });
-  });
 
   return (<div>
     <div className="collapsible-header"><span><p>Metadata &#x25BE;</p></span></div>
@@ -414,15 +397,15 @@ TODO: The response object contains the uuid of the modified object.
   </div>);
 }
 
-function renderHeader(bundle_info) {
+function renderHeader(bundle_info, bundleMetadataChanged) {
   var bundle_url = '/bundles/' + bundle_info.uuid;
   var bundle_download_url = "/bundles/" + bundle_info.uuid + "/download";
   var bundle_name;
   var bundle_description;
   if (bundle_info.metadata.name) {
     if (bundle_info.edit_permission) {
-      bundle_name = <h3 className="bundle-name"><a href="#" id='name' className='editable-field' data-value={bundle_info.metadata.name} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.name}</a></h3>;
-      bundle_description = <h3 className="bundle-description">Description: <a href="#" className="editable-field" id={'description'} data-value={bundle_info.metadata.description} data-type="text" data-url={"/api/bundles/"+bundle_info.uuid+"/"}>{bundle_info.metadata.description}</a></h3>;
+      bundle_name = <h3 className="bundle-name"><BundleEditableField canEdit={true} fieldName="name" uuid={bundle_info.uuid} metadata={bundle_info.metadata} onChange={bundleMetadataChanged} /></h3>;
+      bundle_description = <h3 className="bundle-description">Description: <BundleEditableField canEdit={true} fieldName="description" uuid={bundle_info.uuid} metadata={bundle_info.metadata} onChange={bundleMetadataChanged} /></h3>;
     } else {
       bundle_name = <h3 className="bundle-name">{bundle_info.metadata.name}</h3>;
       bundle_description = <h3 className="bundle-description">Description: {bundle_info.metadata.description}</h3>;

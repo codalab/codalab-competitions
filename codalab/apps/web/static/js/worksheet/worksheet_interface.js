@@ -456,10 +456,10 @@ var Worksheet = React.createClass({
                             <div id="worksheet_content" className={editableClassName}>
                                 <div className="header-row">
                                     <div className="row">
-                                        <h4 className='worksheet-title'><EditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} wsUuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
+                                        <h4 className='worksheet-title'><WorksheetEditableField canEdit={this.canEdit()} fieldName="title" value={info && info.title} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></h4>
                                         <div className="col-sm-6 col-md-8">
                                             <div className="worksheet-name">
-                                                <div className="worksheet-detail"><b>name: </b><EditableField canEdit={this.canEdit()} fieldName="name" value={info && info.name} wsUuid={info && info.uuid} onChange={this.refreshWorksheet} /></div>
+                                                <div className="worksheet-detail"><b>name: </b><WorksheetEditableField canEdit={this.canEdit()} fieldName="name" value={info && info.name} uuid={info && info.uuid} onChange={this.refreshWorksheet} /></div>
                                                 <div className="worksheet-detail"><b>uuid: </b>{info && info.uuid}</div>
                                                 <div className="worksheet-detail"><b>owner: </b>{info && info.owner_name}</div>
                                                 <div className="worksheet-detail"><b>permissions: </b>{info && render_permissions(info)}</div>
