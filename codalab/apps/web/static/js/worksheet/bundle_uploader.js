@@ -25,6 +25,7 @@ var BundleUploader = React.createClass({
   uploadBundle: function (e) {
     e.stopPropagation();
     e.preventDefault();
+    $(this.refs.button.getDOMNode()).blur();
 
     var file = this.refs.fileDialog.getDOMNode().files[0];
     if (!file) {
@@ -74,7 +75,7 @@ var BundleUploader = React.createClass({
       <div>
 
         <div>
-          <button className="active" id="upload-bundle-button" onClick={this.openFileDialog}>Upload bundle</button>
+          <button className="active" id="upload-bundle-button" ref="button" onClick={this.openFileDialog}>Upload bundle</button>
         </div>
 
         <div id="bundle-upload-form" tabIndex="-1" aria-hidden="true">
