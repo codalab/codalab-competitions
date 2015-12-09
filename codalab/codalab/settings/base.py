@@ -7,6 +7,7 @@ from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
 
+
 class Base(Settings):
     SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_APP_DIR = os.path.dirname(SETTINGS_DIR)
@@ -54,7 +55,7 @@ class Base(Settings):
     AUTH_USER_MODEL = 'authenz.ClUser'
 
     # Keep in sync with codalab-cli
-    CODALAB_VERSION = '0.1.0'
+    CODALAB_VERSION = '0.1.1'
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -293,6 +294,14 @@ class Base(Settings):
 
     BUNDLE_SERVICE_URL = ""
 
+    # Added for catching certain parts on competitions side
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+        }
+    }
+
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
     # the site admins on every HTTP 500 error when DEBUG=False.
@@ -379,7 +388,13 @@ class DevBase(Base):
 
     OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
-    DEBUG=True
+    DEBUG = True
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+    # EXTRA_MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,
         'ENABLE_STACKTRACES' : True,

@@ -29,7 +29,7 @@ var MarkdownBundle = React.createClass({
         // 'we have $x^2$' => 'we have @MATH@'
         text = this.removeMathJax(text, mathSegments);
         // 'we have @ppp@' => '<p>we have @MATH@</p>'
-        text = marked(text);
+        text = marked(text, {sanitize: true});
         // '<p>we have @ppp@</p>' => '<p>we have @x^2@</p>'
         text = this.restoreMathJax(text, mathSegments);
         return text;
@@ -43,7 +43,6 @@ var MarkdownBundle = React.createClass({
         var contents = this.props.item.interpreted;
         // Order is important!
         contents = this.processMarkdown(contents);
-        contents = html_sanitize(contents);
 
         // create a string of html for innerHTML rendering
         // more info about dangerouslySetInnerHTML
