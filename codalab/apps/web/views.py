@@ -435,8 +435,10 @@ class CompetitionDetailView(DetailView):
                 for phase in all_phases:
                     if phase.is_active:
                         context['active_phase'] = phase
-                    all_submissions[phase] = phase.submissions.all()
-                context['active_phase_submissions'] = all_submissions
+                # TODO, remove this in the future after testing.
+                # Context is not being used anywhere
+                #     all_submissions[phase] = phase.submissions.all()
+                # context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
             pass
