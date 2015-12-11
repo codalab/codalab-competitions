@@ -117,7 +117,8 @@
                 {% if tab.codename == "results" %}
                     {# Put this after results tab #}
                     {% if competition.allow_public_submissions %}
-                    <li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>
+                    <!--<li><a href="#public_submissions" role="tab" data-toggle="tab">Public submissions</a></li>-->
+                    <li><a href="{% url 'competitions:public_submissions' pk=competition.pk%}">Public Submissions</a></li>
                     {% endif %}
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
@@ -188,7 +189,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="tab-pane" id="public_submissions">
+                <!--<div class="tab-pane" id="public_submissions">
                     <div class="tab-inner">
                         {% if not public_submissions %}
                             <i>No submissions have been made public!</i>
@@ -227,7 +228,6 @@
                                         {% for label, value in submission.get_scores_as_tuples %}
                                             <td>{{ value|floatformat:4 }}</td>
                                         {% endfor %}
-                                        <!--<td>{{ submission.get_default_score|floatformat:3 }}</td>-->
                                         <td>
                                             <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
                                                submission-pk="{{ submission.pk }}"
@@ -262,13 +262,13 @@
                             </table>
                         {% endif %}
                     </div>
-                </div>
+                </div>-->
             {% endfor %}
         </div>
     </section>
 </div>
 
-<div class="modal fade" id="public-submission-modal">
+<!--<div class="modal fade" id="public-submission-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -297,7 +297,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 {% endblock content %}
 
 {% block jsincludes %}
@@ -342,7 +342,7 @@
              Public submissions
             *****************************************************************/
             // Make sortable
-            $("#public_submission_table").tablesorter();
+            /*$("#public_submission_table").tablesorter();
 
             // Truncate long submision descriptions
             $(".truncate-readmore").readmore({collapsedHeight: 45});
@@ -445,7 +445,7 @@
             var only_show_public_leaderboard_submissions = window.localStorage.getItem('only_show_public_leaderboard_submissions') == "true";
             $("#public_submission_filter_only_leaderboard").attr('checked', only_show_public_leaderboard_submissions);
             // Call change to force the change on page reload
-            $("#public_submission_filter_only_leaderboard").change();
+            $("#public_submission_filter_only_leaderboard").change();*/
         });
     </script>
 {% endblock %}
