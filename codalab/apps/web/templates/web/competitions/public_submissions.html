@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block extra_scripts %}
+    <script src="{{ STATIC_URL }}js/vendor/readmore.min.js"></script>
+
+    <script src="{{ STATIC_URL }}js/vendor/jquery.tablesorter.min.js"></script>
+
+    <style>
+    #public_submission_table th b {
+        cursor: pointer;
+    }
+    </style>
+{% endblock %}
+
+{% block page_title %}Public Submissions{% endblock page_title %}
+
+{% block content %}
+    <div class="tab-pane" id="public_submissions">
+        <div class="tab-inner">
+            {% if not public_submissions %}
+                <i>No submissions have been made public!</i>
+            {% else %}
+                <h3>Filters</h3>
+                <p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
+
+                <table id="public_submission_table" class="table table-bordered table-striped tablesorter">
+                    <thead>
+                        <tr>
+                            <th width="40" data-sort="int"><b>#</b></th>
+                            <th width="40" data-sort="int"><b>Submission Id</b></th>
+                            <th width="125" data-sort="string"><b>User</b></th>
+                            <th width="75" data-sort="string"><b>Phase</b></th>
+                            <th width="125" data-sort="string"><b>Date</b></th>
+                            <th data-sort="string"><b>Description</b></th>
+                            {% for label in competition.get_score_headers %}
+                                <td width="100" data-sort="string"><b>{{ label }}</b></td>
+                            {% endfor %}
+                            <th width="100" data-sort="string"><b>Likes</b></th>
+                            <th width="125" data-sort="string"><b>Downloads</b></th>
+                            {% if competition.enable_detailed_results %}
+                                <th width="150" data-sort="string"><b>Detailed results?</b></th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in public_submissions %}
+                        <tr data-on-leaderboard="{% if submission.leaderboard_entry_result.count %}true{% endif %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ submission.id }}</td>
+                            <td><b>{{ submission.participant.user.username }}</b></td>
+                            <td>{{ submission.phase.label }}</td>
+                            <td>{{ submission.submitted_at|date:"M d Y" }}</td>
+                            <td><p class="truncate-readmore">{{ submission.description|default_if_none:""|escape }}</p></td>
+                            {% for label, value in submission.get_scores_as_tuples %}
+                                <td>{{ value|floatformat:4 }}</td>
+                            {% endfor %}
+                            <!--<td>{{ submission.get_default_score|floatformat:3 }}</td>-->
+                            <td>
+                                <i class="glyphicon glyphicon-thumbs-up like {% if submission.already_liked %}already-liked{% endif %}"
+                                   submission-pk="{{ submission.pk }}"
+                                   was-initially-liked="{% if submission.already_liked %}1{% endif %}"></i>
+                                <i class="glyphicon glyphicon-thumbs-down dislike {% if submission.already_disliked %}already-disliked{% endif %}"
+                                   submission-pk="{{ submission.pk }}"
+                                   was-initially-disliked="{% if submission.already_disliked %}1{% endif %}"></i>
+                                <span style="margin-top: 20px;">
+                                    <span class="like-count"
+                                          original-count="{{ submission.get_overall_like_count|default:0 }}{% if submission.already_disliked %}+1{% endif %}{% if submission.already_liked %}-1{% endif %}">
+                                        {{ submission.get_overall_like_count|default:0 }}
+                                    </span>
+                                </span>
+                            </td>
+                            <td>
+                                <button class="view_download_btn btn btn-default"
+                                        data-submission-id="{{ submission.pk }}"
+                                        data-toggle="modal"
+                                        data-target="#public-submission-modal"
+                                        data-download-count="{{ submission.download_count|default:0 }}">
+                                    <i class="glyphicon glyphicon-download"></i> ({{ submission.download_count|default:0 }} dl{{ submission.download_count|pluralize }})
+                                </button>
+                            </td>
+                            {% if competition.enable_detailed_results %}
+                            <td>
+                                <li><a href="/my/competition/submission/{{ submission.pk }}/detailed_results" target="_blank">View detailed results</a></li>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="public-submission-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Submission details</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="download-list list-unstyled">
+                    {# "1" in these urls gets replaced with the proper ID #}
+                    <li><a href="/my/competition/submission/1/input.zip">Download submission (<span class="download_count"></span> downloads)</a></li>
+                    {% if not submission.phase.is_scoring_only %}
+                        <li><a href="/my/competition/submission/1/predict_stdout.txt" target="_blank">View predict output log</a></li>
+                        <li><a href="/my/competition/submission/1/predict_stderr.txt" target="_blank">View predict error log</a></li>
+                        <li><a href="/my/competition/submission/1/prediction-output.zip">Download evaluation output from prediction step</a></li>
+                    {% endif %}
+                    <li><a href="/my/competition/submission/1/stdout.txt" target="_blank">View scoring output log</a></li>
+                    <li><a href="/my/competition/submission/1/stderr.txt" target="_blank">View scoring error log</a></li>
+                    {% if submission.phase.competition.enable_detailed_results %}
+                        <li><a href="/my/competition/submission/1/detailed_results" target="_blank">View detailed results</a></li>
+                    {% endif %}
+                    <li><a href="/my/competition/submission/1/output.zip">Download evaluation output from scoring step</a></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsincludes %}
+<script>
+$(function(){
+ /******************************************************************
+             Public submissions
+            *****************************************************************/
+            // Make sortable
+            $("#public_submission_table").tablesorter();
+
+            // Truncate long submision descriptions
+            $(".truncate-readmore").readmore({collapsedHeight: 45});
+
+            // Thumbs up/down submissions
+            $(".like").click(function() {
+                var element = $(this);
+                var already_liked = element.hasClass("already-liked");
+                var url = "{% url "coopetitions:like" submission_pk="0" %}";
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_liked = element.attr('was-initially-liked') == '1';
+
+                if(was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                } else if (!was_initially_liked && already_liked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_liked && !already_liked) {
+                    new_count = original_like_count + 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
+                if(!already_liked) {
+                    element.addClass("already-liked");
+                    element.parent().find(".dislike").removeClass("already-disliked");
+                } else {
+                    element.removeClass("already-liked");
+                }
+
+                url = url.replace(0, element.attr('submission-pk'));
+                $.get(url)
+                        .error(function() {
+                            alert("Could not like submission, is your Internet connection working?");
+                        });
+            });
+
+            $(".dislike").click(function() {
+                var element = $(this);
+                var already_disliked = element.hasClass("already-disliked");
+                var url = "{% url "coopetitions:dislike" submission_pk="0" %}";
+                var original_like_count = parseInt(eval(element.parent().find(".like-count").attr('original-count')));
+                var new_count = 0;
+                var was_initially_disliked = element.attr('was-initially-disliked') == '1';
+
+                if(was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                } else if (!was_initially_disliked && already_disliked) {
+                    new_count = original_like_count;
+                } else if (!was_initially_disliked && !already_disliked) {
+                    new_count = original_like_count - 1;
+                }
+                element.parent().find(".like-count").text(new_count);
+
+                if(!already_disliked) {
+                    element.addClass("already-disliked");
+                    element.parent().find(".like").removeClass("already-liked");
+                } else {
+                    element.removeClass("already-disliked");
+                }
+                url = url.replace(0, element.attr('submission-pk'));
+                $.get(url)
+                        .error(function() {
+                            alert("Could not dislike submission, is your Internet connection working?");
+                        });
+            });
+
+            // Handle modal to download public submissions
+            $(".view_download_btn").click(function() {
+                var submission_id = $(this).attr('data-submission-id');
+                var download_count = $(this).attr('data-download-count');
+                var regex = /\/my\/competition\/submission\/\d+\//g;
+                var download_list = $('#public-submission-modal .download-list');
+
+                // Replace download count
+                $("#public-submission-modal .download_count").text(download_count);
+
+                // Replace id in links with new submission id
+                download_list.html(download_list.html().replace(regex, '/my/competition/submission/' + submission_id + '/'));
+            });
+
+            // Filter not on leaderboard
+            $("#public_submission_filter_only_leaderboard").change(function() {
+                if($(this).prop('checked')) {
+                    $("#public_submission_table tbody tr").each(function() {
+                        if(!$(this).attr('data-on-leaderboard')) {
+                            $(this).hide();
+                        }
+                    });
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', true);
+                } else {
+                    $("#public_submission_table tbody tr").show();
+                    window.localStorage.setItem('only_show_public_leaderboard_submissions', false);
+                }
+            });
+
+            var only_show_public_leaderboard_submissions = window.localStorage.getItem('only_show_public_leaderboard_submissions') == "true";
+            $("#public_submission_filter_only_leaderboard").attr('checked', only_show_public_leaderboard_submissions);
+            // Call change to force the change on page reload
+            $("#public_submission_filter_only_leaderboard").change();
+        });
+        </script>
+{% endblock %}

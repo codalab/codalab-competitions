@@ -375,26 +375,26 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
-        context['public_submissions'] = []
+        # context['public_submissions'] = []
 
-        c_key = "c%s_public_submissions" % competition.id
-        public_submissions = cache.get(c_key)
-        if not public_submissions:
-            public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-                                                                             is_public=True,
-                                                                             status__codename="finished").prefetch_related()
-            cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
-        for submission in public_submissions:
-            # Let's process all public submissions and figure out which ones we've already liked
-            if self.request.user.is_authenticated():
-                if Like.objects.filter(submission=submission, user=self.request.user).exists():
-                    submission.already_liked = True
-                if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
-                    submission.already_disliked = True
-            context['public_submissions'].append(submission)
+        # c_key = "c%s_public_submissions" % competition.id
+        # public_submissions = cache.get(c_key)
+        # if not public_submissions:
+        #     public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+        #                                                                      is_public=True,
+        #                                                                      status__codename="finished").prefetch_related()
+        #     cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
+        # for submission in public_submissions:
+        #     # Let's process all public submissions and figure out which ones we've already liked
+        #     if self.request.user.is_authenticated():
+        #         if Like.objects.filter(submission=submission, user=self.request.user).exists():
+        #             submission.already_liked = True
+        #         if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+        #             submission.already_disliked = True
+        #     context['public_submissions'].append(submission)
 
         submissions = dict()
-        all_submissions = dict()
+        # all_submissions = dict() REMOVE AFTER TESTING
         try:
             context["previous_phase"] = None
             context["next_phase"] = None
@@ -557,6 +557,42 @@ class CompetitionResultsPage(TemplateView):
         except:
             context['error'] = traceback.format_exc()
             return context
+
+
+class CompetitionPublicSubmission(TemplateView):
+    '''
+    Returns the public  submissions of a competition
+    1. Gets the competiton first base on the id
+    2. Then get all Competetitio Submissions where is_public is True
+    3. We need to check if the have been already like or not
+    4. Finally, return the public submissions on the context
+    '''
+    template_name = 'web/competitions/public_submissions.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['pk'])
+            context['competition'] = competition
+            context['public_submissions'] = []
+            public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                             is_public=True,
+                                                                             status__codename="finished").prefetch_related()
+            # cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
+            for submission in public_submissions:
+                # Let's process all public submissions and figure out which ones we've already liked
+
+                if self.request.user.is_authenticated():
+                    if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                        submission.already_liked = True
+                    if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+                        submission.already_disliked = True
+                context['public_submissions'].append(submission)
+        except:
+            context['error'] = traceback.print_exc()
+
+        return context
+
 
 class CompetitionCheckMigrations(View):
     def get(self, request, *args, **kwargs):
