@@ -63,16 +63,25 @@ User = get_user_model()
 ############################################################
 # General: template views
 
+
 class HomePageView(TemplateView):
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
-        context['latest_competitions'] = get_most_popular_competitions()
+
+        c_key = 'popular_competitions'
+        popular_competitions = cache.get(c_key)
+        if not popular_competitions:
+            popular_competitions = get_most_popular_competitions()
+            cache.set(c_key, popular_competitions, 60 * 60 * 1)
+
+        context['latest_competitions'] = popular_competitions
         context['featured_competitions'] = get_featured_competitions()
         if settings.ENABLE_WORKSHEETS:
             context['worksheets'] = get_worksheets(self.request.user)
         return context
+
 
 class LoginRequiredMixin(object):
     @method_decorator(login_required)
@@ -416,11 +425,11 @@ class CompetitionDetailView(DetailView):
                     # Set trailing phase since active one hasn't been found yet
                     context["previous_phase"] = phase
 
-            c_key = "c%s_all_participants" % competition.id
-            all_participants = cache.get(c_key)
-            if not all_participants:
-                all_participants = competition.participants.all().select_related('user')
-                cache.set(c_key, all_participants, 60 * 5)# Caching for five minutes
+            # c_key = "c%s_all_participants" % competition.id
+            # all_participants = cache.get(c_key)
+            # if not all_participants:
+            all_participants = competition.participants.all().select_related('user')
+            # cache.set(c_key, all_participants, 60 * 5)# Caching for five minutes
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in all_participants]:
                 context['my_status'] = [x.status for x in all_participants if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
