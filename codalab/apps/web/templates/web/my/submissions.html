@@ -60,6 +60,7 @@
         <table class="resultsTable dataTable">
             <thead>
                 <tr>
+                    <th>#</th>
                     {% for column in columns %}
                         <th>
                             <a href="?phase={{selected_phase_id}}&order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
@@ -90,6 +91,7 @@
                         data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
                         data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}"
                         data-is-public="{% if submission_info.is_public %}True{% endif %}">
+                        <td>{{ forloop.counter }}</td>
                         {% for column in columns %}
                             {% if column.name == 'filename' %}
                                 <td><a href="/my/competition/submission/{{submission.id}}/input.zip">{{submission.filename}}</a></td>
