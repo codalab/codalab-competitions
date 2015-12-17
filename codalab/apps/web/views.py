@@ -998,6 +998,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['next_phase'] = next_phase.auto_migration
         except Exception:
             sys.exc_clear()
+        context['phase'] = active_phase
 
         return context
 

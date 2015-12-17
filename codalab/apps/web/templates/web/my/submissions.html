@@ -41,19 +41,6 @@
         <a class="btn btn-default icon-excel" href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
     {% endif %}
 
-    <!--<section class="challStatusStripSection">
-    {% for phase in competition.phases.all %}
-        {% if phase.id == selected_phase_id %}
-        <section class="currentPhase">
-        {% else %}
-        <section>
-        {% endif %}
-            <a class="phaseLabel" href="/my/competition/{{competition.id}}/submissions/?phase={{phase.id}}">{{phase.label}}</a>
-            <br>
-            <span>{{phase.start_date|utc}} UTC</span>
-        </section>
-    {% endfor %}
-    </section>-->
     {% if not submission_info_list %}
         <p>There are no submissions.</p>
     {% else %}
