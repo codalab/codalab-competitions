@@ -7672,6 +7672,9 @@ This code is for 768px and up
   font-size: 14px;
   color: #33aa33;
 }
+.submission_description pre {
+  white-space: pre-wrap;
+}
 .panel-frame {
   margin-top: 12px;
   margin-bottom: 24px;

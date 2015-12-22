@@ -586,7 +586,7 @@ class CompetitionPublicSubmission(TemplateView):
             context['public_submissions'] = []
             public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
                                                                              is_public=True,
-                                                                             status__codename="finished").prefetch_related()
+                                                                             status__codename="finished").select_related('participant__user').prefetch_related('phase')
             # cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
             for submission in public_submissions:
                 # Let's process all public submissions and figure out which ones we've already liked
@@ -998,6 +998,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
             context['next_phase'] = next_phase.auto_migration
         except Exception:
             sys.exc_clear()
+        context['phase'] = active_phase
 
         return context
 

@@ -1,9 +1,12 @@
 '''
 This file contains utilities for competitions
 '''
+import datetime
+
 from random import randint
 
 from django.db.models import Count
+from django.db.models import Q
 
 from apps.web.models import Competition
 
@@ -35,8 +38,9 @@ def get_featured_competitions(limit=3):
 	7. Check if queryset is greater than 3; if not, return queryset
 	8. If queryset is greater than 3, return 3 randomly
 	'''
+	today = datetime.datetime.today()
 	featured_competitions = []
-	competitions = Competition.objects.filter(published=True)
+	competitions = Competition.objects.filter(published=True).filter(Q(end_date__gte=today)|Q(end_date=None))
 	popular_competitions = get_most_popular_competitions()
 	popular_competitions_pk = [c.pk for c in popular_competitions]
 	competitions = competitions.exclude(pk__in=popular_competitions_pk)
