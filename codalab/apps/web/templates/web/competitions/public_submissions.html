@@ -14,11 +14,14 @@
 {% block page_title %}Public Submissions{% endblock page_title %}
 
 {% block content %}
+<input type="hidden" id="competitionId" value="{{competition.id}}" />
     <div class="tab-pane" id="public_submissions">
         <div class="tab-inner">
             {% if not public_submissions %}
                 <i>No submissions have been made public!</i>
             {% else %}
+                {%include "web/competitions/_public_submissions_phases.html"%}
+
                 <h3>Filters</h3>
                 <p><input type="checkbox" id="public_submission_filter_only_leaderboard"> Only show results currently on leaderboard</p>
 
@@ -125,7 +128,37 @@
 {% block jsincludes %}
 <script>
 $(function(){
- /******************************************************************
+            /******************************************************************
+            Public submissions by phases
+            *******************************************************************/
+            $('#results_phase_submissions .btn').each(function(e,index){
+                $(this).click(function(){
+                    $(this).addClass('selected');
+                    /*Getting the phase here */
+                    var phaseId = $.trim($(this).attr('id').replace('public_results_phase_', ''));
+                    $('#results_phase_submissions .btn').removeClass('selected');
+                    $(this).addClass('selected');
+                    var competitionId = $('#competitionId').val();
+                    var url = '/competitions/' + competitionId + '/public_submissions/' +  phaseId;
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        cache: false,
+                        sucess: function(data){
+                            console.log("sucess");
+                            console.log(data);
+
+                        },
+                        error: function(xhr, status, err){
+                            console.log("ERRRRROR");
+                            console.log(status);
+                        }
+                    })
+
+                });
+            });
+
+            /******************************************************************
              Public submissions
             *****************************************************************/
             // Make sortable
