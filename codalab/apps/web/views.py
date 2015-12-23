@@ -553,6 +553,7 @@ def competition_submission_metadata_page(request, competition_id, phase_id):
 class CompetitionResultsPage(TemplateView):
     # Serves the leaderboards in the Results tab of a competition.
     template_name = 'web/competitions/_results_page.html'
+
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage, self).get_context_data(**kwargs)
         try:
@@ -607,24 +608,27 @@ class CompetitionPublicSubmission(TemplateView):
 ###########################################################
 
 
-class CompetitionPublicSubmission1(TemplateView):
+class CompetitionPublicSubmissionByPhases(TemplateView):
     '''
-    Returns the public  submissions of a competition
-    1. Gets the competiton first base on the id
-    2. Then get all Competetitio Submissions where is_public is True
-    3. We need to check if the have been already like or not
-    4. Finally, return the public submissions on the context
+    Returns the submissions of a specif phase for a specifi competition
+    1. We need the competition pk/id
+    2. We need to phase competion pk/id
+    3. We need to return public submissions
+    4. We are using a Ajax request for this. Look into 'public_submissions.html' for more info
+    5. Then we will append the results to '_public_submissions_phases.html'. Look at the file for more info
     '''
-    template_name = 'web/competitions/public_submissions.html'
+    template_name = 'web/competitions/public_submissions_phase.html'
 
     def get_context_data(self, **kwargs):
 
-        context = super(CompetitionPublicSubmission1, self).get_context_data(**kwargs)
+        context = super(CompetitionPublicSubmissionByPhases, self).get_context_data(**kwargs)
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
+            competition_phase = self.kwargs['phase']
             context['competition'] = competition
             context['public_submissions'] = []
             public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                             phase__pk = competition_phase,
                                                                              is_public=True,
                                                                              status__codename="finished").select_related('participant__user').prefetch_related('phase')
             # cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
@@ -639,7 +643,6 @@ class CompetitionPublicSubmission1(TemplateView):
                 context['public_submissions'].append(submission)
         except:
             context['error'] = traceback.print_exc()
-        context['flavio'] = 'Zhingri'
         return context
 
 
