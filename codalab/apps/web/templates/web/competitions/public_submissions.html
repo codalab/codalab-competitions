@@ -140,18 +140,19 @@ $(function(){
                     $(this).addClass('selected');
                     var competitionId = $('#competitionId').val();
                     var url = '/competitions/' + competitionId + '/public_submissions/' +  phaseId;
+
                     $.ajax({
                         type: 'GET',
                         url: url,
                         cache: false,
-                        sucess: function(data){
+                        success: function(data){
                             console.log("sucess");
-                            console.log(data);
+                            $('.public_submission_results').html('').append(data);
 
                         },
                         error: function(xhr, status, err){
                             console.log("ERRRRROR");
-                            console.log(status);
+                            console.log(err.responseText);
                         }
                     })
 
