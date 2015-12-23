@@ -30,5 +30,5 @@ urlpatterns = patterns(
     url(r'^submission_re_run/(?P<submission_pk>\d+)', views.submission_re_run, name="submission_re_run"),
     url(r'^submission_migrate/(?P<pk>\d+)', views.submission_migrate, name="submission_migrate"),
     url(r'^public_submissions/(?P<pk>\d+)$', views.CompetitionPublicSubmission.as_view(), name='public_submissions'),
-    url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmission1.as_view(), name='public_submissions_phase'),
+    url(r'^(?P<pk>\d+)/public_submissions/(?P<phase>\d+)$', views.CompetitionPublicSubmissionByPhases.as_view(), name='public_submissions_phase'),
 )
