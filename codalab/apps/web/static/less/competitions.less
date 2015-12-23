@@ -199,3 +199,23 @@
         }
     }
 }
+
+/* Here is the code for public submission template */
+.public_submissions{
+    .tab-inner{
+        #results_phase_submissions{
+            .btn {
+                margin-bottom:5px;
+                &.active {
+                    .box-shadow(none);
+                    outline:2px solid @blue;
+                }
+                &.selected {
+                    @shadow: inset 0 3px 3px rgba(0,0,0,.2);
+                    -webkit-box-shadow: @shadow;
+                    box-shadow: @shadow;
+                }
+            }
+        }
+    }
+}
