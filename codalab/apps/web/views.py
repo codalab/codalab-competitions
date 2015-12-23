@@ -602,6 +602,46 @@ class CompetitionPublicSubmission(TemplateView):
 
         return context
 
+##########################################################
+
+###########################################################
+
+
+class CompetitionPublicSubmission1(TemplateView):
+    '''
+    Returns the public  submissions of a competition
+    1. Gets the competiton first base on the id
+    2. Then get all Competetitio Submissions where is_public is True
+    3. We need to check if the have been already like or not
+    4. Finally, return the public submissions on the context
+    '''
+    template_name = 'web/competitions/public_submissions.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(CompetitionPublicSubmission1, self).get_context_data(**kwargs)
+        try:
+            competition = models.Competition.objects.get(pk=self.kwargs['pk'])
+            context['competition'] = competition
+            context['public_submissions'] = []
+            public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
+                                                                             is_public=True,
+                                                                             status__codename="finished").select_related('participant__user').prefetch_related('phase')
+            # cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
+            for submission in public_submissions:
+                # Let's process all public submissions and figure out which ones we've already liked
+
+                if self.request.user.is_authenticated():
+                    if Like.objects.filter(submission=submission, user=self.request.user).exists():
+                        submission.already_liked = True
+                    if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
+                        submission.already_disliked = True
+                context['public_submissions'].append(submission)
+        except:
+            context['error'] = traceback.print_exc()
+        context['flavio'] = 'Zhingri'
+        return context
+
 
 class CompetitionCheckMigrations(View):
     def get(self, request, *args, **kwargs):
