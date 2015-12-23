@@ -47,7 +47,7 @@ Public submissions by phases
 
                 },
                 error: function(xhr, status, err){
-
+                    $('.public_submission_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
                 }
             })
         });
