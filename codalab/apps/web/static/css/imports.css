@@ -9609,6 +9609,7 @@ fieldset[disabled] #worksheet-list .worksheet-tile .worksheet-inner button.delet
 .public_submissions .tab-inner #results_phase_submissions .btn.selected {
   -webkit-box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.2);
+  outline: 2px solid #739cb9;
 }
 .competition-tile {
   padding-bottom: 0;
