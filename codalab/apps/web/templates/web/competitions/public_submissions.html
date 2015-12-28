@@ -34,6 +34,7 @@ Public submissions by phases
             /*Getting the phase here */
             var phaseId = $.trim($(this).attr('id').replace('public_results_phase_', ''));
             $('#results_phase_submissions .btn').removeClass('selected');
+            $('#results_phase_submissions .btn').removeClass('active');
             $(this).addClass('selected');
             var competitionId = $('#competitionId').val();
             var url = '/competitions/' + competitionId + '/public_submissions/' +  phaseId;
