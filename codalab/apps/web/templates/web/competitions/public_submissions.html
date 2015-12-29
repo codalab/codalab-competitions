@@ -38,7 +38,7 @@ Public submissions by phases
             $(this).addClass('selected');
             var competitionId = $('#competitionId').val();
             var url = '/competitions/' + competitionId + '/public_submissions/' +  phaseId;
-
+            $('.public_submission_results').html('').append("<div class='competitionPreloader'></div>").children().css({ 'top': '300px', 'display': 'block' });
             $.ajax({
                 type: 'GET',
                 url: url,
