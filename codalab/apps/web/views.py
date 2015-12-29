@@ -587,10 +587,6 @@ class CompetitionPublicSubmission(TemplateView):
 
         return context
 
-##########################################################
-
-###########################################################
-
 
 class CompetitionPublicSubmissionByPhases(TemplateView):
     '''
