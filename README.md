@@ -1,4 +1,4 @@
-# CodaLab [![Circle CI](https://circleci.com/gh/codalab/codalab-competitions.svg?style=svg)](https://circleci.com/gh/codalab/codalab-competitions)
+# CodaLab [![Circle CI](https://circleci.com/gh/codalab/codalab-competitions.svg?style=shield)](https://circleci.com/gh/codalab/codalab-competitions)
 
 ## What is CodaLab?
 
