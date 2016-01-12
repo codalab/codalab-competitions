@@ -5,12 +5,7 @@ from django.conf import settings
 
 from . import views
 
-if settings.ENABLE_COMPETITIONS:
-    router = routers.DefaultRouter()
-elif settings.ENABLE_WORKSHEETS:
-    router = routers.DefaultRouter(trailing_slash=False)
-else:
-    router = routers.DefaultRouter()
+router = routers.DefaultRouter()
 
 
 router.register(r'competition/(?P<competition_id>\d+)/participants', views.CompetitionParticipantAPIViewSet)
