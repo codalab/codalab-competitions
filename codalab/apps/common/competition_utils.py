@@ -15,8 +15,11 @@ def get_most_popular_competitions(limit=3):
 	'''
 	Function to return most popular competitions
 	1.  Will return three most popular comptitions, if any
+	2. Make sure only opened competions are displayed
 	'''
+	today = datetime.datetime.today()
 	competitions = Competition.objects.filter(published=True) \
+	.filter(Q(end_date__gte=today) | Q(end_date=None)) \
     .annotate(num_participants=Count('participants')) \
 	.order_by('-num_participants')
 
