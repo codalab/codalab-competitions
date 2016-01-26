@@ -6892,6 +6892,24 @@ textarea.form-controller input[type="color"] {
 .phase-list-item-purple > .panel-footer + .panel-collapse > .panel-body {
   border-bottom-color: #d496d9;
 }
+.phase-list-item-deadline {
+  border-color: #88d0e9;
+}
+.phase-list-item-deadline > .panel-heading {
+  color: #739cb9;
+  background-color: #b3e1f1;
+  border-color: #88d0e9;
+}
+.phase-list-item-deadline > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #88d0e9;
+}
+.phase-list-item-deadline > .panel-heading .badge {
+  color: #b3e1f1;
+  background-color: #739cb9;
+}
+.phase-list-item-deadline > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #88d0e9;
+}
 .phase-btn-default,
 .phase-btn-white {
   color: #333;

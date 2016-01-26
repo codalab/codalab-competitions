@@ -146,7 +146,19 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                <div class="phase-list-item panel phase-list-item-default phase-list-item-deadline">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><strong>Competition Ends</strong></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <p> {% if competition.end_date %} <strong>{{competition.end_date}}</strong>
+                                    {% else %} <strong>Never</strong>
+                                    {% endif %}
+                                    </p>
+                                </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 {% endif %}
