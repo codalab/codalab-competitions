@@ -1126,6 +1126,7 @@ class CompetitionSubmission(models.Model):
                     submissions_from_today_count = len(CompetitionSubmission.objects.filter(
                         phase__competition=self.phase.competition,
                         participant=self.participant,
+                        phase=self.phase,
                         submitted_at__gte=datetime.date.today()
                     ))
 
