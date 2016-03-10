@@ -105,13 +105,7 @@
                           </li>
                         {% endif %}
                         <li>
-                          {% if ENABLE_WORKSHEETS and ENABLE_COMPETITIONS %}
-                            <a href="https://github.com/codalab/codalab/wiki" target="_blank">Help</a>
-                          {% elif ENABLE_WORKSHEETS %}
-                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Worksheets" target="_blank">Help</a>
-                          {% elif ENABLE_COMPETITIONS %}
-                            <a href="https://github.com/codalab/codalab/wiki/CodaLab-Competitions" target="_blank">Help</a>
-                          {% endif %}
+                            <a href="https://github.com/codalab/codalab-competitions/wiki" target="_blank">Help</a>
                         </li>
                         {% if user.is_authenticated %}
                             <li class="dropdown {% active request '/accounts/' %}">
