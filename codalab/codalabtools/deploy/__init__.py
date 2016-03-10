@@ -33,6 +33,9 @@ logger = logging.getLogger('codalabtools')
 class DeploymentConfig(BaseConfig):
     """
     Defines credentials and configuration values needed to deploy CodaLab.
+    .codalabconfig is the YAML file being passed from codalab-deployment repo which
+    is sitting in Bitbucket
+
     """
     def __init__(self, label=None, filename='.codalabconfig'):
         super(DeploymentConfig, self).__init__(filename)
@@ -189,7 +192,7 @@ class DeploymentConfig(BaseConfig):
         """
         return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
 
-    def getEnableWorksheets(self):
+    def getEnableWorksheets(self):  # MARK THIS FOR REMOVAL AS WELL
         """Return whether worksheets are enabled"""
         return self._svc['django'].get('enable-worksheets', False)
 
@@ -304,25 +307,9 @@ class DeploymentConfig(BaseConfig):
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
 
-    def getBundleServiceGitUser(self):
-        """Gets the name of the Git user associated with the target source code repository for bundles."""
-        return self._svc['git-bundles']['user'] if 'git-bundles' in self._svc else ""
-
-    def getBundleServiceGitRepo(self):
-        """Gets the name of the Git of the target source code repository  for bundles."""
-        return self._svc['git-bundles']['repo'] if 'git-bundles' in self._svc else ""
-
-    def getBundleServiceGitTag(self):
-        """Gets the Git tag defining the specific version of the source code  for bundles."""
-        return self._svc['git-bundles']['tag'] if 'git-bundles' in self._svc else ""
-
-    def getBundleServiceUrl(self):
+    def getBundleServiceUrl(self):  # MARK THIS FOR REMOVAL
         """Gets the URL for the bundle service."""
         return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
-
-    def getLandingPageWorksheetUuid(self):
-        """Gets the URL for the bundle service."""
-        return self._svc['django'].get('landing-page-worksheet-uuid', '')
 
     def getBundleServiceDatabaseName(self):
         """Gets the bundle service database name."""
@@ -906,6 +893,7 @@ class Deployment(object):
     def getSettingsFileContent(self):
         """
         Generates the content of the local Django settings file.
+        Modified only if you know what you doing
         """
         # Use the same allowed hosts for SSL and not SSL
         allowed_hosts = ssl_allowed_hosts = \
@@ -999,7 +987,6 @@ class Deployment(object):
             "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
             "",
             "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
-            "    LANDING_PAGE_WORKSHEET_UUID = '{0}'".format(self.config.getLandingPageWorksheetUuid()),
             "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
             "    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))",
             "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
