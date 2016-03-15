@@ -2,7 +2,6 @@
 Defines deployment commands.
 """
 
-import datetime
 import logging
 import logging.config
 import os
@@ -37,12 +36,14 @@ logger = logging.getLogger('codalabtools')
 ############################################################
 # Configuration (run every time)
 
+
 @task
 def using(path):
     """
     Specifies a location for the CodaLab configuration file (e.g., deployment.config)
     """
     env.cfg_path = path
+
 
 @task
 def config(label):
@@ -52,13 +53,12 @@ def config(label):
     """
     env.cfg_label = label
     print "Deployment label is:", env.cfg_label
-    filename = ".codalabconfig"
     print "Loading configuration from:", env.cfg_path
     configuration = DeploymentConfig(label, env.cfg_path)
     print "Configuring logger..."
     logging.config.dictConfig(configuration.getLoggerDictConfig())
     logger.info("Loaded configuration from file: %s", configuration.getFilename())
-    env.roledefs = {'web' : configuration.getWebHostnames()}
+    env.roledefs = {'web': configuration.getWebHostnames()}
 
     # Credentials
     env.user = configuration.getVirtualMachineLogonUsername()
@@ -67,9 +67,7 @@ def config(label):
 
     # Repository
     env.git_codalab_tag = configuration.getGitTag()
-    env.git_codalab_cli_tag = configuration.getBundleServiceGitTag()
-    env.deploy_codalab_dir = 'codalab'
-    env.deploy_codalab_cli_dir = 'codalab-cli'
+    env.deploy_codalab_dir = 'codalab'  # Directory for codalab competitions
 
     env.django_settings_module = 'codalab.settings'
     env.django_configuration = configuration.getDjangoConfiguration()  # Prod or Dev
@@ -106,16 +104,11 @@ def install():
     def ensure_repo_exists(repo, dest):
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
     ensure_repo_exists('https://github.com/codalab/codalab', env.deploy_codalab_dir)
-    ensure_repo_exists('https://github.com/codalab/codalab-cli', env.deploy_codalab_cli_dir)
 
     # Initial setup
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('./dev_setup.sh')
-    with cd(env.deploy_codalab_cli_dir):
-        run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
-        run('venv/bin/pip install MySQL-Python')
 
     # Deploy!
     _deploy()
@@ -199,6 +192,7 @@ def supervisor(command):
         else:
             raise 'Unknown command: %s' % command
 
+
 @roles('web')
 @task
 def nginx_restart():
@@ -207,6 +201,7 @@ def nginx_restart():
     """
     sudo('/etc/init.d/nginx restart')
 
+
 # Maintenance and diagnostics
 @roles('web')
 @task
@@ -214,7 +209,7 @@ def maintenance(mode):
     """
     Begin or end maintenance (mode is 'begin' or 'end')
     """
-    modes = {'begin': '1', 'end' : '0'}
+    modes = {'begin': '1', 'end': '0'}
     if mode not in modes:
         print "Invalid mode. Valid values are 'begin' or 'end'"
         sys.exit(1)
@@ -229,6 +224,7 @@ def maintenance(mode):
 
     nginx_restart()
 
+
 @roles('web')
 @task
 def deploy():
@@ -241,27 +237,23 @@ def deploy():
     supervisor('start')
     maintenance('end')
 
+
 def _deploy():
-    # Update website
+    # Update competition website
+    # Pull branch and run requirements file, for info about requirments look into dev_setp.sh
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
         run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
         run('./dev_setup.sh')
 
-    # Update bundle service
-    with cd(env.deploy_codalab_cli_dir):
-        run('git pull')
-        run('git checkout %s' % env.git_codalab_cli_tag)
-        run('./setup.sh')
-        run('venv/bin/pip install MySQL-Python')
-        run('venv/bin/alembic upgrade head')
 
     # Create local.py
     cfg = DeploymentConfig(env.cfg_label, env.cfg_path)
     dep = Deployment(cfg)
     buf = StringIO()
     buf.write(dep.getSettingsFileContent())
+    # local.py is generated here. For more info about content look into deploy/__.init__.py
     settings_file = os.path.join(env.deploy_codalab_dir, 'codalab', 'codalab', 'settings', 'local.py')
     put(buf, settings_file)
 
