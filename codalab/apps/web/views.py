@@ -1,15 +1,12 @@
 import csv
 import datetime
 import json
-import mimetypes
 import os
 import StringIO
 import sys
 import traceback
 import yaml
 import zipfile
-
-from os.path import splitext
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -21,19 +18,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.forms.formsets import formset_factory
 from django.http import Http404
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import FormMixin
+
 
 from mimetypes import MimeTypes
 
@@ -1485,58 +1480,6 @@ def submission_migrate(request, pk):
 ############################################################
 # Worksheets: template views
 
-class WorksheetLandingView(TemplateView):
-    """
-    When we land on the worksheets page, we want to serve.
-    """
-    template_name = 'web/worksheets/detail.html'
-    def get(self, request, *args, **kwargs):
-        # Jump to a worksheet based on uuid or name:
-        # - /worksheets/?uuid=
-        # - /worksheets/?name=
-        # - 'home' worksheet
-        requested_ws = request.GET.get('uuid', request.GET.get('name', 'home'))
-        if requested_ws:
-            service = BundleService(request.user)
-            try:
-                uuid = service.get_worksheet_uuid(requested_ws)
-                return HttpResponseRedirect(reverse('ws_view', kwargs={'uuid': uuid}))
-            except Exception, e:  # UsageError
-                print 'Unable to get worksheet:', e
-                pass
-
-        return HttpResponseRedirect(reverse("ws_list"))
-
-class WorksheetListView(TemplateView):
-    """
-    Displays worksheets as a list.
-    """
-    template_name = 'web/worksheets/index.html'
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetListView, self).get_context_data(**kwargs)
-        return context
-
-class WorksheetDetailView(TemplateView):
-    """
-    Show information about a worksheet.
-    Displays details of a worksheet.
-    """
-    template_name = 'web/worksheets/detail.html'
-    def get_context_data(self, **kwargs):
-        context = super(WorksheetDetailView, self).get_context_data(**kwargs)
-        service = BundleService(self.request.user)
-        uuid = kwargs.get('uuid', None)
-
-        # Just call to get the title.
-        # TODO: later we call worksheet again to get the contents.
-        # Can we avoid calling get_worksheet_info twice?
-        try:
-            worksheet_info = service.basic_worksheet(uuid)
-            context['worksheet_uuid'] = worksheet_info['uuid']
-            context['worksheet_title'] = worksheet_info.get('title', worksheet_info.get('name', ''))
-        except:
-            pass
-        return context
 
 class BundleDetailView(TemplateView):
     """
