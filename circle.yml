@@ -4,9 +4,8 @@ machine:
 
 dependencies:
   pre:
-    - grep -v "activate" ~/.circlerc > ~/.circlerc
     - pip install -r codalab/requirements/dev_azure_nix.txt
 
 test:
   override:
-    - (cd codalab && python manage.py test)
+    - export PYTHONPATH=`pwd`; (cd codalab && python manage.py test)
