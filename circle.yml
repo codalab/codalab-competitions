@@ -1,9 +1,10 @@
 machine:
   python:
-    version: 2.7.5
+    version: 2.7.10
 
 dependencies:
   pre:
+    - grep -v "activate" ~/.circlerc > ~/.circlerc
     - pip install -r codalab/requirements/dev_azure_nix.txt
 
 test:
