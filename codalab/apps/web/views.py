@@ -38,7 +38,6 @@ from apps.web import tasks
 from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
-from apps.common.worksheet_utils import get_worksheets
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from tasks import evaluate_submission
 
@@ -73,8 +72,7 @@ class HomePageView(TemplateView):
 
         context['latest_competitions'] = popular_competitions
         context['featured_competitions'] = get_featured_competitions()
-        if settings.ENABLE_WORKSHEETS:
-            context['worksheets'] = get_worksheets(self.request.user)
+
         return context
 
 
