@@ -5,7 +5,8 @@ machine:
 dependencies:
   pre:
     - pip install -r codalab/requirements/dev_azure_nix.txt
+    - cp /home/ubuntu/codalab-competitions/circle_dev_set.py /home/ubuntu/codalab-competitions/codalab/codalab/settings/local.py
 
 test:
   override:
-    - export PYTHONPATH=`pwd`; (cd codalab && python manage.py test)
+    - (cd codalab && python manage.py test)
