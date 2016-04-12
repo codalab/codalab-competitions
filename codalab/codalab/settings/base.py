@@ -259,7 +259,7 @@ class Base(Settings):
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
-    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-1'
+    GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-42847758-2'
 
     # Compress Configuration
     COMPRESS_PRECOMPILERS = (
