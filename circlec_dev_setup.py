@@ -21,4 +21,5 @@ class Dev(DevBase):
             'PASSWORD': '',
             'HOST': '',
             'PORT': '',
+        }
     }
