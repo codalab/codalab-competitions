@@ -48,7 +48,7 @@
             {% if not competition.published %}
                 <code>Secret url:
                     <a id='copy-button' href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">https://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a>
-                    <button class="button" id="copy-button" data-clipboard-target="#post-shortlink" alt="test"><span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="hoverin' words"></span></button>
+                    <button class="button" id="copy-button" data-clipboard-target="#post-shortlink" alt="test"><span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Copy to clipboard"></span></button>
                 </code>
 
 
