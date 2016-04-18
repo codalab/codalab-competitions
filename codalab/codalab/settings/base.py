@@ -359,6 +359,11 @@ class Base(Settings):
         }
     }
 
+    USERSWITCH_OPTIONS = {
+        'auth_backend': 'django.contrib.auth.backends.ModelBackend',
+        'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',
+    }
+
     @classmethod
     def pre_setup(cls):
         if hasattr(cls,'OPTIONAL_APPS'):
@@ -394,7 +399,9 @@ class DevBase(Base):
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-    # EXTRA_MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    EXTRA_MIDDLEWARE_CLASSES = (
+        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+        'userswitch.middleware.UserSwitchMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,
         'ENABLE_STACKTRACES' : True,
