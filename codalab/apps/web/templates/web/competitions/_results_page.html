@@ -6,8 +6,11 @@
     <p><strong>There is a problem with the leaderboard</strong></p>
     <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
     <pre>{{ error }}</pre>
-{% elif phase.is_future %}
+
+{% elif phase.is_future and  block_leaderboard_view %}
+
     <p>This phase of the competition has not started yet. Please check back later.</p>
+
 {% elif phase.is_blind and not is_owner %}
     <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
 {% else %}

@@ -550,12 +550,18 @@ class CompetitionResultsPage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompetitionResultsPage, self).get_context_data(**kwargs)
         try:
+            context['block_leaderboard_view'] = True
             competition = models.Competition.objects.get(pk=self.kwargs['id'])
             phase = competition.phases.get(pk=self.kwargs['phase'])
             is_owner = self.request.user.id == competition.creator_id
             context['is_owner'] = is_owner
             context['phase'] = phase
             context['groups'] = phase.scores()
+            user = self.request.user
+
+            if ((user == phase.competition.creator) or (user in phase.competition.admins.all())):
+                context['block_leaderboard_view'] = False
+
             return context
         except:
             context['error'] = traceback.format_exc()
