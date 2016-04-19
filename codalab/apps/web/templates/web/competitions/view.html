@@ -47,8 +47,7 @@
             <h2>{{ competition.title }}</h2>
             {% if not competition.published %}
                 <code id="secret_url">Secret url:
-                    <a id='copy-button' href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">https://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a>
-                    <button class="button" id="copy-button" data-clipboard-target="#post-shortlink" alt="test"><span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="Copy to clipboard"></span></button>
+                    <a href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">https://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a>
                 </code>
 
 
@@ -252,23 +251,6 @@
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
         });
-
-        // Use to get secret url on clipboard
-        new Clipboard('#copy-button', {
-            target: function(trigger) {
-                console.log(trigger);
-                return trigger.previousElementSibling
-            }
-
-        });
-
-        // To check if browser is Safari
-        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-        if (isSafari == true){
-            $('#secret_url').append("<b>Safari does not support copy to clipboard. Press Ctrl+C to copy after button is clicked</b>");
-        }
-
-
 
     </script>
 {% endblock %}
