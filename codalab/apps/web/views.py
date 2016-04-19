@@ -559,6 +559,7 @@ class CompetitionResultsPage(TemplateView):
             context['groups'] = phase.scores()
             user = self.request.user
 
+            # Will allow creator and admin to see Leaderboard in advanced
             if ((user == phase.competition.creator) or (user in phase.competition.admins.all())):
                 context['block_leaderboard_view'] = False
 
