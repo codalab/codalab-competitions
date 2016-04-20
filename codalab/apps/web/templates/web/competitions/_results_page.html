@@ -8,9 +8,7 @@
     <pre>{{ error }}</pre>
 
 {% elif phase.is_future and  block_leaderboard_view %}
-
-    <p>This phase of the competition has not started yet. Please check back later.</p>
-
+    <p>This phase has not started yet. The leaderboard is still hidden to participants but visible to you as an organizer</p>
 {% elif phase.is_blind and not is_owner %}
     <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
 {% else %}
