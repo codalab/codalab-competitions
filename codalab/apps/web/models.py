@@ -364,18 +364,23 @@ class Competition(models.Model):
         last_phase = phases.reverse()[0]
 
         for index, phase in enumerate(phases):
+            # Checking for active phase
             if phase.is_active:
                 current_phase = phase
+                # Checking if active phase is less than last phase
                 if current_phase.phasenumber < last_phase.phasenumber:
+                    # Getting next phase
                     next_phase = phases[index + 1]
                 break
 
+        # Making sure current_phase or next_phase is not None
         if current_phase is None or next_phase is None:
             return
 
         logger.info("Checking for needed migrations on competition pk=%s, current phase: %s, next phase: %s" %
                     (self.pk, current_phase.phasenumber, next_phase.phasenumber))
 
+        # Checking next phase is greater than last phase migration
         if next_phase.phasenumber > self.last_phase_migration:
             if next_phase.auto_migration:
                 self.apply_phase_migration(current_phase, next_phase)
