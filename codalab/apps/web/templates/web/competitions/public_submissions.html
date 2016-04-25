@@ -14,6 +14,12 @@
 {% block page_title %}Public Submissions{% endblock page_title %}
 
 {% block content %}
+<div class="row">
+    <div class="col-md-6 pull-left">
+        <a href="{% url "competitions:view" pk=competition.pk %}">Go Back to Competition Homepage</a>
+    </div>
+</div>
+<br>
 <input type="hidden" id="competitionId" value="{{competition.id}}" />
     <div class="tab-pane public_submissions">
         <div class="tab-inner">
