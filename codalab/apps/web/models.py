@@ -527,7 +527,7 @@ class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
+    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Page Container")
     title = models.CharField(max_length=100, null=True, blank=True) # TODO, probably needs to be removed
     label = models.CharField(max_length=100, verbose_name="Title")
     rank = models.IntegerField(default=0, verbose_name="Order")
