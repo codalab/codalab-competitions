@@ -528,7 +528,7 @@ class Page(models.Model):
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
     container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
-    title = models.CharField(max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=100, null=True, blank=True) # TODO, probably needs to be removed
     label = models.CharField(max_length=100, verbose_name="Title")
     rank = models.IntegerField(default=0, verbose_name="Order")
     visibility = models.BooleanField(default=True, verbose_name="Visible")
@@ -537,7 +537,7 @@ class Page(models.Model):
     competition = models.ForeignKey(Competition, related_name='pages', null=True)
 
     def __unicode__(self):
-        return self.title
+        return self.label
 
     class Meta:
         unique_together = (('label','category','container'),)
