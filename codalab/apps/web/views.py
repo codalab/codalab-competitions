@@ -377,26 +377,9 @@ class CompetitionDetailView(DetailView):
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
-        # context['public_submissions'] = []
-
-        # c_key = "c%s_public_submissions" % competition.id
-        # public_submissions = cache.get(c_key)
-        # if not public_submissions:
-        #     public_submissions = models.CompetitionSubmission.objects.filter(phase__competition=competition,
-        #                                                                      is_public=True,
-        #                                                                      status__codename="finished").prefetch_related()
-        #     cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
-        # for submission in public_submissions:
-        #     # Let's process all public submissions and figure out which ones we've already liked
-        #     if self.request.user.is_authenticated():
-        #         if Like.objects.filter(submission=submission, user=self.request.user).exists():
-        #             submission.already_liked = True
-        #         if Dislike.objects.filter(submission=submission, user=self.request.user).exists():
-        #             submission.already_disliked = True
-        #     context['public_submissions'].append(submission)
 
         submissions = dict()
-        # all_submissions = dict() REMOVE AFTER TESTING
+
         try:
             context["previous_phase"] = None
             context["next_phase"] = None
@@ -418,11 +401,8 @@ class CompetitionDetailView(DetailView):
                     # Set trailing phase since active one hasn't been found yet
                     context["previous_phase"] = phase
 
-            # c_key = "c%s_all_participants" % competition.id
-            # all_participants = cache.get(c_key)
-            # if not all_participants:
             all_participants = competition.participants.all().select_related('user')
-            # cache.set(c_key, all_participants, 60 * 5)# Caching for five minutes
+
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in all_participants]:
                 context['my_status'] = [x.status for x in all_participants if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
@@ -437,10 +417,6 @@ class CompetitionDetailView(DetailView):
                 for phase in all_phases:
                     if phase.is_active:
                         context['active_phase'] = phase
-                # TODO, remove this in the future after testing.
-                # Context is not being used anywhere
-                #     all_submissions[phase] = phase.submissions.all()
-                # context['active_phase_submissions'] = all_submissions
 
         except ObjectDoesNotExist:
             pass
@@ -611,7 +587,7 @@ class CompetitionPublicSubmissionByPhases(TemplateView):
                                                                              phase__pk = competition_phase,
                                                                              is_public=True,
                                                                              status__codename="finished").select_related('participant__user').prefetch_related('phase')
-            # cache.set(c_key, public_submissions, 60 * 60 * 1)# Caching for an hour
+
             for submission in public_submissions:
                 # Let's process all public submissions and figure out which ones we've already liked
 
