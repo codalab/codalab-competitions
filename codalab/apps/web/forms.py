@@ -98,6 +98,13 @@ class PageForm(forms.ModelForm):
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
 
+    def save(self, commit=True):
+        instance = super(PageForm, self).save(commit=False)
+        instance.codename = self.cleaned_data['label']
+        if commit:
+            instance.save()
+        return instance
+
 
 class LeaderboardForm(forms.ModelForm):
     class Meta:

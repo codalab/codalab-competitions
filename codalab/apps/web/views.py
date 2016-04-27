@@ -183,7 +183,6 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         # inlines[0] = pages
         # inlines[1] = phases
-        import pdb; pdb.set_trace()
         for phase_form in inlines[1]:
             if phase_form.cleaned_data["input_data_organizer_dataset"]:
                 phase_form.instance.input_data = phase_form.cleaned_data["input_data_organizer_dataset"].data_file.file.name
@@ -376,7 +375,6 @@ class CompetitionDetailView(DetailView):
             side_tabs[category] = tc
 
         context['tabs'] = side_tabs
-        import pdb; pdb.set_trace()
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
 
