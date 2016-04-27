@@ -1155,10 +1155,7 @@ class CompetitionSubmission(models.Model):
         self.file_url_base = self.file.storage.url('')
 
         print "Calling super save."
-        # TODO REMOVE AFTER TESTING
-        # c_key = "c%s_public_submissions" % self.phase.competition.id
-        # cache.set(c_key, None, 30)  # cache busting for CompetitionDetailView
-        res = super(CompetitionSubmission,self).save(*args,**kwargs)
+        res = super(CompetitionSubmission, self).save(*args,**kwargs)
         return res
 
     def get_filename(self):
