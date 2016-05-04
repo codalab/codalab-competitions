@@ -1,13 +1,16 @@
 import os
 
 from django import forms
-from django.forms.formsets import formset_factory
 from django.core.files.base import ContentFile
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 import models
 from tinymce.widgets import TinyMCE
 
-User =  get_user_model()
+from apps.web.models import PageContainer
+from apps.web.models import ContentCategory
+
+User = get_user_model()
 
 class CompetitionForm(forms.ModelForm):
     class Meta:
@@ -99,10 +102,19 @@ class PageForm(forms.ModelForm):
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
 
     def save(self, commit=True):
+
         instance = super(PageForm, self).save(commit=False)
-        instance.codename = self.cleaned_data['label']
+
+        if instance.pk is None:
+            instance.codename = self.cleaned_data['label']
+            page_container,_ = PageContainer.objects.get_or_create(object_id=instance.competition.id, content_type=ContentType.objects.get_for_model(instance.competition))
+            details_category = ContentCategory.objects.get(name="Learn the Details")
+            instance.category = details_category
+            instance.container = page_container
+
         if commit:
             instance.save()
+
         return instance
 
 
