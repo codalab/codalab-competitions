@@ -226,7 +226,8 @@ class Base(Settings):
         'oauth2_provider',
 
         # Search
-        'haystack'
+        'haystack',
+        'django_extensions',
     )
 
     ACCOUNT_ADAPTER = ("apps.authenz.adapter.CodalabAccountAdapter")
