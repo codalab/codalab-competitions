@@ -46,7 +46,11 @@
         <div class="col-sm-10">
             <h2>{{ competition.title }}</h2>
             {% if not competition.published %}
-                <code>Secret url: <a href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">http://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a></code>
+                <code id="secret_url">Secret url:
+                    <a href="{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}">https://{{ site }}{% url 'competitions:view' pk=competition.pk %}?secret_key={{ competition.secret_key }}</a>
+                </code>
+
+
             {% endif %}
             <div class="organizer">Organized by {{ competition.creator }} - Current server time: {{ current_server_time|utc }} UTC</div>
             <input type="hidden" id="competitionId" value="{{competition.id}}" />
@@ -247,5 +251,6 @@
                 show_location('#' + $(this).attr('href').split('#')[1]);
             });
         });
+
     </script>
 {% endblock %}

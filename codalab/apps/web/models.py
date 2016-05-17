@@ -364,18 +364,23 @@ class Competition(models.Model):
         last_phase = phases.reverse()[0]
 
         for index, phase in enumerate(phases):
+            # Checking for active phase
             if phase.is_active:
                 current_phase = phase
+                # Checking if active phase is less than last phase
                 if current_phase.phasenumber < last_phase.phasenumber:
+                    # Getting next phase
                     next_phase = phases[index + 1]
                 break
 
+        # Making sure current_phase or next_phase is not None
         if current_phase is None or next_phase is None:
             return
 
         logger.info("Checking for needed migrations on competition pk=%s, current phase: %s, next phase: %s" %
                     (self.pk, current_phase.phasenumber, next_phase.phasenumber))
 
+        # Checking next phase is greater than last phase migration
         if next_phase.phasenumber > self.last_phase_migration:
             if next_phase.auto_migration:
                 self.apply_phase_migration(current_phase, next_phase)
@@ -522,8 +527,8 @@ class Page(models.Model):
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
-    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Competition")
-    title = models.CharField(max_length=100, null=True, blank=True)
+    container = models.ForeignKey(PageContainer, related_name='pages', verbose_name="Page Container")
+    title = models.CharField(max_length=100, null=True, blank=True) # TODO, probably needs to be removed
     label = models.CharField(max_length=100, verbose_name="Title")
     rank = models.IntegerField(default=0, verbose_name="Order")
     visibility = models.BooleanField(default=True, verbose_name="Visible")
@@ -532,7 +537,7 @@ class Page(models.Model):
     competition = models.ForeignKey(Competition, related_name='pages', null=True)
 
     def __unicode__(self):
-        return self.title
+        return self.label
 
     class Meta:
         unique_together = (('label','category','container'),)
@@ -1150,10 +1155,7 @@ class CompetitionSubmission(models.Model):
         self.file_url_base = self.file.storage.url('')
 
         print "Calling super save."
-        # TODO REMOVE AFTER TESTING
-        # c_key = "c%s_public_submissions" % self.phase.competition.id
-        # cache.set(c_key, None, 30)  # cache busting for CompetitionDetailView
-        res = super(CompetitionSubmission,self).save(*args,**kwargs)
+        res = super(CompetitionSubmission, self).save(*args,**kwargs)
         return res
 
     def get_filename(self):
