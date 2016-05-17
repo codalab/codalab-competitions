@@ -9,6 +9,7 @@ from tinymce.widgets import TinyMCE
 
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
+from apps.web.models import SubmissionScoreSet
 
 User = get_user_model()
 
@@ -131,6 +132,21 @@ class LeaderboardForm(forms.ModelForm):
             'sorting',
         )
 
+    def save(self, commit=True):
+        '''
+        Save method override
+        #TODO, look into refactoring to avoid overriding
+        '''
+        instance = super(LeaderboardForm, self).save(commit=False)
+
+        submission_score_set = SubmissionScoreSet.objects.get(competition=instance.competition, key=instance.key)
+        submission_score_set.label = instance.label
+        submission_score_set.save()
+
+        if commit:
+            instance.save()
+
+        return instance
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:
