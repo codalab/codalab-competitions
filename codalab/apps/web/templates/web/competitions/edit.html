@@ -111,7 +111,7 @@
                                     {% else %}
                                         <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
                                         <div class="col-sm-9">
-                                            <div class="field-container">
+                                            <div class="field-container page-container">
                                                 {{ field }}
                                                 {{ field.errors }}
                                             </div>
@@ -291,20 +291,23 @@
 $('document').ready(function () {
     $("#id_admins").select2();
 
-    var tMCE = tinyMCE.init({
-        //General otptions
-        mode : 'none',
-        theme: 'advanced',
-        readonly: 0,
-        cleanup_on_startup: true,
-        plugins : 'autolink,lists,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template',
+    tinyMCE.init({
+        theme : "advanced",
+        mode : "none",
+        plugins : "table, paste, advlink",
+        theme_advanced_buttons3_add : "tablecontrols",
+        table_styles : "Header 1=header1;Header 2=header2;Header 3=header3",
+        table_cell_limit : 100,
+        table_row_limit : 5,
+        table_col_limit : 5,
+        verify_html : true
+});
 
-        // Theme options
-        theme_advanced_path : false,
-        theme_advanced_toolbar_location : 'top',
-        theme_advanced_toolbar_align : 'left',
-        theme_advanced_statusbar_location : 'bottom',
+    // This will add html editor to edit pages
+    $('.page-container').find('textarea').each(function(){
+        tinyMCE.execCommand('mceAddControl', false, this.id);
     });
+
 
     // This helps make sections appear with Foundation
 
