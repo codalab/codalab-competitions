@@ -2,6 +2,9 @@ from django import forms
 
 
 class CodalabSignupForm(forms.Form):
+    """
+    Base sign up form
+    """
     team_name = forms.CharField(max_length=64, required=False)
     contact_email = forms.EmailField(required=False)
     method_name = forms.CharField(max_length=20, required=False)

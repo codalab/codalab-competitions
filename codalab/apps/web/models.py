@@ -1,22 +1,17 @@
 import csv
 import datetime
-import django.dispatch
 import exceptions
 import io
 import json
 import logging
 import operator
 import os
-import random
-import string
 import StringIO
-import tempfile
-import time
 import uuid
 import yaml
 import zipfile
 
-from os.path import abspath, basename, dirname, join, normpath, split
+from os.path import split
 
 from django.conf import settings
 from django.contrib.contenttypes import generic
@@ -25,15 +20,13 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
 from django.db.models import Max
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.dateparse import parse_datetime
-from django.utils.text import slugify
 from django.utils.timezone import now
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -98,6 +91,9 @@ class DefaultContentItem(models.Model):
         return self.label
 
 class PageContainer(models.Model):
+    """
+    Class representing a page container. Only one container per competition
+    """
     name = models.CharField(max_length=200,blank=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
@@ -115,6 +111,9 @@ class PageContainer(models.Model):
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
+    """
+    Class representing a external file type
+    """
     name = models.CharField(max_length=20)
     codename = models.SlugField(max_length=20,unique=True)
 
@@ -122,6 +121,9 @@ class ExternalFileType(models.Model):
         return self.name
 
 class ExternalFileSource(models.Model):
+    """
+    Class representing a external file Source
+    """
     name = models.CharField(max_length=50)
     codename = models.SlugField(max_length=50,unique=True)
     service_url = models.URLField(null=True,blank=True)
@@ -130,6 +132,9 @@ class ExternalFileSource(models.Model):
         return self.name
 
 class ExternalFile(models.Model):
+    """
+    Class representing a External File.
+    """
     type = models.ForeignKey(ExternalFileType)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     name = models.CharField(max_length=100)
@@ -208,6 +213,15 @@ class Competition(models.Model):
         return assign_perm('view_task', user, self)
 
     def save(self, *args, **kwargs):
+        """Format the exception with a traceback.
+
+       :param etype: exception type
+       :param value: exception value
+       :param tb: traceback object
+       :param limit: maximum number of stack frames to show
+       :type limit: integer or None
+       :return: list of strings
+        """
         # Make sure the image_url_base is set from the actual storage implementation
         self.image_url_base = self.image.storage.url('')
 
