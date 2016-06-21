@@ -40,3 +40,6 @@ Utils
 -------
 .. automodule:: apps.forums.helpers
 	:members:
+	:exclude-members: send_mail
+
+	.. autofunction:: send_mail()
