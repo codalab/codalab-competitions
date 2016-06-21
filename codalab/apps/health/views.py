@@ -1,19 +1,30 @@
-import os
-
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from apps.jobs.models import Job
-from apps.web import models as web_models
 from .models import HealthSettings
+from apps.jobs.models import Job
 
 
 def get_health_metrics():
+    """
+    Function that get health metrics based on the amouunt of jobs.
+
+    :return: jobs dictionary
+    -------
+    - **Jobs pending** - Jobs pending queryset.
+    - **Jobs pending count** - Length of pending jobs.
+    - **Jobs finished in the last two days** - Jobs processed in the last two days.
+    - **Jobs lasting longer than 10 minutes** - Jobs that are running for more than 30 minutes.
+    - **Jobs failed** - Jobs that failed
+    - **Jobs failed count** - Amount of jobs failed.
+    - **alert emails** Email to send alert.
+    - **alert_threshold** Threshold number.
+    """
     jobs_pending = Job.objects.filter(status=Job.PENDING)
     jobs_pending_count = len(jobs_pending)
 
@@ -71,6 +82,10 @@ def email_settings(request):
 
 
 def check_thresholds(request):
+    """
+    Function that checks if the amount of pending jobs is greater than threshold number.
+    It will send an email if the number exceeded.
+    """
     metrics = get_health_metrics()
     health_settings = HealthSettings.objects.get_or_create(pk=1)[0]
     email_string = health_settings.emails
