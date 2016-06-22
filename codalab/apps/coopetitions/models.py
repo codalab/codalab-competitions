@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Like(models.Model):
+    """
+    Base model to allow user to like a submission.
+    """
 
     class Meta:
         unique_together = (('submission', 'user'),)
@@ -15,6 +18,9 @@ class Like(models.Model):
 
 
 class Dislike(models.Model):
+    """
+    Base model to allow authenticated user to dislike a submission
+    """
 
     class Meta:
         unique_together = (('submission', 'user'),)
@@ -28,6 +34,9 @@ class Dislike(models.Model):
 
 
 class DownloadRecord(models.Model):
+    """
+    Base model to keep track of the amount of times a submission has been downloaded.
+    """
 
     class Meta:
         unique_together = (('submission', 'user'),)

@@ -8,7 +8,7 @@ from .helpers import send_mail
 
 class Forum(models.Model):
     """
-    Base Forum model
+    Base Forum model.
     """
     competition = models.OneToOneField('web.Competition', unique=True, related_name="forum")
 
