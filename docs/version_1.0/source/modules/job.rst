@@ -5,9 +5,10 @@ Models
 ------
 .. automodule:: apps.jobs.models
 	:members:
+	:exclude-members: Job, JobManager
 
-Views
------
-.. automodule:: apps.jobs.views
-	:members:
+	.. autoclass:: JobManager()
+		:members:
+	.. autoclass:: Job()
+		:members:
 
