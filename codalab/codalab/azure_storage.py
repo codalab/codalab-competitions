@@ -25,13 +25,9 @@ try:
         StorageServiceProperties,
     )
     from azure.storage.sharedaccesssignature import (
-        Permission,
+        # Permission,
         SharedAccessSignature,
         SharedAccessPolicy,
-        WebResource,
-        RESOURCE_BLOB,
-        SHARED_ACCESS_PERMISSION,
-        SIGNED_RESOURCE_TYPE,
         )
 
 except ImportError:
@@ -196,6 +192,7 @@ class AzureBlockBlobFile(RawIOBase):
 
 PREFERRED_STORAGE_X_MS_VERSION = '2013-08-15'
 
+
 def make_blob_sas_url(account_name,
                       account_key,
                       container_name,
@@ -221,16 +218,13 @@ def make_blob_sas_url(account_name,
     start = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
     expiry = start + datetime.timedelta(minutes=duration)
     sap = SharedAccessPolicy(AccessPolicy(
-            start.strftime(date_format), 
+            start.strftime(date_format),
             expiry.strftime(date_format),
             permission))
-    signed_query = sas.generate_signed_query_string(resource_path, RESOURCE_BLOB, sap)
-    sas.permission_set = [Permission('/' + resource_path, signed_query)]
+    sas_token = sas.generate_signed_query_string(resource_path, 'b', sap)
 
-    res = WebResource()
-    res.properties[SIGNED_RESOURCE_TYPE] = RESOURCE_BLOB
-    res.properties[SHARED_ACCESS_PERMISSION] = permission
-    res.path = '/{0}'.format(resource_path)
-    res.request_url = 'https://{0}.blob.core.windows.net/{1}/{2}'.format(account_name, container_name, blob_name)
-    res = sas.sign_request(res)
-    return res.request_url
+    blob_url = BlobService(account_name, account_key)
+
+    url = blob_url.make_blob_url(container_name=container_name, blob_name=blob_name, sas_token=sas_token)
+
+    return url

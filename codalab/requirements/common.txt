@@ -2,7 +2,7 @@ Django==1.5.9
 alembic==0.6.7
 anyjson==0.3.3
 argparse
-azure==0.7.1
+# azure==0.7.1
 closure_linter
 django-allauth==0.11.1
 django-analytical==0.15.0
@@ -47,3 +47,7 @@ python-memcached==1.57
 
 #Extras added
 git+https://github.com/ikraft/django-userswitch.git
+
+# Added for python sdk
+git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
+
