@@ -4,13 +4,13 @@ Common utilities to interact with Azure Storage.
 
 import datetime
 import os.path
-import re, itertools
-from django.core.files.base import File
+import re
+import itertools
 from django.core.files.storage import Storage
 from django.core.exceptions import ImproperlyConfigured
-from io import RawIOBase, BufferedRWPair, BufferedWriter
+from io import RawIOBase
 
-#keep consistent path separators
+# keep consistent path separators
 pathjoin = lambda *args: os.path.join(*args).replace("\\", "/")
 
 try:
@@ -24,11 +24,6 @@ try:
         SharedAccessSignature,
         StorageServiceProperties,
     )
-    from azure.storage.sharedaccesssignature import (
-        # Permission,
-        SharedAccessSignature,
-        SharedAccessPolicy,
-        )
 
 except ImportError:
     raise ImproperlyConfigured(
