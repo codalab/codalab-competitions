@@ -27,7 +27,7 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
 
 
 from mimetypes import MimeTypes
@@ -42,8 +42,8 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from tasks import evaluate_submission
 
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
-from extra_views import generic
+from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
+
 try:
     import azure
     import azure.storage
@@ -59,6 +59,7 @@ User = get_user_model()
 
 
 class HomePageView(TemplateView):
+    """Template View for homepage."""
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
@@ -82,6 +83,7 @@ class LoginRequiredMixin(object):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 class UserSettingsView(LoginRequiredMixin, UpdateView):
+    """View to display User settings."""
     template_name = "web/my/settings.html"
     form_class = forms.UserSettingsForm
     model = User
@@ -115,6 +117,7 @@ def competition_index(request):
     return render(request, "web/competitions/index.html", {
         'competitions': competitions,
     })
+
 
 @login_required
 def my_index(request):
