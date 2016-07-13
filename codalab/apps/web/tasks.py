@@ -44,6 +44,9 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmissionMetadata)
 from apps.coopetitions.models import DownloadRecord
 
+import time
+# import cProfile
+
 logger = logging.getLogger(__name__)
 
 
@@ -199,6 +202,9 @@ def score(submission, job_id):
     submission: The CompetitionSubmission object.
     job_id: The job ID used to track the progress of the evaluation.
     """
+    # profile = cProfile.Profile()
+    start = time.time()
+    # profile.enable()
     # Loads the computation state.
     state = {}
     if len(submission.execution_key) > 0:
@@ -239,7 +245,9 @@ def score(submission, job_id):
     coopetition_zip_buffer = StringIO.StringIO()
     coopetition_zip_file = zipfile.ZipFile(coopetition_zip_buffer, "w")
 
-    for phase in submission.phase.competition.phases.all():
+    phases_list = submission.phase.competition.phases.all()
+
+    for phase in phases_list:
         coopetition_field_names = (
             "participant__user__username",
             "pk",
@@ -266,7 +274,7 @@ def score(submission, job_id):
         coopetition_zip_file.writestr('coopetition_phase_%s.txt' % phase.phasenumber, coopetition_csv.getvalue().encode('utf-8'))
 
     # Scores metadata
-    for phase in submission.phase.competition.phases.all():
+    for phase in phases_list:
         coopetition_zip_file.writestr(
             'coopetition_scores_phase_%s.txt' % phase.phasenumber,
             phase.competition.get_results_csv(phase.pk, include_scores_not_on_leaderboard=True).encode('utf-8')
@@ -367,9 +375,18 @@ def score(submission, job_id):
             "predict": False,
         }
     })
+
+    time_elapsed = time.time() - start
+    logger.info("It took: %f seconds to run before sending message" % time_elapsed)
     getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
+
+    time_elapsed = time.time() - start
+    logger.info("It took: %f seconds to run" % time_elapsed)
+    # profile.disable()
+    # profile.print_stats()
+
 
 class SubmissionUpdateException(Exception):
     """Defines an exception that occurs during the update of a CompetitionSubmission object."""
