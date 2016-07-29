@@ -7,6 +7,9 @@ from .helpers import send_mail
 
 
 class Forum(models.Model):
+    """
+    Base Forum model.
+    """
     competition = models.OneToOneField('web.Competition', unique=True, related_name="forum")
 
     @classmethod
@@ -17,6 +20,9 @@ class Forum(models.Model):
 
 
 class Thread(models.Model):
+    """
+    Base Thread Model. Allows user to keep track of a new post.
+    """
     forum = models.ForeignKey('forums.Forum', related_name="threads")
     date_created = models.DateTimeField()
     started_by = models.ForeignKey('authenz.ClUser')
@@ -35,6 +41,9 @@ class Thread(models.Model):
         return reverse('forum_thread_detail', kwargs={'forum_pk': self.forum.pk, 'thread_pk': self.pk })
 
     def notify_all_posters_of_new_post(self):
+        """
+        Notify users when a new post is created on the thread.
+        """
         users_in_thread = set(post.posted_by for post in self.posts.all())
 
         for user in users_in_thread:
@@ -51,6 +60,9 @@ class Thread(models.Model):
 
 
 class Post(models.Model):
+    """
+    Base Post model. Allows an authenticated user to post on a forum Thread.
+    """
     thread = models.ForeignKey('forums.Thread', related_name="posts")
     date_created = models.DateTimeField()
     posted_by = models.ForeignKey('authenz.ClUser')

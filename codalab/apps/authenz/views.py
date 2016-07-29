@@ -4,14 +4,10 @@ View-related customatizations for auth.
 
 import json
 import logging
-import traceback
-import re
 
-from django.conf import settings
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 
 from allauth.account.signals import user_signed_up

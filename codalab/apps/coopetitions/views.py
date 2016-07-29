@@ -8,7 +8,12 @@ from .models import Like, Dislike
 
 @login_required
 def like(request, submission_pk):
-    '''Likes a submission or unlikes if they already liked it'''
+    '''
+    Likes a submission or unlikes if they already liked it.
+
+    :param request: Http Request
+    :param submission_pk: Submission's primary key
+    '''
     try:
         submission = CompetitionSubmission.objects.get(pk=submission_pk)
     except CompetitionSubmission.DoesNotExist:
@@ -34,7 +39,12 @@ def like(request, submission_pk):
 
 @login_required
 def dislike(request, submission_pk):
-    '''Dislikes a submission or un-dislikes if they already disliked it'''
+    '''
+    Dislikes a submission or un-dislikes if they already disliked it.
+
+    :param request: Http Request
+    :param submission_pk: Submission's primary key
+    '''
     try:
         submission = CompetitionSubmission.objects.get(pk=submission_pk)
     except CompetitionSubmission.DoesNotExist:

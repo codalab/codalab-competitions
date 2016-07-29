@@ -360,6 +360,11 @@ class Base(Settings):
         }
     }
 
+    GRAPH_MODELS = {
+        'all_applications': True,
+        'group_models': True,
+    }
+
     USERSWITCH_OPTIONS = {
         'auth_backend': 'django.contrib.auth.backends.ModelBackend',
         'css_inline': 'position:fixed !important; bottom: 10px !important; left: 10px !important; opacity:0.50; z-index: 9999;',

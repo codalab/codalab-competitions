@@ -1,14 +1,10 @@
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, CreateView
 
-from apps.web.models import Competition
 from apps.web.views import LoginRequiredMixin
 from .forms import PostForm, ThreadForm
 from .models import Forum, Thread, Post
@@ -18,6 +14,9 @@ User = get_user_model()
 
 
 class ForumBaseMixin(object):
+    """
+    Base Forum View. Inherited by other views.
+    """
 
     def dispatch(self, *args, **kwargs):
         # Get object early so we can access it in multiple places
@@ -34,6 +33,9 @@ class ForumBaseMixin(object):
 
 
 class ForumDetailView(DetailView, ForumBaseMixin):
+    """
+    Shows the details of a particular Forum.
+    """
     model = Forum
     template_name = "forums/thread_list.html"
     pk_url_kwarg = 'forum_pk'
@@ -46,6 +48,9 @@ class RedirectToThreadMixin(object):
 
 
 class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
+    """
+    View to create new post topics.
+    """
     model = Post
     template_name = "forums/post_form.html"
     form_class = PostForm
@@ -63,6 +68,7 @@ class CreatePostView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, 
 
 
 class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin, CreateView):
+    """ View to post on current thread."""
     model = Thread
     template_name = "forums/post_form.html"
     form_class = ThreadForm
@@ -83,6 +89,7 @@ class CreateThreadView(ForumBaseMixin, RedirectToThreadMixin, LoginRequiredMixin
 
 
 class ThreadDetailView(ForumBaseMixin, DetailView):
+    """ View to read the details of a particular thread."""
     model = Thread
     template_name = "forums/thread_detail.html"
     pk_url_kwarg = 'thread_pk'
