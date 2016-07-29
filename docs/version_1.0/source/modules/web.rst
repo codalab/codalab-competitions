@@ -47,11 +47,51 @@ Models
 Views
 -----
 .. automodule:: apps.web.views
-	:members:
-	:exclude-members: HomePageView
 
-	.. autoclass:: HomePageView()
-		:exclude-members: get_context_data
+    .. autoclass:: CompetitionCheckMigrations()
+    .. autoclass:: CompetitionCompleteResultsDownload()
+    .. autoclass:: CompetitionDelete()
+    .. autoclass:: CompetitionDetailView()
+    .. autoclass:: CompetitionEdit()
+        :members:
+        :exclude-members: model
+    .. autoclass:: CompetitionPublicSubmission()
+    .. autoclass:: CompetitionPublicSubmissionByPhases()
+    .. autoclass:: CompetitionResultsDownload()
+    .. autoclass:: CompetitionResultsPage()
+    .. autoclass:: CompetitionSubmissionsPage()
+    .. autoclass:: HomePageView()
+    .. autoclass:: MyCompetitionParticipantView()
+    .. autoclass:: MyCompetitionSubmissionDetailedResults()
+    .. autoclass:: MyCompetitionSubmissionOutput()
+    .. autoclass:: MyCompetitionSubmissionsPage()
+    .. autoclass:: UserDetailView()
+    .. autoclass:: UserSettingsView()
+    .. autofunction:: datasets_delete_multiple()
+    .. autofunction:: download_dataset()
+    .. autofunction:: download_competition_yaml()
+    .. autofunction:: download_competition_bundle()
+    .. autofunction:: download_leaderboard_results()
+    .. autofunction:: submission_mark_as_failed()
+    .. autofunction:: submission_migrate()
+    .. autofunction:: submission_re_run()
+    .. autofunction:: submission_toggle_leaderboard()
+    .. autofunction:: submission_update_description()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
