@@ -865,11 +865,18 @@ class MySubmissionResultsPartial(TemplateView):
 
 
 class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
+    """
+    Makes a submission public.
+
+    .. note:
+
+        Admins, creator and submission's owner are able to published a submission.
+    """
     def get(self, request, *args, **kwargs):
         try:
             submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-
-            if request.user == submission.participant.user:
+            if request.user == submission.participant.user or request.user == submission.phase.competition.creator \
+                or request.user in submission.phase.competition.admins.all():
                 submission.is_public = not submission.is_public
                 submission.save()
                 return HttpResponse(submission.is_public)
