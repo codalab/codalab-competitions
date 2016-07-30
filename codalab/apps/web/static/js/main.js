@@ -76,7 +76,7 @@ var CodaLab;
             button.on('click', function(e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
-                    if(_this.options.validateBeforeFilePrompt()) {
+                    if (_this.options.validateBeforeFilePrompt()) {
                         _this.fileInput.click();
                     } else {
                         alert('Please fill in all required fields first!');
