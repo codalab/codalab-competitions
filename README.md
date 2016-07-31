@@ -9,7 +9,6 @@ To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 ## Documentation
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
-- [Linux Quickstart](https://github.com/codalab/codalab/wiki/Dev_Linux%20Quickstart)
 
 ## Community
 
