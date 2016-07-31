@@ -70,14 +70,14 @@
                             data-exception="{{ submission.exception_details|escape }}"
                         {% endif %}
                         data-description="{{ submission.description|default_if_none:""|escape }}"
-                        data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
-                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
-                        data-project-url="{{ submission_info.project_url|default_if_none:""|escape }}"
-                        data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
-                        data-team-name="{{ submission_info.team_name|default_if_none:""|escape }}"
-                        data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
-                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}"
-                        data-is-public="{% if submission_info.is_public %}True{% endif %}">
+                        data-method-name="{{ submission.method_name|default_if_none:""|escape }}"
+                        data-method-description="{{ submission.method_description|default_if_none:""|escape }}"
+                        data-project-url="{{ submission.project_url|default_if_none:""|escape }}"
+                        data-publication-url="{{ submission.publication_url|default_if_none:""|escape }}"
+                        data-team-name="{{ submission.team_name|default_if_none:""|escape }}"
+                        data-organization-or-affiliation="{{ submission.organization_or_affiliation|default_if_none:""|escape }}"
+                        data-bibtex="{{ submission.bibtex|default_if_none:""|escape }}"
+                        data-is-public="{% if submission.is_public %}True{% endif %}">
                         <td>{{ forloop.counter }}</td>
                         {% for column in columns %}
                             {% if column.name == 'filename' %}
@@ -116,7 +116,7 @@
 
 </div>
 {% endblock %}
-
+<script type="text/javascript">
 {% block js %}
 
     $(function () {
@@ -190,4 +190,5 @@
         });
     });
 {% endblock js %}
+</script>
 
