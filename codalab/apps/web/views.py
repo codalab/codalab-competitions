@@ -586,9 +586,13 @@ class CompetitionPublicSubmission(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
+
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
             context['competition'] = competition
+            for phase in competition.phases.all():
+                if phase.is_active:
+                    context['active_phase'] = phase
         except:
             context['error'] = traceback.print_exc()
 
@@ -861,11 +865,18 @@ class MySubmissionResultsPartial(TemplateView):
 
 
 class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
+    """
+    Makes a submission public.
+
+    .. note:
+
+        Admins, creator and submission's owner are able to published a submission.
+    """
     def get(self, request, *args, **kwargs):
         try:
             submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-
-            if request.user == submission.participant.user:
+            if request.user == submission.participant.user or request.user == submission.phase.competition.creator \
+                or request.user in submission.phase.competition.admins.all():
                 submission.is_public = not submission.is_public
                 submission.save()
                 return HttpResponse(submission.is_public)

@@ -159,7 +159,18 @@
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
     <script src="{{ STATIC_URL }}js/vendor/select2/select2-forked.js"></script>
     <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
+
+    <!--js without compressing, use on dev env-->
+    {% if is_dev %}
+    <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
+    {% endif %}
+
+    <!--Compress version, use on staging and production server-->
+    {% if not is_dev%}
     <script src="{{ STATIC_URL }}codalab.min.js"></script>
+    {% endif %}
 
     <script type="text/javascript">
 

@@ -23,6 +23,7 @@
 <input type="hidden" id="competitionId" value="{{competition.id}}" />
     <div class="tab-pane public_submissions">
         <div class="tab-inner">
+        <!-- This will buttons depending on the number of phases -->
                 {%include "web/competitions/_public_submissions_phases.html"%}
         </div>
     </div>
@@ -30,35 +31,8 @@
 
 {% block jsincludes %}
 <script>
-$(function(){
-/******************************************************************
-Public submissions by phases
-*******************************************************************/
-    $('#results_phase_submissions .btn').each(function(e,index){
-        $(this).click(function(){
-            $(this).addClass('selected');
-            /*Getting the phase here */
-            var phaseId = $.trim($(this).attr('id').replace('public_results_phase_', ''));
-            $('#results_phase_submissions .btn').removeClass('selected');
-            $('#results_phase_submissions .btn').removeClass('active');
-            $(this).addClass('selected');
-            var competitionId = $('#competitionId').val();
-            var url = '/competitions/' + competitionId + '/public_submissions/' +  phaseId;
-            $('.public_submission_results').html('').append("<div class='competitionPreloader'></div>").children().css({ 'top': '300px', 'display': 'block' });
-            $.ajax({
-                type: 'GET',
-                url: url,
-                cache: false,
-                success: function(data){
-                    $('.public_submission_results').html('').append(data);
-
-                },
-                error: function(xhr, status, err){
-                    $('.public_submission_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
-                }
-            })
-        });
-    });
-});
+// This will happen during first load.
+var competitionId = $('#competitionId').val();
+Competition.getPublicPhaseSubmisisons(competitionId, {{ active_phase.id }});
 </script>
 {% endblock %}
