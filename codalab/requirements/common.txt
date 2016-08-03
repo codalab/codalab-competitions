@@ -17,13 +17,13 @@ django-extensions>=1.1.1
 django-extra-views==0.6.3
 django-filter==0.7
 django-guardian==1.1.1
-django-haystack
+django-haystack==2.4.0
 django-js-reverse>=0.2.0
 django-mptt==0.5.5
-django-nose
+django-nose==1.4.1
 django-oauth-toolkit==0.6.1
 django-storages==1.1.8
-django-tinymce
+django-tinymce==2.0.5
 djangorestframework==2.3.6
 mock==1.0.1
 oauthlib==0.6.1
