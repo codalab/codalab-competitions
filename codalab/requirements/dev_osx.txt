@@ -1,0 +1,8 @@
+-r common.txt
+supervisor==3.0
+uWSGI==2.0.11.2
+pycrypto==2.6
+MySQL-python
+# Use sckoo@stanford.edu's patched argcomplete, until pull request has been accepted
+# https://github.com/kislyuk/argcomplete/pull/118
+git+https://github.com/kashizui/argcomplete.git@allow-overridden-subparsersaction
