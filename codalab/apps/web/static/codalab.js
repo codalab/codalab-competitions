@@ -524,7 +524,7 @@ var Competition;
                 elem.find('.submission_method_name').html('<b>Method name:</b> ' + $(nTr).attr('data-method-name'));
             }
             if ($(nTr).attr('data-method-description')) {
-                elem.find('.submission_method_description').html('<b>Method description:</b><br><pre>' + $(nTr).attr('data-method-description') + '</pre>');
+                elem.find('.submission_method_description').html('<b>Method description:</b><br><p>' + $(nTr).attr('data-method-description') + '</p>');
             }
             if ($(nTr).attr('data-project-url')) {
                 elem.find('.submission_project_url').html('<b>Project URL:</b> <a href="' + $(nTr).attr('data-project-url') + '">' + $(nTr).attr('data-project-url') + '</a>');
