@@ -27,7 +27,7 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
-from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
+from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
 
 
 from mimetypes import MimeTypes
@@ -35,15 +35,14 @@ from mimetypes import MimeTypes
 from apps.web import forms
 from apps.web import models
 from apps.web import tasks
-from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from tasks import evaluate_submission
 
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
-from extra_views import generic
+from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
+
 try:
     import azure
     import azure.storage
@@ -59,6 +58,7 @@ User = get_user_model()
 
 
 class HomePageView(TemplateView):
+    """Template View for homepage."""
     template_name = "web/index.html"
 
     def get_context_data(self, **kwargs):
@@ -81,7 +81,9 @@ class LoginRequiredMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
+
 class UserSettingsView(LoginRequiredMixin, UpdateView):
+    """View to display User settings."""
     template_name = "web/my/settings.html"
     form_class = forms.UserSettingsForm
     model = User
@@ -90,10 +92,21 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+
 ############################################################
 # Competitions: template views
 
 def competition_index(request):
+    """
+    View that list all competitions.
+
+    .. note::
+
+        Two different queries:
+            - is_active
+            - is_finished
+
+    """
     query = request.GET.get('q')
     is_active = request.GET.get('is_active', False)
     is_finished = request.GET.get('is_finished', False)
@@ -116,8 +129,16 @@ def competition_index(request):
         'competitions': competitions,
     })
 
+
 @login_required
 def my_index(request):
+    """
+    View that lists competitions created by an user.
+
+    .. note::
+
+        - User needs to be authenticated.
+    """
     template = loader.get_template("web/my/index.html")
     try:
         denied = models.ParticipantStatus.objects.get(codename=models.ParticipantStatus.DENIED)
@@ -131,17 +152,19 @@ def my_index(request):
         'my_competitions': my_competitions,
         'competitions_im_in': list(request.user.participation.all().exclude(status=denied).select_related('creator')),
         'published_competitions': published_competitions,
-        #'my_datasets': models.OrganizerDataSet.objects.filter()
     }
     return HttpResponse(template.render(RequestContext(request, context_dict)))
+
 
 def sort_data_table(request, context, list):
     context['order'] = order = request.GET.get('order') if 'order' in request.GET else 'id'
     context['direction'] = direction = request.GET.get('direction') if 'direction' in request.GET else 'asc'
     reverse = direction == 'desc'
+
     def sortkey(x):
         return x[order] if order in x and x[order] is not None else ''
     list.sort(key=sortkey, reverse=reverse)
+
 
 #
 # Competition Views
@@ -151,6 +174,7 @@ class PhasesInline(InlineFormSet):
     model = models.CompetitionPhase
     form_class = forms.CompetitionPhaseForm
     extra = 0
+
 
 class PagesInline(InlineFormSet):
     model = models.Page
@@ -168,7 +192,9 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
     model = models.CompetitionDefBundle
     template_name = 'web/competitions/upload_competition.html'
 
+
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):
+    """ View to edit a competition"""
     model = models.Competition
     form_class = forms.CompetitionForm
     inlines = [PagesInline, PhasesInline, LeaderboardInline]
@@ -251,7 +277,9 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
 
         return super(CompetitionEdit, self).post(request, *args, **kwargs)
 
+
 class CompetitionDelete(LoginRequiredMixin, DeleteView):
+    """ View to Delete a competition."""
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
     success_url = '/my/#manage'
@@ -319,6 +347,9 @@ def competition_message_participants(request, competition_id):
 
 
 class UserDetailView(DetailView):
+    """
+    View to see User Details.
+    """
     model = User
     template_name = 'web/user_detail.html'
 
@@ -339,6 +370,7 @@ class UserDetailView(DetailView):
 
 
 class CompetitionDetailView(DetailView):
+    """Competiton Detail view."""
     queryset = models.Competition.objects.all()
     model = models.Competition
     template_name = 'web/competitions/view.html'
@@ -431,15 +463,17 @@ class CompetitionDetailView(DetailView):
 
 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
-    # Serves the table of submissions in the Participate tab of a competition.
-    # Requires an authenticated user who is an approved participant of the competition.
+    """Serves the table of submissions in the Participate tab of a competition.
+
+    .. note::
+        Requires an authenticated user who is an approved participant of the competition."""
     template_name = 'web/competitions/_submit_results_page.html'
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
-        #if self.request.user in [x.user for x in competition.participants.all()]:
+
         if competition.participants.filter(user__in=[self.request.user]).exists():
             participant = competition.participants.get(user=self.request.user)
             if participant.status.codename == models.ParticipantStatus.APPROVED:
@@ -520,7 +554,7 @@ def competition_submission_metadata_page(request, competition_id, phase_id):
 
 
 class CompetitionResultsPage(TemplateView):
-    # Serves the leaderboards in the Results tab of a competition.
+    """Serves the leaderboards in the Results tab of a competition."""
     template_name = 'web/competitions/_results_page.html'
 
     def get_context_data(self, **kwargs):
@@ -546,18 +580,18 @@ class CompetitionResultsPage(TemplateView):
 
 
 class CompetitionPublicSubmission(TemplateView):
-    '''
-    Returns the public  submissions of a competition
-    1. Gets the competiton first base on the id
-    2. Return competition as part of the context. It will be needed on the template
-    '''
+    ''' Returns the public  submissions of a competition.'''
     template_name = 'web/competitions/public_submissions.html'
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
+
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
             context['competition'] = competition
+            for phase in competition.phases.all():
+                if phase.is_active:
+                    context['active_phase'] = phase
         except:
             context['error'] = traceback.print_exc()
 
@@ -565,13 +599,12 @@ class CompetitionPublicSubmission(TemplateView):
 
 
 class CompetitionPublicSubmissionByPhases(TemplateView):
-    '''
-    Returns the submissions of a specif phase for a specifi competition
-    1. We need the competition pk/id
-    2. We need to phase competion pk/id
-    3. We need to return public submissions
-    4. We are using a Ajax request for this. Look into 'public_submissions.html' for more info
-    5. Then we will append the results to '_public_submissions_phases.html'. Look at the file for more info
+    '''Returns the submissions of a specific phase for a competition.
+
+    .. note::
+
+        - We are using a Ajax request for this. Look into 'public_submissions.html' for more info
+        - Results will append to '_public_submissions_phases.html'. Look at the file for more info
     '''
     template_name = 'web/competitions/public_submissions_phase.html'
 
@@ -603,6 +636,7 @@ class CompetitionPublicSubmissionByPhases(TemplateView):
 
 
 class CompetitionCheckMigrations(View):
+    """View to check future migrations."""
     def get(self, request, *args, **kwargs):
         competitions = models.Competition.objects.filter(is_migrating=False)
 
@@ -613,6 +647,7 @@ class CompetitionCheckMigrations(View):
 
 
 class CompetitionResultsDownload(View):
+    """View to download the results of a competition."""
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
@@ -625,6 +660,7 @@ class CompetitionResultsDownload(View):
 
 
 class CompetitionCompleteResultsDownload(View):
+    """Views to download a complete version of competitions results."""
 
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
@@ -689,12 +725,15 @@ class CompetitionCompleteResultsDownload(View):
         response["Content-Disposition"] = "attachment; filename=competition_results.csv"
         return response
 
-### Views for My Codalab
+
+# Views for My Codalab
 
 class MyIndex(LoginRequiredMixin):
     pass
 
+
 class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
+    """View that returns all participants from a competition."""
     queryset = models.CompetitionParticipant.objects.all()
     template_name = 'web/my/participants.html'
 
@@ -759,7 +798,8 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return self.queryset.filter(competition=self.kwargs.get('competition_id'))
 
-## Partials
+
+# Partials
 
 class CompetitionIndexPartial(TemplateView):
 
@@ -782,6 +822,7 @@ class CompetitionIndexPartial(TemplateView):
         context['competitions'] = competitions
         return context
 
+
 class MyCompetitionsManagedPartial(ListView):
     model = models.Competition
     template_name = 'web/my/_managed.html'
@@ -789,6 +830,7 @@ class MyCompetitionsManagedPartial(ListView):
 
     def get_queryset(self):
         return self.queryset.filter(creator=self.request.user)
+
 
 class MyCompetitionsEnteredPartial(ListView):
     model = models.CompetitionParticipant
@@ -798,8 +840,10 @@ class MyCompetitionsEnteredPartial(ListView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
+
 class MyCompetitionDetailsTab(TemplateView):
     template_name = 'web/my/_tab.html'
+
 
 class MySubmissionResultsPartial(TemplateView):
     template_name = 'web/my/_submission_results.html'
@@ -820,11 +864,18 @@ class MySubmissionResultsPartial(TemplateView):
 
 
 class MyCompetitionSubmissionToggleMakePublic(LoginRequiredMixin, View):
+    """
+    Makes a submission public.
+
+    .. note:
+
+        Admins, creator and submission's owner are able to published a submission.
+    """
     def get(self, request, *args, **kwargs):
         try:
             submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
-
-            if request.user == submission.participant.user:
+            if request.user == submission.participant.user or request.user == submission.phase.competition.creator \
+                or request.user in submission.phase.competition.admins.all():
                 submission.is_public = not submission.is_public
                 submission.save()
                 return HttpResponse(submission.is_public)
@@ -881,20 +932,26 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
                 msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
                 return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
+
 class MyCompetitionSubmissionDetailedResults(TemplateView):
     """
     This view serves the files associated with a submission.
     """
     model = models.CompetitionSubmission
     template_name = 'web/my/detailed_results.html'
+
     def get(self, request, *args, **kwargs):
         submission = models.CompetitionSubmission.objects.get(pk=kwargs.get('submission_id'))
         context_dict = {'id': kwargs.get('submission_id'), 'user': submission.participant.user, 'filename':submission.detailed_results_file.name}
         return render_to_response('web/my/detailed_results.html', context_dict, RequestContext(request))
 
+
 class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
-    # Serves the table of submissions in the submissions competition administration.
-    # Requires an authenticated user who is an administrator of the competition.
+    """Serves the table of submissions in the submissions competition administration.
+
+    .. note::
+
+        Requires an authenticated user who is an administrator of the competition."""
     queryset = models.Competition.objects.all()
     model = models.Competition
     template_name = 'web/my/submissions.html'
@@ -1001,6 +1058,7 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
         return context
 
+
 class VersionView(TemplateView):
     template_name = 'web/project_version.html'
 
@@ -1012,6 +1070,7 @@ class VersionView(TemplateView):
         ctx['commit_hash'] = out
         tasks.echo("version is " + out)
         return ctx
+
 
 class OrganizerDataSetListView(LoginRequiredMixin, ListView):
     model = models.OrganizerDataSet
@@ -1115,6 +1174,11 @@ class SubmissionDelete(LoginRequiredMixin, DeleteView):
 
 
 def download_dataset(request, dataset_key):
+    """
+    Downloads a dataset that belongs to authenticated user
+
+    :param dataset_key: Primary key for dataset
+    """
     try:
         dataset = models.OrganizerDataSet.objects.get(key=dataset_key)
     except ObjectDoesNotExist:
@@ -1165,6 +1229,11 @@ def download_dataset(request, dataset_key):
 
 
 def datasets_delete_multiple(request):
+    """
+    Deletes multiple datasets.
+
+    :param id: ids of datasets to be deleted
+    """
     ids_to_delete = request.POST.getlist("ids_to_delete[]", [])
 
     for dataset_id in ids_to_delete:
@@ -1178,6 +1247,16 @@ def datasets_delete_multiple(request):
 
 
 def download_competition_yaml(request, competition_pk):
+    """
+    Downloads competition yaml file.
+
+    :param competition_pk: Competition primary key.
+
+    .. note::
+
+        User needs to be creator of admin of competition.
+
+    """
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
 
@@ -1193,6 +1272,15 @@ def download_competition_yaml(request, competition_pk):
 
 @login_required
 def download_competition_bundle(request, competition_pk):
+    """
+    Downloads competition bundle.
+
+    :param competition_pk: Competition's primary key.
+
+    .. note::
+
+        User needs to be creator of admin of competition.
+    """
     if not request.user.is_staff:
         return HttpResponse(status=403)
 
@@ -1263,9 +1351,14 @@ def download_competition_bundle(request, competition_pk):
         return HttpResponse(msg, status=400, content_type='text/plain')
 
 
-
 @login_required
 def download_leaderboard_results(request, competition_pk, phase_pk):
+    """
+    Downloads the resutls from the leaderboard table.
+
+    :param competition_pk: Competition's primary key
+    :param phase_pk: Phase's primary key
+    """
     try:
         competition = models.Competition.objects.get(pk=competition_pk)
         if competition.creator != request.user and request.user not in competition.admins.all():
@@ -1345,6 +1438,12 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
 
 @login_required
 def submission_update_description(request, submission_pk):
+    """
+    Updates the description of submission.
+
+    :param submission_pk: Submission's primary key.
+
+    """
     try:
         submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
         if submission.participant.user != request.user:
@@ -1358,6 +1457,12 @@ def submission_update_description(request, submission_pk):
 
 @login_required
 def submission_mark_as_failed(request, submission_pk):
+    """
+    Marks a submission as failed.
+
+    :param submission_pk: Submission's primary key.
+
+    """
     if request.method == "POST":
         try:
             submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
@@ -1374,6 +1479,11 @@ def submission_mark_as_failed(request, submission_pk):
 
 @login_required
 def submission_toggle_leaderboard(request, submission_pk):
+    """
+    Push a submission to the Leaderboard.
+
+    :param submission_pk: Submission's primary key.
+    """
     if request.method == "POST":
         try:
             submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
@@ -1405,6 +1515,11 @@ def submission_toggle_leaderboard(request, submission_pk):
 
 @login_required
 def submission_re_run(request, submission_pk):
+    """
+    Allows to re-submit a submission.
+
+    :param submission_pk: Submission's primary key.
+    """
     if request.method == "POST":
         try:
             submission = models.CompetitionSubmission.objects.get(pk=submission_pk)
@@ -1430,7 +1545,9 @@ def submission_re_run(request, submission_pk):
 @login_required
 def submission_migrate(request, pk):
     '''
-    Will allow to migrate to submissions manually to next phase
+    Allow to migrate to submissions manually to next phase.
+
+    :param submission_pk: Submission's primary key.
     '''
     if request.method == "POST":
         try:
@@ -1457,35 +1574,3 @@ def submission_migrate(request, pk):
         except models.CompetitionSubmission.DoesNotExist:
             raise Http404()
     raise Http404()
-
-############################################################
-# Worksheets: template views
-
-
-class BundleDetailView(TemplateView):
-    """
-    Displays details for a bundle.
-    """
-    template_name = 'web/bundles/detail.html'
-    def get_context_data(self, **kwargs):
-        context = super(BundleDetailView, self).get_context_data(**kwargs)
-        uuid = kwargs.get('uuid')
-        service = BundleService(self.request.user)
-        bundle_info = service.get_bundle_info(uuid)
-        if bundle_info:
-            context['bundle'] = bundle_info
-            context['bundle_title'] = bundle_info.get('metadata', {}).get('name', '')
-        else:
-            context['error'] = 'Invalid or inaccessible bundle uuid: ' + uuid
-        return context
-
-def BundleDownload(request, uuid):
-    '''
-    Return a stream with the contents of the bundle (zip file if necessary).
-    This is the same code as BundleFileContentApi.
-    '''
-    service = BundleService(request.user)
-    stream, name, content_type = service.read_target((uuid, ''))
-    response = StreamingHttpResponse(stream, content_type=content_type)
-    response['Content-Disposition'] = 'filename="%s"' % name
-    return response

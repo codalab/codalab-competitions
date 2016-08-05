@@ -1,6 +1,6 @@
 //// THIS FILE IS AUTO-GENERATED - DO NOT EDIT!
 
-//// scripts/../codalab/apps/web/static/js/app.js
+//// ../../../../scripts/../codalab/apps/web/static/js/app.js
 (function($, window, undefined) {
   'use strict';
 
@@ -40,20 +40,9 @@
 
 })(jQuery, this);
 
-//// scripts/../codalab/apps/web/static/js/Competition.js
+//// ../../../../scripts/../codalab/apps/web/static/js/Competition.js
 var Competition;
 (function(Competition) {
-
-    // Competition.invokePhaseButtonOnOpen = function(id) {
-    //     var btn = $('#' + id + ' .btn.selected')[0];
-    //     if (btn === undefined) {
-    //         btn = $('#' + id + ' .btn.active')[0];
-    //         if (btn === undefined) {
-    //             btn = $('#' + id + ' .btn')[0];
-    //         }
-    //     }
-    //     btn.click();
-    // };
 
     function decorateLeaderboardButton(btn, submitted) {
         if ($('#disallow_leaderboard_modifying').length > 0) {
@@ -136,7 +125,7 @@ var Competition;
                         allowedFileTypes: ['application/zip', 'application/x-zip-compressed'],
                         maxFileSizeInBytes: 1024 * 1024 * 1024,
                         validateBeforeFilePrompt: function() {
-                            if($('#submission_method_name').length == 0) {
+                            if ($('#submission_method_name').length == 0) {
                                 // if we dont have submision method field, just skip this check
                                 return true;
                             }
@@ -271,6 +260,28 @@ var Competition;
                 $('.competition_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
             }
         });
+    };
+
+    Competition.getPublicPhaseSubmisisons = function(competitionId, phaseId) {
+        var public_result_phase = 'public_results_phase_' + phaseId;
+        $('#results_phase_submissions .btn').removeClass('selected').removeClass('active');
+        $('#' + public_result_phase).addClass('active').addClass('selected');
+        var url = '/competitions/' + competitionId + '/public_submissions/' + phaseId;
+        $('.public_submission_results').html('').append("<div class='competitionPreloader'></div>").children().css({ 'top': '300px', 'display': 'block' });
+        $.ajax({
+            type: 'GET',
+            url: url,
+            cache: false,
+            success: function(data) {
+                // Append data on request success.
+                $('.public_submission_results').html('').append(data);
+
+            },
+            error: function(xhr, status, err) {
+                $('.public_submission_results').html("<div class='alert alert-error'>An error occurred. Please try refreshing the page.</div>");
+            }
+        });
+
     };
 
     Competition.registationCanProceed = function() {
@@ -454,11 +465,11 @@ var Competition;
 
         $.get('/my/competition/submission/' + submissionId + '/toggle_make_public')
             .success(function(data) {
-                var isPublic = data == 'True' ? 'private':'public';
+                var isPublic = data == 'True' ? 'private' : 'public';
                 linkElement.html('Make your submission ' + isPublic);
             })
             .error(function() {
-                alert('Error making submission public, is your Internet connection working?')
+                alert('Error making submission public, is your Internet connection working?');
             });
 
         return false;
@@ -475,17 +486,17 @@ var Competition;
         var submission_id = $(this).attr('submission-id');
         var new_description = $(this).parent().find('textarea[name="updated_description"]').val() || '';
         // Escape html
-        new_description = new_description.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        new_description = new_description.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         $.post('/competitions/update_description/' + submission_id, {'updated_description': new_description})
             .success(function() {
-                $(element).parent().find('.submission_description').html("<b>Description:</b> <br><pre>" + new_description + "</pre>");
+                $(element).parent().find('.submission_description').html('<b>Description:</b> <br><pre>' + new_description + '</pre>');
                 $(element).parent().find('textarea[name="updated_description"]').val('').hide();
                 $(element).parent().find('.update_description_btn').removeClass('hide').show();
                 $(element).hide();
             })
             .error(function() {
-                alert('Error updating description, is your Internet connection working?')
+                alert('Error updating description, is your Internet connection working?');
             });
     };
 
@@ -531,7 +542,7 @@ var Competition;
                 elem.find('.traceback').html('Error: <br><pre>' + $(nTr).attr('data-exception') + '</pre>');
             }
 
-            var isPublic = $(nTr).attr('data-is-public') ? 'private':'public';
+            var isPublic = $(nTr).attr('data-is-public') ? 'private' : 'public';
             elem.find('.public_link').html('Make your submission ' + isPublic);
             elem.find('.public_link').click(Competition.toggleSubmissionPublic);
             elem.find('.public_link').attr('submission-id', nTr.id);
@@ -541,7 +552,7 @@ var Competition;
 
             elem.find('.update_description_btn').click(function() {
                 var current_text = $(this).parent().find('.submission_description').text();
-                if(current_text.indexOf('Description: ') !== -1) {
+                if (current_text.indexOf('Description: ') !== -1) {
                     current_text = current_text.substr('Description: '.length);
                 } else {
                     current_text = '';
@@ -678,10 +689,6 @@ var Competition;
                 });
             });
 
-            // $("a[href='#participate-submit_results']").click(function(obj) {
-            //     Competition.invokePhaseButtonOnOpen('submissions_phase_buttons');
-            // });
-
             $('#results_phase_buttons .btn').each(function(e, index) {
                 $(this).click(function() {
                     var phaseId = $.trim($(this).attr('id').replace('results_phase_', ''));
@@ -692,12 +699,13 @@ var Competition;
                 });
             });
 
-            // $('#Results').click(function(obj) {
-            //     Competition.invokePhaseButtonOnOpen('results_phase_buttons');
-            // });
+            $('#results_phase_submissions .btn').click(function(e) {
+                var phaseId = $.trim($(this).attr('id').replace('public_results_phase_', ''));
+                var competitionId = $('#competitionId').val();
+                Competition.getPublicPhaseSubmisisons(competitionId, phaseId);
+            });
 
-            // This helps make sections appear with Foundation
-            // $(this).foundation('section', 'reflow');
+
 
             $('.top-bar-section ul > li').removeClass('active');
 
@@ -764,7 +772,7 @@ var Competition;
     };
 })(Competition || (Competition = {}));
 
-//// scripts/../codalab/apps/web/static/js/main.js
+//// ../../../../scripts/../codalab/apps/web/static/js/main.js
 // This contains the required functions and global vars used
 // for validation, security and authentication mostly for API use
 
@@ -843,7 +851,7 @@ var CodaLab;
             button.on('click', function(e) {
                 var disabled = button.hasClass(_this.options.disabledClassName);
                 if (!disabled) {
-                    if(_this.options.validateBeforeFilePrompt()) {
+                    if (_this.options.validateBeforeFilePrompt()) {
                         _this.fileInput.click();
                     } else {
                         alert('Please fill in all required fields first!');

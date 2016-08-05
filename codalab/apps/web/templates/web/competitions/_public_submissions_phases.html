@@ -2,11 +2,7 @@
 <!--It will go with public submission view -->
 <div id="results_phase_submissions">
 	{% for phase in competition.phases.all %}
-		{% if phase.is_active %}
-			<button class="btn active phase-btn-{{ phase.color }}" id="public_results_phase_{{phase.id}}">{{phase.label}}</button>
-		{% else %}
 			<button class="btn phase-btn-{{ phase.color }}" id="public_results_phase_{{phase.id}}">{{phase.label}}</button>
-		{% endif %}
 	{% endfor %}
 </div>
 <!--This div will de used to append the result of the Ajax call -->

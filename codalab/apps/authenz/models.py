@@ -3,6 +3,9 @@ from django.contrib.auth import models as auth_models
 
 
 class ClUser(auth_models.AbstractUser):
+    """
+    Base User model
+    """
     # Notification settings
     participation_status_updates = models.BooleanField(default=True)
     organizer_status_updates = models.BooleanField(default=True)

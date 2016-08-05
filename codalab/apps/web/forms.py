@@ -132,21 +132,22 @@ class LeaderboardForm(forms.ModelForm):
             'sorting',
         )
 
-    def save(self, commit=True):
-        '''
-        Save method override
-        #TODO, look into refactoring to avoid overriding
-        '''
-        instance = super(LeaderboardForm, self).save(commit=False)
+    # TODO, refactor save method
+    # def save(self, commit=True):
+    #     '''
+    #     Save method override
+    #     #TODO, look into refactoring to avoid overriding
+    #     '''
+    #     instance = super(LeaderboardForm, self).save(commit=False)
 
-        submission_score_set = SubmissionScoreSet.objects.get(competition=instance.competition, key=instance.key)
-        submission_score_set.label = instance.label
-        submission_score_set.save()
+    #     submission_score_set = SubmissionScoreSet.objects.get(competition=instance.competition, key=instance.key)
+    #     submission_score_set.label = instance.label
+    #     submission_score_set.save()
 
-        if commit:
-            instance.save()
+    #     if commit:
+    #         instance.save()
 
-        return instance
+    #     return instance
 
 class CompetitionDatasetForm(forms.ModelForm):
     class Meta:

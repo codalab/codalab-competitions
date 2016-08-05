@@ -1,22 +1,17 @@
 import csv
 import datetime
-import django.dispatch
 import exceptions
 import io
 import json
 import logging
 import operator
 import os
-import random
-import string
 import StringIO
-import tempfile
-import time
 import uuid
 import yaml
 import zipfile
 
-from os.path import abspath, basename, dirname, join, normpath, split
+from os.path import split
 
 from django.conf import settings
 from django.contrib.contenttypes import generic
@@ -25,15 +20,13 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.files.storage import get_storage_class
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
 from django.db.models import Max
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.dateparse import parse_datetime
-from django.utils.text import slugify
 from django.utils.timezone import now
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -50,8 +43,8 @@ from apps.coopetitions.models import DownloadRecord
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
 
-## Needed for computation service handling
-## Hack for now
+# Needed for computation service handling
+# Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 try:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
@@ -66,19 +59,41 @@ except:
     BundleStorage = StorageClass()
     PublicStorage = StorageClass()
 
+
 # Competition Content
 class ContentVisibility(models.Model):
+    """
+    Base Content Visibility model. Sets the visibility of :class:`.ContentCategory` and :class:`.DefaultContentItem`
+
+    .. note::
+
+        Three different visibility modes:
+            - Hidden.
+            - Visible.
+            - Always Visible.
+    """
     name = models.CharField(max_length=20)
-    codename = models.SlugField(max_length=20,unique=True)
-    classname = models.CharField(max_length=30,null=True,blank=True)
+    codename = models.SlugField(max_length=20, unique=True)
+    classname = models.CharField(max_length=30, null=True, blank=True)
 
     def __unicode__(self):
         return self.name
 
+
 class ContentCategory(MPTTModel):
+    """
+    Base Content category model.
+
+    .. note::
+
+        Three defaults content category:
+            - Learn the Details.
+            - Participate.
+            - Results.
+    """
     parent = TreeForeignKey('self', related_name='children', null=True, blank=True)
     name = models.CharField(max_length=100)
-    codename = models.SlugField(max_length=100,unique=True)
+    codename = models.SlugField(max_length=100, unique=True)
     visibility = models.ForeignKey(ContentVisibility)
     is_menu = models.BooleanField(default=True)
     content_limit = models.PositiveIntegerField(default=1)
@@ -86,50 +101,80 @@ class ContentCategory(MPTTModel):
     def __unicode__(self):
         return self.name
 
+
 class DefaultContentItem(models.Model):
+    """
+    Base Default Content Item model. It sets the children of :class:`.ContentCategory`
+
+    .. note::
+
+        Default Content Items are:
+            - Overview.
+            - Evaluate.
+            - Terms and Conditions.
+            - Get Data.
+            - Submit / View Results.
+    """
     category = TreeForeignKey(ContentCategory)
     label = models.CharField(max_length=100)
-    codename = models.SlugField(max_length=100,unique=True)
+    codename = models.SlugField(max_length=100, unique=True)
     rank = models.IntegerField(default=0)
     required = models.BooleanField(default=False)
-    initial_visibility =  models.ForeignKey(ContentVisibility)
+    initial_visibility = models.ForeignKey(ContentVisibility)
 
     def __unicode__(self):
         return self.label
 
+
 class PageContainer(models.Model):
-    name = models.CharField(max_length=200,blank=True)
+    """
+    Base class to represent a page container. Only one container per :class:`.Competition`.
+    """
+    name = models.CharField(max_length=200, blank=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     owner = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        unique_together = (('object_id','content_type'),)
+        unique_together = (('object_id', 'content_type'),)
 
     def __unicode__(self):
         return self.name
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         self.name = "%s - %s" % (self.owner.__unicode__(), self.name if self.name else str(self.pk))
-        return super(PageContainer,self).save(*args,**kwargs)
+        return super(PageContainer, self).save(*args, **kwargs)
+
 
 # External Files (These might be able to be removed, per a discussion 2013.7.29)
 class ExternalFileType(models.Model):
+    """
+    Class representing a external file type.
+    """
     name = models.CharField(max_length=20)
-    codename = models.SlugField(max_length=20,unique=True)
+    codename = models.SlugField(max_length=20, unique=True)
 
     def __unicode__(self):
         return self.name
 
+
+# End External File Models
 class ExternalFileSource(models.Model):
+    """
+    Class representing a external file Source.
+    """
     name = models.CharField(max_length=50)
-    codename = models.SlugField(max_length=50,unique=True)
-    service_url = models.URLField(null=True,blank=True)
+    codename = models.SlugField(max_length=50, unique=True)
+    service_url = models.URLField(null=True, blank=True)
 
     def __unicode__(self):
         return self.name
+
 
 class ExternalFile(models.Model):
+    """
+    Class representing a External File.
+    """
     type = models.ForeignKey(ExternalFileType)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL)
     name = models.CharField(max_length=100)
@@ -138,10 +183,21 @@ class ExternalFile(models.Model):
 
     def __unicode__(self):
         return self.name
-# End External File Models
+
 
 # Join+ Model for Participants of a competition
 class ParticipantStatus(models.Model):
+    """
+    Model representing the status of a competition's participant
+
+    .. note::
+
+        There are four different status:
+            - Unknown.
+            - Denied.
+            - Approved.
+            - Pending.
+    """
     UNKNOWN = 'unknown'
     DENIED = 'denied'
     APPROVED = 'approved'
@@ -153,8 +209,9 @@ class ParticipantStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Competition(models.Model):
-    """ This is the base competition. """
+    """ Model representing a competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
@@ -204,7 +261,7 @@ class Competition(models.Model):
     def __unicode__(self):
         return self.title
 
-    def set_owner(self,user):
+    def set_owner(self, user):
         return assign_perm('view_task', user, self)
 
     def save(self, *args, **kwargs):
@@ -218,7 +275,7 @@ class Competition(models.Model):
         # Do the real save
         # cache bust TODO.
         # cache.set("c(id)_one at a time", None, 30)
-        return super(Competition,self).save(*args,**kwargs)
+        return super(Competition, self).save(*args, **kwargs)
 
     @cached_property
     def image_url(self):
@@ -243,112 +300,9 @@ class Competition(models.Model):
         if type(self.end_date) is datetime.datetime:
             return True if self.end_date is None else self.end_date > now()
 
-    def do_phase_migration(self, current_phase, last_phase):
-        '''
-        Does the actual migrating of submissions from last_phase to current_phase
-
-        current_phase: The new phase object we are entering
-        last_phase: The phase object to transfer submissions from
-        '''
-        logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
-
-        if last_phase.submissions.filter(status__codename=CompetitionSubmissionStatus.RUNNING).exists():
-            logger.info('Some submissions still marked as processing for competition pk=%s' % self.pk)
-            self.is_migrating_delayed = True
-            self.save()
-            return
-        else:
-            logger.info("No submissions running for competition pk=%s" % self.pk)
-
-        logger.info('Doing phase migration on competition pk=%s from phase: %s to phase: %s' %
-                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
-
-        if self.is_migrating:
-            logger.info('Trying to migrate competition pk=%s, but it is already being migrated!' % self.pk)
-            return
-
-        self.is_migrating = True
-        self.save()
-
-        try:
-            submissions = []
-            leader_board = PhaseLeaderBoard.objects.get(phase=last_phase)
-
-            leader_board_entries = PhaseLeaderBoardEntry.objects.filter(board=leader_board)
-            for submission in leader_board_entries:
-                submissions.append(submission.result)
-
-            participants = {}
-
-            for s in submissions:
-                participants[s.participant] = s
-
-            from tasks import evaluate_submission
-
-            for participant, submission in participants.items():
-                logger.info('Moving submission %s over' % submission)
-
-                new_submission = CompetitionSubmission(
-                    participant=participant,
-                    file=submission.file,
-                    phase=current_phase
-                )
-                new_submission.save(ignore_submission_limits=True)
-
-                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
-        except PhaseLeaderBoard.DoesNotExist:
-            pass
-
-        current_phase.is_migrated = True
-        current_phase.save()
-
-        # TODO: ONLY IF SUCCESSFUL
-        self.is_migrating = False # this should really be True until evaluate_submission tasks are all the way completed
-        self.is_migrating_delayed = False
-        self.last_phase_migration = current_phase.phasenumber
-        self.save()
-
-    def check_trailing_phase_submissions(self):
-        '''
-        Checks that the requested competition has all submissions in the current phase, none trailing in the previous
-        phase
-        '''
-        if self.is_migrating:
-            logger.info('Trying to check migrations on competition pk=%s, but it is already being migrated!' % self.pk)
-            return
-
-        last_phase = None
-        current_phase = None
-
-        for phase in self.phases.all():
-            if phase.is_active:
-                current_phase = phase
-                break
-
-            last_phase = phase
-
-        if current_phase is None or last_phase is None:
-            return
-
-        logger.info("Checking for needed migrations on competition pk=%s, last phase: %s, current phase: %s" %
-                    (self.pk, last_phase.phasenumber, current_phase.phasenumber))
-
-        if current_phase.phasenumber > self.last_phase_migration:
-            if current_phase.auto_migration:
-                self.do_phase_migration(current_phase, last_phase)
-
     def check_future_phase_sumbmissions(self):
         '''
-        Checks for if we need to migrate current phase submissions to next phase
-        1. First will check if competition phase is being migrated
-        2. We need to keep track of current phase and next phase
-        3. Iteration:
-            1. If phase is active, it becomes our current phase
-            2. If current phasenumbers is less than last phase, then we know there is a next phase
-        4. Break the foor loop to proceed
-        5. Check if either current_phase or next_phase is None, if true just return
-        6. Just log some info
-        '''
+        Checks for if we need to migrate current phase submissions to next phase.'''
 
         if self.is_migrating:
             logger.info("Checking for migrations on competition pk=%s, but it is already being migrated" % self.pk)
@@ -389,8 +343,8 @@ class Competition(models.Model):
         '''
         Does the actual migrating of submissions from last_phase to current_phase
 
-        current_phase: The new phase object we are entering
-        last_phase: The phase object to transfer submissions from
+        :param current_phase: The new phase object we are entering
+        :param last_phase: The phase object to transfer submissions from
         '''
         logger.info("Checking for submissions that may still be running competition pk=%s" % self.pk)
 
@@ -456,6 +410,14 @@ class Competition(models.Model):
         self.save()
 
     def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False):
+        """
+        Get the results of submissions on Leaderboard.
+
+        :param phase_pk: Phase primary key.
+        :param include_scores_not_on_leaderboard: Flag to includes scores that are not part of leaderboard.
+        :return: csv file.
+
+        """
         phase = self.phases.get(pk=phase_pk)
         if phase.is_blind:
             return 'Not allowed, phase is blind.'
@@ -511,6 +473,9 @@ class Competition(models.Model):
         return csvfile.getvalue()
 
     def get_score_headers(self):
+        """
+        Gets the label for Leaderboard columns
+        """
         qs = self.submissionscoredef_set.filter(computed=False)
         qs = qs.order_by('ordering').values_list('label', flat=True)
         return qs
@@ -524,6 +489,9 @@ post_save.connect(Forum.competition_post_save, sender=Competition)
 
 
 class Page(models.Model):
+    """
+    Model representing a competition's page. It belongs to a :class:`.Competition` and :class:`.PageContainer`
+    """
     category = TreeForeignKey(ContentCategory)
     defaults = models.ForeignKey(DefaultContentItem, null=True, blank=True)
     codename = models.SlugField(max_length=100)
@@ -540,26 +508,22 @@ class Page(models.Model):
         return self.label
 
     class Meta:
-        unique_together = (('label','category','container'),)
+        unique_together = (('label', 'category', 'container'),)
         ordering = ['category', 'rank']
 
-    def save(self,*args,**kwargs):
-        #if not self.title:
-        #    self.title = "%s - %s" % ( self.container.name, self.label )
+    def save(self, *args, **kwargs):
         if self.defaults:
             if self.category != self.defaults.category:
                 raise Exception("Defaults category must match Item category")
             if self.defaults.required and self.visibility is False:
                 raise Exception("Item is required and must be visible")
-        return super(Page,self).save(*args,**kwargs)
+        return super(Page, self).save(*args, **kwargs)
+
 
 # Dataset model
 class Dataset(models.Model):
-    """
-        This is a dataset for a competition.
-        TODO: Consider if this is replaced or reimplemented as a 'bundle of data'.
-    """
-    creator =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
+    """Model to create a dataset for a competition."""
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='datasets')
     name = models.CharField(max_length=50)
     description = models.TextField()
     number = models.PositiveIntegerField(default=1)
@@ -569,13 +533,16 @@ class Dataset(models.Model):
         ordering = ["number"]
 
     def __unicode__(self):
-        return "%s [%s]" % (self.name,self.datafile.name)
+        return "%s [%s]" % (self.name, self.datafile.name)
+
 
 def competition_prefix(competition):
     return os.path.join("competition", str(competition.id))
 
+
 def phase_prefix(phase):
     return os.path.join(competition_prefix(phase.competition), str(phase.phasenumber))
+
 
 def phase_data_prefix(phase):
     return os.path.join("competition", str(phase.competition.id), str(phase.phasenumber), "data")
@@ -583,14 +550,18 @@ def phase_data_prefix(phase):
 # In the following helpers, the filename argument is required even though we
 # choose to not use it. See FileField.upload_to at https://docs.djangoproject.com/en/dev/ref/models/fields/.
 
+
 def phase_scoring_program_file(phase, filename="program.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
+
 
 def phase_reference_data_file(phase, filename="reference.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
 
+
 def phase_input_data_file(phase, filename="input.zip"):
     return os.path.join(phase_data_prefix(phase), filename)
+
 
 def submission_root(instance):
     # will generate /competition/1/1/submissions/1/1/
@@ -603,50 +574,66 @@ def submission_root(instance):
         str(instance.pk),
     )
 
+
 def submission_file_name(instance, filename="predictions.zip"):
     return os.path.join(submission_root(instance), filename)
+
 
 def submission_inputfile_name(instance, filename="input.txt"):
     return os.path.join(submission_root(instance), filename)
 
+
 def submission_history_file_name(instance, filename="history.txt"):
     return os.path.join(submission_root(instance), filename)
+
 
 def submission_scores_file_name(instance, filename="scores.txt"):
     return os.path.join(submission_root(instance), filename)
 
+
 def submission_coopetition_file_name(instance, filename="coopetition.zip"):
     return os.path.join(submission_root(instance), filename)
+
 
 def submission_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), filename)
 
+
 def submission_detailed_results_filename(instance, filename="detailed_results.html"):
     return os.path.join(submission_root(instance), "run", "html", filename)
+
 
 def submission_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
 
+
 def submission_private_output_filename(instance, filename="private_output.zip"):
     return os.path.join(submission_root(instance), "run", filename)
+
 
 def submission_stdout_filename(instance, filename="stdout.txt"):
     return os.path.join(submission_root(instance), "run", filename)
 
+
 def submission_stderr_filename(instance, filename="stderr.txt"):
     return os.path.join(submission_root(instance), "run", filename)
+
 
 def predict_submission_stdout_filename(instance, filename="prediction_stdout_file.txt"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
 
+
 def predict_submission_stderr_filename(instance, filename="prediction_stderr_file.txt"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
+
 
 def submission_prediction_runfile_name(instance, filename="run.txt"):
     return os.path.join(submission_root(instance), "pred", filename)
 
+
 def submission_prediction_output_filename(instance, filename="output.zip"):
     return os.path.join(submission_root(instance), "pred", "run", filename)
+
 
 class _LeaderboardManagementMode(object):
     """
@@ -660,6 +647,7 @@ class _LeaderboardManagementMode(object):
         a successful submission to the leaderboard is a manual step.
         """
         return 'default'
+
     @property
     def HIDE_RESULTS(self):
         """
@@ -668,11 +656,23 @@ class _LeaderboardManagementMode(object):
         added to the leaderboard.
         """
         return 'hide_results'
+
     def is_valid(self, mode):
-        """Returns true if the given string is a valid constant to define a management mode."""
+        """
+        Returns true if the given string is a valid constant to define a management mode.
+
+        :parm mode: Leaderboard mode.
+
+        .. note::
+
+            There are two valid modes:
+                - Hidden.
+                - Default(visible).
+        """
         return mode == self.DEFAULT or mode == self.HIDE_RESULTS
 
 LeaderboardManagementMode = _LeaderboardManagementMode()
+
 
 # Competition Phase
 class CompetitionPhase(models.Model):
@@ -807,7 +807,13 @@ class CompetitionPhase(models.Model):
         return ("{:." + str(p) + "f}").format(v)
 
     def scores(self, include_scores_not_on_leaderboard=False, **kwargs):
-        score_filters = kwargs.pop('score_filters',{})
+        """
+        Method to get the scores of all submissions within a phase.
+
+        :param include_scores_not_on_leaderboard: Flag to include all scores, not only those in Leaderboard.
+        :rtype: list.
+        :return: Scores.
+        """
 
         # Get the list of submissions in this leaderboard
         submissions = []
@@ -970,15 +976,23 @@ class CompetitionPhase(models.Model):
                 del result['scoredefs']
         return results
 
+
 # Competition Participant
 class CompetitionParticipant(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='participation')
-    competition = models.ForeignKey(Competition,related_name='participants')
+    """
+    Base model for a Competition's participant.
+
+    .. note::
+
+        A participant needs to be a registerd user.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='participation')
+    competition = models.ForeignKey(Competition, related_name='participants')
     status = models.ForeignKey(ParticipantStatus)
-    reason = models.CharField(max_length=100,null=True,blank=True)
+    reason = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        unique_together = (('user','competition'),)
+        unique_together = (('user', 'competition'),)
 
     def __unicode__(self):
         return "%s - %s" % (self.competition.title, self.user.username)
@@ -988,8 +1002,22 @@ class CompetitionParticipant(models.Model):
         """ Returns true if this participant is approved into the competition. """
         return self.status.codename == ParticipantStatus.APPROVED
 
+
 # Competition Submission Status
 class CompetitionSubmissionStatus(models.Model):
+    """
+    Base model to keep track of Submissions status
+
+    .. note::
+
+        Valid status are:
+            - Submitting.
+            - Submitted.
+            - Running.
+            - Failed.
+            - Cancelled.
+            - Finished.
+    """
     SUBMITTING = "submitting"
     SUBMITTED = "submitted"
     RUNNING = "running"
@@ -1003,11 +1031,10 @@ class CompetitionSubmissionStatus(models.Model):
     def __unicode__(self):
         return self.name
 
+
 # Competition Submission
 class CompetitionSubmission(models.Model):
-    """
-    Represents a submission from a competition participant.
-    """
+    """Represents a submission from a competition participant."""
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
@@ -1170,13 +1197,25 @@ class CompetitionSubmission(models.Model):
         """
         Returns the FileField object for the file that is to be downloaded by the given user.
 
-        key: A name identifying the file to download. The choices are 'input.zip', 'output.zip',
-           'prediction-output.zip', 'stdout.txt', 'stderr.txt', 'history.txt' or 'private_output.zip'
-        requested_by: A user object identifying the user making the request to access the file.
+        :param key: A name identifying the file to download.
 
-        Raises:
-           ValueError exception for improper arguments.
-           PermissionDenied exception when access to the file cannot be granted.
+        .. note::
+
+            Choices are:
+                - input.zip
+                - output.zip
+                - prediction-output.zip
+                - stdout.txt
+                - stderr.txt
+                - history.txt
+                - private_output.zip
+
+        :param requested_by: A user object identifying the user making the request to access the file.
+
+        :Raises:
+
+           - ValueError exception for improper arguments.
+           - PermissionDenied exception when access to the file cannot be granted.
         """
         downloadable_files = {
             'input.zip': ('file', 'zip', False),
@@ -1223,6 +1262,7 @@ class CompetitionSubmission(models.Model):
         return getattr(self, file_attr), file_type, file_name
 
     def get_overall_like_count(self):
+        """Gets the like counts."""
         return self.like_count - self.dislike_count
 
     def get_default_score(self):
@@ -1233,8 +1273,7 @@ class CompetitionSubmission(models.Model):
             return None
 
     def get_scores_as_tuples(self):
-        '''Returns a list of score tuples like so:
-        [("Score Label", 123), ("Another label", 1.2223)]'''
+        '''Returns a list of score tuples.'''
         scores = []
         for score in self.scores.all().order_by('scoredef__ordering'):
             scores.append((score.scoredef.label, score.value))
@@ -1242,46 +1281,53 @@ class CompetitionSubmission(models.Model):
 
 
 class SubmissionResultGroup(models.Model):
+    """Defines the Leaderboard of a Competition."""
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
     ordering = models.PositiveIntegerField(default=1)
-    phases = models.ManyToManyField(CompetitionPhase,through='SubmissionResultGroupPhase')
+    phases = models.ManyToManyField(CompetitionPhase, through='SubmissionResultGroupPhase')
 
     class Meta:
         ordering = ['ordering']
 
+
 class SubmissionResultGroupPhase(models.Model):
+    """Defines the columns of a Leaderboard."""
     group = models.ForeignKey(SubmissionResultGroup)
     phase = models.ForeignKey(CompetitionPhase)
 
     class Meta:
-        unique_together = (('group','phase'),)
+        unique_together = (('group', 'phase'),)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if self.group.competition != self.phase.competition:
             raise IntegrityError("Group and Phase competition must be the same")
-        super(SubmissionResultGroupPhase,self).save(*args,**kwargs)
+        super(SubmissionResultGroupPhase, self).save(*args, **kwargs)
+
 
 class SubmissionScoreDef(models.Model):
+    """Defines the columns of a Leaderboard."""
     competition = models.ForeignKey(Competition)
     key = models.SlugField(max_length=50)
     label = models.CharField(max_length=50)
-    sorting = models.SlugField(max_length=20,default='asc',choices=(('asc','Ascending'),('desc','Descending')))
-    numeric_format = models.CharField(max_length=20,blank=True,null=True)
+    sorting = models.SlugField(max_length=20, default='asc', choices=(('asc', 'Ascending'),('desc','Descending')))
+    numeric_format = models.CharField(max_length=20, blank=True, null=True)
     show_rank = models.BooleanField(default=False)
     selection_default = models.IntegerField(default=0)
     computed = models.BooleanField(default=False)
-    groups = models.ManyToManyField(SubmissionResultGroup,through='SubmissionScoreDefGroup')
+    groups = models.ManyToManyField(SubmissionResultGroup, through='SubmissionScoreDefGroup')
     ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = (('key','competition'),)
+        unique_together = (('key', 'competition'),)
 
     def __unicode__(self):
         return self.label
 
+
 class CompetitionDefBundle(models.Model):
+    """Defines a competition bundle."""
     config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1614,21 +1660,21 @@ class CompetitionDefBundle(models.Model):
                     # Create the score definition
                     is_computed = True
                     sdefaults = {
-                                    'label' : "" if 'label' not in vals else vals['label'].strip(),
-                                    'numeric_format' : "2" if 'numeric_format' not in vals else vals['numeric_format'],
-                                    'show_rank' : not is_computed,
-                                    'sorting' : 'desc' if 'sort' not in vals else vals['sort'],
-                                    'ordering' : index if 'rank' not in vals else vals['rank']
+                                    'label': "" if 'label' not in vals else vals['label'].strip(),
+                                    'numeric_format': "2" if 'numeric_format' not in vals else vals['numeric_format'],
+                                    'show_rank': not is_computed,
+                                    'sorting': 'desc' if 'sort' not in vals else vals['sort'],
+                                    'ordering': index if 'rank' not in vals else vals['rank']
                                     }
                     if 'selection_default' in vals:
                         sdefaults['selection_default'] = vals['selection_default']
 
-                    sd,cr = SubmissionScoreDef.objects.get_or_create(
+                    sd, cr = SubmissionScoreDef.objects.get_or_create(
                                 competition=comp,
                                 key=key,
                                 computed=is_computed,
                                 defaults=sdefaults)
-                    sc,cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
+                    sc, cr = SubmissionComputedScore.objects.get_or_create(scoredef=sd, operation=vals['computed']['operation'])
                     for f in vals['computed']['fields'].split(","):
                         f=f.strip()
                         # Note the lookup in brats_score_defs. The assumption is that computed properties are defined in
@@ -1640,13 +1686,13 @@ class CompetitionDefBundle(models.Model):
                     # Associate the score definition with its column group
                     if 'column_group' in vals:
                         gparent = groups[vals['column_group']['label']]
-                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                        g, cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 parent=gparent,
                                 key=sd.key,
                                 defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
                     else:
-                        g,cr = SubmissionScoreSet.objects.get_or_create(
+                        g, cr = SubmissionScoreSet.objects.get_or_create(
                                 competition=comp,
                                 key=sd.key,
                                 defaults=dict(scoredef=sd, label=sd.label, ordering=sd.ordering))
@@ -1662,47 +1708,53 @@ class CompetitionDefBundle(models.Model):
 
         return comp
 
+
 class SubmissionScoreDefGroup(models.Model):
     scoredef = models.ForeignKey(SubmissionScoreDef)
     group = models.ForeignKey(SubmissionResultGroup)
 
     class Meta:
-        unique_together = (('scoredef','group'),)
+        unique_together = (('scoredef', 'group'),)
 
     def __unicode__(self):
-        return "%s %s" % (self.scoredef,self.group)
+        return "%s %s" % (self.scoredef, self.group)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if self.scoredef.competition != self.group.competition:
             raise IntegrityError("Score Def competition and phase compeition must be the same")
-        super(SubmissionScoreDefGroup,self).save(*args,**kwargs)
+        super(SubmissionScoreDefGroup, self).save(*args, **kwargs)
+
 
 class SubmissionComputedScore(models.Model):
     scoredef = models.OneToOneField(SubmissionScoreDef, related_name='computed_score')
-    operation = models.CharField(max_length=10,choices=(('Max','Max'),
+    operation = models.CharField(max_length=10, choices=(('Max', 'Max'),
                                                         ('Avg', 'Average')))
+
+
 class SubmissionComputedScoreField(models.Model):
-    computed = models.ForeignKey(SubmissionComputedScore,related_name='fields')
+    computed = models.ForeignKey(SubmissionComputedScore, related_name='fields')
     scoredef = models.ForeignKey(SubmissionScoreDef)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if self.scoredef.computed is True:
             raise IntegrityError("Cannot use a computed field for a computed score")
-        super(SubmissionComputedScoreField,self).save(*args,**kwargs)
+        super(SubmissionComputedScoreField, self).save(*args, **kwargs)
+
 
 class SubmissionScoreSet(MPTTModel):
-    parent = TreeForeignKey('self',null=True,blank=True, related_name='children')
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
     competition = models.ForeignKey(Competition)
     key = models.CharField(max_length=50)
     label = models.CharField(max_length=50)
-    scoredef = models.ForeignKey(SubmissionScoreDef,null=True,blank=True)
+    scoredef = models.ForeignKey(SubmissionScoreDef, null=True, blank=True)
     ordering = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = (('key','competition'),)
+        unique_together = (('key', 'competition'),)
 
     def __unicode__(self):
         return "%s %s" % (self.parent.label if self.parent else None, self.label)
+
 
 class SubmissionScore(models.Model):
     result = models.ForeignKey(CompetitionSubmission, related_name='scores')
@@ -1710,15 +1762,16 @@ class SubmissionScore(models.Model):
     value = models.DecimalField(max_digits=20, decimal_places=10)
 
     class Meta:
-        unique_together = (('result','scoredef'),)
+        unique_together = (('result', 'scoredef'),)
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if self.scoredef.computed is True and self.value:
             raise IntegrityError("Score is computed. Cannot assign a value")
-        super(SubmissionScore,self).save(*args,**kwargs)
+        super(SubmissionScore, self).save(*args, **kwargs)
+
 
 class PhaseLeaderBoard(models.Model):
-    phase = models.OneToOneField(CompetitionPhase,related_name='board')
+    phase = models.OneToOneField(CompetitionPhase, related_name='board')
     is_open = models.BooleanField(default=True)
 
     def submissions(self):
@@ -1734,12 +1787,13 @@ class PhaseLeaderBoard(models.Model):
         self.is_open = self.phase.is_active
         return self.phase.is_active
 
-    def scores(self,**kwargs):
+    def scores(self, **kwargs):
         return self.phase.scores(score_filters=dict(result__leaderboard_entry_result__board=self))
+
 
 class PhaseLeaderBoardEntry(models.Model):
     board = models.ForeignKey(PhaseLeaderBoard, related_name='entries')
-    result = models.ForeignKey(CompetitionSubmission,  related_name='leaderboard_entry_result')
+    result = models.ForeignKey(CompetitionSubmission, related_name='leaderboard_entry_result')
 
     class Meta:
         unique_together = (('board', 'result'),)
@@ -1780,6 +1834,7 @@ class OrganizerDataSet(models.Model):
 
 
 class CompetitionSubmissionMetadata(models.Model):
+    """Define extra Meta data for a submission."""
     submission = models.ForeignKey(CompetitionSubmission, related_name="metadatas")
     is_predict = models.BooleanField(default=False)
     is_scoring = models.BooleanField(default=False)
@@ -1813,7 +1868,7 @@ class CompetitionSubmissionMetadata(models.Model):
         return {
             "processes_running_in_temp_dir": self.processes_running_in_temp_dir,
             "beginning_virtual_memory_usage": self._get_json_property_percent('beginning_virtual_memory_usage'),
-            "beginning_swap_memory_usage":  self._get_json_property_percent('beginning_swap_memory_usage'),
+            "beginning_swap_memory_usage": self._get_json_property_percent('beginning_swap_memory_usage'),
             "beginning_cpu_usage": self._get_property_percent('beginning_cpu_usage'),
             "end_virtual_memory_usage": self._get_json_property_percent('end_virtual_memory_usage'),
             "end_swap_memory_usage": self._get_json_property_percent('end_swap_memory_usage'),

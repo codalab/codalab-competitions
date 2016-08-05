@@ -21,6 +21,8 @@ _queues = {}
 def getQueue(name=None):
     """
     Returns a Queue given its name.
+
+    :rtype queue: Azure Service Bus Queue
     """
     if name is None:
         name = settings.SBS_RESPONSE_QUEUE
@@ -48,10 +50,10 @@ class JobManager(models.Manager):
         """
         Creates a job.
 
-        task_type: A string identifying the type of task to carry out.
-        task_args: An object defining the task's input arguments. The object must allow
-        serialization to a JSON string using `json.dumps(obj)`. A None value is acceptable
-        if the task requires no input arguments.
+        :param task_type: A string identifying the type of task to carry out.
+        :param task_args: An object defining the task's input arguments. The object must allow
+            serialization to a JSON string using `json.dumps(obj)`. A None value is acceptable
+            if the task requires no input arguments.
         """
         task_args_json = "" if task_args is None else json.dumps(task_args)
         job = self.create(task_type=task_type, task_args_json=task_args_json)
@@ -61,12 +63,12 @@ class JobManager(models.Manager):
         """
         Creates a job and dispatches it to the specified queue.
 
-        task_type: A string identifying the type of task to carry out.
-        task_args: An object defining the task's input arguments. The object must allow
-        serialization to a JSON string using `json.dumps(obj)`. A None value is acceptable
-        if the task requires no input arguments.
-        queue_name: The name of the target Queue. If name is None, the queue connected to
-        the site workers is used.
+        :param task_type: A string identifying the type of task to carry out.
+        :param task_args: An object defining the task's input arguments. The object must allow
+            serialization to a JSON string using `json.dumps(obj)`. A None value is acceptable
+            if the task requires no input arguments.
+        :param queue_name: The name of the target Queue. If name is None, the queue connected to
+            the site workers is used.
         """
         job = self.create_job(task_type, task_args)
         getQueue(queue_name).send_message(job.create_json_message())
@@ -106,13 +108,14 @@ class Job(models.Model):
 
     def get_status_code_name(self):
         """
-        Gets the code name of this job's status.
+        :return: The code name of this job's status.
+
         """
         return Job.STATUS_BY_CODE[self.status]['code_name']
 
     def get_task_args(self):
         """
-        Gets the dictionary containing the task's arguments.
+        :return: Dictionary containing the task's arguments.
         """
         return json.loads(self.task_args_json) if len(self.task_args_json) > 0 else {}
 
@@ -125,6 +128,8 @@ class Job(models.Model):
     def can_transition_to(self, new_status):
         """
         Validates that the transition from the job's current status to the given new status is valid.
+
+        :param new_status: Any valid job status.
         """
         if new_status in Job.STATUS_BY_CODE:
             if self.status == Job.FINISHED:
@@ -142,7 +147,7 @@ class Job(models.Model):
         """
         Gets the JSON-encoded message to describe the given job to a worker.
         """
-        data = { "id": self.pk, "task_type": self.task_type }
+        data = {"id": self.pk, "task_type": self.task_type}
         if len(self.task_args_json) > 0:
             data['task_args'] = json.loads(self.task_args_json)
         return json.dumps(data)
@@ -151,18 +156,20 @@ class Job(models.Model):
 # Tasks
 #
 
+
 def update_job_status_task(job_id, args):
     """
     A task to update the status of a Job instance.
 
-    job_id: The ID of the job to update.
-    args: A dictionary with the arguments for the task.
-          Required items are:
-            args['status']: friendly code name of the new status
-          Optional items are:
-            args['info']: a dictionary containing custom information about the
-                task's progress or outcome. The dictionary must be serializable
-                to JSON via the built-in 'json.dumps' function.
+    :param job_id: The ID of the job to update.
+    :param args: A dictionary with the arguments for the task.
+
+    - **Required items are**::
+        args['status']: friendly code name of the new status
+    - **Optional items are**::
+        args['info']: a dictionary containing custom information about the
+        task's progress or outcome. The dictionary must be serializable
+        to JSON via the built-in 'json.dumps' function.
     """
     status_code_name = args['status']
     logger.debug("Starting request to update job (id=%s) with new status (status_code_name=%s)",
@@ -185,13 +192,16 @@ def update_job_status_task(job_id, args):
 class JobTaskResult(object):
     """
     Defines the result type expected from the computation method passed into the run_job_task function.
+
+    :param status: A valid job status.
+    :param info: Extra info about a task.
     """
     def __init__(self, status=None, info=None):
         self.status = status
         self.info = info
         self._result = None
         if status is not None:
-            self._result = { 'status': Job.STATUS_BY_CODE[status]['code_name'] }
+            self._result = {'status': Job.STATUS_BY_CODE[status]['code_name']}
             if info is not None:
                 self._result['info'] = info
 
@@ -209,9 +219,9 @@ def run_job_task(job_id, computation, handle_exception=None):
     handle_exception is used to update the job status. If an excpeption handler is not provided, the job
     status is automatically set to Failed.
 
-    job_id: The ID of the job.
-    computation: The function invoked to run the task: new_status_code = computation(job).
-    handle_exception: An optional exception handler: new_status = handle_exception(job, ex), where job
+    :param job_id: The ID of the job.
+    :param computation: The function invoked to run the task: new_status_code = computation(job).
+    :param handle_exception: An optional exception handler: new_status = handle_exception(job, ex), where job
         is the current job object and ex is the exception which was caught.
     """
     logger.debug("Entering run_job_task (job_id=%s).", job_id)

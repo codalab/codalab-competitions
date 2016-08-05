@@ -21,6 +21,7 @@ class Base(Settings):
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
     LOCAL_ACE_EDITOR = False # see prep_for_offline
+    IS_DEV = False
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -123,7 +124,6 @@ class Base(Settings):
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
         'django.contrib.staticfiles.finders.FileSystemFinder',
-        #'django.contrib.staticfiles.finders.DefaultStorageFinder',
         'compressor.finders.CompressorFinder',
     )
 
@@ -134,7 +134,6 @@ class Base(Settings):
     TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
-        #'django.template.loaders.eggs.Loader',
     )
 
     MIDDLEWARE_CLASSES = (
@@ -358,6 +357,11 @@ class Base(Settings):
                 'level': 'INFO'
             }
         }
+    }
+
+    GRAPH_MODELS = {
+        'all_applications': True,
+        'group_models': True,
     }
 
     USERSWITCH_OPTIONS = {
