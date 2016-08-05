@@ -35,7 +35,6 @@ from mimetypes import MimeTypes
 from apps.web import forms
 from apps.web import models
 from apps.web import tasks
-from apps.web.bundles import BundleService
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions

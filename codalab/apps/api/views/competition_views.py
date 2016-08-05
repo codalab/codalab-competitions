@@ -3,12 +3,10 @@ Defines Django views for 'apps.api' app for competitions
 """
 import json
 import logging
-import traceback
-import mimetypes
 
 from uuid import uuid4
 
-from rest_framework import (permissions, status, viewsets, views, generics, filters)
+from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
 from rest_framework.response import Response
@@ -19,28 +17,22 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
-from django.core.files.base import ContentFile
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
-from django.http import Http404, StreamingHttpResponse
+from django.http import Http404
 from django.template import Context
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_str
 from django.utils.html import escape
 
 
 from apps.api import serializers
-from apps.authenz.models import ClUser
 from apps.jobs.models import Job
 from apps.web import models as webmodels
-from apps.web.bundles import BundleService
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
 
 logger = logging.getLogger(__name__)
-
 
 
 
@@ -58,6 +50,7 @@ def _generate_blob_sas_url(prefix, extension):
     logger.debug("_generate_blob_sas_url: sas=%s; blob_name=%s.", url, blob_name)
     return {'url': url, 'id': blob_name, 'version': PREFERRED_STORAGE_X_MS_VERSION}
 
+
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationSasApi(views.APIView):
     """
@@ -71,6 +64,7 @@ class CompetitionCreationSasApi(views.APIView):
         prefix = 'competition/upload/{0}'.format(request.user.id)
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationApi(views.APIView):
@@ -99,6 +93,7 @@ class CompetitionCreationApi(views.APIView):
         job = create_competition(cdb.pk)
         logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
         return Response({'token' : job.pk}, status=status.HTTP_201_CREATED)
+
 
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionCreationStatusApi(views.APIView):
