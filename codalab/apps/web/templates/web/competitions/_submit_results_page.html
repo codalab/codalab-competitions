@@ -58,10 +58,10 @@
     <div class="user_results">
     {% if phase.is_active and not phase.is_blind %}
         <input type="hidden" id="phasestate" value="1" />
-        <input type="hidden" id="submission_phase_id" class="form-control" value="{{ phase.id }}">
     {% else %}
         <input type="hidden" id="phasestate" value="0" />
     {% endif %}
+        <input type="hidden" id="submission_phase_id" class="form-control" value="{{ phase.id }}">
         <table class="table resultsTable dataTable table-striped table-bordered" id="user_results">
             <thead>
                 <tr>
