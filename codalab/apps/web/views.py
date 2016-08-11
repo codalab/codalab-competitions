@@ -564,6 +564,7 @@ class CompetitionResultsPage(TemplateView):
             competition = models.Competition.objects.get(pk=self.kwargs['id'])
             phase = competition.phases.get(pk=self.kwargs['phase'])
             is_owner = self.request.user.id == competition.creator_id
+            context['competition_admins'] = competition.admins.all()
             context['is_owner'] = is_owner
             context['phase'] = phase
             context['groups'] = phase.scores()
