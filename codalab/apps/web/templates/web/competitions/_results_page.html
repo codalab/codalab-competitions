@@ -39,7 +39,7 @@
                     <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
                 </tr>
                 <tr class="leaderboard-result-table-header">
-                    <th rowspan="2"></th>
+                    <th rowspan="2">#</th>
                     <th rowspan="2">User</th>
                     {% if phase.competition.allow_teams %}
                     <th rowspan="2">Team Name</th>
@@ -48,7 +48,9 @@
                         {% if head.subs %}
                             <th colspan="{{head.subs|length}}">{{head.label}}</th>
                         {% else %}
-                            <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}</th>
+                            <th rowspan="2" {% if group.selection_key == head.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{head.key}}">{{head.label}}
+                            <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
+                            </th>
                         {% endif %}
                     {% endfor %}
                     {% if phase.competition.enable_detailed_results %}
@@ -62,7 +64,9 @@
                     {% for head in group.headers %}
                         {% if head.subs %}
                             {% for sub in head.subs %}
-                                <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}</th>
+                                <th {% if group.selection_key == sub.key %} class="column-selectable column-selected" {% else %} class="column-selectable" {% endif %} name="{{sub.key}}">{{sub.label}}
+                                    <span class="glyphicon glyphicon-play ascending-sorting" aria-hidden="true"></span>
+                                </th>
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
@@ -91,7 +95,7 @@
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
                                     {% with scoredata.values|get_by_name:head_or_sub.key|first as v %}
                                         {% if 'rnk' in v %}
-                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)</td>
+                                            <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} (<span class="rank">{{v.rnk}}</span>)test</td>
                                         {% else %}
                                             <td {% if group.selection_key == v.name %} class="column-selected" {% endif %} name={{v.name}}>{{v.val}} <span class="rank hide">{{v.hidden_rnk}}</span></td>
                                         {% endif %}
