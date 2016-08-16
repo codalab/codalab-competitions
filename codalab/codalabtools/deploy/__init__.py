@@ -30,6 +30,7 @@ from codalabtools import BaseConfig
 
 logger = logging.getLogger('codalabtools')
 
+
 class DeploymentConfig(BaseConfig):
     """
     Defines credentials and configuration values needed to deploy CodaLab.
@@ -192,14 +193,6 @@ class DeploymentConfig(BaseConfig):
         """
         return self._svc['django']['preview'] if 'preview' in self._svc['django'] else 0
 
-    def getEnableWorksheets(self):  # MARK THIS FOR REMOVAL AS WELL
-        """Return whether worksheets are enabled"""
-        return self._svc['django'].get('enable-worksheets', False)
-
-    def getEnableCompetitions(self):
-        """Return whether competitions are enabled"""
-        return self._svc['django'].get('enable-competitions', False)
-
     def getDatabaseEngine(self):
         """Gets the database engine type."""
         return self._svc['database']['engine']
@@ -306,30 +299,6 @@ class DeploymentConfig(BaseConfig):
         vm_numbers = range(1, 1 + self.getServiceInstanceCount())  # e.g., prod
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
-
-    def getBundleServiceUrl(self):  # MARK THIS FOR REMOVAL
-        """Gets the URL for the bundle service."""
-        return "http://localhost:2800/" if 'git-bundles' in self._svc else ""
-
-    def getBundleServiceDatabaseName(self):
-        """Gets the bundle service database name."""
-        return self._svc['database']['bundle_db_name'] if 'bundle_db_name' in self._svc['database'] else ""
-
-    def getBundleServiceDatabaseUser(self):
-        """Gets the database username."""
-        return self._svc['database']['bundle_user'] if 'bundle_user' in self._svc['database'] else ""
-
-    def getBundleServiceDatabasePassword(self):
-        """Gets the password for the database user."""
-        return self._svc['database']['bundle_password'] if 'bundle_password' in self._svc['database'] else ""
-
-    def getBundleServiceAppId(self):
-        """Gets the value of the OAuth client ID assigned to the bundle service."""
-        return self._svc['django'].get('bundle-app-id', None)
-
-    def getBundleServiceAppKey(self):
-        """Gets the value of the OAuth client secret assigned to the bundle service."""
-        return self._svc['django'].get('bundle-app-key', None)
 
 
 class Deployment(object):
@@ -695,12 +664,12 @@ class Deployment(object):
                     hdrs.append((name, value))
                 request.headers = hdrs
                 request.path = request.path + '?comp=media'
-                #pylint: disable=W0212
+                # pylint: disable=W0212
                 response = self.sms._filter(request)
                 return response
 
             svc = ServiceManagementService(self.sms.subscription_id, self.sms.cert_file)
-            #pylint: disable=W0212
+            # pylint: disable=W0212
             svc._filter = update_request
             result = svc.delete_deployment(service_name, service_name)
             logger.info("Deployment %s deletion in progress: waiting for delete_deployment operation.", service_name)
@@ -850,7 +819,7 @@ class Deployment(object):
         logger.info("Starting deployment operation.")
         self._ensureAffinityGroupExists()
         self._ensureStorageAccountExists(self.config.getStorageAccountName())
-        ## Build instance
+        # Build instance
         if 'build' in assets:
             self._ensureServiceExists(self.config.getBuildServiceName(), self.config.getAffinityGroupName())
             self._ensureServiceCertificateExists(self.config.getBuildServiceName())
@@ -865,7 +834,7 @@ class Deployment(object):
             self._ensureServiceExists(self.config.getServiceName(), self.config.getAffinityGroupName())
             self._ensureServiceCertificateExists(self.config.getServiceName())
             self._ensureVirtualMachinesExist()
-        #queues
+        # queues
         logger.info("Deployment operation is complete.")
 
     def Teardown(self, assets):
@@ -902,9 +871,8 @@ class Deployment(object):
 
         storage_key = None
         namespace = None
-        if self.config.getEnableCompetitions():
-            storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-            namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
+        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
+        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         if len(self.config.getSslCertificateInstalledPath()) > 0:
             bundle_auth_scheme = "https"
@@ -979,21 +947,10 @@ class Deployment(object):
             "        }",
             "    }",
             "",
-            "    BUNDLE_DB_NAME = '{0}'".format(self.config.getBundleServiceDatabaseName()),
-            "    BUNDLE_DB_USER = '{0}'".format(self.config.getBundleServiceDatabaseUser()),
-            "    BUNDLE_DB_PASSWORD = '{0}'".format(self.config.getBundleServiceDatabasePassword()),
-            "    BUNDLE_APP_ID = '{0}'".format(self.config.getBundleServiceAppId()),
-            "    BUNDLE_APP_KEY = '{0}'".format(self.config.getBundleServiceAppKey()),
             "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
             "",
-            "    BUNDLE_SERVICE_URL = '{0}'".format(self.config.getBundleServiceUrl()),
-            "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
-            "    BUNDLE_SERVICE_CODE_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'codalab-cli'))",
-            "    sys.path.append(BUNDLE_SERVICE_CODE_PATH)",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
             "",
-            "    ENABLE_WORKSHEETS = %s" % self.config.getEnableWorksheets(),
-            "    ENABLE_COMPETITIONS = %s" % self.config.getEnableCompetitions(),
         ]
         return '\n'.join(lines) + '\n'
