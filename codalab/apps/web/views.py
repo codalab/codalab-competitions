@@ -463,10 +463,14 @@ class CompetitionDetailView(DetailView):
 
 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
-    """Serves the table of submissions in the Participate tab of a competition.
+    """
+    Serves the table of submissions in the Participate tab of a competition.
 
     .. note::
-        Requires an authenticated user who is an approved participant of the competition."""
+
+        Requires an authenticated user who is an approved participant of the competition.
+
+    """
     template_name = 'web/competitions/_submit_results_page.html'
 
     def get_context_data(self, **kwargs):
