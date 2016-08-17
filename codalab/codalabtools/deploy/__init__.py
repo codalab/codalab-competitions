@@ -948,6 +948,7 @@ class Deployment(object):
             "    }",
             "",
             "    BUNDLE_AUTH_URL = '{0}'".format(bundle_auth_url),
+            "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
             "",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
