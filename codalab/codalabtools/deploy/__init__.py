@@ -195,11 +195,6 @@ class DeploymentConfig(BaseConfig):
         """Gets the password for the database admin."""
         return self._svc['database']['admin_password']
 
-        # Stuff Related to Storage Account
-    def getStorageAccountName(self):
-        """Gets the global cloud storage account name. For instance something like codalabstorage"""
-        return '{0}storage'.format(self.getServicePrefix())
-
     def getServiceStorageAccountName(self):
         """Gets the service cloud storage account name."""
         return self._svc['storage']['storage-account-name']
