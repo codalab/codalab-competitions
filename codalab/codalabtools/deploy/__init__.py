@@ -304,7 +304,7 @@ class Deployment(object):
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
-            "    AZURE_ACCOUNT_KEY = '{0}'".format(self.config.get_storage_account_keys()),
+            "    AZURE_ACCOUNT_KEY = '{0}'".format(self.config.get_service_storage_account_key()),
             "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
             "    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME",
             "    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY",
