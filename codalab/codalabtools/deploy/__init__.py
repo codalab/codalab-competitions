@@ -231,7 +231,7 @@ class DeploymentConfig(BaseConfig):
 
     def get_service_bus_shared_access_key_value(self):
         """Gets the SAS shared access key value"""
-        return self._svc['bus']['shared-access-key-name'] if 'shared-access-key-name' in self._svc['bus'] else ''
+        return self._svc['bus']['shared-access-key-value'] if 'shared-access-key-name' in self._svc['bus'] else ''
 
     def getSslCertificatePath(self):
         """Gets the path of the SSL certificate file to install."""
