@@ -223,7 +223,15 @@ class DeploymentConfig(BaseConfig):
         """
         Gets the key for the service bus
         """
-        return self._svc['bus']['bus-service-account-key']
+        return self._svc['bus']['bus-service-account-key'] if 'bus-service-account-key' in self._svc['bus'] else ''
+
+    def get_service_bus_shared_access_key_name(self):
+        """Gets the SAS shared access key name"""
+        return self._svc['bus']['shared-access-key-name'] if 'shared-access-key-name' in  self._svc['bus'] else ''
+
+    def get_service_bus_shared_access_key_value(self):
+        """Gets the SAS shared access key value"""
+        return self._svc['bus']['shared-access-key-name'] if 'shared-access-key-name' in self._svc['bus'] else ''
 
     def getSslCertificatePath(self):
         """Gets the path of the SSL certificate file to install."""
@@ -313,6 +321,8 @@ class Deployment(object):
             "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
             "    SBS_ISSUER = 'owner'",
             "    SBS_ACCOUNT_KEY = '{0}'".format(self.config.get_service_bus_key()),
+            "    SBS_SHARED_ACCESS_KEY_NAME = '{0}'".format(self.config.get_service_bus_shared_access_key_name()),
+            "    SBS_SHARED_ACCESS_KEY_VALUE = '{0}'".format(self.config.get_service_bus_shared_access_key_value()),
             "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
             "    SBS_COMPUTE_QUEUE = 'windowscomputequeue'",
             "",

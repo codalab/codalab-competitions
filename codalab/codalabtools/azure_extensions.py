@@ -45,7 +45,7 @@ class AzureServiceBusQueue(Queue):
     # conditions occurs: a message is received or the timeout period has elapsed.
     polling_timeout = 60
 
-    def __init__(self, namespace, key, issuer, name):
+    def __init__(self, namespace, key, issuer, shared_access_key_name, shared_acess_key_value, name):
         self.service = ServiceBusService(service_namespace=namespace, account_key=key, issuer=issuer)
         self.name = name
         self.max_retries = 3
