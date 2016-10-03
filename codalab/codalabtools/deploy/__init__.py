@@ -6,9 +6,6 @@ import logging.config
 import os
 import sys
 
-from azure.servicemanagement import (ServiceManagementService,
-                                     ServiceBusManagementService)
-
 # Add codalabtools to the module search path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from codalabtools import BaseConfig
@@ -199,6 +196,10 @@ class DeploymentConfig(BaseConfig):
         """Gets the service cloud storage account name."""
         return self._svc['storage']['storage-account-name']
 
+    def get_service_storage_account_key(self):
+        """Gets the storage account key."""
+        return self._svc['storage']['storage-account-key']
+
     def getServiceCertificateAlgorithm(self):
         """Gets the algorithm for the service certificate."""
         return self._svc_global['certificate']['algorithm']
@@ -218,6 +219,12 @@ class DeploymentConfig(BaseConfig):
     def getServiceBusNamespace(self):
         """Gets the namespace for the service bus."""
         return self._svc['bus']['namespace']
+
+    def get_service_bus_key(self):
+        """
+        Gets the key for the service bus
+        """
+        return self._svc['bus']['bus-service-account-key']
 
     def getSslCertificatePath(self):
         """Gets the path of the SSL certificate file to install."""
@@ -263,15 +270,6 @@ class Deployment(object):
     """
     def __init__(self, config):
         self.config = config
-        self.sms = ServiceManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
-        self.sbms = ServiceBusManagementService(config.getAzureSubscriptionId(), config.getAzureCertificatePath())
-
-    def _getStorageAccountKey(self, account_name):
-        """
-        Gets the storage account key (primary key) for the given storage account.
-        """
-        storage_props = self.sms.get_storage_account_keys(account_name)
-        return storage_props.storage_service_keys.primary
 
     def getSettingsFileContent(self):
         """
@@ -282,11 +280,6 @@ class Deployment(object):
         allowed_hosts = ssl_allowed_hosts = \
             self.config.getSslRewriteHosts() + \
             ['{0}.cloudapp.net'.format(self.config.getServiceName())]
-
-        storage_key = None
-        namespace = None
-        storage_key = self._getStorageAccountKey(self.config.getServiceStorageAccountName())
-        namespace = self.sbms.get_namespace(self.config.getServiceBusNamespace())
 
         lines = [
             "# THIS FILE IS AUTO-GENERATED - DON'T EDIT!",
@@ -312,7 +305,7 @@ class Deployment(object):
             "",
             "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
-            "    AZURE_ACCOUNT_KEY = '{0}'".format(storage_key),
+            "    AZURE_ACCOUNT_KEY = '{0}'".format(self.config.get_storage_account_keys()),
             "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
             "    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME",
             "    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY",
@@ -320,7 +313,7 @@ class Deployment(object):
             "",
             "    SBS_NAMESPACE = '{0}'".format(self.config.getServiceBusNamespace()),
             "    SBS_ISSUER = 'owner'",
-            "    SBS_ACCOUNT_KEY = '{0}'".format(namespace.default_key if namespace else 'n/a'),
+            "    SBS_ACCOUNT_KEY = '{0}'".format(self.config.get_service_bus_key()),
             "    SBS_RESPONSE_QUEUE = 'jobresponsequeue'",
             "    SBS_COMPUTE_QUEUE = 'windowscomputequeue'",
             "",
