@@ -27,7 +27,6 @@ class DeploymentConfig(BaseConfig):
         self._dinfo = self.info['deployment']
         self._azure_mgmt_info = self._dinfo['azure-management']
         self._svc_global = self._dinfo['service-global']
-        self._bld = self._dinfo['build-configuration']
         self._svc = self._dinfo['service-configurations'][label] if label is not None else {}
         self.new_relic_key = self._dinfo['new-relic-key']
 
