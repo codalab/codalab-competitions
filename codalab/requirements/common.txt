@@ -13,7 +13,7 @@ django-config-gen==1.0.8
 django-configurations==0.8
 django-debug-toolbar==0.9.4
 django-debug-panel==0.8.1
-django-extensions>=1.1.1
+django-extensions==1.5.7
 django-extra-views==0.6.3
 django-filter==0.7
 django-guardian==1.1.1

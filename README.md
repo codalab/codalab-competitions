@@ -6,7 +6,7 @@ CodaLab is an open-source web-based platform that enables researchers, developer
 
 To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 
-## Documentation
+## Competition's Documentation
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
 
