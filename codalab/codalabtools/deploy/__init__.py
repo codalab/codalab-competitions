@@ -363,3 +363,43 @@ class Deployment(object):
             "",
         ]
         return '\n'.join(lines) + '\n'
+
+    def get_compute_workers_file_content(self):
+        '''
+        Creates the content of the configuration file for a compute worker
+        '''
+        lines = [
+            "compute-worker:",
+            "    azure-storage:",
+            "        account-name: '{0}'".format(self.config.getServiceStorageAccountName()),
+            "        account-key: '{0}'".format(self.config.get_service_storage_account_key()),
+            "    azure-service-bus:",
+            "        namespace: '{0}'".format(self.config.getServiceBusNamespace()),
+            "        key: '{0}'".format(self.config.get_service_bus_key()),
+            "        issuer: 'owner'",
+            "        shared-access-key-name: '{0}'".format(self.config.get_service_bus_shared_access_key_name()),
+            "        shared-access-key-value: '{0}'".format(self.config.get_service_bus_shared_access_key_value()),
+            "        listen-to: windowscomputequeue",
+            "    local-root: '/codalabtemp'",
+            "logging:",
+            "    version: 1",
+            "    formatters:",
+            "        simple:",
+            "            format: '%(asctime)s %(levelname)s %(message)s'",
+            "    handlers:",
+            "        console:",
+            "            class: logging.StreamHandler",
+            "            level: DEBUG",
+            "            formatter: simple",
+            "            stream: ext://sys.stdout",
+            "    loggers:",
+            "        codalabtools:",
+            "            level: DEBUG",
+            "            handlers: [console]",
+            "            propagate: no",
+            "    root:",
+            "        level: DEBUG",
+            "        handlers: [console]",
+            "",
+        ]
+        return '\n'.join(lines) + '\n'
