@@ -10,6 +10,11 @@ To see CodaLab in action, visit [www.codalab.org](http://www.codalab.org).
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
 
+## Development
+
+- [docs/](./docs/),
+- [docs/DEV.md](./docs/DEV.md): to setup a development environment for codalab on your machine.
+
 ## Community
 
 The CodaLab community forum is hosted on Google Groups.
