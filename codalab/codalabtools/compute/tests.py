@@ -22,12 +22,12 @@ class ComputeConfigTests(TestCase):
         self.assertTrue(os.path.isfile(cfg_path))
         cfg = WorkerConfig(cfg_path)
         self.assertEqual(cfg_path, cfg.getFilename())
-        self.assertEqual("your namespace", cfg.getAzureServiceBusNamespace())
-        self.assertEqual("your secret key", cfg.getAzureServiceBusKey())
+        self.assertEqual("storage account name", cfg.getAzureStorageAccountName())
+        self.assertEqual("storage key", cfg.getAzureStorageAccountKey())
+        self.assertEqual("service bus name", cfg.getAzureServiceBusNamespace())
+        self.assertEqual("acs default key", cfg.getAzureServiceBusKey())
         self.assertEqual("owner", cfg.getAzureServiceBusIssuer())
-        self.assertEqual("name of queue", cfg.getAzureServiceBusQueue())
-        self.assertEqual("your account key", cfg.getAzureStorageAccountKey())
-        self.assertEqual("your account name", cfg.getAzureStorageAccountName())
+        self.assertEqual("compute", cfg.getAzureServiceBusQueue())
         self.assertEqual("D:\\Temp", cfg.getLocalRoot())
         log_cfg_expected = {
             'version': 1,
