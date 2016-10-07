@@ -1,0 +1,3 @@
+-r common.txt
+pycrypto==2.6
+MySQL-python

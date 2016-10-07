@@ -68,7 +68,7 @@ docker-compose up
 ```
 
 This will start the database. Note that later this command will also be used to start
-the whole development environment without having install any package.
+the whole development environment without having to install any package.
 
 
 ### 3. Configure Django
@@ -77,7 +77,7 @@ The local configuration file `local.py` tells CodaLab which type of database you
 and stores credentials for the database.
 
 1. Copy the sample to the path Django will load on start-up:
-  - `cp codalab/settings/local_sample.py codalab/settings/local.py`.
+  - `cp codalab/codalab/settings/local_sample.py codalab/codalab/settings/local.py`
 2. Open the file in an editor and follow the comments to update the database configuration.
   - We'll configure the bundle parts later.
 
