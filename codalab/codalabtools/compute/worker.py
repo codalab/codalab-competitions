@@ -4,7 +4,6 @@ Defines the worker process which handles computations.
 """
 import azure
 import json
-import datetime
 import logging
 import logging.config
 import os
@@ -14,7 +13,6 @@ import pwd
 import grp
 import signal
 import math
-import select
 import shutil
 import socket
 import subprocess
@@ -25,9 +23,8 @@ import traceback
 import yaml
 
 from os.path import dirname, abspath, join
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, call
 from zipfile import ZipFile
-
 
 # Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
