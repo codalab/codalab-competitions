@@ -270,6 +270,12 @@ class DeploymentConfig(BaseConfig):
         ssh_port = self.getServiceInstanceSshPort()
         return ['{0}.cloudapp.net:{1}'.format(service_name, str(ssh_port + vm_number)) for vm_number in vm_numbers]
 
+    def get_compute_worker_logs_password(self):
+        """
+        Get that password that will allow to see the logs
+        """
+        return self._svc_global['compute-worker']['misc']['logs-password']
+
 
 class Deployment(object):
     """

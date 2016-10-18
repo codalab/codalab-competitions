@@ -35,8 +35,62 @@ from codalabtools.deploy import DeploymentConfig, Deployment
 logger = logging.getLogger('codalabtools')
 
 
+@task
+def using(path):
+    """
+    Specifies a location for the CodaLab configuration file (e.g., deployment.config)
+    """
+    env.cfg_path = path
+
+
+@task
+def config(label):
+    """
+    Reads deployment parameters for the given setup.
+    label: Label identifying the desired setup (e.g., prod, test, etc.)
+    """
+    env.cfg_label = label
+    print "Deployment label is:", env.cfg_label
+    print "Loading configuration from:", env.cfg_path
+    configuration = DeploymentConfig(label, env.cfg_path)
+    print "Configuring logger..."
+    logging.config.dictConfig(configuration.getLoggerDictConfig())
+    logger.info("Loaded configuration from file: %s", configuration.getFilename())
+    env.roledefs = {'web': configuration.getWebHostnames()}
+
+    # Credentials
+    env.user = configuration.getVirtualMachineLogonUsername()
+    # COMMENT THIS OUT LATER, USED ONLY FOR OLD DEPLOYMENT
+    # env.password = configuration.getVirtualMachineLogonPassword()
+    # env.key_filename = configuration.getServiceCertificateKeyFilename()
+
+    # Repository
+    env.git_codalab_tag = configuration.getGitTag()
+    env.deploy_codalab_dir = 'codalab-competitions'  # Directory for codalab competitions
+
+    env.django_settings_module = 'codalab.settings'
+    env.django_configuration = configuration.getDjangoConfiguration()  # Prod or Test
+    env.config_http_port = '80'
+    env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
+    print "Deployment configuration is for:", env.config_server_name
+
+    env.configuration = True
+    env.SHELL_ENV = {}
+
+
+def setup_env():
+    env.SHELL_ENV.update(dict(
+        DJANGO_SETTINGS_MODULE=env.django_settings_module,
+        DJANGO_CONFIGURATION=env.django_configuration,
+        CONFIG_HTTP_PORT=env.config_http_port,
+        CONFIG_SERVER_NAME=env.config_server_name,
+    ))
+    return prefix('source ~/%s/venv/bin/activate' % env.deploy_codalab_dir), shell_env(**env.SHELL_ENV)
+
+
 ############################################################
-# Configuration (run every time)
+# Installation (one-time)
+
 
 def provision_packages(packages=None):
     """
@@ -76,66 +130,9 @@ def provision_compute_workers_packages():
     provision_packages(packages)
 
 
-@task
-def using(path):
-    """
-    Specifies a location for the CodaLab configuration file (e.g., deployment.config)
-    """
-    env.cfg_path = path
-
-
-@task
-def config(label):
-    """
-    Reads deployment parameters for the given setup.
-    label: Label identifying the desired setup (e.g., prod, test, etc.)
-    """
-    env.cfg_label = label
-    print "Deployment label is:", env.cfg_label
-    print "Loading configuration from:", env.cfg_path
-    configuration = DeploymentConfig(label, env.cfg_path)
-    print "Configuring logger..."
-    logging.config.dictConfig(configuration.getLoggerDictConfig())
-    logger.info("Loaded configuration from file: %s", configuration.getFilename())
-    env.roledefs = {'web': configuration.getWebHostnames()}
-
-    # Credentials
-    env.user = configuration.getVirtualMachineLogonUsername()
-    # COMMENT THIS OUT LATER, USED ONLY FOR OLD DEPLOYMENT
-    # env.password = configuration.getVirtualMachineLogonPassword()
-    # env.key_filename = configuration.getServiceCertificateKeyFilename()
-
-    # Repository
-    env.git_codalab_tag = configuration.getGitTag()
-    env.deploy_codalab_dir = 'codalab-competitions'  # Directory for codalab competitions
-
-    env.django_settings_module = 'codalab.settings'
-    env.django_configuration = configuration.getDjangoConfiguration()  # Prod or Dev
-    env.config_http_port = '80'
-    env.config_server_name = "{0}.cloudapp.net".format(configuration.getServiceName())
-    print "Deployment configuration is for:", env.config_server_name
-
-    env.configuration = True
-    env.SHELL_ENV = {}
-
-
-def setup_env():
-    env.SHELL_ENV.update(dict(
-        DJANGO_SETTINGS_MODULE=env.django_settings_module,
-        DJANGO_CONFIGURATION=env.django_configuration,
-        CONFIG_HTTP_PORT=env.config_http_port,
-        CONFIG_SERVER_NAME=env.config_server_name,
-    ))
-    return prefix('source ~/%s/venv/bin/activate' % env.deploy_codalab_dir), shell_env(**env.SHELL_ENV)
-
-
-############################################################
-# Installation (one-time)
-
-
 @roles('web')
 @task
-def install_web():
+def provision_web():
     '''
     Install everything from scratch (idempotent).
     '''
@@ -174,11 +171,13 @@ def provision_compute_worker(label):
     def ensure_repo_exists(repo, dest):
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
     ensure_repo_exists('https://github.com/codalab/codalab-competitions', env.deploy_codalab_dir)
-    deploy_compute_workers(label=label)
+    deploy_compute_worker(label=label)
+    setup_compute_worker_permissions()
+    download_anaconda_library()
 
 
 @task
-def deploy_compute_workers(label):
+def deploy_compute_worker(label):
     '''
     Deploy/update compute workers.
     For monitoring make sure the azure instance has the port 8000 forwarded
@@ -195,6 +194,7 @@ def deploy_compute_workers(label):
     settings_file = os.path.join('~', '.codalabconfig')
     put(buf, settings_file)
     env.git_codalab_tag = cfg.getGitTag()
+    env.logs_password = cfg.get_compute_worker_logs_password()
 
     # Initial setup
     with cd(env.deploy_codalab_dir):
@@ -202,30 +202,25 @@ def deploy_compute_workers(label):
         run('git pull')
         run('./dev_setup.sh')
 
-    # Write the worker configuration file
-
-    # password = os.environ.get('CODALAB_COMPUTE_MONITOR_PASSWORD', None)
-    # assert password, "CODALAB_COMPUTE_MONITOR_PASSWORD environment variable required to setup compute workers!"
-
-    # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
+    run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
 
     put(
-        local_path='/Users/flaviozhingri/work/codalab/codalab/codalabtools/deploy/configs/upstart/codalab-compute-worker.conf',
+        local_path='configs/upstart/codalab-compute-worker.conf',
         remote_path='/etc/init/codalab-compute-worker.conf',
         use_sudo=True
     )
-    # put(
-    #     local_path='configs/upstart/codalab-monitor.conf',
-    #     remote_path='/etc/init/codalab-monitor.conf',
-    #     use_sudo=True
-    # )
-    # run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % password)
+    put(
+        local_path='configs/upstart/codalab-monitor.conf',
+        remote_path='/etc/init/codalab-monitor.conf',
+        use_sudo=True
+    )
+    run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % env.logs_password)
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
-        # sudo("stop codalab-monitor")
+        sudo("stop codalab-monitor")
         sudo("start codalab-compute-worker")
-        # sudo("start codalab-monitor")
+        sudo("start codalab-monitor")
 
 
 @roles('web')
@@ -400,12 +395,12 @@ def setup_compute_worker_user():
 
 
 @task
-def install_anaconda_library():
+def download_anaconda_library():
     '''
     Download anaconda package to compute workers.
     '''
     with cd('/home/azureuser'):
-        # sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
+        sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
         sudo("yes Y anaconda | bash Anaconda2-2.4.0-Linux-x86_64.sh")
 
 
