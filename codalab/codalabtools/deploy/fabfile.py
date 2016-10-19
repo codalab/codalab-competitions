@@ -60,9 +60,6 @@ def config(label):
 
     # Credentials
     env.user = configuration.getVirtualMachineLogonUsername()
-    # COMMENT THIS OUT LATER, USED ONLY FOR OLD DEPLOYMENT
-    # env.password = configuration.getVirtualMachineLogonPassword()
-    # env.key_filename = configuration.getServiceCertificateKeyFilename()
 
     # Repository
     env.git_codalab_tag = configuration.getGitTag()
