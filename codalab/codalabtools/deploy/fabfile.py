@@ -204,17 +204,19 @@ def deploy_compute_worker(label):
 
     run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
 
+    current_directory = os.path.dirname(os.path.realpath(__file__))
+
     put(
-        local_path='configs/upstart/codalab-compute-worker.conf',
+        local_path='{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory),
         remote_path='/etc/init/codalab-compute-worker.conf',
         use_sudo=True
     )
     put(
-        local_path='configs/upstart/codalab-monitor.conf',
+        local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
         remote_path='/etc/init/codalab-monitor.conf',
         use_sudo=True
     )
-    run("echo %s > /home/azureuser/codalab/codalab/codalabtools/compute/password.txt" % env.logs_password)
+    run("echo %s > /home/azureuser/codalab-competitions/codalab/codalabtools/compute/password.txt" % env.logs_password)
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
