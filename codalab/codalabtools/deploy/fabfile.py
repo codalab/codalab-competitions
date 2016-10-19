@@ -100,7 +100,7 @@ def provision_packages(packages=None):
         sudo apt-get -y install <packages>
     """
     sudo('apt-get update')
-    sudo('apt-get upgrade')
+    sudo('apt-get -y upgrade')
     sudo('apt-get install -y python-pip')
     sudo('apt-get -y install %s' % packages)
     sudo('apt-get -y install git')
@@ -116,7 +116,7 @@ def provision_web_packages():
     """
     Installs required software packages on a newly provisioned web instance.
     """
-    packages = ('libjpeg-dev nginx supervisor xclip  zip' +
+    packages = ('libjpeg-dev nginx supervisor xclip zip' +
                 'libmysqlclient-dev uwsgi-plugin-python')
     provision_packages(packages)
 
@@ -173,7 +173,9 @@ def provision_compute_worker(label):
     ensure_repo_exists('https://github.com/codalab/codalab-competitions', env.deploy_codalab_dir)
     deploy_compute_worker(label=label)
     setup_compute_worker_permissions()
-    download_anaconda_library()
+    download_install_anaconda_library()
+    install_coco_api()
+    setup_compute_worker_user()
 
 
 @task
@@ -397,13 +399,16 @@ def setup_compute_worker_user():
 
 
 @task
-def download_anaconda_library():
+def download_install_anaconda_library():
     '''
     Download anaconda package to compute workers.
     '''
     with cd('/home/azureuser'):
         sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
-        sudo("yes Y anaconda | bash Anaconda2-2.4.0-Linux-x86_64.sh")
+        sudo("bash Anaconda2-2.4.0-Linux-x86_64.sh -b -p $HOME/anaconda")
+        sudo("echo '\n\nAdded for anaconda path' >> $HOME/.bashrc")
+        sudo("echo 'export PATH=\"$HOME/anaconda/bin:$PATH\"' >> $HOME/.bashrc")
+        sudo("source ~/.bashrc")
 
 
 @task
@@ -411,14 +416,10 @@ def install_coco_api():
     '''
     Install coco api
     '''
-    run("which python")
-    with shell_env(PATH='/home/azureuser/anaconda/bin'):
-        sudo("conda install cython")
     with cd('/home/azureuser'):
         sudo('git clone https://github.com/pdollar/coco.git')
-        with shell_env(PATH='/home/azureuser/anaconda/bin'):
-            with cd('coco/PythonAPI'):
-                run('python setup.py build_ext install')
+        with cd('coco/PythonAPI'):
+            sudo('/home/azureuser/anaconda/bin/python setup.py build_ext install')
 
 
 @task
