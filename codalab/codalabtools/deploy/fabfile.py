@@ -123,7 +123,8 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6')
+    # sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
     provision_packages(packages)
 
 
@@ -471,7 +472,7 @@ def get_database_dump():
     db_user = configuration.getDatabaseUser()
     db_password = configuration.getDatabasePassword()
 
-    dump_file_name = 'competitiondump-%s.sql.gz' % datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    dump_file_name = 'competitiondump.sql.gz'
 
     run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
         db_host,
@@ -479,10 +480,37 @@ def get_database_dump():
         db_password,
         db_name,
         dump_file_name)
-    )
+        )
+    backup_directory = os.path.dirname(os.path.realpath(__file__))
 
-    backup_dir = os.environ.get("CODALAB_MYSQL_BACKUP_DIR", "")
-    get('/tmp/%s' % dump_file_name, backup_dir)
+    get('%s' % dump_file_name, backup_directory)
+
+
+@roles('web')
+@task
+def put_mysql_dump_to_new_database():
+    '''Puts dubmped database to new location'''
+    require('configuration')
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_host = "localhost"
+    db_database = configuration.getDatabaseName()
+    db_user = configuration.getDatabaseUser()
+    db_password = configuration.getDatabasePassword()
+
+    backup_directory = os.path.dirname(os.path.realpath(__file__))
+
+    put(local_path='{}/competitiondump.sql.gz'.format(backup_directory),
+        remote_path='/home/azureuser/db_dump.sql.gz',
+        use_sudo=True)
+
+    with cd('$HOME'):
+        run('gunzip db_dump.sql.gz')
+        run('mysql -u %s -p %s -h %s %s < db_dump.sql' % (
+            db_user,
+            db_password,
+            db_host,
+            db_database)
+            )
 
 
 @task
