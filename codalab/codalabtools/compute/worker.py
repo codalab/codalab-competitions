@@ -4,7 +4,6 @@ Defines the worker process which handles computations.
 """
 import azure
 import json
-import datetime
 import logging
 import logging.config
 import os
@@ -14,7 +13,6 @@ import pwd
 import grp
 import signal
 import math
-import select
 import shutil
 import socket
 import subprocess
@@ -25,9 +23,8 @@ import traceback
 import yaml
 
 from os.path import dirname, abspath, join
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, call
 from zipfile import ZipFile
-
 
 # Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
@@ -72,6 +69,14 @@ class WorkerConfig(BaseConfig):
     def getAzureServiceBusIssuer(self):
         """Gets the Azure Service Bus issuer."""
         return self._winfo['azure-service-bus']['issuer']
+
+    def get_service_bus_shared_access_key_name(self):
+        """Gest the SAS shared access key name"""
+        return self._winfo['azure-service-bus']['shared-access-key-name']
+
+    def get_service_bus_shared_access_key_value(self):
+        """Gest the SAS shared access key value"""
+        return self._winfo['azure-service-bus']['shared-access-key-value']
 
     def getAzureServiceBusQueue(self):
         """Gets the name of the Azure Service Bus queue to listen to."""
@@ -222,6 +227,8 @@ def get_run_func(config):
         queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
                                      config.getAzureServiceBusKey(),
                                      config.getAzureServiceBusIssuer(),
+                                     config.get_service_bus_shared_access_key_name(),
+                                     config.get_service_bus_shared_access_key_value(),
                                      reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
@@ -495,6 +502,8 @@ def main():
     queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
                                  config.getAzureServiceBusKey(),
                                  config.getAzureServiceBusIssuer(),
+                                 config.get_service_bus_shared_access_key_name(),
+                                 config.get_service_bus_shared_access_key_value(),
                                  config.getAzureServiceBusQueue())
     # map task type to function to accomplish the task
     vtable = {

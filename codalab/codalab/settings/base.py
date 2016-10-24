@@ -160,7 +160,6 @@ class Base(Settings):
         "allauth.account.context_processors.account",
         "allauth.socialaccount.context_processors.socialaccount",
         "codalab.context_processors.app_version_proc",
-        "apps.web.context_processors.beta",
         "django.core.context_processors.request",
         "codalab.context_processors.common_settings",
     )

@@ -13,9 +13,11 @@ from apps.web.models import Competition
 
 def get_most_popular_competitions(limit=3):
 	'''
-	Function to return most popular competitions
-	1.  Will return three most popular comptitions, if any
-	2. Make sure only opened competions are displayed
+	Function to return most popular competitions based on the amount of participants.
+
+	:param limit: Amount of competitions to return. Default is 3.
+	:rtype: list
+	:return:  Most popular competitions.
 	'''
 	today = datetime.datetime.today()
 	competitions = Competition.objects.filter(published=True) \
@@ -31,15 +33,11 @@ def get_most_popular_competitions(limit=3):
 
 def get_featured_competitions(limit=3):
 	'''
-	Function to return featured competitions
-	1. It will return three random active competitions
-	2. Declare featured competitions list
-	3. Get all competition that are published
-	4. Get popular competitions
-	5. Get popular competitions pk
-	6. Exclude popular competitions from queryset
-	7. Check if queryset is greater than 3; if not, return queryset
-	8. If queryset is greater than 3, return 3 randomly
+	Function to return featured competitions if they are still open.
+
+	:param limit: Amount of competitionss to return. Default is 3
+	:rtype: list
+	:return: list of featured competitions
 	'''
 	today = datetime.datetime.today()
 	featured_competitions = []

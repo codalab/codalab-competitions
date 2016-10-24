@@ -34,10 +34,13 @@ def getQueue(name=None):
         queue = AzureServiceBusQueue(settings.SBS_NAMESPACE,
                                      settings.SBS_ACCOUNT_KEY,
                                      settings.SBS_ISSUER,
+                                     settings.SBS_SHARED_ACCESS_KEY_NAME,
+                                     settings.SBS_SHARED_ACCESS_KEY_VALUE,
                                      name)
         _queues[name] = queue
 
     return queue
+
 
 # Jobs
 

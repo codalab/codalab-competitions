@@ -145,7 +145,7 @@ def my_index(request):
     except:
         denied = -1
 
-    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator')
+    my_competitions = models.Competition.objects.filter(Q(creator=request.user) | Q(admins__in=[request.user])).order_by('-pk').select_related('creator').distinct()
     published_competitions = models.Competition.objects.filter(published=True).select_related('creator', 'participants')
     published_competitions = reversed(sorted(published_competitions, key=lambda c: c.get_start_date))
     context_dict = {
@@ -463,10 +463,14 @@ class CompetitionDetailView(DetailView):
 
 
 class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
-    """Serves the table of submissions in the Participate tab of a competition.
+    """
+    Serves the table of submissions in the Participate tab of a competition.
 
     .. note::
-        Requires an authenticated user who is an approved participant of the competition."""
+
+        Requires an authenticated user who is an approved participant of the competition.
+
+    """
     template_name = 'web/competitions/_submit_results_page.html'
 
     def get_context_data(self, **kwargs):

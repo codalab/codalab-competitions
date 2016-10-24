@@ -65,7 +65,7 @@
         <table class="table resultsTable dataTable table-striped table-bordered" id="user_results">
             <thead>
                 <tr>
-                    <th></th>
+                    <th>#</th>
                     <th>Filename</th>
                     <th>Submission date</th>
                     <th>Status</th>
@@ -98,7 +98,7 @@
                         {% else %}
                             <input type="hidden" name="state" value='0' />
                         {% endif %}
-                        <td>{{submission_info.number}}</td>
+                        <td>{{ forloop.counter }}</td>
                         <td>{{submission_info.filename}}</td>
                         <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
                         <td class="statusName">{{submission_info.status_name}}</td>

@@ -21,33 +21,30 @@
     <div class="container">
 
         <div class="row">
-
-            {% if ENABLE_COMPETITIONS %}
-              <div class="col-sm-6 competition-latest-list">
-                <h2 class="homepage_headers">Popular Competitions</h2>
-                {% if not latest_competitions %}
-                <p><em>There are no competitions.</em></p>
-                {% else %}
-                    {% for competition in latest_competitions %}
-                        {% include "web/competition_latest.html" with competition=competition %}
-                    {% endfor %}
-                {% endif %}
-              </div>
-                <div class="col-sm-6 competition-latest-list">
-                <h2 class="homepage_headers">Featured Competitions</h2>
-                {% if not latest_competitions %}
-                <p><em>There are no competitions.</em></p>
-                {% else %}
-                    {% for competition in featured_competitions %}
-                        {% include "web/competition_latest.html" with competition=competition %}
-                    {% endfor %}
-                {% endif %}
-              </div>
+          <div class="col-sm-6 competition-latest-list">
+            <h2 class="homepage_headers">Popular Competitions</h2>
+            {% if not latest_competitions %}
+            <p><em>There are no competitions.</em></p>
+            {% else %}
+                {% for competition in latest_competitions %}
+                    {% include "web/competition_latest.html" with competition=competition %}
+                {% endfor %}
             {% endif %}
+          </div>
+            <div class="col-sm-6 competition-latest-list">
+            <h2 class="homepage_headers">Featured Competitions</h2>
+            {% if not latest_competitions %}
+            <p><em>There are no competitions.</em></p>
+            {% else %}
+                {% for competition in featured_competitions %}
+                    {% include "web/competition_latest.html" with competition=competition %}
+                {% endfor %}
+            {% endif %}
+          </div>
         </div>
     </div>
 {% endblock content %}
-
+<script>
 {% block js %}
     $(function () {
         $(".top-bar-section ul > li").removeClass("active");
@@ -85,3 +82,4 @@
 
     populate('#search_form', params);
 {% endblock js %}
+</script>

@@ -285,3 +285,29 @@ def _deploy():
         put(cfg.getSslCertificateKeyPath(), cfg.getSslCertificateKeyInstalledPath(), use_sudo=True)
     else:
         logger.info("Skipping certificate installation because both files are not specified.")
+
+
+@roles('web')
+@task
+def get_database_dump():
+    '''Saves backups to $CODALAB_MYSQL_BACKUP_DIR/launchdump-year-month-day-hour-min-second.sql.gz'''
+    require('configuration')
+    configuration = DeploymentConfig(env.cfg_label, env.cfg_path)
+    db_host = "localhost"
+    db_name = configuration.getDatabaseName()
+    db_user = configuration.getDatabaseUser()
+    db_password = configuration.getDatabasePassword()
+
+    dump_file_name = 'competitiondump.sql.gz'
+
+    run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
+        db_host,
+        db_user,
+        db_password,
+        db_name,
+        dump_file_name)
+    )
+    backup_directory = os.path.dirname(os.path.realpath(__file__))
+
+    get('/tmp/%s' % dump_file_name, backup_directory)
+
