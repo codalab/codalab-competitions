@@ -113,8 +113,7 @@ def provision_web_packages():
     """
     Installs required software packages on a newly provisioned web instance.
     """
-    packages = ('libjpeg-dev nginx supervisor xclip zip' +
-                'libmysqlclient-dev uwsgi-plugin-python')
+    packages = ('libjpeg-dev nginx supervisor xclip zip libmysqlclient-dev uwsgi-plugin-python')
     provision_packages(packages)
 
 
