@@ -41,6 +41,8 @@ class Dev(DevBase):
     SBS_NAMESPACE = '<service bus name>'
     SBS_ISSUER = 'owner'
     SBS_ACCOUNT_KEY = '<acs default key>'
+    SBS_SHARED_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
+    SBS_SHARED_ACCESS_KEY_VALUE = '<the_key>'
     SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
     SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 

@@ -180,7 +180,8 @@ which is deprecated by Microsoft, it can be created through the command line:
 6. Click on the key `Connection Information` at the bottom,
   - Note the `default issuers` and the `default key` from the `ACS` section.
 7. Go in the queue section and create the queues described previously with default parameters.
-
+8. Go in the `Shared access policies` section,
+  - Note the name and `Primary Key` of your Shared Access Policy
 
 ### 3. Update your configuration
 
