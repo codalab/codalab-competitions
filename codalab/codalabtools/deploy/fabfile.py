@@ -122,8 +122,7 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6')
-    # sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre')
     provision_packages(packages)
 
 
@@ -502,14 +501,14 @@ def put_mysql_dump_to_new_database():
         remote_path='/home/azureuser/db_dump.sql.gz',
         use_sudo=True)
 
-    with cd('$HOME'):
-        run('gunzip db_dump.sql.gz')
-        run('mysql -u %s -p %s -h %s %s < db_dump.sql' % (
-            db_user,
-            db_password,
-            db_host,
-            db_database)
-            )
+    # with cd('$HOME'):
+    #     run('gunzip db_dump.sql.gz')
+    #     run('mysql -u %s -p %s -h %s %s < db_dump.sql' % (
+    #         db_user,
+    #         db_password,
+    #         db_host,
+    #         db_database)
+    #         )
 
 
 @task
