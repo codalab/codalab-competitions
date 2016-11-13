@@ -1378,8 +1378,7 @@ class CompetitionDefBundle(models.Model):
 
         comp_spec = yaml.load(yaml_contents)
         comp_base = comp_spec.copy()
-        print "ALL KEYS START HERE"
-        print "{}".format(comp_base.keys())
+
         for block in ['html', 'phases', 'leaderboard']:
             if block in comp_base:
                 del comp_base[block]
