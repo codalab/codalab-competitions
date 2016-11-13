@@ -49,8 +49,9 @@ def get_featured_competitions(limit=3):
 	if len(competitions) < 3:
 		return competitions
 	else:
-		for _ in range(0, 3):
+		while len(featured_competitions) < 3:
 			competition = competitions[randint(0, competitions.count() - 1)]
-			featured_competitions.append(competition)
+			if competition not in featured_competitions:
+				featured_competitions.append(competition)
 
 	return featured_competitions
