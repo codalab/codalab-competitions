@@ -1360,7 +1360,7 @@ class CompetitionDefBundle(models.Model):
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
         zf = zipfile.ZipFile(self.config_bundle)
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
-        comp_spec_file = [x for x in zf.namelist() if ".yaml" in x ][0]
+        comp_spec_file = [x for x in zf.namelist() if ".yaml" in x][0]
         yaml_contents = zf.open(comp_spec_file).read()
 
         # Forcing YAML to interpret the file while maintaining the original order things are in
