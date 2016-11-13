@@ -113,8 +113,7 @@ def provision_web_packages():
     """
     Installs required software packages on a newly provisioned web instance.
     """
-    packages = ('libjpeg-dev nginx supervisor xclip zip' +
-                'libmysqlclient-dev uwsgi-plugin-python')
+    packages = ('libjpeg-dev nginx supervisor xclip zip libmysqlclient-dev uwsgi-plugin-python')
     provision_packages(packages)
 
 
@@ -123,8 +122,7 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6')
-    # sudo('apt-get --yes --force-yes install libsm6 openjdk-7-jre')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre')
     provision_packages(packages)
 
 
@@ -430,7 +428,7 @@ def set_permissions_on_codalab_temp():
 
 @task
 def update_compute_worker():
-    run('cd codalab && git pull --rebase')
+    run('cd codalab-competitions && git pull --rebase')
     sudo("stop codalab-compute-worker")
     sudo("stop codalab-monitor")
     sudo("start codalab-compute-worker")
@@ -503,14 +501,14 @@ def put_mysql_dump_to_new_database():
         remote_path='/home/azureuser/db_dump.sql.gz',
         use_sudo=True)
 
-    with cd('$HOME'):
-        run('gunzip db_dump.sql.gz')
-        run('mysql -u %s -p %s -h %s %s < db_dump.sql' % (
-            db_user,
-            db_password,
-            db_host,
-            db_database)
-            )
+    # with cd('$HOME'):
+    #     run('gunzip db_dump.sql.gz')
+    #     run('mysql -u %s -p %s -h %s %s < db_dump.sql' % (
+    #         db_user,
+    #         db_password,
+    #         db_host,
+    #         db_database)
+    #         )
 
 
 @task

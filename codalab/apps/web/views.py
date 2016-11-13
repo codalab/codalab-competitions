@@ -590,16 +590,21 @@ class CompetitionPublicSubmission(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CompetitionPublicSubmission, self).get_context_data(**kwargs)
+        context['active_phase'] = None
 
         try:
             competition = models.Competition.objects.get(pk=self.kwargs['pk'])
             context['competition'] = competition
+
             for phase in competition.phases.all():
                 if phase.is_active:
                     context['active_phase'] = phase
         except:
             context['error'] = traceback.print_exc()
 
+        # In case all phases are close, lets get last phase
+        if context['active_phase'] is None:
+            context['active_phase'] = competition.phases.all().order_by("phasenumber").reverse()[0]
         return context
 
 
