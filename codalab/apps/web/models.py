@@ -38,6 +38,7 @@ from django.utils.functional import cached_property
 
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
+from apps.authenz.models import ClUser
 
 
 User = settings.AUTH_USER_MODEL
@@ -1377,6 +1378,8 @@ class CompetitionDefBundle(models.Model):
 
         comp_spec = yaml.load(yaml_contents)
         comp_base = comp_spec.copy()
+        print "ALL KEYS START HERE"
+        print "{}".format(comp_base.keys())
         for block in ['html', 'phases', 'leaderboard']:
             if block in comp_base:
                 del comp_base[block]
@@ -1401,7 +1404,7 @@ class CompetitionDefBundle(models.Model):
 
         if admin_names:
             logger.debug("CompetitionDefBundle::unpack looking up admins %s", comp_spec['admin_names'])
-            admins = User.objects.filter(username__in=admin_names.split(','))
+            admins = ClUser.objects.filter(username__in=admin_names.split(','))
             logger.debug("CompetitionDefBundle::unpack found admins %s", admins)
             comp.admins.add(*admins)
 
@@ -1415,7 +1418,6 @@ class CompetitionDefBundle(models.Model):
                     participant.save()
                 except models.ObjectDoesNotExist:
                     CompetitionParticipant.objects.create(user=admin, competition=comp, status=approved_status)
-
 
         # Unpack and save the logo
         if 'image' in comp_base:
