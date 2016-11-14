@@ -398,6 +398,7 @@ class DevBase(Base):
     OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
     DEBUG = True
+    ACCOUNT_EMAIL_VERIFICATION = None
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
