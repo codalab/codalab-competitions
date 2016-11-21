@@ -10,11 +10,6 @@ To see Codalab Competition's in action, visit [www.competitions.codalab.org](htt
 
 - [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
 
-## Development
-
-- [docs/](./docs/),
-- [docs/DEV.md](./docs/DEV.md): to setup a development environment for codalab on your machine.
-
 ## Community
 
 The CodaLab community forum is hosted on Google Groups.
