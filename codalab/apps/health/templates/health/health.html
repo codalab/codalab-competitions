@@ -53,7 +53,7 @@
             <br><br>
 
             List of emails to notify on error, separated by commas<br>
-            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com</label><br>
+            <label for="email_settings_textarea">eg: eric.carmichael@tivix.com, francis@tivix.com, flavio.zhingri@tivix.com</label><br>
             <textarea id="email_settings_textarea" name="email_settings_textarea" style="resize:vertical; display: block;">{{ alert_emails }}</textarea><br>
             <input id="email_settings_submit_button" type="submit" class="button" value="Save">
 
@@ -62,7 +62,7 @@
 
     </div>
 {% endblock %}
-
+<script>
 {% block js %}
     $(function () {
         $("#email_settings_submit_button").click(function(){
@@ -95,6 +95,7 @@
         });
     });
 {% endblock %}
+</script>
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}js/vendor/gauge.min.js"></script>
 {% endblock %}
