@@ -1115,7 +1115,7 @@ var CodaLab;
                                 if (data.status == 'finished') {
                                     $('#details').html('Congratulations! ' +
                                         "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
-                                        "You can also manage it from <a href='/my/#manage'>your CodaLab dashboard.</a>"
+                                        "You can also manage it from <a href='/my/#my_managing'>your CodaLab dashboard.</a>"
                                     );
                                     $('#uploadButton').removeClass('disabled');
                                 } else if (data.status == 'failed') {
