@@ -282,7 +282,7 @@ class CompetitionDelete(LoginRequiredMixin, DeleteView):
     """ View to Delete a competition."""
     model = models.Competition
     template_name = 'web/competitions/confirm-delete.html'
-    success_url = '/my/#manage'
+    success_url = '/my/#my_managing'
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
