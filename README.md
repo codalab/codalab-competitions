@@ -17,12 +17,13 @@ The CodaLab community forum is hosted on Google Groups.
 
 ## Latest changes:
 ###### November 21, 2016:
-New set of credentials to authenticate `BUS SERVICES`. Add the following to `local.py` script
+New set of credentials to authenticate `BUS SERVICES`. Add the following to `local.py` script.
+Leave them empty if previous credentials are provided.
 - `SBS_SHARED_ACCESS_KEY_NAME = '<shared access key name>'`
 - `SBS_SHARED_ACCESS_KEY_VALUE = '<shared access key value>'`
 
 Add the following to worker config file under `azure-service-bus`
-- `shared-access-key-name: "<adasfads>"`
+- `shared-access-key-name: "<shared access key name>"`
 - `shared-access-key-value: "the key"`
 
 Those values should be available in the Azure dashboard.
