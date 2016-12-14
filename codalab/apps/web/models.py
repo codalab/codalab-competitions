@@ -429,9 +429,6 @@ class Competition(models.Model):
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
-            #csvwriter.writerow([group['label']])
-            #csvwriter.writerow([])
-
             headers = ["User"]
             sub_headers = [""]
             # This ordering dict will contain {<header key>: <order of the column>}
