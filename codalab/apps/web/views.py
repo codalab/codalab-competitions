@@ -664,7 +664,7 @@ class CompetitionResultsDownload(View):
         phase = competition.phases.get(pk=self.kwargs['phase'])
         if phase.is_blind:
             return HttpResponse(status=403)
-        response = HttpResponse(competition.get_results_csv(phase.pk), status=200, content_type="text/csv")
+        response = HttpResponse(competition.get_results_csv(phase.pk, request=request), status=200, content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=%s results.csv" % phase.competition.title
         return response
 
@@ -1364,7 +1364,7 @@ def download_competition_bundle(request, competition_pk):
 @login_required
 def download_leaderboard_results(request, competition_pk, phase_pk):
     """
-    Downloads the resutls from the leaderboard table.
+    Downloads submissions from the leaderboard table.
 
     :param competition_pk: Competition's primary key
     :param phase_pk: Phase's primary key
@@ -1398,6 +1398,7 @@ def download_leaderboard_results(request, competition_pk, phase_pk):
 
         # Add each submission
         for entry in leaderboard_entries:
+            # Maps back to submission
             submission = entry.result
             username_or_team_name = submission.participant.user.username if not submission.participant.user.team_name else "Team %s " % submission.participant.user.team_name
             file_name = "%s - %s submission.zip" % (username_or_team_name, submission.submission_number)
