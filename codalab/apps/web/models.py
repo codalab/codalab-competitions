@@ -410,7 +410,7 @@ class Competition(models.Model):
         self.last_phase_migration = current_phase.phasenumber
         self.save()
 
-    def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False):
+    def get_results_csv(self, phase_pk, include_scores_not_on_leaderboard=False, request=None):
         """
         Get the results of submissions on Leaderboard.
 
@@ -429,9 +429,6 @@ class Competition(models.Model):
         csvwriter = csv.writer(csvfile)
 
         for group in groups:
-            #csvwriter.writerow([group['label']])
-            #csvwriter.writerow([])
-
             headers = ["User"]
             sub_headers = [""]
             # This ordering dict will contain {<header key>: <order of the column>}
@@ -455,11 +452,18 @@ class Competition(models.Model):
                     csvwriter.writerow(["No data available"])
                 else:
                     for pk, scores in group['scores']:
-                        #print pk, scores
-                        row = [scores['username']] + (['']*(len(ordering) + 1))
+                        if phase.competition.anonymous_leaderboard:
+                            if phase.competition.creator.username == request.user.username or \
+                            request.user in phase.competition.admins.all():
+                                row = [scores['username']] + ([''] * (len(ordering) + 1)) # Appending list
+                            else:
+                                row = ['Anonymous'] + ([''] * (len(ordering) + 1)) # Appending list
+                        else:
+                            row = [scores['username']] + ([''] * (len(ordering) + 1)) # Appending list
                         for v in scores['values']:
                             if 'rnk' in v:
                                 # Based on the header label insert the score into the proper column
+                                # Indexing list
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['rnk'])
                             else:
                                 row[ordering[v['name']] + 1] = "%s (%s)" % (v['val'], v['hidden_rnk'])

@@ -4,15 +4,7 @@ This module defines Windows Azure extensions for CodaLab.
 import logging
 from time import sleep
 
-from azure import (
-    WindowsAzureData,
-    WindowsAzureError
-)
-
-from azure.storage import (
-    # _sign_storage_blob_request,
-    BlobService,
-    StorageServiceProperties)
+from azure import WindowsAzureError
 
 from azure.servicebus import (
     ServiceBusService,
@@ -82,42 +74,3 @@ class AzureServiceBusQueue(Queue):
         fail = lambda: logger.error("Failed to send message. Message body is:\n%s", body)
         self._try_request(op, fail=fail)
 
-
-# class CorsRule(WindowsAzureData):
-#     '''CORS Rule for Windows Azure storage service.'''
-
-#     def __init__(self):
-#         self.allowed_origins = u''
-#         self.allowed_methods = u''
-#         self.max_age_in_seconds = 0
-#         self.exposed_headers = u''
-#         self.allowed_headers = u''
-
-# class Cors(WindowsAzureData):
-#     '''CORS list of rules for Windows Azure storage service.'''
-
-#     def __init__(self):
-#         self.cors_rule = []
-
-# def set_storage_service_cors_properties(account_name, account_key, cors_rules):
-#     """
-#     Assigns the specified CORS rules to the specified Blob service.
-
-#     blob_service: Target BlobService object.
-#     cors_rules: A Cors instance specifying the rules to apply.
-#     """
-#     blob_svc_props = StorageServiceProperties()
-#     blob_svc_props.metrics = None
-#     blob_svc_props.logging = None
-#     setattr(blob_svc_props, 'cors', cors_rules)
-
-#     def request_filter(request, next_filter):
-#         """ Intercepts request to modify headers."""
-#         request.headers = [(k, v) for (k, v) in request.headers if k not in ('x-ms-version', 'Authorization')]
-#         request.headers.append(('x-ms-version', '2013-08-15'))
-#         request.headers.append(('Authorization', _sign_storage_blob_request(request, account_name, account_key)))
-#         response = next_filter(request)
-#         return response
-
-#     blob_service = BlobService(account_name, account_key).with_filter(request_filter)
-#     blob_service.set_blob_service_properties(blob_svc_props)

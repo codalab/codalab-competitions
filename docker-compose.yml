@@ -1,0 +1,9 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      - "MYSQL_ROOT_PASSWORD=mysql"
+      - "MYSQL_DATABASE=codalab_website"
+    ports:
+        - 3306:3306

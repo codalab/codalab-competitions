@@ -7,7 +7,7 @@
     <p>Are all of the leaderboard column names matched with scores saved in scores.txt?</p>
     <pre>{{ error }}</pre>
 
-{% elif phase.is_future and  block_leaderboard_view %}
+{% elif phase.is_future and  block_leaderboard_view and is_owner or request.user in competition_admins %}
     <p>This phase has not started yet. The leaderboard is still hidden to participants but visible to you as an organizer</p>
 {% elif phase.is_blind and not is_owner and not request.user in competition_admins %}
     <p>Competition organizers have chosen to keep the leaderboard private. Please check back later.</p>
