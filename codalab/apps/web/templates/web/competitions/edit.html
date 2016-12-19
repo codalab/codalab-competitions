@@ -287,6 +287,7 @@
     <script src="{{ STATIC_URL }}js/vendor/jquery.datetimepicker.js"></script>
 {% endblock jsincludes %}
 
+<script type="text/javascript">
 {% block js %}
 $('document').ready(function () {
     $("#id_admins").select2();
@@ -412,3 +413,4 @@ $('document').ready(function () {
     });
   });
 {% endblock js %}
+</script>

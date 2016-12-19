@@ -300,71 +300,71 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
         comp = self.get_object()
         resp = {}
         status = request.DATA['status']
-        part = request.DATA['participant_id']
+        participant_id = request.DATA['participant_id']
         reason = request.DATA['reason']
 
         if comp.creator != request.user and request.user not in comp.admins.all():
             raise PermissionDenied()
 
         try:
-            p = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=part)
-            p.status = webmodels.ParticipantStatus.objects.get(codename=status)
-            p.reason = reason
-            p.save()
+            participant = webmodels.CompetitionParticipant.objects.get(competition=comp, pk=participant_id)
+            participant.status = webmodels.ParticipantStatus.objects.get(codename=status)
+            participant.reason = reason
+            participant.save()
             resp = {
                 'status': status,
-                'participantId': part,
+                'participantId': participant_id,
                 'reason': reason
                 }
 
             if status == webmodels.ParticipantStatus.PENDING:
                 pass
             elif status == webmodels.ParticipantStatus.APPROVED:
-                if self.request.user.participation_status_updates:
+                if participant.user.participation_status_updates:
                     self._send_mail(
                         {
                             'competition': comp,
-                            'user': self.request.user,
+                            'user': participant.user,
                         },
                         subject='Accepted into %s!' % comp,
                         html_file="emails/notifications/participation_accepted.html",
                         text_file="emails/notifications/participation_accepted.txt",
-                        to_email=self.request.user.email
+                        to_email=participant.user.email
                     )
 
                 if comp.creator.organizer_status_updates:
                     self._send_mail(
                         {
                             'competition': comp,
-                            'participant': p,
+                            'participant': participant,
                             'user': comp.creator,
                         },
-                        subject='%s accepted into your competition!' % p.user,
+                        subject='%s accepted into your competition!' % participant.user,
                         html_file="emails/notifications/organizer_participation_accepted.html",
                         text_file="emails/notifications/organizer_participation_accepted.txt",
                         to_email=comp.creator.email
                     )
             elif status == webmodels.ParticipantStatus.DENIED:
-                if self.request.user.participation_status_updates:
+                if participant.user.participation_status_updates:
                     self._send_mail(
                         {
                             'competition': comp,
-                            'user': self.request.user,
+                            'user': participant.user,
                         },
                         subject='Permission revoked from %s!' % comp,
                         html_file="emails/notifications/participation_revoked.html",
                         text_file="emails/notifications/participation_revoked.txt",
-                        to_email=self.request.user.email
+                        to_email=participant.user.email
                     )
 
                 if comp.creator.organizer_status_updates:
                     self._send_mail(
                         {
                             'competition': comp,
-                            'participant': p,
+                            'participant': participant,
                             'user': comp.creator,
                         },
-                        subject="%s's permission revoked from your competition!" % p.user,
+                        subject="%s's permission revoked from your competition!" % participant.user,
                         html_file="emails/notifications/organizer_participation_revoked.html",
                         text_file="emails/notifications/organizer_participation_revoked.txt",
                         to_email=comp.creator.email
@@ -372,7 +372,7 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         except ObjectDoesNotExist as e:
             resp = {
-                'status' : 400
+                'status': 400
                 }
 
         return Response(json.dumps(resp), content_type="application/json")
