@@ -15,6 +15,7 @@ import signal
 import math
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
@@ -34,6 +35,14 @@ from codalabtools import BaseWorker, BaseConfig
 from codalabtools.azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
+
+
+def on_rm_error( func, path, exc_info):
+    # path contains the path of the file that couldn't be removed
+    # it assumes that it's read-only and unlink it.
+    os.chmod(path, stat.S_IWRITE)
+    os.unlink(path)
+
 
 class WorkerConfig(BaseConfig):
     """
@@ -259,7 +268,7 @@ def get_run_func(config):
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
                 elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
+                    shutil.rmtree(file_path, onerror=on_rm_error)
 
             # Kill running processes in the temp dir
             try:
@@ -423,7 +432,7 @@ def get_run_func(config):
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
                 _upload(blob_service, container, private_output_id, private_output_file)
-                shutil.rmtree(private_dir)
+                shutil.rmtree(private_dir, onerror=on_rm_error)
 
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
@@ -485,7 +494,7 @@ def get_run_func(config):
             # Try cleaning-up temporary directory
             try:
                 os.chdir(current_dir)
-                shutil.rmtree(root_dir)
+                shutil.rmtree(root_dir, onerror=on_rm_error)
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
