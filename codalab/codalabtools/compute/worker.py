@@ -35,6 +35,23 @@ from codalabtools.azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
 
+
+def _find_only_folder_with_metadata(path):
+    """Looks through a bundle for a single folder that contains a metadata file and
+    returns that folder's name if found"""
+    files_in_path = os.listdir(path)
+    if len(files_in_path) > 2 and 'metadata' in files_in_path:
+        # We see more than a couple files OR metadata in this folder, leave
+        return None
+    for f in files_in_path:
+        # Find first folder
+        folder = os.path.join(path, f)
+        if os.path.isdir(folder):
+            # Check if it contains a metadata file
+            if 'metadata' in os.listdir(folder):
+                return folder
+
+
 class WorkerConfig(BaseConfig):
     """
     Defines configuration properties (mostly credentials) for a worker process.
@@ -135,6 +152,17 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         if bundle_ext == '.zip':
             with ZipFile(bundle_file.file, 'r') as z:
                 z.extractall(bundle_path)
+
+            # check if we just unzipped something containing a folder and nothing else
+            metadata_folder = _find_only_folder_with_metadata(bundle_path)
+            if metadata_folder:
+                # Make a temp dir and copy data there
+                temp_folder_name = join(root_path, "%s%s" % (bundle_rel_path, '_tmp'))
+                shutil.copytree(metadata_folder, temp_folder_name)
+
+                # Delete old dir, move copied data back
+                shutil.rmtree(bundle_path)
+                shutil.move(temp_folder_name, bundle_path)
         else:
             os.mkdir(bundle_path)
             shutil.copyfile(bundle_file.name, metadata_path)
@@ -143,6 +171,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         if os.path.exists(metadata_path):
             with open(metadata_path) as mf:
                 bundle_info = yaml.load(mf)
+
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
