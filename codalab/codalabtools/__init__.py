@@ -125,8 +125,8 @@ class BaseWorker(object):
                 self.logger.debug("Waiting for message.")
                 queue.put('waiting for message')
                 msg = self.queue.receive_message()
-                queue.put('received message')
                 if msg is not None:
+                    queue.put('received message')
                     self.logger.debug("Received message: %s", msg.get_body())
                     data = decode_message_body(msg)
                     task_id = data['id']
