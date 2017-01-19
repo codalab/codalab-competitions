@@ -24,6 +24,7 @@ from fabric.api import (cd,
                         roles,
                         require,
                         run,
+                        local,
                         settings,
                         shell_env,
                         sudo)
@@ -122,7 +123,7 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre upstart upstart-sysv unixodbc unixodbc-dev')
     provision_packages(packages)
 
 
@@ -160,6 +161,8 @@ def provision_compute_worker(label):
     Install compute workers from scracth. Run only once
     '''
     # Install packages
+    sudo("add-apt-repository ppa:openjdk-r/ppa")
+    sudo("apt-get update")
     provision_compute_workers_packages()
     env.deploy_codalab_dir = 'codalab-competitions'
 
@@ -167,11 +170,17 @@ def provision_compute_worker(label):
     def ensure_repo_exists(repo, dest):
         run('[ -e %s ] || git clone %s %s' % (dest, repo, dest))
     ensure_repo_exists('https://github.com/codalab/codalab-competitions', env.deploy_codalab_dir)
+
+    # If you need to install upstart, run this:
+    #     sudo apt-get install upstart-sysv
+    #     sudo update-initramfs -u
+    #     sudo reboot
+
     deploy_compute_worker(label=label)
-    setup_compute_worker_permissions()
     download_install_anaconda_library()
     install_coco_api()
     setup_compute_worker_user()
+    setup_compute_worker_permissions()
 
 
 @task
@@ -185,7 +194,7 @@ def deploy_compute_worker(label):
     env.deploy_codalab_dir = 'codalab-competitions'
     # Create .codalabconfig within home directory
     env.label = label
-    cfg = DeploymentConfig(env.label, env.cfg_path)
+    cfg = DeploymentConfig(env.label, env.cfg_path if hasattr(env, 'cfg_path') else '.codalabconfig')
     dep = Deployment(cfg)
     buf = StringIO()
     buf.write(dep.get_compute_workers_file_content())
@@ -198,9 +207,10 @@ def deploy_compute_worker(label):
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
-        run('./dev_setup.sh')
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+        # run('./dev_setup.sh')
 
-    run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
+    # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
 
@@ -214,7 +224,7 @@ def deploy_compute_worker(label):
         remote_path='/etc/init/codalab-monitor.conf',
         use_sudo=True
     )
-    run("echo %s > /home/azureuser/codalab-competitions/codalab/codalabtools/compute/password.txt" % env.logs_password)
+    # run("echo %s > /home/azureuser/codalab-competitions/codalab/codalabtools/compute/password.txt" % env.logs_password)
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
@@ -389,7 +399,6 @@ def setup_compute_worker_user():
     # Steps to setup compute worker:
     #   1) setup_compute_worker_user (only run this once as it creates a user and will probably fail if re-run)
     #   2) setup_compute_worker_permissions
-    #   3) setup_compute_worker_and_monitoring
     sudo('adduser --quiet --disabled-password --gecos "" workeruser')
     sudo('echo workeruser:password | chpasswd')
 

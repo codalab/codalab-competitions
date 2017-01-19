@@ -423,7 +423,7 @@ def get_run_func(config):
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
                 _upload(blob_service, container, private_output_id, private_output_file)
-                shutil.rmtree(private_dir)
+                shutil.rmtree(private_dir, ignore_errors=True)
 
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
@@ -485,7 +485,7 @@ def get_run_func(config):
             # Try cleaning-up temporary directory
             try:
                 os.chdir(current_dir)
-                shutil.rmtree(root_dir)
+                shutil.rmtree(root_dir, ignore_errors=True)
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
