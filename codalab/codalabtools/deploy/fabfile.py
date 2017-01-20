@@ -438,10 +438,11 @@ def set_permissions_on_codalab_temp():
 @task
 def update_compute_worker():
     run('cd codalab-competitions && git pull --rebase')
-    sudo("stop codalab-compute-worker")
-    sudo("stop codalab-monitor")
-    sudo("start codalab-compute-worker")
-    sudo("start codalab-monitor")
+    with settings(warn_only=True):
+        sudo("stop codalab-compute-worker")
+        sudo("stop codalab-monitor")
+        sudo("start codalab-compute-worker")
+        sudo("start codalab-monitor")
 
 
 @task
