@@ -1552,6 +1552,37 @@ def submission_re_run(request, submission_pk):
 
 
 @login_required
+def submission_re_run_all(request, phase_pk):
+    """
+    Allows to re-submit a submission.
+
+    :param submission_pk: Submission's primary key.
+    """
+    if request.method == "POST":
+        try:
+            phase = models.CompetitionPhase.objects.get(id=phase_pk)
+            competition = phase.competition
+            submissions = models.CompetitionSubmission.objects.filter(phase=phase)
+            if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+                raise Http404()
+
+            for submission in submissions:
+                new_submission = models.CompetitionSubmission(
+                    participant=submission.participant,
+                    file=submission.file,
+                    phase=submission.phase
+                )
+                new_submission.save(ignore_submission_limits=True)
+
+                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+
+            return HttpResponse()
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
+    raise Http404()
+
+
+@login_required
 def submission_migrate(request, pk):
     '''
     Allow to migrate to submissions manually to next phase.
