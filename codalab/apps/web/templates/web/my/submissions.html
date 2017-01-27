@@ -180,7 +180,8 @@
 
             $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
                 .success(function() {
-                    alert("Successfully re-ran all submissions, please refresh the page!");
+                    // This was delayed like 30 seconds, kinda weird to have a popup after that long..
+                    // alert("Successfully re-ran all submissions, please refresh the page!");
                 })
                 .error(function() {
                     alert("Failed to re-run all submissions, make sure your Internet connection is working and if the problem persists contact an admin.");
