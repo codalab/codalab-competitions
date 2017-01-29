@@ -63,6 +63,7 @@ def stop_workers():
     with quiet():
         _print("Stopping tmux...")
         local('tmux kill-session -t codalab_workers')
+        local('pkill -f celery')
         print green("done")
 
 

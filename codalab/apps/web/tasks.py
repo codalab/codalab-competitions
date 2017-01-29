@@ -10,6 +10,7 @@ import zipfile
 
 from urllib import pathname2url
 from zipfile import ZipFile
+from celery import task
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
@@ -22,7 +23,7 @@ from django.contrib.sites.models import Site
 from apps.jobs.models import (Job,
                               run_job_task,
                               JobTaskResult,
-                              getQueue)
+                              getQueue, update_job_status_task)
 from apps.web.models import (add_submission_to_leaderboard,
                              Competition,
                              CompetitionSubmission,
@@ -78,9 +79,8 @@ def echo(text):
     """
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
 
-# Create competition
-
-def create_competition_task(job_id, args):
+@task(queue='site-worker')
+def create_competition(job_id, comp_def_id):
     """
     A task to create a competition from a bundle with the competition's definition.
 
@@ -89,29 +89,38 @@ def create_competition_task(job_id, args):
         args['comp_def_id']: The ID of the bundle holding the competition definition.
     Once the task succeeds, a new competition will be ready to use in CodaLab.
     """
-    def create_it(job):
-        """Handles the actual creation of the competition"""
-        comp_def_id = args['comp_def_id']
-        logger.info("Creating competition for competition bundle (bundle_id=%s, job_id=%s)",
-                    comp_def_id, job.id)
-        competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
-        competition = competition_def.unpack()
-        logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
-                    comp_def_id, job.id, competition.pk)
-        return JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
+    # def create_it(job):
+    #     """Handles the actual creation of the competition"""
+    #     comp_def_id = args['comp_def_id']
+    #     logger.info("Creating competition for competition bundle (bundle_id=%s, job_id=%s)",
+    #                 comp_def_id, job.id)
+    #     competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
+    #     competition = competition_def.unpack()
+    #     logger.info("Created competition for competition bundle (bundle_id=%s, job_id=%s, comp_id=%s)",
+    #                 comp_def_id, job.id, competition.pk)
+    #     return JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
+    #
+    # run_job_task(job_id, create_it)
+    logger.info("Creating competition for competition bundle (bundle_id=%s)", comp_def_id)
+    competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
+    competition = competition_def.unpack()
+    logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
+                comp_def_id, competition.pk)
+    result = JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
+    update_job_status_task(job_id, result.get_dict())
 
-    run_job_task(job_id, create_it)
 
-def create_competition(comp_def_id):
-    """
-    Starts the process of creating a competition given a bundle with the competition's definition.
+# def create_competition(comp_def_id):
+#     """
+#     Starts the process of creating a competition given a bundle with the competition's definition.
+#
+#     comp_def_id: The ID of the bundle holding the competition definition.
+#                  See: https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle.
+#
+#     Returns a Job object which can be used to track the progress of the operation.
+#     """
 
-    comp_def_id: The ID of the bundle holding the competition definition.
-                 See: https://github.com/codalab/codalab/wiki/12.-Building-a-Competition-Bundle.
-
-    Returns a Job object which can be used to track the progress of the operation.
-    """
-    return Job.objects.create_and_dispatch_job('create_competition', {'comp_def_id': comp_def_id})
+    # return Job.objects.create_and_dispatch_job('create_competition', {'comp_def_id': comp_def_id})
 
 # Evaluate submissions in a competition
 

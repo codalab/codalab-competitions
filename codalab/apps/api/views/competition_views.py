@@ -90,9 +90,10 @@ class CompetitionCreationApi(views.APIView):
         cdb.config_bundle.name = blob_name
         cdb.save()
         logger.debug("CompetitionCreation def: owner=%s; def=%s; blob=%s.", owner.id, cdb.pk, cdb.config_bundle.name)
-        job = create_competition(cdb.pk)
-        logger.debug("CompetitionCreation job: owner=%s; def=%s; job=%s.", owner.id, cdb.pk, job.pk)
-        return Response({'token' : job.pk}, status=status.HTTP_201_CREATED)
+        # Make up a job for this, although we've removed that old system...
+        job = Job.objects.create_job('create_competition', {'comp_def_id': cdb.pk})
+        create_competition.apply_async((job.pk, cdb.pk,))
+        return Response({'token': job.pk}, status=status.HTTP_201_CREATED)
 
 
 @permission_classes((permissions.IsAuthenticated,))
