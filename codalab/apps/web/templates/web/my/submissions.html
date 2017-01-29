@@ -39,6 +39,7 @@
     <h4>Submissions</h4>
     {% if submission_info_list|length > 0 %}
         <a class="btn btn-default icon-excel" href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
+        <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>
     {% endif %}
 
     {% if not submission_info_list %}
@@ -169,6 +170,21 @@
                 })
                 .error(function() {
                     alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
+                });
+        });
+
+        $(".re_run_all_submissions_button").click(function() {
+            if(!confirm("Are you sure? This could take hours.")) {
+              return;
+            }
+
+            $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
+                .success(function() {
+                    // This was delayed like 30 seconds, kinda weird to have a popup after that long..
+                    // alert("Successfully re-ran all submissions, please refresh the page!");
+                })
+                .error(function() {
+                    alert("Failed to re-run all submissions, make sure your Internet connection is working and if the problem persists contact an admin.");
                 });
         });
 
