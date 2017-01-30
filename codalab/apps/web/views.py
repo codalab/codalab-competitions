@@ -335,12 +335,14 @@ def competition_message_participants(request, competition_id):
     body = strip_tags(request.POST.get('body'))
 
     if len(emails) > 0:
-        tasks.send_mass_email(
-            competition,
-            subject=subject,
-            body=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to_emails=emails
+        tasks.send_mass_email.apply_async(
+            (competition.pk,),
+            dict(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_emails=emails
+            )
         )
 
     return HttpResponse(status=200)

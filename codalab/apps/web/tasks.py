@@ -633,13 +633,9 @@ def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=Non
     return connection.send_messages(messages)
 
 
-def send_mass_email_task(job_id, task_args):
-    competition = Competition.objects.get(pk=task_args["competition_pk"])
-    body = task_args["body"]
-    subject = task_args["subject"]
-    from_email = task_args["from_email"]
-    to_emails = task_args["to_emails"]
-
+@task(queue='site-worker')
+def send_mass_email(competition_pk, body=None, subject=None, from_email=None, to_emails=None):
+    competition = Competition.objects.get(pk=competition_pk)
     context = Context({"competition": competition, "body": body, "site": Site.objects.get_current()})
     text = render_to_string("emails/notifications/participation_organizer_direct_email.txt", context)
     html = render_to_string("emails/notifications/participation_organizer_direct_email.html", context)
@@ -649,12 +645,12 @@ def send_mass_email_task(job_id, task_args):
     _send_mass_html_mail(mail_tuples)
 
 
-def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
-    task_args = {
-        "competition_pk": competition.pk,
-        "body": body,
-        "subject": subject,
-        "from_email": from_email,
-        "to_emails": to_emails
-    }
-    return Job.objects.create_and_dispatch_job('send_mass_email', task_args)
+# def send_mass_email(competition, body=None, subject=None, from_email=None, to_emails=None):
+#     task_args = {
+#         "competition_pk": competition.pk,
+#         "body": body,
+#         "subject": subject,
+#         "from_email": from_email,
+#         "to_emails": to_emails
+#     }
+#     return Job.objects.create_and_dispatch_job('send_mass_email', task_args)
