@@ -437,7 +437,7 @@ def set_permissions_on_codalab_temp():
 
 @task
 def update_compute_worker():
-    run('cd codalab-competitions && git pull --rebase')
+    run('cd codalab-competitions && git checkout . && git pull --rebase')
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
         sudo("stop codalab-monitor")
