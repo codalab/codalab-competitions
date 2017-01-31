@@ -39,6 +39,7 @@
     <h4>Submissions</h4>
     {% if submission_info_list|length > 0 %}
         <a class="btn btn-default icon-excel" href="{% url 'competitions:competition_results_complete_download' id=selected_phase.competition.id phase=selected_phase.id %}">Download CSV</a>
+        <button class="btn btn-default re_run_all_submissions_button">Re-run all submissions in this phase</button>
     {% endif %}
 
     {% if not submission_info_list %}
@@ -170,6 +171,16 @@
                 .error(function() {
                     alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
                 });
+        });
+
+        $(".re_run_all_submissions_button").click(function() {
+            if(!confirm("Are you sure? This could take hours.")) {
+              return;
+            }
+
+            $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
+
+            alert("Submissions will be re-ran, please refresh the page to see results as they update.")
         });
 
         //Function to submit the new submission for new phase
