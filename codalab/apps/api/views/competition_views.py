@@ -540,7 +540,7 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
 
     def post_save(self, obj, created):
         if created:
-            evaluate_submission(obj.pk, obj.phase.is_scoring_only)
+            evaluate_submission.apply_async((obj.pk, obj.phase.is_scoring_only))
 
     def handle_exception(self, exc):
         if type(exc) is DjangoPermissionDenied:

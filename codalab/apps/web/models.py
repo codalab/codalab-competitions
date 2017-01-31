@@ -396,7 +396,7 @@ class Competition(models.Model):
                 submission.is_migrated = True
                 submission.save()
 
-                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+                evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
         except PhaseLeaderBoard.DoesNotExist:
             pass
 

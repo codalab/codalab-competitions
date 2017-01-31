@@ -1545,7 +1545,7 @@ def submission_re_run(request, submission_pk):
             )
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1577,7 +1577,7 @@ def submission_migrate(request, pk):
 
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
             submission.is_migrated = True
             submission.save()
 

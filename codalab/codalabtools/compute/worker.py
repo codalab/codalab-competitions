@@ -130,9 +130,10 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         """Recursively gets the bundles."""
         # download the bundle and save it to a temporary location
         try:
-            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
+            logger.info("Getting bundle_id=%s from container=%s" % (container, bundle_id))
             blob = blob_service.get_blob(container, bundle_id)
         except azure.WindowsAzureMissingResourceError:
+            logger.exception("Failed to fetch bundle blob")
             #file not found lets None this bundle
             bundles[bundle_rel_path] = None
             return bundles
@@ -140,9 +141,9 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         bundle_ext = os.path.splitext(bundle_id)[1]
         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
 
-        logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
+        logger.info("Reading from bundle_file.name=%s" % bundle_file.name)
 
-        #take our temp file and write whatever is it form the blob
+        # take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
             f.write(blob)
         # stage the bundle directory
@@ -196,12 +197,15 @@ def _send_update(queue, task_id, status, extra=None):
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    body = json.dumps({
-        'id': task_id,
-        'task_type': 'run_update',
-        'task_args': task_args
-    })
-    queue.send_message(body)
+    # body = json.dumps({
+    #     'id': task_id,
+    #     'task_type': 'run_update',
+    #     'task_args': task_args
+    # })
+    # queue.send_message(body)
+    from apps.web.tasks import update_submission
+    update_submission.apply_async((task_id, task_args))
+
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
@@ -248,6 +252,7 @@ def get_run_func(config):
         task_id: The tracking ID for this task.
         task_args: The input arguments for this task:
         """
+        logger.info("Entering run task; task_id=%s, task_args=%s", task_id, task_args)
         run_id = task_args['bundle_id']
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
@@ -343,7 +348,7 @@ def get_run_func(config):
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
             os.environ["PATH"] += os.pathsep + run_dir + "/program"
-            logger.debug("Execution directory: %s", run_dir)
+            logger.info("Execution directory: %s", run_dir)
 
             if is_predict_step:
                 stdout_file_name = 'prediction_stdout_file.txt'
@@ -360,14 +365,14 @@ def get_run_func(config):
 
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 # Update command-line with the real paths
-                logger.debug("CMD: %s", prog_cmd)
+                logger.info("CMD: %s", prog_cmd)
                 prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
                                     .replace("$input", join(run_dir, 'input')) \
                                     .replace("$output", join(run_dir, 'output')) \
                                     .replace("$tmp", join(run_dir, 'temp')) \
                                     .replace("/", os.path.sep) \
                                     .replace("\\", os.path.sep)
-                logger.debug("Invoking program: %s", prog_cmd)
+                logger.info("Invoking program: %s", prog_cmd)
 
                 startTime = time.time()
                 exit_code = None
@@ -391,7 +396,7 @@ def get_run_func(config):
                         env=os.environ
                     )
 
-                logger.debug("Started process, pid=%s" % evaluator_process.pid)
+                logger.info("Started process, pid=%s" % evaluator_process.pid)
 
                 time_difference = time.time() - startTime
                 signal.signal(signal.SIGALRM, alarm_handler)
@@ -399,7 +404,7 @@ def get_run_func(config):
 
                 exit_code = None
 
-                logger.debug("Checking process, exit_code = %s" % exit_code)
+                logger.info("Checking process, exit_code = %s" % exit_code)
 
                 try:
                     while exit_code == None:
@@ -416,7 +421,7 @@ def get_run_func(config):
 
                 signal.alarm(0)
 
-                logger.debug("Exit Code: %d", exit_code)
+                logger.info("Exit Code: %d", exit_code)
 
                 endTime = time.time()
                 elapsedTime = endTime - startTime
@@ -439,7 +444,7 @@ def get_run_func(config):
             stdout.close()
             stderr.close()
 
-            logger.debug("Saving output files")
+            logger.info("Saving output files")
             stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
@@ -447,7 +452,7 @@ def get_run_func(config):
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
-                logger.debug("Packing private results...")
+                logger.info("Packing private results...")
                 private_output_file = join(root_dir, 'run', 'private_output.zip')
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
@@ -455,7 +460,7 @@ def get_run_func(config):
                 shutil.rmtree(private_dir, ignore_errors=True)
 
             # Pack results and send them to Blob storage
-            logger.debug("Packing results...")
+            logger.info("Packing results...")
             output_file = join(root_dir, 'run', 'output.zip')
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
