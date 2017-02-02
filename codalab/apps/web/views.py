@@ -38,8 +38,7 @@ from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from tasks import evaluate_submission
-
+from tasks import evaluate_submission, re_run_all_submissions_in_phase
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -1565,25 +1564,7 @@ def submission_re_run_all(request, phase_pk):
             if request.user.id != competition.creator_id and request.user not in competition.admins.all():
                 raise Http404()
 
-            # Remove duplicate submissions
-            submissions_with_duplicates = models.CompetitionSubmission.objects.filter(phase=phase)
-            submissions_without_duplicates = []
-            file_names_seen = []
-
-            for submission in submissions_with_duplicates:
-                if submission.file.name not in file_names_seen:
-                    file_names_seen.append(submission.file.name)
-                    submissions_without_duplicates.append(submission)
-
-            for submission in submissions_without_duplicates:
-                new_submission = models.CompetitionSubmission(
-                    participant=submission.participant,
-                    file=submission.file,
-                    phase=submission.phase
-                )
-                new_submission.save(ignore_submission_limits=True)
-
-                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            re_run_all_submissions_in_phase.apply_async((phase_pk,))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:

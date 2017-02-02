@@ -29,6 +29,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              CompetitionSubmission,
                              CompetitionDefBundle,
                              CompetitionSubmissionStatus,
+                             CompetitionPhase,
                              submission_prediction_output_filename,
                              submission_output_filename,
                              submission_detailed_results_filename,
@@ -80,6 +81,7 @@ def echo(text):
     Returns a Job object which can be used to track the progress of the operation.
     """
     return Job.objects.create_and_dispatch_job('echo', {'message': text})
+
 
 @task(queue='site-worker')
 def create_competition(job_id, comp_def_id):
@@ -563,6 +565,31 @@ def update_submission(job_id, args):
     print("@@@ARGS!", job_id)
 
     run_job_task(job_id, update_it, handle_update_exception)
+
+
+@task(queue='site-worker')
+def re_run_all_submissions_in_phase(phase_pk):
+    phase = CompetitionPhase.objects.get(id=phase_pk)
+
+    # Remove duplicate submissions
+    submissions_with_duplicates = CompetitionSubmission.objects.filter(phase=phase)
+    submissions_without_duplicates = []
+    file_names_seen = []
+
+    for submission in submissions_with_duplicates:
+        if submission.file.name not in file_names_seen:
+            file_names_seen.append(submission.file.name)
+            submissions_without_duplicates.append(submission)
+
+    for submission in submissions_without_duplicates:
+        new_submission = CompetitionSubmission(
+            participant=submission.participant,
+            file=submission.file,
+            phase=submission.phase
+        )
+        new_submission.save(ignore_submission_limits=True)
+
+        evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
 
 # def evaluate_submission_task(job_id, args):
