@@ -10,6 +10,8 @@ from os.path import (abspath, dirname)
 import sys
 
 # Add codalabtools to the module search path
+import pwd
+
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from StringIO import StringIO
@@ -399,8 +401,13 @@ def setup_compute_worker_user():
     # Steps to setup compute worker:
     #   1) setup_compute_worker_user (only run this once as it creates a user and will probably fail if re-run)
     #   2) setup_compute_worker_permissions
-    sudo('adduser --quiet --disabled-password --gecos "" workeruser')
-    sudo('echo workeruser:password | chpasswd')
+
+    # Try to get user...
+    result = run('grep "^workeruser:" /etc/passwd', warn_only=True)
+    if not result:
+        # User not found, create them
+        sudo('adduser --quiet --disabled-password --gecos "" workeruser')
+        sudo('echo workeruser:password | chpasswd')
 
 
 @task
@@ -408,12 +415,13 @@ def download_install_anaconda_library():
     '''
     Download anaconda package to compute workers.
     '''
-    with cd('/home/azureuser'):
-        sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
-        sudo("bash Anaconda2-2.4.0-Linux-x86_64.sh -b -p $HOME/anaconda")
-        sudo("echo '\n\nAdded for anaconda path' >> $HOME/.bashrc")
-        sudo("echo 'export PATH=\"$HOME/anaconda/bin:$PATH\"' >> $HOME/.bashrc")
-        sudo("source ~/.bashrc")
+    if not exists("/home/azureuser/anaconda/"):
+        with cd('/home/azureuser'):
+            sudo("wget http://repo.continuum.io/archive/Anaconda2-2.4.0-Linux-x86_64.sh")
+            sudo("bash Anaconda2-2.4.0-Linux-x86_64.sh -b -p $HOME/anaconda")
+            sudo("echo '\n\nAdded for anaconda path' >> $HOME/.bashrc")
+            sudo("echo 'export PATH=\"$HOME/anaconda/bin:$PATH\"' >> $HOME/.bashrc")
+            sudo("source ~/.bashrc")
 
 
 @task
@@ -422,7 +430,8 @@ def install_coco_api():
     Install coco api
     '''
     with cd('/home/azureuser'):
-        sudo('git clone https://github.com/pdollar/coco.git')
+        if not exists("/home/azureuser/coco/"):
+            sudo('git clone https://github.com/pdollar/coco.git')
         with cd('coco/PythonAPI'):
             sudo('/home/azureuser/anaconda/bin/python setup.py build_ext install')
 
@@ -458,7 +467,8 @@ def update_conda():
 def setup_compute_worker_permissions():
     # Make the /codalabtemp/ files readable
     sudo("apt-get install bindfs")
-    sudo("mkdir /codalabtemp")
+    if not exists("/codalabtemp"):
+        sudo("mkdir /codalabtemp")
     sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
 
     # Make private stuff private
