@@ -1554,6 +1554,44 @@ def submission_re_run(request, submission_pk):
 
 
 @login_required
+def submission_re_run_all(request, phase_pk):
+    """Re-runs all submissions in a phase, distinct on the file name, so a submission
+    won't be re-ran multiple times if this feature is used repeatedly."""
+    if request.method == "POST":
+        try:
+            phase = models.CompetitionPhase.objects.get(id=phase_pk)
+            competition = phase.competition
+
+            if request.user.id != competition.creator_id and request.user not in competition.admins.all():
+                raise Http404()
+
+            # Remove duplicate submissions
+            submissions_with_duplicates = models.CompetitionSubmission.objects.filter(phase=phase)
+            submissions_without_duplicates = []
+            file_names_seen = []
+
+            for submission in submissions_with_duplicates:
+                if submission.file.name not in file_names_seen:
+                    file_names_seen.append(submission.file.name)
+                    submissions_without_duplicates.append(submission)
+
+            for submission in submissions_without_duplicates:
+                new_submission = models.CompetitionSubmission(
+                    participant=submission.participant,
+                    file=submission.file,
+                    phase=submission.phase
+                )
+                new_submission.save(ignore_submission_limits=True)
+
+                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+
+            return HttpResponse()
+        except models.CompetitionSubmission.DoesNotExist:
+            raise Http404()
+    raise Http404()
+
+
+@login_required
 def submission_migrate(request, pk):
     '''
     Allow to migrate to submissions manually to next phase.
