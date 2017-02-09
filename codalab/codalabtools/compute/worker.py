@@ -35,6 +35,23 @@ from codalabtools.azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
 
+
+def _find_only_folder_with_metadata(path):
+    """Looks through a bundle for a single folder that contains a metadata file and
+    returns that folder's name if found"""
+    files_in_path = os.listdir(path)
+    if len(files_in_path) > 2 and 'metadata' in files_in_path:
+        # We see more than a couple files OR metadata in this folder, leave
+        return None
+    for f in files_in_path:
+        # Find first folder
+        folder = os.path.join(path, f)
+        if os.path.isdir(folder):
+            # Check if it contains a metadata file
+            if 'metadata' in os.listdir(folder):
+                return folder
+
+
 class WorkerConfig(BaseConfig):
     """
     Defines configuration properties (mostly credentials) for a worker process.
@@ -135,6 +152,17 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         if bundle_ext == '.zip':
             with ZipFile(bundle_file.file, 'r') as z:
                 z.extractall(bundle_path)
+
+            # check if we just unzipped something containing a folder and nothing else
+            metadata_folder = _find_only_folder_with_metadata(bundle_path)
+            if metadata_folder:
+                # Make a temp dir and copy data there
+                temp_folder_name = join(root_path, "%s%s" % (bundle_rel_path, '_tmp'))
+                shutil.copytree(metadata_folder, temp_folder_name)
+
+                # Delete old dir, move copied data back
+                shutil.rmtree(bundle_path, ignore_errors=True)
+                shutil.move(temp_folder_name, bundle_path)
         else:
             os.mkdir(bundle_path)
             shutil.copyfile(bundle_file.name, metadata_path)
@@ -143,6 +171,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
         if os.path.exists(metadata_path):
             with open(metadata_path) as mf:
                 bundle_info = yaml.load(mf)
+
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
@@ -259,7 +288,7 @@ def get_run_func(config):
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
                 elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
+                    shutil.rmtree(file_path, ignore_errors=True)
 
             # Kill running processes in the temp dir
             try:
@@ -423,7 +452,7 @@ def get_run_func(config):
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
                 _upload(blob_service, container, private_output_id, private_output_file)
-                shutil.rmtree(private_dir)
+                shutil.rmtree(private_dir, ignore_errors=True)
 
             # Pack results and send them to Blob storage
             logger.debug("Packing results...")
@@ -485,7 +514,7 @@ def get_run_func(config):
             # Try cleaning-up temporary directory
             try:
                 os.chdir(current_dir)
-                shutil.rmtree(root_dir)
+                shutil.rmtree(root_dir, ignore_errors=True)
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
