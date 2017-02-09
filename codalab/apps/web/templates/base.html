@@ -79,10 +79,16 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                           <li class="{% active request '/my/' %}">
-                              {% if user.is_authenticated %}
-                                  <a href="/my">My Competitions</a>
+                              {% if SINGLE_COMPETITION_VIEW_PK %}
+                                  {% if request.user.is_superuser or request.user.is_staff %}
+                                      <a href="/my">My Competitions</a>
+                                  {% endif %}
                               {% else %}
-                                  <a href="/competitions/">Search Competitions</a>
+                                  {% if user.is_authenticated %}
+                                      <a href="/my">My Competitions</a>
+                                  {% else %}
+                                      <a href="/competitions/">Search Competitions</a>
+                                  {% endif %}
                               {% endif %}
                           </li>
                           <li class="{% active request '/my/' %}">
