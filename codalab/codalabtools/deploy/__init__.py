@@ -348,7 +348,7 @@ class Deployment(object):
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
             "    BROKER_URL = '{0}'".format(self.config.get_broker_url()),
-            "    CELERY_DEFAULT_ROUTING_KEY = '{0}'".format(self.config.get_CELERY_DEFAULT_ROUTING_KEY()),
+            # "    CELERY_DEFAULT_ROUTING_KEY = '{0}'".format(self.config.get_CELERY_DEFAULT_ROUTING_KEY()),
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
