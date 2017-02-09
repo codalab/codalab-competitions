@@ -1,4 +1,4 @@
-# Fragile Families Challenge powered by CodaLab [![Circle CI](https://circleci.com/gh/codalab/codalab-competitions.svg?style=shield)](https://circleci.com/gh/codalab/codalab-competitions)
+# Fragile Families Challenge powered by CodaLab [![Circle CI](https://circleci.com/gh/fragilefamilieschallenge/codalab-competitions.svg?style=shield)](https://circleci.com/gh/fragilefamilieschallenge/codalab-competitions)
 
 ## What is the Fragile Families Challenge?
 
