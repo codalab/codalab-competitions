@@ -303,7 +303,7 @@ class Base(Settings):
 
     # Single competition mode? Uncomment this and specify a
     # competition pk to focus on
-    # SINGLE_COMPETITION_VIEW_PK = 4
+    SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
