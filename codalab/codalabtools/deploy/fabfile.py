@@ -216,11 +216,21 @@ def deploy_compute_worker(label):
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
 
+    # Adding compute worker upstart config
+    broker_url = cfg.get_broker_url()
+    compute_worker_conf_template = open('{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory)).read()
+    compute_worker_conf = compute_worker_conf_template.format(
+        broker_url=broker_url
+    )
+    compute_worker_conf_buf = StringIO()
+    compute_worker_conf_buf.write(compute_worker_conf)
     put(
-        local_path='{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory),
+        local_path=compute_worker_conf_buf,  # Path can be a file-like object, in this case our processed template
         remote_path='/etc/init/codalab-compute-worker.conf',
         use_sudo=True
     )
+
+    # Adding codalab monitor upstart config
     put(
         local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
         remote_path='/etc/init/codalab-monitor.conf',
