@@ -61,6 +61,16 @@ class HomePageView(TemplateView):
     """Template View for homepage."""
     template_name = "web/index.html"
 
+    def get(self, *args, **kwargs):
+
+        # kwargs.update(competition_pk=4)
+        # return CompetitionDetailView().get(*args, **kwargs)
+
+        if hasattr(settings, 'SINGLE_COMPETITION_VIEW_PK'):
+            return HttpResponseRedirect('/competitions/%s' % settings.SINGLE_COMPETITION_VIEW_PK)
+        #     return <view function>(settings.SINGLE_COMPETITION_VIEW_PK)
+        return super(HomePageView, self).get(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
 
