@@ -378,8 +378,6 @@ def score(submission, job_id):
 
     time_elapsed = time.time() - start
     logger.info("It took: %f seconds to run before sending message" % time_elapsed)
-    # body = json.dumps(data)
-    # getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
     compute_worker_run.apply_async((data,))
 
     if has_generated_predictions == False:
@@ -387,8 +385,6 @@ def score(submission, job_id):
 
     time_elapsed = time.time() - start
     logger.info("It took: %f seconds to run" % time_elapsed)
-    # profile.disable()
-    # profile.print_stats()
 
 
 class SubmissionUpdateException(Exception):
@@ -590,43 +586,6 @@ def re_run_all_submissions_in_phase(phase_pk):
         new_submission.save(ignore_submission_limits=True)
 
         evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
-
-
-# def evaluate_submission_task(job_id, args):
-#     """
-#     A task to start the evaluation of a user's submission in a competition.
-#
-#     job_id: The ID of the job.
-#     args: A dictionary with the arguments for the task. Expected items are:
-#         args['submission_id']: The ID of the CompetitionSubmission object.
-#         args['predict']: A boolean value set to True to cause the evaluation to
-#            generate predictions followed by a scoring round or set to False to
-#            limit the evaluation to a scoring round.
-#     """
-#
-#     def submit_it():
-#         """Start the process to evaluate the given competition submission."""
-#         logger.debug("evaluate_submission_task begins (job_id=%s)", job_id)
-#         submission_id = args['submission_id']
-#         logger.debug("evaluate_submission_task submission_id=%s (job_id=%s)", submission_id, job_id)
-#         predict_and_score = args['predict'] == True
-#         logger.debug("evaluate_submission_task predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
-#         submission = CompetitionSubmission.objects.get(pk=submission_id)
-#
-#         task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
-#         try:
-#             logger.debug("evaluate_submission_task dispatching %s task (submission_id=%s, job_id=%s)",
-#                         task_name, submission_id, job_id)
-#             task_func(submission, job_id)
-#             logger.debug("evaluate_submission_task dispatched %s task (submission_id=%s, job_id=%s)",
-#                         task_name, submission_id, job_id)
-#         except Exception:
-#             logger.exception("evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
-#                              job_id, submission_id)
-#             update_submission_task(job_id, {'status': 'failed'})
-#         logger.debug("evaluate_submission_task ends (job_id=%s)", job_id)
-#
-#     submit_it()
 
 
 @task(queue='site-worker')
