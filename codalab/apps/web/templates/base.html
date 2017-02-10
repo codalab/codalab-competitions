@@ -146,22 +146,23 @@
         </div>
     {% endblock content_wrapper %}
 
-    {% if SINGLE_COMPETITION_VIEW_PK %}
-
-    {% else %}
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                  <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
-                  <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
-              <li><a>v{{ CODALAB_VERSION }}</a></li>
+                {% if SINGLE_COMPETITION_VIEW_PK %}
+                    <li><a href="https://codalab.org/" target="_blank">Powered by Codalab</a></li>
+                {% else %}
+                    <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
+                    <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
+                    <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
+                    <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+                {% endif %}
+
+                <li><a>v{{ CODALAB_VERSION }}</a></li>
             </ul>
         </div>
     </footer>
-   {% endif %}
-   
+
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
