@@ -674,8 +674,7 @@ class CompetitionCompleteResultsDownload(View):
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         phase = competition.phases.get(pk=self.kwargs['phase'])
-        if phase.is_blind:
-            return HttpResponse(status=403)
+
         groups = phase.scores(include_scores_not_on_leaderboard=True)
         leader_board = models.PhaseLeaderBoard.objects.get(phase=phase)
 

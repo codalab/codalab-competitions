@@ -162,7 +162,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
                 shutil.copytree(metadata_folder, temp_folder_name)
 
                 # Delete old dir, move copied data back
-                shutil.rmtree(bundle_path)
+                shutil.rmtree(bundle_path, ignore_errors=True)
                 shutil.move(temp_folder_name, bundle_path)
         else:
             os.mkdir(bundle_path)
@@ -293,7 +293,7 @@ def get_run_func(config):
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
                 elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
+                    shutil.rmtree(file_path, ignore_errors=True)
 
             # Kill running processes in the temp dir
             try:
