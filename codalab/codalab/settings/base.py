@@ -364,6 +364,14 @@ class Base(Settings):
         }
     }
 
+    DATABASES = {
+        'default': {
+            # Default: use sqlite3 (no setup, not scalable)
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'codalab.sqlite3',
+        }
+    }
+
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,
