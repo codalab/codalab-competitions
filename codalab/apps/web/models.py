@@ -821,25 +821,19 @@ class CompetitionPhase(models.Model):
         """
 
         # Get the list of submissions in this leaderboard
-        submissions = []
-        result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             if include_scores_not_on_leaderboard:
-                qs = CompetitionSubmission.objects.filter(
+                submissions = CompetitionSubmission.objects.filter(
                     phase=self,
                     status__codename=CompetitionSubmissionStatus.FINISHED
                 )
-                for submission in qs:
-                    result_location.append(submission.file.name)
-                    submissions.append((submission.pk, submission.participant.user))
+                submissions = submissions.select_related('participant', 'participant__user')
             else:
                 qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
-                for entry in qs:
-                    result_location.append(entry.result.file.name)
-
-                for entry in qs:
-                    submissions.append((entry.result.id, entry.result.participant.user))
+                submissions = [entry.result for entry in qs]
+        else:
+            submissions = []
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -848,14 +842,15 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk, user) in submissions:
-                scores[pk] = {
+            for submission in submissions:
+                user = submission.participant.user
+                scores[submission.pk] = {
                     'username': user.username,
                     'user_pk': user.pk,
                     'team_name': user.team_name,
-                    'id': pk,
+                    'id': submission.pk,
                     'values': [],
-                    'resultLocation': result_location[count]
+                    'resultLocation': submission.file.name
                 }
 
             scoreDefs = []
@@ -902,7 +897,7 @@ class CompetitionPhase(models.Model):
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
-            submission_ids = [id for (id,name) in submissions]
+            submission_ids = [s.id for s in submissions]
             # not_computed_scoredefs: map (scoredef.id, scoredef) to keep track of non-computed scoredefs
             not_computed_scoredefs = {}
             computed_scoredef_ids = []
@@ -1295,6 +1290,9 @@ class SubmissionResultGroup(models.Model):
 
     class Meta:
         ordering = ['ordering']
+
+    def __str__(self):
+        return "{}:{}".format(self.label, self.key)
 
 
 class SubmissionResultGroupPhase(models.Model):

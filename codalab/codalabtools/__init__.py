@@ -141,6 +141,7 @@ class BaseWorker(object):
             # catch all non-"system exiting" exceptions
             except Exception:
                 self.logger.exception("An error has occurred.")
+                time.sleep(3)
 
     def start(self):
         """
