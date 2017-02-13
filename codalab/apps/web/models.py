@@ -439,6 +439,10 @@ class Competition(models.Model):
                 subs = header['subs']
                 if subs:
                     for sub in subs:
+                        # Duplicating the key here allows us to get the ordering
+                        # for subheaders (normally just headers)
+                        ordering[sub['key']] = count
+
                         headers.append(header['label'])
                         sub_headers.append(sub['label'])
                 else:
@@ -471,9 +475,6 @@ class Competition(models.Model):
             except:
                 csvwriter.writerow(["Exception parsing scores!"])
                 logger.error("Error parsing scores for competition PK=%s" % self.pk)
-
-            csvwriter.writerow([])
-            csvwriter.writerow([])
 
         return csvfile.getvalue()
 
