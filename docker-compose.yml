@@ -7,3 +7,10 @@ services:
       - "MYSQL_DATABASE=codalab_website"
     ports:
         - 3306:3306
+  worker:
+    build: 
+      context: ./codalab/codalabtools/compute/
+    ports:
+      - 8080:8080
+    volumes: 
+      - ./codalab/codalabtools:/code
