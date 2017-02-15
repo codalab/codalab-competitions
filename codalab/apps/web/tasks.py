@@ -188,6 +188,8 @@ def predict(submission, job_id):
 
 @task(queue='compute-worker')
 def compute_worker_run(data):
+    """Runs only on the compute workers that predicts (optional step) then scores
+    submissions."""
     config = WorkerConfig()
     # logging.config.dictConfig(config.getLoggerDictConfig())
     run = get_run_func(config)
