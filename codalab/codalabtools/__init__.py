@@ -25,7 +25,7 @@ class BaseConfig(object):
                 self._filename = os.path.join(os.path.expanduser("~"), filename)
                 paths_searched.append(self._filename)
             env_config_path = os.environ.get('CONFIG_PATH', '/home/azureuser')
-            if env_config_path and not os.path.exists(os.path.join(env_config_path, filename)):
+            if env_config_path and not os.path.exists(self._filename):
                 self._filename = os.path.join(env_config_path, filename)
                 paths_searched.append(self._filename)
             if not os.path.exists(self._filename):
