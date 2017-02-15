@@ -173,6 +173,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
             with open(metadata_path) as mf:
                 bundle_info = yaml.load(mf)
 
+        os.chmod(bundle_path, 0777)
+
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
@@ -268,9 +270,9 @@ def get_run_func(config):
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
         try:
-           running_processes = subprocess.check_output(["fuser", temp_dir])
-        except subprocess.CalledProcessError, e:
-           running_processes = ''
+            running_processes = subprocess.check_output(["fuser", temp_dir])
+        except subprocess.CalledProcessError:
+            running_processes = ''
         debug_metadata = {
             "hostname": socket.gethostname(),
 
@@ -306,6 +308,7 @@ def get_run_func(config):
             })
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
+            os.chmod(root_dir, 0777)
             # Fetch and stage the bundles
             blob_service = BlobService(config.getAzureStorageAccountName(),
                                        config.getAzureStorageAccountKey())

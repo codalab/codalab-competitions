@@ -452,6 +452,7 @@ def set_permissions_on_codalab_temp():
     Set proper permissions on compute workers.
     '''
     sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    sudo("chown azureuser:azureuser /codalabtemp")
 
 
 @task
@@ -480,6 +481,7 @@ def setup_compute_worker_permissions():
     if not exists("/codalabtemp"):
         sudo("mkdir /codalabtemp")
     sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    sudo("chown azureuser:azureuser /codalabtemp")
 
     # Make private stuff private
     sudo("chown -R azureuser:azureuser ~/codalab-competitions")

@@ -558,8 +558,6 @@ def update_submission(job_id, args):
             raise SubmissionUpdateException(submission, e)
         return JobTaskResult(status=result)
 
-    print("@@@ARGS!", job_id)
-
     run_job_task(job_id, update_it, handle_update_exception)
 
 
@@ -602,25 +600,25 @@ def evaluate_submission(submission_id, is_scoring_only):
     job = Job.objects.create_job('evaluate_submission', task_args)
     job_id = job.pk
 
-    logger.debug("evaluate_submission_task begins (job_id=%s)", job_id)
+    logger.debug("evaluate_submission begins (job_id=%s)", job_id)
     submission_id = task_args['submission_id']
-    logger.debug("evaluate_submission_task submission_id=%s (job_id=%s)", submission_id, job_id)
+    logger.debug("evaluate_submission submission_id=%s (job_id=%s)", submission_id, job_id)
     predict_and_score = task_args['predict'] == True
-    logger.debug("evaluate_submission_task predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
+    logger.debug("evaluate_submission predict_and_score=%s (job_id=%s)", predict_and_score, job_id)
     submission = CompetitionSubmission.objects.get(pk=submission_id)
 
     task_name, task_func = ('prediction', predict) if predict_and_score else ('scoring', score)
     try:
-        logger.debug("evaluate_submission_task dispatching %s task (submission_id=%s, job_id=%s)",
+        logger.debug("evaluate_submission dispatching %s task (submission_id=%s, job_id=%s)",
                     task_name, submission_id, job_id)
         task_func(submission, job_id)
-        logger.debug("evaluate_submission_task dispatched %s task (submission_id=%s, job_id=%s)",
+        logger.debug("evaluate_submission dispatched %s task (submission_id=%s, job_id=%s)",
                     task_name, submission_id, job_id)
     except Exception:
-        logger.exception("evaluate_submission_task dispatch failed (job_id=%s, submission_id=%s)",
+        logger.exception("evaluate_submission dispatch failed (job_id=%s, submission_id=%s)",
                          job_id, submission_id)
         update_submission.apply_async((job_id, {'status': 'failed'}))
-    logger.debug("evaluate_submission_task ends (job_id=%s)", job_id)
+    logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
 def _send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
