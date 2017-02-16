@@ -9,5 +9,5 @@ PyYAML==3.10
 # Added for python sdk
 git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
 
-# Added for compute worker
-git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
+# Added for compute worker requirements
+git+https://github.com/codalab/codalab-competitions.git@master
