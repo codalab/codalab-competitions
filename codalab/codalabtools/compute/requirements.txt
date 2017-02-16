@@ -1,7 +1,3 @@
-
-anyjson==0.3.3
-argparse
-azure==0.7.1
 psutil==2.1.1
 PyYAML==3.10
 
