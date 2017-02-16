@@ -1178,11 +1178,8 @@ class CompetitionSubmission(models.Model):
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
-        print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
-
-        print "Calling super save."
-        res = super(CompetitionSubmission, self).save(*args,**kwargs)
+        res = super(CompetitionSubmission, self).save(*args, **kwargs)
         return res
 
     def get_filename(self):

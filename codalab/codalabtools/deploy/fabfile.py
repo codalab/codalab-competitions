@@ -125,7 +125,12 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre upstart upstart-sysv unixodbc unixodbc-dev')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre unixodbc unixodbc-dev')
+
+    ubuntu_version = run('cat /etc/issue')
+    if not ubuntu_version.startswith("Ubuntu 14.04"):
+        # Upstart not default on versions > 14.04
+        packages += ' upstart upstart-sysv'
     provision_packages(packages)
 
 
@@ -207,9 +212,9 @@ def deploy_compute_worker(label):
 
     # Initial setup
     with cd(env.deploy_codalab_dir):
-        run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
-        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+        run('git checkout %s' % env.git_codalab_tag)
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
         # run('./dev_setup.sh')
 
     # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
