@@ -10,7 +10,7 @@ services:
   worker:
     build: 
       context: ./codalab/codalabtools/compute/
+    # Todo: Need to decide on port and communication details
     ports:
       - 8080:8080
-    volumes: 
-      - ./codalab/codalabtools:/code
+    
