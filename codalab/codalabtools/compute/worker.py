@@ -27,11 +27,11 @@ from subprocess import Popen, call
 from zipfile import ZipFile
 
 # Add codalabtools to the module search path
-sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
+#sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
 from codalabtools import BaseWorker, BaseConfig
-from codalabtools.azure_extensions import AzureServiceBusQueue
+from azure_extensions import AzureServiceBusQueue
 
 logger = logging.getLogger('codalabtools')
 
