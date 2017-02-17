@@ -93,13 +93,19 @@ def create_competition(job_id, comp_def_id):
         args['comp_def_id']: The ID of the bundle holding the competition definition.
     Once the task succeeds, a new competition will be ready to use in CodaLab.
     """
+
     logger.info("Creating competition for competition bundle (bundle_id=%s)", comp_def_id)
     competition_def = CompetitionDefBundle.objects.get(pk=comp_def_id)
-    competition = competition_def.unpack()
+    try:
+        competition = competition_def.unpack()
+        result = JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
+        update_job_status_task(job_id, result.get_dict())
+    except Exception as e:
+        result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
+        update_job_status_task(job_id, result.get_dict())
+
     logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
                 comp_def_id, competition.pk)
-    result = JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
-    update_job_status_task(job_id, result.get_dict())
 
 
 # CompetitionSubmission states which are final.

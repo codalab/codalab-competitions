@@ -1419,9 +1419,12 @@ class CompetitionDefBundle(models.Model):
 
         # Unpack and save the logo
         if 'image' in comp_base:
-            comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
-            comp.save()
-            logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            try:
+                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+                comp.save()
+                logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            except KeyError:
+                assert False, "Could not find image {} in archive.".format(comp_base['image'])
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
