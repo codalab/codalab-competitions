@@ -19,6 +19,7 @@ class CompetitionForm(forms.ModelForm):
         fields = (
             'title',
             'description',
+            'clean_compute_worker_vhost',
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
@@ -38,6 +39,11 @@ class CompetitionForm(forms.ModelForm):
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+    def clean_compute_worker_vhost(self, value):
+        reserved_vhosts = ['/']
+        if value in reserved_vhosts:
+            raise ValidationError("{} is a reserved vhost!".format(value))
+
     def __init__(self, *args, **kwargs):
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"

@@ -215,6 +215,7 @@ class Competition(models.Model):
     """ Model representing a competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
+    clean_compute_worker_vhost = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
