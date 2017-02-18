@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   db:
     image: mysql:5.7
@@ -8,8 +8,9 @@ services:
     ports:
         - 3306:3306
   worker:
-    build: 
-      context: ./codalab/codalabtools/compute/
+    build:
+      context: ./ 
+      dockerfile: ./codalab/codalabtools/compute/Dockerfile
     # Todo: Need to decide on port and communication details
     ports:
       - 8080:8080
