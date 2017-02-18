@@ -269,10 +269,10 @@ def get_run_func(config):
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
-        try:
-            running_processes = subprocess.check_output(["fuser", temp_dir])
-        except:
-            running_processes = ''
+        # try:
+        #     running_processes = subprocess.check_output(["fuser", temp_dir])
+        # except:
+        running_processes = '<DISABLED>'
         debug_metadata = {
             "hostname": socket.gethostname(),
 
