@@ -1,6 +1,9 @@
 machine:
   python:
     version: 2.7.10
+  environment:
+    DJANGO_SETTINGS_MODULE: codalab.settings
+    DJANGO_CONFIGURATION: Dev
 
 dependencies:
   pre:
