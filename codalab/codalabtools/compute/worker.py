@@ -271,7 +271,7 @@ def get_run_func(config):
         temp_dir = config.getLocalRoot()
         try:
             running_processes = subprocess.check_output(["fuser", temp_dir])
-        except subprocess.CalledProcessError:
+        except:
             running_processes = ''
         debug_metadata = {
             "hostname": socket.gethostname(),
@@ -300,7 +300,7 @@ def get_run_func(config):
             # Kill running processes in the temp dir
             try:
                 call(["fuser", "-k", temp_dir])
-            except subprocess.CalledProcessError:
+            except:
                 pass
 
             _send_update(queue, task_id, 'running', extra={
