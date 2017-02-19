@@ -30,8 +30,8 @@ from zipfile import ZipFile
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
-from codalabtools import BaseWorker, BaseConfig
-from codalabtools.azure_extensions import AzureServiceBusQueue
+from codalabtools import BaseConfig
+
 
 logger = logging.getLogger('codalabtools')
 
@@ -128,13 +128,18 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     def getThem(bundle_id, bundle_rel_path, bundles, depth):
         """Recursively gets the bundles."""
-        # download the bundle and save it to a temporary location
-        try:
-            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
-            blob = blob_service.get_blob(container, bundle_id)
-        except azure.WindowsAzureMissingResourceError:
-            logger.debug("Failed to fetch bundle blob")
-            #file not found lets None this bundle
+        retries_left = 3
+        while retries_left > 0:
+            try:
+                logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
+                blob = blob_service.get_blob(container, bundle_id)
+                break
+            except:
+                logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
+            retries_left += 1
+
+        if retries_left == 0:
+            # file not found lets None this bundle
             bundles[bundle_rel_path] = None
             return bundles
 
