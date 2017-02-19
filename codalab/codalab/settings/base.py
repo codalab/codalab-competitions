@@ -301,8 +301,8 @@ class Base(Settings):
         }
     }
     # Celery
-    BROKER_HEARTBEAT = None  # We're using TCP keep-alive instead
-    BROKER_CONNECTION_TIMEOUT = 30  # May require a long timeout due to Linux DNS timeouts etc
+    # BROKER_HEARTBEAT = None  # We're using TCP keep-alive instead
+    # BROKER_CONNECTION_TIMEOUT = 30  # May require a long timeout due to Linux DNS timeouts etc
     CELERY_RESULT_BACKEND = 'cache+memcached://127.0.0.1:11211/'
     # CELERY_RESULT_BACKEND = None  # AMQP is not recommended as result backend as it creates thousands of queues
     # CELERY_SEND_EVENTS = False  # Will not create celeryev.* queues
