@@ -130,6 +130,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     def getThem(bundle_id, bundle_rel_path, bundles, depth):
         """Recursively gets the bundles."""
+        logger.info("Trying to get %s", bundle_rel_path)
+
         retries_left = 2
         while retries_left > 0:
             try:
@@ -314,9 +316,13 @@ def get_run_func(config):
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
             os.chmod(root_dir, 0777)
             # Fetch and stage the bundles
+            logger.info("Fetching bundles...")
+            start = time.time()
             blob_service = BlobService(config.getAzureStorageAccountName(),
                                        config.getAzureStorageAccountKey())
             bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
+            end = time.time() - start
+            logger.info("Fetched bundles in %s", end)
             # Verify we have an input folder: create one if it's not in the bundle.
             input_rel_path = join('run', 'input')
             if input_rel_path not in bundles:

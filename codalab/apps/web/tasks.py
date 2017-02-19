@@ -189,14 +189,14 @@ def predict(submission, job_id):
     }
     # body = json.dumps(data)
     # getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-    compute_worker_run.apply_async((data,))
+    compute_worker_run.apply_async((data,), soft_time_limit=submission.phase.execution_time_limit)
 
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 
 # Give this a 1 hour time limit
-@task(queue='compute-worker', soft_time_limit=60 * 60)
+@task(queue='compute-worker')
 def compute_worker_run(data):
     """Runs only on the compute workers that predicts (optional step) then scores
     submissions."""
@@ -234,22 +234,21 @@ def score(submission, job_id):
 
 
     lines = []
-    lines.append("description: history of all previous successful runs output files")
+    # lines.append("description: history of all previous successful runs output files")
+    #
+    # if last_submissions:
+    #     for past_submission in last_submissions:
+    #         if past_submission.pk != submission.pk:
+    #             #pad folder numbers for sorting os side, 001, 002, 003,... 010, etc...
+    #             past_submission_phasenumber = '%03d' % past_submission.phase.phasenumber
+    #             past_submission_number = '%03d' % past_submission.submission_number
+    #             lines.append('%s/%s/output/: %s' % (
+    #                     past_submission_phasenumber,
+    #                     past_submission_number,
+    #                     submission_private_output_filename(past_submission),
+    #                 )
+    #             )
 
-    if last_submissions:
-        for past_submission in last_submissions:
-            if past_submission.pk != submission.pk:
-                #pad folder numbers for sorting os side, 001, 002, 003,... 010, etc...
-                past_submission_phasenumber = '%03d' % past_submission.phase.phasenumber
-                past_submission_number = '%03d' % past_submission.submission_number
-                lines.append('%s/%s/output/: %s' % (
-                        past_submission_phasenumber,
-                        past_submission_number,
-                        submission_private_output_filename(past_submission),
-                    )
-                )
-    else:
-        pass
 
     submission.history_file.save('history.txt', ContentFile('\n'.join(lines)))
 
@@ -394,7 +393,12 @@ def score(submission, job_id):
 
     time_elapsed = time.time() - start
     logger.info("It took: %f seconds to run before sending message" % time_elapsed)
-    compute_worker_run.apply_async((data,))
+
+    default_time_limit = submission.phase.execution_time_limit
+    if default_time_limit <= 0:
+        default_time_limit = 60 * 10  # 10 minutes
+
+    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
 
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)

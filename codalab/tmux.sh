@@ -2,7 +2,7 @@ tmux kill-session -t codalab_workers
 tmux new -d -s codalab_workers
 
 tmux send-keys -t codalab_workers "source ~/.virtualenvs/codalab-competitions/bin/activate" ENTER
-tmux send-keys -t codalab_workers "celery -A codalab worker -l info -Q site-worker -n site-worker -Ofast -Ofair" ENTER
+tmux send-keys -t codalab_workers "celery -A codalab worker -l info -Q site-worker -n site-worker --concurrency=2 -Ofast -Ofair" ENTER
 
 tmux split-window -t codalab_workers
 
