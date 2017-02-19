@@ -2,6 +2,8 @@
 """
 Defines the worker process which handles computations.
 """
+from _ssl import SSLError
+
 import azure
 import json
 import logging
@@ -128,15 +130,18 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     def getThem(bundle_id, bundle_rel_path, bundles, depth):
         """Recursively gets the bundles."""
-        retries_left = 3
+        retries_left = 2
         while retries_left > 0:
             try:
                 logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
                 blob = blob_service.get_blob(container, bundle_id)
                 break
+            except azure.WindowsAzureMissingResourceError:
+                retries_left = 0
+            except SSLError:
+                retries_left -= 1
             except:
                 logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
-            retries_left += 1
 
         if retries_left == 0:
             # file not found lets None this bundle
