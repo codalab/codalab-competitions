@@ -10,7 +10,9 @@ import zipfile
 
 from urllib import pathname2url
 from zipfile import ZipFile
+
 from celery import task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
 from django.core.files.base import ContentFile
@@ -174,9 +176,10 @@ def predict(submission, job_id):
     submission.save()
     # Submit the request to the computation service
     data = {
-        "id" : job_id,
+        "id": job_id,
         "task_type": "run",
         "task_args": {
+            "submission_id": submission.pk,
             "bundle_id": submission.prediction_runfile.name,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "reply_to": settings.SBS_RESPONSE_QUEUE,
@@ -192,15 +195,19 @@ def predict(submission, job_id):
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 
-@task(queue='compute-worker')
+# Give this a 1 hour time limit
+@task(queue='compute-worker', soft_time_limit=60 * 60)
 def compute_worker_run(data):
     """Runs only on the compute workers that predicts (optional step) then scores
     submissions."""
-    config = WorkerConfig()
-    # logging.config.dictConfig(config.getLoggerDictConfig())
-    run = get_run_func(config)
-    task_args = data['task_args'] if 'task_args' in data else None
-    run(data["id"], task_args)
+    try:
+        config = WorkerConfig()
+        # logging.config.dictConfig(config.getLoggerDictConfig())
+        run = get_run_func(config)
+        task_args = data['task_args'] if 'task_args' in data else None
+        run(data["id"], task_args)
+    except SoftTimeLimitExceeded:
+        update_submission.apply_async((data["id"], {'status': 'failed'}))
 
 
 def score(submission, job_id):
@@ -373,12 +380,13 @@ def score(submission, job_id):
     submission.save()
     # Submit the request to the computation service
     data = {
-        "id" : job_id,
+        "id": job_id,
         "task_type": "run",
         "task_args": {
-            "bundle_id" : submission.runfile.name,
-            "container_name" : settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to" : settings.SBS_RESPONSE_QUEUE,
+            "submission_id": submission.pk,
+            "bundle_id": submission.runfile.name,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": False,
         }

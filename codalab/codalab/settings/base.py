@@ -301,17 +301,17 @@ class Base(Settings):
         }
     }
     # Celery
-    # BROKER_HEARTBEAT = None  # We're using TCP keep-alive instead
-    # BROKER_CONNECTION_TIMEOUT = 30  # May require a long timeout due to Linux DNS timeouts etc
+    # =========================================================================
+    # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://127.0.0.1:11211/'
-    # CELERY_RESULT_BACKEND = None  # AMQP is not recommended as result backend as it creates thousands of queues
-    # CELERY_SEND_EVENTS = False  # Will not create celeryev.* queues
-    # CELERY_EVENT_QUEUE_EXPIRES = 60  # Will delete all celeryev. queues without consumers after 1 minute.
+    # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
     CELERY_RESULT_SERIALIZER = 'json'
+    # Keep celery from becoming unresponsive
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
+    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
