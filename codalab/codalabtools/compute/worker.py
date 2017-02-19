@@ -138,10 +138,9 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
                 break
             except azure.WindowsAzureMissingResourceError:
                 retries_left = 0
-            except SSLError:
-                retries_left -= 1
             except:
                 logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
+                retries_left -= 1
 
         if retries_left == 0:
             # file not found lets None this bundle
