@@ -312,6 +312,7 @@ class Base(Settings):
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    BROKER_POOL_LIMIT = None  # Stops connection timeout
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
