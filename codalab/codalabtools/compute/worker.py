@@ -319,6 +319,7 @@ def get_run_func(config):
                 input_dir = join(root_dir, 'run', 'input')
                 if os.path.exists(input_dir) == False:
                     os.mkdir(input_dir)
+                    os.chmod(input_dir, 0777)
             # Verify we have a program
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:
@@ -341,10 +342,12 @@ def get_run_func(config):
             output_dir = join(root_dir, 'run', 'output')
             if os.path.exists(output_dir) == False:
                 os.mkdir(output_dir)
+                os.chmod(output_dir, 0777)
             # Create temp folder
             temp_dir = join(root_dir, 'run', 'temp')
             if os.path.exists(temp_dir) == False:
                 os.mkdir(temp_dir)
+                os.chmod(temp_dir, 0777)
             # Report the list of folders and files staged
             #
             # Invoke custom evaluation program
