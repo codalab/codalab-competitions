@@ -188,23 +188,18 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
-def _send_update(queue, task_id, status, extra=None):
+
+def _send_update(task_id, status, extra=None):
     """
     Sends a status update about the running task.
 
-    queue: The Queue to send the update to.
     id: The task ID.
     status: The new status for the task. One of 'running', 'finished' or 'failed'.
     """
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    # body = json.dumps({
-    #     'id': task_id,
-    #     'task_type': 'run_update',
-    #     'task_args': task_args
-    # })
-    # queue.send_message(body)
+    logger.info("Updating task=%s status to %s", task_id, status)
     from apps.web.tasks import update_submission
     update_submission.apply_async((task_id, task_args))
 
@@ -260,12 +255,12 @@ def get_run_func(config):
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
         is_predict_step = task_args.get("predict", False)
-        queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
-                                     config.getAzureServiceBusKey(),
-                                     config.getAzureServiceBusIssuer(),
-                                     config.get_service_bus_shared_access_key_name(),
-                                     config.get_service_bus_shared_access_key_value(),
-                                     reply_to_queue_name)
+        # queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
+        #                              config.getAzureServiceBusKey(),
+        #                              config.getAzureServiceBusIssuer(),
+        #                              config.get_service_bus_shared_access_key_name(),
+        #                              config.get_service_bus_shared_access_key_value(),
+        #                              reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
@@ -303,7 +298,7 @@ def get_run_func(config):
             except:
                 pass
 
-            _send_update(queue, task_id, 'running', extra={
+            _send_update(task_id, 'running', extra={
                 'metadata': debug_metadata
             })
             # Create temporary directory for the run
@@ -494,17 +489,17 @@ def get_run_func(config):
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={
+                _send_update(task_id, 'failed', extra={
                     'metadata': debug_metadata
                 })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={
+                _send_update(task_id, 'failed', extra={
                     'traceback': open(stderr_file).read(),
                     'metadata': debug_metadata
                 })
             else:
-                _send_update(queue, task_id, 'finished', extra={
+                _send_update(task_id, 'finished', extra={
                     'metadata': debug_metadata
                 })
         except Exception:
@@ -515,7 +510,7 @@ def get_run_func(config):
                 debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={
+            _send_update(task_id, 'failed', extra={
                 'traceback': traceback.format_exc(),
                 'metadata': debug_metadata
             })
@@ -529,31 +524,3 @@ def get_run_func(config):
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
-
-def main():
-    """
-    Setup the worker and start it.
-    """
-    config = WorkerConfig()
-
-    logging.config.dictConfig(config.getLoggerDictConfig())
-
-    # queue to listen to for notifications of tasks to perform
-    queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
-                                 config.getAzureServiceBusKey(),
-                                 config.getAzureServiceBusIssuer(),
-                                 config.get_service_bus_shared_access_key_name(),
-                                 config.get_service_bus_shared_access_key_value(),
-                                 config.getAzureServiceBusQueue())
-    # map task type to function to accomplish the task
-    vtable = {
-        'run' : get_run_func(config)
-    }
-    # create and start the worker
-    worker = BaseWorker(queue, vtable, logger)
-    logger.info("Starting compute worker.")
-    worker.start()
-
-if __name__ == "__main__":
-
-    main()
