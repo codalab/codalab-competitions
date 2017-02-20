@@ -314,6 +314,10 @@ class Base(Settings):
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     BROKER_POOL_LIMIT = None  # Stops connection timeout
 
+    # Single competition mode? Uncomment this and specify a
+    # competition pk to focus on
+    SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
+
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
     # the site admins on every HTTP 500 error when DEBUG=False.

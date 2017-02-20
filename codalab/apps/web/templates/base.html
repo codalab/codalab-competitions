@@ -79,10 +79,16 @@
                     {% endif %}
                     <ul class="nav navbar-nav navbar-right">
                           <li class="{% active request '/my/' %}">
-                              {% if user.is_authenticated %}
-                                  <a href="/my">My Competitions</a>
+                              {% if SINGLE_COMPETITION_VIEW_PK %}
+                                  {% if request.user.is_superuser or request.user.is_staff %}
+                                      <a href="/my">My Competitions</a>
+                                  {% endif %}
                               {% else %}
-                                  <a href="/competitions/">Search Competitions</a>
+                                  {% if user.is_authenticated %}
+                                      <a href="/my">My Competitions</a>
+                                  {% else %}
+                                      <a href="/competitions/">Search Competitions</a>
+                                  {% endif %}
                               {% endif %}
                           </li>
                           <li class="{% active request '/my/' %}">
@@ -143,11 +149,16 @@
     <footer class="navbar-fixed-bottom">
         <div class="container-fluid">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
-                  <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
-                  <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
-                <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
-              <li><a>v{{ CODALAB_VERSION }}</a></li>
+                {% if SINGLE_COMPETITION_VIEW_PK %}
+                    <li><a href="https://codalab.org/" target="_blank">Powered by Codalab</a></li>
+                {% else %}
+                    <li><a href="https://github.com/codalab/codalab/wiki/Project_About_CodaLab" target="_blank">About</a></li>
+                    <li><a href="https://groups.google.com/forum/#!forum/codalabdev" target="_blank">Forum</a></li>
+                    <li><a href="http://www.instant.ly/s/nLDX8/nav#p/186a0" target="_blank">Survey</a></li>
+                    <li><a href="https://github.com/codalab/codalab/wiki/Privacy" target="_blank">Privacy and Terms</a></li>
+                {% endif %}
+
+                <li><a>v{{ CODALAB_VERSION }}</a></li>
             </ul>
         </div>
     </footer>

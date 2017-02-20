@@ -60,6 +60,21 @@ class HomePageView(TemplateView):
     """Template View for homepage."""
     template_name = "web/index.html"
 
+    def get(self, *args, **kwargs):
+        if settings.SINGLE_COMPETITION_VIEW_PK:
+            # First quickly check that competition is available to view
+            try:
+                competition = models.Competition.objects.get(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+                if not competition.published:
+                    return HttpResponse("Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the "
+                                        "competition is not published so regular users won't be able to access it!")
+            except ObjectDoesNotExist:
+                raise Http404()
+
+            kwargs.update(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+            return CompetitionDetailView.as_view()(*args, **kwargs)
+        return super(HomePageView, self).get(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
 
