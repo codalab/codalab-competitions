@@ -189,7 +189,10 @@ def predict(submission, job_id):
     }
     # body = json.dumps(data)
     # getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-    compute_worker_run.apply_async((data,), soft_time_limit=submission.phase.execution_time_limit)
+    default_time_limit = submission.phase.execution_time_limit
+    if default_time_limit <= 0:
+        default_time_limit = 60 * 10  # 10 minutes
+    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
 
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
