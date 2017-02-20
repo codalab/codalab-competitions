@@ -26,25 +26,37 @@ def naive_docker_service(service_name, port):
 class Dev(DevBase):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+    # Amazon S3
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
+    AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY"
+    AWS_STORAGE_BUCKET_NAME = "AWS_STORAGE_BUCKET_NAME"
+    AWS_S3_CALLING_FORMAT = 'boto.s3.connection.OrdinaryCallingFormat'
+    AWS_S3_HOST = 's3-us-west-2.amazonaws.com'
+
+    # Celery
+    BROKER_URL = 'pyamqp://guest:guest@localhost:5672//'
+
     # Azure Storage
-    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
-
-    AZURE_ACCOUNT_NAME = 'your_account_name'
-    AZURE_ACCOUNT_KEY = 'your_key_RE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
-    AZURE_CONTAINER = 'name_of_your_container_for_public_blobs'
-
-    BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME
-    BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY
-    BUNDLE_AZURE_CONTAINER = 'name_of_your_private_container_for_bundles'
-
-    # Service Bus
-    SBS_NAMESPACE = '<service bus name>'
-    SBS_ISSUER = 'owner'
-    SBS_ACCOUNT_KEY = '<acs default key>'
-    SBS_SHARED_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
-    SBS_SHARED_ACCESS_KEY_VALUE = '<the_key>'
-    SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
-    SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
+    # DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'
+    #
+    # AZURE_ACCOUNT_NAME = 'your_account_name'
+    # AZURE_ACCOUNT_KEY = 'your_key_RE1uSw3y37MaRSUtUYkj+o2//AaoHv5YwcqGCUgRXoT2WPNt+iaaz/6KB2Oiyz8Y7FPA=='
+    # AZURE_CONTAINER = 'name_of_your_container_for_public_blobs'
+    #
+    # BUNDLE_AZURE_ACCOUNT_NAME = AZURE_ACCOUNT_NAME
+    # BUNDLE_AZURE_ACCOUNT_KEY = AZURE_ACCOUNT_KEY
+    # BUNDLE_AZURE_CONTAINER = 'name_of_your_private_container_for_bundles'
+    #
+    # # Service Bus
+    # SBS_NAMESPACE = '<service bus name>'
+    # SBS_ISSUER = 'owner'
+    # SBS_ACCOUNT_KEY = '<acs default key>'
+    # SBS_SHARED_ACCESS_KEY_NAME = 'RootManageSharedAccessKey'
+    # SBS_SHARED_ACCESS_KEY_VALUE = '<the_key>'
+    # SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
+    # SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 
     # Database Setup
     DATABASES = {
