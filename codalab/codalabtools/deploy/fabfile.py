@@ -212,8 +212,8 @@ def deploy_compute_worker(label):
 
     # Initial setup
     with cd(env.deploy_codalab_dir):
-        run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
+        run('git pull')
         run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
         # run('./dev_setup.sh')
 
@@ -368,8 +368,8 @@ def _deploy():
     # Pull branch and run requirements file, for info about requirments look into dev_setp.sh
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
-        run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
+        run('git pull')
         run('./dev_setup.sh')
 
     # Create local.py
