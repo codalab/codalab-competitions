@@ -396,7 +396,7 @@ class Competition(models.Model):
                 submission.is_migrated = True
                 submission.save()
 
-                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+                evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
         except PhaseLeaderBoard.DoesNotExist:
             pass
 
@@ -1179,11 +1179,8 @@ class CompetitionSubmission(models.Model):
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
-        print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
-
-        print "Calling super save."
-        res = super(CompetitionSubmission, self).save(*args,**kwargs)
+        res = super(CompetitionSubmission, self).save(*args, **kwargs)
         return res
 
     def get_filename(self):
@@ -1423,9 +1420,12 @@ class CompetitionDefBundle(models.Model):
 
         # Unpack and save the logo
         if 'image' in comp_base:
-            comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
-            comp.save()
-            logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            try:
+                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+                comp.save()
+                logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            except KeyError:
+                assert False, "Could not find image {} in archive.".format(comp_base['image'])
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))

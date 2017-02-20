@@ -300,6 +300,19 @@ class Base(Settings):
             'LOCATION': '127.0.0.1:11211',
         }
     }
+    # Celery
+    # =========================================================================
+    # Store results
+    CELERY_RESULT_BACKEND = 'cache+memcached://127.0.0.1:11211/'
+    # Don't use pickle -- dangerous
+    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
+    # Keep celery from becoming unresponsive
+    CELERY_ACKS_LATE = True
+    CELERYD_PREFETCH_MULTIPLIER = 1
+    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    BROKER_POOL_LIMIT = None  # Stops connection timeout
 
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
@@ -358,6 +371,14 @@ class Base(Settings):
         }
     }
 
+    DATABASES = {
+        'default': {
+            # Default: use sqlite3 (no setup, not scalable)
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'codalab.sqlite3',
+        }
+    }
+
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,
@@ -405,7 +426,7 @@ class DevBase(Base):
         }
     }
     EXTRA_MIDDLEWARE_CLASSES = (
-        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
         'userswitch.middleware.UserSwitchMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TEMPLATE_CONTEXT': True,

@@ -48,7 +48,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         self.participant.save()
         self.client.login(username="organizer", password="pass")
-        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+        with mock.patch('apps.web.tasks.send_mass_email.apply_async') as send_mass_email_mock:
             resp = self.client.post(
                 reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": "message body"}
@@ -111,7 +111,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
         self.participant.status = ParticipantStatus.objects.get(codename=ParticipantStatus.APPROVED)
         self.participant.save()
         self.client.login(username="organizer", password="pass")
-        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+        with mock.patch('apps.web.tasks.send_mass_email.apply_async') as send_mass_email_mock:
             resp = self.client.post(
                 reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": 'Injected!<script src="http://code_injection/bad_code.js"></script>'}
@@ -119,11 +119,13 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             self.assertEquals(resp.status_code, 200)
 
         send_mass_email_mock.assert_called_with(
-            self.competition,
-            body=u'Injected!', # <script> tag was removed!
-            subject=u'test',
-            to_emails=[self.participant_user.email],
-            from_email=settings.DEFAULT_FROM_EMAIL
+            (self.competition.pk,),
+            dict(
+                body=u'Injected!', # <script> tag was removed!
+                subject=u'test',
+                to_emails=[self.participant_user.email],
+                from_email=settings.DEFAULT_FROM_EMAIL
+            )
         )
 
     def test_msg_participants_email_not_sent_when_participant_disables_organizer_emails(self):
@@ -132,7 +134,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
 
         self.client.login(username="organizer", password="pass")
 
-        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+        with mock.patch('apps.web.tasks.send_mass_email.apply_async') as send_mass_email_mock:
             resp = self.client.post(
                 reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
                 data={"subject": "test", "body": 'Test body'}
@@ -152,7 +154,7 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             status=ParticipantStatus.objects.get_or_create(name='denied', codename=ParticipantStatus.DENIED)[0]
         )
 
-        with mock.patch('apps.web.tasks.send_mass_email') as send_mass_email_mock:
+        with mock.patch('apps.web.tasks.send_mass_email.apply_async') as send_mass_email_mock:
             self.client.login(username="organizer", password="pass")
             resp = self.client.post(
                 reverse("competitions:competition_message_participants", kwargs={"competition_id": self.competition.pk}),
@@ -161,11 +163,13 @@ class CompetitionMessageParticipantsTests(CompetitionTest):
             self.assertEquals(resp.status_code, 200)
 
         send_mass_email_mock.assert_called_with(
-            self.competition,
-            body=u"message body",
-            subject=u'test',
-            to_emails=[self.participant_user.email], # denied participant, although a member of this competition, was not emailed
-            from_email=settings.DEFAULT_FROM_EMAIL
+            (self.competition.pk,),
+            dict(
+                body=u"message body",
+                subject=u'test',
+                to_emails=[self.participant_user.email], # denied participant, although a member of this competition, was not emailed
+                from_email=settings.DEFAULT_FROM_EMAIL
+            )
         )
 
 
@@ -213,7 +217,7 @@ class SendMassEmailTests(TestCase):
             "from_email": "no-reply@test.com",
             "to_emails": ["%s@test.com" % i for i in range(0, 10)]
         }
-        tasks.send_mass_email_task(1, task_args)
+        tasks.send_mass_email(**task_args)
 
         self.assertEquals(len(mail.outbox), 10)
 
@@ -226,7 +230,7 @@ class SendMassEmailTests(TestCase):
             "from_email": "no-reply@test.com",
             "to_emails": ["test@test.com"]
         }
-        tasks.send_mass_email_task(1, task_args)
+        tasks.send_mass_email(**task_args)
 
         m = mail.outbox[0]
         self.assertIn("http://example.com/my/settings", m.body)

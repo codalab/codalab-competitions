@@ -38,8 +38,7 @@ from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from tasks import evaluate_submission
-
+from tasks import evaluate_submission, re_run_all_submissions_in_phase
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -335,12 +334,14 @@ def competition_message_participants(request, competition_id):
     body = strip_tags(request.POST.get('body'))
 
     if len(emails) > 0:
-        tasks.send_mass_email(
-            competition,
-            subject=subject,
-            body=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to_emails=emails
+        tasks.send_mass_email.apply_async(
+            (competition.pk,),
+            dict(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_emails=emails
+            )
         )
 
     return HttpResponse(status=200)
@@ -543,12 +544,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 def competition_submission_metadata_page(request, competition_id, phase_id):
     try:
         competition = models.Competition.objects.get(pk=competition_id)
-        selected_phase = competition.phases.get(pk=phase_id)
+        selected_phase = competition.phases.all().prefetch_related(
+            'submissions',
+            'submissions__status',
+            'submissions__participant',
+            'submissions__metadatas',
+        ).get(pk=phase_id)
     except ObjectDoesNotExist:
         raise Http404()
 
     if request.user.id != competition.creator_id and request.user not in competition.admins.all():
-            raise Http404()
+        raise Http404()
 
     return render(request, "web/competitions/submission_metadata.html", {
         'competition': competition,
@@ -1542,7 +1548,7 @@ def submission_re_run(request, submission_pk):
             )
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1562,25 +1568,7 @@ def submission_re_run_all(request, phase_pk):
             if request.user.id != competition.creator_id and request.user not in competition.admins.all():
                 raise Http404()
 
-            # Remove duplicate submissions
-            submissions_with_duplicates = models.CompetitionSubmission.objects.filter(phase=phase)
-            submissions_without_duplicates = []
-            file_names_seen = []
-
-            for submission in submissions_with_duplicates:
-                if submission.file.name not in file_names_seen:
-                    file_names_seen.append(submission.file.name)
-                    submissions_without_duplicates.append(submission)
-
-            for submission in submissions_without_duplicates:
-                new_submission = models.CompetitionSubmission(
-                    participant=submission.participant,
-                    file=submission.file,
-                    phase=submission.phase
-                )
-                new_submission.save(ignore_submission_limits=True)
-
-                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            re_run_all_submissions_in_phase.apply_async((phase_pk,))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1612,7 +1600,7 @@ def submission_migrate(request, pk):
 
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
             submission.is_migrated = True
             submission.save()
 
