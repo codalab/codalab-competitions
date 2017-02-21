@@ -396,7 +396,7 @@ class Competition(models.Model):
                 submission.is_migrated = True
                 submission.save()
 
-                evaluate_submission(new_submission.pk, current_phase.is_scoring_only)
+                evaluate_submission.apply_async((new_submission.pk, current_phase.is_scoring_only))
         except PhaseLeaderBoard.DoesNotExist:
             pass
 
@@ -439,6 +439,10 @@ class Competition(models.Model):
                 subs = header['subs']
                 if subs:
                     for sub in subs:
+                        # Duplicating the key here allows us to get the ordering
+                        # for subheaders (normally just headers)
+                        ordering[sub['key']] = count
+
                         headers.append(header['label'])
                         sub_headers.append(sub['label'])
                 else:
@@ -471,9 +475,6 @@ class Competition(models.Model):
             except:
                 csvwriter.writerow(["Exception parsing scores!"])
                 logger.error("Error parsing scores for competition PK=%s" % self.pk)
-
-            csvwriter.writerow([])
-            csvwriter.writerow([])
 
         return csvfile.getvalue()
 
@@ -821,25 +822,19 @@ class CompetitionPhase(models.Model):
         """
 
         # Get the list of submissions in this leaderboard
-        submissions = []
-        result_location = []
         lb, created = PhaseLeaderBoard.objects.get_or_create(phase=self)
         if not created:
             if include_scores_not_on_leaderboard:
-                qs = CompetitionSubmission.objects.filter(
+                submissions = CompetitionSubmission.objects.filter(
                     phase=self,
                     status__codename=CompetitionSubmissionStatus.FINISHED
                 )
-                for submission in qs:
-                    result_location.append(submission.file.name)
-                    submissions.append((submission.pk, submission.participant.user))
+                submissions = submissions.select_related('participant', 'participant__user')
             else:
                 qs = PhaseLeaderBoardEntry.objects.filter(board=lb)
-                for entry in qs:
-                    result_location.append(entry.result.file.name)
-
-                for entry in qs:
-                    submissions.append((entry.result.id, entry.result.participant.user))
+                submissions = [entry.result for entry in qs]
+        else:
+            submissions = []
 
         results = []
         for count, g in enumerate(SubmissionResultGroup.objects.filter(phases__in=[self]).order_by('ordering')):
@@ -848,14 +843,15 @@ class CompetitionPhase(models.Model):
             scores = {}
 
             # add the location of the results on the blob storage to the scores
-            for (pk, user) in submissions:
-                scores[pk] = {
+            for submission in submissions:
+                user = submission.participant.user
+                scores[submission.pk] = {
                     'username': user.username,
                     'user_pk': user.pk,
                     'team_name': user.team_name,
-                    'id': pk,
+                    'id': submission.pk,
                     'values': [],
-                    'resultLocation': result_location[count]
+                    'resultLocation': submission.file.name
                 }
 
             scoreDefs = []
@@ -902,7 +898,7 @@ class CompetitionPhase(models.Model):
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
-            submission_ids = [id for (id,name) in submissions]
+            submission_ids = [s.id for s in submissions]
             # not_computed_scoredefs: map (scoredef.id, scoredef) to keep track of non-computed scoredefs
             not_computed_scoredefs = {}
             computed_scoredef_ids = []
@@ -1183,11 +1179,8 @@ class CompetitionSubmission(models.Model):
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
 
-        print "Setting the file url base."
         self.file_url_base = self.file.storage.url('')
-
-        print "Calling super save."
-        res = super(CompetitionSubmission, self).save(*args,**kwargs)
+        res = super(CompetitionSubmission, self).save(*args, **kwargs)
         return res
 
     def get_filename(self):
@@ -1295,6 +1288,9 @@ class SubmissionResultGroup(models.Model):
 
     class Meta:
         ordering = ['ordering']
+
+    def __str__(self):
+        return "{}:{}".format(self.label, self.key)
 
 
 class SubmissionResultGroupPhase(models.Model):
@@ -1424,9 +1420,12 @@ class CompetitionDefBundle(models.Model):
 
         # Unpack and save the logo
         if 'image' in comp_base:
-            comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
-            comp.save()
-            logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            try:
+                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+                comp.save()
+                logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
+            except KeyError:
+                assert False, "Could not find image {} in archive.".format(comp_base['image'])
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
