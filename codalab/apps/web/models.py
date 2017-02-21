@@ -7,6 +7,7 @@ import logging
 import operator
 import os
 import StringIO
+import urllib
 import uuid
 import yaml
 import zipfile
@@ -35,6 +36,7 @@ from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
+from s3direct.fields import S3DirectField
 
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
@@ -47,6 +49,7 @@ logger = logging.getLogger(__name__)
 # Needed for computation service handling
 # Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+
 try:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                         account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
@@ -211,11 +214,19 @@ class ParticipantStatus(models.Model):
         return self.name
 
 
+def _uuidify(directory):
+    """Helper to generate UUID's in file names while maintaining their extension"""
+    def wrapped_uuidify(obj, filename):
+        name, extension = os.path.splitext(filename)
+        return os.path.join(directory, '{}-{}{}'.format(name, uuid.uuid4(), extension))
+    return wrapped_uuidify
+
+
 class Competition(models.Model):
     """ Model representing a competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
+    image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
@@ -1329,7 +1340,8 @@ class SubmissionScoreDef(models.Model):
 
 class CompetitionDefBundle(models.Model):
     """Defines a competition bundle."""
-    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
+    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage, null=True, blank=True)
+    s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1358,7 +1370,11 @@ class CompetitionDefBundle(models.Model):
         """
         # Get the bundle data, which is stored as a zipfile
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
-        zf = zipfile.ZipFile(self.config_bundle)
+        if settings.USE_AWS:
+            competition_def_data = urllib.urlopen(self.s3_config_bundle).read()
+            zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
+        else:
+            zf = zipfile.ZipFile(self.config_bundle)
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x][0]
         yaml_contents = zf.open(comp_spec_file).read()
@@ -1421,7 +1437,10 @@ class CompetitionDefBundle(models.Model):
         # Unpack and save the logo
         if 'image' in comp_base:
             try:
-                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+                comp.image.save(
+                    comp_base['image'],
+                    File(io.BytesIO(zf.read(comp_base['image'])))
+                )
                 comp.save()
                 logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
             except KeyError:

@@ -4,6 +4,8 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from s3direct.widgets import S3DirectWidget
+
 import models
 from tinymce.widgets import TinyMCE
 
@@ -231,3 +233,16 @@ class UserSettingsForm(forms.ModelForm):
             'method_description': forms.Textarea(attrs={"class": "form-control"}),
             'bibtex': forms.Textarea(attrs={"class": "form-control"})
         }
+
+
+class CompetitionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionDefBundle
+        fields = ('s3_config_bundle',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(CompetitionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_config_bundle'].required = True

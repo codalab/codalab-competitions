@@ -215,6 +215,9 @@ def deploy_compute_worker(label):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
         run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip uninstall django-storages')
         # run('./dev_setup.sh')
 
     # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
@@ -384,6 +387,9 @@ def _deploy():
     # Update the website configuration
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('pip uninstall django-storages')
+
         # Generate configuration files (bundle_server_config, nginx, etc.)
         # For more info look into https://github.com/greyside/django-config-gen
         run('python manage.py config_gen')

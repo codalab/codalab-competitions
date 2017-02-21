@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     url(r'^captcha/', include('captcha.urls')),
     url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
 
+    # Third party
+    url(r'^s3direct/', include('s3direct.urls')),
+
     # Direct URL redirects
     url(r'^(?i)AutoML/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2321')),
     url(r'^(?i)ChalearnLAP_Pose/?', RedirectView.as_view(url='https://www.codalab.org/competitions/2231')),

@@ -198,6 +198,7 @@ class Base(Settings):
 
         # Storage API
         'storages',
+        's3direct',
 
         # Migration app
         'south',

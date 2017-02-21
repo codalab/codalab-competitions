@@ -24,7 +24,6 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 
-
 from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
