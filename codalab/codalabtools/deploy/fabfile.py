@@ -125,7 +125,12 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre upstart upstart-sysv unixodbc unixodbc-dev')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre unixodbc unixodbc-dev')
+
+    ubuntu_version = run('cat /etc/issue')
+    if not ubuntu_version.startswith("Ubuntu 14.04"):
+        # Upstart not default on versions > 14.04
+        packages += ' upstart upstart-sysv'
     provision_packages(packages)
 
 
@@ -163,7 +168,7 @@ def provision_compute_worker(label):
     Install compute workers from scracth. Run only once
     '''
     # Install packages
-    sudo("add-apt-repository ppa:openjdk-r/ppa")
+    sudo("add-apt-repository ppa:openjdk-r/ppa --yes")
     sudo("apt-get update")
     provision_compute_workers_packages()
     env.deploy_codalab_dir = 'codalab-competitions'
@@ -441,7 +446,8 @@ def set_permissions_on_codalab_temp():
     '''
     Set proper permissions on compute workers.
     '''
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    with settings(warn_only=True):
+        sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
 
 
 @task
@@ -469,7 +475,7 @@ def setup_compute_worker_permissions():
     sudo("apt-get install bindfs")
     if not exists("/codalabtemp"):
         sudo("mkdir /codalabtemp")
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    set_permissions_on_codalab_temp()
 
     # Make private stuff private
     sudo("chown -R azureuser:azureuser ~/codalab-competitions")
