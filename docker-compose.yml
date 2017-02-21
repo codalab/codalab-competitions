@@ -11,7 +11,5 @@ services:
     build:
       context: ./ 
       dockerfile: ./codalab/codalabtools/compute/Dockerfile
-    # Todo: Need to decide on port and communication details
-    ports:
-      - 8080:8080
+    
     
