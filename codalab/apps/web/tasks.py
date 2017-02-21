@@ -174,31 +174,47 @@ def predict(submission, job_id):
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
+
     # Submit the request to the computation service
-    data = {
-        "id": job_id,
-        "task_type": "run",
-        "task_args": {
-            "submission_id": submission.pk,
-            "bundle_id": submission.prediction_runfile.name,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit,
-            "predict": True,
-        }
-    }
-    # body = json.dumps(data)
-    # getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-    default_time_limit = submission.phase.execution_time_limit
-    if default_time_limit <= 0:
-        default_time_limit = 60 * 10  # 10 minutes
-    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+    _prepare_compute_worker_run(job_id, submission, is_prediction=True)
 
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 
-# Give this a 1 hour time limit
+def _prepare_compute_worker_run(job_id, submission, is_prediction):
+    """Kicks off the compute_worker_run task passing job id, submission container details, and "is prediction
+    or scoring" flag to compute worker"""
+    if is_prediction:
+        bundle_id = submission.prediction_runfile.name
+    else:
+        # Scoring, if we're not predicting
+        bundle_id = submission.runfile.name
+
+    data = {
+        "id": job_id,
+        "task_type": "run",
+        "task_args": {
+            "submission_id": submission.pk,
+            "bundle_id": bundle_id,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "reply_to": settings.SBS_RESPONSE_QUEUE,
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": is_prediction,
+        }
+    }
+
+    default_time_limit = submission.phase.execution_time_limit
+    if default_time_limit <= 0:
+        default_time_limit = 60 * 10  # 10 minutes timeout
+
+    from celery.app import app_or_default
+    app = app_or_default()
+    with app.connection() as new_connection:
+        # new_connection.virtual_host = 'ffc'
+        compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
+
+
 @task(queue='compute-worker')
 def compute_worker_run(data):
     """Runs only on the compute workers that predicts (optional step) then scores
@@ -381,27 +397,7 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
-    data = {
-        "id": job_id,
-        "task_type": "run",
-        "task_args": {
-            "submission_id": submission.pk,
-            "bundle_id": submission.runfile.name,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit,
-            "predict": False,
-        }
-    }
-
-    time_elapsed = time.time() - start
-    logger.info("It took: %f seconds to run before sending message" % time_elapsed)
-
-    default_time_limit = submission.phase.execution_time_limit
-    if default_time_limit <= 0:
-        default_time_limit = 60 * 10  # 10 minutes
-
-    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+    _prepare_compute_worker_run(job_id, submission, is_prediction=False)
 
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
