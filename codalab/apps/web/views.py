@@ -38,8 +38,7 @@ from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from tasks import evaluate_submission
-
+from tasks import evaluate_submission, re_run_all_submissions_in_phase
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -60,6 +59,21 @@ User = get_user_model()
 class HomePageView(TemplateView):
     """Template View for homepage."""
     template_name = "web/index.html"
+
+    def get(self, *args, **kwargs):
+        if settings.SINGLE_COMPETITION_VIEW_PK:
+            # First quickly check that competition is available to view
+            try:
+                competition = models.Competition.objects.get(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+                if not competition.published:
+                    return HttpResponse("Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the "
+                                        "competition is not published so regular users won't be able to access it!")
+            except ObjectDoesNotExist:
+                raise Http404()
+
+            kwargs.update(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+            return CompetitionDetailView.as_view()(*args, **kwargs)
+        return super(HomePageView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
@@ -335,12 +349,14 @@ def competition_message_participants(request, competition_id):
     body = strip_tags(request.POST.get('body'))
 
     if len(emails) > 0:
-        tasks.send_mass_email(
-            competition,
-            subject=subject,
-            body=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to_emails=emails
+        tasks.send_mass_email.apply_async(
+            (competition.pk,),
+            dict(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_emails=emails
+            )
         )
 
     return HttpResponse(status=200)
@@ -543,12 +559,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 def competition_submission_metadata_page(request, competition_id, phase_id):
     try:
         competition = models.Competition.objects.get(pk=competition_id)
-        selected_phase = competition.phases.get(pk=phase_id)
+        selected_phase = competition.phases.all().prefetch_related(
+            'submissions',
+            'submissions__status',
+            'submissions__participant',
+            'submissions__metadatas',
+        ).get(pk=phase_id)
     except ObjectDoesNotExist:
         raise Http404()
 
     if request.user.id != competition.creator_id and request.user not in competition.admins.all():
-            raise Http404()
+        raise Http404()
 
     return render(request, "web/competitions/submission_metadata.html", {
         'competition': competition,
@@ -673,8 +694,7 @@ class CompetitionCompleteResultsDownload(View):
     def get(self, request, *args, **kwargs):
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
         phase = competition.phases.get(pk=self.kwargs['phase'])
-        if phase.is_blind:
-            return HttpResponse(status=403)
+
         groups = phase.scores(include_scores_not_on_leaderboard=True)
         leader_board = models.PhaseLeaderBoard.objects.get(phase=phase)
 
@@ -1543,7 +1563,7 @@ def submission_re_run(request, submission_pk):
             )
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1563,25 +1583,7 @@ def submission_re_run_all(request, phase_pk):
             if request.user.id != competition.creator_id and request.user not in competition.admins.all():
                 raise Http404()
 
-            # Remove duplicate submissions
-            submissions_with_duplicates = models.CompetitionSubmission.objects.filter(phase=phase)
-            submissions_without_duplicates = []
-            file_names_seen = []
-
-            for submission in submissions_with_duplicates:
-                if submission.file.name not in file_names_seen:
-                    file_names_seen.append(submission.file.name)
-                    submissions_without_duplicates.append(submission)
-
-            for submission in submissions_without_duplicates:
-                new_submission = models.CompetitionSubmission(
-                    participant=submission.participant,
-                    file=submission.file,
-                    phase=submission.phase
-                )
-                new_submission.save(ignore_submission_limits=True)
-
-                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            re_run_all_submissions_in_phase.apply_async((phase_pk,))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1613,7 +1615,7 @@ def submission_migrate(request, pk):
 
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
             submission.is_migrated = True
             submission.save()
 

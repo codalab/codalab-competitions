@@ -158,7 +158,7 @@ class CompetitionHiddenPhaseMigration(TestCase):
         Will perform migrations when submission auto_migrated = False
         1. We need a few submissions to test this behavior
         '''
-        with mock.patch('apps.web.tasks.evaluate_submission') as perform_migration:
+        with mock.patch('apps.web.tasks.evaluate_submission.apply_async') as perform_migration:
             self.submission_1.is_migrated = False
             self.submission_2.is_migrated = False
             self.submission_1.save()
@@ -181,14 +181,14 @@ class CompetitionHiddenPhaseMigration(TestCase):
         self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="running", codename="running")[0]
         self.submission_1.save()
 
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.tasks.evaluate_submission.apply_async') as evaluate_mock:
             self.competition.check_future_phase_sumbmissions()
         self.assertFalse(evaluate_mock.called)
 
         self.submission_1.status = CompetitionSubmissionStatus.objects.get_or_create(name="finished", codename="finished")[0]
         self.submission_1.is_migrated = False
         self.submission_1.save()
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.tasks.evaluate_submission.apply_async') as evaluate_mock:
             self.competition.check_future_phase_sumbmissions()
         self.assertTrue(evaluate_mock.called)
 
@@ -197,7 +197,7 @@ class CompetitionHiddenPhaseMigration(TestCase):
         self.submission_1.save()
         self.assertFalse(self.competition.is_migrating_delayed)
 
-        with mock.patch('apps.web.tasks.evaluate_submission') as evaluate_mock:
+        with mock.patch('apps.web.tasks.evaluate_submission.apply_async') as evaluate_mock:
             self.competition.check_future_phase_sumbmissions()
         self.assertTrue(self.competition.is_migrating_delayed)
 
