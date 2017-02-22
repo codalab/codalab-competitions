@@ -125,7 +125,12 @@ def provision_compute_workers_packages():
     """
     Installs required software packages on a newly provisioned compute worker machine.
     """
-    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre upstart upstart-sysv unixodbc unixodbc-dev')
+    packages = ('python-crypto libpcre3-dev libpng12-dev libjpeg-dev libmysqlclient-dev uwsgi-plugin-python libsm6 openjdk-7-jre unixodbc unixodbc-dev')
+
+    ubuntu_version = run('cat /etc/issue')
+    if not ubuntu_version.startswith("Ubuntu 14.04"):
+        # Upstart not default on versions > 14.04
+        packages += ' upstart upstart-sysv'
     provision_packages(packages)
 
 
@@ -163,7 +168,7 @@ def provision_compute_worker(label):
     Install compute workers from scracth. Run only once
     '''
     # Install packages
-    sudo("add-apt-repository ppa:openjdk-r/ppa")
+    sudo("add-apt-repository ppa:openjdk-r/ppa --yes")
     sudo("apt-get update")
     provision_compute_workers_packages()
     env.deploy_codalab_dir = 'codalab-competitions'
@@ -209,18 +214,28 @@ def deploy_compute_worker(label):
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
-        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
         # run('./dev_setup.sh')
 
     # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
 
     current_directory = os.path.dirname(os.path.realpath(__file__))
 
+    # Adding compute worker upstart config
+    broker_url = cfg.get_broker_url()
+    compute_worker_conf_template = open('{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory)).read()
+    compute_worker_conf = compute_worker_conf_template.format(
+        broker_url=broker_url
+    )
+    compute_worker_conf_buf = StringIO()
+    compute_worker_conf_buf.write(compute_worker_conf)
     put(
-        local_path='{}/configs/upstart/codalab-compute-worker.conf'.format(current_directory),
+        local_path=compute_worker_conf_buf,  # Path can be a file-like object, in this case our processed template
         remote_path='/etc/init/codalab-compute-worker.conf',
         use_sudo=True
     )
+
+    # Adding codalab monitor upstart config
     put(
         local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
         remote_path='/etc/init/codalab-monitor.conf',
@@ -353,8 +368,8 @@ def _deploy():
     # Pull branch and run requirements file, for info about requirments look into dev_setp.sh
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir):
-        run('git pull')
         run('git checkout %s' % env.git_codalab_tag)
+        run('git pull')
         run('./dev_setup.sh')
 
     # Create local.py
@@ -441,7 +456,8 @@ def set_permissions_on_codalab_temp():
     '''
     Set proper permissions on compute workers.
     '''
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    with settings(warn_only=True):
+        sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
 
 
 @task
@@ -469,7 +485,7 @@ def setup_compute_worker_permissions():
     sudo("apt-get install bindfs")
     if not exists("/codalabtemp"):
         sudo("mkdir /codalabtemp")
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
+    set_permissions_on_codalab_temp()
 
     # Make private stuff private
     sudo("chown -R azureuser:azureuser ~/codalab-competitions")

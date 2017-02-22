@@ -2,6 +2,8 @@
 """
 Defines the worker process which handles computations.
 """
+from _ssl import SSLError
+
 import azure
 import json
 import logging
@@ -30,8 +32,8 @@ from zipfile import ZipFile
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
-from codalabtools import BaseWorker, BaseConfig
-from codalabtools.azure_extensions import AzureServiceBusQueue
+from codalabtools import BaseConfig
+
 
 logger = logging.getLogger('codalabtools')
 
@@ -128,12 +130,22 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     def getThem(bundle_id, bundle_rel_path, bundles, depth):
         """Recursively gets the bundles."""
-        # download the bundle and save it to a temporary location
-        try:
-            logger.debug("Getting bundle_id=%s from container=%s" % (container, bundle_id))
-            blob = blob_service.get_blob(container, bundle_id)
-        except azure.WindowsAzureMissingResourceError:
-            #file not found lets None this bundle
+        logger.info("Trying to get %s", bundle_rel_path)
+
+        retries_left = 2
+        while retries_left > 0:
+            try:
+                logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
+                blob = blob_service.get_blob(container, bundle_id)
+                break
+            except azure.WindowsAzureMissingResourceError:
+                retries_left = 0
+            except:
+                logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
+                retries_left -= 1
+
+        if retries_left == 0:
+            # file not found lets None this bundle
             bundles[bundle_rel_path] = None
             return bundles
 
@@ -142,7 +154,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
         logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
 
-        #take our temp file and write whatever is it form the blob
+        # take our temp file and write whatever is it form the blob
         with open(bundle_file.name, 'wb') as f:
             f.write(blob)
         # stage the bundle directory
@@ -172,6 +184,8 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
             with open(metadata_path) as mf:
                 bundle_info = yaml.load(mf)
 
+        os.chmod(bundle_path, 0777)
+
         bundles[bundle_rel_path] = bundle_info
         # get referenced bundles
 
@@ -185,23 +199,21 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
 
     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
-def _send_update(queue, task_id, status, extra=None):
+
+def _send_update(task_id, status, extra=None):
     """
     Sends a status update about the running task.
 
-    queue: The Queue to send the update to.
     id: The task ID.
     status: The new status for the task. One of 'running', 'finished' or 'failed'.
     """
     task_args = {'status': status}
     if extra:
         task_args['extra'] = extra
-    body = json.dumps({
-        'id': task_id,
-        'task_type': 'run_update',
-        'task_args': task_args
-    })
-    queue.send_message(body)
+    logger.info("Updating task=%s status to %s", task_id, status)
+    from apps.web.tasks import update_submission
+    update_submission.apply_async((task_id, task_args))
+
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
     """
@@ -248,24 +260,25 @@ def get_run_func(config):
         task_id: The tracking ID for this task.
         task_args: The input arguments for this task:
         """
+        logger.info("Entering run task; task_id=%s, task_args=%s", task_id, task_args)
         run_id = task_args['bundle_id']
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         reply_to_queue_name = task_args['reply_to']
         is_predict_step = task_args.get("predict", False)
-        queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
-                                     config.getAzureServiceBusKey(),
-                                     config.getAzureServiceBusIssuer(),
-                                     config.get_service_bus_shared_access_key_name(),
-                                     config.get_service_bus_shared_access_key_value(),
-                                     reply_to_queue_name)
+        # queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
+        #                              config.getAzureServiceBusKey(),
+        #                              config.getAzureServiceBusIssuer(),
+        #                              config.get_service_bus_shared_access_key_name(),
+        #                              config.get_service_bus_shared_access_key_value(),
+        #                              reply_to_queue_name)
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
-        try:
-           running_processes = subprocess.check_output(["fuser", temp_dir])
-        except subprocess.CalledProcessError, e:
-           running_processes = ''
+        # try:
+        #     running_processes = subprocess.check_output(["fuser", temp_dir])
+        # except:
+        running_processes = '<DISABLED>'
         debug_metadata = {
             "hostname": socket.gethostname(),
 
@@ -293,24 +306,30 @@ def get_run_func(config):
             # Kill running processes in the temp dir
             try:
                 call(["fuser", "-k", temp_dir])
-            except subprocess.CalledProcessError:
+            except:
                 pass
 
-            _send_update(queue, task_id, 'running', extra={
+            _send_update(task_id, 'running', extra={
                 'metadata': debug_metadata
             })
             # Create temporary directory for the run
             root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
+            os.chmod(root_dir, 0777)
             # Fetch and stage the bundles
+            logger.info("Fetching bundles...")
+            start = time.time()
             blob_service = BlobService(config.getAzureStorageAccountName(),
                                        config.getAzureStorageAccountKey())
             bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
+            end = time.time() - start
+            logger.info("Fetched bundles in %s", end)
             # Verify we have an input folder: create one if it's not in the bundle.
             input_rel_path = join('run', 'input')
             if input_rel_path not in bundles:
                 input_dir = join(root_dir, 'run', 'input')
                 if os.path.exists(input_dir) == False:
                     os.mkdir(input_dir)
+                    os.chmod(input_dir, 0777)
             # Verify we have a program
             prog_rel_path = join('run', 'program')
             if prog_rel_path not in bundles:
@@ -333,17 +352,19 @@ def get_run_func(config):
             output_dir = join(root_dir, 'run', 'output')
             if os.path.exists(output_dir) == False:
                 os.mkdir(output_dir)
+                os.chmod(output_dir, 0777)
             # Create temp folder
             temp_dir = join(root_dir, 'run', 'temp')
             if os.path.exists(temp_dir) == False:
                 os.mkdir(temp_dir)
+                os.chmod(temp_dir, 0777)
             # Report the list of folders and files staged
             #
             # Invoke custom evaluation program
             run_dir = join(root_dir, 'run')
             os.chdir(run_dir)
             os.environ["PATH"] += os.pathsep + run_dir + "/program"
-            logger.debug("Execution directory: %s", run_dir)
+            logger.info("Execution directory: %s", run_dir)
 
             if is_predict_step:
                 stdout_file_name = 'prediction_stdout_file.txt'
@@ -360,14 +381,14 @@ def get_run_func(config):
 
             for prog_cmd_counter, prog_cmd in enumerate(prog_cmd_list):
                 # Update command-line with the real paths
-                logger.debug("CMD: %s", prog_cmd)
+                logger.info("CMD: %s", prog_cmd)
                 prog_cmd = prog_cmd.replace("$program", join(run_dir, 'program')) \
                                     .replace("$input", join(run_dir, 'input')) \
                                     .replace("$output", join(run_dir, 'output')) \
                                     .replace("$tmp", join(run_dir, 'temp')) \
                                     .replace("/", os.path.sep) \
                                     .replace("\\", os.path.sep)
-                logger.debug("Invoking program: %s", prog_cmd)
+                logger.info("Invoking program: %s", prog_cmd)
 
                 startTime = time.time()
                 exit_code = None
@@ -391,7 +412,7 @@ def get_run_func(config):
                         env=os.environ
                     )
 
-                logger.debug("Started process, pid=%s" % evaluator_process.pid)
+                logger.info("Started process, pid=%s" % evaluator_process.pid)
 
                 time_difference = time.time() - startTime
                 signal.signal(signal.SIGALRM, alarm_handler)
@@ -399,7 +420,7 @@ def get_run_func(config):
 
                 exit_code = None
 
-                logger.debug("Checking process, exit_code = %s" % exit_code)
+                logger.info("Checking process, exit_code = %s" % exit_code)
 
                 try:
                     while exit_code == None:
@@ -416,7 +437,7 @@ def get_run_func(config):
 
                 signal.alarm(0)
 
-                logger.debug("Exit Code: %d", exit_code)
+                logger.info("Exit Code: %d", exit_code)
 
                 endTime = time.time()
                 elapsedTime = endTime - startTime
@@ -439,7 +460,7 @@ def get_run_func(config):
             stdout.close()
             stderr.close()
 
-            logger.debug("Saving output files")
+            logger.info("Saving output files")
             stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
             _upload(blob_service, container, stdout_id, stdout_file)
             stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
@@ -447,7 +468,7 @@ def get_run_func(config):
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
-                logger.debug("Packing private results...")
+                logger.info("Packing private results...")
                 private_output_file = join(root_dir, 'run', 'private_output.zip')
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
                 private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
@@ -455,7 +476,7 @@ def get_run_func(config):
                 shutil.rmtree(private_dir, ignore_errors=True)
 
             # Pack results and send them to Blob storage
-            logger.debug("Packing results...")
+            logger.info("Packing results...")
             output_file = join(root_dir, 'run', 'output.zip')
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
             output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
@@ -483,17 +504,17 @@ def get_run_func(config):
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={
+                _send_update(task_id, 'failed', extra={
                     'metadata': debug_metadata
                 })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(queue, task_id, 'failed', extra={
+                _send_update(task_id, 'failed', extra={
                     'traceback': open(stderr_file).read(),
                     'metadata': debug_metadata
                 })
             else:
-                _send_update(queue, task_id, 'finished', extra={
+                _send_update(task_id, 'finished', extra={
                     'metadata': debug_metadata
                 })
         except Exception:
@@ -504,7 +525,7 @@ def get_run_func(config):
                 debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(queue, task_id, 'failed', extra={
+            _send_update(task_id, 'failed', extra={
                 'traceback': traceback.format_exc(),
                 'metadata': debug_metadata
             })
@@ -518,31 +539,3 @@ def get_run_func(config):
             except:
                 logger.exception("Unable to clean-up local folder %s (task_id=%s)", root_dir, task_id)
     return run
-
-def main():
-    """
-    Setup the worker and start it.
-    """
-    config = WorkerConfig()
-
-    logging.config.dictConfig(config.getLoggerDictConfig())
-
-    # queue to listen to for notifications of tasks to perform
-    queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
-                                 config.getAzureServiceBusKey(),
-                                 config.getAzureServiceBusIssuer(),
-                                 config.get_service_bus_shared_access_key_name(),
-                                 config.get_service_bus_shared_access_key_value(),
-                                 config.getAzureServiceBusQueue())
-    # map task type to function to accomplish the task
-    vtable = {
-        'run' : get_run_func(config)
-    }
-    # create and start the worker
-    worker = BaseWorker(queue, vtable, logger)
-    logger.info("Starting compute worker.")
-    worker.start()
-
-if __name__ == "__main__":
-
-    main()

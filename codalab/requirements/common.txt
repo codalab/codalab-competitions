@@ -44,6 +44,8 @@ django-bootstrap-form==3.2
 newrelic==2.54.0.41
 python-memcached==1.57
 
+celery==3.1.25
+
 #Extras added
 git+https://github.com/ikraft/django-userswitch.git
 Sphinx==1.4.1

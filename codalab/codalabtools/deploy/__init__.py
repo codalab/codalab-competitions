@@ -139,6 +139,12 @@ class DeploymentConfig(BaseConfig):
         """Gets the base SSH port value. If this value is N, the k-th web instance will have SSH port number (N+k)."""
         return self._svc['vm']['ssh-port']
 
+    def get_broker_url(self):
+        return self._svc['broker-url']
+
+    def get_CELERY_DEFAULT_ROUTING_KEY(self):
+        return self._svc['broker-routing-key']
+
     def getGitUser(self):
         """Gets the name of the Git user associated with the target source code repository."""
         return self._svc['git']['user']
@@ -341,6 +347,8 @@ class Deployment(object):
             "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
+            "    BROKER_URL = '{0}'".format(self.config.get_broker_url()),
+            # "    CELERY_DEFAULT_ROUTING_KEY = '{0}'".format(self.config.get_CELERY_DEFAULT_ROUTING_KEY()),
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
