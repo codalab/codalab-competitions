@@ -236,18 +236,18 @@ def deploy_compute_worker(label):
     )
 
     # Adding codalab monitor upstart config
-    put(
-        local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
-        remote_path='/etc/init/codalab-monitor.conf',
-        use_sudo=True
-    )
+    # put(
+    #     local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
+    #     remote_path='/etc/init/codalab-monitor.conf',
+    #     use_sudo=True
+    # )
     # run("echo %s > /home/azureuser/codalab-competitions/codalab/codalabtools/compute/password.txt" % env.logs_password)
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
         sudo("stop codalab-monitor")
         sudo("start codalab-compute-worker")
-        sudo("start codalab-monitor")
+        # sudo("start codalab-monitor")
 
 
 @roles('web')
