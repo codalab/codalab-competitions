@@ -215,7 +215,8 @@ class Competition(models.Model):
     """ Model representing a competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True)
+    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    compute_worker_password = models.CharField(max_length=128, default='', blank=True)
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
@@ -273,6 +274,12 @@ class Competition(models.Model):
         phases = self.phases.all().order_by('start_date')
         if len(phases) > 0:
             self.start_date = phases[0].start_date.replace(tzinfo=None)
+
+        if self.compute_worker_password == '':
+            # Set a compute worker password if one isn't set, the competition organizer
+            # never needs to know this password, it's sent along with the tasks
+            # and their data location
+            self.compute_worker_password = uuid.uuid4()
 
         # Do the real save
         # cache bust TODO.
