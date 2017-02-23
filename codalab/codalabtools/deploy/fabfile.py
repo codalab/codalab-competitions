@@ -168,7 +168,7 @@ def provision_compute_worker(label):
     Install compute workers from scracth. Run only once
     '''
     # Install packages
-    sudo("add-apt-repository ppa:openjdk-r/ppa")
+    sudo("add-apt-repository ppa:openjdk-r/ppa --yes")
     sudo("apt-get update")
     provision_compute_workers_packages()
     env.deploy_codalab_dir = 'codalab-competitions'
@@ -462,8 +462,8 @@ def set_permissions_on_codalab_temp():
     '''
     Set proper permissions on compute workers.
     '''
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
-    # sudo("chown azureuser:azureuser /codalabtemp")
+    with settings(warn_only=True):
+        sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
 
 
 @task
@@ -491,8 +491,7 @@ def setup_compute_worker_permissions():
     sudo("apt-get install bindfs")
     if not exists("/codalabtemp"):
         sudo("mkdir /codalabtemp")
-    sudo("bindfs -o perms=0777 /codalabtemp /codalabtemp")
-    # sudo("chown azureuser:azureuser /codalabtemp")
+    set_permissions_on_codalab_temp()
 
     # Make private stuff private
     sudo("chown -R azureuser:azureuser ~/codalab-competitions")
