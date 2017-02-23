@@ -29,6 +29,8 @@ from subprocess import Popen, call
 from zipfile import ZipFile
 
 # Add codalabtools to the module search path
+from celery.app import app_or_default
+
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
@@ -200,7 +202,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
 
-def _send_update(task_id, status, extra=None):
+def _send_update(task_id, status, secret, virtual_host='/', extra=None):
     """
     Sends a status update about the running task.
 
@@ -212,7 +214,12 @@ def _send_update(task_id, status, extra=None):
         task_args['extra'] = extra
     logger.info("Updating task=%s status to %s", task_id, status)
     from apps.web.tasks import update_submission
-    update_submission.apply_async((task_id, task_args))
+    app = app_or_default()
+    with app.connection() as new_connection:
+        # We need to send on the main virtual host, not whatever host we're currently
+        # connected to.
+        new_connection.virtual_host = virtual_host
+        update_submission.apply_async((task_id, task_args, secret), connection=new_connection)
 
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -264,14 +271,8 @@ def get_run_func(config):
         run_id = task_args['bundle_id']
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
-        reply_to_queue_name = task_args['reply_to']
         is_predict_step = task_args.get("predict", False)
-        # queue = AzureServiceBusQueue(config.getAzureServiceBusNamespace(),
-        #                              config.getAzureServiceBusKey(),
-        #                              config.getAzureServiceBusIssuer(),
-        #                              config.get_service_bus_shared_access_key_name(),
-        #                              config.get_service_bus_shared_access_key_value(),
-        #                              reply_to_queue_name)
+        secret = task_args['secret']
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
@@ -309,7 +310,7 @@ def get_run_func(config):
             except:
                 pass
 
-            _send_update(task_id, 'running', extra={
+            _send_update(task_id, 'running', secret, extra={
                 'metadata': debug_metadata
             })
             # Create temporary directory for the run
@@ -522,17 +523,17 @@ def get_run_func(config):
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(task_id, 'failed', extra={
+                _send_update(task_id, 'failed', secret, extra={
                     'metadata': debug_metadata
                 })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(task_id, 'failed', extra={
+                _send_update(task_id, 'failed', secret, extra={
                     'traceback': open(stderr_file).read(),
                     'metadata': debug_metadata
                 })
             else:
-                _send_update(task_id, 'finished', extra={
+                _send_update(task_id, 'finished', secret, extra={
                     'metadata': debug_metadata
                 })
         except Exception:
@@ -543,7 +544,7 @@ def get_run_func(config):
                 debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(task_id, 'failed', extra={
+            _send_update(task_id, 'failed', secret, extra={
                 'traceback': traceback.format_exc(),
                 'metadata': debug_metadata
             })

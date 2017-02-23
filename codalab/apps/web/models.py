@@ -224,6 +224,7 @@ def _uuidify(directory):
 
 class Competition(models.Model):
     """ Model representing a competition. """
+    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
@@ -1049,6 +1050,7 @@ class CompetitionSubmission(models.Model):
     """Represents a submission from a competition participant."""
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
+    secret = models.CharField(max_length=128, default='', blank=True)
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
     readable_filename = models.TextField(null=True, blank=True)
@@ -1189,6 +1191,12 @@ class CompetitionSubmission(models.Model):
                     self.submission_number += 1
 
             self.status = CompetitionSubmissionStatus.objects.get_or_create(codename=CompetitionSubmissionStatus.SUBMITTING)[0]
+
+        if not self.secret:
+            # Set a compute worker password if one isn't set, the competition organizer
+            # never needs to know this password, it's sent along with the tasks
+            # and their data location
+            self.secret = uuid.uuid4()
 
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission, self).save(*args, **kwargs)

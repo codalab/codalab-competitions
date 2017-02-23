@@ -8,26 +8,16 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'CompetitionDefBundle.s3_config_bundle'
-        db.add_column(u'web_competitiondefbundle', 's3_config_bundle',
-                      self.gf('s3direct.fields.S3DirectField')(null=True, blank=True),
+        # Adding field 'Competition.compute_worker_vhost'
+        db.add_column(u'web_competition', 'compute_worker_vhost',
+                      self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True),
                       keep_default=False)
 
 
-        # Changing field 'CompetitionDefBundle.config_bundle'
-        db.alter_column(u'web_competitiondefbundle', 'config_bundle', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True))
-
     def backwards(self, orm):
-        # Deleting field 'CompetitionDefBundle.s3_config_bundle'
-        db.delete_column(u'web_competitiondefbundle', 's3_config_bundle')
+        # Deleting field 'Competition.compute_worker_vhost'
+        db.delete_column(u'web_competition', 'compute_worker_vhost')
 
-
-        # User chose to not deal with backwards NULL issues for 'CompetitionDefBundle.config_bundle'
-        raise RuntimeError("Cannot reverse this migration. 'CompetitionDefBundle.config_bundle' and its values cannot be restored.")
-        
-        # The following code is provided here to aid in writing a correct migration
-        # Changing field 'CompetitionDefBundle.config_bundle'
-        db.alter_column(u'web_competitiondefbundle', 'config_bundle', self.gf('django.db.models.fields.files.FileField')(max_length=100))
 
     models = {
         u'auth.group': {
@@ -51,7 +41,7 @@ class Migration(SchemaMigration):
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'email_on_submission_finished_successfully': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -69,7 +59,7 @@ class Migration(SchemaMigration):
             'publication_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'team_members': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'team_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'contenttypes.contenttype': {
@@ -85,6 +75,7 @@ class Migration(SchemaMigration):
             'allow_public_submissions': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'allow_teams': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'anonymous_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'compute_worker_vhost': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'disallow_leaderboard_modifying': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -113,11 +104,10 @@ class Migration(SchemaMigration):
         },
         u'web.competitiondefbundle': {
             'Meta': {'object_name': 'CompetitionDefBundle'},
-            'config_bundle': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'config_bundle': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owner'", 'to': u"orm['authenz.ClUser']"}),
-            's3_config_bundle': ('s3direct.fields.S3DirectField', [], {'null': 'True', 'blank': 'True'})
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owner'", 'to': u"orm['authenz.ClUser']"})
         },
         u'web.competitionparticipant': {
             'Meta': {'unique_together': "(('user', 'competition'),)", 'object_name': 'CompetitionParticipant'},
