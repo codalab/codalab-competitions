@@ -202,7 +202,7 @@ def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, ma
     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
 
-def _send_update(task_id, status, compute_worker_password, virtual_host='/', extra=None):
+def _send_update(task_id, status, secret, virtual_host='/', extra=None):
     """
     Sends a status update about the running task.
 
@@ -219,7 +219,7 @@ def _send_update(task_id, status, compute_worker_password, virtual_host='/', ext
         # We need to send on the main virtual host, not whatever host we're currently
         # connected to.
         new_connection.virtual_host = virtual_host
-        update_submission.apply_async((task_id, task_args, compute_worker_password), connection=new_connection)
+        update_submission.apply_async((task_id, task_args, secret), connection=new_connection)
 
 
 def _upload(blob_service, container, blob_id, blob_file, content_type = None):
@@ -272,7 +272,7 @@ def get_run_func(config):
         execution_time_limit = task_args['execution_time_limit']
         container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
-        compute_worker_password = task_args['compute_worker_password']
+        secret = task_args['secret']
         root_dir = None
         current_dir = os.getcwd()
         temp_dir = config.getLocalRoot()
@@ -310,7 +310,7 @@ def get_run_func(config):
             except:
                 pass
 
-            _send_update(task_id, 'running', compute_worker_password, extra={
+            _send_update(task_id, 'running', secret, extra={
                 'metadata': debug_metadata
             })
             # Create temporary directory for the run
@@ -505,17 +505,17 @@ def get_run_func(config):
             # check if timed out AFTER output files are written! If we exit sooner, no output is written
             if timed_out:
                 logger.exception("Run task timed out (task_id=%s).", task_id)
-                _send_update(task_id, 'failed', compute_worker_password, extra={
+                _send_update(task_id, 'failed', secret, extra={
                     'metadata': debug_metadata
                 })
             elif exit_code != 0:
                 logger.exception("Run task exit code non-zero (task_id=%s).", task_id)
-                _send_update(task_id, 'failed', compute_worker_password, extra={
+                _send_update(task_id, 'failed', secret, extra={
                     'traceback': open(stderr_file).read(),
                     'metadata': debug_metadata
                 })
             else:
-                _send_update(task_id, 'finished', compute_worker_password, extra={
+                _send_update(task_id, 'finished', secret, extra={
                     'metadata': debug_metadata
                 })
         except Exception:
@@ -526,7 +526,7 @@ def get_run_func(config):
                 debug_metadata["end_cpu_usage"] = psutil.cpu_percent(interval=None)
 
             logger.exception("Run task failed (task_id=%s).", task_id)
-            _send_update(task_id, 'failed', compute_worker_password, extra={
+            _send_update(task_id, 'failed', secret, extra={
                 'traceback': traceback.format_exc(),
                 'metadata': debug_metadata
             })

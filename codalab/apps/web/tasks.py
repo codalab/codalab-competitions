@@ -198,7 +198,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_args": {
             "submission_id": submission.pk,
             "bundle_id": bundle_id,
-            "compute_worker_password": submission.phase.competition.compute_worker_password,
+            "secret": submission.secret,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
@@ -229,7 +229,7 @@ def compute_worker_run(data):
         task_args = data['task_args'] if 'task_args' in data else None
         run(data["id"], task_args)
     except SoftTimeLimitExceeded:
-        update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['compute_worker_password']))
+        update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
 
 def score(submission, job_id):
@@ -418,7 +418,7 @@ class SubmissionUpdateException(Exception):
 
 
 @task(queue='submission-updates')
-def update_submission(job_id, args, compute_worker_password):
+def update_submission(job_id, args, secret):
     """
     A task to update the status of a submission in a competition.
 
@@ -560,7 +560,7 @@ def update_submission(job_id, args, compute_worker_password):
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
 
-        if compute_worker_password != submission.phase.competition.compute_worker_password:
+        if secret != submission.secret:
             raise SubmissionUpdateException(submission, "Password does not match")
 
         status = args['status']
@@ -643,7 +643,7 @@ def evaluate_submission(submission_id, is_scoring_only):
     except Exception:
         logger.exception("evaluate_submission dispatch failed (job_id=%s, submission_id=%s)",
                          job_id, submission_id)
-        update_submission.apply_async((job_id, {'status': 'failed'}, submission.phase.competition.compute_worker_password))
+        update_submission.apply_async((job_id, {'status': 'failed'}, submission.secret))
     logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
