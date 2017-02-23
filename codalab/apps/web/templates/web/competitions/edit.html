@@ -31,13 +31,20 @@
                         </div>
                     </div>
                 {% else %}
-                <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
-                <div class="col-sm-9">
-                    <div class="field-container">
-                        {{ field }}
-                        {{ field.errors }}
-                    </div>
-                </div>
+                    {% if field.name == 'compute_worker_vhost' and request.user.is_admin %}
+                        {# Hide this field from non admins! #}
+                    {% else %}
+                        <label for="{{field.id_for_label}}" class="col-sm-3 control-label">
+                            {{field.label}}{{form.label_suffix}}
+                        </label>
+                        <div class="col-sm-9">
+                            <div class="field-container">
+                                {{ field }}
+                                {{ field.errors }}
+                                <p><i>{{ field.help_text }}</i></p>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endfor %}

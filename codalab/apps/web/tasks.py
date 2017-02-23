@@ -12,6 +12,7 @@ from urllib import pathname2url
 from zipfile import ZipFile
 
 from celery import task
+from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
@@ -197,8 +198,8 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_args": {
             "submission_id": submission.pk,
             "bundle_id": bundle_id,
+            "secret": submission.secret,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to": settings.SBS_RESPONSE_QUEUE,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
         }
@@ -208,11 +209,13 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     if default_time_limit <= 0:
         default_time_limit = 60 * 10  # 10 minutes timeout
 
-    from celery.app import app_or_default
-    app = app_or_default()
-    with app.connection() as new_connection:
-        # new_connection.virtual_host = 'ffc'
-        compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
+    if submission.phase.competition.compute_worker_vhost:
+        app = app_or_default()
+        with app.connection() as new_connection:
+            new_connection.virtual_host = submission.phase.competition.compute_worker_vhost
+            compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
+    else:
+        compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
 
 
 @task(queue='compute-worker')
@@ -226,7 +229,7 @@ def compute_worker_run(data):
         task_args = data['task_args'] if 'task_args' in data else None
         run(data["id"], task_args)
     except SoftTimeLimitExceeded:
-        update_submission.apply_async((data["id"], {'status': 'failed'}))
+        update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
 
 def score(submission, job_id):
@@ -414,8 +417,8 @@ class SubmissionUpdateException(Exception):
         self.inner_exception = inner_exception
 
 
-@task(queue='site-worker')
-def update_submission(job_id, args):
+@task(queue='submission-updates')
+def update_submission(job_id, args, secret):
     """
     A task to update the status of a submission in a competition.
 
@@ -556,6 +559,10 @@ def update_submission(job_id, args):
         submission_id = task_args['submission_id']
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+        if secret != submission.secret:
+            raise SubmissionUpdateException(submission, "Password does not match")
+
         status = args['status']
         logger.debug("Ready to update submission status (job_id=%s, submission_id=%s, status=%s)",
                      job.id, submission_id, status)
@@ -636,7 +643,7 @@ def evaluate_submission(submission_id, is_scoring_only):
     except Exception:
         logger.exception("evaluate_submission dispatch failed (job_id=%s, submission_id=%s)",
                          job_id, submission_id)
-        update_submission.apply_async((job_id, {'status': 'failed'}))
+        update_submission.apply_async((job_id, {'status': 'failed'}, submission.secret))
     logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
