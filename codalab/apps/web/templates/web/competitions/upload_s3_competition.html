@@ -4,21 +4,27 @@
 {% block page_title %}Create Competition{% endblock page_title %}
 
 {% block content %}
-    <div id="create_competition" class="panel panel-default">
+    <div id="create_competition" class="panel panel-default s3-panel">
         <div class="panel-body">
-            <p>
+            <div class="row">
+              <h3 class="center-block"  style="width:80%;">
                 To create a competition, upload a bundle with the definition of the new competition.
                 <a href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap"
                    title="Get help with creating a competition" target="_blank">
                     <span class="glyphicon glyphicon-question-sign"></span>
                 </a>
-            </p>
+              </h4>
+            </div>
 
             <form id="s3_upload_form" action="" method="post">
                 {% csrf_token %}
-                {{ form }}
+                <div class="form-group">
+                  {{ form }}
+                </div>
 
-                <input type="submit" class="btn btn-primary" value="Submit">
+                <div class="form-group">
+                  <input type="submit" class="btn btn-primary" value="Upload S3 Config Bundle">
+                </div>
             </form>
 
             <div id="details"></div>
