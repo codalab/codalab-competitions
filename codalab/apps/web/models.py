@@ -215,7 +215,7 @@ class Competition(models.Model):
     """ Model representing a competition. """
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    compute_worker_vhost = models.CharField(max_length=128, default='', blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     compute_worker_password = models.CharField(max_length=128, default='', blank=True)
     image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)

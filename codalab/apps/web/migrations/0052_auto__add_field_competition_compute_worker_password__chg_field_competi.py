@@ -14,10 +14,16 @@ class Migration(SchemaMigration):
                       keep_default=False)
 
 
+        # Changing field 'Competition.compute_worker_vhost'
+        db.alter_column(u'web_competition', 'compute_worker_vhost', self.gf('django.db.models.fields.CharField')(max_length=128))
+
     def backwards(self, orm):
         # Deleting field 'Competition.compute_worker_password'
         db.delete_column(u'web_competition', 'compute_worker_password')
 
+
+        # Changing field 'Competition.compute_worker_vhost'
+        db.alter_column(u'web_competition', 'compute_worker_vhost', self.gf('django.db.models.fields.CharField')(max_length=128, null=True))
 
     models = {
         u'auth.group': {
@@ -76,7 +82,7 @@ class Migration(SchemaMigration):
             'allow_teams': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'anonymous_leaderboard': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'compute_worker_password': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
-            'compute_worker_vhost': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'compute_worker_vhost': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
             'creator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'competitioninfo_creator'", 'to': u"orm['authenz.ClUser']"}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'disallow_leaderboard_modifying': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
