@@ -1,12 +1,15 @@
 machine:
   python:
     version: 2.7.10
+  environment:
+    DJANGO_SETTINGS_MODULE: codalab.settings
+    DJANGO_CONFIGURATION: Dev
 
 dependencies:
   pre:
-    - pip install -r codalab/requirements/dev_azure_nix.txt
+    - pip install -r codalab/requirements/tests.txt
     - cp ~/codalab-competitions/circlec_dev_setup.py ~/codalab-competitions/codalab/codalab/settings/local.py
 
 test:
   override:
-    - (cd codalab && python manage.py test)
+    - (cd codalab && py.test)

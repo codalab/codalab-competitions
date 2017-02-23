@@ -12,6 +12,7 @@ from urllib import pathname2url
 from zipfile import ZipFile
 
 from celery import task
+from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
@@ -174,31 +175,49 @@ def predict(submission, job_id):
     # Store workflow state
     submission.execution_key = json.dumps({'predict' : job_id})
     submission.save()
+
     # Submit the request to the computation service
-    data = {
-        "id": job_id,
-        "task_type": "run",
-        "task_args": {
-            "submission_id": submission.pk,
-            "bundle_id": submission.prediction_runfile.name,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit,
-            "predict": True,
-        }
-    }
-    # body = json.dumps(data)
-    # getQueue(settings.SBS_COMPUTE_QUEUE).send_message(body)
-    default_time_limit = submission.phase.execution_time_limit
-    if default_time_limit <= 0:
-        default_time_limit = 60 * 10  # 10 minutes
-    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+    _prepare_compute_worker_run(job_id, submission, is_prediction=True)
 
     # Update the submission object
     _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
 
 
-# Give this a 1 hour time limit
+def _prepare_compute_worker_run(job_id, submission, is_prediction):
+    """Kicks off the compute_worker_run task passing job id, submission container details, and "is prediction
+    or scoring" flag to compute worker"""
+    if is_prediction:
+        bundle_id = submission.prediction_runfile.name
+    else:
+        # Scoring, if we're not predicting
+        bundle_id = submission.runfile.name
+
+    data = {
+        "id": job_id,
+        "task_type": "run",
+        "task_args": {
+            "submission_id": submission.pk,
+            "bundle_id": bundle_id,
+            "secret": submission.secret,
+            "container_name": settings.BUNDLE_AZURE_CONTAINER,
+            "execution_time_limit": submission.phase.execution_time_limit,
+            "predict": is_prediction,
+        }
+    }
+
+    default_time_limit = submission.phase.execution_time_limit
+    if default_time_limit <= 0:
+        default_time_limit = 60 * 10  # 10 minutes timeout
+
+    if submission.phase.competition.compute_worker_vhost:
+        app = app_or_default()
+        with app.connection() as new_connection:
+            new_connection.virtual_host = submission.phase.competition.compute_worker_vhost
+            compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
+    else:
+        compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+
+
 @task(queue='compute-worker')
 def compute_worker_run(data):
     """Runs only on the compute workers that predicts (optional step) then scores
@@ -210,7 +229,7 @@ def compute_worker_run(data):
         task_args = data['task_args'] if 'task_args' in data else None
         run(data["id"], task_args)
     except SoftTimeLimitExceeded:
-        update_submission.apply_async((data["id"], {'status': 'failed'}))
+        update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
 
 def score(submission, job_id):
@@ -381,27 +400,7 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
     submission.save()
     # Submit the request to the computation service
-    data = {
-        "id": job_id,
-        "task_type": "run",
-        "task_args": {
-            "submission_id": submission.pk,
-            "bundle_id": submission.runfile.name,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
-            "reply_to": settings.SBS_RESPONSE_QUEUE,
-            "execution_time_limit": submission.phase.execution_time_limit,
-            "predict": False,
-        }
-    }
-
-    time_elapsed = time.time() - start
-    logger.info("It took: %f seconds to run before sending message" % time_elapsed)
-
-    default_time_limit = submission.phase.execution_time_limit
-    if default_time_limit <= 0:
-        default_time_limit = 60 * 10  # 10 minutes
-
-    compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
+    _prepare_compute_worker_run(job_id, submission, is_prediction=False)
 
     if has_generated_predictions == False:
         _set_submission_status(submission.id, CompetitionSubmissionStatus.SUBMITTED)
@@ -418,8 +417,8 @@ class SubmissionUpdateException(Exception):
         self.inner_exception = inner_exception
 
 
-@task(queue='site-worker')
-def update_submission(job_id, args):
+@task(queue='submission-updates')
+def update_submission(job_id, args, secret):
     """
     A task to update the status of a submission in a competition.
 
@@ -560,6 +559,10 @@ def update_submission(job_id, args):
         submission_id = task_args['submission_id']
         logger.debug("Looking for submission (job_id=%s, submission_id=%s)", job.id, submission_id)
         submission = CompetitionSubmission.objects.get(pk=submission_id)
+
+        if secret != submission.secret:
+            raise SubmissionUpdateException(submission, "Password does not match")
+
         status = args['status']
         logger.debug("Ready to update submission status (job_id=%s, submission_id=%s, status=%s)",
                      job.id, submission_id, status)
@@ -640,7 +643,7 @@ def evaluate_submission(submission_id, is_scoring_only):
     except Exception:
         logger.exception("evaluate_submission dispatch failed (job_id=%s, submission_id=%s)",
                          job_id, submission_id)
-        update_submission.apply_async((job_id, {'status': 'failed'}))
+        update_submission.apply_async((job_id, {'status': 'failed'}, submission.secret))
     logger.debug("evaluate_submission ends (job_id=%s)", job_id)
 
 
