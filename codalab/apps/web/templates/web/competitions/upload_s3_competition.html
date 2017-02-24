@@ -23,19 +23,36 @@
                 </div>
 
                 <div class="form-group">
-                  <input type="submit" class="btn btn-primary" value="Upload S3 Config Bundle">
+                  <div id="submit-button" class="btn btn-primary">Upload S3 Config Bundle</div>
                 </div>
             </form>
-
             <div id="details"></div>
         </div>
     </div>
 
-
     <script>
+        $("#submit-button").click(function() {
+          $("input[type='file']").click()
+
+            var test_if_done = function() {
+
+              var progress = $('a.file-link').attr('href') !== ""
+
+              if( progress ) {
+                $("#s3_upload_form").submit()
+              } else {
+                setTimeout(test_if_done, 100)
+              }
+            }
+            test_if_done()
+        })
+        //
         $("#s3_upload_form").submit(function(event) {
             event.preventDefault()
+        //
+        //     $("input[type='file']").click()
 
+        // Graham next task: figure out when submission upload has completed, then call below code
             $.post(
                 '{% url 'competitions:s3_create' %}',
                 $("#s3_upload_form").serialize()
@@ -49,6 +66,7 @@
                         data: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() }
                     }).done(function(data) {
                         if (data.status == 'finished') {
+                            $('#submit-button').html('Nice!')
                             $('#details').html('Congratulations! ' +
                                 "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
                                 "You can also manage it from <a href='/my/#my_managing'>your CodaLab dashboard.</a>"
@@ -65,9 +83,13 @@
                         $('#uploadButton').removeClass('disabled');
                     });
                 };
+                console.log("ee");
                 wait_for_competition();
+                $('#submit-button').html('<div class="loading-btn"> <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading <div>');
             })
         })
+
+
     </script>
 {% endblock %}
 
