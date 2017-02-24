@@ -103,12 +103,11 @@ def create_competition(job_id, comp_def_id):
         competition = competition_def.unpack()
         result = JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
         update_job_status_task(job_id, result.get_dict())
+        logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
+                comp_def_id, competition.pk)
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
-
-    logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
-                comp_def_id, competition.pk)
 
 
 # CompetitionSubmission states which are final.

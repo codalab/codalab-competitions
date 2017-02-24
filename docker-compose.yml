@@ -1,15 +1,83 @@
 version: '3'
 services:
+  # MySQL database - db
   db:
     image: mysql:5.7
+    hostname: db
     environment:
       - "MYSQL_ROOT_PASSWORD=mysql"
       - "MYSQL_DATABASE=codalab_website"
     ports:
         - 3306:3306
-  worker:
+  
+  # RabbitMQ - rabbit
+  rabbit:
+    image: rabbitmq:3.5.7
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+
+  flower:
     build:
-      context: ./ 
-      dockerfile: ./codalab/codalabtools/compute/Dockerfile
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    command: sh run_flower.sh
+    volumes:
+      - .:/app
+    depends_on:
+      - rabbit
+  
+  # Django - web
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    command: sh run_web.sh
+    volumes:
+      - .:/app 
+    ports:
+      - "8000:8000"
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - db
+
+  # Celery Workers
+  # Site worker
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh run_site.sh
+    volumes:
+      - .:/app
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - rabbit
+      - db
+      
+  # Site worker
+  compute:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh run_compute.sh
+    volumes:
+      - .:/app
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - rabbit
     
     

@@ -219,6 +219,7 @@ def _send_update(task_id, status, secret, virtual_host='/', extra=None):
         # We need to send on the main virtual host, not whatever host we're currently
         # connected to.
         new_connection.virtual_host = virtual_host
+        print(new_connection)
         update_submission.apply_async((task_id, task_args, secret), connection=new_connection)
 
 
