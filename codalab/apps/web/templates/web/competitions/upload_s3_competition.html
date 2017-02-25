@@ -19,7 +19,7 @@
             <form id="s3_upload_form" action="" method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                  <div id="submit-button" class="btn btn-primary">Upload Competition Bundle</div>
+                  <button type="button" id="submit-button" class="btn btn-primary">Upload Competition Bundle</button>
                 </div>
                 <div class="row">
                   <div class="form-group center-block" style="width:50%; height: 10px;">
@@ -37,11 +37,8 @@
     <script>
         $("#submit-button").click(function() {
           $("input[type='file']").click()
-
             var test_if_done = function() {
-
               var progress = $('a.file-link').attr('href') !== ""
-
               if( progress ) {
                 $("#s3_upload_form").submit()
               } else {
@@ -50,13 +47,9 @@
             }
             test_if_done()
         })
-        //
+
         $("#s3_upload_form").submit(function(event) {
             event.preventDefault()
-        //
-        //     $("input[type='file']").click()
-
-        // Graham next task: figure out when submission upload has completed, then call below code
             $.post(
                 '{% url 'competitions:s3_create' %}',
                 $("#s3_upload_form").serialize()
@@ -70,12 +63,11 @@
                         data: { 'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val() }
                     }).done(function(data) {
                         if (data.status == 'finished') {
-                            $('#submit-button').html('Nice!')
+                            $('#submit-button').prop('disabled', true).html('Nice!')
                             $('#details').html('Congratulations! ' +
                                 "Your new competition is ready to <a href='/competitions/" + data.id + "'>view</a>. " +
                                 "You can also manage it from <a href='/my/#my_managing'>your CodaLab dashboard.</a>"
                             );
-                            $('#uploadButton').removeClass('disabled');
                         } else if (data.status == 'failed') {
                             $('#details').html('<div class="alert alert-error">Oops! There was a problem creating the competition: <br><pre>' + data.error + '</pre></div>');
                             $('#uploadButton').removeClass('disabled');
@@ -87,7 +79,6 @@
                         $('#uploadButton').removeClass('disabled');
                     });
                 };
-                console.log("ee");
                 wait_for_competition();
                 $('#submit-button').html('<div class="loading-btn"> <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading <div>');
             })
