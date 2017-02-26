@@ -46,6 +46,19 @@ class Dev(DevBase):
     SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
     SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 
+    # Set up for Docker RabbitMQ
+
+    RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP', 'rabbit')
+
+    BROKER_URL = os.environ.get('BROKER_URL', '')
+
+    if not BROKER_URL:
+        BROKER_URL = 'pyamqp://{user}:{password}@{hostname}/{vhost}'.format(
+            user=os.environ.get('RABBIT_ENV_USER', 'admin'),
+            password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'rabbitmq'),
+            hostname=RABBIT_HOSTNAME,
+          
+
     # Database Setup
     DATABASES = {
         'default': {
@@ -62,6 +75,15 @@ class Dev(DevBase):
             # 'HOST': db_host,
             ## Use port '' (empty) for the default value:
             # 'PORT': db_port,
+
+            # Uncomment the following for use with docker-compose db
+            # 'ENGINE': 'django.db.backends.mysql',
+            # 'NAME': os.environ.get('DB_ENV_MYSQL_DATABASE', 'codalab_website'),
+            # 'USER': os.environ.get('DB_ENV_MYSQL_USER', 'root'),
+            # 'PASSWORD': os.environ.get('DB_ENV_MYSQL_ROOT_PASSWORD', 'mysql'),
+            # 'HOST': os.environ.get('DB_PORT_5432_TCP_ADDR', 'db'),
+            # # Use port '' (empty) for the default value:
+            # 'PORT': os.environ.get('DB_PORT_5432_TCP_PORT', ''),
 
             ## Uncomment the following if you use SQLServer:
             # 'ENGINE': 'sql_server.pyodbc',
