@@ -51,6 +51,7 @@ from apps.coopetitions.models import DownloadRecord
 
 import time
 # import cProfile
+from codalab.azure_storage import make_blob_sas_url
 from codalabtools.compute.worker import WorkerConfig
 from codalabtools.compute.worker import get_run_func
 
@@ -104,7 +105,8 @@ def create_competition(job_id, comp_def_id):
         result = JobTaskResult(status=Job.FINISHED, info={'competition_id': competition.pk})
         update_job_status_task(job_id, result.get_dict())
         logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
-                comp_def_id, competition.pk)
+                    comp_def_id, competition.pk)
+
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
@@ -187,16 +189,27 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     or scoring" flag to compute worker"""
     if is_prediction:
         bundle_id = submission.prediction_runfile.name
+        stdout = submission.prediction_stdout_file.name
+        stderr = submission.prediction_stderr_file.name
+        output = submission.prediction_output_file.name
     else:
         # Scoring, if we're not predicting
         bundle_id = submission.runfile.name
+        stdout = submission.stdout_file.name
+        stderr = submission.stderr_file.name
+        output = submission.output_file.name
 
     data = {
         "id": job_id,
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "bundle_id": bundle_id,
+            "bundle_url": _azure_make_sas(bundle_id),
+            "stdout_url": _azure_make_sas(stdout, permission='w'),
+            "stderr_url": _azure_make_sas(stderr, permission='w'),
+            "output_url": _azure_make_sas(output, permission='w'),
+            "detailed_results_url": _azure_make_sas(submission.detailed_results_file.name, permission='w'),
+            "private_output_url": _azure_make_sas(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
             "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "execution_time_limit": submission.phase.execution_time_limit,
@@ -229,6 +242,23 @@ def compute_worker_run(data):
         run(data["id"], task_args)
     except SoftTimeLimitExceeded:
         update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
+
+
+def _azure_make_sas(path, permission='r', duration=60 * 60 * 24):
+    sassy_url = make_blob_sas_url(
+        settings.BUNDLE_AZURE_ACCOUNT_NAME,
+        settings.BUNDLE_AZURE_ACCOUNT_KEY,
+        settings.BUNDLE_AZURE_CONTAINER,
+        path,
+        permission=permission,
+        duration=duration
+    )
+
+    # Ugly way to check if we didn't get the path, should work...
+    if '<Code>InvalidUri</Code>' not in sassy_url:
+        return sassy_url
+    else:
+        return ''
 
 
 def score(submission, job_id):
@@ -348,16 +378,16 @@ def score(submission, job_id):
     lines = []
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
-        lines.append("ref: %s" % ref_value)
+        lines.append("ref: %s" % _azure_make_sas(ref_value))
     res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
     if len(res_value) > 0:
-        lines.append("res: %s" % res_value)
+        lines.append("res: %s" % _azure_make_sas(res_value))
     else:
         raise ValueError("Results are missing.")
 
-    lines.append("history: %s" % submission_history_file_name(submission))
-    lines.append("scores: %s" % submission_scores_file_name(submission))
-    lines.append("coopetition: %s" % submission_coopetition_file_name(submission))
+    lines.append("history: %s" % _azure_make_sas(submission.history_file.name))
+    lines.append("scores: %s" % _azure_make_sas(submission.scores_file.name))
+    lines.append("coopetition: %s" % _azure_make_sas(submission.coopetition_file.name))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
@@ -379,12 +409,14 @@ def score(submission, job_id):
     lines = []
     program_value = submission.phase.scoring_program.name
     if len(program_value) > 0:
-        lines.append("program: %s" % program_value)
+        lines.append("program: %s" % _azure_make_sas(program_value))
     else:
         raise ValueError("Program is missing.")
-    lines.append("input: %s" % submission.inputfile.name)
-    lines.append("stdout: %s" % submission_stdout_filename(submission))
-    lines.append("stderr: %s" % submission_stderr_filename(submission))
+    lines.append("input: %s" % _azure_make_sas(submission.inputfile.name))
+    lines.append("stdout: %s" % _azure_make_sas(submission_stdout_filename(submission), permission='w'))
+    lines.append("stderr: %s" % _azure_make_sas(submission_stderr_filename(submission), permission='w'))
+    lines.append("private_output: %s" % _azure_make_sas(submission.private_output_file.name, permission='w'))
+    lines.append("output: %s" % _azure_make_sas(submission.output_file.name, permission='w'))
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
@@ -397,6 +429,12 @@ def score(submission, job_id):
     # Update workflow state
     state['score'] = job_id
     submission.execution_key = json.dumps(state)
+
+    # Pre-save files so we can overwrite their names later
+    submission.output_file.name = pathname2url(submission_output_filename(submission))
+    submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
+    submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
+
     submission.save()
     # Submit the request to the computation service
     _prepare_compute_worker_run(job_id, submission, is_prediction=False)
@@ -460,10 +498,6 @@ def update_submission(job_id, args, secret):
             result = Job.FAILED
             if 'score' in state:
                 logger.debug("update_submission_task loading final scores (pk=%s)", submission.pk)
-                submission.output_file.name = pathname2url(submission_output_filename(submission))
-                submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
-                submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
-                submission.save()
                 logger.debug("Retrieving output.zip and 'scores.txt' file (submission_id=%s)", submission.id)
                 logger.debug("Output.zip location=%s" % submission.output_file.file.name)
                 ozip = ZipFile(io.BytesIO(submission.output_file.read()))
