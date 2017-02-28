@@ -1,4 +1,12 @@
-## Docker Compose User Guide
+# Docker Compose User Guide
+
+## Installation
+
+Before we get started, please download and install the [docker project](https://docs.docker.com/engine/installation/).
+
+Some linux users may need to separately download and install [docker compose](https://docs.docker.com/compose/install/)
+
+## Local Setup
 
 In order to get started, make a copy of _settings/local_sample.py_ and call it *settings/local.py* as described in the [CodaLab Wiki](https://github.com/codalab/codalab/wiki)
 
@@ -6,13 +14,14 @@ Uncomment the sections on RabbitMQ and in the Databases section as marked
 
 The docker-compose file in the root of the project will work as is, however, if you would like to change certain variables or ports that is fine.
 
-If everything is working correctly, you may now start your project and all its services:
+## Start up the Project
+
+If everything is working correctly, you may now **start** your project and all its services:
 
 `docker-compose up -d`
 
-This is will start composing your application in a "detached" mode (recommended for better viewing).
+This is will start composing your application in a "detached" mode (recommended for better viewing). If it is the first time running the command, the services will _"build"_ from their respective images which may take a minute.
 
-If it is the first time running the command, the services will _"build"_ from their respective images which may take a minute.
 You may now inspect that all the containers are running with:
 
 `docker ps -a`

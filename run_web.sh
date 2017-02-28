@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # wait for MYSQL server to start
-sleep 45
+sleep 10
 
 mkdir -p /tmp/codalab
 chmod ugo+rwx /tmp/codalab

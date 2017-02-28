@@ -41,7 +41,7 @@ services:
     depends_on:
       - rabbit
   
-  # Memcached Container
+  # Memcached - memcached
   memcached:
     image: memcached
     hostname: memcached
@@ -98,5 +98,3 @@ services:
     depends_on:
       - rabbit
       - db
-    
-    
