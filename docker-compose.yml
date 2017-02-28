@@ -15,29 +15,39 @@ services:
     image: rabbitmq:3.5.7
     hostname: rabbit
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=rabbitmq
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "5672:5672" 
       - "15672:15672"
 
+  # Flower - flower
   flower:
     image: totem/celery-flower-docker
+    hostname: flower
     ports:
       - "5555:5555"
     environment:
-      - AMQP_USERNAME=admin
-      - AMQP_PASSWORD=rabbitmq
+      - AMQP_USERNAME=guest
+      - AMQP_PASSWORD=guest
       - AMQP_HOST=rabbit
       - AMQP_PORT=5672
-      - AMQP_ADMIN_USERNAME=admin
-      - AMQP_ADMIN_PASSWORD=rabbitmq
-      - AMQP_ADMIN_HOST=rabbit
-      - AMQP_ADMIN_PORT=15672
+      # - AMQP_ADMIN_USERNAME=admin
+      # - AMQP_ADMIN_PASSWORD=rabbitmq
+      # - AMQP_ADMIN_HOST=rabbit
+      # - AMQP_ADMIN_PORT=15672
     volumes:
       - .:/app
     depends_on:
       - rabbit
+  
+  # Memcached Container
+  memcached:
+    image: memcached
+    hostname: memcached
+    ports:
+      - "11211:11211"
+    command: "/usr/local/bin/memcached -u memcache -vv"
   
   # Django - web
   web:
@@ -53,6 +63,7 @@ services:
     links:
       - db
       - rabbit
+      - memcached
     depends_on:
       - db
 

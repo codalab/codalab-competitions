@@ -1,10 +1,13 @@
 #!/bin/sh
 
 # wait for MYSQL server to start
-sleep 30
+sleep 45
 
 mkdir -p /tmp/codalab
 chmod ugo+rwx /tmp/codalab
+
+# mkdir -p /tmp/python-eggs
+# export PYTHON_EGG_CACHE=/tmp/python-eggs
 
 cd codalab
 python manage.py validate

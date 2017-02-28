@@ -297,13 +297,13 @@ class Base(Settings):
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': '127.0.0.1:11211',
+            'LOCATION': 'memcached:11211',
         }
     }
     # Celery
     # =========================================================================
     # Store results
-    CELERY_RESULT_BACKEND = 'cache+memcached://127.0.0.1:11211/'
+    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:11211/'
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'

@@ -4,6 +4,7 @@ file named 'local.py' and set appropriate values for the settings.
 """
 
 import subprocess
+import os
 
 from base import DevBase
 
@@ -46,18 +47,17 @@ class Dev(DevBase):
     SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
     SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 
-    # Set up for Docker RabbitMQ
+    ## Uncomment the following for RabbitMQ docker-compose
+    # RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP', 'rabbit')
+    # BROKER_URL = os.environ.get('BROKER_URL', '')
+    # if not BROKER_URL:
+    #     BROKER_URL = 'pyamqp://{user}:{password}@{hostname}/{vhost}'.format(
+    #         user=os.environ.get('RABBIT_ENV_USER', 'guest'),
+    #         password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
+    #         hostname=RABBIT_HOSTNAME,
+    #         vhost=os.environ.get('RABBIT_ENV_VHOST', '/')
+    #     )
 
-    RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP', 'rabbit')
-
-    BROKER_URL = os.environ.get('BROKER_URL', '')
-
-    if not BROKER_URL:
-        BROKER_URL = 'pyamqp://{user}:{password}@{hostname}/{vhost}'.format(
-            user=os.environ.get('RABBIT_ENV_USER', 'admin'),
-            password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'rabbitmq'),
-            hostname=RABBIT_HOSTNAME,
-          
 
     # Database Setup
     DATABASES = {

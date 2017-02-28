@@ -435,7 +435,6 @@ def update_submission(job_id, args, secret):
         job_id: The job ID used to track the progress of the evaluation.
         """
 
-        print (submission, status, job_id)
         state = {}
         if len(submission.execution_key) > 0:
             logger.debug("update_submission_task loading state: %s", submission.execution_key)

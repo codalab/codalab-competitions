@@ -28,9 +28,9 @@ from os.path import dirname, abspath, join
 from subprocess import Popen, call
 from zipfile import ZipFile
 
-# Add codalabtools to the module search path
 from celery.app import app_or_default
 
+# Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from azure.storage import BlobService
