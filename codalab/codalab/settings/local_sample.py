@@ -47,17 +47,8 @@ class Dev(DevBase):
     SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
     SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 
-    ## Uncomment the following for RabbitMQ docker-compose
-    # RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP', 'rabbit')
-    # BROKER_URL = os.environ.get('BROKER_URL', '')
-    # if not BROKER_URL:
-    #     BROKER_URL = 'pyamqp://{user}:{password}@{hostname}/{vhost}'.format(
-    #         user=os.environ.get('RABBIT_ENV_USER', 'guest'),
-    #         password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
-    #         hostname=RABBIT_HOSTNAME,
-    #         vhost=os.environ.get('RABBIT_ENV_VHOST', '/')
-    #     )
-
+    # Uncomment the following for RabbitMQ docker-compose
+    BROKER_URL = os.environ.get('BROKER_URL', 'pyamqp://guest:guest@rabbit//')
 
     # Database Setup
     DATABASES = {
