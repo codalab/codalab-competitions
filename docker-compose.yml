@@ -32,10 +32,6 @@ services:
       - AMQP_PASSWORD=guest
       - AMQP_HOST=rabbit
       - AMQP_PORT=5672
-      # - AMQP_ADMIN_USERNAME=admin
-      # - AMQP_ADMIN_PASSWORD=rabbitmq
-      # - AMQP_ADMIN_HOST=rabbit
-      # - AMQP_ADMIN_PORT=15672
     volumes:
       - .:/app
     depends_on:

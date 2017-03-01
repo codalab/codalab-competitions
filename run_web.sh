@@ -11,8 +11,8 @@ done
 
 echo "WEB IS RUNNING"
 
-mkdir -p /tmp/codalab
-chmod ugo+rwx /tmp/codalab
+# mkdir -p /tmp/codalab
+# chmod ugo+rwx /tmp/codalab
 
 # mkdir -p /tmp/python-eggs
 # export PYTHON_EGG_CACHE=/tmp/python-eggs
