@@ -37,14 +37,14 @@
     <script>
         $("#submit-button").click(function() {
           $("input[type='file']").click()
-            var test_if_done = function() {
-              var progress = $('a.file-link').attr('href') !== ""
-              if( progress ) {
-                $("#s3_upload_form").submit()
-              } else {
-                setTimeout(test_if_done, 100)
-              }
-            }
+                var test_if_done = function() {
+                    var progress = $('a.file-link').attr('href') !== ""
+                    if( progress ) {
+                        $("#s3_upload_form").submit()
+                    } else {
+                        setTimeout(test_if_done, 100)
+                    }
+                }
             test_if_done()
         })
 
