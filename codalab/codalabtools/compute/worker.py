@@ -2,11 +2,9 @@
 """
 Defines the worker process which handles computations.
 """
-from _ssl import SSLError
+import urllib
 
-import azure
 import json
-import logging
 import logging.config
 import os
 import platform
@@ -17,11 +15,12 @@ import signal
 import math
 import shutil
 import socket
-import subprocess
 import sys
 import tempfile
 import time
 import traceback
+
+import requests
 import yaml
 
 from os.path import dirname, abspath, join
@@ -33,7 +32,6 @@ from celery.app import app_or_default
 
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
-from azure.storage import BlobService
 from codalabtools import BaseConfig
 
 
@@ -71,135 +69,162 @@ class WorkerConfig(BaseConfig):
         else:
             return super(WorkerConfig, self).getLoggerDictConfig()
 
-    def getAzureStorageAccountName(self):
-        """Gets the Azure Storage account name."""
-        return self._winfo['azure-storage']['account-name']
-
-    def getAzureStorageAccountKey(self):
-        """Gets the Azure Storage account key."""
-        return self._winfo['azure-storage']['account-key']
-
-    def getAzureServiceBusNamespace(self):
-        """Gets the Azure Service Bus namespace."""
-        return self._winfo['azure-service-bus']['namespace']
-
-    def getAzureServiceBusKey(self):
-        """Gets the Azure Service Bus key."""
-        return self._winfo['azure-service-bus']['key']
-
-    def getAzureServiceBusIssuer(self):
-        """Gets the Azure Service Bus issuer."""
-        return self._winfo['azure-service-bus']['issuer']
-
-    def get_service_bus_shared_access_key_name(self):
-        """Gest the SAS shared access key name"""
-        return self._winfo['azure-service-bus']['shared-access-key-name']
-
-    def get_service_bus_shared_access_key_value(self):
-        """Gest the SAS shared access key value"""
-        return self._winfo['azure-service-bus']['shared-access-key-value']
-
-    def getAzureServiceBusQueue(self):
-        """Gets the name of the Azure Service Bus queue to listen to."""
-        return self._winfo['azure-service-bus']['listen-to']
-
     def getLocalRoot(self):
         """Gets the path for the local directory where files are staged or None if the path is not provided."""
         return self._winfo['local-root'] if 'local-root' in self._winfo else None
 
-def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
-    """
-    be controlled with the max_depth parameter.
 
-    root_path: Path of the local directory under which all files are staged for execution.
-    blob_service: Azure BlobService to access the storage account holding the bundles.
-    container: Name of Blob container holding the bundles in the specified storage account.
-    bundle_id: The ID of the bundle which in this implementation is the path of the Blob
-        relative to the container. For example if a bundle is stored in a Blob with URL
-        'https://codalab.blob.core.windows.net/bundlecontainer/bundles/1/run.txt' then
-        the bundle ID is 'bundles/1/run.txt'.
-    bundle_rel_path: Path of the local bundle directory relative to the root directory. For
-        example, if root_path is 'C:\\tmp123' and bundle_rel_path is 'run\\program', then the
-        program bundle will be located at 'C:\\tmp123\\run\\program'.
-    max_depth: An optional argument to limit the depth of recursion when resolving bundle
-        dependencies.
+def get_bundle(root_dir, relative_dir, url):
+    # get file name from /test.zip?signature=!@#a/df
+    url_without_params = url.split('?')[0]
+    file_name = url_without_params.split('/')[-1]
+    file_ext = os.path.splitext(file_name)[1]
 
-    Return value: A dictionary where each key denotes the relative path of a bundle which
-        was staged. The value associated with a key is a dictionary representing the bundle's
-        metadata. The value may be None if a metadata file was not found. For a valid run,
-        the set of keys should contain at the minimum: 'run', 'run\\program' and 'run\\input'.
-    """
+    logger.debug("get_bundle :: Getting %s from %s" % (file_name, url))
 
-    def getThem(bundle_id, bundle_rel_path, bundles, depth):
-        """Recursively gets the bundles."""
-        logger.info("Trying to get %s", bundle_rel_path)
+    # Save the bundle to a temp file
+    # file_download_path = os.path.join(root_dir, file_name)
+    bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=file_ext, dir=root_dir, delete=False)
+    urllib.urlretrieve(url, bundle_file.name)
 
-        retries_left = 2
-        while retries_left > 0:
-            try:
-                logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
-                blob = blob_service.get_blob(container, bundle_id)
-                break
-            except azure.WindowsAzureMissingResourceError:
-                retries_left = 0
-            except:
-                logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
-                retries_left -= 1
+    # Extracting files or grabbing extras
+    bundle_path = join(root_dir, relative_dir)
+    metadata_path = join(bundle_path, 'metadata')
 
-        if retries_left == 0:
-            # file not found lets None this bundle
-            bundles[bundle_rel_path] = None
-            return bundles
+    if file_ext == '.zip':
+        logger.info("get_bundle :: Unzipping %s" % bundle_file.name)
+        # Unzip file to relative dir, if a zip
+        with ZipFile(bundle_file.file, 'r') as z:
+            z.extractall(bundle_path)
 
-        bundle_ext = os.path.splitext(bundle_id)[1]
-        bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+        # check if we just unzipped something containing a folder and nothing else
+        metadata_folder = _find_only_folder_with_metadata(bundle_path)
+        if metadata_folder:
+            logger.info("get_bundle :: Found a submission with an extra folder, unpacking and moving up a directory")
+            # Make a temp dir and copy data there
+            temp_folder_name = join(root_dir, "%s%s" % (relative_dir, '_tmp'))
+            shutil.copytree(metadata_folder, temp_folder_name)
 
-        logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
+            # Delete old dir, move copied data back
+            shutil.rmtree(bundle_path, ignore_errors=True)
+            shutil.move(temp_folder_name, bundle_path)
+    else:
+        # Otherwise we have some metadata type file, like run.txt containing other bundles to fetch.
+        os.mkdir(bundle_path)
+        shutil.copyfile(bundle_file.name, metadata_path)
 
-        # take our temp file and write whatever is it form the blob
-        with open(bundle_file.name, 'wb') as f:
-            f.write(blob)
-        # stage the bundle directory
-        bundle_path = join(root_path, bundle_rel_path)
-        metadata_path = join(bundle_path, 'metadata')
+    os.chmod(bundle_path, 0777)
 
-        if bundle_ext == '.zip':
-            with ZipFile(bundle_file.file, 'r') as z:
-                z.extractall(bundle_path)
+    # Check for metadata containing more bundles to fetch
+    metadata = None
+    if os.path.exists(metadata_path):
+        with open(metadata_path) as mf:
+            metadata = yaml.load(mf)
 
-            # check if we just unzipped something containing a folder and nothing else
-            metadata_folder = _find_only_folder_with_metadata(bundle_path)
-            if metadata_folder:
-                # Make a temp dir and copy data there
-                temp_folder_name = join(root_path, "%s%s" % (bundle_rel_path, '_tmp'))
-                shutil.copytree(metadata_folder, temp_folder_name)
+    if isinstance(metadata, dict):
+        for (k, v) in metadata.items():
+            if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
+                if isinstance(v, str):
+                    logger.debug("get_bundle :: Fetching recursive bundle %s %s %s" % (bundle_path, k, v))
+                    # Here K is the relative directory and V is the url, like
+                    # input: http://test.com/goku?sas=123
+                    metadata[k] = get_bundle(bundle_path, k, v)
+    return metadata
 
-                # Delete old dir, move copied data back
-                shutil.rmtree(bundle_path, ignore_errors=True)
-                shutil.move(temp_folder_name, bundle_path)
-        else:
-            os.mkdir(bundle_path)
-            shutil.copyfile(bundle_file.name, metadata_path)
-        # read the metadata if it exists
-        bundle_info = None
-        if os.path.exists(metadata_path):
-            with open(metadata_path) as mf:
-                bundle_info = yaml.load(mf)
 
-        os.chmod(bundle_path, 0777)
-
-        bundles[bundle_rel_path] = bundle_info
-        # get referenced bundles
-
-        if (bundle_info is not None) and isinstance(bundle_info, dict) and (depth < max_depth):
-            for (k, v) in bundle_info.items():
-                if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
-                    if isinstance(v, str):
-                        getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
-
-        return bundles
-
-    return getThem(bundle_id, bundle_rel_path, {}, 0)
+# def getBundle(root_path, blob_service, container, bundle_id, bundle_rel_path, max_depth=3):
+#     """
+#     be controlled with the max_depth parameter.
+#
+#     root_path: Path of the local directory under which all files are staged for execution.
+#     blob_service: Azure BlobService to access the storage account holding the bundles.
+#     container: Name of Blob container holding the bundles in the specified storage account.
+#     bundle_id: The ID of the bundle which in this implementation is the path of the Blob
+#         relative to the container. For example if a bundle is stored in a Blob with URL
+#         'https://codalab.blob.core.windows.net/bundlecontainer/bundles/1/run.txt' then
+#         the bundle ID is 'bundles/1/run.txt'.
+#     bundle_rel_path: Path of the local bundle directory relative to the root directory. For
+#         example, if root_path is 'C:\\tmp123' and bundle_rel_path is 'run\\program', then the
+#         program bundle will be located at 'C:\\tmp123\\run\\program'.
+#     max_depth: An optional argument to limit the depth of recursion when resolving bundle
+#         dependencies.
+#
+#     Return value: A dictionary where each key denotes the relative path of a bundle which
+#         was staged. The value associated with a key is a dictionary representing the bundle's
+#         metadata. The value may be None if a metadata file was not found. For a valid run,
+#         the set of keys should contain at the minimum: 'run', 'run\\program' and 'run\\input'.
+#     """
+#
+#     def getThem(bundle_id, bundle_rel_path, bundles, depth):
+#         """Recursively gets the bundles."""
+#         logger.info("Trying to get %s", bundle_rel_path)
+#
+#         retries_left = 2
+#         while retries_left > 0:
+#             try:
+#                 logger.debug("Getting bundle_id=%s from container=%s" % (bundle_id, container))
+#                 blob = blob_service.get_blob(container, bundle_id)
+#                 break
+#             except azure.WindowsAzureMissingResourceError:
+#                 retries_left = 0
+#             except:
+#                 logger.exception("Failed to fetch bundle_id=%s blob", bundle_id)
+#                 retries_left -= 1
+#
+#         if retries_left == 0:
+#             # file not found lets None this bundle
+#             bundles[bundle_rel_path] = None
+#             return bundles
+#
+#         bundle_ext = os.path.splitext(bundle_id)[1]
+#         bundle_file = tempfile.NamedTemporaryFile(prefix='tmp', suffix=bundle_ext, dir=root_path, delete=False)
+#
+#         logger.debug("Reading from bundle_file.name=%s" % bundle_file.name)
+#
+#         # take our temp file and write whatever is it form the blob
+#         with open(bundle_file.name, 'wb') as f:
+#             f.write(blob)
+#         # stage the bundle directory
+#         bundle_path = join(root_path, bundle_rel_path)
+#         metadata_path = join(bundle_path, 'metadata')
+#
+#         if bundle_ext == '.zip':
+#             with ZipFile(bundle_file.file, 'r') as z:
+#                 z.extractall(bundle_path)
+#
+#             # check if we just unzipped something containing a folder and nothing else
+#             metadata_folder = _find_only_folder_with_metadata(bundle_path)
+#             if metadata_folder:
+#                 # Make a temp dir and copy data there
+#                 temp_folder_name = join(root_path, "%s%s" % (bundle_rel_path, '_tmp'))
+#                 shutil.copytree(metadata_folder, temp_folder_name)
+#
+#                 # Delete old dir, move copied data back
+#                 shutil.rmtree(bundle_path, ignore_errors=True)
+#                 shutil.move(temp_folder_name, bundle_path)
+#         else:
+#             os.mkdir(bundle_path)
+#             shutil.copyfile(bundle_file.name, metadata_path)
+#         # read the metadata if it exists
+#         bundle_info = None
+#         if os.path.exists(metadata_path):
+#             with open(metadata_path) as mf:
+#                 bundle_info = yaml.load(mf)
+#
+#         os.chmod(bundle_path, 0777)
+#
+#         bundles[bundle_rel_path] = bundle_info
+#         # get referenced bundles
+#
+#         if (bundle_info is not None) and isinstance(bundle_info, dict) and (depth < max_depth):
+#             for (k, v) in bundle_info.items():
+#                 if k not in ("description", "command", "exitCode", "elapsedTime", "stdout", "stderr", "submitted-by", "submitted-at"):
+#                     if isinstance(v, str):
+#                         getThem(v, join(bundle_rel_path, k), bundles, depth + 1)
+#
+#         return bundles
+#
+#     return getThem(bundle_id, bundle_rel_path, {}, 0)
 
 
 def _send_update(task_id, status, secret, virtual_host='/', extra=None):
@@ -222,18 +247,15 @@ def _send_update(task_id, status, secret, virtual_host='/', extra=None):
         update_submission.apply_async((task_id, task_args, secret), connection=new_connection)
 
 
-def _upload(blob_service, container, blob_id, blob_file, content_type = None):
-    """
-    Uploads a Blob.
-
-    blob_service: A BlobService object.
-    container: Name of the container to uplaod the Blob to.
-    blob_id: Name of the Blob relative to the container.
-    blob_file: Path of the local file to upload as a BlockBlob.
-    """
-    with open(blob_file, 'rb') as f:
-        blob = f.read()
-        blob_service.put_blob(container, blob_id, blob, x_ms_blob_type='BlockBlob', x_ms_blob_content_type=content_type)
+def put_blob(url, file_path):
+    logger.info("Putting blob %s in %s" % (file_path, url))
+    requests.put(
+        url,
+        data=open(file_path, 'rb'),
+        headers={
+            'x-ms-blob-type': 'BlockBlob',
+        }
+    )
 
 
 class ExecutionTimeLimitExceeded(Exception):
@@ -268,9 +290,16 @@ def get_run_func(config):
         task_args: The input arguments for this task:
         """
         logger.info("Entering run task; task_id=%s, task_args=%s", task_id, task_args)
-        run_id = task_args['bundle_id']
+        # run_id = task_args['bundle_id']
+        bundle_url = task_args['bundle_url']
+        stdout_url = task_args['stdout_url']
+        stderr_url = task_args['stderr_url']
+        output_url = task_args['output_url']
+        detailed_results_url = task_args['detailed_results_url']
+        private_output_url = task_args['private_output_url']
+
         execution_time_limit = task_args['execution_time_limit']
-        container = task_args['container_name']
+        # container = task_args['container_name']
         is_predict_step = task_args.get("predict", False)
         secret = task_args['secret']
         root_dir = None
@@ -320,37 +349,19 @@ def get_run_func(config):
             logger.info("Fetching bundles...")
             start = time.time()
 
-
-
-
-
-
-
-
-
-            blob_service = BlobService(config.getAzureStorageAccountName(),
-                                       config.getAzureStorageAccountKey())
-            bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
-
-
-
-
-
-
-
-
+            bundles = get_bundle(root_dir, 'run', bundle_url)
 
             end = time.time() - start
             logger.info("Fetched bundles in %s", end)
             # Verify we have an input folder: create one if it's not in the bundle.
-            input_rel_path = join('run', 'input')
+            input_rel_path = 'input'
             if input_rel_path not in bundles:
                 input_dir = join(root_dir, 'run', 'input')
                 if os.path.exists(input_dir) == False:
                     os.mkdir(input_dir)
                     os.chmod(input_dir, 0777)
             # Verify we have a program
-            prog_rel_path = join('run', 'program')
+            prog_rel_path = 'program'
             if prog_rel_path not in bundles:
                 raise Exception("Program bundle is not available.")
 
@@ -480,26 +491,23 @@ def get_run_func(config):
             stderr.close()
 
             logger.info("Saving output files")
-            stdout_id = "%s/%s" % (os.path.splitext(run_id)[0], stdout_file_name)
-            _upload(blob_service, container, stdout_id, stdout_file)
-            stderr_id = "%s/%s" % (os.path.splitext(run_id)[0], stderr_file_name)
-            _upload(blob_service, container, stderr_id, stderr_file)
+
+            put_blob(stdout_url, stdout_file)
+            put_blob(stderr_url, stderr_file)
 
             private_dir = join(output_dir, 'private')
             if os.path.exists(private_dir):
                 logger.info("Packing private results...")
                 private_output_file = join(root_dir, 'run', 'private_output.zip')
                 shutil.make_archive(os.path.splitext(private_output_file)[0], 'zip', output_dir)
-                private_output_id = "%s/private_output.zip" % (os.path.splitext(run_id)[0])
-                _upload(blob_service, container, private_output_id, private_output_file)
+                put_blob(private_output_url, private_output_file)
                 shutil.rmtree(private_dir, ignore_errors=True)
 
             # Pack results and send them to Blob storage
             logger.info("Packing results...")
             output_file = join(root_dir, 'run', 'output.zip')
             shutil.make_archive(os.path.splitext(output_file)[0], 'zip', output_dir)
-            output_id = "%s/output.zip" % (os.path.splitext(run_id)[0])
-            _upload(blob_service, container, output_id, output_file)
+            put_blob(output_url, output_file)
 
             # Check if the output folder contain an "html file" and copy the html file as detailed_results.html
             # traverse root directory, and list directories as dirs and files as files
@@ -511,8 +519,7 @@ def get_run_func(config):
                         file_to_upload = os.path.join(root,file)
                         file_ext = os.path.splitext(file_to_upload)[1]
                         if file_ext.lower() ==".html":
-                            html_file_id = "%s/html/%s" % (os.path.splitext(run_id)[0],"detailed_results.html")
-                            _upload(blob_service, container, html_file_id, file_to_upload, "html")
+                            put_blob(detailed_results_url, file_to_upload)
                             html_found = True
 
             # Save extra metadata
