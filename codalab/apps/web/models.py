@@ -52,16 +52,16 @@ StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
 try:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
+                                 account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                                 azure_container=settings.BUNDLE_AZURE_CONTAINER)
 
     PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.AZURE_CONTAINER)
+                                 account_key=settings.AZURE_ACCOUNT_KEY,
+                                 azure_container=settings.AZURE_CONTAINER)
 
 except:
-    BundleStorage = StorageClass()
-    PublicStorage = StorageClass()
+    BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
+    PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
 
 
 # Competition Content
@@ -1380,7 +1380,10 @@ class CompetitionDefBundle(models.Model):
         # Get the bundle data, which is stored as a zipfile
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
         if settings.USE_AWS:
-            competition_def_data = urllib.urlopen(self.s3_config_bundle).read()
+            from apps.web.tasks import _make_url_sassy
+            competition_def_data = urllib.urlopen(
+                _make_url_sassy(self.s3_config_bundle)
+            ).read()
             zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
         else:
             zf = zipfile.ZipFile(self.config_bundle)

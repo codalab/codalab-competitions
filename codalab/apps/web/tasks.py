@@ -11,6 +11,7 @@ import zipfile
 from urllib import pathname2url
 from zipfile import ZipFile
 
+from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
@@ -46,7 +47,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
-                             CompetitionSubmissionMetadata)
+                             CompetitionSubmissionMetadata, BundleStorage)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -203,12 +204,12 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "bundle_url": _azure_make_sas(bundle_id),
-            "stdout_url": _azure_make_sas(stdout, permission='w'),
-            "stderr_url": _azure_make_sas(stderr, permission='w'),
-            "output_url": _azure_make_sas(output, permission='w'),
-            "detailed_results_url": _azure_make_sas(submission.detailed_results_file.name, permission='w'),
-            "private_output_url": _azure_make_sas(submission.private_output_file.name, permission='w'),
+            "bundle_url": _make_url_sassy(bundle_id),
+            "stdout_url": _make_url_sassy(stdout, permission='w'),
+            "stderr_url": _make_url_sassy(stderr, permission='w'),
+            "output_url": _make_url_sassy(output, permission='w'),
+            "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
+            "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
@@ -242,21 +243,43 @@ def compute_worker_run(data):
         update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
 
-def _azure_make_sas(path, permission='r', duration=60 * 60 * 24):
-    sassy_url = make_blob_sas_url(
-        settings.BUNDLE_AZURE_ACCOUNT_NAME,
-        settings.BUNDLE_AZURE_ACCOUNT_KEY,
-        settings.BUNDLE_AZURE_CONTAINER,
-        path,
-        permission=permission,
-        duration=duration
-    )
+def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+    if settings.USE_AWS:
+        if permission == 'r':
+            # GET instead of r (read) for AWS
+            method = 'GET'
+        elif permission == 'w':
+            # GET instead of w (write) for AWS
+            method = 'PUT'
+        else:
+            # Default to get if we don't know
+            method = 'GET'
 
-    # Ugly way to check if we didn't get the path, should work...
-    if '<Code>InvalidUri</Code>' not in sassy_url:
-        return sassy_url
+        # Remove the beginning of the URL (before bucket name) so we just have the path to the file
+        path = path.split(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)[-1]
+
+        return BundleStorage.connection.generate_url(
+            expires_in=duration,
+            method=method,
+            bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            key=path,
+            query_auth=True,
+        )
     else:
-        return ''
+        sassy_url = make_blob_sas_url(
+            settings.BUNDLE_AZURE_ACCOUNT_NAME,
+            settings.BUNDLE_AZURE_ACCOUNT_KEY,
+            settings.BUNDLE_AZURE_CONTAINER,
+            path,
+            permission=permission,
+            duration=duration
+        )
+
+        # Ugly way to check if we didn't get the path, should work...
+        if '<Code>InvalidUri</Code>' not in sassy_url:
+            return sassy_url
+        else:
+            return ''
 
 
 def score(submission, job_id):
@@ -376,20 +399,19 @@ def score(submission, job_id):
     lines = []
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
-        lines.append("ref: %s" % _azure_make_sas(ref_value))
-
+        lines.append("ref: %s" % _make_url_sassy(ref_value))
     if settings.USE_AWS:
         res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
     else:
         res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
     if len(res_value) > 0:
-        lines.append("res: %s" % _azure_make_sas(res_value))
+        lines.append("res: %s" % _make_url_sassy(res_value))
     else:
         raise ValueError("Results are missing.")
 
-    lines.append("history: %s" % _azure_make_sas(submission.history_file.name))
-    lines.append("scores: %s" % _azure_make_sas(submission.scores_file.name))
-    lines.append("coopetition: %s" % _azure_make_sas(submission.coopetition_file.name))
+    lines.append("history: %s" % _make_url_sassy(submission.history_file.name))
+    lines.append("scores: %s" % _make_url_sassy(submission.scores_file.name))
+    lines.append("coopetition: %s" % _make_url_sassy(submission.coopetition_file.name))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
@@ -411,14 +433,14 @@ def score(submission, job_id):
     lines = []
     program_value = submission.phase.scoring_program.name
     if len(program_value) > 0:
-        lines.append("program: %s" % _azure_make_sas(program_value))
+        lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
-    lines.append("input: %s" % _azure_make_sas(submission.inputfile.name))
-    lines.append("stdout: %s" % _azure_make_sas(submission_stdout_filename(submission), permission='w'))
-    lines.append("stderr: %s" % _azure_make_sas(submission_stderr_filename(submission), permission='w'))
-    lines.append("private_output: %s" % _azure_make_sas(submission.private_output_file.name, permission='w'))
-    lines.append("output: %s" % _azure_make_sas(submission.output_file.name, permission='w'))
+    lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
+    lines.append("stdout: %s" % _make_url_sassy(submission_stdout_filename(submission), permission='w'))
+    lines.append("stderr: %s" % _make_url_sassy(submission_stderr_filename(submission), permission='w'))
+    lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
+    lines.append("output: %s" % _make_url_sassy(submission.output_file.name, permission='w'))
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
