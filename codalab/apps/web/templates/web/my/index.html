@@ -54,7 +54,7 @@
                 <div class="row">
                     <div class="col-sm-12 kill-newlines">
                         {% if USE_AWS %}
-                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:s3_create' %}">Create Competition</a>
+                            <a class="btn btn-primary" target="_self" href="{% url 'competitions:s3_create_competition' %}">Create Competition</a>
                         {% else %}
                             <a class="btn btn-primary" target="_self" href="{% url 'competitions:create' %}">Create Competition</a>
                         {% endif %}

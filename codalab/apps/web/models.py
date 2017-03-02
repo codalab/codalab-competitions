@@ -1052,6 +1052,7 @@ class CompetitionSubmission(models.Model):
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     secret = models.CharField(max_length=128, default='', blank=True)
     file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
+    s3_file = S3DirectField(dest='submissions', null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
     readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)

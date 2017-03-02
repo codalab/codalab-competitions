@@ -210,7 +210,6 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
             "detailed_results_url": _azure_make_sas(submission.detailed_results_file.name, permission='w'),
             "private_output_url": _azure_make_sas(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
         }
@@ -377,8 +376,16 @@ def score(submission, job_id):
     lines = []
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
+<<<<<<< 406732260455df561b9bf5db3262053cfd78192c
         lines.append("ref: %s" % _azure_make_sas(ref_value))
     res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+=======
+        lines.append("ref: %s" % ref_value)
+    if settings.USE_AWS:
+        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+    else:
+        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+>>>>>>> submission upload via s3
     if len(res_value) > 0:
         lines.append("res: %s" % _azure_make_sas(res_value))
     else:

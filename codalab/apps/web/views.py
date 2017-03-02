@@ -40,7 +40,7 @@ from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from apps.web.forms import CompetitionS3UploadForm
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
@@ -442,6 +442,9 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.datetime.now()
 
+        if settings.USE_AWS:
+            context['submission_upload_form'] = forms.SubmissionS3UploadForm
+
         submissions = dict()
 
         try:
@@ -509,6 +512,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+
+        if settings.USE_AWS:
+            context['form'] = forms.SubmissionS3UploadForm
 
         if competition.participants.filter(user__in=[self.request.user]).exists():
             participant = competition.participants.get(user=self.request.user)

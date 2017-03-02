@@ -255,3 +255,17 @@ class CompetitionS3UploadForm(forms.ModelForm):
         super(CompetitionS3UploadForm, self).__init__(*args, **kwargs)
 
         self.fields['s3_config_bundle'].required = True
+
+
+class SubmissionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionSubmission
+        fields = ('s3_file',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(SubmissionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_file'].required = True
+        self.fields['s3_file'].label = ''

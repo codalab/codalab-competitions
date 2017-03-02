@@ -526,7 +526,10 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
-        obj.file.name = blob_name
+        if settings.USE_AWS:
+            obj.s3_file = blob_name
+        else:
+            obj.file.name = blob_name
 
         obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))

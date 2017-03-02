@@ -51,7 +51,7 @@
         $("#s3_upload_form").submit(function(event) {
             event.preventDefault()
             $.post(
-                '{% url 'competitions:s3_create' %}',
+                '{% url 'competitions:s3_create_competition' %}',
                 $("#s3_upload_form").serialize()
             ).success(function(data) {
                 var token = data.token
