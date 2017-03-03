@@ -41,7 +41,7 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
-from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition
+from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -961,26 +961,34 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             return HttpResponse(status=400)
         except:
             return HttpResponse(status=500)
-        try:
-            response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type == 'application/zip':
-                response['Content-Type'] = 'application/zip'
-                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+        if settings.USE_AWS:
+            if file_name:
+                return HttpResponseRedirect(
+                    _make_url_sassy(file_name)
+                )
             else:
-                response['Content-Type'] = file_type
-            return response
-        except azure.WindowsAzureMissingResourceError:
-            # for stderr.txt which does not exist when no errors have occurred
-            # this may hide a true 404 in unexpected circumstances
-            return HttpResponse("", status=200, content_type='text/plain')
-        except:
-            # Let's check to make sure we're in a prediction competition, otherwise let user know
-            if filetype.startswith("predict_") and submission.phase.is_scoring_only:
-                return HttpResponse("This competition is scoring only, prediction data not available",
-                                    content_type='text/plain')
-            else:
-                msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-                return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+                raise Http404()
+        else:
+            try:
+                response = HttpResponse(file.read(), status=200, content_type=file_type)
+                if file_type == 'application/zip':
+                    response['Content-Type'] = 'application/zip'
+                    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+                else:
+                    response['Content-Type'] = file_type
+                return response
+            except azure.WindowsAzureMissingResourceError:
+                # for stderr.txt which does not exist when no errors have occurred
+                # this may hide a true 404 in unexpected circumstances
+                return HttpResponse("", status=200, content_type='text/plain')
+            except:
+                # Let's check to make sure we're in a prediction competition, otherwise let user know
+                if filetype.startswith("predict_") and submission.phase.is_scoring_only:
+                    return HttpResponse("This competition is scoring only, prediction data not available",
+                                        content_type='text/plain')
+                else:
+                    msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+                    return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):

@@ -80,7 +80,7 @@ def get_bundle(root_dir, relative_dir, url):
     file_name = url_without_params.split('/')[-1]
     file_ext = os.path.splitext(file_name)[1]
 
-    logger.debug("get_bundle :: Getting %s from %s" % (file_name, url))
+    logger.info("get_bundle :: Getting %s from %s" % (file_name, url))
 
     # Save the bundle to a temp file
     # file_download_path = os.path.join(root_dir, file_name)
@@ -368,6 +368,8 @@ def get_run_func(config):
             prog_info = bundles[prog_rel_path]
             if prog_info is None:
                 raise Exception("Program metadata is not available.")
+
+            logger.info("Program metadata: %s" % prog_info)
 
             prog_cmd_list = []
             if 'command' in prog_info:

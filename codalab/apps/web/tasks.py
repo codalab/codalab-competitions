@@ -149,32 +149,39 @@ def predict(submission, job_id):
     """
     # Generate metadata-only bundle describing the computation
     lines = []
-    program_value = submission.file.name
+    if settings.USE_AWS:
+        program_value = submission.s3_file
+    else:
+        program_value = submission.file.name
 
     if len(program_value) > 0:
-        lines.append("program: %s" % program_value)
+        lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
+
+    # Create stdout.txt & stderr.txt, set the file names
+    username = submission.participant.user.username
+    stdout_filler = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(stdout_filler)))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(stdout_filler)))
+    stderr_filler = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(stderr_filler)))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(stderr_filler)))
+
+    submission.prediction_output_file.save('output.zip', ContentFile(''))
+
     input_value = submission.phase.input_data.name
 
     logger.info("Running prediction")
 
     if len(input_value) > 0:
-        lines.append("input: %s" % input_value)
-    lines.append("stdout: %s" % submission_stdout_filename(submission))
-    lines.append("stderr: %s" % submission_stderr_filename(submission))
+        lines.append("input: %s" % _make_url_sassy(input_value))
+    lines.append("stdout: %s" % _make_url_sassy(submission.prediction_stdout_file.name, permission='w'))
+    lines.append("stderr: %s" % _make_url_sassy(submission.prediction_stderr_file.name, permission='w'))
     submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
-    # Create stdout.txt & stderr.txt
-    username = submission.participant.user.username
-    lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
-    lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
-    submission.execution_key = json.dumps({'predict' : job_id})
+    submission.execution_key = json.dumps({'predict': job_id})
     submission.save()
 
     # Submit the request to the computation service
@@ -437,8 +444,8 @@ def score(submission, job_id):
     else:
         raise ValueError("Program is missing.")
     lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
-    lines.append("stdout: %s" % _make_url_sassy(submission_stdout_filename(submission), permission='w'))
-    lines.append("stderr: %s" % _make_url_sassy(submission_stderr_filename(submission), permission='w'))
+    lines.append("stdout: %s" % _make_url_sassy(submission.stdout_file.name, permission='w'))
+    lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
     lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
     lines.append("output: %s" % _make_url_sassy(submission.output_file.name, permission='w'))
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
@@ -455,9 +462,12 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
 
     # Pre-save files so we can overwrite their names later
-    submission.output_file.name = pathname2url(submission_output_filename(submission))
-    submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
-    submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
+    # submission.output_file.name = pathname2url(submission_output_filename(submission))
+    # submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
+    # submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
+    submission.output_file.save('output_file.zip', ContentFile(''))
+    submission.private_output_file.save('private_output_file.zip', ContentFile(''))
+    submission.detailed_results_file.save('detailed_results_file.zip', ContentFile(''))
 
     submission.save()
     # Submit the request to the computation service
@@ -570,11 +580,11 @@ def update_submission(job_id, args, secret):
                     )
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
-                url_name = pathname2url(submission_prediction_output_filename(submission))
-                submission.prediction_output_file.name = url_name
-                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
-                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
-                submission.save()
+                # url_name = pathname2url(submission_prediction_output_filename(submission))
+                # submission.prediction_output_file.name = url_name
+                # submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
+                # submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
+                # submission.save()
                 try:
                     score(submission, job_id)
                     result = Job.RUNNING
