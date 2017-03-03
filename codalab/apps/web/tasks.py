@@ -462,13 +462,9 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
 
     # Pre-save files so we can overwrite their names later
-    # submission.output_file.name = pathname2url(submission_output_filename(submission))
-    # submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
-    # submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
     submission.output_file.save('output_file.zip', ContentFile(''))
     submission.private_output_file.save('private_output_file.zip', ContentFile(''))
     submission.detailed_results_file.save('detailed_results_file.zip', ContentFile(''))
-
     submission.save()
     # Submit the request to the computation service
     _prepare_compute_worker_run(job_id, submission, is_prediction=False)
