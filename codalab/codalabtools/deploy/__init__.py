@@ -344,8 +344,8 @@ class Deployment(object):
             '    AWS_QUERYSTRING_AUTH = False  # This stops signature/auths from appearing in saved URLs',
 
             # S3Direct (S3 uploads)
-            "    3DIRECT_REGION = 'us-west-2'",
-            "    3DIRECT_DESTINATIONS = {",
+            "    S3DIRECT_REGION = 'us-west-2'",
+            "    S3DIRECT_DESTINATIONS = {",
             "        'competitions': {",
             "            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),",
             "            'auth': lambda u: u.is_authenticated(),",
