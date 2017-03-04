@@ -327,11 +327,11 @@ class Base(Settings):
     S3DIRECT_REGION = 'us-west-2'
     S3DIRECT_DESTINATIONS = {
         'competitions': {
-            'key': lambda f: 'uploads/competitions/{}/{}'.format(uuid.uuid4(), f),
+            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
             'auth': lambda u: u.is_authenticated(),
         },
         'submissions': {
-            'key': lambda f: 'uploads/submissions/{}/{}'.format(uuid.uuid4(), f),
+            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
             'auth': lambda u: u.is_authenticated(),
         }
     }

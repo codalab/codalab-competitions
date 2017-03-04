@@ -1397,8 +1397,10 @@ class CompetitionDefBundle(models.Model):
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
         if settings.USE_AWS:
             from apps.web.tasks import _make_url_sassy
+            url = _make_url_sassy(self.s3_config_bundle)
+            logger.info("CompetitionDefBundle::unpacking url=%s", url)
             competition_def_data = urllib.urlopen(
-                _make_url_sassy(self.s3_config_bundle)
+                url
             ).read()
             zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
         else:
