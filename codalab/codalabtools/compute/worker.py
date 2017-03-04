@@ -351,6 +351,8 @@ def get_run_func(config):
 
             bundles = get_bundle(root_dir, 'run', bundle_url)
 
+            logger.info("Metadata: %s" % bundles)
+
             end = time.time() - start
             logger.info("Fetched bundles in %s", end)
             # Verify we have an input folder: create one if it's not in the bundle.
@@ -368,8 +370,6 @@ def get_run_func(config):
             prog_info = bundles[prog_rel_path]
             if prog_info is None:
                 raise Exception("Program metadata is not available.")
-
-            logger.info("Program metadata: %s" % prog_info)
 
             prog_cmd_list = []
             if 'command' in prog_info:
