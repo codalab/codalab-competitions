@@ -207,11 +207,11 @@ class DeploymentConfig(BaseConfig):
 
     def getServiceStorageAccountName(self):
         """Gets the service cloud storage account name."""
-        return self._svc['storage']['storage-account-name']
+        return self._svc['storage'].get('storage-account-name')
 
     def get_service_storage_account_key(self):
         """Gets the storage account key."""
-        return self._svc['storage']['storage-account-key']
+        return self._svc['storage'].get('storage-account-key')
 
     def getServiceCertificateAlgorithm(self):
         """Gets the algorithm for the service certificate."""
@@ -219,11 +219,11 @@ class DeploymentConfig(BaseConfig):
 
     def getServicePublicStorageContainer(self):
         """Gets the name of the public Blob container for the service."""
-        return self._svc['storage']['public-container']
+        return self._svc['storage'].get('public-container')
 
     def getServiceBundleStorageContainer(self):
         """Gets the name of the bundle Blob container for the service."""
-        return self._svc['storage']['bundles-container']
+        return self._svc['storage'].get('bundles-container')
 
     def getServiceStorageCorsAllowedOrigins(self):
         """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
@@ -332,7 +332,7 @@ class Deployment(object):
             "",
             "    DEFAULT_FILE_STORAGE = '{0}'".format(self.config.getFileStorageClass()),
             # AWS
-            '    USE_AWS = {0}'.format(self.config.getFileStorageClass()),
+            '    USE_AWS = {0}'.format(self.config.getUseAWS()),
             '    AWS_ACCESS_KEY_ID = "{0}"'.format(self.config._svc['storage'].get('AWS_ACCESS_KEY_ID')),
             '    AWS_SECRET_ACCESS_KEY = "{0}"'.format(self.config._svc['storage'].get('AWS_SECRET_ACCESS_KEY')),
             '    AWS_STORAGE_BUCKET_NAME = "{0}"'.format(self.config._svc['storage'].get('AWS_STORAGE_BUCKET_NAME')),
