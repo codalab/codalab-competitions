@@ -318,6 +318,7 @@ class Deployment(object):
             "from os.path import dirname, abspath, join",
             "from pkgutil import extend_path",
             "import codalab",
+            "import uuid",
             "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
