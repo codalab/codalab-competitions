@@ -197,6 +197,14 @@ class DeploymentConfig(BaseConfig):
         """Gets the password for the database admin."""
         return self._svc['database']['admin_password']
 
+    def getUseAWS(self):
+        """Gets the service cloud storage account name."""
+        return self._svc['storage'].get('storage-class') == 'storages.backends.s3boto.S3BotoStorage'
+
+    def getFileStorageClass(self):
+        """Gets the service cloud storage account name."""
+        return self._svc['storage'].get('storage-class', 'codalab.azure_storage.AzureStorage')
+
     def getServiceStorageAccountName(self):
         """Gets the service cloud storage account name."""
         return self._svc['storage']['storage-account-name']
@@ -322,7 +330,18 @@ class Deployment(object):
             "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
             "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
             "",
-            "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
+            "    DEFAULT_FILE_STORAGE = '{0}'".format(self.config.getFileStorageClass()),
+            # AWS
+            '    USE_AWS = {0}'.format(self.config.getFileStorageClass()),
+            '    AWS_ACCESS_KEY_ID = "{0}"'.format(self._svc['storage'].get('AWS_ACCESS_KEY_ID')),
+            '    AWS_SECRET_ACCESS_KEY = "{0}"'.format(self._svc['storage'].get('AWS_SECRET_ACCESS_KEY')),
+            '    AWS_STORAGE_BUCKET_NAME = "{0}"'.format(self._svc['storage'].get('AWS_STORAGE_BUCKET_NAME')),
+            '    AWS_STORAGE_PRIVATE_BUCKET_NAME = "{0}"'.format(self._svc['storage'].get('AWS_STORAGE_PRIVATE_BUCKET_NAME')),
+            '    AWS_S3_CALLING_FORMAT = "boto.s3.connection.OrdinaryCallingFormat"',
+            '    AWS_S3_HOST = "s3-us-west-2.amazonaws.com"',
+            '    AWS_QUERYSTRING_AUTH = False  # This stops signature/auths from appearing in saved URLs',
+
+            # Azure
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
             "    AZURE_ACCOUNT_KEY = '{0}'".format(self.config.get_service_storage_account_key()),
             "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
