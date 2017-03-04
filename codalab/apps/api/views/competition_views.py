@@ -423,7 +423,6 @@ competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'
 class CompetitionPageViewSet(viewsets.ModelViewSet):
     ## TODO: Turn the custom logic here into a mixin for other content
     serializer_class = serializers.PageSerial
-    content_type = ContentType.objects.get_for_model(webmodels.Competition)
     queryset = webmodels.Page.objects.all()
     _pagecontainer = None
     _pagecontainer_q = None
@@ -439,6 +438,10 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(**kw)
         else:
             return self.queryset
+
+    @classmethod
+    def get_content_type(cls, *args, **kwargs):
+        return ContentType.objects.get_for_model(webmodels.Competition)
 
     def dispatch(self, request, *args, **kwargs):
         if 'competition_id' in kwargs:
