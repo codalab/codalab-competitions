@@ -1,7 +1,3 @@
-"""
-Provide a template to define local configuration settings. Make a copy of this
-file named 'local.py' and set appropriate values for the settings.
-"""
 from base import DevBase
 
 
@@ -15,11 +11,7 @@ class Dev(DevBase):
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': '',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': '',
-            'PORT': '',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'codalab.sqlite3',
         }
     }
