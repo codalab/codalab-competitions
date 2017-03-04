@@ -322,20 +322,6 @@ class Base(Settings):
     # competition pk to focus on
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
 
-    ############################################################
-    # S3Direct (S3 uploads)
-    S3DIRECT_REGION = 'us-west-2'
-    S3DIRECT_DESTINATIONS = {
-        'competitions': {
-            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
-            'auth': lambda u: u.is_authenticated(),
-        },
-        'submissions': {
-            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
-            'auth': lambda u: u.is_authenticated(),
-        }
-    }
-
     # A sample logging configuration. The only tangible logging
     # performed by this configuration is to send an email to
     # the site admins on every HTTP 500 error when DEBUG=False.

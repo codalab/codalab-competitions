@@ -6,6 +6,7 @@ file named 'local.py' and set appropriate values for the settings.
 import subprocess
 
 from base import DevBase
+import uuid
 
 
 def naive_docker_service(service_name, port):
@@ -27,14 +28,31 @@ class Dev(DevBase):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     # Amazon S3
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-
     USE_AWS = True
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
     AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID"
     AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY"
-    AWS_STORAGE_BUCKET_NAME = "AWS_STORAGE_BUCKET_NAME"
+    AWS_STORAGE_BUCKET_NAME = "public"
+    AWS_STORAGE_PRIVATE_BUCKET_NAME = "private"
     AWS_S3_CALLING_FORMAT = 'boto.s3.connection.OrdinaryCallingFormat'
     AWS_S3_HOST = 's3-us-west-2.amazonaws.com'
+    AWS_QUERYSTRING_AUTH = False  # This stops signature/auths from appearing in saved URLs
+
+    ############################################################
+    # S3Direct (S3 uploads)
+    S3DIRECT_REGION = 'us-west-2'
+    S3DIRECT_DESTINATIONS = {
+        'competitions': {
+            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+        },
+        'submissions': {
+            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+        }
+    }
 
     # Celery
     BROKER_URL = 'pyamqp://guest:guest@localhost:5672//'
