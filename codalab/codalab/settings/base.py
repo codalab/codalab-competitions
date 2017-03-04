@@ -240,9 +240,7 @@ class Base(Settings):
         'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
 
-    # AWS
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+    USE_AWS = False
 
     # Email Configuration
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

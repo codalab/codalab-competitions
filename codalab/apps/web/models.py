@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 # Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
 
-try:
+if hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME'):
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                  account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                  azure_container=settings.BUNDLE_AZURE_CONTAINER)
@@ -58,10 +58,13 @@ try:
     PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
                                  account_key=settings.AZURE_ACCOUNT_KEY,
                                  azure_container=settings.AZURE_CONTAINER)
-
-except:
+elif hasattr(settings, 'AWS_STORAGE_PRIVATE_BUCKET_NAME'):
     BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
     PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
+else:
+    # No storage provided, like in a test, let's just do something basic
+    BundleStorage = StorageClass()
+    PublicStorage = StorageClass()
 
 
 # Competition Content
