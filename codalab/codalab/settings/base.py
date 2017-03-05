@@ -217,6 +217,7 @@ class Base(Settings):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.queues',
 
         # Authentication app, enables social authentication
         'allauth',
