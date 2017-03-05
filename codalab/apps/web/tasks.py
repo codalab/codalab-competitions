@@ -195,13 +195,13 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     """Kicks off the compute_worker_run task passing job id, submission container details, and "is prediction
     or scoring" flag to compute worker"""
     if is_prediction:
-        bundle_id = submission.prediction_runfile.name
+        bundle_url = submission.prediction_runfile.name
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
     else:
         # Scoring, if we're not predicting
-        bundle_id = submission.runfile.name
+        bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
@@ -211,7 +211,7 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "bundle_url": _make_url_sassy(bundle_id),
+            "bundle_url": _make_url_sassy(bundle_url),
             "stdout_url": _make_url_sassy(stdout, permission='w'),
             "stderr_url": _make_url_sassy(stderr, permission='w'),
             "output_url": _make_url_sassy(output, permission='w'),
