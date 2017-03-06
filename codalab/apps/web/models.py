@@ -254,7 +254,7 @@ class Competition(models.Model):
     reward = models.PositiveIntegerField(null=True, blank=True)
     is_migrating_delayed = models.BooleanField(default=False)
     allow_teams = models.BooleanField(default=False)
-    enable_per_submission_metadata = models.BooleanField(default=False)
+    enable_per_submission_metadata = models.BooleanField(default=False, help_text="(Team name, Method name, Method description, etc.)")
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
     enable_forum = models.BooleanField(default=True)
     anonymous_leaderboard = models.BooleanField(default=False)

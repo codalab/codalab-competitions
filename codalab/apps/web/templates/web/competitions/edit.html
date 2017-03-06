@@ -28,6 +28,9 @@
                                 {{field.label}}
                             </label>
                             {{ field.errors }}
+                            {% if field.help_text %}
+                                <i>{{ field.help_text }}</i>
+                            {% endif %}
                         </div>
                     </div>
                 {% else %}
