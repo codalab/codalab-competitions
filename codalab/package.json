@@ -1,0 +1,16 @@
+{
+  "name": "codalab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build-css": "lessc apps/web/static/less/imports.less > apps/web/static/css/imports.css",
+    "watch-css": "watch 'npm run build-css' apps/web/static/less"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "less": "^2.7.2",
+    "watch": "^1.0.2"
+  }
+}
