@@ -390,7 +390,11 @@ def _deploy():
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
         # make sure we remove old version, added 2/20/17 can remove a while after that
-        run('pip uninstall django-storages', warn_only=True)
+        run('pip uninstall django-storages && pip uninstall django-storages-redux && pip install django-storages-redux==1.3.2', warn_only=True)
+
+        sudo('apt-get install -y nodejs-legacy npm')
+        run('npm install')
+        run('npm run build-css')
 
         # Generate configuration files (bundle_server_config, nginx, etc.)
         # For more info look into https://github.com/greyside/django-config-gen
