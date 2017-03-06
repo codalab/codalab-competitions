@@ -56,6 +56,20 @@ User = get_user_model()
 # General: template views
 
 
+class MyAdminView(TemplateView):
+    """Admin page for monitoring services"""
+    template_name = "web/my_admin.html"
+
+    def get(self, *args, **kwargs):
+        return super(MyAdminView, self).get(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        '''Used to grab context in Class Based Views'''
+        context = super(MyAdminView, self).get_context_data(**kwargs)
+        # Discover the hosts's for each docker service?
+        context["environments"] = os.environ
+        return context
+
 class HomePageView(TemplateView):
     """Template View for homepage."""
     template_name = "web/index.html"
