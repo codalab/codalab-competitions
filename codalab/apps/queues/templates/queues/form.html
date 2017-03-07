@@ -1,0 +1,30 @@
+{% extends "queues/base_queues.html" %}
+
+{% block head_title %}Queue form{% endblock %}
+{% block page_title %}Queue form{% endblock page_title %}
+
+{% block content %}
+    <div class="panel-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            <table class="table table-bordered">
+                {{ form.as_table }}
+            </table>
+
+            <input type="submit" value="Save" class="btn btn-primary" style="float: right;">
+        </form>
+    </div>
+
+
+    <style>
+        .select2-container {
+            width: 100%;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $('document').ready(function () {
+            $("#id_organizers").select2()
+        })
+    </script>
+{% endblock %}
