@@ -4,11 +4,13 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from s3direct.widgets import S3DirectWidget
 
 import models
 from tinymce.widgets import TinyMCE
 
+from apps.queues.models import Queue
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
@@ -21,7 +23,7 @@ class CompetitionForm(forms.ModelForm):
         fields = (
             'title',
             'description',
-            'compute_worker_vhost',
+            'queue',
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
@@ -43,15 +45,20 @@ class CompetitionForm(forms.ModelForm):
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
-    def clean_compute_worker_vhost(self):
-        data = self.cleaned_data["compute_worker_vhost"]
-        if "/" in data:
-            raise forms.ValidationError("Please don't include '/' in this field")
+        # Get public queues
+        qs = Queue.objects.filter(
+            Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
 
-        return self.cleaned_data["compute_worker_vhost"]
+        )
+        # And ones you own
+        qs = qs.filter()
+        self.fields["queue"].choices = [("", "Default")]
+        self.fields["queue"].choices += [(queue.pk, str(queue)) for queue in qs]
+
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:

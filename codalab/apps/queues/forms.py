@@ -15,5 +15,3 @@ class QueueForm(ModelForm):
         # Remove extra help text that obfuscates our organizer message
         remove_message = 'Hold down "Control", or "Command" on a Mac, to select more than one.'
         self.fields['organizers'].help_text = self.fields['organizers'].help_text.replace(remove_message, '')
-
-

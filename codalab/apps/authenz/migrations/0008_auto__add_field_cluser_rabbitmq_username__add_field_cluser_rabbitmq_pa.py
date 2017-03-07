@@ -8,32 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Queue'
-        db.create_table(u'queues_queue', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('vhost', self.gf('django.db.models.fields.CharField')(unique=True, max_length=36, blank=True)),
-            ('is_public', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['authenz.ClUser'])),
-        ))
-        db.send_create_signal(u'queues', ['Queue'])
+        # Adding field 'ClUser.rabbitmq_username'
+        db.add_column(u'authenz_cluser', 'rabbitmq_username',
+                      self.gf('django.db.models.fields.CharField')(max_length=36, null=True, blank=True),
+                      keep_default=False)
 
-        # Adding M2M table for field organizers on 'Queue'
-        m2m_table_name = db.shorten_name(u'queues_queue_organizers')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('queue', models.ForeignKey(orm[u'queues.queue'], null=False)),
-            ('cluser', models.ForeignKey(orm[u'authenz.cluser'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['queue_id', 'cluser_id'])
+        # Adding field 'ClUser.rabbitmq_password'
+        db.add_column(u'authenz_cluser', 'rabbitmq_password',
+                      self.gf('django.db.models.fields.CharField')(max_length=36, null=True, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Queue'
-        db.delete_table(u'queues_queue')
+        # Deleting field 'ClUser.rabbitmq_username'
+        db.delete_column(u'authenz_cluser', 'rabbitmq_username')
 
-        # Removing M2M table for field organizers on 'Queue'
-        db.delete_table(db.shorten_name(u'queues_queue_organizers'))
+        # Deleting field 'ClUser.rabbitmq_password'
+        db.delete_column(u'authenz_cluser', 'rabbitmq_password')
 
 
     models = {
@@ -74,6 +65,8 @@ class Migration(SchemaMigration):
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'project_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'publication_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
+            'rabbitmq_password': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
+            'rabbitmq_username': ('django.db.models.fields.CharField', [], {'max_length': '36', 'null': 'True', 'blank': 'True'}),
             'team_members': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'team_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
@@ -85,16 +78,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'queues.queue': {
-            'Meta': {'object_name': 'Queue'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'organizers': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'organizers'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['authenz.ClUser']"}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['authenz.ClUser']"}),
-            'vhost': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '36', 'blank': 'True'})
         }
     }
 
-    complete_apps = ['queues']
+    complete_apps = ['authenz']

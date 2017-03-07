@@ -18,11 +18,11 @@
         </p>
         <h3>How do I setup a worker to process submissions?</h3>
         <ol>
-            <li>install docker and git</li>
-            <li>git clone</li>
-            <li>configure settings</li>
-            <li>docker-compose up -d</li>
-            <li>make a submission to your competition and check logs with `docker logs -f compute` to confirm it is working</li>
+            <li>install <a href="https://docs.docker.com/engine/installation/">docker</a> and <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">git</a></li>
+            <li><code>git clone git@github.com:codalab/codalab-competitions.git</code></li>
+            <li>CONFIGURATION ... TO BE DECIDED, something with insert <code>BROKER_URL</code> from below...</li>
+            <li><code>docker-compose up worker -d</code></li>
+            <li>make a submission to your competition and check logs with <code>docker logs -f compute</code> to confirm it is working</li>
         </ol>
 
 
@@ -34,6 +34,7 @@
             <thead>
             <tr style="font-weight: bold;">
                 <td>Name</td>
+                <td>Broker URL</td>
                 <td width="100px;">Is public?</td>
                 <td width="150px;">Actions</td>
             </tr>
@@ -42,6 +43,7 @@
             {% for queue in object_list %}
                 <tr>
                     <td>{{ queue.name }}</td>
+                    <td>{{ queue.broker_url }}</td>
                     <td>{% if queue.is_public %}<i class="glyphicon glyphicon-ok"></i>{% endif %}</td>
                     <td>
                         <a href="{% url "queues:update" pk=queue.pk %}" class="btn btn-default">Edit</a>
