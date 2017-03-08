@@ -7,6 +7,7 @@ import logging
 import operator
 import os
 import StringIO
+import urllib
 import uuid
 import yaml
 import zipfile
@@ -35,6 +36,7 @@ from pytz import utc
 from guardian.shortcuts import assign_perm
 from django_extensions.db.fields import UUIDField
 from django.utils.functional import cached_property
+from s3direct.fields import S3DirectField
 
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
@@ -47,16 +49,20 @@ logger = logging.getLogger(__name__)
 # Needed for computation service handling
 # Hack for now
 StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
-try:
+
+if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
+    BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
+    PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
+elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME'):
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
+                                 account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
+                                 azure_container=settings.BUNDLE_AZURE_CONTAINER)
 
     PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.AZURE_CONTAINER)
-
-except:
+                                 account_key=settings.AZURE_ACCOUNT_KEY,
+                                 azure_container=settings.AZURE_CONTAINER)
+else:
+    # No storage provided, like in a test, let's just do something basic
     BundleStorage = StorageClass()
     PublicStorage = StorageClass()
 
@@ -211,12 +217,20 @@ class ParticipantStatus(models.Model):
         return self.name
 
 
+def _uuidify(directory):
+    """Helper to generate UUID's in file names while maintaining their extension"""
+    def wrapped_uuidify(obj, filename):
+        name, extension = os.path.splitext(filename)
+        return os.path.join(directory, '{}-{}{}'.format(name, uuid.uuid4(), extension))
+    return wrapped_uuidify
+
+
 class Competition(models.Model):
     """ Model representing a competition. """
+    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
-    image = models.FileField(upload_to='logos', storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
+    image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")
     image_url_base = models.CharField(max_length=255)
     has_registration = models.BooleanField(default=False, verbose_name="Registration Required")
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start Date (UTC)")
@@ -240,7 +254,7 @@ class Competition(models.Model):
     reward = models.PositiveIntegerField(null=True, blank=True)
     is_migrating_delayed = models.BooleanField(default=False)
     allow_teams = models.BooleanField(default=False)
-    enable_per_submission_metadata = models.BooleanField(default=False)
+    enable_per_submission_metadata = models.BooleanField(default=False, help_text="(Team name, Method name, Method description, etc.)")
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
     enable_forum = models.BooleanField(default=True)
     anonymous_leaderboard = models.BooleanField(default=False)
@@ -704,9 +718,9 @@ class CompetitionPhase(models.Model):
     max_submissions = models.PositiveIntegerField(default=100, verbose_name="Maximum Submissions (per User)")
     max_submissions_per_day = models.PositiveIntegerField(default=999, verbose_name="Max Submissions (per User) per day")
     is_scoring_only = models.BooleanField(default=True, verbose_name="Results Scoring Only")
-    scoring_program = models.FileField(upload_to=phase_scoring_program_file, storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
-    reference_data = models.FileField(upload_to=phase_reference_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
-    input_data = models.FileField(upload_to=phase_input_data_file, storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
+    scoring_program = models.FileField(upload_to=_uuidify('phase_scoring_program_file'), storage=BundleStorage,null=True,blank=True, verbose_name="Scoring Program")
+    reference_data = models.FileField(upload_to=_uuidify('phase_reference_data_file'), storage=BundleStorage,null=True,blank=True, verbose_name="Reference Data")
+    input_data = models.FileField(upload_to=_uuidify('phase_input_data_file'), storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
     auto_migration = models.BooleanField(default=False)
@@ -1040,12 +1054,13 @@ class CompetitionSubmission(models.Model):
     participant = models.ForeignKey(CompetitionParticipant, related_name='submissions')
     phase = models.ForeignKey(CompetitionPhase, related_name='submissions')
     secret = models.CharField(max_length=128, default='', blank=True)
-    file = models.FileField(upload_to=submission_file_name, storage=BundleStorage, null=True, blank=True)
+    file = models.FileField(upload_to=_uuidify('submission_file_name'), storage=BundleStorage, null=True, blank=True)
+    s3_file = S3DirectField(dest='submissions', null=True, blank=True)
     file_url_base = models.CharField(max_length=2000, blank=True)
     readable_filename = models.TextField(null=True, blank=True)
     description = models.CharField(max_length=256, blank=True)
-    inputfile = models.FileField(upload_to=submission_inputfile_name, storage=BundleStorage, null=True, blank=True)
-    runfile = models.FileField(upload_to=submission_runfile_name, storage=BundleStorage, null=True, blank=True)
+    inputfile = models.FileField(upload_to=_uuidify('submission_inputfile'), storage=BundleStorage, null=True, blank=True)
+    runfile = models.FileField(upload_to=_uuidify('submission_runfile'), storage=BundleStorage, null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -1053,21 +1068,21 @@ class CompetitionSubmission(models.Model):
     status = models.ForeignKey(CompetitionSubmissionStatus)
     status_details = models.CharField(max_length=100, null=True, blank=True)
     submission_number = models.PositiveIntegerField(default=0)
-    output_file = models.FileField(upload_to=submission_output_filename, storage=BundleStorage, null=True, blank=True)
-    private_output_file = models.FileField(upload_to=submission_private_output_filename, storage=BundleStorage, null=True, blank=True)
-    stdout_file = models.FileField(upload_to=submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
-    stderr_file = models.FileField(upload_to=submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
-    history_file = models.FileField(upload_to=submission_history_file_name, storage=BundleStorage, null=True, blank=True)
-    scores_file = models.FileField(upload_to=submission_scores_file_name, storage=BundleStorage, null=True, blank=True)
-    coopetition_file = models.FileField(upload_to=submission_coopetition_file_name, storage=BundleStorage, null=True, blank=True)
-    detailed_results_file = models.FileField(upload_to=submission_detailed_results_filename, storage=BundleStorage, null=True, blank=True)
-    prediction_runfile = models.FileField(upload_to=submission_prediction_runfile_name,
+    output_file = models.FileField(upload_to=_uuidify('submission_output'), storage=BundleStorage, null=True, blank=True)
+    private_output_file = models.FileField(upload_to=_uuidify('submission_private_output'), storage=BundleStorage, null=True, blank=True)
+    stdout_file = models.FileField(upload_to=_uuidify('submission_stdout'), storage=BundleStorage, null=True, blank=True)
+    stderr_file = models.FileField(upload_to=_uuidify('submission_stderr'), storage=BundleStorage, null=True, blank=True)
+    history_file = models.FileField(upload_to=_uuidify('submission_history'), storage=BundleStorage, null=True, blank=True)
+    scores_file = models.FileField(upload_to=_uuidify('submission_scores'), storage=BundleStorage, null=True, blank=True)
+    coopetition_file = models.FileField(upload_to=_uuidify('submission_coopetition'), storage=BundleStorage, null=True, blank=True)
+    detailed_results_file = models.FileField(upload_to=_uuidify('submission_detailed_results'), storage=BundleStorage, null=True, blank=True)
+    prediction_runfile = models.FileField(upload_to=_uuidify('submission_prediction_runfile'),
                                           storage=BundleStorage, null=True, blank=True)
-    prediction_output_file = models.FileField(upload_to=submission_prediction_output_filename,
+    prediction_output_file = models.FileField(upload_to=_uuidify('submission_prediction_output'),
                                               storage=BundleStorage, null=True, blank=True)
     exception_details = models.TextField(blank=True, null=True)
-    prediction_stdout_file = models.FileField(upload_to=predict_submission_stdout_filename, storage=BundleStorage, null=True, blank=True)
-    prediction_stderr_file = models.FileField(upload_to=predict_submission_stderr_filename, storage=BundleStorage, null=True, blank=True)
+    prediction_stdout_file = models.FileField(upload_to=_uuidify('predict_submission_stdout'), storage=BundleStorage, null=True, blank=True)
+    prediction_stderr_file = models.FileField(upload_to=_uuidify('predict_submission_stderr'), storage=BundleStorage, null=True, blank=True)
 
     method_name = models.CharField(max_length=20, null=True, blank=True)
     method_description = models.TextField(null=True, blank=True)
@@ -1223,8 +1238,13 @@ class CompetitionSubmission(models.Model):
            - ValueError exception for improper arguments.
            - PermissionDenied exception when access to the file cannot be granted.
         """
+        if settings.USE_AWS:
+            input_file_name = 's3_file'
+        else:
+            input_file_name = 'file'
+
         downloadable_files = {
-            'input.zip': ('file', 'zip', False),
+            'input.zip': (input_file_name, 'zip', False),
             'output.zip': ('output_file', 'zip', True),
             'private_output.zip': ('private_output_file', 'zip', True),
             'prediction-output.zip': ('prediction_output_file', 'zip', True),
@@ -1264,7 +1284,15 @@ class CompetitionSubmission(models.Model):
             file_type = 'text/html'
         else:
             file_type = 'application/zip'
-        file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+
+        if settings.USE_AWS:
+            if key == 'input.zip':
+                file_name = self.s3_file
+            else:
+                file_name = getattr(self, file_attr).name
+        else:
+            file_name = "{0}-{1}-{2}".format(self.participant.user.username, self.submission_number, key)
+
         return getattr(self, file_attr), file_type, file_name
 
     def get_overall_like_count(self):
@@ -1337,7 +1365,8 @@ class SubmissionScoreDef(models.Model):
 
 class CompetitionDefBundle(models.Model):
     """Defines a competition bundle."""
-    config_bundle = models.FileField(upload_to='competition-bundles', storage=BundleStorage)
+    config_bundle = models.FileField(upload_to=_uuidify('competition-bundles'), storage=BundleStorage, null=True, blank=True)
+    s3_config_bundle = S3DirectField(dest='competitions', null=True, blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1366,7 +1395,16 @@ class CompetitionDefBundle(models.Model):
         """
         # Get the bundle data, which is stored as a zipfile
         logger.info("CompetitionDefBundle::unpack begins (pk=%s)", self.pk)
-        zf = zipfile.ZipFile(self.config_bundle)
+        if settings.USE_AWS:
+            from apps.web.tasks import _make_url_sassy
+            url = _make_url_sassy(self.s3_config_bundle)
+            logger.info("CompetitionDefBundle::unpacking url=%s", url)
+            competition_def_data = urllib.urlopen(
+                url
+            ).read()
+            zf = zipfile.ZipFile(io.BytesIO(competition_def_data))
+        else:
+            zf = zipfile.ZipFile(self.config_bundle)
         logger.debug("CompetitionDefBundle::unpack creating base competition (pk=%s)", self.pk)
         comp_spec_file = [x for x in zf.namelist() if ".yaml" in x][0]
         yaml_contents = zf.open(comp_spec_file).read()
@@ -1429,7 +1467,10 @@ class CompetitionDefBundle(models.Model):
         # Unpack and save the logo
         if 'image' in comp_base:
             try:
-                comp.image.save(comp_base['image'], File(io.BytesIO(zf.read(comp_base['image']))))
+                comp.image.save(
+                    comp_base['image'],
+                    File(io.BytesIO(zf.read(comp_base['image'])))
+                )
                 comp.save()
                 logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
             except KeyError:
@@ -1826,7 +1867,7 @@ class OrganizerDataSet(models.Model):
     type = models.CharField(max_length=64, choices=TYPES, default="None")
     description = models.TextField(null=True, blank=True)
     data_file = models.FileField(
-        upload_to=dataset_data_file,
+        upload_to=_uuidify('dataset_data_file'),
         storage=BundleStorage,
         verbose_name="Data file",
         blank=True,

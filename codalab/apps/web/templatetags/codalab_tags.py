@@ -51,19 +51,19 @@ def get_array_or_attr(elem, attribute):
         return [elem]
 
 
-@register.filter(name='get_sas')
-def get_sas(value):
-    """
-    Helper to generate SAS URL for any BLOB.
-    """
-    blob_name = value
-    url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                            settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                            settings.BUNDLE_AZURE_CONTAINER,
-                            blob_name,permission='r',
-                            duration=60)
-    print url
-    return url
+# @register.filter(name='get_sas')
+# def get_sas(value):
+#     """
+#     Helper to generate SAS URL for any BLOB.
+#     """
+#     blob_name = value
+#     url = make_blob_sas_url(settings.BUNDLE_AZURE_ACCOUNT_NAME,
+#                             settings.BUNDLE_AZURE_ACCOUNT_KEY,
+#                             settings.BUNDLE_AZURE_CONTAINER,
+#                             blob_name,permission='r',
+#                             duration=60)
+#     print url
+#     return url
 
 
 @register.simple_tag

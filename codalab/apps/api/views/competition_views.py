@@ -24,7 +24,6 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 
-
 from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
@@ -424,7 +423,6 @@ competitionphase_retrieve = CompetitionPhaseAPIViewset.as_view({'get':'retrieve'
 class CompetitionPageViewSet(viewsets.ModelViewSet):
     ## TODO: Turn the custom logic here into a mixin for other content
     serializer_class = serializers.PageSerial
-    content_type = ContentType.objects.get_for_model(webmodels.Competition)
     queryset = webmodels.Page.objects.all()
     _pagecontainer = None
     _pagecontainer_q = None
@@ -440,6 +438,10 @@ class CompetitionPageViewSet(viewsets.ModelViewSet):
             return self.queryset.filter(**kw)
         else:
             return self.queryset
+
+    @classmethod
+    def get_content_type(cls, *args, **kwargs):
+        return ContentType.objects.get_for_model(webmodels.Competition)
 
     def dispatch(self, request, *args, **kwargs):
         if 'competition_id' in kwargs:
@@ -527,7 +529,10 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
-        obj.file.name = blob_name
+        if settings.USE_AWS:
+            obj.s3_file = blob_name
+        else:
+            obj.file.name = blob_name
 
         obj.description = escape(self.request.QUERY_PARAMS.get('description', ""))
         obj.team_name = escape(self.request.QUERY_PARAMS.get('team_name', ""))
