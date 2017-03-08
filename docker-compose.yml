@@ -1,5 +1,17 @@
-version: '3'
+version: '2'
 services:
+  # Nginx - server
+  server:
+    build: ./nginx/
+    ports:
+      - 80:80
+    volumes:
+      - .nginx/logs:/var/log/nginx
+    volumes_from:
+      - web
+    links:
+      - web:web
+
   # MySQL - db
   db:
     image: mysql:5.7
