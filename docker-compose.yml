@@ -5,8 +5,8 @@ services:
     image: mysql:5.7
     hostname: db
     environment:
-      - "MYSQL_ROOT_PASSWORD=mysql"
-      - "MYSQL_DATABASE=codalab_website"
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
     ports:
       - 3306:3306
   
@@ -15,11 +15,13 @@ services:
     image: rabbitmq:3.5.7
     hostname: rabbit
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     ports:
       - "5672:5672" 
       - "15672:15672"
+    links:
+      - web
 
   # Flower - flower
   flower:
@@ -28,14 +30,16 @@ services:
     ports:
       - "5555:5555"
     environment:
-      - AMQP_USERNAME=guest
-      - AMQP_PASSWORD=guest
+      - AMQP_USERNAME=${AMQP_USERNAME}
+      - AMQP_PASSWORD=${AMQP_PASSWORD}
       - AMQP_HOST=rabbit
-      - AMQP_PORT=5672
+      - AMQP_PORT=${AMQP_PORT}
+      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
     volumes:
       - .:/app
-    depends_on:
+    links:
       - rabbit
+      - web
   
   # Memcached - memcached
   memcached:
@@ -53,15 +57,14 @@ services:
     hostname: web
     command: bash run_web.sh
     volumes:
-      - .:/app 
+      - .:/app
+    env_file: .env 
     ports:
       - "8000:8000"
     links:
       - db
       - rabbit
       - memcached
-    depends_on:
-      - db
 
   # Celery Workers
 
@@ -76,9 +79,6 @@ services:
     links:
       - db
       - rabbit
-    depends_on:
-      - rabbit
-      - db
       
   # Compute worker
   compute:
@@ -91,6 +91,3 @@ services:
     links:
       - db
       - rabbit
-    depends_on:
-      - rabbit
-      - db
