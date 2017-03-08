@@ -27,5 +27,6 @@ class ClUser(auth_models.AbstractUser):
 
     contact_email = models.EmailField(null=True, blank=True)
 
+    rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
     rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
     rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
