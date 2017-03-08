@@ -348,10 +348,10 @@ def get_run_func(config):
             # Fetch and stage the bundles
             logger.info("Fetching bundles...")
             start = time.time()
-            # blob_service = BlobService(config.getAzureStorageAccountName(),
-            #                            config.getAzureStorageAccountKey())
-            # bundles = getBundle(root_dir, blob_service, container, run_id, 'run')
+
             bundles = get_bundle(root_dir, 'run', bundle_url)
+
+            logger.info("Metadata: %s" % bundles)
 
             end = time.time() - start
             logger.info("Fetched bundles in %s", end)

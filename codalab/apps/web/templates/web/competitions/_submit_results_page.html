@@ -42,8 +42,27 @@
 
             {% endif %}
         </div>
-        <button id="fileUploadButton" class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
-                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>Submit</button>
+
+
+        {% if USE_AWS %}
+            <form id="s3_upload_form" action="" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <div id="s3-file-upload"
+                        class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                        {% if not phase.reference_data %}disabled="disabled"{% endif %}>
+                    Submit
+                </div>
+            </form>
+        {% else %}
+            <button id="fileUploadButton"
+                    class="button btn btn-primary {% if not phase.reference_data %}disabled{% endif %}"
+                    {% if not phase.reference_data %}disabled="disabled"{% endif %}>
+                Submit
+            </button>
+        {% endif %}
+
+
         {% if not phase.reference_data %}
             <p><em>This phase doesn't have reference_data supplied yet, please add reference data before submissions may be uploaded!</em></p>
         {% endif %}
@@ -116,3 +135,21 @@
     </div>
 {% include "web/common/_submission_details_template.html" %}
 {% endif %}
+
+<script>
+    $("#s3-file-upload").click(function() {
+        $(".s3direct .file-input").click()
+        var test_if_done = function () {
+            var uploaded_url = $('.s3direct a.file-link').attr('href')
+            if (uploaded_url && uploaded_url.length > 0) {
+                $(".s3direct .file-input").val('')
+                Competition.submitUploadedSubmissionDetails(undefined, uploaded_url)
+            } else {
+                setTimeout(test_if_done, 100)
+            }
+        }
+        test_if_done()
+    });
+</script>
+
+

@@ -214,7 +214,12 @@ def deploy_compute_worker(label):
     with cd(env.deploy_codalab_dir):
         run('git checkout %s' % env.git_codalab_tag)
         run('git pull')
+
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip uninstall django-storages && pip uninstall django-storages-redux', warn_only=True)
+
         run('source /home/azureuser/codalab-competitions/venv/bin/activate && pip install --upgrade pip && pip install -r /home/azureuser/codalab-competitions/codalab/requirements/dev_azure.txt')
+
         # run('./dev_setup.sh')
 
     # run("source /home/azureuser/codalab-competitions/venv/bin/activate && pip install bottle==0.12.8")
@@ -235,7 +240,7 @@ def deploy_compute_worker(label):
         use_sudo=True
     )
 
-    # Adding codalab monitor upstart config
+    # Adding codalab monitor upstart config  ### No longer needed!
     # put(
     #     local_path='{}/configs/upstart/codalab-monitor.conf'.format(current_directory),
     #     remote_path='/etc/init/codalab-monitor.conf',
@@ -245,7 +250,7 @@ def deploy_compute_worker(label):
 
     with settings(warn_only=True):
         sudo("stop codalab-compute-worker")
-        sudo("stop codalab-monitor")
+        sudo("stop codalab-monitor")  # just in case it's left from a previous install
         sudo("start codalab-compute-worker")
         # sudo("start codalab-monitor")
 
@@ -384,6 +389,13 @@ def _deploy():
     # Update the website configuration
     env_prefix, env_shell = setup_env()
     with env_prefix, env_shell, cd(env.deploy_codalab_dir), cd('codalab'):
+        # make sure we remove old version, added 2/20/17 can remove a while after that
+        run('pip uninstall django-storages && pip uninstall django-storages-redux && pip install django-storages-redux==1.3.2', warn_only=True)
+
+        sudo('apt-get install -y nodejs-legacy npm')
+        run('npm install')
+        run('npm run build-css')
+
         # Generate configuration files (bundle_server_config, nginx, etc.)
         # For more info look into https://github.com/greyside/django-config-gen
         run('python manage.py config_gen')

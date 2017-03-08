@@ -11,6 +11,7 @@ import zipfile
 from urllib import pathname2url
 from zipfile import ZipFile
 
+from boto.s3.connection import S3Connection
 from celery import task
 from celery.app import app_or_default
 from celery.exceptions import SoftTimeLimitExceeded
@@ -46,7 +47,7 @@ from apps.web.models import (add_submission_to_leaderboard,
                              predict_submission_stderr_filename,
                              SubmissionScore,
                              SubmissionScoreDef,
-                             CompetitionSubmissionMetadata)
+                             CompetitionSubmissionMetadata, BundleStorage)
 from apps.coopetitions.models import DownloadRecord
 
 import time
@@ -149,32 +150,39 @@ def predict(submission, job_id):
     """
     # Generate metadata-only bundle describing the computation
     lines = []
-    program_value = submission.file.name
+    if settings.USE_AWS:
+        program_value = submission.s3_file
+    else:
+        program_value = submission.file.name
 
     if len(program_value) > 0:
-        lines.append("program: %s" % program_value)
+        lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
+
+    # Create stdout.txt & stderr.txt, set the file names
+    username = submission.participant.user.username
+    stdout_filler = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(stdout_filler)))
+    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(stdout_filler)))
+    stderr_filler = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
+    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(stderr_filler)))
+    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(stderr_filler)))
+
+    submission.prediction_output_file.save('output.zip', ContentFile(''))
+
     input_value = submission.phase.input_data.name
 
     logger.info("Running prediction")
 
     if len(input_value) > 0:
-        lines.append("input: %s" % input_value)
-    lines.append("stdout: %s" % submission_stdout_filename(submission))
-    lines.append("stderr: %s" % submission_stderr_filename(submission))
+        lines.append("input: %s" % _make_url_sassy(input_value))
+    lines.append("stdout: %s" % _make_url_sassy(submission.prediction_stdout_file.name, permission='w'))
+    lines.append("stderr: %s" % _make_url_sassy(submission.prediction_stderr_file.name, permission='w'))
     submission.prediction_runfile.save('run.txt', ContentFile('\n'.join(lines)))
-    # Create stdout.txt & stderr.txt
-    username = submission.participant.user.username
-    lines = ["Standard output for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stdout_file.save('stdout.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stdout_file.save('prediction_stdout_file.txt', ContentFile('\n'.join(lines)))
-    lines = ["Standard error for submission #{0} by {1}.".format(submission.submission_number, username), ""]
-    submission.stderr_file.save('stderr.txt', ContentFile('\n'.join(lines)))
-    submission.prediction_stderr_file.save('prediction_stderr_file.txt', ContentFile('\n'.join(lines)))
 
     # Store workflow state
-    submission.execution_key = json.dumps({'predict' : job_id})
+    submission.execution_key = json.dumps({'predict': job_id})
     submission.save()
 
     # Submit the request to the computation service
@@ -188,13 +196,13 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     """Kicks off the compute_worker_run task passing job id, submission container details, and "is prediction
     or scoring" flag to compute worker"""
     if is_prediction:
-        bundle_id = submission.prediction_runfile.name
+        bundle_url = submission.prediction_runfile.name
         stdout = submission.prediction_stdout_file.name
         stderr = submission.prediction_stderr_file.name
         output = submission.prediction_output_file.name
     else:
         # Scoring, if we're not predicting
-        bundle_id = submission.runfile.name
+        bundle_url = submission.runfile.name
         stdout = submission.stdout_file.name
         stderr = submission.stderr_file.name
         output = submission.output_file.name
@@ -204,14 +212,13 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
         "task_type": "run",
         "task_args": {
             "submission_id": submission.pk,
-            "bundle_url": _azure_make_sas(bundle_id),
-            "stdout_url": _azure_make_sas(stdout, permission='w'),
-            "stderr_url": _azure_make_sas(stderr, permission='w'),
-            "output_url": _azure_make_sas(output, permission='w'),
-            "detailed_results_url": _azure_make_sas(submission.detailed_results_file.name, permission='w'),
-            "private_output_url": _azure_make_sas(submission.private_output_file.name, permission='w'),
+            "bundle_url": _make_url_sassy(bundle_url),
+            "stdout_url": _make_url_sassy(stdout, permission='w'),
+            "stderr_url": _make_url_sassy(stderr, permission='w'),
+            "output_url": _make_url_sassy(output, permission='w'),
+            "detailed_results_url": _make_url_sassy(submission.detailed_results_file.name, permission='w'),
+            "private_output_url": _make_url_sassy(submission.private_output_file.name, permission='w'),
             "secret": submission.secret,
-            "container_name": settings.BUNDLE_AZURE_CONTAINER,
             "execution_time_limit": submission.phase.execution_time_limit,
             "predict": is_prediction,
         }
@@ -244,21 +251,43 @@ def compute_worker_run(data):
         update_submission.apply_async((data["id"], {'status': 'failed'}, data['task_args']['secret']))
 
 
-def _azure_make_sas(path, permission='r', duration=60 * 60 * 24):
-    sassy_url = make_blob_sas_url(
-        settings.BUNDLE_AZURE_ACCOUNT_NAME,
-        settings.BUNDLE_AZURE_ACCOUNT_KEY,
-        settings.BUNDLE_AZURE_CONTAINER,
-        path,
-        permission=permission,
-        duration=duration
-    )
+def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
+    if settings.USE_AWS:
+        if permission == 'r':
+            # GET instead of r (read) for AWS
+            method = 'GET'
+        elif permission == 'w':
+            # GET instead of w (write) for AWS
+            method = 'PUT'
+        else:
+            # Default to get if we don't know
+            method = 'GET'
 
-    # Ugly way to check if we didn't get the path, should work...
-    if '<Code>InvalidUri</Code>' not in sassy_url:
-        return sassy_url
+        # Remove the beginning of the URL (before bucket name) so we just have the path to the file
+        path = path.split(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)[-1]
+
+        return BundleStorage.connection.generate_url(
+            expires_in=duration,
+            method=method,
+            bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            key=path,
+            query_auth=True,
+        )
     else:
-        return ''
+        sassy_url = make_blob_sas_url(
+            settings.BUNDLE_AZURE_ACCOUNT_NAME,
+            settings.BUNDLE_AZURE_ACCOUNT_KEY,
+            settings.BUNDLE_AZURE_CONTAINER,
+            path,
+            permission=permission,
+            duration=duration
+        )
+
+        # Ugly way to check if we didn't get the path, should work...
+        if '<Code>InvalidUri</Code>' not in sassy_url:
+            return sassy_url
+        else:
+            return ''
 
 
 def score(submission, job_id):
@@ -378,16 +407,19 @@ def score(submission, job_id):
     lines = []
     ref_value = submission.phase.reference_data.name
     if len(ref_value) > 0:
-        lines.append("ref: %s" % _azure_make_sas(ref_value))
-    res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
+        lines.append("ref: %s" % _make_url_sassy(ref_value))
+    if settings.USE_AWS:
+        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.s3_file
+    else:
+        res_value = submission.prediction_output_file.name if has_generated_predictions else submission.file.name
     if len(res_value) > 0:
-        lines.append("res: %s" % _azure_make_sas(res_value))
+        lines.append("res: %s" % _make_url_sassy(res_value))
     else:
         raise ValueError("Results are missing.")
 
-    lines.append("history: %s" % _azure_make_sas(submission.history_file.name))
-    lines.append("scores: %s" % _azure_make_sas(submission.scores_file.name))
-    lines.append("coopetition: %s" % _azure_make_sas(submission.coopetition_file.name))
+    lines.append("history: %s" % _make_url_sassy(submission.history_file.name))
+    lines.append("scores: %s" % _make_url_sassy(submission.scores_file.name))
+    lines.append("coopetition: %s" % _make_url_sassy(submission.coopetition_file.name))
     lines.append("submitted-by: %s" % submission.participant.user.username)
     lines.append("submitted-at: %s" % submission.submitted_at.replace(microsecond=0).isoformat())
     lines.append("competition-submission: %s" % submission.submission_number)
@@ -409,14 +441,14 @@ def score(submission, job_id):
     lines = []
     program_value = submission.phase.scoring_program.name
     if len(program_value) > 0:
-        lines.append("program: %s" % _azure_make_sas(program_value))
+        lines.append("program: %s" % _make_url_sassy(program_value))
     else:
         raise ValueError("Program is missing.")
-    lines.append("input: %s" % _azure_make_sas(submission.inputfile.name))
-    lines.append("stdout: %s" % _azure_make_sas(submission_stdout_filename(submission), permission='w'))
-    lines.append("stderr: %s" % _azure_make_sas(submission_stderr_filename(submission), permission='w'))
-    lines.append("private_output: %s" % _azure_make_sas(submission.private_output_file.name, permission='w'))
-    lines.append("output: %s" % _azure_make_sas(submission.output_file.name, permission='w'))
+    lines.append("input: %s" % _make_url_sassy(submission.inputfile.name))
+    lines.append("stdout: %s" % _make_url_sassy(submission.stdout_file.name, permission='w'))
+    lines.append("stderr: %s" % _make_url_sassy(submission.stderr_file.name, permission='w'))
+    lines.append("private_output: %s" % _make_url_sassy(submission.private_output_file.name, permission='w'))
+    lines.append("output: %s" % _make_url_sassy(submission.output_file.name, permission='w'))
     submission.runfile.save('run.txt', ContentFile('\n'.join(lines)))
 
     # Create stdout.txt & stderr.txt
@@ -431,10 +463,9 @@ def score(submission, job_id):
     submission.execution_key = json.dumps(state)
 
     # Pre-save files so we can overwrite their names later
-    submission.output_file.name = pathname2url(submission_output_filename(submission))
-    submission.private_output_file.name = pathname2url(submission_private_output_filename(submission))
-    submission.detailed_results_file.name = pathname2url(submission_detailed_results_filename(submission))
-
+    submission.output_file.save('output_file.zip', ContentFile(''))
+    submission.private_output_file.save('private_output_file.zip', ContentFile(''))
+    submission.detailed_results_file.save('detailed_results_file.zip', ContentFile(''))
     submission.save()
     # Submit the request to the computation service
     _prepare_compute_worker_run(job_id, submission, is_prediction=False)
@@ -547,11 +578,11 @@ def update_submission(job_id, args, secret):
                     )
             else:
                 logger.debug("update_submission_task entering scoring phase (pk=%s)", submission.pk)
-                url_name = pathname2url(submission_prediction_output_filename(submission))
-                submission.prediction_output_file.name = url_name
-                submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
-                submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
-                submission.save()
+                # url_name = pathname2url(submission_prediction_output_filename(submission))
+                # submission.prediction_output_file.name = url_name
+                # submission.prediction_stderr_file.name = pathname2url(predict_submission_stdout_filename(submission))
+                # submission.prediction_stdout_file.name = pathname2url(predict_submission_stderr_filename(submission))
+                # submission.save()
                 try:
                     score(submission, job_id)
                     result = Job.RUNNING

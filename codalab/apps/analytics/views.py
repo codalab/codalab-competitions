@@ -16,7 +16,7 @@ def analytics_detail(request):
         return HttpResponse(status=404)
 
     monthly_total_users_joined = {}
-    for date in User.objects.all().dates('date_joined', 'month'):
+    for date in User.objects.all().datetimes('date_joined', 'month'):
         if date.year not in monthly_total_users_joined:
             monthly_total_users_joined[date.year] = {}
         users_joined_this_month = User.objects.filter(date_joined__month=date.month,

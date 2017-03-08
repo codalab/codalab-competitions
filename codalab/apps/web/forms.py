@@ -4,6 +4,8 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from s3direct.widgets import S3DirectWidget
+
 import models
 from tinymce.widgets import TinyMCE
 
@@ -106,7 +108,7 @@ class CompetitionPhaseForm(forms.ModelForm):
 class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
-        fields = ('category', 'rank', 'label', 'html', 'container')
+        fields = ('category', 'rank', 'label', 'html')
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
@@ -240,3 +242,30 @@ class UserSettingsForm(forms.ModelForm):
             'method_description': forms.Textarea(attrs={"class": "form-control"}),
             'bibtex': forms.Textarea(attrs={"class": "form-control"})
         }
+
+
+class CompetitionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionDefBundle
+        fields = ('s3_config_bundle',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(CompetitionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_config_bundle'].required = True
+
+
+class SubmissionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionSubmission
+        fields = ('s3_file',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(SubmissionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_file'].required = True
+        self.fields['s3_file'].label = ''

@@ -1,3 +1,4 @@
+import uuid
 from configurations import importer
 if not importer.installed:
     importer.install()
@@ -198,6 +199,7 @@ class Base(Settings):
 
         # Storage API
         'storages',
+        's3direct',
 
         # Migration app
         'south',
@@ -237,6 +239,8 @@ class Base(Settings):
         'OAUTH2_VALIDATOR_CLASS': 'apps.authenz.oauth.Validator',
         'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
+
+    USE_AWS = False
 
     # Email Configuration
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

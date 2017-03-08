@@ -1,4 +1,4 @@
-Django==1.5.9
+Django==1.6.11
 alembic==0.6.7
 anyjson==0.3.3
 argparse
@@ -11,7 +11,8 @@ django-compressor==1.3
 django-config-gen==1.0.8
 # django-configurations
 django-configurations==0.8
-django-debug-toolbar==0.9.4
+django-debug-toolbar==1.3.0
+sqlparse==0.1.19
 django-debug-panel==0.8.1
 django-extensions==1.5.7
 django-extra-views==0.6.3
@@ -22,7 +23,8 @@ django-js-reverse>=0.2.0
 django-mptt==0.5.5
 django-nose==1.4.1
 django-oauth-toolkit==0.6.1
-django-storages==1.1.8
+#django-storages==1.1.8 # Replaced by storages-redux.. need to uninstall storages..
+django-storages-redux==1.3.2
 django-tinymce==2.0.5
 djangorestframework==2.3.6
 mock==1.0.1
@@ -45,6 +47,8 @@ newrelic==2.54.0.41
 python-memcached==1.57
 
 celery==3.1.25
+boto==2.45.0
+django-s3direct==0.4.8
 
 #Extras added
 git+https://github.com/ikraft/django-userswitch.git
