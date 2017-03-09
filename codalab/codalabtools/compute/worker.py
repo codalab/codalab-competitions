@@ -423,10 +423,9 @@ def get_run_func(config):
                 logger.info("Invoking program: %s", prog_cmd)
 
                 startTime = time.time()
-                exit_code = None
                 timed_out = False
 
-                if 'Darwin' not in platform.platform() and os.environ.get("DJANGO_ENVIRONMENT") is 'test':
+                if 'Darwin' not in platform.platform():
                     prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
                     # Run as separate user
                     evaluator_process = Popen(
