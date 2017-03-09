@@ -4,31 +4,34 @@ services:
   # HTTP Server
   # --------------------------------------------------------------------------
   nginx:
-    build: ./nginx/
+#    build: ./nginx/
+    image: nginx
+    environment:
+      - NGINX_PORT=${NGINX_PORT}
+      - DJANGO_PORT=${DJANGO_PORT}
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
     command: bash app/run_nginx.sh
     volumes:
       - .nginx/logs:/var/log/nginx
-#    volumes_from:
-#      - web
-    volumes:
       - .:/app
     links:
-      - web:web
+      - django:django
+    container_name: nginx
 
 
   # --------------------------------------------------------------------------
   # Celery Workers
   # --------------------------------------------------------------------------
-  db:
+  mysql:
     image: mysql:5.7
-    hostname: db
+    hostname: mysql
     environment:
-      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
-      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     ports:
       - 3306:3306
+    container_name: mysql
 
   
   # --------------------------------------------------------------------------
@@ -43,6 +46,7 @@ services:
     ports:
       - "5672:5672" 
       - "15672:15672"
+    container_name: rabbit
 
   flower:
     image: totem/celery-flower-docker
@@ -59,6 +63,7 @@ services:
       - .:/app
     links:
       - rabbit
+    container_name: flower
 
 
   # --------------------------------------------------------------------------
@@ -70,33 +75,34 @@ services:
     ports:
       - "11211:11211"
     command: "/usr/local/bin/memcached -u memcache -vv"
+    container_name: memcached
 
 
   # --------------------------------------------------------------------------
   # Django
   # --------------------------------------------------------------------------
-  web:
+  django:
     build:
       context: .
       dockerfile: Dockerfile
-    hostname: web
-    command: bash run_web.sh
+    hostname: django
+    command: bash run_django.sh
     volumes:
       - .:/app
     env_file: .env 
     ports:
       - "8000:8000"
     links:
-      - db
+      - mysql
       - rabbit
       - memcached
+    container_name: django
 
 
   # --------------------------------------------------------------------------
   # Celery Workers
   # --------------------------------------------------------------------------
-  # Site worker
-  site:
+  worker_site:
     build:
       context: .
       dockerfile: Dockerfile
@@ -104,11 +110,11 @@ services:
     volumes:
       - .:/app
     links:
-      - db
+      - mysql
       - rabbit
+    container_name: worker_site
       
-  # Compute worker
-  compute:
+  worker_compute:
     build:
       context: .
       dockerfile: Dockerfile
@@ -116,5 +122,6 @@ services:
     volumes:
       - .:/app
     links:
-      - db
+      - mysql
       - rabbit
+    container_name: worker_compute

@@ -2,7 +2,7 @@
 
 echo "Waiting for database connection..."
 
-until netcat -z -v -w30 db 3306
+until netcat -z -v -w30 mysql 3306
 do
   sleep 1
 done
@@ -19,4 +19,4 @@ python scripts/initialize.py
 
 # start development server on public ip interface, on port 8000
 #python manage.py runserver 0.0.0.0:8000
-gunicorn codalab.wsgi --bind 0.0.0.0:$GUNICORN_PORT
+gunicorn codalab.wsgi --bind 0.0.0.0:$DJANGO_PORT

@@ -88,6 +88,19 @@ class Dev(DevBase):
             'ENGINE': 'django.db.backends.sqlite3',  # Simple database
             'NAME': 'codalab.sqlite3',  # Path to database file
 
+            # Docker db
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'USER': 'root',
+            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+            # Empty for localhost through domain sockets or '127.0.0.1' for
+            # localhost through TCP.
+            'HOST': 'mysql',
+            'PORT': '',  # Set to empty string for default.
+            'OPTIONS': {
+                'init_command': "SET time_zone='+00:00';",
+            },
+
             ## Uncomment the following if you use MySQL (recommended):
             # 'ENGINE': 'django.db.backends.mysql',
             # 'NAME': 'codalab_website',            # Name of the database.
@@ -97,15 +110,6 @@ class Dev(DevBase):
             # 'HOST': db_host,
             ## Use port '' (empty) for the default value:
             # 'PORT': db_port,
-
-            # Uncomment the following for use with docker-compose db
-            # 'ENGINE': 'django.db.backends.mysql',
-            # 'NAME': os.environ.get('DB_ENV_MYSQL_DATABASE', 'codalab_website'),
-            # 'USER': os.environ.get('DB_ENV_MYSQL_USER', 'root'),
-            # 'PASSWORD': os.environ.get('DB_ENV_MYSQL_ROOT_PASSWORD', 'mysql'),
-            # 'HOST': os.environ.get('DB_PORT_5432_TCP_ADDR', 'db'),
-            # # Use port '' (empty) for the default value:
-            # 'PORT': os.environ.get('DB_PORT_5432_TCP_PORT', ''),
 
             ## Uncomment the following if you use SQLServer:
             # 'ENGINE': 'sql_server.pyodbc',
@@ -118,8 +122,5 @@ class Dev(DevBase):
             # 'OPTIONS': {
             #     'driver': 'SQL Server Native Client 11.0',
             # }
-
-            # Alternatives to 'mysql': 'postgresql_psycopg2', 'mysql', 'oracle'
-
         }
     }
