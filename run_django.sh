@@ -19,4 +19,4 @@ python scripts/initialize.py
 
 # start development server on public ip interface, on port 8000
 #python manage.py runserver 0.0.0.0:8000
-gunicorn codalab.wsgi --bind 0.0.0.0:$DJANGO_PORT
+gunicorn codalab.wsgi --bind django:$DJANGO_PORT

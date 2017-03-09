@@ -12,7 +12,7 @@ services:
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
 #    command: bash
-    command: bash -x app/run_nginx.sh
+    # command: bash -x app/run_nginx.sh
 #    command: bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     volumes:
       - ./nginx/logs:/var/log/nginx
