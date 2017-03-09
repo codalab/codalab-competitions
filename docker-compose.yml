@@ -1,18 +1,26 @@
 version: '2'
 services:
-  # Nginx - server
-  server:
+  # --------------------------------------------------------------------------
+  # HTTP Server
+  # --------------------------------------------------------------------------
+  nginx:
     build: ./nginx/
     ports:
-      - 80:80
+      - ${NGINX_PORT}:${NGINX_PORT}
+    command: bash app/run_nginx.sh
     volumes:
       - .nginx/logs:/var/log/nginx
-    volumes_from:
-      - web
+#    volumes_from:
+#      - web
+    volumes:
+      - .:/app
     links:
       - web:web
 
-  # MySQL - db
+
+  # --------------------------------------------------------------------------
+  # Celery Workers
+  # --------------------------------------------------------------------------
   db:
     image: mysql:5.7
     hostname: db
@@ -21,8 +29,11 @@ services:
       - "MYSQL_DATABASE=${MYSQL_DATABASE}"
     ports:
       - 3306:3306
+
   
-  # RabbitMQ - rabbit
+  # --------------------------------------------------------------------------
+  # Message queue
+  # --------------------------------------------------------------------------
   rabbit:
     image: rabbitmq:3.5.7
     hostname: rabbit
@@ -32,10 +43,7 @@ services:
     ports:
       - "5672:5672" 
       - "15672:15672"
-    links:
-      - web
 
-  # Flower - flower
   flower:
     image: totem/celery-flower-docker
     hostname: flower
@@ -51,17 +59,22 @@ services:
       - .:/app
     links:
       - rabbit
-      - web
-  
-  # Memcached - memcached
+
+
+  # --------------------------------------------------------------------------
+  # Cache
+  # --------------------------------------------------------------------------
   memcached:
     image: memcached
     hostname: memcached
     ports:
       - "11211:11211"
     command: "/usr/local/bin/memcached -u memcache -vv"
-  
-  # Django - web
+
+
+  # --------------------------------------------------------------------------
+  # Django
+  # --------------------------------------------------------------------------
   web:
     build:
       context: .
@@ -78,8 +91,10 @@ services:
       - rabbit
       - memcached
 
-  # Celery Workers
 
+  # --------------------------------------------------------------------------
+  # Celery Workers
+  # --------------------------------------------------------------------------
   # Site worker
   site:
     build:

@@ -50,6 +50,8 @@ celery==3.1.25
 boto==2.45.0
 django-s3direct==0.4.8
 
+gunicorn==19.7.0
+
 #Extras added
 git+https://github.com/ikraft/django-userswitch.git
 Sphinx==1.4.1
