@@ -1,13 +1,16 @@
 from django.conf import settings
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import get_storage_class, DefaultStorage
 
 
-StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+if hasattr(settings, 'DEFAULT_FILE_STORAGE') and settings.DEFAULT_FILE_STORAGE:
+    StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+else:
+    StorageClass = DefaultStorage
 
 if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
     BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
     PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
-elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME'):
+elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME') and settings.BUNDLE_AZURE_ACCOUNT_NAME:
     BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
                                  account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
                                  azure_container=settings.BUNDLE_AZURE_CONTAINER)
