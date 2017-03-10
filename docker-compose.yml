@@ -4,19 +4,15 @@ services:
   # HTTP Server
   # --------------------------------------------------------------------------
   nginx:
-#    build: ./nginx/
     image: nginx
-    environment:
-      - NGINX_PORT=${NGINX_PORT}
-      - DJANGO_PORT=${DJANGO_PORT}
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
-#    command: bash
     command: bash -x app/run_nginx.sh
-#    command: bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     volumes:
       - ./nginx/logs:/var/log/nginx
       - .:/app
+#      - ./certs:/certs
+    env_file: .env
     links:
       - django:django
     container_name: nginx
@@ -28,11 +24,9 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
     # volumes:
     #   - ./logs/mysql_log:/var/log/mysql
+    env_file: .env
     ports:
       - 3306:3306
     container_name: mysql
@@ -57,14 +51,15 @@ services:
     hostname: flower
     ports:
       - "5555:5555"
-    environment:
-      - AMQP_USERNAME=${AMQP_USERNAME}
-      - AMQP_PASSWORD=${AMQP_PASSWORD}
-      - AMQP_HOST=rabbit
-      - AMQP_PORT=${AMQP_PORT}
-      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
+#    environment:
+#      - AMQP_USERNAME=${AMQP_USERNAME}
+#      - AMQP_PASSWORD=${AMQP_PASSWORD}
+#      - AMQP_HOST=rabbit
+#      - AMQP_PORT=${AMQP_PORT}
+#      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
 #    volumes:
 #      - .:/app
+    env_file: .env
     links:
       - rabbit
     container_name: flower

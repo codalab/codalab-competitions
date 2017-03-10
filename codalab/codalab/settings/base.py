@@ -41,10 +41,6 @@ class Base(Settings):
         'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
-    SSL_PORT = ''
-    SSL_CERTIFICATE = ''
-    SSL_CERTIFICATE_KEY = ''
-
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
@@ -277,6 +273,14 @@ class Base(Settings):
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
+
+    # =========================================================================
+    # Caching
+    # =========================================================================
+    SSL_PORT = os.environ.get('SSL_PORT', '443')
+    SSL_CERTIFICATE = os.environ.get('SSL_CERTIFICATE')
+    SSL_CERTIFICATE_KEY = os.environ.get('SSL_CERTIFICATE_KEY')
+
 
     # =========================================================================
     # Caching

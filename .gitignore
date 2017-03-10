@@ -1,6 +1,8 @@
 # Docker #
 ##########
 .env
+!certs/.gitkeep
+certs/
 
 # CodaLab Files #
 #################
