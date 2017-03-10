@@ -1,8 +1,7 @@
 FROM python:2.7
-COPY codalab/ /app
+COPY . /app
 
-WORKDIR /app
-#VOLUME /app/codalab
+WORKDIR /app/codalab
 
 RUN apt-get update && apt-get install -y npm python-mysqldb netcat nodejs-legacy
 
@@ -12,7 +11,9 @@ RUN pip install -r requirements/common.txt
 RUN python manage.py collectstatic --noinput
 
 RUN npm install .
-RUN ls apps/web/static/less/ && npm run build-css
+RUN npm run build-css
+
+WORKDIR /app
 
 # create unprivileged user
 RUN adduser --disabled-password --gecos '' myuser 

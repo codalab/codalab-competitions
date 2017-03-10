@@ -7,6 +7,8 @@ do
   sleep 1
 done
 
+cd codalab
+
 echo "WEB IS RUNNING"
 
 # migrate db, so we have the latest db schema
