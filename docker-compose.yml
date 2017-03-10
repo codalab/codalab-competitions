@@ -114,6 +114,7 @@ services:
     command: sh run_site.sh
     volumes:
       - .:/app
+    env_file: .env
     links:
       - mysql
       - rabbit
@@ -126,6 +127,7 @@ services:
     command: sh run_compute.sh
     volumes:
       - .:/app
+    env_file: .env
     links:
       - mysql
       - rabbit

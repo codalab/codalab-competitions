@@ -272,19 +272,23 @@ class Base(Settings):
 
     BUNDLE_SERVICE_URL = ""
 
-    # Added for catching certain parts on competitions side
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': 'memcached:11211',
-        }
-    }
-
     HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
+
+    # =========================================================================
+    # Caching
+    # =========================================================================
+    MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+        }
+    }
+
 
     # =========================================================================
     # Email
@@ -354,12 +358,14 @@ class Base(Settings):
     # =========================================================================
     AMQP_USERNAME = os.environ.get('AMQP_USERNAME', 'guest')
     AMQP_PASSWORD = os.environ.get('AMQP_PASSWORD', 'guest')
+    AMQP_HOST = os.environ.get('AMQP_HOST', 'rabbit')
+    AMQP_PORT = os.environ.get('AMQP_PORT', '5672')
     BROKER_URL = os.environ.get(
         'BROKER_URL',
-        'pyamqp://{}:{}@rabbit//'.format(AMQP_USERNAME, AMQP_PASSWORD)
+        'pyamqp://{}:{}@{}:{}//'.format(AMQP_USERNAME, AMQP_PASSWORD, AMQP_HOST, AMQP_PORT)
     )
     # Store results
-    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:11211/'
+    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'

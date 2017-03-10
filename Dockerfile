@@ -27,4 +27,4 @@ RUN npm install .
 RUN npm run build-css
 
 # create unprivileged user
-RUN adduser --disabled-password --gecos '' myuser 
+RUN adduser --disabled-password --gecos '' workeruser

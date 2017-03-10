@@ -13,4 +13,4 @@ export PYTHON_EGG_CACHE=/tmp/python-eggs
 chmod ugo+rwx /tmp/python-eggs
 
 # Start site worker
-su -m myuser -c "celery -A codalab worker -l info -Q site-worker,submission-updates -n site-worker --concurrency=2 -Ofast -Ofair"
+celery -A codalab worker -l info -Q site-worker,submission-updates -n site-worker --concurrency=2 -Ofast -Ofair
