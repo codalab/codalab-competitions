@@ -456,9 +456,6 @@ class Base(Settings):
     # =========================================================================
     mysqldb = os.environ.get('MYSQL_DATABASE')
 
-    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-    print(sys.argv)
-
     if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
         DATABASES = {
             'default': {
