@@ -31,6 +31,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
+    # volumes:
+    #   - ./logs/mysql_log:/var/log/mysql
     ports:
       - 3306:3306
     container_name: mysql
@@ -90,7 +92,7 @@ services:
     hostname: django
     command: bash run_django.sh
     volumes:
-      - ./logs:/var/log/
+      - ./logs/django_log:/var/log/
       - .:/app
     env_file: .env
     ports:
