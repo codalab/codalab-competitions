@@ -19,7 +19,7 @@ python manage.py syncdb --migrate
 # Insert initial data into the database
 python scripts/initialize.py
 
-python manage.py collectstatic --noinput
+#python manage.py collectstatic --noinput
 
 # start development server on public ip interface, on port 8000
 #python manage.py runserver 0.0.0.0:8000

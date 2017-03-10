@@ -10,5 +10,4 @@ echo "COMPLETED:"
 
 echo | cat /etc/nginx/conf.d/default.conf
 
-
 nginx -g "daemon off;"
