@@ -90,6 +90,7 @@ services:
     hostname: django
     command: bash run_django.sh
     volumes:
+      - ./logs:/var/log/
       - .:/app
     env_file: .env
     ports:
