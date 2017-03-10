@@ -51,9 +51,10 @@ services:
     hostname: flower
     ports:
       - "5555:5555"
-#    environment:
-#      - AMQP_USERNAME=${AMQP_USERNAME}
-#      - AMQP_PASSWORD=${AMQP_PASSWORD}
+    environment:
+      # These aren't set in .env
+      - AMQP_USERNAME=${RABBITMQ_DEFAULT_USER}
+      - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 #      - AMQP_HOST=rabbit
 #      - AMQP_PORT=${AMQP_PORT}
 #      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}

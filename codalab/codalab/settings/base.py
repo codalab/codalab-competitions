@@ -360,13 +360,13 @@ class Base(Settings):
     # =========================================================================
     # Celery
     # =========================================================================
-    AMQP_USERNAME = os.environ.get('AMQP_USERNAME', 'guest')
-    AMQP_PASSWORD = os.environ.get('AMQP_PASSWORD', 'guest')
+    RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
+    RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
     AMQP_HOST = os.environ.get('AMQP_HOST', 'rabbit')
     AMQP_PORT = os.environ.get('AMQP_PORT', '5672')
     BROKER_URL = os.environ.get(
         'BROKER_URL',
-        'pyamqp://{}:{}@{}:{}//'.format(AMQP_USERNAME, AMQP_PASSWORD, AMQP_HOST, AMQP_PORT)
+        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, AMQP_HOST, AMQP_PORT)
     )
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
