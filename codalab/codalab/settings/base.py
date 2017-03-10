@@ -316,15 +316,7 @@ class Base(Settings):
     # =========================================================================
     # Storage
     # =========================================================================
-    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE')
-    # assert DEFAULT_FILE_STORAGE, dedent("""
-    # You must set the DEFAULT_FILE_STORAGE env var, options are:
-    #     azure -> 'codalab.azure_storage.AzureStorage'
-    #     s3 -> 'storages.backends.s3boto.S3BotoStorage'
-    #
-    # Environment variables:
-    # {}
-    # """).format('\n'.join(["{} = {}".format(k, v) for k, v in os.environ.items()]))
+    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
 
     # S3 from AWS
     USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
