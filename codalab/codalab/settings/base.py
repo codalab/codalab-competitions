@@ -379,13 +379,29 @@ class Base(Settings):
         }
     }
 
-    DATABASES = {
-        'default': {
-            # Default: use sqlite3 (no setup, not scalable)
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'codalab.sqlite3',
+    mysqldb = os.environ.get('MYSQL_DATABASE')
+
+    if mysqldb:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': os.environ.get('MYSQL_DATABASE'),
+                'USER': os.environ.get('MYSQL_USERNAME', 'root'),
+                'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+                'HOST': 'mysql',
+                'OPTIONS': {
+                    'init_command': "SET time_zone='+00:00';",
+                },
+            }
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                # Default: use sqlite3 (no setup, not scalable)
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': 'codalab.sqlite3',
+            }
+        }
 
     GRAPH_MODELS = {
         'all_applications': True,
