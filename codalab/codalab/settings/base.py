@@ -456,7 +456,17 @@ class Base(Settings):
     # =========================================================================
     mysqldb = os.environ.get('MYSQL_DATABASE')
 
-    if mysqldb:
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    print(sys.argv)
+
+    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            }
+        }
+    elif mysqldb:
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -472,7 +482,6 @@ class Base(Settings):
     else:
         DATABASES = {
             'default': {
-                # Default: use sqlite3 (no setup, not scalable)
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': 'codalab.sqlite3',
             }

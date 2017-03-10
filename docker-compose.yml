@@ -61,8 +61,8 @@ services:
       # These aren't set in .env
       - AMQP_USERNAME=${RABBITMQ_DEFAULT_USER}
       - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-#      - AMQP_HOST=rabbit
-#      - AMQP_PORT=${AMQP_PORT}
+      - AMQP_HOST=rabbit
+      - AMQP_PORT=${RABBITMQ_PORT}
 #      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
     volumes:
       - .:/app
