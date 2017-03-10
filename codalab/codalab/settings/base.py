@@ -281,6 +281,12 @@ class Base(Settings):
     SSL_CERTIFICATE = os.environ.get('SSL_CERTIFICATE')
     SSL_CERTIFICATE_KEY = os.environ.get('SSL_CERTIFICATE_KEY')
 
+    if SSL_CERTIFICATE:
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+        SECURE_SSL_REDIRECT = True
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SECURE = True
+
 
     # =========================================================================
     # Caching
