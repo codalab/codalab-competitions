@@ -11,6 +11,8 @@ echo "WEB IS RUNNING"
 
 cd codalab
 
+npm run build-css
+
 # migrate db, so we have the latest db schema
 python manage.py syncdb --migrate
 
