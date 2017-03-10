@@ -1,4 +1,6 @@
 import uuid
+from textwrap import dedent
+
 from configurations import importer
 if not importer.installed:
     importer.install()
@@ -240,18 +242,6 @@ class Base(Settings):
         'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
 
-    USE_AWS = False
-
-    # Email Configuration
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_HOST_USER = '--- replace with sendgrid_username ---'
-    EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
-    SERVER_EMAIL = 'noreply@codalab.org'
-
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
@@ -280,21 +270,6 @@ class Base(Settings):
         'captcha': 'captcha.south_migrations',
     }
 
-    #HAYSTACK_CONNECTIONS = {
-    #    'default': {
-    #        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-    #        'URL': 'http://127.0.0.1:8983/solr'
-    #        # ...or for multicore...
-    #        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
-    #    },
-    #}
-
-    HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
-
     BUNDLE_SERVICE_URL = ""
 
     # Added for catching certain parts on competitions side
@@ -304,8 +279,85 @@ class Base(Settings):
             'LOCATION': 'memcached:11211',
         }
     }
+
+    HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        },
+    }
+
+    # =========================================================================
+    # Email
+    # =========================================================================
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'CodaLab <noreply@codalab.org>')
+    SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'noreply@codalab.org')
+
+
+    # =========================================================================
+    # Storage
+    # =========================================================================
+    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE')
+    # assert DEFAULT_FILE_STORAGE, dedent("""
+    # You must set the DEFAULT_FILE_STORAGE env var, options are:
+    #     azure -> 'codalab.azure_storage.AzureStorage'
+    #     s3 -> 'storages.backends.s3boto.S3BotoStorage'
+    #
+    # Environment variables:
+    # {}
+    # """).format('\n'.join(["{} = {}".format(k, v) for k, v in os.environ.items()]))
+
+    # S3 from AWS
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+    AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
+    AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+    AWS_QUERYSTRING_AUTH = os.environ.get('AWS_QUERYSTRING_AUTH', False)  # This stops signature/auths from appearing in saved URLs
+
+    # Azure
+    AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
+    AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
+    BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
+    BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
+    BUNDLE_AZURE_CONTAINER = os.environ.get('BUNDLE_AZURE_CONTAINER', 'bundles')
+
+
+    # =========================================================================
+    # S3Direct (S3 uploads)
+    # =========================================================================
+    S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
+    S3DIRECT_DESTINATIONS = {
+        'competitions': {
+            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+        },
+        'submissions': {
+            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+        }
+    }
+
+
+    # =========================================================================
     # Celery
     # =========================================================================
+    AMQP_USERNAME = os.environ.get('AMQP_USERNAME', 'guest')
+    AMQP_PASSWORD = os.environ.get('AMQP_PASSWORD', 'guest')
+    BROKER_URL = os.environ.get(
+        'BROKER_URL',
+        'pyamqp://{}:{}@rabbit//'.format(AMQP_USERNAME, AMQP_PASSWORD)
+    )
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:11211/'
     # Don't use pickle -- dangerous
@@ -318,15 +370,18 @@ class Base(Settings):
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     BROKER_POOL_LIMIT = None  # Stops connection timeout
 
+
+    # =========================================================================
+    # Single Competition Mode
+    # =========================================================================
     # Single competition mode? Uncomment this and specify a
     # competition pk to focus on
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
 
-    # A sample logging configuration. The only tangible logging
-    # performed by this configuration is to send an email to
-    # the site admins on every HTTP 500 error when DEBUG=False.
-    # See http://docs.djangoproject.com/en/dev/topics/logging for
-    # more details on how to customize your logging configuration.
+
+    # =========================================================================
+    # Logging
+    # =========================================================================
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -379,6 +434,10 @@ class Base(Settings):
         }
     }
 
+
+    # =========================================================================
+    # Database
+    # =========================================================================
     mysqldb = os.environ.get('MYSQL_DATABASE')
 
     if mysqldb:
@@ -403,6 +462,9 @@ class Base(Settings):
             }
         }
 
+    # =========================================================================
+    # Misc
+    # =========================================================================
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,

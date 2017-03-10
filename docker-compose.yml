@@ -63,8 +63,8 @@ services:
       - AMQP_HOST=rabbit
       - AMQP_PORT=${AMQP_PORT}
       - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
-    volumes:
-      - .:/app
+#    volumes:
+#      - .:/app
     links:
       - rabbit
     container_name: flower
