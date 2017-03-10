@@ -10,6 +10,7 @@ from tinymce.widgets import TinyMCE
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
 from apps.web.models import SubmissionScoreSet
+from django.conf import settings
 
 User = get_user_model()
 
@@ -224,10 +225,34 @@ class UserSettingsForm(forms.ModelForm):
             'bibtex',
             'first_name',
             'last_name',
-            'email'
+            'email',
+            'public_profile',
+            'biography',
+            'webpage',
+            'linkedin',
+            'ORCID',
+            'image',
+            'extended_profile',
         )
         widgets = {
             'team_members': forms.Textarea(attrs={"class": "form-control"}),
             'method_description': forms.Textarea(attrs={"class": "form-control"}),
-            'bibtex': forms.Textarea(attrs={"class": "form-control"})
+            'bibtex': forms.Textarea(attrs={"class": "form-control"}),
+            'biography': TinyMCE(attrs={'rows': 20, 'class': 'competition-editor-description'},
+                                 mce_attrs={"theme": "advanced", "cleanup_on_startup": True,
+                                            "theme_advanced_toolbar_location": "top",
+                                            "gecko_spellcheck": True}),
+            'extended_profile': forms.HiddenInput()
         }
+
+        def __init__(self, *args, **kwargs):
+            super(UserSettingsForm, self).__init__(*args, **kwargs)
+
+            self.fields["extended_profile"] = not settings.USE_EXTENDED_PROFILE
+
+        def clean_image(self):
+            if 'image' in self.changed_data:
+                file, ext = os.path.splitext(self.files['image'].name)
+                self.files['image'].name = '{0}{1}'.format(self.instance.username, ext)
+
+            return self.cleaned_data["image"]

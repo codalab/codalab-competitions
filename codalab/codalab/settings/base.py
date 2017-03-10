@@ -68,6 +68,10 @@ class Base(Settings):
 
     MANAGERS = ADMINS
 
+    # If enabled, the user profile contains all defined information (Organization, biography, image, ...),
+    # Otherwise, only basic information is collected for users, avoiding data protection issues.
+    USE_EXTENDED_PROFILE = True
+
     # Local time zone for this installation. Choices can be found here:
     # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
     # although not all choices may be available on all operating systems.
