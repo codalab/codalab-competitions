@@ -269,13 +269,13 @@ class Base(Settings):
     BUNDLE_SERVICE_URL = ""
 
     HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        'default': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
 
     # =========================================================================
-    # Caching
+    # SSL
     # =========================================================================
     SSL_PORT = os.environ.get('SSL_PORT', '443')
     SSL_CERTIFICATE = os.environ.get('SSL_CERTIFICATE')
