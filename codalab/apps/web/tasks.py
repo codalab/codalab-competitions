@@ -227,10 +227,10 @@ def _prepare_compute_worker_run(job_id, submission, is_prediction):
     if default_time_limit <= 0:
         default_time_limit = 60 * 10  # 10 minutes timeout
 
-    if submission.phase.competition.compute_worker_vhost:
+    if submission.phase.competition.queue:
         app = app_or_default()
         with app.connection() as new_connection:
-            new_connection.virtual_host = submission.phase.competition.compute_worker_vhost
+            new_connection.virtual_host = submission.phase.competition.queue.vhost
             compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit, connection=new_connection)
     else:
         compute_worker_run.apply_async((data,), soft_time_limit=default_time_limit)
