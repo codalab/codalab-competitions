@@ -529,5 +529,5 @@ class DevBase(Base):
         'ENABLE_STACKTRACES' : True,
     }
     # Increase amount of logging output in Dev mode.
-    for logger_name in ('codalab', 'apps'):
-        Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
+    # for logger_name in ('codalab', 'apps'):
+    #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
