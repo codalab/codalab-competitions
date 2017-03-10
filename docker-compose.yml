@@ -7,7 +7,7 @@ services:
     image: nginx
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
-    command: bash -x app/run_nginx.sh
+    command: bash -x app/docker/run_nginx.sh
     volumes:
       - ./nginx/logs:/var/log/nginx
       - .:/app
@@ -24,8 +24,13 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
-    # volumes:
+#    command: bash -x app/docker/run_mysql.sh
+    volumes:
+      - ./docker:/app/docker
     #   - ./logs/mysql_log:/var/log/mysql
+      - ${MYSQL_LOG_DIR}:/var/log/
+#      - ${MYSQL_LOG_FILE}:/var/log/mysqld.log
+#      - ${MYSQL_ERROR_LOG_FILE}:/var/log/mysqld.error.log
     env_file: .env
     ports:
       - 3306:3306
@@ -86,9 +91,9 @@ services:
       context: .
       dockerfile: Dockerfile
     hostname: django
-    command: bash run_django.sh
+    command: bash docker/run_django.sh
     volumes:
-      - ./logs/django_log:/var/log/
+      - ${DJANGO_LOG_DIR}:/var/log/
       - .:/app
     env_file: .env
     ports:
@@ -107,7 +112,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh run_site.sh
+    command: sh docker/run_site.sh
     volumes:
       - .:/app
     env_file: .env
@@ -120,7 +125,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh run_compute.sh
+    command: sh docker/run_compute.sh
     volumes:
       - .:/app
     env_file: .env

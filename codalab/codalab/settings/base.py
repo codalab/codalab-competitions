@@ -392,57 +392,57 @@ class Base(Settings):
     # =========================================================================
     # Logging
     # =========================================================================
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'simple': {
-                'format': '%(asctime)s %(levelname)s %(message)s'
-            },
-        },
-        'filters': {
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse'
-            }
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'simple',
-                'stream': sys.stdout
-            },
-            'mail_admins': {
-                'level': 'ERROR',
-                'filters': ['require_debug_false'],
-                'class': 'django.utils.log.AdminEmailHandler'
-            }
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-            'django.request': {
-                'handlers': ['mail_admins'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'codalab': {
-                'handlers': ['console'],
-                'level': 'INFO'
-            },
-            'codalabtools': {
-                'handlers': ['console'],
-                'level': 'INFO'
-            },
-            'apps': {
-                'handlers': ['console'],
-                'level': 'INFO'
-            }
-        }
-    }
+    # LOGGING = {
+    #     'version': 1,
+    #     'disable_existing_loggers': False,
+    #     'formatters': {
+    #         'simple': {
+    #             'format': '%(asctime)s %(levelname)s %(message)s'
+    #         },
+    #     },
+    #     'filters': {
+    #         'require_debug_false': {
+    #             '()': 'django.utils.log.RequireDebugFalse'
+    #         }
+    #     },
+    #     'handlers': {
+    #         'console': {
+    #             'level': 'DEBUG',
+    #             'class': 'logging.StreamHandler',
+    #             'formatter': 'simple',
+    #             'stream': sys.stdout
+    #         },
+    #         'mail_admins': {
+    #             'level': 'ERROR',
+    #             'filters': ['require_debug_false'],
+    #             'class': 'django.utils.log.AdminEmailHandler'
+    #         }
+    #     },
+    #     'loggers': {
+    #         'django': {
+    #             'handlers': ['console'],
+    #             'level': 'INFO',
+    #             'propagate': True,
+    #         },
+    #         'django.request': {
+    #             'handlers': ['mail_admins'],
+    #             'level': 'ERROR',
+    #             'propagate': True,
+    #         },
+    #         'codalab': {
+    #             'handlers': ['console'],
+    #             'level': 'INFO'
+    #         },
+    #         'codalabtools': {
+    #             'handlers': ['console'],
+    #             'level': 'INFO'
+    #         },
+    #         'apps': {
+    #             'handlers': ['console'],
+    #             'level': 'INFO'
+    #         }
+    #     }
+    # }
 
 
     # =========================================================================

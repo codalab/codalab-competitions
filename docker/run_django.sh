@@ -17,7 +17,5 @@ python manage.py syncdb --migrate
 # Insert initial data into the database
 python scripts/initialize.py
 
-touch $DJANGO_LOG
-
 # start development server on public ip interface, on port 8000
-gunicorn codalab.wsgi --bind django:$DJANGO_PORT --access-logfile $DJANGO_LOG
+gunicorn codalab.wsgi --bind django:$DJANGO_PORT --access-logfile=/var/log/django-access.log --error-logfile=/var/log/django-error.log --log-level $DJANGO_LOG_LEVEL
