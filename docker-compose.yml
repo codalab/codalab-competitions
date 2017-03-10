@@ -7,6 +7,7 @@ services:
     image: nginx
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
+      - ${SSL_PORT}:${SSL_PORT}
     command: bash -x app/docker/run_nginx.sh
     volumes:
       - ${LOG_DIR}/nginx:/var/log/nginx/
@@ -47,15 +48,15 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     ports:
-      - "5672:5672" 
-      - "15672:15672"
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
     container_name: rabbit
 
   flower:
     image: totem/celery-flower-docker
     hostname: flower
     ports:
-      - "5555:5555"
+      - ${FLOWER_PORT}:${FLOWER_PORT}
     environment:
       # These aren't set in .env
       - AMQP_USERNAME=${RABBITMQ_DEFAULT_USER}
@@ -78,7 +79,7 @@ services:
     image: memcached
     hostname: memcached
     ports:
-      - "11211:11211"
+      - ${MEMCACHED_PORT}:${MEMCACHED_PORT}
     command: "/usr/local/bin/memcached -u memcache -vv"
     container_name: memcached
 
