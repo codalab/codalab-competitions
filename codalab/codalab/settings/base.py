@@ -360,11 +360,11 @@ class Base(Settings):
     # =========================================================================
     RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
     RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
-    AMQP_HOST = os.environ.get('AMQP_HOST', 'rabbit')
-    AMQP_PORT = os.environ.get('AMQP_PORT', '5672')
+    RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'rabbit')
+    RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     BROKER_URL = os.environ.get(
         'BROKER_URL',
-        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, AMQP_HOST, AMQP_PORT)
+        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     )
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
@@ -377,6 +377,7 @@ class Base(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     BROKER_POOL_LIMIT = None  # Stops connection timeout
+    BROKER_USE_SSL = SSL_CERTIFICATE is not None
 
 
     # =========================================================================
