@@ -1,5 +1,4 @@
 import uuid
-from urlparse import urlparse
 
 from pyrabbit.api import Client
 
@@ -7,26 +6,10 @@ from django.conf import settings
 from pyrabbit.http import HTTPError
 
 
-def _extract_details_from_broker_url(broker_url):
-    """Extracts the username and password from a broker url, in the form of:
-    pyamqp://guest:guest@rabbit//"""
-    # Start with 'pyamqp://name:pass@rabbit:123//'
-    parts = urlparse(broker_url)
-    # Grab 'name:pass@rabbit:123'
-    netloc = parts.netloc
-    # Grab 'name:pass' and 'rabbit:123'
-    user_details, host = netloc.split('@')
-    # Grab 'name' and 'pass'
-    username, password = user_details.split(':')
-    # Grab host without port 'rabbit'
-    host_without_port = host.split(':')[0]
-    host_with_port = "{}:{}".format(host_without_port, settings.RABBITMQ_MANAGEMENT_PORT)
-    return host_with_port, username, password
-
-
 def _get_rabbit_connection():
     """Helper giving us a rabbit connection from settings.BROKER_URL"""
-    return Client(*_extract_details_from_broker_url(settings.BROKER_URL))
+    host_with_port = "{}:{}".format(settings.RABBITMQ_HOST, settings.RABBITMQ_MANAGEMENT_PORT)
+    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS)
 
 
 def check_user_needs_initialization(user):
@@ -79,10 +62,9 @@ def create_queue(user):
     )
 
     # Set permissions for ourselves
-    _, codalab_user, _ = _extract_details_from_broker_url(settings.BROKER_URL)
     rabbit.set_vhost_permissions(
         vhost,
-        codalab_user,
+        settings.RABBITMQ_DEFAULT_USER,
         '.*',
         '.*',
         '.*'

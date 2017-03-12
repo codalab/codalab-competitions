@@ -372,6 +372,8 @@ class Base(Settings):
         'BROKER_URL',
         'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     )
+    BROKER_POOL_LIMIT = None  # Stops connection timeout
+    BROKER_USE_SSL = SSL_CERTIFICATE is not None
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
@@ -382,8 +384,7 @@ class Base(Settings):
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
-    BROKER_POOL_LIMIT = None  # Stops connection timeout
-    BROKER_USE_SSL = SSL_CERTIFICATE is not None
+    FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
 
 
     # =========================================================================

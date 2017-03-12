@@ -77,8 +77,8 @@ class MyAdminView(TemplateView):
         context["title"] = "Services Monitoring links"
         
         # Discover the hosts's for each docker service?
-        context["rabbit_port"] = os.environ.get("RABBITMQ_PORT", "15672")
-        context["flower_port"] = os.environ.get("FLOWER_PORT", "5555")
+        context["rabbit_port"] = settings.RABBITMQ_PORT
+        context["flower_port"] = settings.FLOWER_PORT
         context["envs"] = self.request
         return context
 

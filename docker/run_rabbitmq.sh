@@ -20,4 +20,4 @@ fi
 echo "/etc/rabbitmq/rabbitmq.config:"
 echo | cat /etc/rabbitmq/rabbitmq.config
 
-#rabbitmq-server
+rabbitmq-server
