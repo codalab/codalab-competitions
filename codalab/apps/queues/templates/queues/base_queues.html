@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block extra_headers %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}forums/forums.css">
+{% endblock extra_headers %}
+
+{% block content_wrapper %}
+    <div id="queues-wrapper" class="container">
+        <div class="panel">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+{% endblock content_wrapper %}
+

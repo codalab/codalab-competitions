@@ -208,7 +208,15 @@ def _uuidify(directory):
 
 class Competition(models.Model):
     """ Model representing a competition. """
-    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    queue = models.ForeignKey(
+        'queues.Queue',
+        null=True,
+        blank=True,
+        related_name='competitions',
+        help_text="(don't change this unless you have a reason to, default/empty is fine)",
+        on_delete=models.SET_NULL
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")

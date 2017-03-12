@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import models as auth_models
+from django_extensions.db.fields import UUIDField
 
 
 class ClUser(auth_models.AbstractUser):
@@ -25,3 +26,7 @@ class ClUser(auth_models.AbstractUser):
     bibtex = models.TextField(null=True, blank=True)
 
     contact_email = models.EmailField(null=True, blank=True)
+
+    rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
+    rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
+    rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)

@@ -215,6 +215,7 @@ class Base(Settings):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.queues',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -356,12 +357,17 @@ class Base(Settings):
 
 
     # =========================================================================
-    # Celery
+    # RabbitMQ
     # =========================================================================
     RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
     RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
     RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'rabbit')
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+    RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
+
+    # =========================================================================
+    # Celery
+    # =========================================================================
     BROKER_URL = os.environ.get(
         'BROKER_URL',
         'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
