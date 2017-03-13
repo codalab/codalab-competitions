@@ -41,30 +41,11 @@ from s3direct.fields import S3DirectField
 from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
+from apps.web.utils import PublicStorage, BundleStorage
 
 
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
-
-# Needed for computation service handling
-# Hack for now
-StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
-
-if hasattr(settings, 'USE_AWS') and settings.USE_AWS:
-    BundleStorage = StorageClass(bucket=settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)
-    PublicStorage = StorageClass(bucket=settings.AWS_STORAGE_BUCKET_NAME)
-elif hasattr(settings, 'BUNDLE_AZURE_ACCOUNT_NAME'):
-    BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                                 account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                                 azure_container=settings.BUNDLE_AZURE_CONTAINER)
-
-    PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                 account_key=settings.AZURE_ACCOUNT_KEY,
-                                 azure_container=settings.AZURE_CONTAINER)
-else:
-    # No storage provided, like in a test, let's just do something basic
-    BundleStorage = StorageClass()
-    PublicStorage = StorageClass()
 
 
 # Competition Content
@@ -227,7 +208,15 @@ def _uuidify(directory):
 
 class Competition(models.Model):
     """ Model representing a competition. """
-    compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    # compute_worker_vhost = models.CharField(max_length=128, null=True, blank=True, help_text="(don't edit unless you're instructed to, will break submissions -- only admins can see this!)")
+    queue = models.ForeignKey(
+        'queues.Queue',
+        null=True,
+        blank=True,
+        related_name='competitions',
+        help_text="(don't change this unless you have a reason to, default/empty is fine)",
+        on_delete=models.SET_NULL
+    )
     title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.FileField(upload_to=_uuidify('logos'), storage=PublicStorage, null=True, blank=True, verbose_name="Logo")

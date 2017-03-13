@@ -77,8 +77,8 @@ class MyAdminView(TemplateView):
         context["title"] = "Services Monitoring links"
         
         # Discover the hosts's for each docker service?
-        context["rabbit_port"] = os.environ.get("RABBITMQ_PORT", "15672")
-        context["flower_port"] = os.environ.get("FLOWER_PORT", "5555")
+        context["rabbit_port"] = settings.RABBITMQ_PORT
+        context["flower_port"] = settings.FLOWER_PORT
         context["envs"] = self.request
         return context
 
@@ -254,6 +254,11 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     inlines_names = ['Pages', 'Phases', 'Leaderboards']
     template_name = 'web/competitions/edit.html'
 
+    def get_form_kwargs(self):
+        kwargs = super(CompetitionEdit, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
 
@@ -296,22 +301,29 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         the queryset for the "keywords" field'''
         inline_formsets = super(CompetitionEdit, self).construct_inlines()
 
-        # inline_formsets[1] == phases
-        for inline_form in inline_formsets[1].forms:
-            # get existing datasets and add them, so admins can see them!
-            input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
-            reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
-            scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+        # NOTE:
+        #   inline_formsets[0] == web pages
+        #   inline_formsets[1] == phases
 
-            inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
-            )
-            inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
-            )
-            inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
-            )
+        # get existing datasets and add them, so admins can see them!
+        input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
+        reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
+        scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+
+        input_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
+        ).select_related('uploaded_by')
+        reference_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
+        ).select_related('uploaded_by')
+        scoring_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
+        ).select_related('uploaded_by')
+
+        for inline_form in inline_formsets[1].forms:
+            inline_form.fields['input_data_organizer_dataset'].queryset = input_data_organizer_dataset
+            inline_form.fields['reference_data_organizer_dataset'].queryset = reference_data_organizer_dataset
+            inline_form.fields['scoring_program_organizer_dataset'].queryset = scoring_program_organizer_dataset
         return inline_formsets
 
     def get(self, request, *args, **kwargs):

@@ -215,6 +215,7 @@ class Base(Settings):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.queues',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -316,15 +317,7 @@ class Base(Settings):
     # =========================================================================
     # Storage
     # =========================================================================
-    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE')
-    # assert DEFAULT_FILE_STORAGE, dedent("""
-    # You must set the DEFAULT_FILE_STORAGE env var, options are:
-    #     azure -> 'codalab.azure_storage.AzureStorage'
-    #     s3 -> 'storages.backends.s3boto.S3BotoStorage'
-    #
-    # Environment variables:
-    # {}
-    # """).format('\n'.join(["{} = {}".format(k, v) for k, v in os.environ.items()]))
+    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
 
     # S3 from AWS
     USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
@@ -364,16 +357,23 @@ class Base(Settings):
 
 
     # =========================================================================
-    # Celery
+    # RabbitMQ
     # =========================================================================
     RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
     RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
-    AMQP_HOST = os.environ.get('AMQP_HOST', 'rabbit')
-    AMQP_PORT = os.environ.get('AMQP_PORT', '5672')
+    RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'rabbit')
+    RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+    RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
+
+    # =========================================================================
+    # Celery
+    # =========================================================================
     BROKER_URL = os.environ.get(
         'BROKER_URL',
-        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, AMQP_HOST, AMQP_PORT)
+        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     )
+    BROKER_POOL_LIMIT = None  # Stops connection timeout
+    BROKER_USE_SSL = SSL_CERTIFICATE is not None
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
@@ -384,7 +384,7 @@ class Base(Settings):
     CELERY_ACKS_LATE = True
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
-    BROKER_POOL_LIMIT = None  # Stops connection timeout
+    FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
 
 
     # =========================================================================
@@ -456,7 +456,14 @@ class Base(Settings):
     # =========================================================================
     mysqldb = os.environ.get('MYSQL_DATABASE')
 
-    if mysqldb:
+    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            }
+        }
+    elif mysqldb:
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -472,7 +479,6 @@ class Base(Settings):
     else:
         DATABASES = {
             'default': {
-                # Default: use sqlite3 (no setup, not scalable)
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': 'codalab.sqlite3',
             }

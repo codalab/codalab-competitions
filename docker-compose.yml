@@ -12,7 +12,6 @@ services:
     volumes:
       - ${LOG_DIR}/nginx:/var/log/nginx/
       - .:/app
-#      - ./certs:/certs
     env_file: .env
     links:
       - django:django
@@ -25,28 +24,26 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
-#    command: bash -x app/docker/run_mysql.sh
     volumes:
       - ./docker:/app/docker
-    #   - ./logs/mysql_log:/var/log/mysql
       - ${LOG_DIR}/mysql:/var/log/
-#      - ${MYSQL_LOG_FILE}:/var/log/mysqld.log
-#      - ${MYSQL_ERROR_LOG_FILE}:/var/log/mysqld.error.log
     env_file: .env
     ports:
       - 3306:3306
     container_name: mysql
 
-  
+
   # --------------------------------------------------------------------------
   # Message queue
   # --------------------------------------------------------------------------
   rabbit:
     image: rabbitmq:3.5.7
     hostname: rabbit
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    command: bash -x app/docker/run_rabbitmq.sh
+    env_file: .env
+    volumes:
+      - ./docker:/app/docker
+      - ./certs:/app/certs
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
@@ -61,9 +58,8 @@ services:
       # These aren't set in .env
       - AMQP_USERNAME=${RABBITMQ_DEFAULT_USER}
       - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-#      - AMQP_HOST=rabbit
-#      - AMQP_PORT=${AMQP_PORT}
-#      - FLOWER_BASIC_AUTH=${FLOWER_BASIC_AUTH}
+      - AMQP_HOST=rabbit
+      - AMQP_PORT=${RABBITMQ_PORT}
     volumes:
       - .:/app
     env_file: .env

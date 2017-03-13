@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^forums/', include('apps.forums.urls')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^coopetitions/', include('apps.coopetitions.urls', namespace="coopetitions")),
+    url(r'^queues/', include('apps.queues.urls', namespace="queues")),
 
     # Third party
     url(r'^s3direct/', include('s3direct.urls')),
