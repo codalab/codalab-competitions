@@ -5,7 +5,7 @@ Make a copy of _.env\_sample_ called _.env_ in the root of the project directory
 From here, you may enter in any relevant information pertaining to your project. A few things that must be decided are:
 
 1. Whether you will use AWS or Azure for storage
-2. What your SSL certs will be named
+2. SSL Certs and their locations
 3. Where your log files will live
 
 ## Storage
@@ -13,13 +13,19 @@ From here, you may enter in any relevant information pertaining to your project.
 Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you 
 are not using in the _.env_ file.
 
+### Create S3 storage containers (aws users only).
+
 You may sign up for an AWS account [here](https://aws.amazon.com/s3/)
 
-<!--TODO: ADD AWS s3 directions-->
-
-You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/), then follow the directions below.
+1. Sign into the AWS Management Console and open the Amazon S3 console at [here](https://console.aws.amazon.com/s3.)
+1. Click **Create Bucket**
+1. In the **Create a Bucket** dialog box, in the **Bucket Name** box, enter a bucket name
+1. In the **Region** box, select a region.
+1. Click **Create**
 
 ### Create AZURE storage containers (azure users only).
+
+You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/), then follow the directions below.
 
 1. Log on to the [Azure Portal](https://portal.azure.com).
 1. In the left pane, click **Storage**.
@@ -32,13 +38,15 @@ You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/),
 
 ## SSL Certification
 
-Codalab allows you to set up SSL Certification for Nginx and RabbitMQ out of the box. Simply place your certs in the /certs dir of the project
+Codalab allows you to set up SSL Certification for Nginx and RabbitMQ out of the box. Simply place your certs in the `/certs` dir of the project
 root, then point `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` to the correct files respectively.
+
+If you are curious about how to generate SSL certificates, you may glean some information [here]() and [here]()
 
 ## Log files
 
-If you use codalab out of the box, you'll notice that we have supplied a persistent logs setup via docker volumes. This maps to _/logs_
-in the root of the project directory automatically, however, can be modified in your copy of _.env_
+If you use codalab out of the box, you'll notice that we have supplied a persistent logs setup via docker volumes. This maps `LOG_DIR` to _/logs_
+in the root of the project directory automatically, however, can be modified in your copy of `_.env_`
 
 ## Service Bus
 
@@ -49,6 +57,11 @@ This allows codalab to operate in a non-blocking way, essentially off loading HU
 
 Codalab sets up an instance of RabbitMQ for you with default settings out of the box. If this does not work for you, you may 
 change the `RABBITMQ_DEFAULT_USER` `RABBITMQ_DEFAULT_PASS` `RABBITMQ_PORT` `RABBITMQ_MANAGEMENT_PORT` envs in your local _.env_ file to better suit your setup.
+
+You must alter codalabs RabbitMQ setup to require SSL be used in communication by setting the `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` in your local copy of `.env`
+
+RabbitMQ starts with docker (See docker startup). Once this has finished, you must `docker exec -it rabbit bash` into your rabbit container, and 
+enter `rabbitmq-plugins enable rabbitmq_management` in order to enable the **RabbitMQ Admin Panel**.
 
 ### Celery How To
 
@@ -74,11 +87,21 @@ The option `-n compute-worker` gives our worker a common name.
 
 #### Flower
 
-Flower is a Celery Monitoring tool that allows you view things such as: memory usage, tasks ran, and the state of any task ran through RabbitMQ.
+Flower is a Celery Monitoring tool that allows you view things such as: memory usage, tasks exchanges, and the state of any task ran through RabbitMQ.
 This can be extremely helpful in troubleshooting any load balancing issues you may have by running tons of tasks.
 
 To set this up, simply set the `FLOWER_BASIC_AUTH` and `FLOWER_PORT` in your local _.env_ file to match your desired setup.
 
+To view the screenshots of what flower can monitor, visit the page [here](http://flower.readthedocs.io/en/latest/screenshots.html)
+
 ## Nginx How To
 
-Setting up nginx is fairly straightforward
+Codalab uses Nginx as the entrypoint to the project from the outside world. Nginx accomplishes this by listening to the `NGINX_PORT` and proxying
+requests into the `django` host on `DJANGO_PORT`. You may set the values for `NGINX_PORT` and `DJANGO_PORT` in your local copy of `.env`, however
+django is a hostname that is set in `docker-compose.yml` in order to register its dynamic IP into other services, such as `nginx` and `django`. If you wish
+to change this hostname, you must change it everywhere else it is called as well.
+
+If you would like to handle outside communication via SSL, codalab comes with a setup for that. Out of the box, codalab sets `SSL_PORT` to 443
+in your copied version of `.env` and provides you with `./docker/nginx/ssl.conf`. 
+
+You must configure `.env` to point to your own `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` in order for `ssl.conf` to work correctly
