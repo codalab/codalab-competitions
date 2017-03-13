@@ -4,6 +4,7 @@ file named 'local.py' and set appropriate values for the settings.
 """
 
 import subprocess
+import os
 
 from base import DevBase
 import uuid
@@ -77,12 +78,28 @@ class Dev(DevBase):
     # SBS_RESPONSE_QUEUE = 'response'  # incoming queue for site worker
     # SBS_COMPUTE_QUEUE = 'compute'  # incoming queue for Windows compute worker
 
+    # Uncomment the following for RabbitMQ docker-compose
+    BROKER_URL = os.environ.get('BROKER_URL', 'pyamqp://guest:guest@rabbit//')
+
     # Database Setup
     DATABASES = {
         'default': {
             # Default: use sqlite3 (no setup, not scalable)
             'ENGINE': 'django.db.backends.sqlite3',  # Simple database
             'NAME': 'codalab.sqlite3',  # Path to database file
+
+            # Docker db
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'USER': 'root',
+            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+            # Empty for localhost through domain sockets or '127.0.0.1' for
+            # localhost through TCP.
+            'HOST': 'mysql',
+            'PORT': '',  # Set to empty string for default.
+            'OPTIONS': {
+                'init_command': "SET time_zone='+00:00';",
+            },
 
             ## Uncomment the following if you use MySQL (recommended):
             # 'ENGINE': 'django.db.backends.mysql',
@@ -105,8 +122,5 @@ class Dev(DevBase):
             # 'OPTIONS': {
             #     'driver': 'SQL Server Native Client 11.0',
             # }
-
-            # Alternatives to 'mysql': 'postgresql_psycopg2', 'mysql', 'oracle'
-
         }
     }

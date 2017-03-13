@@ -27,9 +27,9 @@ from os.path import dirname, abspath, join
 from subprocess import Popen, call
 from zipfile import ZipFile
 
-# Add codalabtools to the module search path
 from celery.app import app_or_default
 
+# Add codalabtools to the module search path
 sys.path.append(dirname(dirname(dirname(abspath(__file__)))))
 
 from codalabtools import BaseConfig
@@ -54,24 +54,24 @@ def _find_only_folder_with_metadata(path):
                 return folder
 
 
-class WorkerConfig(BaseConfig):
-    """
-    Defines configuration properties (mostly credentials) for a worker process.
-    """
-    def __init__(self, filename='.codalabconfig'):
-        super(WorkerConfig, self).__init__(filename)
-        self._winfo = self.info['compute-worker']
-
-    def getLoggerDictConfig(self):
-        """Gets Dict config for logging configuration."""
-        if 'logging' in self._winfo:
-            return self._winfo['logging']
-        else:
-            return super(WorkerConfig, self).getLoggerDictConfig()
-
-    def getLocalRoot(self):
-        """Gets the path for the local directory where files are staged or None if the path is not provided."""
-        return self._winfo['local-root'] if 'local-root' in self._winfo else None
+# class WorkerConfig(BaseConfig):
+#     """
+#     Defines configuration properties (mostly credentials) for a worker process.
+#     """
+#     def __init__(self, filename='.codalabconfig'):
+#         super(WorkerConfig, self).__init__(filename)
+#         self._winfo = self.info['compute-worker']
+#
+#     def getLoggerDictConfig(self):
+#         """Gets Dict config for logging configuration."""
+#         if 'logging' in self._winfo:
+#             return self._winfo['logging']
+#         else:
+#             return super(WorkerConfig, self).getLoggerDictConfig()
+#
+#     def getLocalRoot(self):
+#         """Gets the path for the local directory where files are staged or None if the path is not provided."""
+#         return self._winfo['local-root'] if 'local-root' in self._winfo else None
 
 
 def get_bundle(root_dir, relative_dir, url):
@@ -273,11 +273,9 @@ def demote(user='workeruser'):
     return result
 
 
-def get_run_func(config):
+def get_run_func():
     """
     Returns the function to invoke in order to do a run given the specified configuration.
-
-    config: A pre-configured instance of WorkerConfig.
 
     Returns: The function to invoke given a Run task: f(task_id, task_args)
     """
@@ -304,7 +302,7 @@ def get_run_func(config):
         secret = task_args['secret']
         root_dir = None
         current_dir = os.getcwd()
-        temp_dir = config.getLocalRoot()
+        temp_dir = os.environ.get('SUBMISSION_TEMP_DIR', '/tmp/codalab')
         # try:
         #     running_processes = subprocess.check_output(["fuser", temp_dir])
         # except:
@@ -343,7 +341,7 @@ def get_run_func(config):
                 'metadata': debug_metadata
             })
             # Create temporary directory for the run
-            root_dir = tempfile.mkdtemp(dir=config.getLocalRoot())
+            root_dir = tempfile.mkdtemp(dir=temp_dir)
             os.chmod(root_dir, 0777)
             # Fetch and stage the bundles
             logger.info("Fetching bundles...")
@@ -423,26 +421,25 @@ def get_run_func(config):
                 logger.info("Invoking program: %s", prog_cmd)
 
                 startTime = time.time()
-                exit_code = None
                 timed_out = False
 
-                if 'Darwin' not in platform.platform():
-                    prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
-                    # Run as separate user
-                    evaluator_process = Popen(
-                        prog_cmd.split(' '),
-                        preexec_fn=demote(),  # this pre-execution function drops into a lower user
-                        stdout=stdout,
-                        stderr=stderr,
-                        env=os.environ
-                    )
-                else:
-                    evaluator_process = Popen(
-                        prog_cmd.split(' '),
-                        stdout=stdout,
-                        stderr=stderr,
-                        env=os.environ
-                    )
+                # if 'Darwin' not in platform.platform():
+                #     prog_cmd = prog_cmd.replace("python", join(run_dir, "/home/azureuser/anaconda/bin/python"))
+                #     # Run as separate user
+                #     evaluator_process = Popen(
+                #         prog_cmd.split(' '),
+                #         preexec_fn=demote(),  # this pre-execution function drops into a lower user
+                #         stdout=stdout,
+                #         stderr=stderr,
+                #         env=os.environ
+                #     )
+                # else:
+                evaluator_process = Popen(
+                    prog_cmd.split(' '),
+                    stdout=stdout,
+                    stderr=stderr,
+                    env=os.environ
+                )
 
                 logger.info("Started process, pid=%s" % evaluator_process.pid)
 

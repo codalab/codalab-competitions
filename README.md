@@ -15,11 +15,28 @@ To see Codalab Competition's in action, visit [www.competitions.codalab.org](htt
 The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
 
+
+## Compute worker
+
+To start the compute worker under project directory:
+
+`docker-compose up worker`
+
+If for some reason you need to rebuild the image run:
+
+`docker-compuse up --build worker`
+
+
 ## Tests
 
 To run tests:
 
+
+`python manage.py test`
+
+
 ```python manage.py test```
+
 
 ## Latest changes:
 ###### November 21, 2016:

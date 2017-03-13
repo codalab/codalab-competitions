@@ -1,3 +1,9 @@
+# Docker #
+##########
+.env
+!certs/.gitkeep
+certs/
+
 # CodaLab Files #
 #################
 codalab/config/generated

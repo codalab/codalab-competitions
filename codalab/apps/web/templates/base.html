@@ -105,6 +105,10 @@
                                     <img src="{{ STATIC_URL }}img/icon_mini_avatar.png" class="mini-avatar" alt="{{user.username}}"> {{user.username}} <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
+                                    {% if user.is_superuser %}
+                                    <li><a href="{% url 'my_admin' %}">Admin Page</a></li>
+                                    <li class="divider"></li>
+                                    {% endif %}
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>
                                     <li class="divider"></li>
                                     <li><a href="{% url 'queues:list' %}">Worker Queue Management</a></li>

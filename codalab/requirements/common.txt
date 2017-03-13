@@ -51,6 +51,8 @@ boto==2.45.0
 django-s3direct==0.4.8
 pyrabbit==1.1.0
 
+gunicorn==19.7.0
+
 #Extras added
 git+https://github.com/ikraft/django-userswitch.git
 Sphinx==1.4.1

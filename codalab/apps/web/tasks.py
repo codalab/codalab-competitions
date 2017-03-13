@@ -53,7 +53,6 @@ from apps.coopetitions.models import DownloadRecord
 import time
 # import cProfile
 from codalab.azure_storage import make_blob_sas_url
-from codalabtools.compute.worker import WorkerConfig
 from codalabtools.compute.worker import get_run_func
 
 logger = logging.getLogger(__name__)
@@ -107,6 +106,7 @@ def create_competition(job_id, comp_def_id):
         update_job_status_task(job_id, result.get_dict())
         logger.info("Created competition for competition bundle (bundle_id=%s, comp_id=%s)",
                     comp_def_id, competition.pk)
+
     except Exception as e:
         result = JobTaskResult(status=Job.FAILED, info={'error': str(e)})
         update_job_status_task(job_id, result.get_dict())
@@ -241,9 +241,9 @@ def compute_worker_run(data):
     """Runs only on the compute workers that predicts (optional step) then scores
     submissions."""
     try:
-        config = WorkerConfig()
+        # config = WorkerConfig()
         # logging.config.dictConfig(config.getLoggerDictConfig())
-        run = get_run_func(config)
+        run = get_run_func()
         task_args = data['task_args'] if 'task_args' in data else None
         run(data["id"], task_args)
     except SoftTimeLimitExceeded:
@@ -502,6 +502,7 @@ def update_submission(job_id, args, secret):
         status: The new status string: 'running', 'finished' or 'failed'.
         job_id: The job ID used to track the progress of the evaluation.
         """
+
         state = {}
         if len(submission.execution_key) > 0:
             logger.debug("update_submission_task loading state: %s", submission.execution_key)
