@@ -1,6 +1,39 @@
+# Quickstart
+
+Make a copy of `.env_sample` called `.env` in the root of the project directory. Confirm settings,storage,SSL and ports.
+
+Run the dev_setup script to install all dependencies and create a new virtual environment (venv) for CodaLab:
+
+1. **Windows Users** do 
+    `cd codalab`
+    `.\dev_setup.bat`
+
+2. **Linux Users** do 
+    `cd codalab`
+    `source ./dev_setup.sh`
+
+Activate your environment:
+
+1. **Windows Users** do 
+    `venv\Scripts\activate`
+
+2. **Linux Users** do 
+    `source venv/bin/activate`
+
+Navigate to the root of the project directory, or where `docker-compose.yml` lives, and do:
+
+`docker-compose up -d`
+
+to bring up the project and all of its services. You may now do:
+
+`docker logs -f <service_name>`
+
+to view the state of your services, where `<service>` is the name of the service.
+
+
 # Setup
 
-Make a copy of _.env\_sample_ called _.env_ in the root of the project directory.
+Make a copy of `.env\_sample` called `.env` in the root of the project directory.
 
 From here, you may enter in any relevant information pertaining to your project. A few things that must be decided are:
 
@@ -11,7 +44,7 @@ From here, you may enter in any relevant information pertaining to your project.
 ## Storage
 
 Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you 
-are not using in the _.env_ file.
+are not using in the `.env` file.
 
 ### Create S3 storage containers (aws users only).
 
@@ -48,7 +81,7 @@ If you are curious about how to generate SSL certificates, you may glean some in
 If you use codalab out of the box, you'll notice that we have supplied a persistent logs setup via docker volumes. This maps `LOG_DIR` to _/logs_
 in the root of the project directory automatically, however, can be modified in your copy of `_.env_`
 
-## Service Bus
+## Task Queue
 
 Codalab uses task queue named Celery, and a message broker named RabbitMQ to handle external requests for the execution of **competition creations**, **submissions**, and other site related tasks.
 This allows codalab to operate in a non-blocking way, essentially off loading HUGE tasks onto Celery, and polling it later for the results
