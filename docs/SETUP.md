@@ -15,11 +15,13 @@ Clone the project and make a copy of `.env_sample` called `.env` in the root of 
 
 ## On Windows
 
-*TODO*
+*TODO describe how to install on Windows*
 
 ## Editing project variables
 
 Open `.env` in your preferred editor
+
+*TODO describe the non-obvious env vars and maybe special ones?*
 
 ```ini
 # ----------------------------------------------------------------------------
