@@ -1,8 +1,12 @@
 # Setup
 
-To setup all of Codalab you'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
+#### To setup all of Codalab
 
-To just run a worker attached to a queue go to the [run a compute worker](#run-a-compute-worker) section.
+You'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
+
+#### To just run a worker 
+
+If you're just attaching to a queue go to the [run a compute worker](#run-a-compute-worker) section.
 
 ## On Mac/Linux
 
