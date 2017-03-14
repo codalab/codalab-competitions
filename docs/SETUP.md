@@ -17,6 +17,8 @@ Clone the project and make a copy of `.env_sample` called `.env` in the root of 
 
 *TODO*
 
+## Editing project variables
+
 Open `.env` in your preferred editor
 
 ```ini
@@ -102,7 +104,7 @@ DJANGO_LOG_LEVEL=debug
 
 Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you are not using in the `.env` file.
 
-## AWS S3
+### AWS S3
 
 Sign in or create an AWS account [here](https://aws.amazon.com/s3/) and then create a private and public bucket.
 
