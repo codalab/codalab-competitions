@@ -7858,96 +7858,6 @@ This code is for 768px and up
   -o-transform: rotate(-90deg);
   -ms-transform: rotate(-90deg);
 }
-.competition-tile {
-  padding-bottom: 0;
-}
-.competition-tile .competition-actions {
-  margin: 16px -1px -12px -11px;
-}
-.competition-tile .competition-actions .btn-group-justified {
-  display: initial;
-}
-.my-datasets table {
-  margin-top: 20px;
-  line-height: 1.2;
-}
-.my-datasets table th {
-  text-transform: uppercase;
-  background: #739cb9;
-  text-align: left;
-  color: white;
-  cursor: auto;
-}
-.my-datasets table th.text-center {
-  text-align: center;
-}
-.my-datasets table th a {
-  color: white;
-}
-.my-datasets table th a:hover {
-  text-decoration: underline;
-}
-.my-datasets table.table-bordered > thead > tr > th,
-.my-datasets table.table-bordered > thead > tr > td {
-  border-bottom-width: 1px;
-}
-.table.affiliation > tbody > tr > th,
-.table.affiliation > tbody > tr > td {
-  vertical-align: middle;
-}
-.table.affiliation > tbody > tr > th input,
-.table.affiliation > tbody > tr > td input {
-  display: block;
-  width: 100%;
-  height: 39px;
-  padding: 6px 12px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #999;
-  background-color: #fff;
-  background-image: none;
-  border: 1px solid #ccc;
-  border-radius: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-}
-.table.affiliation > tbody > tr > th input:focus,
-.table.affiliation > tbody > tr > td input:focus {
-  border-color: #699ec3;
-  outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
-}
-.table.affiliation > tbody > tr > th input::-moz-placeholder,
-.table.affiliation > tbody > tr > td input::-moz-placeholder {
-  color: #ccc;
-  opacity: 1;
-}
-.table.affiliation > tbody > tr > th input:-ms-input-placeholder,
-.table.affiliation > tbody > tr > td input:-ms-input-placeholder {
-  color: #ccc;
-}
-.table.affiliation > tbody > tr > th input::-webkit-input-placeholder,
-.table.affiliation > tbody > tr > td input::-webkit-input-placeholder {
-  color: #ccc;
-}
-.table.affiliation > tbody > tr > th input[disabled],
-.table.affiliation > tbody > tr > td input[disabled],
-.table.affiliation > tbody > tr > th input[readonly],
-.table.affiliation > tbody > tr > td input[readonly],
-fieldset[disabled] .table.affiliation > tbody > tr > th input,
-fieldset[disabled] .table.affiliation > tbody > tr > td input {
-  cursor: not-allowed;
-  background-color: #ddd;
-  opacity: 1;
-}
-textarea.table.affiliation > tbody > tr > th input,
-textarea.table.affiliation > tbody > tr > td input {
-  height: auto;
-}
 #command_line {
   text-align: left;
   margin-left: auto;
@@ -8101,4 +8011,159 @@ textarea.table.affiliation > tbody > tr > td input {
 }
 .terminal a:hover {
   color: red;
+}
+.competition-tile {
+  padding-bottom: 0;
+}
+.competition-tile .competition-actions {
+  margin: 16px -1px -12px -11px;
+}
+.competition-tile .competition-actions .btn-group-justified {
+  display: initial;
+}
+.my-datasets table {
+  margin-top: 20px;
+  line-height: 1.2;
+}
+.my-datasets table th {
+  text-transform: uppercase;
+  background: #739cb9;
+  text-align: left;
+  color: white;
+  cursor: auto;
+}
+.my-datasets table th.text-center {
+  text-align: center;
+}
+.my-datasets table th a {
+  color: white;
+}
+.my-datasets table th a:hover {
+  text-decoration: underline;
+}
+.my-datasets table.table-bordered > thead > tr > th,
+.my-datasets table.table-bordered > thead > tr > td {
+  border-bottom-width: 1px;
+}
+.table.affiliation > tbody > tr > th,
+.table.affiliation > tbody > tr > td {
+  vertical-align: middle;
+}
+.table.affiliation > tbody > tr > th input,
+.table.affiliation > tbody > tr > td input {
+  display: block;
+  width: 100%;
+  height: 39px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #999;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.table.affiliation > tbody > tr > th input:focus,
+.table.affiliation > tbody > tr > td input:focus {
+  border-color: #699ec3;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(105, 158, 195, 0.6);
+}
+.table.affiliation > tbody > tr > th input::-moz-placeholder,
+.table.affiliation > tbody > tr > td input::-moz-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+.table.affiliation > tbody > tr > th input:-ms-input-placeholder,
+.table.affiliation > tbody > tr > td input:-ms-input-placeholder {
+  color: #ccc;
+}
+.table.affiliation > tbody > tr > th input::-webkit-input-placeholder,
+.table.affiliation > tbody > tr > td input::-webkit-input-placeholder {
+  color: #ccc;
+}
+.table.affiliation > tbody > tr > th input[disabled],
+.table.affiliation > tbody > tr > td input[disabled],
+.table.affiliation > tbody > tr > th input[readonly],
+.table.affiliation > tbody > tr > td input[readonly],
+fieldset[disabled] .table.affiliation > tbody > tr > th input,
+fieldset[disabled] .table.affiliation > tbody > tr > td input {
+  cursor: not-allowed;
+  background-color: #ddd;
+  opacity: 1;
+}
+textarea.table.affiliation > tbody > tr > th input,
+textarea.table.affiliation > tbody > tr > td input {
+  height: auto;
+}
+/******************************
+ * COMPETITION UPLOAD STYLING *
+ ******************************/
+.s3-panel {
+  margin-top: 5%;
+}
+.s3-panel label,
+.s3-panel .errorlist {
+  display: none;
+}
+.s3-panel .btn-primary {
+  width: 50%;
+  min-width: 200px;
+  margin: 25px 25%;
+}
+.s3-panel .s3direct {
+  margin: 5px auto;
+  width: 100%;
+  float: none;
+}
+.s3-panel .s3direct .file-link,
+.s3-panel .s3direct .progress {
+  margin: 0 auto;
+  width: 100%;
+  float: none;
+  text-align: center;
+}
+.s3-panel .s3direct .file-input,
+.s3-panel .s3direct .file-remove {
+  display: none !important;
+}
+.glyphicon-refresh-animate {
+  -animation: spin .7s infinite linear;
+  -webkit-animation: spin2 .7s infinite linear;
+}
+@-webkit-keyframes spin2 {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1) rotate(360deg);
+  }
+}
+/***********************
+ * SUBMIT RESULTS PAGE *
+ ***********************/
+.s3direct.form-active,
+.s3direct.link-active,
+.submission_upload_details {
+  display: none !important;
+}
+#s3-file-upload.btn {
+  width: 100%;
+}
+.s3direct .progress {
+  display: none !important;
 }
