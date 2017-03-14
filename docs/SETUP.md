@@ -1,10 +1,10 @@
 # Setup
 
-#### To setup all of Codalab
+#### To run an entire instance of the Codalab website
 
 You'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
 
-#### To just run a worker 
+#### To run a worker to process submissions
 
 If you're just attaching to a queue go to the [run a compute worker](#run-a-compute-worker) section.
 
@@ -139,7 +139,7 @@ You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/),
 
 *TODO What do you get from Azure and where do you put it in `.env`?*
 
-# Run a computer worker
+# Run a compute worker
 
 1. Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
 1. `git clone git@github.com:codalab/codalab-competitions.git`
