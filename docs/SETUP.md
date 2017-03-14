@@ -1,45 +1,21 @@
-# Quickstart
-
-Make a copy of `.env_sample` called `.env` in the root of the project directory. Confirm settings,storage,SSL and ports.
-
-Run the dev_setup script to install all dependencies and create a new virtual environment (venv) for CodaLab:
-
-1. **Windows Users** do 
-    `cd codalab`
-    `.\dev_setup.bat`
-
-2. **Linux Users** do 
-    `cd codalab`
-    `source ./dev_setup.sh`
-
-Activate your environment:
-
-1. **Windows Users** do 
-    `venv\Scripts\activate`
-
-2. **Linux Users** do 
-    `source venv/bin/activate`
-
-Navigate to the root of the project directory, or where `docker-compose.yml` lives, and do:
-
-`docker-compose up -d`
-
-to bring up the project and all of its services. You may now do:
-
-`docker logs -f <service_name>`
-
-to view the state of your services, where `<service>` is the name of the service.
-
-
 # Setup
 
-## On *nix
+To setup all of Codalab you'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
+
+To just run a worker attached to a queue go to the [run a compute worker](#run-a-compute-worker) section.
+
+## On Mac/Linux
 
 Clone the project and make a copy of `.env_sample` called `.env` in the root of the project directory.
 
-1. `git clone <whatever>`
+1. Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
+1. `git clone git@github.com:codalab/codalab-competitions.git`
 1. `cd codalab-competitions`
 1. `cp .env_sample .env`
+
+## On Windows
+
+*TODO*
 
 Open `.env` in your preferred editor
 
@@ -122,31 +98,28 @@ DJANGO_LOG_LEVEL=debug
 
 ```
 
-From here, you may enter in any relevant information pertaining to your project. A few things that must be decided are:
+# Storage
 
-1. Whether you will use AWS or Azure for storage
-2. SSL Certs and their locations
-3. Where your log files will live
+Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you are not using in the `.env` file.
 
-## Storage
+## AWS S3
 
-Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you 
-are not using in the `.env` file.
+Sign in or create an AWS account [here](https://aws.amazon.com/s3/) and then create a private and public bucket.
 
-### Create S3 storage containers (aws users only).
+*TODO: Bucket Policies, CORS*
 
-You may sign up for an AWS account [here](https://aws.amazon.com/s3/)
-
+1. You don't have to do this if you've already setup Azure Blob Storage!
 1. Sign into the AWS Management Console and open the Amazon S3 console at [here](https://console.aws.amazon.com/s3.)
 1. Click **Create Bucket**
 1. In the **Create a Bucket** dialog box, in the **Bucket Name** box, enter a bucket name
 1. In the **Region** box, select a region.
 1. Click **Create**
 
-### Create AZURE storage containers (azure users only).
+### Azure blob storage
 
 You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/), then follow the directions below.
 
+1. You do not have to do this if you've already setup S3!
 1. Log on to the [Azure Portal](https://portal.azure.com).
 1. In the left pane, click **Storage**.
 1. Select your storage account.
@@ -156,72 +129,31 @@ You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/),
 1. Create a new container named "bundles". Set the **Access** to "Private".
 1. Add another container named "public". Set the **Access** to "Public Blob".
 
-## SSL Certification
+*TODO What do you get from Azure and where do you put it in `.env`?*
 
-Codalab allows you to set up SSL Certification for Nginx and RabbitMQ out of the box. Simply place your certs in the `/certs` dir of the project
-root, then point `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` to the correct files respectively.
+# Run a computer worker
 
-If you are curious about how to generate SSL certificates, you may glean some information [here]() and [here]()
+1. Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
+1. `git clone git@github.com:codalab/codalab-competitions.git`
+1. `cd codalab-competitions`
+1. `cp .env_sample .env`
 
-## Log files
+Edit `.env` and set your `BROKER_URL` from the worker management screen: <br> ![image](https://cloud.githubusercontent.com/assets/2185159/23891328/f3b62dd0-0852-11e7-8da4-12e5dd8a7383.png)
 
-If you use codalab out of the box, you'll notice that we have supplied a persistent logs setup via docker volumes. This maps `LOG_DIR` to _/logs_
-in the root of the project directory automatically, however, can be modified in your copy of `_.env_`
+Now your configuration file should look something like this:
 
-## Task Queue
+```
+BROKER_URL=pyamqp://cd980e2d-78f9-4707-868d-bdfdd071...
+```
 
-Codalab uses task queue named Celery, and a message broker named RabbitMQ to handle external requests for the execution of **competition creations**, **submissions**, and other site related tasks.
-This allows codalab to operate in a non-blocking way, essentially off loading HUGE tasks onto Celery, and polling it later for the results
+Then you can run the worker:
 
-### RabbitMQ How To
+```
+$ docker-compose start worker_compute
+```
 
-Codalab sets up an instance of RabbitMQ for you with default settings out of the box. If this does not work for you, you may 
-change the `RABBITMQ_DEFAULT_USER` `RABBITMQ_DEFAULT_PASS` `RABBITMQ_PORT` `RABBITMQ_MANAGEMENT_PORT` envs in your local _.env_ file to better suit your setup.
 
-You must alter codalabs RabbitMQ setup to require SSL be used in communication by setting the `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` in your local copy of `.env`
+# Logging
 
-RabbitMQ starts with docker (See docker startup). Once this has finished, you must `docker exec -it rabbit bash` into your rabbit container, and 
-enter `rabbitmq-plugins enable rabbitmq_management` in order to enable the **RabbitMQ Admin Panel**.
+To change where logs are kept, modify `LOG_DIR` in your `.env` configuration file.
 
-### Celery How To
-
-Codalab uses 2 different "celery workers" to administer the tasks relating to their specification. These 2 workers are named **site-worker** and **compute-worker**.
-
-Taking a quick look at /docker/run_compute.sh, we can see how celery works.
-
-`celery -A codalab worker -l info -Q compute-worker -n compute-worker --concurrency=1 -Ofast -Ofair`
-
-In this command above, `-A codalab worker` is attaching to our defined application _codalab_ and running the worker process.
-
-`-l info` simply refers to the log level of the worker to be at "info".
-
-Next option `-Q compute-worker`, tells our worker which queues to enable so it may pass messages across.
-
-The option `-n compute-worker` gives our worker a common name. 
-
-`--concurrency=1` tells celery how many child processes should process the queue; by default it equals the cores on your machine, however, we have set to _1_.
-
-`-Ofast -Ofair` are optimizations to allow the worker to run smoother in a container.
-
-**Knowing this information** can be helpful in times when tasks are not executing as expected. For that, we have included Flower Celery Monitor out of the box.
-
-#### Flower
-
-Flower is a Celery Monitoring tool that allows you view things such as: memory usage, tasks exchanges, and the state of any task ran through RabbitMQ.
-This can be extremely helpful in troubleshooting any load balancing issues you may have by running tons of tasks.
-
-To set this up, simply set the `FLOWER_BASIC_AUTH` and `FLOWER_PORT` in your local _.env_ file to match your desired setup.
-
-To view the screenshots of what flower can monitor, visit the page [here](http://flower.readthedocs.io/en/latest/screenshots.html)
-
-## Nginx How To
-
-Codalab uses Nginx as the entrypoint to the project from the outside world. Nginx accomplishes this by listening to the `NGINX_PORT` and proxying
-requests into the `django` host on `DJANGO_PORT`. You may set the values for `NGINX_PORT` and `DJANGO_PORT` in your local copy of `.env`, however
-django is a hostname that is set in `docker-compose.yml` in order to register its dynamic IP into other services, such as `nginx` and `django`. If you wish
-to change this hostname, you must change it everywhere else it is called as well.
-
-If you would like to handle outside communication via SSL, codalab comes with a setup for that. Out of the box, codalab sets `SSL_PORT` to 443
-in your copied version of `.env` and provides you with `./docker/nginx/ssl.conf`. 
-
-You must configure `.env` to point to your own `SSL_CERTIFICATE` and `SSL_CERTIFICATE_KEY` in order for `ssl.conf` to work correctly
