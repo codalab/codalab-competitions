@@ -1,16 +1,18 @@
-# Setup
-
-#### To run an entire instance of the Codalab website
-
-You'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
 
 #### To run a worker to process submissions
 
 If you're just attaching to a queue go to the [run a compute worker](#run-a-compute-worker) section.
 
+
+#### To run an entire instance of the Codalab website
+
+You'll need to create a storage container (AWS S3 or Azure) and configure a `.env` file which will store your settings like: storage keys, SSL certificate paths and ports that are open.
+
+# 1. Environment
+
 ## On Mac/Linux
 
-Clone the project and make a copy of `.env_sample` called `.env` in the root of the project directory.
+Clone the project and make a copy of `.env_sample` called `.env` in the root of the project directory:
 
 1. Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
 1. `git clone git@github.com:codalab/codalab-competitions.git`
@@ -23,17 +25,10 @@ Clone the project and make a copy of `.env_sample` called `.env` in the root of 
 
 ## Editing project variables
 
-Open `.env` in your preferred editor
+Open `.env` in your preferred editor, you'll fill this in with your storage keys, SSL information, etc.
 
-*TODO describe the non-obvious env vars and maybe special ones?*
 
 ```ini
-# ----------------------------------------------------------------------------
-# Submission processing
-# ----------------------------------------------------------------------------
-SUBMISSION_TEMP_DIR=/tmp/codalab
-
-
 # ----------------------------------------------------------------------------
 # Storage
 # ----------------------------------------------------------------------------
@@ -49,7 +44,7 @@ AWS_S3_HOST=s3-us-west-2.amazonaws.com
 AWS_QUERYSTRING_AUTH=False
 
 # Uncomment to use Azure
-DEFAULT_FILE_STORAGE=codalab.azure_storage.AzureStorage
+#DEFAULT_FILE_STORAGE=codalab.azure_storage.AzureStorage
 AZURE_ACCOUNT_NAME=
 AZURE_ACCOUNT_KEY=
 AZURE_CONTAINER=public
@@ -58,72 +53,135 @@ AZURE_CONTAINER=public
 # BUNDLE_AZURE_ACCOUNT_KEY=
 BUNDLE_AZURE_CONTAINER=bundles
 
-# ----------------------------------------------------------------------------
-# Database
-# ----------------------------------------------------------------------------
-MYSQL_ROOT_PASSWORD=mysql
-MYSQL_DATABASE=codalab_website
-
-
-# ----------------------------------------------------------------------------
-# Caching
-# ----------------------------------------------------------------------------
-MEMCACHED_PORT=11211
-
-
-# ----------------------------------------------------------------------------
-# RabbitMQ and management
-# ----------------------------------------------------------------------------
-RABBITMQ_DEFAULT_USER=guest
-RABBITMQ_DEFAULT_PASS=guest
-RABBITMQ_PORT=5671
-RABBITMQ_HOST=rabbit
-RABBITMQ_MANAGEMENT_PORT=15672
-FLOWER_BASIC_AUTH=root:password
-FLOWER_PORT=5555
-FLOWER_CERTFILE=
-FLOWER_KEYFILE=
-
-
-# ----------------------------------------------------------------------------
-# Django/nginx
-# ----------------------------------------------------------------------------
-NGINX_PORT=80
-DJANGO_PORT=8000
-SSL_PORT=443
-SSL_CERTIFICATE=
-SSL_CERTIFICATE_KEY=
-# Allowed hosts separated by space
-SSL_ALLOWED_HOSTS=
-
-
-# ----------------------------------------------------------------------------
-# Logging
-# ----------------------------------------------------------------------------
-# Make sure LOG_DIR doesn't end with a slash
-LOG_DIR=./logs
-DJANGO_LOG_LEVEL=debug
-
+...
 ```
 
-# Storage
+# 2. Storage 
 
-Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, you must comment out the one you are not using in the `.env` file.
+Codalab gives you the option of using AWS or Azure as your storage of choice. Depending on vendor you use, **you must comment out the one you are not using in the `.env` file.**
 
-### AWS S3
+## AWS S3
 
 Sign in or create an AWS account [here](https://aws.amazon.com/s3/) and then create a private and public bucket.
 
-*TODO: Bucket Policies, CORS*
+
+### Creating buckets
 
 1. You don't have to do this if you've already setup Azure Blob Storage!
 1. Sign into the AWS Management Console and open the Amazon S3 console at [here](https://console.aws.amazon.com/s3.)
+1. Create 2 buckets, one named `"whatever-public"` and another `"whatever-private"`
 1. Click **Create Bucket**
 1. In the **Create a Bucket** dialog box, in the **Bucket Name** box, enter a bucket name
-1. In the **Region** box, select a region.
+1. In the **Region** box, select US West 2.
 1. Click **Create**
+1. Put these bucket names in your `.env` under `AWS_STORAGE_BUCKET_NAME` and `AWS_STORAGE_PRIVATE_BUCKET_NAME`
+1. Make sure the `DEFAULT_FILE_STORAGE` `.env` option is set to `storages.backends.s3boto.S3BotoStorage`
 
-### Azure blob storage
+### Setting CORS
+
+In both buckets set CORS as follows:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>PUT</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedMethod>GET</AllowedMethod>
+        <MaxAgeSeconds>3000</MaxAgeSeconds>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
+```
+
+![image](https://cloud.githubusercontent.com/assets/2185159/23929355/b0d1ce94-08e2-11e7-90af-02ee57d0fcf0.png)
+
+
+### Setting Bucket Policies
+
+If you don't already have a user (via Identity and Access Management -- IAM), you'll need to create that [here]() and put those key/secret values into your `.env` under `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+
+![image](https://cloud.githubusercontent.com/assets/2185159/23929367/d406ecaa-08e2-11e7-8ec2-d44a4014ee3b.png)
+
+
+**Public**
+
+The following policy will allow anyone to download this data, like competition logos:
+
+```json
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadForGetBucketObjects",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your-bucket-local/*"
+        },
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::12345:user/name"
+            },
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::your-bucket-local",
+                "arn:aws:s3:::your-bucket-local/*"
+            ]
+        }
+    ]
+}
+```
+
+
+**Private**
+
+The following policy will disallow people from downloading competitions and submission data, but will retain your access (`root`) and a separate IAM policy (`user/name`):
+
+```json
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyAllButMe",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::12345:user/name",
+                    "arn:aws:iam::12345:root"
+                ]
+            },
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::your-bucket-private",
+                "arn:aws:s3:::your-bucket-private/*"
+            ]
+        },
+        {
+            "Sid": "DenyAllButMe",
+            "Effect": "Deny",
+            "NotPrincipal": {
+                "AWS": [
+                    "arn:aws:iam::12345:user/name",
+                    "arn:aws:iam::12345:root"
+                ]
+            },
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::your-bucket-private",
+                "arn:aws:s3:::your-bucket-private/*"
+            ]
+        }
+    ]
+}
+```
+
+## Azure blob storage
 
 You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/), then follow the directions below.
 
@@ -131,20 +189,37 @@ You may sign up for an Azure account [here](https://azure.microsoft.com/en-us/),
 1. Log on to the [Azure Portal](https://portal.azure.com).
 1. In the left pane, click **Storage**.
 1. Select your storage account.
-1. At the bottom of the dashboard, click **Manage Access Keys**. Copy your access keys, you'll need them later.
+1. At the bottom of the dashboard, click **Manage Access Keys**. Copy your account name and access key to `.env` under `AZURE_ACCOUNT_NAME` and `AZURE_ACCOUNT_KEY`.
 1. At the top of the dashboard page, click **Containers**.
 1. At the bottom of the Containers page click **Add**.
 1. Create a new container named "bundles". Set the **Access** to "Private".
 1. Add another container named "public". Set the **Access** to "Public Blob".
+1. Make sure the `DEFAULT_FILE_STORAGE` `.env` option is set to `codalab.azure_storage.AzureStorage`
 
-*TODO What do you get from Azure and where do you put it in `.env`?*
+# 3. Extras
 
-# Run a compute worker
+## Logging
 
-1. Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
-1. `git clone git@github.com:codalab/codalab-competitions.git`
-1. `cd codalab-competitions`
-1. `cp .env_sample .env`
+To change where logs are kept, modify `LOG_DIR` in your `.env` configuration file.
+
+## SSL
+
+Place your certs in the `certs/` folder and specify them in your `.env`, i.e. if you put a cert named `localhost` into your `certs` folder you'd change `.env` to:
+
+```bash
+SSL_CERTIFICATE=/app/certs/localhost.crt
+SSL_CERTIFICATE_KEY=/app/certs/localhost.key
+```
+
+
+# 4. Compute worker (only) setup
+
+This is *only* for users running workers for the "Worker Management Queues":
+
+* Install docker ([mac](https://download.docker.com/mac/stable/Docker.dmg) or [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/#install-docker))
+* `git clone git@github.com:codalab/codalab-competitions.git`
+* `cd codalab-competitions`
+* `cp .env_sample .env`
 
 Edit `.env` and set your `BROKER_URL` from the worker management screen: <br> ![image](https://cloud.githubusercontent.com/assets/2185159/23891328/f3b62dd0-0852-11e7-8da4-12e5dd8a7383.png)
 
@@ -159,9 +234,3 @@ Then you can run the worker:
 ```
 $ docker-compose start worker_compute
 ```
-
-
-# Logging
-
-To change where logs are kept, modify `LOG_DIR` in your `.env` configuration file.
-
