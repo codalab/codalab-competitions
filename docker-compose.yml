@@ -10,8 +10,8 @@ services:
       - ${SSL_PORT}:${SSL_PORT}
     command: bash -x app/docker/run_nginx.sh
     volumes:
-      - ${LOG_DIR}/nginx:/var/log/nginx/
       - .:/app
+      - ${LOGGING_DIR}/nginx:/var/log/nginx/
     env_file: .env
     links:
       - django:django
@@ -26,7 +26,7 @@ services:
     hostname: mysql
     volumes:
       - ./docker:/app/docker
-      - ${LOG_DIR}/mysql:/var/log/
+      - ${LOGGING_DIR}/mysql:/var/log/
       - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
     env_file: .env
     ports:
@@ -49,7 +49,7 @@ services:
     volumes:
       - ./docker:/app/docker
       - ./certs:/app/certs
-      - ${LOG_DIR}/rabbitmq:/var/log/rabbitmq
+      - ${LOGGING_DIR}/rabbitmq:/var/log/rabbitmq
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
@@ -96,8 +96,8 @@ services:
     hostname: django
     command: bash docker/run_django.sh
     volumes:
-      - ${LOG_DIR}/django:/var/log/django/
       - .:/app
+      - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
     ports:
       - "8000:8000"
@@ -118,7 +118,7 @@ services:
     command: sh docker/run_site.sh
     volumes:
       - .:/app
-      - ${LOG_DIR}/worker_site:/var/log/
+      - ${LOGGING_DIR}/worker_site:/var/log/
     env_file: .env
     links:
       - mysql
@@ -132,7 +132,7 @@ services:
     command: sh docker/run_compute.sh
     volumes:
       - .:/app
-      - ${LOG_DIR}/worker_compute:/var/log/
+      - ${LOGGING_DIR}/worker_compute:/var/log/
     env_file: .env
     links:
       - mysql
