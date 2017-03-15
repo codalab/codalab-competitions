@@ -12,6 +12,8 @@ mkdir -p /tmp/python-eggs
 export PYTHON_EGG_CACHE=/tmp/python-eggs
 chmod ugo+rwx /tmp/python-eggs
 
+touch ${LOG_DIR}/compute_worker.log
+
 # Start compute worker
-su -m workeruser -c "celery -A codalab worker -l info -Q compute-worker -n compute-worker --concurrency=1 -Ofast -Ofair"
+su -m workeruser -c "celery -A codalab worker -l info -Q compute-worker -n compute-worker -Ofast -Ofair --logfile=/var/log/compute_worker.log --concurrency=1"
  

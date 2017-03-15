@@ -3,6 +3,7 @@
 .env
 !certs/.gitkeep
 certs/
+var/*
 
 # CodaLab Files #
 #################

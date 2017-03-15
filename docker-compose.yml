@@ -22,11 +22,12 @@ services:
   # Database
   # --------------------------------------------------------------------------
   mysql:
-    image: mysql:5.7
+    image: mysql/mysql-server:5.7
     hostname: mysql
     volumes:
       - ./docker:/app/docker
       - ${LOG_DIR}/mysql:/var/log/
+      - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
     env_file: .env
     ports:
       - 3306:3306
@@ -40,10 +41,15 @@ services:
     image: rabbitmq:3.5.7
     hostname: rabbit
     command: bash -x app/docker/run_rabbitmq.sh
+    environment:
+      - RABBITMQ_LOGS=/var/log/rabbitmq/output.log
+      - RABBITMQ_SASL_LOGS=/var/log/rabbitmq/output_sasl.log
+#      - RABBITMQ_LOG_BASE=/var/log/rabbit
     env_file: .env
     volumes:
       - ./docker:/app/docker
       - ./certs:/app/certs
+      - ${LOG_DIR}/rabbitmq:/var/log/rabbitmq
     ports:
       - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
       - ${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}
@@ -112,6 +118,7 @@ services:
     command: sh docker/run_site.sh
     volumes:
       - .:/app
+      - ${LOG_DIR}/worker_site:/var/log/
     env_file: .env
     links:
       - mysql
@@ -125,6 +132,7 @@ services:
     command: sh docker/run_compute.sh
     volumes:
       - .:/app
+      - ${LOG_DIR}/worker_compute:/var/log/
     env_file: .env
     links:
       - mysql

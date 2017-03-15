@@ -368,12 +368,12 @@ class Base(Settings):
     # =========================================================================
     # Celery
     # =========================================================================
-    BROKER_URL = os.environ.get(
-        'BROKER_URL',
-        'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
-    )
+    BROKER_URL = os.environ.get('BROKER_URL')
+    if not BROKER_URL:
+        # BROKER_URL might be set but empty, make sure it's set!
+        BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     BROKER_POOL_LIMIT = None  # Stops connection timeout
-    BROKER_USE_SSL = SSL_CERTIFICATE is not None
+    BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
     # Store results
     CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
@@ -385,6 +385,9 @@ class Base(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
     FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
+    # Run as *not* root
+    CELERYD_USER = "workeruser"
+    CELERYD_GROUP = "workeruser"
 
 
     # =========================================================================
