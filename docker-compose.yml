@@ -10,7 +10,9 @@ services:
       - ${SSL_PORT}:${SSL_PORT}
     command: bash -x app/docker/run_nginx.sh
     volumes:
-      - .:/app
+      - ./certs:/app/certs
+      - ./docker:/app/docker
+      - ./codalab:/app/codalab
       - ${LOGGING_DIR}/nginx:/var/log/nginx/
     env_file: .env
     links:
@@ -70,7 +72,7 @@ services:
       - AMQP_HOST=rabbit
       - AMQP_PORT=${RABBITMQ_PORT}
     volumes:
-      - .:/app
+      - ./certs:/app/certs
     env_file: .env
     links:
       - rabbit
@@ -99,7 +101,8 @@ services:
     hostname: django
     command: bash docker/run_django.sh
     volumes:
-      - .:/app
+      - ./certs:/app/certs
+      - ./codalab:/app/codalab
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
     ports:
@@ -120,7 +123,7 @@ services:
       dockerfile: Dockerfile
     command: sh docker/run_site.sh
     volumes:
-      - .:/app
+      - ./codalab:/app/codalab
       - ${LOGGING_DIR}/worker_site:/var/log/
     env_file: .env
     links:
@@ -134,7 +137,7 @@ services:
       dockerfile: Dockerfile
     command: sh docker/run_compute.sh
     volumes:
-      - .:/app
+      - ./codalab:/app/codalab
       - ${LOGGING_DIR}/worker_compute:/var/log/
     env_file: .env
     links:
