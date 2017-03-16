@@ -19,7 +19,7 @@ class Base(Settings):
     PORT = '8000'
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
-    DEBUG = False
+    DEBUG = os.environ.get('DEBUG', False)
     TEMPLATE_DEBUG = DEBUG
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
@@ -327,7 +327,13 @@ class Base(Settings):
     AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
     AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
     AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
-    AWS_QUERYSTRING_AUTH = os.environ.get('AWS_QUERYSTRING_AUTH', False)  # This stops signature/auths from appearing in saved URLs
+    AWS_QUERYSTRING_AUTH = os.environ.get(
+        # This stops signature/auths from appearing in saved URLs
+        'AWS_QUERYSTRING_AUTH',
+        False
+    )
+    if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
+        AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
     # Azure
     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
@@ -401,57 +407,57 @@ class Base(Settings):
     # =========================================================================
     # Logging
     # =========================================================================
-    # LOGGING = {
-    #     'version': 1,
-    #     'disable_existing_loggers': False,
-    #     'formatters': {
-    #         'simple': {
-    #             'format': '%(asctime)s %(levelname)s %(message)s'
-    #         },
-    #     },
-    #     'filters': {
-    #         'require_debug_false': {
-    #             '()': 'django.utils.log.RequireDebugFalse'
-    #         }
-    #     },
-    #     'handlers': {
-    #         'console': {
-    #             'level': 'DEBUG',
-    #             'class': 'logging.StreamHandler',
-    #             'formatter': 'simple',
-    #             'stream': sys.stdout
-    #         },
-    #         'mail_admins': {
-    #             'level': 'ERROR',
-    #             'filters': ['require_debug_false'],
-    #             'class': 'django.utils.log.AdminEmailHandler'
-    #         }
-    #     },
-    #     'loggers': {
-    #         'django': {
-    #             'handlers': ['console'],
-    #             'level': 'INFO',
-    #             'propagate': True,
-    #         },
-    #         'django.request': {
-    #             'handlers': ['mail_admins'],
-    #             'level': 'ERROR',
-    #             'propagate': True,
-    #         },
-    #         'codalab': {
-    #             'handlers': ['console'],
-    #             'level': 'INFO'
-    #         },
-    #         'codalabtools': {
-    #             'handlers': ['console'],
-    #             'level': 'INFO'
-    #         },
-    #         'apps': {
-    #             'handlers': ['console'],
-    #             'level': 'INFO'
-    #         }
-    #     }
-    # }
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '%(asctime)s %(levelname)s %(message)s'
+            },
+        },
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+            }
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+                'stream': sys.stdout
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+            }
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            'django.request': {
+                'handlers': ['mail_admins'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'codalab': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            },
+            'codalabtools': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            },
+            'apps': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            }
+        }
+    }
 
 
     # =========================================================================
@@ -529,7 +535,6 @@ class DevBase(Base):
 
     OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
     INTERNAL_IPS = ('127.0.0.1',)
-    DEBUG = True
     ACCOUNT_EMAIL_VERIFICATION = None
     CACHES = {
         'default': {
