@@ -103,6 +103,7 @@ services:
     volumes:
       - ./certs:/app/certs
       - ./codalab:/app/codalab
+      - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
     ports:
@@ -124,6 +125,7 @@ services:
     command: sh docker/run_site.sh
     volumes:
       - ./codalab:/app/codalab
+      - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_site:/var/log/
     env_file: .env
     links:
@@ -138,7 +140,9 @@ services:
     command: sh docker/run_compute.sh
     volumes:
       - ./codalab:/app/codalab
+      - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_compute:/var/log/
+      - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
     env_file: .env
     links:
       - mysql

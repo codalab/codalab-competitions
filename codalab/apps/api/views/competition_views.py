@@ -3,9 +3,11 @@ Defines Django views for 'apps.api' app for competitions
 """
 import json
 import logging
+import os
 
 from uuid import uuid4
 
+from django.utils.text import slugify
 from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
@@ -499,6 +501,7 @@ class CompetitionSubmissionSasApi(views.APIView):
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     queryset = webmodels.CompetitionSubmission.objects.all()
@@ -527,9 +530,14 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
         if settings.USE_AWS:
+            # obj.readable_filename = os.path.basename(blob_name)
+            # Get file name from url and ensure we aren't getting GET params along with it
+            obj.readable_filename = blob_name.split('/')[-1]
+            obj.readable_filename = obj.readable_filename.split('?')[0]
             obj.s3_file = blob_name
         else:
             obj.file.name = blob_name

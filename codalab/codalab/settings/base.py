@@ -2,6 +2,8 @@ import uuid
 from textwrap import dedent
 
 from configurations import importer
+from django.utils.text import slugify
+
 if not importer.installed:
     importer.install()
 
@@ -9,6 +11,12 @@ from configurations import Settings
 from configurations.utils import uppercase_attributes
 import os, sys, pkgutil, subprocess
 from os.path import abspath, basename, dirname, join, normpath
+
+
+def _uuidpathext(filename, prefix):
+    filename = os.path.basename(filename)
+    filepath = os.path.join(prefix, str(uuid.uuid4()), filename)
+    return filepath
 
 
 class Base(Settings):
@@ -350,14 +358,16 @@ class Base(Settings):
     S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
     S3DIRECT_DESTINATIONS = {
         'competitions': {
-            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
+            'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octectstream']
         },
         'submissions': {
-            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
+            'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octectstream']
         }
     }
 
