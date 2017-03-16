@@ -60,14 +60,15 @@ def insert_data():
     #
 
     site, _ = Site.objects.get_or_create(pk=settings.SITE_ID)
+    site.domain = settings.CODALAB_SITE_DOMAIN
+    site.name = settings.CODALAB_SITE_NAME
+    site.save()
+
     if site.name == settings.CODALAB_SITE_NAME:
         print "Initial data has been detected in the database: skipping all inserts. Running data migration..."
         migrate_data()
         print "Data migration complete."
         return
-    site.domain = settings.CODALAB_SITE_DOMAIN
-    site.name = settings.CODALAB_SITE_NAME
-    site.save()
 
     #
     # Initialize web content

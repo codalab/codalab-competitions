@@ -106,7 +106,7 @@
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
                                     {% if user.is_superuser %}
-                                    <li><a href="{% url 'my_admin' %}">Admin Page</a></li>
+                                    <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
                                     <li class="divider"></li>
                                     {% endif %}
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>

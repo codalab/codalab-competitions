@@ -78,7 +78,7 @@ class Base(Settings):
     LANGUAGE_CODE = 'en-us'
 
     SITE_ID = 1
-    CODALAB_SITE_DOMAIN = 'codalab.org'
+    CODALAB_SITE_DOMAIN = os.environ.get('CODALAB_SITE_DOMAIN', 'localhost')
     CODALAB_SITE_NAME = 'CodaLab'
 
     # If you set this to False, Django will make some optimizations so as not

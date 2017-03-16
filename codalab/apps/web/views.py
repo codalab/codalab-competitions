@@ -61,7 +61,7 @@ User = get_user_model()
 
 class MyAdminView(TemplateView):
     """Admin page for monitoring services"""
-    template_name = "web/my_admin.html"
+    template_name = "web/admin_monitoring_links.html"
 
     def get(self, *args, **kwargs):
         redirect_url = "index.html"
@@ -72,15 +72,13 @@ class MyAdminView(TemplateView):
             return HttpResponseRedirect(redirect_url)
 
     def get_context_data(self, **kwargs):
-        '''Used to grab context in Class Based Views'''
+        """Used to grab context in Class Based Views"""
         context = super(MyAdminView, self).get_context_data(**kwargs)
-        context["title"] = "Services Monitoring links"
-        
-        # Discover the hosts's for each docker service?
-        context["rabbit_port"] = settings.RABBITMQ_PORT
+        context["domain"] = Site.objects.get_current().domain
+        context["rabbit_port"] = settings.RABBITMQ_MANAGEMENT_PORT
         context["flower_port"] = settings.FLOWER_PORT
-        context["envs"] = self.request
         return context
+
 
 class HomePageView(TemplateView):
     """Template View for homepage."""

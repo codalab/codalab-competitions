@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^clients/', include('apps.authenz.urls')),
     url(r'^api/', include('apps.api.routers')),
     url(r'^search/', include('haystack.urls')),
-    url(r'^my_admin/$', MyAdminView.as_view(), name='my_admin'),
+    url(r'^admin_monitoring_links/$', MyAdminView.as_view(), name='admin_monitoring_links'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

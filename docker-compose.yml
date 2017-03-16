@@ -38,13 +38,16 @@ services:
   # Message queue
   # --------------------------------------------------------------------------
   rabbit:
-    image: rabbitmq:3.5.7
+    build:
+      # Custom Dockerfile for rabbit mostly to make building faster because
+      # of envsubst dependency
+      context: .
+      dockerfile: docker/rabbitmq/Dockerfile
     hostname: rabbit
     command: bash -x app/docker/run_rabbitmq.sh
     environment:
       - RABBITMQ_LOGS=/var/log/rabbitmq/output.log
       - RABBITMQ_SASL_LOGS=/var/log/rabbitmq/output_sasl.log
-#      - RABBITMQ_LOG_BASE=/var/log/rabbit
     env_file: .env
     volumes:
       - ./docker:/app/docker
