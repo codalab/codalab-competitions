@@ -14,13 +14,6 @@ COPY codalab/ /app
 
 WORKDIR app
 
-#RUN pwd && ls -aln && touch requirements/common.txt
-
-#RUN apt-get update && apt-get install -y npm python-mysqldb netcat nodejs-legacy
-#
-#RUN easy_install MySQL-python
-#RUN pip install --upgrade pip  # make things faster, hopefully
-#RUN pip install -r requirements/common.txt
 RUN python manage.py collectstatic --noinput
 
 RUN npm install .

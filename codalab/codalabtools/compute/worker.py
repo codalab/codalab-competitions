@@ -456,7 +456,7 @@ def get_run_func():
                         time.sleep(1)
                         exit_code = evaluator_process.poll()
                 except (ValueError, OSError):
-                    pass # tried to communicate with dead process
+                    pass  # tried to communicate with dead process
                 except ExecutionTimeLimitExceeded:
                     exit_code = -1
                     logger.info("Killed process for running too long!")

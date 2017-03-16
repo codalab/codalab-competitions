@@ -76,6 +76,7 @@ def echo_task(job_id, args):
 
     run_job_task(job_id, echo_it)
 
+
 def echo(text):
     """
     Echoes the text specified. This is for testing.
