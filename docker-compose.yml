@@ -24,15 +24,16 @@ services:
   # Database
   # --------------------------------------------------------------------------
   mysql:
-    image: mysql/mysql-server:5.7
+    image: mysql:5.7
     hostname: mysql
+#    command: chown mysql:root /var/log/mysql
     volumes:
       - ./docker:/app/docker
-      - ${LOGGING_DIR}/mysql:/var/log/
+#      - ./docker/mysql:/etc/mysql
+#      - ${LOGGING_DIR}/mysql:/var/log/mysql
+#      - ${LOGGING_DIR}/mysql:/dev/stdout
       - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
     env_file: .env
-    ports:
-      - 3306:3306
     container_name: mysql
 
 
@@ -85,8 +86,6 @@ services:
   memcached:
     image: memcached
     hostname: memcached
-    ports:
-      - ${MEMCACHED_PORT}:${MEMCACHED_PORT}
     command: "/usr/local/bin/memcached -u memcache -vv"
     container_name: memcached
 
@@ -106,8 +105,6 @@ services:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
-    ports:
-      - "8000:8000"
     links:
       - mysql
       - rabbit
