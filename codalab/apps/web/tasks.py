@@ -266,6 +266,9 @@ def _make_url_sassy(path, permission='r', duration=60 * 60 * 24):
         # Remove the beginning of the URL (before bucket name) so we just have the path to the file
         path = path.split(settings.AWS_STORAGE_PRIVATE_BUCKET_NAME)[-1]
 
+        # Spaces replaced with +'s, so we have to replace those...
+        path = path.replace('+', ' ')
+
         return BundleStorage.connection.generate_url(
             expires_in=duration,
             method=method,
