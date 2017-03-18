@@ -1,3 +1,4 @@
+import re
 import uuid
 from textwrap import dedent
 
@@ -8,14 +9,13 @@ if not importer.installed:
     importer.install()
 
 from configurations import Settings
-from configurations.utils import uppercase_attributes
-import os, sys, pkgutil, subprocess
+import os, sys
 from os.path import abspath, basename, dirname, join, normpath
 
 
 def _uuidpathext(filename, prefix):
-    filename = os.path.basename(filename)
-    filepath = os.path.join(prefix, str(uuid.uuid4()), filename)
+    filename = basename(filename)
+    filepath = join(prefix, str(uuid.uuid4()), filename)
     return filepath
 
 
