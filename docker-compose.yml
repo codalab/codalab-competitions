@@ -26,12 +26,10 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
-#    command: chown mysql:root /var/log/mysql
     volumes:
       - ./docker:/app/docker
-#      - ./docker/mysql:/etc/mysql
-#      - ${LOGGING_DIR}/mysql:/var/log/mysql
-#      - ${LOGGING_DIR}/mysql:/dev/stdout
+      - ./docker/mysql:/etc/mysql/conf.d
+      - ${LOGGING_DIR}/mysql:/var/log/mysql
       - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
     env_file: .env
     container_name: mysql
