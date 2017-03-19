@@ -15,12 +15,6 @@ To see Codalab Competition's in action, visit [www.competitions.codalab.org](htt
 The CodaLab community forum is hosted on Google Groups.
 - [CodaLabDev Google Groups Forum](https://groups.google.com/forum/#!forum/codalabdev)
 
-## Tests
-
-To run tests:
-
-```python manage.py test```
-
 ## Latest changes:
 ###### November 21, 2016:
 New set of credentials to authenticate `BUS SERVICES`. Add the following to `local.py` script.
