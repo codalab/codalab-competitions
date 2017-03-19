@@ -42,6 +42,7 @@ from apps.forums.models import Forum
 from apps.coopetitions.models import DownloadRecord
 from apps.authenz.models import ClUser
 from apps.web.utils import PublicStorage, BundleStorage
+from apps.teams.models import Team, get_user_team
 
 
 User = settings.AUTH_USER_MODEL
@@ -247,6 +248,9 @@ class Competition(models.Model):
     allow_public_submissions = models.BooleanField(default=False, verbose_name="Allow sharing of public submissions")
     enable_forum = models.BooleanField(default=True)
     anonymous_leaderboard = models.BooleanField(default=False)
+    enable_teams = models.BooleanField(default=True, verbose_name="Enable Competition level teams")
+    require_team_approval = models.BooleanField(default=True, verbose_name="Organizers need to approve the new teams")
+    teams = models.ManyToManyField(Team, related_name='competition_teams', blank=True, null=True)
 
     @property
     def pagecontent(self):
@@ -849,6 +853,15 @@ class CompetitionPhase(models.Model):
             # add the location of the results on the blob storage to the scores
             for submission in submissions:
                 user = submission.participant.user
+                team =  get_user_team(submission.participant, submission.participant.competition)
+                # If competition teams are enabled, and the user is in a team, use the team name as team_name.
+                # Otherwise, use the user default team_name
+                if self.competition.enable_teams:
+                    team_name = ''
+                    if team is not None:
+                        team_name = team.name
+                    else:
+                        team_name = user.team_name
                 scores[submission.pk] = {
                     'username': user.username,
                     'user_pk': user.pk,
@@ -1092,6 +1105,9 @@ class CompetitionSubmission(models.Model):
 
     is_migrated = models.BooleanField(default=False) # Will be used to auto  migrate
 
+    # Team of the user in the moment of the submission
+    team = models.ForeignKey(Team, related_name='team', null=True, blank=True)
+
     class Meta:
         unique_together = (('submission_number','phase','participant'),)
 
@@ -1190,6 +1206,10 @@ class CompetitionSubmission(models.Model):
             # never needs to know this password, it's sent along with the tasks
             # and their data location
             self.secret = uuid.uuid4()
+
+        # Add current participant team if the competition allows teams
+        if self.participant.competition.enable_teams:
+            self.team = get_user_team(self.participant, self.participant.competition)
 
         self.file_url_base = self.file.storage.url('')
         res = super(CompetitionSubmission, self).save(*args, **kwargs)
@@ -1929,7 +1949,13 @@ def add_submission_to_leaderboard(submission):
 
     # Currently we only allow one submission into the leaderboard although the leaderboard
     # is setup to accept multiple submissions from the same participant.
-    entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=submission.participant)
+    if submission.team is not None:
+        # Select all submissions from the team
+        entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__team=submission.team)
+    else:
+        # Select all submissions from the user
+        entries = PhaseLeaderBoardEntry.objects.filter(board=lb, result__participant=submission.participant)
+
     for entry in entries:
         entry.delete()
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
