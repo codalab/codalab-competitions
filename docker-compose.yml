@@ -131,13 +131,15 @@ services:
   worker_compute:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: sh docker/run_compute.sh
+      dockerfile: docker/worker_compute/Dockerfile
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
+    environment:
+      # Unset mysql database for this
+      - MYSQL_DATABASE=
     env_file: .env
     links:
       - mysql

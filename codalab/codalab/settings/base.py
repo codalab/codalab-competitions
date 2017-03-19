@@ -135,7 +135,7 @@ class Base(Settings):
     )
 
     # Make this unique, and don't share it with anybody.
-    SECRET_KEY = '+3_81$xxm9@3p5*wo3qpm7-4i2ixc8y4dl7do$p3-y63ynhxob'
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "a-hidden-secret")
 
     # List of callables that know how to import templates from various sources.
     TEMPLATE_LOADERS = (
@@ -251,9 +251,9 @@ class Base(Settings):
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
-    ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=True
-    ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_EMAIL_REQUIRED = True
+    ACCOUNT_USERNAME_REQUIRED = True
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
@@ -300,13 +300,22 @@ class Base(Settings):
     # =========================================================================
     # Caching
     # =========================================================================
-    MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+    try:
+        # Don't force people to install/use this
+        import memcached
+
+        MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+            }
         }
-    }
+
+        # Store information for celery
+        CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
+    except ImportError:
+        pass
 
 
     # =========================================================================
@@ -381,6 +390,7 @@ class Base(Settings):
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
 
+
     # =========================================================================
     # Celery
     # =========================================================================
@@ -390,8 +400,6 @@ class Base(Settings):
         BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     BROKER_POOL_LIMIT = None  # Stops connection timeout
     BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
-    # Store results
-    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
@@ -543,21 +551,22 @@ class Base(Settings):
 
 class DevBase(Base):
 
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-    INTERNAL_IPS = ('127.0.0.1',)
-    ACCOUNT_EMAIL_VERIFICATION = None
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    if os.environ.get('DEBUG', False):
+        OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+        INTERNAL_IPS = ('127.0.0.1',)
+        ACCOUNT_EMAIL_VERIFICATION = None
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
         }
-    }
-    EXTRA_MIDDLEWARE_CLASSES = (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'userswitch.middleware.UserSwitchMiddleware',)
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES' : True,
-    }
-    # Increase amount of logging output in Dev mode.
-    # for logger_name in ('codalab', 'apps'):
-    #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
+        EXTRA_MIDDLEWARE_CLASSES = (
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+            'userswitch.middleware.UserSwitchMiddleware',)
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TEMPLATE_CONTEXT': True,
+            'ENABLE_STACKTRACES' : True,
+        }
+        # Increase amount of logging output in Dev mode.
+        # for logger_name in ('codalab', 'apps'):
+        #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
