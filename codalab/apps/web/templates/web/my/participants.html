@@ -296,33 +296,64 @@
         var values = $(this).serialize();
         var fid = $(this).attr('id');
 
-        /* Send the data using post and put the results in a div */
-        request = $.ajax({
-            url: "/api/competition/{{competition_id}}/participation_status/",
-            type: "post",
-            dataType: "json",
-            accept: {'json': "application/json" },
-            data: values,
-            success: function(response, textStatus, jqXHR) {
-                $('#'+fid).remove();
-                var data = $.parseJSON(response);
+        if (fid.match('team_request_')) {
+            /* Send the data using post and put the results in a div */
+            request = $.ajax({
+                url: "/api/competition/{{competition_id}}/team_status/",
+                type: "post",
+                dataType: "json",
+                accept: {'json': "application/json" },
+                data: values,
+                success: function(response, textStatus, jqXHR) {
+                    $('#'+fid).remove();
+                    var data = $.parseJSON(response);
 
-                var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+                    var pid = $('div.teamUserBlock_' + data.teamId + ' .participationStatus');
 
 
-                pid.text(ParticipateStatusText[data.status]);
+                    pid.text(TeamStatusText[data.status]);
 
-                if(data.reason) {
-                   var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
+                    if(data.reason) {
+                       var reasontext = '<p style="' + TeamReasonStyle[data.status] + ';">Reason: ' + data.reason +'</p>';
 
-                   pid.append(reasontext);
-               }
+                       pid.append(reasontext);
+                   }
 
-            },
-            error: function(jsXHR, textStatus, errorThrown) {
-                alert("There was a problem processing this request for this competition.");;
-            }
-        });
+                },
+                error: function(jsXHR, textStatus, errorThrown) {
+                    alert("There was a problem processing this request for this competition.");;
+                }
+            });
+        } else {
+            /* Send the data using post and put the results in a div */
+            request = $.ajax({
+                url: "/api/competition/{{competition_id}}/participation_status/",
+                type: "post",
+                dataType: "json",
+                accept: {'json': "application/json"},
+                data: values,
+                success: function (response, textStatus, jqXHR) {
+                    $('#' + fid).remove();
+                    var data = $.parseJSON(response);
+
+                    var pid = $('div.competitionUserBlock_' + data.participantId + ' p.participationStatus');
+
+
+                    pid.text(ParticipateStatusText[data.status]);
+
+                    if (data.reason) {
+                        var reasontext = '<p style="' + ParticipationReasonStyle[data.status] + ';">Reason: ' + data.reason + '</p>';
+
+                        pid.append(reasontext);
+                    }
+
+                },
+                error: function (jsXHR, textStatus, errorThrown) {
+                    alert("There was a problem processing this request for this competition.");
+                    ;
+                }
+            });
+        }
     });
 
     // Send email to participants
