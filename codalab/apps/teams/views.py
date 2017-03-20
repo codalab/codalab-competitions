@@ -1,7 +1,5 @@
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import DetailView, TemplateView
 from django.core.urlresolvers import reverse
 
 from apps.web.models import Competition, ParticipantStatus, CompetitionSubmission, get_current_phase
@@ -10,14 +8,10 @@ from apps.web.views import LoginRequiredMixin
 from .models import Team, TeamStatus, TeamMembership, TeamMembershipStatus, get_user_requests, get_competition_teams, get_user_team, get_allowed_teams, get_team_pending_membership, get_competition_user_pending_teams, get_team_submissions_inf
 from apps.teams import forms
 from django.views.generic import View, TemplateView, DetailView, ListView, FormView, UpdateView, CreateView, DeleteView
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
-
-from django.db.models import Q
 from django.http import Http404, QueryDict
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
-from django.http import StreamingHttpResponse
 
 User = get_user_model()
+
 
 class TeamDetailView(LoginRequiredMixin, TemplateView):
     # Serves the table of submissions in the Participate tab of a competition.
@@ -147,10 +141,11 @@ class TeamDetailView(LoginRequiredMixin, TemplateView):
                 context['allowed_teams'] = get_allowed_teams(participant, competition)
                 context['pending_teams'] = user_pending_teams
 
-
         return context
 
+
 class RequestTeamView(TeamDetailView):
+
     def get_context_data(self, **kwargs):
         error = None
         action = self.kwargs['action']
@@ -222,6 +217,7 @@ class RequestTeamView(TeamDetailView):
 
         return context
 
+
 class NewRequestTeamView(LoginRequiredMixin, CreateView):
     model = TeamMembership
     template_name = "teams/request.html"
@@ -230,11 +226,13 @@ class NewRequestTeamView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         competition=Competition.objects.get(pk=self.kwargs['competition_pk']);
         return reverse('team_detail', kwargs={'competition_pk': competition.pk})
+
     def get_context_data(self, **kwargs):
         context = super(NewRequestTeamView, self).get_context_data(**kwargs)
         context['competition'] = Competition.objects.get(pk=self.kwargs['competition_pk'])
         context['team'] = Team.objects.get(pk=self.kwargs['team_pk'])
         return context
+
     def form_valid(self, form):
         form.instance.user=self.request.user
         form.instance.team=Team.objects.get(pk=self.kwargs['team_pk'])
@@ -244,6 +242,7 @@ class NewRequestTeamView(LoginRequiredMixin, CreateView):
         form.save()
         return super(NewRequestTeamView, self).form_valid(form)
 
+
 class TeamCreateView(LoginRequiredMixin, CreateView):
     model = Team
     template_name = "teams/edit.html"
@@ -251,10 +250,12 @@ class TeamCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('team_edit', kwargs={'competition_pk': self.object.competition.pk,'team_pk':self.object.pk})
+
     def get_context_data(self, **kwargs):
         context = super(TeamCreateView, self).get_context_data(**kwargs)
         context['competition'] = Competition.objects.get(pk=self.kwargs['competition_pk'])
         return context
+
     def form_valid(self, form):
         form.instance.creator=self.request.user
         form.instance.created_at=now()
@@ -263,15 +264,10 @@ class TeamCreateView(LoginRequiredMixin, CreateView):
             form.instance.status = TeamStatus.objects.get(codename=TeamStatus.PENDING)
         else:
             form.instance.status = TeamStatus.objects.get(codename=TeamStatus.APPROVED)
-        #form.instance.image = form.cleaned_data['image']
-        #form.image.save("revsys-logo.png", django_file, save=True)
-
-        if form.instance.image:
-            a=form.instance.image
-
 
         form.save()
         return super(TeamCreateView, self).form_valid(form)
+
 
 class TeamEditView(LoginRequiredMixin, UpdateView):
     model = Team
@@ -281,6 +277,7 @@ class TeamEditView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return ''
+
     def get_context_data(self, **kwargs):
         context = super(TeamEditView, self).get_context_data(**kwargs)
         context['competition'] = Competition.objects.get(pk=self.kwargs['competition_pk'])
