@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from django import forms
 from .models import Team, TeamMembership
 from tinymce.widgets import TinyMCE
-from awesome_avatar import forms as avatar_forms
+#from awesome_avatar import forms as avatar_forms
 import os
 
 

@@ -1960,3 +1960,13 @@ def add_submission_to_leaderboard(submission):
         entry.delete()
     lbe, created = PhaseLeaderBoardEntry.objects.get_or_create(board=lb, result=submission)
     return lbe, created
+
+def get_current_phase(competition):
+    all_phases = competition.phases.all()
+    phase_iterator = iter(all_phases)
+    active_phase = None
+    for phase in phase_iterator:
+        if phase.is_active:
+            active_phase = phase
+            break
+    return active_phase
