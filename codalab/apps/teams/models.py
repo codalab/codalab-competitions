@@ -1,20 +1,18 @@
 import logging
 import os
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
 from django.utils.timezone import now
 from django.utils.functional import cached_property
 from django import template
 import apps.web as web
 from apps.web.utils import PublicStorage, BundleStorage
-
-
 from datetime import datetime, timedelta
 
 register = template.Library()
 User = settings.AUTH_USER_MODEL
 logger = logging.getLogger(__name__)
+
 
 def get_competition_teams(competition):
     team_list=Team.objects.filter(
@@ -22,6 +20,7 @@ def get_competition_teams(competition):
         status=TeamStatus.objects.get(codename="approved"),
     ).all()
     return team_list
+
 
 def get_competition_pending_teams(competition):
     team_list=Team.objects.filter(
@@ -31,6 +30,7 @@ def get_competition_pending_teams(competition):
 
     return team_list
 
+
 def get_team_pending_membership(team):
     requests = TeamMembership.objects.filter(
         team=team,
@@ -39,6 +39,7 @@ def get_team_pending_membership(team):
     ).select_related("user").all()
     return requests
 
+
 def get_competition_deleted_teams(competition):
     team_list=Team.objects.filter(
         competition=competition,
@@ -46,6 +47,7 @@ def get_competition_deleted_teams(competition):
     ).all()
 
     return team_list
+
 
 def get_competition_user_teams(competition,user):
     team_list=Team.objects.filter(
@@ -59,6 +61,7 @@ def get_competition_user_teams(competition,user):
         team_list=team_list[0]
     return team_list
 
+
 def get_competition_user_pending_teams(competition,user):
     team_list=Team.objects.filter(
         competition=competition,
@@ -71,6 +74,7 @@ def get_competition_user_pending_teams(competition,user):
         team_list=team_list[0]
     return team_list
 
+
 def get_user_requests(user, competition):
     team_list=get_competition_teams(competition)
     user_requests = TeamMembership.objects.filter(
@@ -79,9 +83,11 @@ def get_user_requests(user, competition):
     ).all()
     return user_requests
 
+
 def get_allowed_teams(user,competition):
     # TODO: Remove teams where user already have a request
     return get_competition_teams(competition)
+
 
 def get_user_team(user, competition):
     team=get_competition_user_teams(competition, user)
@@ -104,6 +110,7 @@ def get_user_team(user, competition):
 
     return team
 
+
 def get_team_submissions(team, phase=None):
     if phase is None:
         t_s = web.models.CompetitionSubmission.objects.filter(phase=phase, team=team)
@@ -112,8 +119,10 @@ def get_team_submissions(team, phase=None):
 
     return t_s
 
+
 def get_last_team_submissions(team, days=1):
     return web.models.CompetitionSubmission.objects.filter(team=team, submitted_at__gte=datetime.now()-timedelta(days))
+
 
 def get_team_submissions_inf(team, phase):
 
@@ -157,12 +166,11 @@ def get_team_submissions_inf(team, phase):
 
     return submission_info_list
 
+
 def get_available_participants(competition):
-
-
     return []
 
-# Create your models here.
+
 class TeamStatus(models.Model):
     UNKNOWN = 'unknown'
     DENIED = 'denied'
@@ -175,6 +183,7 @@ class TeamStatus(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class Team(models.Model):
     """ This is the base team. """
@@ -253,6 +262,7 @@ class Team(models.Model):
 
         return members
 
+
 class TeamMembershipStatus(models.Model):
     UNKNOWN = 'unknown'
     REJECTED = 'rejected'
@@ -265,6 +275,7 @@ class TeamMembershipStatus(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class TeamMembership(models.Model):
     def __unicode__(self):
