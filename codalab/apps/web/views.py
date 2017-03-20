@@ -1,5 +1,5 @@
 import csv
-import datetime
+from datetime import datetime, timedelta
 import json
 import os
 import StringIO
@@ -7,6 +7,7 @@ import sys
 import traceback
 import yaml
 import zipfile
+
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -29,6 +30,8 @@ from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
 from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
+from django.utils.html import strip_tags
+from django.utils import timezone
 
 
 from mimetypes import MimeTypes
@@ -474,7 +477,7 @@ class CompetitionDetailView(DetailView):
 
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
-        context['current_server_time'] = datetime.datetime.now()
+        context['current_server_time'] = datetime.now()
 
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
