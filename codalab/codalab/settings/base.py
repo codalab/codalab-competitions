@@ -371,13 +371,13 @@ class Base(Settings):
             'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octectstream']
+            'allowed': ['application/zip', 'application/octet-stream']
         },
         'submissions': {
             'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octectstream']
+            'allowed': ['application/zip', 'application/octet-stream']
         }
     }
 
