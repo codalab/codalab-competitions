@@ -23,6 +23,7 @@ from apps.web.models import (CompetitionSubmissionStatus,
                              ParticipantStatus)
 from apps.web.models import (Page)
 from django.conf import settings
+from apps.teams.models import TeamStatus, TeamMembershipStatus
 
 def migrate_data():
     """
@@ -167,6 +168,24 @@ def insert_data():
 
     for name, codename in submission_status_set:
         _, _ = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)
+
+    team_status = [("Denied", "denied", "Team was denied."),
+                   ("Approved", "approved", "Team was approved."),
+                   ("Pending", "pending", "Team is pending approval."),
+                   ("Deleted", "deleted", "Team has been deleted.")]
+
+    for name, codename, description in team_status:
+        _, _ = TeamStatus.objects.get_or_create(name=name, codename=codename, description=description)
+
+        team_membership_status = [("Rejected", "rejected", "User membership rejected."),
+                                  ("Approved", "approved", "User membership approved."),
+                                  ("Pending", "pending", "User membership is pending approval."),
+                                  ("Canceled", "canceled", "User membership canceled.")]
+
+    for name, codename, description in team_membership_status:
+        _, _ = TeamMembershipStatus.objects.get_or_create(name=name, codename=codename,
+                                                          description=description)
+
 
 if __name__ == "__main__":
 

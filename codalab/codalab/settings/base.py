@@ -224,6 +224,7 @@ class Base(Settings):
         'apps.coopetitions',
         'apps.common',
         'apps.queues',
+        'apps.teams',
 
         # Authentication app, enables social authentication
         'allauth',
