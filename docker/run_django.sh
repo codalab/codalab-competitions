@@ -2,7 +2,7 @@
 
 echo "Waiting for database connection..."
 
-until netcat -z -v -w30 mysql 3306
+until netcat -z -v -w30 $DB_HOST $DB_PORT
 do
   sleep 1
 done
