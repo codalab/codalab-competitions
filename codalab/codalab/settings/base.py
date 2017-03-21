@@ -482,35 +482,78 @@ class Base(Settings):
     # =========================================================================
     # Database
     # =========================================================================
-    mysqldb = os.environ.get('MYSQL_DATABASE')
-
-    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
+    db_engine = os.environ.get('DB_ENGINE')
+    if db_engine:
+        if db_engine == 'mysql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'mysql'),
+                    'PORT': os.environ.get('DB_PORT', '3306'),
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
             }
-        }
-    elif mysqldb:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': os.environ.get('MYSQL_DATABASE'),
-                'USER': os.environ.get('MYSQL_USERNAME', 'root'),
-                'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-                'HOST': 'mysql',
-                'OPTIONS': {
-                    'init_command': "SET time_zone='+00:00';",
-                },
+        elif db_engine == 'postgresql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'postgresql'),
+                    'PORT': os.environ.get('DB_PORT', '5432'),
+                }
             }
-        }
+        elif db_engine == 'sqlite3':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
+            }
     else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': 'codalab.sqlite3',
+        # IF DB_ENGINE is not set, old behaviour is used
+        mysqldb = os.environ.get('MYSQL_DATABASE')
+
+        if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
             }
-        }
+        elif mysqldb:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('MYSQL_DATABASE'),
+                    'USER': os.environ.get('MYSQL_USERNAME', 'root'),
+                    'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+                    'HOST': 'mysql',
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
 
     # =========================================================================
     # Misc
