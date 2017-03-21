@@ -158,13 +158,12 @@ def insert_data():
     for name, codename, description in pss:
         _, _ = ParticipantStatus.objects.get_or_create(name=name, codename=codename, description=description)
 
-
-    submission_status_set = [ ("Submitting", "submitting"),
-                              ("Submitted", "submitted"),
-                              ("Running", "running"),
-                              ("Failed", "failed"),
-                              ("Cancelled", "cancelled"),
-                              ("Finished", "finished") ]
+    submission_status_set = [("Submitting", "submitting"),
+                             ("Submitted", "submitted"),
+                             ("Running", "running"),
+                             ("Failed", "failed"),
+                             ("Cancelled", "cancelled"),
+                             ("Finished", "finished")]
 
     for name, codename in submission_status_set:
         _, _ = CompetitionSubmissionStatus.objects.get_or_create(name=name, codename=codename)
