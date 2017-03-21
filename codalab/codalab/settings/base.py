@@ -582,8 +582,6 @@ class Base(Settings):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME })
-        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
-            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
     @classmethod
     def post_setup(cls):
@@ -592,6 +590,8 @@ class Base(Settings):
         if not hasattr(cls,'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
+        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
+            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
 class DevBase(Base):
 

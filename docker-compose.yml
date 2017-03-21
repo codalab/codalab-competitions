@@ -103,6 +103,8 @@ services:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
+    environment:
+      - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
     links:
       - mysql
       - rabbit
