@@ -10,9 +10,10 @@ export DOLLAR='$'
 if [[ $SSL_CERTIFICATE ]]
 then
     echo "Using SSL certificate '${SSL_CERTIFICATE}'"
-    envsubst < app/docker/rabbitmq/rabbitmq.config > /etc/rabbitmq/rabbitmq.config
+    envsubst < app/docker/rabbitmq/rabbitmq_ssl.config > /etc/rabbitmq/rabbitmq.config
 else
     echo "No SSL certificate env var (SSL_CERTIFICATE) found"
+    envsubst < app/docker/rabbitmq/rabbitmq.config > /etc/rabbitmq/rabbitmq.config
 fi
 
 echo "/etc/rabbitmq/rabbitmq.config:"
