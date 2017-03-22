@@ -42,3 +42,6 @@ pyrabbit==1.1.0
 
 # need this later version to get accurate memory readings in docker
 psutil==5.2.0
+
+# Required when PostgreSQL is used in competitions
+psycopg2==2.7.1

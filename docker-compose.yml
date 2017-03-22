@@ -30,7 +30,7 @@ services:
       - ./docker:/app/docker
       - ./docker/mysql:/etc/mysql/conf.d
       - ${LOGGING_DIR}/mysql:/var/log/mysql
-      - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
+      - ${DB_DATA_PATH}:/var/lib/mysql
     env_file: .env
     container_name: mysql
 
@@ -103,6 +103,8 @@ services:
       - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
+    environment:
+      - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
     links:
       - mysql
       - rabbit
