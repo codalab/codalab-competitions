@@ -8,7 +8,7 @@ services:
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
       - ${SSL_PORT}:${SSL_PORT}
-    command: bash -x app/docker/run_nginx.sh
+    command: bash -x /app/docker/run_nginx.sh
     volumes:
       - ./certs:/app/certs
       - ./docker:/app/docker
@@ -45,7 +45,7 @@ services:
       context: .
       dockerfile: docker/rabbitmq/Dockerfile
     hostname: rabbit
-    command: bash -x app/docker/run_rabbitmq.sh
+    command: bash -x /app/docker/run_rabbitmq.sh
     environment:
       - RABBITMQ_LOGS=/var/log/rabbitmq/output.log
       - RABBITMQ_SASL_LOGS=/var/log/rabbitmq/output_sasl.log
@@ -96,7 +96,7 @@ services:
       context: .
       dockerfile: Dockerfile
     hostname: django
-    command: bash docker/run_django.sh
+    command: bash /app/docker/run_django.sh
     volumes:
       - ./certs:/app/certs
       - ./codalab:/app/codalab
@@ -119,7 +119,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh docker/run_site.sh
+    command: sh /app/docker/run_site.sh
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
@@ -140,8 +140,8 @@ services:
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
     environment:
-      # Unset mysql database for this
-      - MYSQL_DATABASE=
+      # Unset database for this, use memory
+      - DB_ENGINE=memory
     env_file: .env
     links:
       - mysql

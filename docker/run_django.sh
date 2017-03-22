@@ -7,8 +7,6 @@ do
   sleep 1
 done
 
-cd codalab
-
 echo "WEB IS RUNNING"
 
 # Static files
