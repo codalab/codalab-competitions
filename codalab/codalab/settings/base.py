@@ -67,7 +67,7 @@ class Base(Settings):
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
@@ -371,13 +371,13 @@ class Base(Settings):
             'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream']
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         },
         'submissions': {
             'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream']
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         }
     }
 
