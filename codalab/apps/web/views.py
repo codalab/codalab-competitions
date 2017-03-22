@@ -1,5 +1,5 @@
 import csv
-import datetime
+from datetime import datetime, timedelta
 import json
 import os
 import StringIO
@@ -7,6 +7,7 @@ import sys
 import traceback
 import yaml
 import zipfile
+
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -27,19 +28,24 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext, loader
 from django.utils.decorators import method_decorator
 from django.utils.html import strip_tags
+from django.views.generic import FormView
 from django.views.generic import View, TemplateView, DetailView, ListView, UpdateView, CreateView, DeleteView
+from django.utils.html import strip_tags
+from django.utils import timezone
 
 
 from mimetypes import MimeTypes
 
+from apps.jobs.models import Job
 from apps.web import forms
 from apps.web import models
 from apps.web import tasks
 from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
-from tasks import evaluate_submission
-
+from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
+from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
+from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
 from extra_views import UpdateWithInlinesView, InlineFormSet, NamedFormsetsMixin
 
@@ -57,9 +63,45 @@ User = get_user_model()
 # General: template views
 
 
+class MyAdminView(TemplateView):
+    """Admin page for monitoring services"""
+    template_name = "web/admin_monitoring_links.html"
+
+    def get(self, *args, **kwargs):
+        redirect_url = "index.html"
+        user = self.request.user
+        if user.is_staff and user.is_active:
+            return super(MyAdminView, self).get(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(redirect_url)
+
+    def get_context_data(self, **kwargs):
+        """Used to grab context in Class Based Views"""
+        context = super(MyAdminView, self).get_context_data(**kwargs)
+        context["domain"] = Site.objects.get_current().domain
+        context["rabbit_port"] = settings.RABBITMQ_MANAGEMENT_PORT
+        context["flower_port"] = settings.FLOWER_PORT
+        return context
+
+
 class HomePageView(TemplateView):
     """Template View for homepage."""
     template_name = "web/index.html"
+
+    def get(self, *args, **kwargs):
+        if settings.SINGLE_COMPETITION_VIEW_PK:
+            # First quickly check that competition is available to view
+            try:
+                competition = models.Competition.objects.get(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+                if not competition.published:
+                    return HttpResponse("Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the "
+                                        "competition is not published so regular users won't be able to access it!")
+            except ObjectDoesNotExist:
+                raise Http404()
+
+            kwargs.update(pk=settings.SINGLE_COMPETITION_VIEW_PK)
+            return CompetitionDetailView.as_view()(*args, **kwargs)
+        return super(HomePageView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
@@ -193,6 +235,19 @@ class CompetitionUpload(LoginRequiredMixin, CreateView):
     template_name = 'web/competitions/upload_competition.html'
 
 
+class CompetitionS3Upload(LoginRequiredMixin, FormView):
+    form_class = CompetitionS3UploadForm
+    template_name = 'web/competitions/upload_s3_competition.html'
+
+    def form_valid(self, form):
+        competition_def_bundle = form.save(commit=False)
+        competition_def_bundle.owner = self.request.user
+        competition_def_bundle.save()
+        job = Job.objects.create_job('create_competition', {'comp_def_id': competition_def_bundle.pk})
+        create_competition.apply_async((job.pk, competition_def_bundle.pk,))
+        return HttpResponse(json.dumps({'token': job.pk}), status=201, content_type="application/json")
+
+
 class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesView):
     """ View to edit a competition"""
     model = models.Competition
@@ -200,6 +255,11 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
     inlines = [PagesInline, PhasesInline, LeaderboardInline]
     inlines_names = ['Pages', 'Phases', 'Leaderboards']
     template_name = 'web/competitions/edit.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(CompetitionEdit, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def forms_valid(self, form, inlines):
         form.instance.modified_by = self.request.user
@@ -243,22 +303,29 @@ class CompetitionEdit(LoginRequiredMixin, NamedFormsetsMixin, UpdateWithInlinesV
         the queryset for the "keywords" field'''
         inline_formsets = super(CompetitionEdit, self).construct_inlines()
 
-        # inline_formsets[1] == phases
-        for inline_form in inline_formsets[1].forms:
-            # get existing datasets and add them, so admins can see them!
-            input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
-            reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
-            scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+        # NOTE:
+        #   inline_formsets[0] == web pages
+        #   inline_formsets[1] == phases
 
-            inline_form.fields['input_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
-            )
-            inline_form.fields['reference_data_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
-            )
-            inline_form.fields['scoring_program_organizer_dataset'].queryset = models.OrganizerDataSet.objects.filter(
-                Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
-            )
+        # get existing datasets and add them, so admins can see them!
+        input_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('input_data_organizer_dataset')
+        reference_data_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('reference_data_organizer_dataset')
+        scoring_program_ids = models.CompetitionPhase.objects.filter(competition=self.object).values_list('scoring_program_organizer_dataset')
+
+        input_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Input Data") | Q(pk__in=input_data_ids)
+        ).select_related('uploaded_by')
+        reference_data_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Reference Data") | Q(pk__in=reference_data_ids)
+        ).select_related('uploaded_by')
+        scoring_program_organizer_dataset = models.OrganizerDataSet.objects.filter(
+            Q(uploaded_by=self.request.user, type="Scoring Program") | Q(pk__in=scoring_program_ids)
+        ).select_related('uploaded_by')
+
+        for inline_form in inline_formsets[1].forms:
+            inline_form.fields['input_data_organizer_dataset'].queryset = input_data_organizer_dataset
+            inline_form.fields['reference_data_organizer_dataset'].queryset = reference_data_organizer_dataset
+            inline_form.fields['scoring_program_organizer_dataset'].queryset = scoring_program_organizer_dataset
         return inline_formsets
 
     def get(self, request, *args, **kwargs):
@@ -335,12 +402,14 @@ def competition_message_participants(request, competition_id):
     body = strip_tags(request.POST.get('body'))
 
     if len(emails) > 0:
-        tasks.send_mass_email(
-            competition,
-            subject=subject,
-            body=body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to_emails=emails
+        tasks.send_mass_email.apply_async(
+            (competition.pk,),
+            dict(
+                subject=subject,
+                body=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_emails=emails
+            )
         )
 
     return HttpResponse(status=200)
@@ -408,7 +477,10 @@ class CompetitionDetailView(DetailView):
 
         context['tabs'] = side_tabs
         context['site'] = Site.objects.get_current()
-        context['current_server_time'] = datetime.datetime.now()
+        context['current_server_time'] = datetime.now()
+
+        if settings.USE_AWS:
+            context['submission_upload_form'] = forms.SubmissionS3UploadForm
 
         submissions = dict()
 
@@ -438,12 +510,39 @@ class CompetitionDetailView(DetailView):
             if self.request.user.is_authenticated() and self.request.user in [x.user for x in all_participants]:
                 context['my_status'] = [x.status for x in all_participants if x.user == self.request.user][0].codename
                 context['my_participant'] = competition.participants.get(user=self.request.user)
+                user_team = get_user_team(context['my_participant'], competition)
+                context['my_team'] = user_team
                 phase_iterator = iter(all_phases)
                 for phase in phase_iterator:
                     submissions[phase] = models.CompetitionSubmission.objects.filter(participant=context['my_participant'], phase=phase)
                     if phase.is_active:
                         context['my_active_phase_submissions'] = submissions[phase]
                 context['my_submissions'] = submissions
+
+                # Add alert counters for admins
+                context['comp_num_pending_teams'] = len(get_competition_pending_teams(competition))
+
+                if user_team is None:
+                    context['new_team_submission'] = 0
+                    context['my_team_alert'] = 0
+
+                    # Check if there are pending invitations from other teams
+                    if len(get_user_requests(context['my_participant'], competition)) > 0:
+                        context['my_team_alert'] = 1
+                else:
+                    context['new_team_submission'] = len(get_last_team_submissions(context['my_team'], 1))
+                    if context['my_team'].creator == self.request.user:
+                        context['my_team_alert'] = 0
+                        # Check if my team has changed in the last 24 hours (accepted/edited)
+                        if user_team.last_modified >= timezone.now() - timedelta(1):
+                            context['my_team_alert'] = 1
+                        else:
+                            # Check if there are pending requests from other users
+                            if len(get_team_pending_membership(user_team)) > 0:
+                                context['my_team_alert'] = 1
+                    else:
+                        context['my_team_alert'] = 0
+                        # TODO: Check if my membership changed in the last 24h
             else:
                 context['my_status'] = "unknown"
                 for phase in all_phases:
@@ -477,6 +576,9 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
         context = super(CompetitionSubmissionsPage, self).get_context_data(**kwargs)
         context['phase'] = None
         competition = models.Competition.objects.get(pk=self.kwargs['id'])
+
+        if settings.USE_AWS:
+            context['form'] = forms.SubmissionS3UploadForm
 
         if competition.participants.filter(user__in=[self.request.user]).exists():
             participant = competition.participants.get(user=self.request.user)
@@ -543,12 +645,17 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 def competition_submission_metadata_page(request, competition_id, phase_id):
     try:
         competition = models.Competition.objects.get(pk=competition_id)
-        selected_phase = competition.phases.get(pk=phase_id)
+        selected_phase = competition.phases.all().prefetch_related(
+            'submissions',
+            'submissions__status',
+            'submissions__participant',
+            'submissions__metadatas',
+        ).get(pk=phase_id)
     except ObjectDoesNotExist:
         raise Http404()
 
     if request.user.id != competition.creator_id and request.user not in competition.admins.all():
-            raise Http404()
+        raise Http404()
 
     return render(request, "web/competitions/submission_metadata.html", {
         'competition': competition,
@@ -761,6 +868,10 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'name': 'email'
             },
             {
+                'label': 'TEAM',
+                'name': 'team_name'
+            },
+            {
                 'label': 'STATUS',
                 'name': 'status'
             },
@@ -769,6 +880,38 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'name': 'entries'
             }
         ]
+
+        team_columns = [
+            {
+                'label': '#',
+                'name': 'number'
+            },
+            {
+                'label': 'NAME',
+                'name': 'name'
+            },
+            {
+                'label': 'CREATOR',
+                'name': 'creator'
+            },
+            {
+                'label': '# MEMBERS',
+                'name': 'num_members'
+            },
+            {
+                'label': 'PENDING REQ/INV',
+                'name': 'num_pending'
+            },
+            {
+                'label': 'STATUS',
+                'name': 'status'
+            },
+            {
+                'label': 'ENTRIES',
+                'name': 'entries'
+            }
+        ]
+
         try:
             competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
         except models.Competition.DoesNotExist:
@@ -778,6 +921,7 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
             raise Http404()
 
         context['columns'] = columns
+        context['team_columns'] = team_columns
         # retrieve participant submissions information
         participant_list = []
         competition_participants = self.queryset.filter(competition=competition)
@@ -785,6 +929,11 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
         context['pending_participants'] = filter(lambda participant_submission: participant_submission.status.codename == models.ParticipantStatus.PENDING, competition_participants)
         participant_submissions = models.CompetitionSubmission.objects.filter(participant__in=competition_participants_ids)
         for number, participant in enumerate(competition_participants):
+            team = get_user_team(participant, participant.competition)
+            if team is not None:
+                team_name = team.name
+            else:
+                team_name = ''
             participant_entry = {
                 'pk': participant.pk,
                 'name': participant.user.username,
@@ -793,13 +942,40 @@ class MyCompetitionParticipantView(LoginRequiredMixin, ListView):
                 'status': participant.status.codename,
                 'number': number + 1,
                 # equivalent to assigning participant.submissions.count() but without several multiple db queires
-                'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions))
+                'entries': len(filter(lambda participant_submission: participant_submission.participant.id == participant.id, participant_submissions)),
+                'team_name': team_name,
+                'team': team
             }
             participant_list.append(participant_entry)
         # order results
         sort_data_table(self.request, context, participant_list)
         context['participant_list'] = participant_list
         context['competition_id'] = self.kwargs.get('competition_id')
+
+        # If teams are enabled for this competition, add team information
+        competition = models.Competition.objects.get(pk=self.kwargs.get('competition_id'))
+        if competition.enable_teams:
+            context['teams_enabled'] = True
+            participant_memberships = TeamMembership.objects.filter(user__in=competition_participants_ids)
+            teams_list = []
+            for number, team in enumerate(get_competition_teams(competition)):
+                team_entry = {
+                    'pk': team.pk,
+                    'name': team.name,
+                    'creator': team.creator.username,
+                    'creator_pk': team.creator.pk,
+                    'num_members': 0,
+                    'num_pending': 0,
+                    'status': team.status.codename,
+                    'number': number + 1,
+                    # equivalent to assigning participant.submissions.count() but without several multiple db queires
+                    'entries': len(filter(
+                        lambda participant_submission: get_user_team(participant_submission.participant,
+                                                                     competition) == team, participant_submissions)),
+                }
+                teams_list.append(team_entry)
+            context['team_list'] = teams_list
+            context['pending_teams'] = get_competition_pending_teams(competition)
         return context
 
     def get_queryset(self):
@@ -918,26 +1094,34 @@ class MyCompetitionSubmissionOutput(LoginRequiredMixin, View):
             return HttpResponse(status=400)
         except:
             return HttpResponse(status=500)
-        try:
-            response = HttpResponse(file.read(), status=200, content_type=file_type)
-            if file_type == 'application/zip':
-                response['Content-Type'] = 'application/zip'
-                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+        if settings.USE_AWS:
+            if file_name:
+                return HttpResponseRedirect(
+                    _make_url_sassy(file_name)
+                )
             else:
-                response['Content-Type'] = file_type
-            return response
-        except azure.WindowsAzureMissingResourceError:
-            # for stderr.txt which does not exist when no errors have occurred
-            # this may hide a true 404 in unexpected circumstances
-            return HttpResponse("", status=200, content_type='text/plain')
-        except:
-            # Let's check to make sure we're in a prediction competition, otherwise let user know
-            if filetype.startswith("predict_") and submission.phase.is_scoring_only:
-                return HttpResponse("This competition is scoring only, prediction data not available",
-                                    content_type='text/plain')
-            else:
-                msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
-                return HttpResponse(msg % filetype, status=200, content_type='text/plain')
+                raise Http404()
+        else:
+            try:
+                response = HttpResponse(file.read(), status=200, content_type=file_type)
+                if file_type == 'application/zip':
+                    response['Content-Type'] = 'application/zip'
+                    response['Content-Disposition'] = 'attachment; filename="{0}"'.format(file_name)
+                else:
+                    response['Content-Type'] = file_type
+                return response
+            except azure.WindowsAzureMissingResourceError:
+                # for stderr.txt which does not exist when no errors have occurred
+                # this may hide a true 404 in unexpected circumstances
+                return HttpResponse("", status=200, content_type='text/plain')
+            except:
+                # Let's check to make sure we're in a prediction competition, otherwise let user know
+                if filetype.startswith("predict_") and submission.phase.is_scoring_only:
+                    return HttpResponse("This competition is scoring only, prediction data not available",
+                                        content_type='text/plain')
+                else:
+                    msg = "There was an error retrieving file '%s'. Please try again later or report the issue."
+                    return HttpResponse(msg % filetype, status=200, content_type='text/plain')
 
 
 class MyCompetitionSubmissionDetailedResults(TemplateView):
@@ -1542,7 +1726,7 @@ def submission_re_run(request, submission_pk):
             )
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1562,25 +1746,7 @@ def submission_re_run_all(request, phase_pk):
             if request.user.id != competition.creator_id and request.user not in competition.admins.all():
                 raise Http404()
 
-            # Remove duplicate submissions
-            submissions_with_duplicates = models.CompetitionSubmission.objects.filter(phase=phase)
-            submissions_without_duplicates = []
-            file_names_seen = []
-
-            for submission in submissions_with_duplicates:
-                if submission.file.name not in file_names_seen:
-                    file_names_seen.append(submission.file.name)
-                    submissions_without_duplicates.append(submission)
-
-            for submission in submissions_without_duplicates:
-                new_submission = models.CompetitionSubmission(
-                    participant=submission.participant,
-                    file=submission.file,
-                    phase=submission.phase
-                )
-                new_submission.save(ignore_submission_limits=True)
-
-                evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            re_run_all_submissions_in_phase.apply_async((phase_pk,))
 
             return HttpResponse()
         except models.CompetitionSubmission.DoesNotExist:
@@ -1612,7 +1778,7 @@ def submission_migrate(request, pk):
 
             new_submission.save(ignore_submission_limits=True)
 
-            evaluate_submission(new_submission.pk, submission.phase.is_scoring_only)
+            evaluate_submission.apply_async((new_submission.pk, submission.phase.is_scoring_only))
             submission.is_migrated = True
             submission.save()
 

@@ -4,12 +4,15 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from s3direct.widgets import S3DirectWidget
+
 import models
 from tinymce.widgets import TinyMCE
 
+from apps.queues.models import Queue
 from apps.web.models import PageContainer
 from apps.web.models import ContentCategory
-from apps.web.models import SubmissionScoreSet
 from django.conf import settings
 
 User = get_user_model()
@@ -20,6 +23,7 @@ class CompetitionForm(forms.ModelForm):
         fields = (
             'title',
             'description',
+            'queue',
             'disallow_leaderboard_modifying',
             'force_submission_to_leaderboard',
             'image',
@@ -36,12 +40,27 @@ class CompetitionForm(forms.ModelForm):
             'allow_public_submissions',
             'enable_forum',
             'anonymous_leaderboard',
+            'enable_teams',
+            'require_team_approval',
         )
         widgets = { 'description' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-description'},
                                             mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True})}
+
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
+
+        # Get public queues
+        qs = Queue.objects.filter(
+            Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+
+        )
+        # And ones you own
+        qs = qs.filter()
+        self.fields["queue"].choices = [("", "Default")]
+        self.fields["queue"].choices += [(queue.pk, str(queue)) for queue in qs]
+
 
 class CompetitionPhaseForm(forms.ModelForm):
     class Meta:
@@ -98,7 +117,7 @@ class CompetitionPhaseForm(forms.ModelForm):
 class PageForm(forms.ModelForm):
     class Meta:
         model = models.Page
-        fields = ('category', 'rank', 'label', 'html', 'container')
+        fields = ('category', 'rank', 'label', 'html')
         widgets = { 'html' : TinyMCE(attrs={'rows' : 20, 'class' : 'competition-editor-page-html'},
                                      mce_attrs={"theme" : "advanced", "cleanup_on_startup" : True, "theme_advanced_toolbar_location" : "top", "gecko_spellcheck" : True}),
                     'DELETE' : forms.HiddenInput, 'container' : forms.HiddenInput}
@@ -252,7 +271,34 @@ class UserSettingsForm(forms.ModelForm):
 
         def clean_image(self):
             if 'image' in self.changed_data:
-                file, ext = os.path.splitext(self.files['image'].name)
+                img_file, ext = os.path.splitext(self.files['image'].name)
                 self.files['image'].name = '{0}{1}'.format(self.instance.username, ext)
 
             return self.cleaned_data["image"]
+
+class CompetitionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionDefBundle
+        fields = ('s3_config_bundle',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(CompetitionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_config_bundle'].required = True
+
+
+class SubmissionS3UploadForm(forms.ModelForm):
+
+    class Meta:
+        model = models.CompetitionSubmission
+        fields = ('s3_file',)
+
+    def __init__(self, *args, **kwargs):
+        # Call constructor before fields are built
+        super(SubmissionS3UploadForm, self).__init__(*args, **kwargs)
+
+        self.fields['s3_file'].required = True
+        self.fields['s3_file'].label = ''
+>>>>>>> 3d14665cb9d34cfedb12a488a827f2caaa0d4307

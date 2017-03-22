@@ -1,11 +1,22 @@
+import re
+import uuid
+from textwrap import dedent
+
 from configurations import importer
+from django.utils.text import slugify
+
 if not importer.installed:
     importer.install()
 
 from configurations import Settings
-from configurations.utils import uppercase_attributes
-import os, sys, pkgutil, subprocess
+import os, sys
 from os.path import abspath, basename, dirname, join, normpath
+
+
+def _uuidpathext(filename, prefix):
+    filename = basename(filename)
+    filepath = join(prefix, str(uuid.uuid4()), filename)
+    return filepath
 
 
 class Base(Settings):
@@ -16,7 +27,7 @@ class Base(Settings):
     PORT = '8000'
     DOMAIN_NAME = 'localhost'
     SERVER_NAME = 'localhost'
-    DEBUG = False
+    DEBUG = os.environ.get('DEBUG', False)
     TEMPLATE_DEBUG = DEBUG
     COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
     LOCAL_MATHJAX = False # see prep_for_offline
@@ -38,10 +49,6 @@ class Base(Settings):
         'NEW_RELIC_CONFIG_FILE': '%s/newrelic.ini' % PROJECT_DIR,
     }
 
-    SSL_PORT = ''
-    SSL_CERTIFICATE = ''
-    SSL_CERTIFICATE_KEY = ''
-
     TEST_DATA_PATH = os.path.join(PROJECT_DIR,'test_data')
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'  #'codalab.test_runner.CodalabTestRunner'
     CONFIG_GEN_TEMPLATES_DIR = os.path.join(PROJECT_DIR,'config','templates')
@@ -60,7 +67,7 @@ class Base(Settings):
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
@@ -83,7 +90,7 @@ class Base(Settings):
     LANGUAGE_CODE = 'en-us'
 
     SITE_ID = 1
-    CODALAB_SITE_DOMAIN = 'codalab.org'
+    CODALAB_SITE_DOMAIN = os.environ.get('CODALAB_SITE_DOMAIN', 'localhost')
     CODALAB_SITE_NAME = 'CodaLab'
 
     # If you set this to False, Django will make some optimizations so as not
@@ -132,7 +139,7 @@ class Base(Settings):
     )
 
     # Make this unique, and don't share it with anybody.
-    SECRET_KEY = '+3_81$xxm9@3p5*wo3qpm7-4i2ixc8y4dl7do$p3-y63ynhxob'
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "a-hidden-secret")
 
     # List of callables that know how to import templates from various sources.
     TEMPLATE_LOADERS = (
@@ -202,6 +209,7 @@ class Base(Settings):
 
         # Storage API
         'storages',
+        's3direct',
 
         # Migration app
         'south',
@@ -219,6 +227,8 @@ class Base(Settings):
         'apps.forums',
         'apps.coopetitions',
         'apps.common',
+        'apps.queues',
+        'apps.teams',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -242,23 +252,13 @@ class Base(Settings):
         'ACCESS_TOKEN_EXPIRE_SECONDS': 60 * 60 * 24 * 3,  # 3 days
     }
 
-    # Email Configuration
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_HOST_USER = '--- replace with sendgrid_username ---'
-    EMAIL_HOST_PASSWORD = '--- replace with sendgrid_password ---'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    DEFAULT_FROM_EMAIL = 'CodaLab <noreply@codalab.org>'
-    SERVER_EMAIL = 'noreply@codalab.org'
-
     # Authentication configuration
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
-    ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=True
-    ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_EMAIL_REQUIRED = True
+    ACCOUNT_USERNAME_REQUIRED = True
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
@@ -280,36 +280,156 @@ class Base(Settings):
         'captcha': 'captcha.south_migrations',
     }
 
-    #HAYSTACK_CONNECTIONS = {
-    #    'default': {
-    #        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-    #        'URL': 'http://127.0.0.1:8983/solr'
-    #        # ...or for multicore...
-    #        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
-    #    },
-    #}
+    BUNDLE_SERVICE_URL = ""
 
     HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        'default': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
         },
     }
 
-    BUNDLE_SERVICE_URL = ""
+    # =========================================================================
+    # SSL
+    # =========================================================================
+    SSL_PORT = os.environ.get('SSL_PORT', '443')
+    SSL_CERTIFICATE = os.environ.get('SSL_CERTIFICATE')
+    SSL_CERTIFICATE_KEY = os.environ.get('SSL_CERTIFICATE_KEY')
 
-    # Added for catching certain parts on competitions side
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': '127.0.0.1:11211',
+    if SSL_CERTIFICATE:
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+        # SECURE_SSL_REDIRECT = True
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SECURE = True
+
+
+    # =========================================================================
+    # Caching
+    # =========================================================================
+    try:
+        # Don't force people to install/use this
+        import memcached
+
+        MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+            }
+        }
+
+        # Store information for celery
+        CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
+    except ImportError:
+        pass
+
+
+    # =========================================================================
+    # Email
+    # =========================================================================
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'CodaLab <noreply@codalab.org>')
+    SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'noreply@codalab.org')
+
+
+    # =========================================================================
+    # Storage
+    # =========================================================================
+    DEFAULT_FILE_STORAGE = os.environ.get('DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
+
+    # S3 from AWS
+    USE_AWS = DEFAULT_FILE_STORAGE == 'storages.backends.s3boto.S3BotoStorage'
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+    AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
+    AWS_S3_HOST = os.environ.get('AWS_S3_HOST', 's3-us-west-2.amazonaws.com')
+    AWS_QUERYSTRING_AUTH = os.environ.get(
+        # This stops signature/auths from appearing in saved URLs
+        'AWS_QUERYSTRING_AUTH',
+        False
+    )
+    if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
+        AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
+
+    # Azure
+    AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY')
+    AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'public')
+    BUNDLE_AZURE_ACCOUNT_NAME = os.environ.get('BUNDLE_AZURE_ACCOUNT_NAME', AZURE_ACCOUNT_NAME)
+    BUNDLE_AZURE_ACCOUNT_KEY = os.environ.get('BUNDLE_AZURE_ACCOUNT_KEY', AZURE_ACCOUNT_KEY)
+    BUNDLE_AZURE_CONTAINER = os.environ.get('BUNDLE_AZURE_CONTAINER', 'bundles')
+
+
+    # =========================================================================
+    # S3Direct (S3 uploads)
+    # =========================================================================
+    S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
+    S3DIRECT_DESTINATIONS = {
+        'competitions': {
+            'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
+        },
+        'submissions': {
+            'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
+            'auth': lambda u: u.is_authenticated(),
+            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         }
     }
 
-    # A sample logging configuration. The only tangible logging
-    # performed by this configuration is to send an email to
-    # the site admins on every HTTP 500 error when DEBUG=False.
-    # See http://docs.djangoproject.com/en/dev/topics/logging for
-    # more details on how to customize your logging configuration.
+
+    # =========================================================================
+    # RabbitMQ
+    # =========================================================================
+    RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
+    RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
+    RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'rabbit')
+    RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+    RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
+
+
+    # =========================================================================
+    # Celery
+    # =========================================================================
+    BROKER_URL = os.environ.get('BROKER_URL')
+    if not BROKER_URL:
+        # BROKER_URL might be set but empty, make sure it's set!
+        BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
+    BROKER_POOL_LIMIT = None  # Stops connection timeout
+    BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
+    # Don't use pickle -- dangerous
+    CELERY_ACCEPT_CONTENT = ['json']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
+    # Keep celery from becoming unresponsive
+    CELERY_ACKS_LATE = True
+    CELERYD_PREFETCH_MULTIPLIER = 1
+    CELERYD_TASK_SOFT_TIME_LIMIT = 180  # 3 minutes
+    FLOWER_PORT = os.environ.get('FLOWER_PORT', '15672')
+    # Run as *not* root
+    CELERYD_USER = "workeruser"
+    CELERYD_GROUP = "workeruser"
+
+
+    # =========================================================================
+    # Single Competition Mode
+    # =========================================================================
+    # Single competition mode? Uncomment this and specify a
+    # competition pk to focus on
+    SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
+
+
+    # =========================================================================
+    # Logging
+    # =========================================================================
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -362,6 +482,43 @@ class Base(Settings):
         }
     }
 
+
+    # =========================================================================
+    # Database
+    # =========================================================================
+    mysqldb = os.environ.get('MYSQL_DATABASE')
+
+    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': ':memory:',
+            }
+        }
+    elif mysqldb:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': os.environ.get('MYSQL_DATABASE'),
+                'USER': os.environ.get('MYSQL_USERNAME', 'root'),
+                'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+                'HOST': 'mysql',
+                'OPTIONS': {
+                    'init_command': "SET time_zone='+00:00';",
+                },
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': 'codalab.sqlite3',
+            }
+        }
+
+    # =========================================================================
+    # Misc
+    # =========================================================================
     GRAPH_MODELS = {
         'all_applications': True,
         'group_models': True,
@@ -399,22 +556,22 @@ class Base(Settings):
 
 class DevBase(Base):
 
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-    INTERNAL_IPS = ('127.0.0.1',)
-    DEBUG = True
-    ACCOUNT_EMAIL_VERIFICATION = None
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    if os.environ.get('DEBUG', False):
+        OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+        INTERNAL_IPS = ('127.0.0.1',)
+        ACCOUNT_EMAIL_VERIFICATION = None
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
         }
-    }
-    EXTRA_MIDDLEWARE_CLASSES = (
-        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'userswitch.middleware.UserSwitchMiddleware',)
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES' : True,
-    }
-    # Increase amount of logging output in Dev mode.
-    for logger_name in ('codalab', 'apps'):
-        Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
+        EXTRA_MIDDLEWARE_CLASSES = (
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+            'userswitch.middleware.UserSwitchMiddleware',)
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TEMPLATE_CONTEXT': True,
+            'ENABLE_STACKTRACES' : True,
+        }
+        # Increase amount of logging output in Dev mode.
+        # for logger_name in ('codalab', 'apps'):
+        #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'

@@ -2,25 +2,7 @@ import os
 from django.db import models
 from django.contrib.auth import models as auth_models
 from django.utils.functional import cached_property
-from django.conf import settings
-from django.core.files.storage import get_storage_class
-
-## Needed for computation service handling
-## Hack for now
-StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
-try:
-    BundleStorage = StorageClass(account_name=settings.BUNDLE_AZURE_ACCOUNT_NAME,
-                                        account_key=settings.BUNDLE_AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.BUNDLE_AZURE_CONTAINER)
-
-    PublicStorage = StorageClass(account_name=settings.AZURE_ACCOUNT_NAME,
-                                        account_key=settings.AZURE_ACCOUNT_KEY,
-                                        azure_container=settings.AZURE_CONTAINER)
-
-except:
-    BundleStorage = StorageClass()
-    PublicStorage = StorageClass()
-
+from apps.web.utils import PublicStorage
 
 class ClUser(auth_models.AbstractUser):
     """
@@ -59,8 +41,8 @@ class ClUser(auth_models.AbstractUser):
 
     def update_filename(instance, filename):
         path = "user_photo"
-        format = instance.username + instance.file_extension
-        return os.path.join(path, format)
+        img_format = "{0}{1}".format(instance.username, instance.file_extension)
+        return os.path.join(path, img_format)
 
     def save(self, *args, **kwargs):
         # Make sure the image_url_base is set from the actual storage implementation
@@ -75,3 +57,8 @@ class ClUser(auth_models.AbstractUser):
         if self.image:
             return os.path.join(self.image_url_base, self.image.name)
         return None
+
+    rabbitmq_queue_limit = models.PositiveIntegerField(default=5, blank=True)
+    rabbitmq_username = models.CharField(max_length=36, null=True, blank=True)
+    rabbitmq_password = models.CharField(max_length=36, null=True, blank=True)
+

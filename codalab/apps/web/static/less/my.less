@@ -9,7 +9,6 @@
     }
 }
 
-
 .my-datasets {
     table {
         .cl-table-style;
@@ -23,4 +22,71 @@
             .form-control;
         }
     }
+}
+
+/******************************
+ * COMPETITION UPLOAD STYLING *
+ ******************************/
+
+.s3-panel {
+  margin-top: 5%;
+
+  label, .errorlist{
+    display: none;
+  }
+
+  .btn-primary{
+    width: 50%;
+    min-width: 200px;
+    margin: 25px 25%;
+  }
+
+  .s3direct {
+      margin: 5px auto;
+      width: 100%;
+      float:none;
+
+      .file-link, .progress {
+      margin: 0 auto;
+      width: 100%;
+      float: none;
+      text-align: center;
+      }
+
+      .file-input, .file-remove {
+          display: none !important;
+      }
+    }
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+/***********************
+ * SUBMIT RESULTS PAGE *
+ ***********************/
+.s3direct.form-active, .s3direct.link-active, .submission_upload_details {
+    display: none !important;
+}
+
+#s3-file-upload.btn {
+    width: 100%;
+}
+
+.s3direct {
+  .progress {
+    display: none !important;
+  }
 }

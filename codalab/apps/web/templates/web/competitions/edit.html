@@ -28,16 +28,22 @@
                                 {{field.label}}
                             </label>
                             {{ field.errors }}
+                            {% if field.help_text %}
+                                <i>{{ field.help_text }}</i>
+                            {% endif %}
                         </div>
                     </div>
                 {% else %}
-                <label for="{{field.id_for_label}}" class="col-sm-3 control-label">{{field.label}}{{form.label_suffix}}</label>
-                <div class="col-sm-9">
-                    <div class="field-container">
-                        {{ field }}
-                        {{ field.errors }}
+                    <label for="{{field.id_for_label}}" class="col-sm-3 control-label">
+                        {{field.label}}{{form.label_suffix}}
+                    </label>
+                    <div class="col-sm-9">
+                        <div class="field-container">
+                            {{ field }}
+                            {{ field.errors }}
+                            <p><i>{{ field.help_text }}</i></p>
+                        </div>
                     </div>
-                </div>
                 {% endif %}
             </div>
         {% endfor %}

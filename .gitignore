@@ -1,5 +1,13 @@
+# Docker #
+##########
+.env
+!certs/.gitkeep
+certs/
+var/*
+
 # CodaLab Files #
 #################
+codalab/node_modules/
 codalab/config/generated
 codalab/static/**/**
 codalab/media/**/**

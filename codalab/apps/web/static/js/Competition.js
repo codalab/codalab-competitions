@@ -118,50 +118,8 @@ var Competition;
                             $('#details').html('There was an error uploading the file. Please try again.');
                             $('#fileUploadButton').removeClass('disabled');
                         },
-                        uploadSuccess: function(file, trackingId) {
-                            $('#details').html('Creating new submission...');
-                            var description = $('#submission_description_textarea').val() || '';
-                            var method_name = $('#submission_method_name').val() || '';
-                            var method_description = $('#submission_method_description').val() || '';
-                            var project_url = $('#submission_project_url').val() || '';
-                            var publication_url = $('#submission_publication_url').val() || '';
-                            var bibtex = $('#submission_bibtex').val() || '';
-                            var team_name = $('#submission_team_name').val() || '';
-                            var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
-                            var phase_id = $('#submission_phase_id').val();
-
-                            $('#submission_description_textarea').val('');
-                            $.ajax({
-                                url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
-                                                                                      '&method_name=' + encodeURIComponent(method_name) +
-                                                                                      '&method_description=' + encodeURIComponent(method_description) +
-                                                                                      '&project_url=' + encodeURIComponent(project_url) +
-                                                                                      '&publication_url=' + encodeURIComponent(publication_url) +
-                                                                                      '&team_name=' + encodeURIComponent(team_name) +
-                                                                                      '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
-                                                                                      '&bibtex=' + encodeURIComponent(bibtex) +
-                                                                                      '&phase_id=' + encodeURIComponent(phase_id),
-                                type: 'post',
-                                cache: false,
-                                data: { 'id': trackingId, 'name': file.name, 'type': file.type, 'size': file.size }
-                            }).done(function(response) {
-                                $('#details').html('');
-                                $('#user_results tr.noData').remove();
-                                $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
-                                $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
-                                $('#fileUploadButton').removeClass('disabled');
-                                //$('#fileUploadButton').text("Submit Results...");
-                                $('#user_results #' + response.id + ' .glyphicon-plus').click();
-                            }).fail(function(jqXHR) {
-                                var msg = 'An unexpected error occurred.';
-                                if (jqXHR.status == 403) {
-                                    msg = jqXHR.responseJSON.detail;
-                                }
-                                $('#details').html(msg);
-                                //$('#fileUploadButton').text("Submit Results...");
-                                $('#fileUploadButton').removeClass('disabled');
-                            });
-                        }
+                        // We pulled out this function to be able to support S3 and Azure Storage
+                        uploadSuccess: Competition.submitUploadedSubmissionDetails
                     });
                 }
                 $('#user_results .glyphicon-plus').on('click', function() {
@@ -318,6 +276,57 @@ var Competition;
         var mstr = fmt2(d.getMinutes());
         var sstr = fmt2(d.getSeconds());
         return 'Last modified: ' + dstr + ' at ' + hstr + ':' + mstr + ':' + sstr;
+    }
+
+    Competition.submitUploadedSubmissionDetails = function(file, trackingId) {
+        var competitionId = $("#competitionId").val()
+        $('#details').html('Creating new submission...');
+        var description = $('#submission_description_textarea').val() || '';
+        var method_name = $('#submission_method_name').val() || '';
+        var method_description = $('#submission_method_description').val() || '';
+        var project_url = $('#submission_project_url').val() || '';
+        var publication_url = $('#submission_publication_url').val() || '';
+        var bibtex = $('#submission_bibtex').val() || '';
+        var team_name = $('#submission_team_name').val() || '';
+        var organization_or_affiliation = $('#submission_organization_or_affiliation').val() || '';
+        var phase_id = $('#submission_phase_id').val();
+
+        $('#submission_description_textarea').val('');
+        $.ajax({
+            url: '/api/competition/' + competitionId + '/submission?description=' + encodeURIComponent(description) +
+                                                                  '&method_name=' + encodeURIComponent(method_name) +
+                                                                  '&method_description=' + encodeURIComponent(method_description) +
+                                                                  '&project_url=' + encodeURIComponent(project_url) +
+                                                                  '&publication_url=' + encodeURIComponent(publication_url) +
+                                                                  '&team_name=' + encodeURIComponent(team_name) +
+                                                                  '&organization_or_affiliation=' + encodeURIComponent(organization_or_affiliation) +
+                                                                  '&bibtex=' + encodeURIComponent(bibtex) +
+                                                                  '&phase_id=' + encodeURIComponent(phase_id),
+            type: 'post',
+            cache: false,
+            data: {
+                'id': trackingId,
+                'name': file ? file.name : '',
+                'type': file ? file.type : '',
+                'size': file ? file.size : ''
+            }
+        }).done(function(response) {
+            $('#details').html('');
+            $('#user_results tr.noData').remove();
+            $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
+            $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
+            $('#fileUploadButton').removeClass('disabled');
+            //$('#fileUploadButton').text("Submit Results...");
+            $('#user_results #' + response.id + ' .glyphicon-plus').click();
+        }).fail(function(jqXHR) {
+            var msg = 'An unexpected error occurred.';
+            if (jqXHR.status == 403) {
+                msg = jqXHR.responseJSON.detail;
+            }
+            $('#details').html(msg);
+            //$('#fileUploadButton').text("Submit Results...");
+            $('#fileUploadButton').removeClass('disabled');
+        });
     }
 
     Competition.displayNewSubmission = function(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation) {

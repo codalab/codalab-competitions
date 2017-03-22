@@ -27,7 +27,12 @@
 {% if is_admin_or_owner %}
     <h3>Admin features</h3>
     <a href="{% url "competitions:edit" pk=competition.pk %}" class="btn btn-primary">Edit</a>
-    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">Participants</a>
+    <a href="{% url 'my_competition_participants' competition_id=competition.pk %}" class="btn btn-primary">
+        Participants
+        {% if comp_num_pending_teams > 0 %}
+        <span class="glyphicon glyphicon-exclamation-sign" style="color:red">
+        {% endif %}
+    </a>
     <a href="{% url 'my_competition_submissions' competition_id=competition.pk %}" class="btn btn-primary">Submissions</a>
     <hr>
 {% endif %}
@@ -126,6 +131,21 @@
                     {% endif %}
                     {% if competition.enable_forum %}
                     <li><a href="{% url 'forum_detail' forum_pk=competition.forum.pk %}">Forums <i class="glyphicon glyphicon-log-in"></i></a></li>
+                    {% endif %}
+                    {% if competition.enable_teams %}
+                        {% if my_status == "approved" %}
+                            <li>
+                                <a href="{% url 'team_detail' competition_pk=competition.pk %}">Team
+                                    <i class="glyphicon glyphicon-cog"></i>
+                                    {% if new_team_submission > 0 %}
+                                        <span class="label label-danger">{{new_team_submission}}</span>
+                                    {% endif %}
+                                    {% if my_team_alert == 1 %}
+                                        <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endfor %}
@@ -253,4 +273,8 @@
         });
 
     </script>
+{% endblock %}
+
+{% block extra_headers %}
+    {{ submission_upload_form.media }}
 {% endblock %}

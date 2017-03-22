@@ -139,6 +139,12 @@ class DeploymentConfig(BaseConfig):
         """Gets the base SSH port value. If this value is N, the k-th web instance will have SSH port number (N+k)."""
         return self._svc['vm']['ssh-port']
 
+    def get_broker_url(self):
+        return self._svc['broker-url']
+
+    def get_CELERY_DEFAULT_ROUTING_KEY(self):
+        return self._svc['broker-routing-key']
+
     def getGitUser(self):
         """Gets the name of the Git user associated with the target source code repository."""
         return self._svc['git']['user']
@@ -191,13 +197,21 @@ class DeploymentConfig(BaseConfig):
         """Gets the password for the database admin."""
         return self._svc['database']['admin_password']
 
+    def getUseAWS(self):
+        """Gets the service cloud storage account name."""
+        return self._svc['storage'].get('storage-class') == 'storages.backends.s3boto.S3BotoStorage'
+
+    def getFileStorageClass(self):
+        """Gets the service cloud storage account name."""
+        return self._svc['storage'].get('storage-class', 'codalab.azure_storage.AzureStorage')
+
     def getServiceStorageAccountName(self):
         """Gets the service cloud storage account name."""
-        return self._svc['storage']['storage-account-name']
+        return self._svc['storage'].get('storage-account-name')
 
     def get_service_storage_account_key(self):
         """Gets the storage account key."""
-        return self._svc['storage']['storage-account-key']
+        return self._svc['storage'].get('storage-account-key')
 
     def getServiceCertificateAlgorithm(self):
         """Gets the algorithm for the service certificate."""
@@ -205,11 +219,11 @@ class DeploymentConfig(BaseConfig):
 
     def getServicePublicStorageContainer(self):
         """Gets the name of the public Blob container for the service."""
-        return self._svc['storage']['public-container']
+        return self._svc['storage'].get('public-container')
 
     def getServiceBundleStorageContainer(self):
         """Gets the name of the bundle Blob container for the service."""
-        return self._svc['storage']['bundles-container']
+        return self._svc['storage'].get('bundles-container')
 
     def getServiceStorageCorsAllowedOrigins(self):
         """Gets the comma-separated list of allowed hosts for CORS with Windows Azure storage service."""
@@ -304,6 +318,7 @@ class Deployment(object):
             "from os.path import dirname, abspath, join",
             "from pkgutil import extend_path",
             "import codalab",
+            "import uuid",
             "",
             "class {0}(Base):".format(self.config.getDjangoConfiguration()),
             "",
@@ -316,7 +331,35 @@ class Deployment(object):
             "    SSL_CERTIFICATE_KEY = '{0}'".format(self.config.getSslCertificateKeyInstalledPath()),
             "    SSL_ALLOWED_HOSTS = {0}".format(ssl_allowed_hosts),
             "",
-            "    DEFAULT_FILE_STORAGE = 'codalab.azure_storage.AzureStorage'",
+
+            "    DEFAULT_FILE_STORAGE = '{0}'".format(self.config.getFileStorageClass()),
+
+            # AWS
+            '    USE_AWS = {0}'.format(self.config.getUseAWS()),
+            '    AWS_ACCESS_KEY_ID = "{0}"'.format(self.config._svc['storage'].get('AWS_ACCESS_KEY_ID')),
+            '    AWS_SECRET_ACCESS_KEY = "{0}"'.format(self.config._svc['storage'].get('AWS_SECRET_ACCESS_KEY')),
+            '    AWS_STORAGE_BUCKET_NAME = "{0}"'.format(self.config._svc['storage'].get('AWS_STORAGE_BUCKET_NAME')),
+            '    AWS_STORAGE_PRIVATE_BUCKET_NAME = "{0}"'.format(self.config._svc['storage'].get('AWS_STORAGE_PRIVATE_BUCKET_NAME')),
+            '    AWS_S3_CALLING_FORMAT = "boto.s3.connection.OrdinaryCallingFormat"',
+            '    AWS_S3_HOST = "s3-us-west-2.amazonaws.com"',
+            '    AWS_QUERYSTRING_AUTH = False  # This stops signature/auths from appearing in saved URLs',
+
+            # S3Direct (S3 uploads)
+            "    S3DIRECT_REGION = 'us-west-2'",
+            "    S3DIRECT_DESTINATIONS = {",
+            "        'competitions': {",
+            "            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),",
+            "            'auth': lambda u: u.is_authenticated(),",
+            "            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,",
+            "        },",
+            "        'submissions': {",
+            "            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),",
+            "            'auth': lambda u: u.is_authenticated(),",
+            "            'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,",
+            "        }",
+            "    }",
+
+            # Azure
             "    AZURE_ACCOUNT_NAME = '{0}'".format(self.config.getServiceStorageAccountName()),
             "    AZURE_ACCOUNT_KEY = '{0}'".format(self.config.get_service_storage_account_key()),
             "    AZURE_CONTAINER = '{0}'".format(self.config.getServicePublicStorageContainer()),
@@ -341,6 +384,8 @@ class Deployment(object):
             "    DEFAULT_FROM_EMAIL = 'CodaLab <info@codalab.org>'",
             "    SERVER_EMAIL = 'info@codalab.org'",
             "",
+            "    BROKER_URL = '{0}'".format(self.config.get_broker_url()),
+            # "    CELERY_DEFAULT_ROUTING_KEY = '{0}'".format(self.config.get_CELERY_DEFAULT_ROUTING_KEY()),
             "    # Django secret",
             "    SECRET_KEY = '{0}'".format(self.config.getDjangoSecretKey()),
             "",
