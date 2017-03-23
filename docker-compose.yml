@@ -26,6 +26,10 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
+    environment:
+      # These aren't set in .env
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - ./docker:/app/docker
       - ./docker/mysql:/etc/mysql/conf.d
