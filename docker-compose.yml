@@ -74,6 +74,8 @@ services:
       - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - AMQP_HOST=rabbit
       - AMQP_PORT=${RABBITMQ_PORT}
+      - FLOWER_CERTFILE=${SSL_CERTIFICATE}
+      - FLOWER_KEYFILE=${SSL_CERTIFICATE_KEY}
     volumes:
       - ./certs:/app/certs
     env_file: .env
