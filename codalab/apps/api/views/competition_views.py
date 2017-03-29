@@ -3,9 +3,11 @@ Defines Django views for 'apps.api' app for competitions
 """
 import json
 import logging
+import os
 
 from uuid import uuid4
 
+from django.utils.text import slugify
 from rest_framework import (permissions, status, viewsets, views, filters)
 from rest_framework.decorators import action, link, permission_classes
 from rest_framework.exceptions import PermissionDenied, ParseError
@@ -27,6 +29,7 @@ from django.utils.html import escape
 from apps.api import serializers
 from apps.jobs.models import Job
 from apps.web import models as webmodels
+from apps.teams import models as teammodels
 from apps.web.tasks import (create_competition, evaluate_submission)
 
 from codalab.azure_storage import make_blob_sas_url, PREFERRED_STORAGE_X_MS_VERSION
@@ -377,6 +380,33 @@ class CompetitionAPIViewSet(viewsets.ModelViewSet):
 
         return Response(json.dumps(resp), content_type="application/json")
 
+    @action(methods=['POST', 'PUT'], permission_classes=[permissions.IsAuthenticated])
+    def team_status(self, request, pk=None):
+        comp = self.get_object()
+        resp = {}
+        status = request.DATA['status']
+        teamID = request.DATA['team_id']
+        reason = request.DATA['reason']
+
+        if comp.creator != request.user and request.user not in comp.admins.all():
+            raise PermissionDenied()
+
+        try:
+            team = teammodels.Team.objects.get(competition=comp, pk=teamID)
+            team.status = teammodels.TeamStatus.objects.get(codename=status)
+            team.reason = reason
+            team.save()
+            resp = {
+                'status': status,
+                'teamId': teamID,
+                'reason': reason
+            }
+        except ObjectDoesNotExist as e:
+            resp = {
+                'status': 400
+            }
+        return Response(json.dumps(resp), content_type="application/json")
+
     @action(permission_classes=[permissions.IsAuthenticated])
     def info(self, request, *args, **kwargs):
         comp = self.get_object()
@@ -499,6 +529,7 @@ class CompetitionSubmissionSasApi(views.APIView):
         response_data = _generate_blob_sas_url(prefix, '.zip')
         return Response(response_data, status=status.HTTP_201_CREATED)
 
+
 @permission_classes((permissions.IsAuthenticated,))
 class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
     queryset = webmodels.CompetitionSubmission.objects.all()
@@ -527,9 +558,14 @@ class CompetitionSubmissionViewSet(viewsets.ModelViewSet):
         obj.phase = phase
 
         blob_name = self.request.DATA['id'] if 'id' in self.request.DATA else ''
+
         if len(blob_name) <= 0:
             raise ParseError(detail='Invalid or missing tracking ID.')
         if settings.USE_AWS:
+            # obj.readable_filename = os.path.basename(blob_name)
+            # Get file name from url and ensure we aren't getting GET params along with it
+            obj.readable_filename = blob_name.split('/')[-1]
+            obj.readable_filename = obj.readable_filename.split('?')[0]
             obj.s3_file = blob_name
         else:
             obj.file.name = blob_name

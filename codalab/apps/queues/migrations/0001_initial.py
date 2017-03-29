@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("authenz", "0002_auto__add_cluser"),
+    )
+
     def forwards(self, orm):
         # Adding model 'Queue'
         db.create_table(u'queues_queue', (

@@ -1,14 +1,22 @@
+import re
 import uuid
 from textwrap import dedent
 
 from configurations import importer
+from django.utils.text import slugify
+
 if not importer.installed:
     importer.install()
 
 from configurations import Settings
-from configurations.utils import uppercase_attributes
-import os, sys, pkgutil, subprocess
+import os, sys
 from os.path import abspath, basename, dirname, join, normpath
+
+
+def _uuidpathext(filename, prefix):
+    filename = basename(filename)
+    filepath = join(prefix, str(uuid.uuid4()), filename)
+    return filepath
 
 
 class Base(Settings):
@@ -59,7 +67,7 @@ class Base(Settings):
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
@@ -127,7 +135,7 @@ class Base(Settings):
     )
 
     # Make this unique, and don't share it with anybody.
-    SECRET_KEY = '+3_81$xxm9@3p5*wo3qpm7-4i2ixc8y4dl7do$p3-y63ynhxob'
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', "a-hidden-secret")
 
     # List of callables that know how to import templates from various sources.
     TEMPLATE_LOADERS = (
@@ -216,6 +224,7 @@ class Base(Settings):
         'apps.coopetitions',
         'apps.common',
         'apps.queues',
+        'apps.teams',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -243,9 +252,9 @@ class Base(Settings):
     LOGIN_REDIRECT_URL = '/'
     ANONYMOUS_USER_ID = -1
     ACCOUNT_AUTHENTICATION_METHOD='username_email'
-    ACCOUNT_EMAIL_REQUIRED=True
-    ACCOUNT_USERNAME_REQUIRED=True
-    ACCOUNT_EMAIL_VERIFICATION='mandatory'
+    ACCOUNT_EMAIL_REQUIRED = True
+    ACCOUNT_USERNAME_REQUIRED = True
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_SIGNUP_FORM_CLASS = 'apps.authenz.forms.CodalabSignupForm'
 
     # Django Analytical configuration
@@ -292,13 +301,22 @@ class Base(Settings):
     # =========================================================================
     # Caching
     # =========================================================================
-    MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-            'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+    try:
+        # Don't force people to install/use this
+        import memcached
+
+        MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', 11211)
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                'LOCATION': 'memcached:{}'.format(MEMCACHED_PORT),
+            }
         }
-    }
+
+        # Store information for celery
+        CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
+    except ImportError:
+        pass
 
 
     # =========================================================================
@@ -350,14 +368,16 @@ class Base(Settings):
     S3DIRECT_REGION = os.environ.get('S3DIRECT_REGION', 'us-west-2')
     S3DIRECT_DESTINATIONS = {
         'competitions': {
-            'key': lambda f: 'uploads/competitions/{}/competition.zip'.format(uuid.uuid4()),
+            'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         },
         'submissions': {
-            'key': lambda f: 'uploads/submissions/{}/submission.zip'.format(uuid.uuid4()),
+            'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         }
     }
 
@@ -371,6 +391,7 @@ class Base(Settings):
     RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
     RABBITMQ_MANAGEMENT_PORT = os.environ.get('RABBITMQ_MANAGEMENT_PORT', '15672')
 
+
     # =========================================================================
     # Celery
     # =========================================================================
@@ -380,8 +401,6 @@ class Base(Settings):
         BROKER_URL = 'pyamqp://{}:{}@{}:{}//'.format(RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
     BROKER_POOL_LIMIT = None  # Stops connection timeout
     BROKER_USE_SSL = SSL_CERTIFICATE or os.environ.get('BROKER_USE_SSL', False)
-    # Store results
-    CELERY_RESULT_BACKEND = 'cache+memcached://memcached:{}/'.format(MEMCACHED_PORT)
     # Don't use pickle -- dangerous
     CELERY_ACCEPT_CONTENT = ['json']
     CELERY_TASK_SERIALIZER = 'json'
@@ -463,35 +482,78 @@ class Base(Settings):
     # =========================================================================
     # Database
     # =========================================================================
-    mysqldb = os.environ.get('MYSQL_DATABASE')
-
-    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
+    db_engine = os.environ.get('DB_ENGINE')
+    if db_engine:
+        if db_engine == 'mysql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'mysql'),
+                    'PORT': os.environ.get('DB_PORT', '3306'),
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
             }
-        }
-    elif mysqldb:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': os.environ.get('MYSQL_DATABASE'),
-                'USER': os.environ.get('MYSQL_USERNAME', 'root'),
-                'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-                'HOST': 'mysql',
-                'OPTIONS': {
-                    'init_command': "SET time_zone='+00:00';",
-                },
+        elif db_engine == 'postgresql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'postgresql'),
+                    'PORT': os.environ.get('DB_PORT', '5432'),
+                }
             }
-        }
+        elif db_engine == 'sqlite3':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
+            }
     else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': 'codalab.sqlite3',
+        # IF DB_ENGINE is not set, old behaviour is used
+        mysqldb = os.environ.get('MYSQL_DATABASE')
+
+        if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
             }
-        }
+        elif mysqldb:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('MYSQL_DATABASE'),
+                    'USER': os.environ.get('MYSQL_USERNAME', 'root'),
+                    'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+                    'HOST': 'mysql',
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
 
     # =========================================================================
     # Misc
@@ -520,8 +582,6 @@ class Base(Settings):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME })
-        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
-            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
     @classmethod
     def post_setup(cls):
@@ -530,24 +590,27 @@ class Base(Settings):
         if not hasattr(cls,'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
+        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
+            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
 class DevBase(Base):
 
-    OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
-    INTERNAL_IPS = ('127.0.0.1',)
-    ACCOUNT_EMAIL_VERIFICATION = None
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    if os.environ.get('DEBUG', False):
+        OPTIONAL_APPS = ('debug_toolbar','django_extensions',)
+        INTERNAL_IPS = ('127.0.0.1',)
+        ACCOUNT_EMAIL_VERIFICATION = None
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
         }
-    }
-    EXTRA_MIDDLEWARE_CLASSES = (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'userswitch.middleware.UserSwitchMiddleware',)
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TEMPLATE_CONTEXT': True,
-        'ENABLE_STACKTRACES' : True,
-    }
-    # Increase amount of logging output in Dev mode.
-    # for logger_name in ('codalab', 'apps'):
-    #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'
+        EXTRA_MIDDLEWARE_CLASSES = (
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+            'userswitch.middleware.UserSwitchMiddleware',)
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TEMPLATE_CONTEXT': True,
+            'ENABLE_STACKTRACES' : True,
+        }
+        # Increase amount of logging output in Dev mode.
+        # for logger_name in ('codalab', 'apps'):
+        #     Base.LOGGING['loggers'][logger_name]['level'] = 'DEBUG'

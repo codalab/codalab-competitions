@@ -1,15 +1,13 @@
+# Azure
+git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
+
 Django==1.6.11
-alembic==0.6.7
 anyjson==0.3.3
-argparse
-# azure==0.7.1
-closure_linter
 django-allauth==0.11.1
 django-analytical==0.15.0
 django-appconf==0.6
 django-compressor==1.3
 django-config-gen==1.0.8
-# django-configurations
 django-configurations==0.8
 django-debug-toolbar==1.3.0
 sqlparse==0.1.19
@@ -23,44 +21,27 @@ django-js-reverse>=0.2.0
 django-mptt==0.5.5
 django-nose==1.4.1
 django-oauth-toolkit==0.6.1
-#django-storages==1.1.8 # Replaced by storages-redux.. need to uninstall storages..
 django-storages-redux==1.3.2
 django-tinymce==2.0.5
 djangorestframework==2.3.6
 mock==1.0.1
 oauthlib==0.6.1
-psutil==2.1.1
 python-openid==2.2.5
 python-ptrace==0.6.5
 pytz==2013b
 PyYAML==3.10
-requests-oauthlib==0.3.2
-requests==1.2.3
 six==1.10.0
 South==1.0.2
-SQLAlchemy==0.9.7
-watchdog==0.8.1
 wsgiref==0.1.2
 django-simple-captcha==0.4.5
 django-bootstrap-form==3.2
-newrelic==2.54.0.41
-python-memcached==1.57
-
 celery==3.1.25
 boto==2.45.0
 django-s3direct==0.4.8
 pyrabbit==1.1.0
 
-gunicorn==19.7.0
+# need this later version to get accurate memory readings in docker
+psutil==5.2.0
 
-#Extras added
-git+https://github.com/ikraft/django-userswitch.git
-Sphinx==1.4.1
-
-
-# Added for python sdk
-git+https://github.com/FlavioAlexander/azure-sdk-for-python.git@legacy
-
-# Required when PostgreSQL is used
+# Required when PostgreSQL is used in competitions
 psycopg2==2.7.1
-

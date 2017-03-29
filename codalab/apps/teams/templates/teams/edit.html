@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load tz %}
+
+{% block head_title %}Edit Team{% endblock head_title %}
+{% block page_title %}Edit Team{% endblock page_title %}
+
+{% block extra_headers %}
+{# include extra JS stuff here #}
+    {{ form.media }}
+{% endblock extra_headers %}
+{% block extra_scripts %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}teams/teams.css">
+{% endblock extra_scripts %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>{{ competition.title }}</h2>
+                <a href="{% url 'team_detail' competition_pk=competition.pk %}" class="btn btn-default pull-left">Go back</a>
+            </div>
+        </div>
+    </div>
+<form action="" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
+    {% if errors %}
+        <div class="alert alert-error">
+            There were errors processing the form, please try reloading the page!
+        </div>
+    {% endif %}
+
+    {% if saved_successfully %}
+        <div class="alert alert-success">
+            Saved successfully!
+        </div>
+    {% endif %}
+
+    {% if form.errors %}
+        <div class="alert alert-error">
+            {% for field, msg in form.errors.items %}
+                <b>{{ field }}</b> {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <h3><b>Team Information</b></h3>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-striped affiliation">
+                <tbody>
+                    <tr>
+                        <th>{{ form.name.label }}</th>
+                        <td>{{ form.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.image.label }}</th>
+                        <td>{{ form.image }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.description.label }}</th>
+                        <td>{{ form.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.allow_requests.label }}</th>
+                        <td>{{ form.allow_requests }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr />
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <button type="submit" class="medium button blue btn btn-primary btn-block">Submit</button>
+        </div>
+    </div>
+</form>
+{% endblock content %}
+
+{% block jsincludes %}
+    <script src="{{ STATIC_URL }}js/vendor/django-formset.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.datetimepicker.js"></script>
+{% endblock jsincludes %}
+
+{% block js %}
+
+{% endblock js %}
