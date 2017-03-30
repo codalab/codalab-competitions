@@ -38,6 +38,11 @@
                 <input id="id_confirmation_key" name="confirmation_key" type="hidden">
             </div>
 
+            <div class="form-group">
+                <input type='checkbox' id="id_accept_rules" name='accept_rules' required="True">
+                <label for="id_accept_rules">I accept the <a href="https://github.com/codalab/codalab-competitions/wiki/Privacy" target="_blank">terms and conditions</a></label>
+            </div>
+
             {% if redirect_field_value %}
 		          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
             {% endif %}
