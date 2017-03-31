@@ -16,7 +16,6 @@
         <div class="row">
             <div class="col-lg-12">
                 <h2>{{ competition.title }}</h2>
-                <a href="{% url 'competitions:view' pk=competition.pk %}" class="btn btn-default pull-left">Go back to competition</a>
             </div>
         </div>
     </div>
@@ -25,7 +24,7 @@
             {% if not team %}
                 {% if not pending_teams %}
                     <div class="alert alert-error">
-                        You are not in any team for this competition. You can create a new team or request to enrol to an existing team
+                        You are not in any team for this competition. You can create a new team or request enrollment to an existing team
                     </div>
                     <div class="container-fluid">
                         <div class="row">
@@ -101,9 +100,6 @@
                     <div class="col-sm-12">
                         <table class="table table-striped affiliation">
                             <thead>
-                                <tr class="table-title">
-                                    <th colspan="4">Invitations</th>
-                                </tr>
                                 <tr class="leaderboard-result-table-header">
                                     <th>Team</th>
                                     <th>Message</th>
@@ -136,9 +132,6 @@
                     <div class="col-sm-12">
                         <table class="table table-striped affiliation">
                             <thead>
-                                <tr class="table-title">
-                                    <th colspan="4">Requests</th>
-                                </tr>
                                 <tr class="leaderboard-result-table-header">
                                     <th>Team</th>
                                     <th>Message</th>
@@ -348,4 +341,3 @@
         </div>
     </div>
 {% endblock content %}
-
