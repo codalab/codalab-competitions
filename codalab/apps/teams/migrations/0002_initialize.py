@@ -7,7 +7,15 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        "Write your forwards methods here."
+        # Can't do `get_or_create` in here, so have to use this monstrosity:
+        def fake_get_or_create(model, *args, **kwargs):
+            try:
+                obj = model.objects.get(**kwargs)
+            except model.DoesNotExist:
+                obj = model(**kwargs)
+                obj.save()
+            return obj
+
         # Note: Don't use "from appname.models import ModelName". 
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
@@ -17,7 +25,7 @@ class Migration(DataMigration):
                        ("Deleted", "deleted", "Team has been deleted.")]
 
         for name, codename, description in team_status:
-            _, _ = orm.TeamStatus.objects.get_or_create(name=name, codename=codename, description=description)
+            fake_get_or_create(orm.TeamStatus, name=name, codename=codename, description=description)
 
         team_membership_status = [("Rejected", "rejected", "User membership rejected."),
                                   ("Approved", "approved", "User membership approved."),
@@ -25,7 +33,7 @@ class Migration(DataMigration):
                                   ("Canceled", "canceled", "User membership canceled.")]
 
         for name, codename, description in team_membership_status:
-            _, _ = orm.TeamMembershipStatus.objects.get_or_create(name=name, codename=codename, description=description)
+            fake_get_or_create(orm.TeamMembershipStatus, name=name, codename=codename, description=description)
 
     def backwards(self, orm):
         pass
