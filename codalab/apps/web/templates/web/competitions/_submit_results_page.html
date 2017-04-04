@@ -85,6 +85,7 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Score</th>
                     <th>Filename</th>
                     <th>Submission date</th>
                     <th>Status</th>
@@ -118,6 +119,7 @@
                             <input type="hidden" name="state" value='0' />
                         {% endif %}
                         <td>{{ forloop.counter }}</td>
+                        <td>{{submission_info.score}}</td>
                         <td>{{submission_info.filename}}</td>
                         <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
                         <td class="statusName">{{submission_info.status_name}}</td>
