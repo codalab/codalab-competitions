@@ -6,9 +6,9 @@ RUN apt-get update && apt-get install -y build-essential psmisc
 COPY codalab/requirements/compute_worker.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY codalab/ /app
+#COPY codalab/ /app/codalab
 
-WORKDIR /app
+WORKDIR /app/codalab
 
 ENV PYTHONPATH $PYTHONPATH:/app:/app/codalab:/app/apps
 

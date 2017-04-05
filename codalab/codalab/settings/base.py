@@ -67,7 +67,7 @@ class Base(Settings):
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False
     # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', ['*'])
 
     ADMINS = (
         # ('Your Name', 'your_email@example.com'),
@@ -224,6 +224,7 @@ class Base(Settings):
         'apps.coopetitions',
         'apps.common',
         'apps.queues',
+        'apps.teams',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -370,13 +371,13 @@ class Base(Settings):
             'key': lambda f: _uuidpathext(f, 'uploads/competitions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream']
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         },
         'submissions': {
             'key': lambda f: _uuidpathext(f, 'uploads/submissions/'),
             'auth': lambda u: u.is_authenticated(),
             'bucket': AWS_STORAGE_PRIVATE_BUCKET_NAME,
-            'allowed': ['application/zip', 'application/octet-stream']
+            'allowed': ['application/zip', 'application/octet-stream', 'application/x-zip-compressed']
         }
     }
 
@@ -481,35 +482,78 @@ class Base(Settings):
     # =========================================================================
     # Database
     # =========================================================================
-    mysqldb = os.environ.get('MYSQL_DATABASE')
-
-    if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
+    db_engine = os.environ.get('DB_ENGINE')
+    if db_engine:
+        if db_engine == 'mysql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'mysql'),
+                    'PORT': os.environ.get('DB_PORT', '3306'),
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
             }
-        }
-    elif mysqldb:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': os.environ.get('MYSQL_DATABASE'),
-                'USER': os.environ.get('MYSQL_USERNAME', 'root'),
-                'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-                'HOST': 'mysql',
-                'OPTIONS': {
-                    'init_command': "SET time_zone='+00:00';",
-                },
+        elif db_engine == 'postgresql':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                    'NAME': os.environ.get('DB_NAME'),
+                    'USER': os.environ.get('DB_USER', 'root'),
+                    'PASSWORD': os.environ.get('DB_PASSWORD'),
+                    'HOST': os.environ.get('DB_HOST', 'postgresql'),
+                    'PORT': os.environ.get('DB_PORT', '5432'),
+                }
             }
-        }
+        elif db_engine == 'sqlite3':
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
+            }
     else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': 'codalab.sqlite3',
+        # IF DB_ENGINE is not set, old behaviour is used
+        mysqldb = os.environ.get('MYSQL_DATABASE')
+
+        if 'test' in sys.argv or any('py.test' in arg for arg in sys.argv):
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',
+                }
             }
-        }
+        elif mysqldb:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': os.environ.get('MYSQL_DATABASE'),
+                    'USER': os.environ.get('MYSQL_USERNAME', 'root'),
+                    'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+                    'HOST': 'mysql',
+                    'OPTIONS': {
+                        'init_command': "SET time_zone='+00:00';",
+                    },
+                }
+            }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': 'codalab.sqlite3',
+                }
+            }
 
     # =========================================================================
     # Misc
@@ -538,8 +582,6 @@ class Base(Settings):
             cls.MIDDLEWARE_CLASSES += cls.EXTRA_MIDDLEWARE_CLASSES
         cls.STARTUP_ENV.update({ 'CONFIG_HTTP_PORT': cls.PORT,
                                  'CONFIG_SERVER_NAME': cls.SERVER_NAME })
-        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
-            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
     @classmethod
     def post_setup(cls):
@@ -548,6 +590,8 @@ class Base(Settings):
         if not hasattr(cls,'SERVER_NAME'):
             raise AttributeError("SERVER_NAME environment variable required")
 
+        if cls.SERVER_NAME not in cls.ALLOWED_HOSTS:
+            cls.ALLOWED_HOSTS.append(cls.SERVER_NAME)
 
 class DevBase(Base):
 

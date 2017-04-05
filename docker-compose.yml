@@ -8,7 +8,7 @@ services:
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
       - ${SSL_PORT}:${SSL_PORT}
-    command: bash -x app/docker/run_nginx.sh
+    command: bash -x /app/docker/run_nginx.sh
     volumes:
       - ./certs:/app/certs
       - ./docker:/app/docker
@@ -26,11 +26,15 @@ services:
   mysql:
     image: mysql:5.7
     hostname: mysql
+    environment:
+      # These aren't set in .env
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - ./docker:/app/docker
       - ./docker/mysql:/etc/mysql/conf.d
       - ${LOGGING_DIR}/mysql:/var/log/mysql
-      - ${MYSQL_DATABASE_PATH}:/var/lib/mysql
+      - ${DB_DATA_PATH}:/var/lib/mysql
     env_file: .env
     container_name: mysql
 
@@ -45,7 +49,7 @@ services:
       context: .
       dockerfile: docker/rabbitmq/Dockerfile
     hostname: rabbit
-    command: bash -x app/docker/run_rabbitmq.sh
+    command: bash -x /app/docker/run_rabbitmq.sh
     environment:
       - RABBITMQ_LOGS=/var/log/rabbitmq/output.log
       - RABBITMQ_SASL_LOGS=/var/log/rabbitmq/output_sasl.log
@@ -70,6 +74,8 @@ services:
       - AMQP_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - AMQP_HOST=rabbit
       - AMQP_PORT=${RABBITMQ_PORT}
+      - FLOWER_CERTFILE=${SSL_CERTIFICATE}
+      - FLOWER_KEYFILE=${SSL_CERTIFICATE_KEY}
     volumes:
       - ./certs:/app/certs
     env_file: .env
@@ -96,13 +102,15 @@ services:
       context: .
       dockerfile: Dockerfile
     hostname: django
-    command: bash docker/run_django.sh
+    command: bash /app/docker/run_django.sh
     volumes:
       - ./certs:/app/certs
       - ./codalab:/app/codalab
       - ./docker:/app/docker
       - ${LOGGING_DIR}/django:/var/log/django/
     env_file: .env
+    environment:
+      - CONFIG_SERVER_NAME=${CODALAB_SITE_DOMAIN}
     links:
       - mysql
       - rabbit
@@ -117,7 +125,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sh docker/run_site.sh
+    command: sh /app/docker/run_site.sh
     volumes:
       - ./codalab:/app/codalab
       - ./docker:/app/docker
@@ -138,8 +146,8 @@ services:
       - ${LOGGING_DIR}/worker_compute:/var/log/
       - ${SUBMISSION_TEMP_DIR}:${SUBMISSION_TEMP_DIR}
     environment:
-      # Unset mysql database for this
-      - MYSQL_DATABASE=
+      # Unset database for this, use memory
+      - DB_ENGINE=memory
     env_file: .env
     links:
       - mysql

@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load codalab_tags %}
+{% load team_tags %}
+{% load tz %}
+{% load url from future %}
+
+{% block page_title %}Team Management{% endblock page_title %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/vendor/jquery.validate.min.js' %}"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}teams/teams.css">
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>{{ competition.title }}</h2>
+                <a href="{% url 'competitions:view' pk=competition.pk %}" class="btn btn-default pull-left">Go back to competition</a>
+            </div>
+        </div>
+    </div>
+    <div class="teams">
+        <div class="">
+            {% if not team %}
+                {% if not pending_teams %}
+                    <div class="alert alert-error">
+                        You are not in any team for this competition. You can create a new team or request to enrol to an existing team
+                    </div>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <a href="{% url 'team_new' competition_pk=competition.pk %}" class="btn btn-default pull-left">Create new Team</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-error">
+                        Waiting for organizers approval
+                    </div>
+                    <div class="teamDetails">
+                        {% include "teams/tiles/team_details.html" with team=pending_teams %}
+                    </div>
+                {% endif %}
+
+                <h3><b>Invitations from other teams</b></h3>
+                {% if requests %}
+                    {% for item in requests %}
+                        {% if item.is_invitation and item.is_active %}
+                            <div class="panel panel-default competitionUserBlock invitationUserBlock_{{item.id}}">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">{{ item.name }}
+                                        <span class="participationStatus label label-{{ item.status.codename }}">
+                                            {% if item.status.codename == 'rejected' %}
+                                                Invitation rejected
+                                            {% elif item.status.codename == 'approved' %}
+                                                Invitation approved
+                                            {% elif item.status.codename == 'pending' %}
+                                                Invitation pending
+                                            {% elif item.status.codename == 'canceled' %}
+                                                Invitation canceled
+                                            {% else %}
+                                                Unknown Status
+                                            {% endif %}
+                                        </span>
+                                    </h3>
+                                </div>
+                                <div class="panel-body">
+                                    {% if item.status.codename == 'rejected' %}
+                                        <p class="text-danger">Reason: {{ item.reason }}</p>
+                                    {% endif %}
+                                    <form class="custom process_request" id="team_request_{{item.id}}">{% csrf_token %}
+                                        <input type="hidden" name="team_id" value="{{item.id}}"/>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="status">Status:</label>
+                                                    <select id="status" name="status" class="form-control">
+                                                        <option value="approved">Approve</option>
+                                                        <option value="rejected">Reject</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <div class="form-group">
+                                                    <label for="reason">Reason:</label>
+                                                    <textarea id="reason" name="reason" class="form-control"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="submit" class="btn btn-primary pull-right" value="Process" />
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped affiliation">
+                            <thead>
+                                <tr class="table-title">
+                                    <th colspan="4">Invitations</th>
+                                </tr>
+                                <tr class="leaderboard-result-table-header">
+                                    <th>Team</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requests %}
+                                    {% for request in requests %}
+                                        {% if request.is_invitation and request.is_active %}
+                                            <tr >
+                                                <td>{{ request.team.name }}</td>
+                                                <td>{{ request.message }}</td>
+                                                <td>{{ request.start_date }}</td>
+                                                <td>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="accept"%}" class="btn btn-default pull-left">Accept</a>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="reject"%}" class="btn btn-default pull-left">Reject</a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3><b>Requests to other teams</b></h3>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped affiliation">
+                            <thead>
+                                <tr class="table-title">
+                                    <th colspan="4">Requests</th>
+                                </tr>
+                                <tr class="leaderboard-result-table-header">
+                                    <th>Team</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if requests %}
+                                    {% for request in requests %}
+                                        {% if request.is_request and request.is_active %}
+                                            <tr >
+                                                <td>{{ request.team.name }}</td>
+                                                <td>{{ request.message }}</td>
+                                                <td>{{ request.start_date }}</td>
+                                                <td>
+                                                    <a href="{% url 'team_request_action' competition_pk=competition.pk request_pk=request.pk action="cancel"%}" class="btn btn-default pull-left">Cancel</a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    {% if allowed_teams %}
+                        {% for t in allowed_teams %}
+                             <div class="teamDetails">
+                                {% include "teams/tiles/team_details.html" with team=t %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+            {% else %}
+                {% if team_requests %}
+                    <h3>Requests from users</h3>
+                    <div class="participants">
+                        {% for item in team_requests %}
+                            {% if item.is_request and item.is_active %}
+                                <div class="panel panel-default teamUserBlock teamRequestBlock_{{item.id}}">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">{{ item.user.username }}
+                                            <span class="participationStatus label label-{{ item.status.codename }}">
+                                                {% if item.status.codename == 'rejected' %}
+                                                    Request rejected
+                                                {% elif item.status.codename == 'approved' %}
+                                                    Request approved
+                                                {% elif item.status.codename == 'pending' %}
+                                                    Request pending
+                                                {% elif item.status.codename == 'canceled' %}
+                                                    Request canceled
+                                                {% else %}
+                                                    Unknown Status
+                                                {% endif %}
+                                            </span>
+                                        </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        {% if item.status.codename == 'rejected' %}
+                                            <p class="text-danger">Reason: {{ item.reason }}</p>
+                                        {% endif %}
+                                        <form class="custom process_request" id="team_request_{{item.id}}" method="post">{% csrf_token %}
+                                            <input type="hidden" name="request_id" value="{{item.id}}"/>
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label for="status">Status:</label>
+                                                        <select id="status" name="status" class="form-control">
+                                                            <option value="approved">Approve</option>
+                                                            <option value="rejected">Reject</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <div class="form-group">
+                                                        <label for="reason">Reason:</label>
+                                                        <textarea id="reason" name="reason" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class="btn btn-primary pull-right" value="Process" />
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="teamDetails" style="margin-top: 24px;">
+                    {% include "teams/tiles/team_details.html" with team=team %}
+                    <h3>Members</h3>
+                    <div class="participants">
+                        {% if not team_members %}
+                            <p><em>There are no members.</em></p>
+                        {% else %}
+                            <table class="resultsTable dataTable table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        {% for column in members_columns %}
+                                            {% if column.label == "STATUS" %}
+                                                {% if team|is_admin:request.user %}
+                                                    <th>
+                                                        <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                                            {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                                                        </a>
+                                                    </th>
+                                                {% endif %}
+                                            {% else %}
+                                                <th>
+                                                    <a href="?order={{column.name}}{% if direction == 'asc' and order == column.name %}&direction=desc{% endif %}">
+                                                        {{column.label}} <i class="{% if order == column.name %}{% if direction == 'asc'%}fi-arrow-down{% else %}fi-arrow-up{% endif %}{% endif %} right"></i>
+                                                    </a>
+                                                </th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in team_members %}
+                                    <tr>
+                                        {% for column in members_columns %}
+                                            {% if column.label == "STATUS" %}
+                                                {% if team|is_admin:request.user %}
+                                                    <td>
+                                                        {% if team.creator.username != member.name %}
+                                                            <span class="label label-{{member|get_item:column.name}}">
+                                                                {{member|get_item:column.name}}
+                                                            </span>
+                                                            <button type="button" class="pull-right btn btn-danger btn-sm team_revoke_button button {% if member.status == "denied" %}hide{% endif %}" team_id="{{ team.pk }}">Revoke</button>
+                                                            <button type="button" class="pull-right btn btn-success btn-sm team_reinstate_button button {% if member.status == "approved" %}hide{% endif %}" team_id="{{ team.pk }}">Reinstate</button>
+                                                        {% else %}
+                                                            <span class="label label-primary">
+                                                                owner
+                                                            </span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% endif %}
+                                            {% else %}
+                                                <td>
+                                                    {{ member|get_item:column.name }}
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                    <h3>Submissions</h3>
+                    <div>
+                        <table class="table resultsTable dataTable table-striped table-bordered" id="user_results">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Submission date</th>
+                                    <th>Status</th>
+                                    <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% if submission_info_list|length_is:"0" %}
+                                <tr class="noData">
+                                    <td class="tdDetails" colspan="6">No data available in table</td>
+                                </tr>
+                            {% else %}
+                                {% for submission_info in submission_info_list %}
+                                    <tr id="{{submission_info.id}}"
+                                        {% if submission_info.exception_details %}
+                                            data-exception="{{ submission_info.exception_details|escape }}"
+                                        {% endif %}
+                                        data-description="{{ submission_info.description|default_if_none:""|escape }}"
+                                        data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
+                                        data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
+                                        data-project-url="{{ submission_info.project_url|default_if_none:""|escape }}"
+                                        data-publication-url="{{ submission_info.publication_url|default_if_none:""|escape }}"
+                                        data-team-name="{{ submission_info.team_name|default_if_none:""|escape }}"
+                                        data-organization-or-affiliation="{{ submission_info.organization_or_affiliation|default_if_none:""|escape }}"
+                                        data-bibtex="{{ submission_info.bibtex|default_if_none:""|escape }}"
+                                        data-is-public="{% if submission_info.is_public %}True{% endif %}">
+                                        {% if submission_info.is_finished %}
+                                            <input type="hidden" name="state" value='1' />
+                                        {% else %}
+                                            <input type="hidden" name="state" value='0' />
+                                        {% endif %}
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{submission_info.username}}</td>
+                                        <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
+                                        <td class="statusName">{{submission_info.status_name}}</td>
+                                        {% if submission_info.is_in_leaderboard %}
+                                            <td class="status submitted text-center"><span class="glyphicon glyphicon-ok text-success"></span></td>
+                                        {% else %}
+                                            <td class="status not_submitted text-center"></td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+
