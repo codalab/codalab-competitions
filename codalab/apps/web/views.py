@@ -619,6 +619,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'bibtex': submission.bibtex,
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
+                        'score': submission.get_default_score(),
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
