@@ -680,7 +680,6 @@ class CompetitionResultsPage(TemplateView):
             context['phase'] = phase
             context['groups'] = phase.scores()
 
-
             for group in context['groups']:
                 for pk, scoredata in group['scores']:
                     sub = models.CompetitionSubmission.objects.get(pk=pk)
