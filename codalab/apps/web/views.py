@@ -682,11 +682,8 @@ class CompetitionResultsPage(TemplateView):
 
             for group in context['groups']:
                 for pk, scoredata in group['scores']:
-                    sub = models.CompetitionSubmission.objects.get(pk=pk)
-                    scoredata["count"] = models.CompetitionSubmission.objects.filter(
-                        participant=sub.participant,
-                        phase=phase
-                    ).count()
+                    sub = models.CompetitionSubmission.objects.get(pk=4)
+                    print(pk)
                     scoredata['date'] = sub.submitted_at
 
             user = self.request.user
