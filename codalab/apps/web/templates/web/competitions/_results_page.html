@@ -35,7 +35,7 @@
         {% for group in groups %}
             <table class="resultsTable dataTable">
                 <tr class="table-title">
-                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results|add:2}}">{{group.label}}</th>
+                    <th colspan="{{group.total_span|add:phase.competition.enable_medical_image_viewer|add:phase.competition.allow_teams|add:phase.competition.enable_detailed_results}}">{{group.label}}</th>
                 </tr>
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2">#</th>
