@@ -910,8 +910,14 @@ class CompetitionPhase(models.Model):
                 if (selection_key is None) or (scoreDefs[i].selection_default > selection_order):
                     selection_key, selection_order = scoreDefs[i].key, scoreDefs[i].selection_default
 
-            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'selection_key': selection_key,
-                             'scores': scores, 'scoredefs': scoreDefs })
+            results.append({
+                'label': label,
+                'headers': headers,
+                'total_span': column_span,
+                'selection_key': selection_key,
+                'scores': scores,
+                'scoredefs': scoreDefs
+            })
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
@@ -1309,9 +1315,10 @@ class CompetitionSubmission(models.Model):
         return self.like_count - self.dislike_count
 
     def get_default_score(self):
-        score = self.scores.filter(scoredef__ordering=1)
+        # Get the scoredef with the lowest sort (1, usually) and use that score
+        score = self.scores.all().order_by('scoredef__ordering').first()
         if score:
-            return score[0].value
+            return score.value
         else:
             return None
 

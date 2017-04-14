@@ -619,6 +619,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'bibtex': submission.bibtex,
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
+                        'score': float(submission.get_default_score()),
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
@@ -681,10 +682,10 @@ class CompetitionResultsPage(TemplateView):
             context['groups'] = phase.scores()
 
             for group in context['groups']:
-                for pk, scoredata in group['scores']:
-                    sub = models.CompetitionSubmission.objects.get(pk=4)
-                    print(pk)
+                for _, scoredata in group['scores']:
+                    sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
                     scoredata['date'] = sub.submitted_at
+                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
 
             user = self.request.user
 
