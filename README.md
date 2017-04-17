@@ -36,11 +36,7 @@ Pull the most recent copy of project
 
 `cd codalab-competitions`
 
-Run `docker-compose up -d`
-
-If docker is not working, or you need to restart all of the containers
-
-`$(docker ps -a) restart`
+`git pull && $(docker ps -a) restart`
 
 ## Tests
 
