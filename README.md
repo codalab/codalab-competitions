@@ -26,6 +26,21 @@ If for some reason you need to rebuild the image run:
 
 `docker-compuse up --build worker`
 
+## Staging Server
+
+To ssh into the staging server:
+
+`ssh -i /path/to/pem ubuntu@ec2-34-209-94-162.us-west-2.compute.amazonaws.com`
+
+Pull the most recent copy of project
+
+`cd codalab-competitions`
+
+Run `docker-compose up -d`
+
+If docker is not working, or you need to restart all of the containers
+
+`$(docker ps -a) restart`
 
 ## Tests
 
