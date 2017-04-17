@@ -24,6 +24,7 @@
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-editable.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}js/vendor/select2/select2.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-eu-cookie-law-popup.css">
         {% if compile_less %}
             <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/imports.css">
         {% else %}
@@ -37,6 +38,7 @@
         <!--[if lt IE 9]>
             <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
+        <script src="{{ STATIC_URL }}js/vendor/jquery-eu-cookie-law-popup.js"></script>
     {% endblock css %}
 
     {% block extra_headers %}
@@ -217,6 +219,7 @@
 
     {% analytical_body_top %}
     {% analytical_body_bottom %}
+    <div class="eupopup eupopup-top"></div>
 
 </body>
 </html>
