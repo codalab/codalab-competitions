@@ -49,7 +49,9 @@ python-memcached==1.57
 celery==3.1.25
 boto==2.45.0
 django-s3direct==0.4.8
-pyrabbit==1.1.0
+
+#pyrabbit==1.1.0
+git+https://github.com/bkjones/pyrabbit.git@e8a9f74ed5c6bba958994fb9a72c396e6a99ea0f
 
 gunicorn==19.7.0
 

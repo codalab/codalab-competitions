@@ -9,7 +9,11 @@ from pyrabbit.http import HTTPError
 def _get_rabbit_connection():
     """Helper giving us a rabbit connection from settings.BROKER_URL"""
     host_with_port = "{}:{}".format(settings.RABBITMQ_HOST, settings.RABBITMQ_MANAGEMENT_PORT)
-    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS)
+    if settings.SSL_CERTIFICATE:
+        scheme = 'https'
+    else:
+        scheme = 'http'
+    return Client(host_with_port, settings.RABBITMQ_DEFAULT_USER, settings.RABBITMQ_DEFAULT_PASS, scheme=scheme)
 
 
 def check_user_needs_initialization(user):
