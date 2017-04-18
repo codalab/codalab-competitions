@@ -562,9 +562,29 @@ def update_submission(job_id, args, secret):
                     add_submission_to_leaderboard(submission)
                     logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
 
-                if submission.phase.competition.force_submission_to_leaderboard:
+                if submission.phase.competition.force_submission_to_leaderboard and not submission.phase.force_best_submission_to_leaderboard:
                     add_submission_to_leaderboard(submission)
                     logger.debug("Force submission added submission to leaderboard (submission_id=%s)", submission.id)
+
+                if submission.phase.force_best_submission_to_leaderboard:
+                    # In this phase get the submission score from the column with the lowest ordering
+                    score_def = submission.get_default_score_def()
+                    top_score = SubmissionScore.objects.filter(result__phase=submission.phase, scoredef=score_def)
+                    score_value = submission.get_default_score()
+                    if score_def.sorting == 'asc':
+                        # The last value in ascending is the top score, 3 beats 1
+                        top_score = top_score.order_by('value').last()
+                        if score_value > top_score.value:
+                            add_submission_to_leaderboard(submission)
+                            logger.debug("Force best submission added submission to leaderboard in ascending order "
+                                         "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
+                    elif score_def.sorting == 'desc':
+                        # The first value in descending is the top score, 1 beats 3
+                        top_score = top_score.order_by('value').first()
+                        if score_value < top_score.value:
+                            add_submission_to_leaderboard(submission)
+                            logger.debug("Force best submission added submission to leaderboard in descending order "
+                                         "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
 
                 result = Job.FINISHED
 

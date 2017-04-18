@@ -716,6 +716,7 @@ class CompetitionPhase(models.Model):
     input_data = models.FileField(upload_to=_uuidify('phase_input_data_file'), storage=BundleStorage,null=True,blank=True, verbose_name="Input Data")
     datasets = models.ManyToManyField(Dataset, blank=True, related_name='phase')
     leaderboard_management_mode = models.CharField(max_length=50, default=LeaderboardManagementMode.DEFAULT, verbose_name="Leaderboard Mode")
+    force_best_submission_to_leaderboard = models.BooleanField(default=False, verbose_name="If submission beats old score, put submission on leaderboard")
     auto_migration = models.BooleanField(default=False)
     is_migrated = models.BooleanField(default=False)
     execution_time_limit = models.PositiveIntegerField(default=(5 * 60), verbose_name="Execution time limit (in seconds)")
@@ -1309,12 +1310,16 @@ class CompetitionSubmission(models.Model):
         return self.like_count - self.dislike_count
 
     def get_default_score(self):
-        # Get the scoredef with the lowest sort (1, usually) and use that score
-        score = self.scores.all().order_by('scoredef__ordering').first()
-        if score:
-            return score.value
+        # Get the scoredef with the lowest sort (1, usually) and use that as default
+        score_def = self.scores.all().order_by('scoredef__ordering').first()
+        if score_def:
+            return score_def.value
         else:
             return None
+
+    def get_default_score_def(self):
+        # Get the scoredef with the lowest sort (1, usually) and use that as default
+        return self.scores.all().order_by('scoredef__ordering').first().scoredef
 
     def get_scores_as_tuples(self):
         '''Returns a list of score tuples.'''
