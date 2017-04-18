@@ -556,8 +556,9 @@ def update_submission(job_id, args, secret):
                             logger.warning("Score %s does not exist (submission_id=%s)", label, submission.id)
                 logger.debug("Done processing scores... (submission_id=%s)", submission.id)
                 _set_submission_status(submission.id, CompetitionSubmissionStatus.FINISHED)
+
                 # Automatically submit to the leaderboard?
-                if submission.phase.is_blind:
+                if submission.phase.is_blind and not submission.phase.force_best_submission_to_leaderboard:
                     logger.debug("Adding to leaderboard... (submission_id=%s)", submission.id)
                     add_submission_to_leaderboard(submission)
                     logger.debug("Leaderboard updated with latest submission (submission_id=%s)", submission.id)
@@ -574,14 +575,14 @@ def update_submission(job_id, args, secret):
                     if score_def.sorting == 'asc':
                         # The last value in ascending is the top score, 3 beats 1
                         top_score = top_score.order_by('value').last()
-                        if score_value > top_score.value:
+                        if score_value >= top_score.value:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in ascending order "
                                          "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
                     elif score_def.sorting == 'desc':
                         # The first value in descending is the top score, 1 beats 3
                         top_score = top_score.order_by('value').first()
-                        if score_value < top_score.value:
+                        if score_value <= top_score.value:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in descending order "
                                          "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
