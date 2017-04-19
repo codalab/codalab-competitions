@@ -20,6 +20,8 @@
 
 {% block content %}
 
+{% include "web/competitions/_chart.html" %}
+
 {% if request.user.is_staff %}
     <a href="{% url "competitions:download" competition_pk=competition.pk %}" class="btn btn-primary">DOWNLOAD COMPETITION BUNDLE!</a>
 {% endif %}
