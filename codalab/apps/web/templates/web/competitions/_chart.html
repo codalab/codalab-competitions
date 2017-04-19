@@ -1,0 +1,97 @@
+{% load codalab_tags %}
+
+  <canvas id="myChart" width="400" height="200"></canvas>
+  <script>
+  var ctx = document.getElementById("myChart");
+  var myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+                        // i think this needs to be the length of the entire competiton?
+                labels: ["April 10th", "April 11th", "April 12th", "April 13th", "April 14th", "April 15th", "April 17th", "April 18th", "April 19th", "April 20th", "April 21st", "April 22th"],
+                datasets: [{
+                    label: '# of Submissions',
+                    lineTension: .3,
+                    data: [1, 3, 4, 5, 7, 9, 10, 11, 12, 13, 22, 24, 25],
+                    backgroundColor: [
+                        'rgba(255, 255, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 2,
+                  },
+                  {   type: 'bar',
+                      label: 'Bar',
+                      backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                      data: [20, 20, 45, 5, 2, 1, 4, 3, 2, 1],
+                  }]
+              },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero:true
+                  }
+              }]
+          }
+      }
+  });
+  var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ["April 10th", "April 11th", "April 12th", "April 13th", "April 14th", "April 15th", "April 17th", "April 18th", "April 19th", "April 20th", "April 21th", "April 22th"],
+          datasets: [
+              {
+                  type: 'line',
+                  label: 'High Score',
+                  data: [1, 3, 4, 5, 7, 9, 10, 11, 12, 13, 22, 24, 25],
+                  borderColor: 'rgba(255,99,132,1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              },
+              {
+                  type: 'bar',
+                  label: 'Total Daily Submissions',
+                  backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)',
+                                'rgba(255, 99, 132, 0.2)',
+
+                            ],
+                  data: [3, 3, 4, 6, 12, 5, 1, 4, 13, 2, 5, 12],
+              }
+          ]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero:true
+                  }
+              }]
+          }
+      }
+
+  });
+  </script>
