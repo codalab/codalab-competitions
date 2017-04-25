@@ -670,10 +670,15 @@ def re_run_all_submissions_in_phase(phase_pk):
             submissions_without_duplicates.append(submission)
 
     for submission in submissions_without_duplicates:
+        if settings.USE_AWS:
+            file_kwarg = {'s3_file': submission.s3_file}
+        else:
+            file_kwarg = {'file': submission.file}
+
         new_submission = CompetitionSubmission(
             participant=submission.participant,
-            file=submission.file,
-            phase=submission.phase
+            phase=submission.phase,
+            **file_kwarg
         )
         new_submission.save(ignore_submission_limits=True)
 
