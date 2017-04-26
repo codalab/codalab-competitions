@@ -1727,10 +1727,15 @@ def submission_re_run(request, submission_pk):
             if request.user.id != competition.creator_id and request.user not in competition.admins.all():
                 raise Http404()
 
+            if settings.USE_AWS:
+                file_kwarg = {'s3_file': submission.s3_file}
+            else:
+                file_kwarg = {'file': submission.file}
+
             new_submission = models.CompetitionSubmission(
                 participant=submission.participant,
-                file=submission.file,
-                phase=submission.phase
+                phase=submission.phase,
+                **file_kwarg
             )
             new_submission.save(ignore_submission_limits=True)
 

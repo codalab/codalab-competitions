@@ -1152,11 +1152,14 @@ class CompetitionSubmission(models.Model):
 
         if not self.readable_filename:
             if hasattr(self, 'file'):
-                if self.file.name:
-                    try:
-                        self.readable_filename = self.file.storage.properties(self.file.name)['x-ms-meta-name']
-                    except:
-                        self.readable_filename = split(self.file.name)[1]
+                if settings.USE_AWS:
+                    self.readable_filename = split(self.s3_file)[1]
+                else:
+                    if self.file.name:
+                        try:
+                            self.readable_filename = self.file.storage.properties(self.file.name)['x-ms-meta-name']
+                        except:
+                            self.readable_filename = split(self.file.name)[1]
 
         # only at save on object creation should it be submitted
         if not self.pk:
