@@ -24,7 +24,6 @@
         {% endif %}
 
         <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
-        {% include "web/competitions/_chart.html" %}
         <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
     {% if groups|length > 0 %}
