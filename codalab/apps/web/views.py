@@ -601,6 +601,10 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         id_of_submission_in_leaderboard = leaderboard_entry[0].result.pk
                 submission_info_list = []
                 for submission in submissions:
+                    try:
+                        default_score = float(submission.get_default_score())
+                    except (TypeError, ValueError):
+                        default_score = '---'
                     submission_info = {
                         'id': submission.id,
                         'number': submission.submission_number,
@@ -619,7 +623,7 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                         'bibtex': submission.bibtex,
                         'organization_or_affiliation': submission.organization_or_affiliation,
                         'is_public': submission.is_public,
-                        'score': float(submission.get_default_score()),
+                        'score': default_score,
                     }
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
