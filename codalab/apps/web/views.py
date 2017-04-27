@@ -644,7 +644,8 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'months': [s['month'].strftime('%B %Y')  # ex, April 2017
                                for s in qs],
                     'high_scores': [s['high_score'] for s in qs],
-                    'counts': [s['count'] for s in qs]
+                    'counts': [s['count'] for s in qs],
+                    'sorting': score_def.sorting,
                 }
 
         try:
