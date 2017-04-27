@@ -104,6 +104,7 @@
                         {% if submission_info.exception_details %}
                             data-exception="{{ submission_info.exception_details|escape }}"
                         {% endif %}
+                        data-score="{{ submission_info.score|default_if_none:""|escape }}"
                         data-description="{{ submission_info.description|default_if_none:""|escape }}"
                         data-method-name="{{ submission_info.method_name|default_if_none:""|escape }}"
                         data-method-description="{{ submission_info.method_description|default_if_none:""|escape }}"
