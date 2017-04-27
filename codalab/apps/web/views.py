@@ -8,7 +8,7 @@ import traceback
 import yaml
 import zipfile
 
-
+from django.db import connection
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -20,7 +20,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Max, Min, Count
 from django.http import Http404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import StreamingHttpResponse
@@ -44,6 +44,7 @@ from apps.coopetitions.models import Like, Dislike
 from apps.forums.models import Forum
 from apps.common.competition_utils import get_most_popular_competitions, get_featured_competitions
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
+from apps.web.models import SubmissionScore, SubmissionScoreDef
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
@@ -628,6 +629,23 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     submission_info_list.append(submission_info)
                 context['submission_info_list'] = submission_info_list
                 context['phase'] = phase
+
+                # Get the month from submitted_at
+                truncate_date = connection.ops.date_trunc_sql('month', 'submitted_at')
+                score_def = SubmissionScoreDef.objects.get(competition=competition, ordering=1)
+                qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef__ordering=1)
+                qs = qs.extra({'month': truncate_date}).values('month')
+                if score_def.sorting == 'asc':
+                    best_value = Max('value')
+                else:
+                    best_value = Min('value')
+                qs = qs.annotate(high_score=best_value, count=Count('pk'))
+                context['graph'] = {
+                    'months': [s['month'].strftime('%B %Y')  # ex, April 2017
+                               for s in qs],
+                    'high_scores': [s['high_score'] for s in qs],
+                    'counts': [s['count'] for s in qs]
+                }
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(

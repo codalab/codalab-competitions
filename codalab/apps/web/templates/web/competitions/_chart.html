@@ -8,49 +8,51 @@
         data: {
             {#            labels: [1, 2],#}
 {#            labels: ["April 10th", "April 11th", "April 12th", "April 13th", "April 14th", "April 15th", "April 17th", "April 18th", "April 19th", "April 20th", "April 21th", "April 22th"],#}
-            labels: ["", "", "", ""],
+            labels: [{% for month in graph.months %}"{{ month }}",{% endfor %}],
             datasets: [
                 {
                     type: 'line',
                     label: 'High Score',
-                    data: [1, 3, 4, 5, 7, 9, 10, 11, 12, 13, 22, 24, 25],
+                    data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }},{% endfor %}],
                     borderColor: 'rgba(255,99,132,1)',
                     backgroundColor: 'rgba(255, 255, 255, 0.2)'
                 },
                 {
                     type: 'bar',
                     label: 'Total Daily Submissions',
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-
-                    ],
-                    data: [3, 3, 4, 6, 12, 5, 1, 4, 13, 2, 5, 12]
+{#                    backgroundColor: [#}
+{#                        'rgba(255, 99, 132, 0.2)',#}
+{#                        'rgba(54, 162, 235, 0.2)',#}
+{#                        'rgba(255, 206, 86, 0.2)',#}
+{#                        'rgba(75, 192, 192, 0.2)',#}
+{#                        'rgba(153, 102, 255, 0.2)',#}
+{#                        'rgba(255, 159, 64, 0.2)',#}
+{#                        'rgba(255, 99, 132, 0.2)',#}
+{#                        'rgba(54, 162, 235, 0.2)',#}
+{#                        'rgba(255, 206, 86, 0.2)',#}
+{#                        'rgba(75, 192, 192, 0.2)',#}
+{#                        'rgba(153, 102, 255, 0.2)',#}
+{#                        'rgba(255, 159, 64, 0.2)',#}
+{#                        'rgba(255, 99, 132, 0.2)'#}
+{##}
+{#                    ],#}
+                    data: [{% for count in graph.counts %}{{ count }},{% endfor %}]
                 }
             ]
         },
         options: {
             scales: {
-                xAxes: [{
-                    ticks: {
-                        type: 'linear',
-                        position: 'bottom'
-                    }
-                }],
+{#                xAxes: [{#}
+{#                    ticks: {#}
+{#                        type: 'linear',#}
+{#                        position: 'bottom'#}
+{#                    }#}
+{#                }],#}
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        suggestedMax: 25
                     }
                 }]
             }
