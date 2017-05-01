@@ -313,7 +313,7 @@ var Competition;
         }).done(function(response) {
             $('#details').html('');
             $('#user_results tr.noData').remove();
-            $('#user_results').append(Competition.displayNewSubmission(response, score, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
+            $('#user_results').append(Competition.displayNewSubmission(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation));
             $('#user_results #' + response.id + ' .glyphicon-plus').on('click', function() { Competition.showOrHideSubmissionDetails(this) });
             $('#fileUploadButton').removeClass('disabled');
             //$('#fileUploadButton').text("Submit Results...");
@@ -329,14 +329,11 @@ var Competition;
         });
     }
 
-    Competition.displayNewSubmission = function(response, score, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation) {
+    Competition.displayNewSubmission = function(response, description, method_name, method_description, project_url, publication_url, bibtex, team_name, organization_or_affiliation) {
         var elemTr = $('#submission_details_template #submission_row_template tr').clone();
         $(elemTr).attr('id', response.id.toString());
         $(elemTr).addClass(Competition.oddOrEven(response.submission_number));
 
-        if (score !== undefined && score !== '') {
-            $(elemTr).attr('data-score', score);
-        }
         if (description !== undefined && description !== '') {
             $(elemTr).attr('data-description', description);
         }
@@ -361,7 +358,6 @@ var Competition;
         if (organization_or_affiliation !== undefined && organization_or_affiliation !== '') {
             $(elemTr).attr('data-organization-or-affiliation', organization_or_affiliation);
         }
-        console.log("booyay", score);
 
         $(elemTr).children().each(function(index) {
             switch (index) {
@@ -379,8 +375,9 @@ var Competition;
                     }
                     break;
                 case 1: $(this).html(response.submission_number.toString()); break;
-                case 2: $(this).html(response.filename); break;
-                case 3:
+                case 2: $(this).html('---'); break;
+                case 3: $(this).html(response.filename); break;
+                case 4:
                     var fmt = function(val) {
                         var s = val.toString();
                         if (s.length == 1) {
@@ -395,7 +392,7 @@ var Competition;
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + ' ' + h + ':' + m + ':' + s);
                     break;
-                case 4: $(this).html(Competition.getSubmissionStatus(response.status)); break;
+                case 5: $(this).html(Competition.getSubmissionStatus(response.status)); break;
             }
         }
       );
