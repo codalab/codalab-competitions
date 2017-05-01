@@ -22,7 +22,6 @@
         {% else %}
             <p>None</p>
         {% endif %}
-
         <p><b>Max submissions per day: </b> {{ phase.max_submissions_per_day }}</p>
         <p><b>Max submissions total: </b> {{ phase.max_submissions }}</p>
     </div>
@@ -41,6 +40,8 @@
                 <tr class="leaderboard-result-table-header">
                     <th rowspan="2">#</th>
                     <th rowspan="2">User</th>
+                    <th rowspan="2">Entries</th>
+                    <th rowspan="2">Date of Last Entry</th>                    
                     {% if phase.competition.allow_teams %}
                     <th rowspan="2">Team Name</th>
                     {% endif %}
@@ -88,6 +89,8 @@
                                     {{scoredata.username}}
                                 {% endif %}
                             </td>
+                            <td> {{scoredata.count}} </td>
+                            <td> {{scoredata.date}} </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{scoredata.team_name|default_if_none:""}}</td>
                             {% endif %}

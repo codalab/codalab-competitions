@@ -8167,3 +8167,33 @@ textarea.table.affiliation > tbody > tr > td input {
 .s3direct .progress {
   display: none !important;
 }
+/*******************
+ * EDIT TEAMS PAGE *
+ *******************/
+#teams-edit {
+  border: 13px white solid;
+}
+#teams-edit .tinymce {
+  width: 100%;
+  height: 100px;
+}
+#teams-edit tbody {
+  background-color: white;
+}
+#teams-edit th,
+#teams-edit td {
+  border-top: white;
+}
+#teams-edit th {
+  padding-left: 35px;
+  width: 20%;
+}
+#teams-edit input#id_image,
+#teams-edit input#id_allow_requests {
+  border: none;
+  box-shadow: none;
+}
+#teams-edit input#id_allow_requests {
+  width: 0%;
+  height: 22px;
+}
