@@ -87,6 +87,7 @@
                     <th>#</th>
                     <th>Score</th>
                     <th>Filename</th>
+                    <th>Score</th>
                     <th>Submission date</th>
                     <th>Status</th>
                     <th class="text-center"><span class="glyphicon glyphicon-ok"></span></th>
@@ -122,6 +123,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{submission_info.score}}</td>
                         <td>{{submission_info.filename}}</td>
+                        <td>{{ submission_info.score }}</td>
                         <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
                         <td class="statusName">{{submission_info.status_name}}</td>
                         {% if submission_info.is_in_leaderboard %}

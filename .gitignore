@@ -68,6 +68,7 @@ venv/
 ######################
 *.log
 *.sql
+*.sql.gz
 *.sqlite*
 *.db
 *.pid

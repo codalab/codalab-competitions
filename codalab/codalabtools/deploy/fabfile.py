@@ -361,6 +361,7 @@ def deploy():
     """
     Put a maintenance message, deploy, and then restore website.
     """
+    get_database_dump()
     maintenance('begin')
     supervisor('stop')
     _deploy()
@@ -518,7 +519,9 @@ def get_database_dump():
     db_user = configuration.getDatabaseUser()
     db_password = configuration.getDatabasePassword()
 
-    dump_file_name = 'competitiondump.sql.gz'
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    dump_file_name = '{}-{}-competitiondump.sql.gz'.format(env.cfg_label, timestr)
 
     run('mysqldump --host=%s --user=%s --password=%s %s --port=3306 | gzip > /tmp/%s' % (
         db_host,
@@ -529,7 +532,7 @@ def get_database_dump():
         )
     backup_directory = os.path.dirname(os.path.realpath(__file__))
 
-    get('%s' % dump_file_name, backup_directory)
+    get('/tmp/%s' % dump_file_name, backup_directory)
 
 
 @roles('web')
