@@ -90,7 +90,7 @@
                                 {% endif %}
                             </td>
                             <td> {{ scoredata.count }} </td>
-                            <td> {{ scoredata.date }} </td>
+                            <td> {{ scoredata.date|date:"m/d/y" }} </td>
                             {% if phase.competition.allow_teams %}
                             <td>{{ scoredata.team_name|default_if_none:"" }}</td>
                             {% endif %}
