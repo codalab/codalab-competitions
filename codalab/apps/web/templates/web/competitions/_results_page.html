@@ -86,13 +86,13 @@
                                 {% if phase.competition.anonymous_leaderboard %}
                                     <i>Anonymous</i>
                                 {% else %}
-                                    {{scoredata.username}}
+                                    {{ scoredata.username }}
                                 {% endif %}
                             </td>
-                            <td> {{scoredata.count}} </td>
-                            <td> {{scoredata.date}} </td>
+                            <td> {{ scoredata.count }} </td>
+                            <td> {{ scoredata.date }} </td>
                             {% if phase.competition.allow_teams %}
-                            <td>{{scoredata.team_name|default_if_none:""}}</td>
+                            <td>{{ scoredata.team_name|default_if_none:"" }}</td>
                             {% endif %}
                             {% for head in group.headers %}
                                 {% for head_or_sub in head|get_array_or_attr:'subs' %}
