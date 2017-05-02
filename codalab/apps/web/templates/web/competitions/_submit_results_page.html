@@ -101,7 +101,7 @@
                 </tr>
             {% else %}
                 {% for submission_info in submission_info_list %}
-                    <tr id="{{submission_info.id}}"
+                    <tr id="{{ submission_info.id }}"
                         {% if submission_info.exception_details %}
                             data-exception="{{ submission_info.exception_details|escape }}"
                         {% endif %}
@@ -121,11 +121,11 @@
                             <input type="hidden" name="state" value='0' />
                         {% endif %}
                         <td>{{ forloop.counter }}</td>
-                        <td>{{submission_info.score}}</td>
-                        <td>{{submission_info.filename}}</td>
                         <td>{{ submission_info.score }}</td>
-                        <td>{{submission_info.submitted_at|date:"m/d/Y H:i:s"}}</td>
-                        <td class="statusName">{{submission_info.status_name}}</td>
+                        <td>{{ submission_info.filename }}</td>
+                        <td>{{ submission_info.score }}</td>
+                        <td>{{ submission_info.submitted_at|date:"m/d/Y H:i:s" }}</td>
+                        <td class="statusName">{{ submission_info.status_name }}</td>
                         {% if submission_info.is_in_leaderboard %}
                             <td class="status submitted text-center"><span class="glyphicon glyphicon-ok text-success"></span></td>
                         {% else %}
