@@ -24,7 +24,7 @@ services:
   # Database
   # --------------------------------------------------------------------------
   mysql:
-    image: mysql:5.6
+    image: mysql:5.7
     hostname: mysql
     environment:
       # These aren't set in .env
