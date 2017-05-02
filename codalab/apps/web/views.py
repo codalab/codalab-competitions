@@ -684,6 +684,13 @@ class CompetitionResultsPage(TemplateView):
             context['is_owner'] = is_owner
             context['phase'] = phase
             context['groups'] = phase.scores()
+
+            for group in context['groups']:
+                for _, scoredata in group['scores']:
+                    sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
+                    scoredata['date'] = sub.submitted_at
+                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+
             user = self.request.user
 
             # Will allow creator and admin to see Leaderboard in advanced

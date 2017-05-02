@@ -901,7 +901,7 @@ class CompetitionPhase(models.Model):
             for header in headers:
                 header['subs'].sort(key=sortkey, reverse=False)
             # compute total column span
-            column_span = 2
+            column_span = 4
             for gHeader in headers:
                 n = len(gHeader['subs'])
                 column_span += n if n > 0 else 1
@@ -911,8 +911,14 @@ class CompetitionPhase(models.Model):
                 if (selection_key is None) or (scoreDefs[i].selection_default > selection_order):
                     selection_key, selection_order = scoreDefs[i].key, scoreDefs[i].selection_default
 
-            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'selection_key': selection_key,
-                             'scores': scores, 'scoredefs': scoreDefs })
+            results.append({
+                'label': label,
+                'headers': headers,
+                'total_span': column_span,
+                'selection_key': selection_key,
+                'scores': scores,
+                'scoredefs': scoreDefs
+            })
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.
@@ -1313,10 +1319,11 @@ class CompetitionSubmission(models.Model):
         return self.like_count - self.dislike_count
 
     def get_default_score(self):
-        # Get the scoredef with the lowest sort (1, usually) and use that as default
-        score_def = self.scores.all().order_by('scoredef__ordering').first()
-        if score_def:
-            return score_def.value
+        # Get the scoredef with the lowest sort (1, usually) and use that score
+        score = self.scores.all().order_by('scoredef__ordering').first()
+        if score:
+            return score.value
+
         else:
             return None
 
