@@ -15,6 +15,7 @@ codalab/clip
 **/**/.codalabconfig
 codalab/scores.txt
 codalab/codalab/scores.txt
+codalab/apps/web/static/css/imports.css
 
 # Virtuelenv files #
 ####################
