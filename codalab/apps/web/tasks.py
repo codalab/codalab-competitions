@@ -680,14 +680,17 @@ def update_submission(job_id, args, secret):
 def re_run_all_submissions_in_phase(phase_pk):
     phase = CompetitionPhase.objects.get(id=phase_pk)
 
-    # Remove duplicate submissions
+    # Remove duplicate submissions this ugly way because MySQL distinct doesn't work...
     submissions_with_duplicates = CompetitionSubmission.objects.filter(phase=phase)
     submissions_without_duplicates = []
     file_names_seen = []
 
     for submission in submissions_with_duplicates:
         if submission.file.name not in file_names_seen:
-            file_names_seen.append(submission.file.name)
+            if settings.USE_AWS:
+                file_names_seen.append(submission.s3_file)
+            else:
+                file_names_seen.append(submission.file.name)
             submissions_without_duplicates.append(submission)
 
     for submission in submissions_without_duplicates:
