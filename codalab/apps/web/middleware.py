@@ -11,6 +11,8 @@ import StringIO
 
 from django.conf import settings
 
+from apps.customizer.models import Configuration
+
 words_re = re.compile( r'\s+' )
 
 group_prefix_re = [
@@ -18,6 +20,7 @@ group_prefix_re = [
     re.compile( "^(.*)/[^/]+$" ), # extract module path
     re.compile( ".*" ),           # catch strange entries
 ]
+
 
 class ProfileMiddleware(object):
     """
@@ -111,3 +114,12 @@ class ProfileMiddleware(object):
             os.unlink(self.tmpfile)
 
         return response
+
+
+class SingleCompetitionMiddleware(object):
+    def process_request(self, request):
+        if not settings.SINGLE_COMPETITION_VIEW_PK:
+            # Try and get from database if we don't have competition set in ENV vars
+            config = Configuration.objects.get(pk=1)
+            if config.only_competition:
+                settings.SINGLE_COMPETITION_VIEW_PK = config.only_competition.pk

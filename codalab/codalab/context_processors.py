@@ -1,4 +1,6 @@
 from django.conf import settings
+
+from apps.customizer.models import Configuration
 from codalab import settings as codalab_settings
 
 

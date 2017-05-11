@@ -144,6 +144,7 @@ class Base(Settings):
     )
 
     MIDDLEWARE_CLASSES = (
+        'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
@@ -225,6 +226,7 @@ class Base(Settings):
         'apps.common',
         'apps.queues',
         'apps.teams',
+        'apps.customizer',
 
         # Authentication app, enables social authentication
         'allauth',

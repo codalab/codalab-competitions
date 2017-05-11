@@ -108,8 +108,10 @@
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
                                     {% if user.is_superuser %}
-                                    <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
-                                    <li class="divider"></li>
+                                        <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
+                                        <li class="divider"></li>
                                     {% endif %}
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>
                                     <li class="divider"></li>
