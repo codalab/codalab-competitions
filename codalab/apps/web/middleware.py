@@ -118,8 +118,12 @@ class ProfileMiddleware(object):
 
 class SingleCompetitionMiddleware(object):
     def process_request(self, request):
-        if not settings.SINGLE_COMPETITION_VIEW_PK:
+        if not settings.SINGLE_COMPETITION_VIEW_PK or not settings.SINGLE_COMPETITION_VIEW_HEADER_LOGO:
             # Try and get from database if we don't have competition set in ENV vars
             config, created = Configuration.objects.get_or_create(pk=1)
+
             if config.only_competition:
                 settings.SINGLE_COMPETITION_VIEW_PK = config.only_competition.pk
+
+            if config.header_logo:
+                settings.SINGLE_COMPETITION_VIEW_HEADER_LOGO = config.header_logo.url

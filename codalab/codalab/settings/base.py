@@ -423,6 +423,7 @@ class Base(Settings):
     # Single competition mode? Uncomment this and specify a
     # competition pk to focus on
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
+    SINGLE_COMPETITION_VIEW_HEADER_LOGO = os.environ.get('SINGLE_COMPETITION_VIEW_HEADER_LOGO')
 
 
     # =========================================================================

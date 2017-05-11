@@ -33,5 +33,6 @@ class ConfigurationFormView(UpdateView):
 
         # We saved the new configuration but the settings may need to change
         settings.SINGLE_COMPETITION_VIEW_PK = self.object.only_competition.pk
+        settings.SINGLE_COMPETITION_VIEW_HEADER_LOGO = self.object.header_logo.url
 
         return super(ConfigurationFormView, self).form_valid(form)
