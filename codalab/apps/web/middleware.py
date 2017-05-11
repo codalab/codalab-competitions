@@ -120,6 +120,6 @@ class SingleCompetitionMiddleware(object):
     def process_request(self, request):
         if not settings.SINGLE_COMPETITION_VIEW_PK:
             # Try and get from database if we don't have competition set in ENV vars
-            config = Configuration.objects.get(pk=1)
+            config, created = Configuration.objects.get_or_create(pk=1)
             if config.only_competition:
                 settings.SINGLE_COMPETITION_VIEW_PK = config.only_competition.pk
