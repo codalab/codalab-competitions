@@ -1,4 +1,6 @@
 from django.conf import settings
+
+from apps.customizer.models import Configuration
 from codalab import settings as codalab_settings
 
 
@@ -13,6 +15,7 @@ def common_settings(request):
     """A context processor that returns dev settings"""
     return {
         'SINGLE_COMPETITION_VIEW_PK': settings.SINGLE_COMPETITION_VIEW_PK,
+        'SINGLE_COMPETITION_VIEW_HEADER_LOGO': settings.SINGLE_COMPETITION_VIEW_HEADER_LOGO,
         'compile_less': codalab_settings.COMPILE_LESS,
         'local_mathjax': codalab_settings.LOCAL_MATHJAX,
         'local_ace_editor': codalab_settings.LOCAL_ACE_EDITOR,
