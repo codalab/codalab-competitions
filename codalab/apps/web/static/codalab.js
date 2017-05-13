@@ -418,8 +418,9 @@ var Competition;
                     }
                     break;
                 case 1: $(this).html(response.submission_number.toString()); break;
-                case 2: $(this).html(response.filename); break;
-                case 3:
+                case 2: $(this).html('---'); break;
+                case 3: $(this).html(response.filename); break;
+                case 4:
                     var fmt = function(val) {
                         var s = val.toString();
                         if (s.length == 1) {
@@ -434,7 +435,7 @@ var Competition;
                     var s = fmt(dt.getSeconds());
                     $(this).html(d + ' ' + h + ':' + m + ':' + s);
                     break;
-                case 4: $(this).html(Competition.getSubmissionStatus(response.status)); break;
+                case 5: $(this).html(Competition.getSubmissionStatus(response.status)); break;
             }
         }
       );
