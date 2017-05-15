@@ -20,9 +20,11 @@ class ConfigurationFormView(UpdateView):
     def get_form(self, form_class):
         # Setup the form to be pre-filled with our admin user's competitions
         form = super(ConfigurationFormView, self).get_form(form_class)
-        form.fields["only_competition"].queryset = Competition.objects.filter(
-            creator=self.request.user,
-        )
+
+        # Filter only your competitions
+        # form.fields["only_competition"].queryset = Competition.objects.filter(
+        #     creator=self.request.user,
+        # )
         return form
 
     def get_success_url(self):
@@ -33,6 +35,6 @@ class ConfigurationFormView(UpdateView):
 
         # We saved the new configuration but the settings may need to change
         settings.SINGLE_COMPETITION_VIEW_PK = self.object.only_competition.pk if self.object.only_competition else None
-        settings.CUSTOM_HEADER_LOGO = self.object.header_logo.url
+        settings.CUSTOM_HEADER_LOGO = self.object.header_logo.url if self.object.header_logo else None
 
         return super(ConfigurationFormView, self).form_valid(form)
