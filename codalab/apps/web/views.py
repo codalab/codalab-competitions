@@ -94,8 +94,12 @@ class HomePageView(TemplateView):
             try:
                 competition = models.Competition.objects.get(pk=settings.SINGLE_COMPETITION_VIEW_PK)
                 if not competition.published:
-                    return HttpResponse("Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the "
-                                        "competition is not published so regular users won't be able to access it!")
+                    return HttpResponse(
+                        "Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the competition is not published so "
+                        "regular users won't be able to access it!<br>"
+                        "Go <a href='{}'>here</a> to change it.".format(
+                            reverse("competitions:edit", kwargs={"pk": competition.pk})
+                        ))
             except ObjectDoesNotExist:
                 raise Http404()
 
