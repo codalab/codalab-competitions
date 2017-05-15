@@ -410,6 +410,7 @@ class Deployment(object):
             "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
             "",
             "    RABBITMQ_HOST = 'localhost'",
+            "    BROKER_USE_SSL = False  # Force SSL off",
             "",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
             "    NEW_RELIC_KEY = '{0}'".format(self.config.getNewRelicKey()),
