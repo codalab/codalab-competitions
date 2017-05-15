@@ -410,6 +410,8 @@ class Deployment(object):
             "    LOGS_PATH = abspath(join(dirname(abspath(__file__)), '..', '..', '..', '..', 'logs'))",
             "",
             "    RABBITMQ_HOST = 'localhost'",
+            "    RABBITMQ_DEFAULT_USER = '{}'".format(self.config._svc['broker-user']),
+            "    RABBITMQ_DEFAULT_PASS = '{}'".format(self.config._svc['broker-pass']),
             "    BROKER_USE_SSL = False  # Force SSL off",
             "",
             "    codalab.__path__ = extend_path(codalab.__path__, codalab.__name__)",
