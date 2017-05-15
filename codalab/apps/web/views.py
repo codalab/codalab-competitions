@@ -97,7 +97,7 @@ class HomePageView(TemplateView):
                     return HttpResponse(
                         "Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the competition is not published so "
                         "regular users won't be able to access it!<br>"
-                        "Go <a href='{}'>here</a> to change it.".format(
+                        "If you have access, go <a href='{}'>here</a> to edit the competition.".format(
                             reverse("competitions:edit", kwargs={"pk": competition.pk})
                         ))
             except ObjectDoesNotExist:
