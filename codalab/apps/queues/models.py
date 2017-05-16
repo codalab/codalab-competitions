@@ -30,7 +30,7 @@ class Queue(models.Model):
         # Start with pyamqp://guest:guest@localhost:5672//
         broker_url_parts = urlparse(settings.BROKER_URL)
         # Get localhost:5672
-	host = Site.objects.get_current().domain
+        host = Site.objects.get_current().domain
 
         return "pyamqp://{}:{}@{}/{}".format(
             self.owner.rabbitmq_username,
