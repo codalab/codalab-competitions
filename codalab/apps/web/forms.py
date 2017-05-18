@@ -52,9 +52,15 @@ class CompetitionForm(forms.ModelForm):
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
         # Get public queues
-        qs = Queue.objects.filter(
-            Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
-        )
+        if self.instance.queue:
+		qs = Queue.objects.filter(
+		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
+		)
+        else:
+		# else, don't use pk
+		qs = Queue.objects.filter(
+		    Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+		)
 
         # And ones you own
         qs = qs.filter()
