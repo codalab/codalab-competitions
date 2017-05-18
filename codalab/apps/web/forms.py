@@ -51,11 +51,15 @@ class CompetitionForm(forms.ModelForm):
         super(CompetitionForm, self).__init__(*args, **kwargs)
         self.fields["admins"].widget.attrs["style"] = "width: 100%;"
 
-        # Get public queues
-        qs = Queue.objects.filter(
-            Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user])
+        # Get queues
+        qs = Queue.objects.filter()
+        
 
+        # Get public queues - this is commented out for now
+        qs = Queue.objects.filter(
+            Q(is_public=True) | Q(owner=user) | Q(organizers__in=[user]) | Q(pk=self.instance.queue.pk)
         )
+
         # And ones you own
         qs = qs.filter()
         self.fields["queue"].choices = [("", "Default")]
