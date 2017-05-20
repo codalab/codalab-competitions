@@ -12,6 +12,8 @@
 
 {% block content %}
 
+<a href="{% url "competitions:view" pk=competition_id %}" class="pull-right" >Go Back to Competition Homepage</a>
+
 <div class="participants">
     <h3>Teams</h3>
     {% if teams_enabled %}

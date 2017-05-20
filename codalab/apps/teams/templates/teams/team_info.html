@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}teams/teams.css">
 {% endblock %}
 {% block content %}
+    <a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >Go Back to Competition Homepage</a>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -19,6 +21,8 @@
             </div>
         </div>
     </div>
+
+
     <div class="teams">
         <div class="">
             {% if not team %}
