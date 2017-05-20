@@ -19,6 +19,9 @@
             </div>
         </div>
     </div>
+    <a href="{% url "competitions:view" pk=competition.pk%}" class="pull-right" >Go Back to Competition Homepage</a>
+
+    <br>
     <div class="teams">
         <div class="">
             {% if not team %}
