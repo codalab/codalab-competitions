@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django_extensions.db.fields import UUIDField
 from pyrabbit.http import HTTPError
+from django.contrib.sites.models import Site
 
 from apps.queues import rabbit
 
@@ -29,7 +30,7 @@ class Queue(models.Model):
         # Start with pyamqp://guest:guest@localhost:5672//
         broker_url_parts = urlparse(settings.BROKER_URL)
         # Get localhost:5672
-        host = broker_url_parts.netloc.split('@')[-1]
+        host = Site.objects.get_current().domain
 
         return "pyamqp://{}:{}@{}/{}".format(
             self.owner.rabbitmq_username,
