@@ -46,9 +46,6 @@ from apps.common.competition_utils import get_most_popular_competitions, get_fea
 from apps.web.forms import CompetitionS3UploadForm, SubmissionS3UploadForm
 from apps.web.models import SubmissionScore, SubmissionScoreDef
 
-from apps.web.csv_parser import csv_parse
-from apps.web.csv_parser import csv_parse_list
-
 from tasks import evaluate_submission, re_run_all_submissions_in_phase, create_competition, _make_url_sassy
 from apps.teams.models import TeamMembership, get_user_team, get_competition_teams, get_competition_pending_teams, get_competition_deleted_teams, get_last_team_submissions, get_user_requests, get_team_pending_membership
 
@@ -651,22 +648,6 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     'counts': [s['count'] for s in qs],
                     'sorting': score_def.sorting,
                 }
-
-                ## See web.csv_parser.py. Takes a context, and a path to a csv file as a string
-
-                ## Uncomment csv_parse_list to use the list. Comment csv_parse when done.
-
-                csv_parse(context, 'competition_results (9).csv')
-
-                #list_csvs = [
-                    #"competition_results (9).csv",
-                    #"competition_results (10).csv",
-                    #"competition_results (11).csv",
-                    #"competition_results (12).csv",
-                    # ... etc ... 
-                #]
-
-                #csv_parse_list(context, list_csvs)
 
         try:
             last_submission = models.CompetitionSubmission.objects.filter(
