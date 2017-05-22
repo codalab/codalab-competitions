@@ -10,6 +10,7 @@
 {% endblock extra_headers %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.are-you-sure.js"></script>
 {% endblock extra_scripts %}
 
 {% block content %}
@@ -313,13 +314,15 @@ $('document').ready(function () {
         table_row_limit : 5,
         table_col_limit : 5,
         verify_html : true
-});
+	});
 
     // This will add html editor to edit pages
     $('.page-container').find('textarea').each(function(){
         tinyMCE.execCommand('mceAddControl', false, this.id);
     });
 
+    //This hopefully reinds you to save.
+	$('form').areYouSure( { message:"This message apparently has no affect." } );
 
     // This helps make sections appear with Foundation
 
@@ -425,3 +428,6 @@ $('document').ready(function () {
   });
 {% endblock js %}
 </script>
+
+<!-- Are you sure jquery usage -->
+
