@@ -2,31 +2,22 @@
 
 <canvas id="chart" width="400" height="200"></canvas>
 <script>
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
-
     var ctx = document.getElementById("chart");
+    var local_highscore = 0
     var chart = new Chart(ctx, {
         type: 'bar',
         data: {
             {#            labels: [1, 2],#}
             {#            labels: ["April 10th", "April 11th", "April 12th", "April 13th", "April 14th", "April 15th", "April 17th", "April 18th", "April 19th", "April 20th", "April 21th", "April 22th"],#}
-            labels: [{% for date in csv_data %}"{{ date }}",{% endfor %}],
+            labels: [{% for month in graph.months %}"{{ month }}",{% endfor %}],
             datasets: [
                 {
                     type: 'line',
                     label: 'High Score',
                     yAxisID: 'score',
-                    data: [
-                    {% for date,data in csv_data.items %}
-                        {{ data.high_score }}, //No longer need |floatformat because high_score should already be a float.
-                    {% endfor %}
-                    ],
+                    data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }}, {% endfor %}],
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255,255,255,0)'
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
                 },
                 {
                     type: 'bar',
@@ -48,23 +39,11 @@
                     {##}
                     {#                    ],#}
                     yAxisID: 'count',
-                    data: [{% for date,data in csv_data.items %}{{ data.count }}, {% endfor %}],
-                    backgroundColor: [
-                        {% for date,data in csv_data.items %}
-                        'rgba('+ getRandomInt(100,230) + ', '+ getRandomInt(100,230) + ',' + getRandomInt(100,230) + ',0.8)',
-                        {% endfor %} // A little messy but it works
-            ]
+                    data: [{% for count in graph.counts %}{{ count }}, {% endfor %}]
                 }
             ]
         },
         options: {
-            elements: {
-                point: {
-                    radius: 0,
-                    hitRadius: 10,
-                    hoverRadius: 10
-                }
-            },               
             scales: {
                 {#                xAxes: [{#}
                 {#                    ticks: {#}
@@ -82,25 +61,22 @@
                     ticks: {
                         beginAtZero: true,
                         min: 0,
-                        //max: 300,
-                        suggestedMax: 84
+                        suggestedMax: 25
                     }
                 }, {
                     id: "score",
                     position: "right",
                     scaleLabel: {
                         display: true,
-                        labelString: 'Submission high score',
+                        labelString: 'Submission score',
                         fontColor: 'rgba(255,99,132,1)',
                     },
                     ticks: {
                         beginAtZero: true,
-                        min: 0.812,
-                        //max: 0.83,
-                        suggestedMin: 0.812,
-                        suggestedMax: 0.830,
+                        suggestedMin: -0.1,
+                        suggestedMax: 1,
                         // Reverse the score axis if we're doing descending (1 is better than 0)
-                        //reverse: "{{ graph.sorting }}" !== "asc"
+                        reverse: "{{ graph.sorting }}" !== "asc"
                     }
                 }]
             }

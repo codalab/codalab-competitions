@@ -656,25 +656,15 @@ class CompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
 
                 ## Uncomment csv_parse_list to use the list. Comment csv_parse when done.
 
-                csv_parse(context, 'competition_results (11).csv')
+                csv_parse(context, 'competition_results (9).csv')
 
-                list_csvs = [
-                    "competition_results (9).csv",
-                    "competition_results (10).csv",
-                    "competition_results (11).csv",
-                    "competition_results (12).csv",
-                    "competition_results (13).csv",
-                    "competition_results (14).csv",
-                    "competition_results (15).csv",
-                    "competition_results (16).csv",
-                    "competition_results (17).csv",
-                    "competition_results (18).csv",
-                    "competition_results (19).csv",
-                    "competition_results (20).csv",
-                    "competition_results (21).csv",
-                    "competition_results (22).csv",
-                    "competition_results (23).csv",
-                ]
+                #list_csvs = [
+                    #"competition_results (9).csv",
+                    #"competition_results (10).csv",
+                    #"competition_results (11).csv",
+                    #"competition_results (12).csv",
+                    # ... etc ... 
+                #]
 
                 #csv_parse_list(context, list_csvs)
 
