@@ -80,13 +80,26 @@
                     {% for pk, scoredata in group.scores %}
                         <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
                             <td class="row-position">
-                                {{ forloop.counter }}
+                                {% if forloop.counter < 4 %}
+                                    <b><p style="color:green;">{{ forloop.counter }}</p></b>
+                                {% else %}
+                                    {{ forloop.counter }}
+                                {% endif %}
                             </td>
                             <td>
                                 {% if phase.competition.anonymous_leaderboard %}
-                                    <i>Anonymous</i>
+                                    {% if forloop.counter < 4 %}
+                                        <b><p style="color:green;"><i>Anonymous</i></p></b>
+                                    {% else %}
+                                        <i>Anonymous</i>
+                                    {% endif %} 
+                                    
                                 {% else %}
-                                    {{ scoredata.username }}
+                                    {% if forloop.counter < 4 %}
+                                        <b><p style="color:green;">{{ scoredata.username }}</p></b>
+                                    {% else %}
+                                        {{ scoredata.username }}
+                                    {% endif %}  
                                 {% endif %}
                             </td>
                             <td> {{ scoredata.count }} </td>
