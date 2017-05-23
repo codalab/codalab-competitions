@@ -901,7 +901,7 @@ class CompetitionPhase(models.Model):
             for header in headers:
                 header['subs'].sort(key=sortkey, reverse=False)
             # compute total column span
-            column_span = 2
+            column_span = 4
             for gHeader in headers:
                 n = len(gHeader['subs'])
                 column_span += n if n > 0 else 1
@@ -911,8 +911,14 @@ class CompetitionPhase(models.Model):
                 if (selection_key is None) or (scoreDefs[i].selection_default > selection_order):
                     selection_key, selection_order = scoreDefs[i].key, scoreDefs[i].selection_default
 
-            results.append({ 'label': label, 'headers': headers, 'total_span' : column_span, 'selection_key': selection_key,
-                             'scores': scores, 'scoredefs': scoreDefs })
+            results.append({
+                'label': label,
+                'headers': headers,
+                'total_span': column_span,
+                'selection_key': selection_key,
+                'scores': scores,
+                'scoredefs': scoreDefs
+            })
 
         if len(submissions) > 0:
             # Figure out which submission scores we need to read from the database.

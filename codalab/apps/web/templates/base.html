@@ -67,7 +67,13 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% block title %}
-                    <a class="navbar-brand" href="/" tabIndex=1 target="_self"><img src="{{STATIC_URL}}img/codalab-logo-fullcolor-positive.png" alt="Home"></a>
+                    <a class="navbar-brand" href="/" tabIndex=1 target="_self">
+                        {% if CUSTOM_HEADER_LOGO %}
+                            <img src="{{ CUSTOM_HEADER_LOGO }}" alt="Home">
+                        {% else %}
+                            <img src="{{ STATIC_URL }}img/codalab-logo-fullcolor-positive.png" alt="Home">
+                        {% endif %}
+                    </a>
                 {% endblock title %}
             </div>
             {% block top_bar_right_menus %}
@@ -108,8 +114,10 @@
                                 </a>
                                 <ul class="dropdown-menu" role="menu">
                                     {% if user.is_superuser %}
-                                    <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
-                                    <li class="divider"></li>
+                                        <li><a href="{% url 'admin_monitoring_links' %}">Admin Monitoring Links</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{% url 'customize_codalab' %}">Customize Codalab</a></li>
+                                        <li class="divider"></li>
                                     {% endif %}
                                     <li><a href="{% url 'user_settings' %}">Settings</a></li>
                                     <li class="divider"></li>
@@ -178,16 +186,17 @@
     <script src="{{ STATIC_URL }}lib/jq/jquery.cookie.js"></script>
 
     <!--js without compressing, use on dev env-->
-    {% if is_dev %}
-    <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
-    {% endif %}
+{#    {% if is_dev %}#}
+        <script type="text/javascript" src="{{STATIC_URL}}js/app.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/Competition.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/main.js"></script>
+{#    {% endif %}#}
 
-    <!--Compress version, use on staging and production server-->
-    {% if not is_dev%}
-    <script src="{{ STATIC_URL }}codalab.min.js"></script>
-    {% endif %}
+    {# Just disabling this compressed stuff actually.. really unnecessary... #}
+{#    <!--Compress version, use on staging and production server-->#}
+{#    {% if not is_dev%}#}
+{#        <script src="{{ STATIC_URL }}codalab.min.js"></script>#}
+{#    {% endif %}#}
 
     <script type="text/javascript">
 

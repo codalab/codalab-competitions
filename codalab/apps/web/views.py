@@ -96,8 +96,12 @@ class HomePageView(TemplateView):
             try:
                 competition = models.Competition.objects.get(pk=settings.SINGLE_COMPETITION_VIEW_PK)
                 if not competition.published:
-                    return HttpResponse("Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the "
-                                        "competition is not published so regular users won't be able to access it!")
+                    return HttpResponse(
+                        "Warning, SINGLE_COMPETITION_VIEW_PK setting is set but the competition is not published so "
+                        "regular users won't be able to access it!<br>"
+                        "If you have access, go <a href='{}'>here</a> to edit the competition.".format(
+                            reverse("competitions:edit", kwargs={"pk": competition.pk})
+                        ))
             except ObjectDoesNotExist:
                 raise Http404()
 
@@ -704,6 +708,13 @@ class CompetitionResultsPage(TemplateView):
             context['is_owner'] = is_owner
             context['phase'] = phase
             context['groups'] = phase.scores()
+
+            for group in context['groups']:
+                for _, scoredata in group['scores']:
+                    sub = models.CompetitionSubmission.objects.get(pk=scoredata['id'])
+                    scoredata['date'] = sub.submitted_at
+                    scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
+
             user = self.request.user
 
             # Will allow creator and admin to see Leaderboard in advanced

@@ -29,10 +29,10 @@ class Base(Settings):
     SERVER_NAME = 'localhost'
     DEBUG = os.environ.get('DEBUG', False)
     TEMPLATE_DEBUG = DEBUG
-    COMPILE_LESS = True # is the less -> css already done or would you like less.js to compile it on render
-    LOCAL_MATHJAX = False # see prep_for_offline
-    LOCAL_ACE_EDITOR = False # see prep_for_offline
-    IS_DEV = False
+    COMPILE_LESS = True  # is the less -> css already done or would you like less.js to compile it on render
+    LOCAL_MATHJAX = False  # see prep_for_offline
+    LOCAL_ACE_EDITOR = False  # see prep_for_offline
+    IS_DEV = os.environ.get('IS_DEV', False)
 
     if 'CONFIG_SERVER_NAME' in os.environ:
         SERVER_NAME = os.environ.get('CONFIG_SERVER_NAME')
@@ -144,6 +144,7 @@ class Base(Settings):
     )
 
     MIDDLEWARE_CLASSES = (
+        'apps.web.middleware.SingleCompetitionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
@@ -225,6 +226,7 @@ class Base(Settings):
         'apps.common',
         'apps.queues',
         'apps.teams',
+        'apps.customizer',
 
         # Authentication app, enables social authentication
         'allauth',
@@ -421,6 +423,7 @@ class Base(Settings):
     # Single competition mode? Uncomment this and specify a
     # competition pk to focus on
     SINGLE_COMPETITION_VIEW_PK = os.environ.get('SINGLE_COMPETITION_VIEW_PK')
+    CUSTOM_HEADER_LOGO = os.environ.get('CUSTOM_HEADER_LOGO')
 
 
     # =========================================================================

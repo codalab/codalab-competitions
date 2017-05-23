@@ -573,15 +573,15 @@ def update_submission(job_id, args, secret):
                     top_score = SubmissionScore.objects.filter(result__phase=submission.phase, scoredef=score_def)
                     score_value = submission.get_default_score()
                     if score_def.sorting == 'asc':
-                        # The last value in ascending is the top score, 3 beats 1
-                        top_score = top_score.order_by('value').last()
+                        # The first value in ascending is the top score, 1 beats 3
+                        top_score = top_score.order_by('value').first()
                         if score_value >= top_score.value:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in ascending order "
                                          "(submission_id=%s, top_score=%s, score=%s)", submission.id, top_score, score_value)
                     elif score_def.sorting == 'desc':
-                        # The first value in descending is the top score, 1 beats 3
-                        top_score = top_score.order_by('value').first()
+                        # The last value in descending is the top score, 3 beats 1
+                        top_score = top_score.order_by('value').last()
                         if score_value <= top_score.value:
                             add_submission_to_leaderboard(submission)
                             logger.debug("Force best submission added submission to leaderboard in descending order "
@@ -680,14 +680,17 @@ def update_submission(job_id, args, secret):
 def re_run_all_submissions_in_phase(phase_pk):
     phase = CompetitionPhase.objects.get(id=phase_pk)
 
-    # Remove duplicate submissions
+    # Remove duplicate submissions this ugly way because MySQL distinct doesn't work...
     submissions_with_duplicates = CompetitionSubmission.objects.filter(phase=phase)
     submissions_without_duplicates = []
     file_names_seen = []
 
     for submission in submissions_with_duplicates:
         if submission.file.name not in file_names_seen:
-            file_names_seen.append(submission.file.name)
+            if settings.USE_AWS:
+                file_names_seen.append(submission.s3_file)
+            else:
+                file_names_seen.append(submission.file.name)
             submissions_without_duplicates.append(submission)
 
     for submission in submissions_without_duplicates:

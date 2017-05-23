@@ -10,9 +10,15 @@
 {% endblock extra_headers %}
 {% block extra_scripts %}
     <script src="{{ STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+    <script src="{{ STATIC_URL }}js/vendor/jquery.are-you-sure.js"></script>
 {% endblock extra_scripts %}
 
 {% block content %}
+
+<a href="{% url "competitions:view" pk=competition.pk %}" class="pull-right" >Go Back to Competition Homepage</a>
+
+<br>
+
 <a class="pull-right" href="https://github.com/codalab/codalab/wiki/User_Competition-Roadmap" title="Get help with creating a competition" target="_blank"><span class="glyphicon glyphicon-question-sign"></span> Help</a>
 <a class="btn btn-secondary" href="{% url 'competitions:download_yaml' competition_pk=competition.pk %}">Download original YAML file</a>
 <form id="competition_edit_form" class="form-horizontal form-controller margin-top" data-abide enctype="multipart/form-data" method="POST">{% csrf_token %}
@@ -308,13 +314,15 @@ $('document').ready(function () {
         table_row_limit : 5,
         table_col_limit : 5,
         verify_html : true
-});
+	});
 
     // This will add html editor to edit pages
     $('.page-container').find('textarea').each(function(){
         tinyMCE.execCommand('mceAddControl', false, this.id);
     });
 
+	// This hopefully reinds you to save.
+	$('form').areYouSure( { message:"This message apparently has no affect." } );
 
     // This helps make sections appear with Foundation
 

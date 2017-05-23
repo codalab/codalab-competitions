@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+
+{% block head_title %}Customize Codalab{% endblock %}
+{% block page_title %}Customize Codalab{% endblock page_title %}
+
+{% block content %}
+    <div class="panel-body">
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table class="table table-bordered">
+                {{ form.as_table }}
+            </table>
+
+            <input type="submit" value="Save" class="btn btn-primary" style="float: right;">
+        </form>
+    </div>
+{% endblock %}
