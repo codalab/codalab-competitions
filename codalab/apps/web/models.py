@@ -1319,11 +1319,10 @@ class CompetitionSubmission(models.Model):
         return self.like_count - self.dislike_count
 
     def get_default_score(self):
-        # Get the scoredef with the lowest sort (1, usually) and use that score
-        score = self.scores.all().order_by('scoredef__ordering').first()
-        if score:
-            return score.value
-
+        # Get the scoredef with the lowest sort (1, usually) and use that as default
+        score_def = self.scores.all().order_by('scoredef__ordering').first()
+        if score_def:
+            return score_def.value
         else:
             return None
 

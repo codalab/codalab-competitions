@@ -31,6 +31,7 @@
     {% if request.user == phase.competition.creator or request.user in phase.competition.admins.all %}
         <a class="icon-download btn btn-default" href="{% url "competitions:download_leaderboard_results" competition_pk=phase.competition.pk phase_pk=phase.pk %}">Download all submissions on leaderboard</a>
     {% endif %}
+
     <div class="leaderboard-result-table">
         {% for group in groups %}
             <table class="resultsTable dataTable">
