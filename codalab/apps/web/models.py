@@ -532,20 +532,22 @@ class Competition(models.Model):
 
             top_threelist= []
 
-            num_part = len(local_scores[0]['scores'])
-            local_scores = local_scores[0]['scores']
+            if len(local_scores) > 0 and len(local_scores[0]) > 0 and len(local_scores[0]['scores']) > 0:
 
-            if num_part > 3: ## Keep us in 1-3 range.
-                num_part = 3
+                num_part = len(local_scores[0]['scores'])
+                local_scores = local_scores[0]['scores']
 
-            for index in range(num_part):
+                if num_part > 3: ## Keep us in 1-3 range.
+                    num_part = 3
 
-                temp_dict = {
-                    'username': local_scores[index][1]['username'],
-                    'score': local_scores[index][1]['values'][0]['val']
-                }
+                for index in range(num_part):
 
-                top_threelist.append(temp_dict.copy())
+                    temp_dict = {
+                        'username': local_scores[index][1]['username'],
+                        'score': local_scores[index][1]['values'][0]['val']
+                    }   
+
+                    top_threelist.append(temp_dict.copy())
 
             return top_threelist ## Return only our top 3, with the data we want.
 

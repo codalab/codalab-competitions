@@ -230,25 +230,27 @@
         </div>
     </section>
 
-    <div class="phase-container" style="border: 1px solid grey;">
-        <center><h4>Top Three Competitors in: {{competition.title}}</h4></center>
-        <div class="leaderboard-result-table">
-            <table width="100%">
-                <tr style="border: 1px solid black;">
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>Score</th>            
-                </tr>
-                {% for leader in topthreeleaders %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{leader.username}}</td>
-                        <td>{{leader.score}}</td>
+    {% if topthreeleaders %}
+        <div class="phase-container" style="border: 1px solid grey;">
+            <center><h4>Top Three Competitors in: {{competition.title}}</h4></center>
+            <div class="leaderboard-result-table">
+                <table width="100%">
+                    <tr style="border: 1px solid black;">
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Score</th>            
                     </tr>
-                {% endfor %}
-            </table>
+                    {% for leader in topthreeleaders %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{leader.username}}</td>
+                            <td>{{leader.score}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
 </div>
 
