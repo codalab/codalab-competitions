@@ -485,6 +485,14 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.now()
 
+        ## Top 3 Leaderboard
+
+        my_leaders = []
+
+        my_leaders = self.get_object().get_topthree()
+
+        context['topthreeleaders'] = my_leaders
+
         if settings.USE_AWS:
             context['submission_upload_form'] = forms.SubmissionS3UploadForm
 
