@@ -90,13 +90,15 @@
                         <td align="center"><a href="#{{ submission.id }}" onclick="Competition.showOrHideSubmissionDetails(this)"><span class="glyphicon glyphicon-plus"></span></a></td>
                         <td align="center"><a class="btn btn-danger btn-xs" href="{% url "competitions:submission_delete" pk=submission.id %}">DEL</a></td>
                         <td align="center">
-                            <button class="btn btn-danger btn-xs hide_or_show_submission_button">
                                 {% if submission.is_in_leaderboard %}
+                                  <button class="btn btn-danger btn-xs hide_or_show_submission_button">
                                     HIDE
+                                  </button>
                                 {% else %}
+                                  <button class="btn btn-success btn-xs hide_or_show_submission_button">
                                     SHOW
+                                  </button>
                                 {% endif %}
-                            </button>
                         </td>
                         <td align="center"><button class="btn btn-danger btn-xs mark_as_failed_button">FAILED</button></td>
                         <td align="center"><button class="btn btn-danger btn-xs re_run_submission_button">RE-RUN</button></td>
@@ -131,7 +133,7 @@
                 var pk = parent_tr.prop('id');
                 $.post("/competitions/mark_as_failed/" + pk)
                     .success(function() {
-                        parent_tr.find('td:nth-child(4)').text('Failed');
+                        window.location.href = window.location.href;
                     })
                     .error(function() {
                         alert("Failed to mark submission as failed, is your Internet connection working? If this problem persists contact an admin.");
@@ -148,12 +150,11 @@
                 .success(function() {
                     // toggle "Leaderboard" column label
                     if(old_state.indexOf("True") != -1) {
-                        parent_tr.find('td:nth-child(5)').text('False');
                         $(self).text('SHOW');
                     } else {
-                        parent_tr.find('td:nth-child(5)').text('True');
                         $(self).text('HIDE');
                     }
+                    window.location.href = window.location.href;
                 })
                 .error(function() {
                     alert("Cannot show/hide a non 'Finished' submission");
@@ -166,7 +167,8 @@
             var pk = parent_tr.prop('id');
             $.post("/competitions/submission_re_run/" + pk)
                 .success(function() {
-                    alert("Successfully re-ran submission, please refresh the page!");
+                    alert("Successfully re-ran submission!");
+                    window.location.href = window.location.href;
                 })
                 .error(function() {
                     alert("Failed to re-run submission, make sure your Internet connection is working and if the problem persists contact an admin.");
@@ -180,7 +182,8 @@
 
             $.post("/competitions/submission_re_run_all/{{ phase.pk }}")
 
-            alert("Submissions will be re-ran, please refresh the page to see results as they update.")
+            alert("Submissions will be re-ran. The page will be refreshed.")
+            window.location.href = window.location.href;
         });
 
         //Function to submit the new submission for new phase
