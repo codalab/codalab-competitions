@@ -45,6 +45,7 @@ class QueueCreateView(LoginRequiredMixin, QueueFormMixin, CreateView):
 
             # Only save queue if things were successful
             queue.save()
+            form.save_m2m()
             return HttpResponseRedirect(self.get_success_url())
         except HTTPError:
             errors = form._errors.setdefault("__all__", ErrorList())
