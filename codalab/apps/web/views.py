@@ -483,11 +483,11 @@ class CompetitionDetailView(DetailView):
         context['site'] = Site.objects.get_current()
         context['current_server_time'] = datetime.now()
 
-        ## Top 3 Leaderboard
+        # Top 3 Leaderboard
 
         my_leaders = []
 
-        my_leaders = self.get_object().get_topthree()
+        my_leaders = self.get_object().get_top_three()
 
         context['topthreeleaders'] = my_leaders
 

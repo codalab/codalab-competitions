@@ -498,7 +498,7 @@ class Competition(models.Model):
     def get_participant_count(self):
         return self.participants.all().count()
 
-    def get_topthree(self):
+    def get_top_three(self):
         """
         Returns top 3 in the leaderboard
         """
@@ -530,14 +530,14 @@ class Competition(models.Model):
                     scoredata['date'] = sub.submitted_at
                     scoredata['count'] = sub.phase.submissions.filter(participant=sub.participant).count()
 
-            top_threelist= []
+            top_three = []
 
             if len(local_scores) > 0 and len(local_scores[0]) > 0 and len(local_scores[0]['scores']) > 0:
 
                 num_part = len(local_scores[0]['scores'])
                 local_scores = local_scores[0]['scores']
 
-                if num_part > 3: ## Keep us in 1-3 range.
+                if num_part > 3: # Keep us in 1-3 range.
                     num_part = 3
 
                 for index in range(num_part):
@@ -547,9 +547,9 @@ class Competition(models.Model):
                         'score': local_scores[index][1]['values'][0]['val']
                     }   
 
-                    top_threelist.append(temp_dict.copy())
+                    top_three.append(temp_dict.copy())
 
-            return top_threelist ## Return only our top 3, with the data we want.
+            return top_three # Return only our top 3, with the data we want.
 
 post_save.connect(Forum.competition_post_save, sender=Competition)
 
