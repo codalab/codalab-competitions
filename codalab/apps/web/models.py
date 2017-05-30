@@ -1550,8 +1550,7 @@ class CompetitionDefBundle(models.Model):
                 comp.save()
                 logger.debug("CompetitionDefBundle::unpack saved competition logo (pk=%s)", self.pk)
             except KeyError:
-                assert False, "Could not find file in archive, make sure scoring_program, reference_data and logo are " \
-                              "set to correct file paths."
+                assert False, "Could not find image {} in archive.".format(comp_base['image'])
 
         # Populate competition pages
         pc,_ = PageContainer.objects.get_or_create(object_id=comp.id, content_type=ContentType.objects.get_for_model(comp))
