@@ -229,29 +229,58 @@
             {% endfor %}
         </div>
     </section>
-
-    {% if topthreeleaders %}
-        <div class="panel-body" style="border: 1px solid grey;">
-            <center><h4>Top Three Competitors in: {{ competition.title }}</h4></center>
-            <div class="table table-bordered">
-                <table width="100%">
-                    <tr style="border: 1px solid black;">
-                        <th>Rank</th>
-                        <th>Username</th>
-                        <th>Score</th>            
-                    </tr>
-                    {% for leader in topthreeleaders %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ leader.username }}</td>
-                            <td>{{ leader.score }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
+    <div class="row">
+        <div class="col-md-4">
+            {% if topthreeleaders %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leader in topthreeleaders %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ leader.username }}</td>
+                                        <td>{{ leader.score }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>No data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
-
+        <div class="col-md-8">
+            {% include "web/competitions/_chart.html" %}
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
