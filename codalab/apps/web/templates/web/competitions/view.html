@@ -229,6 +229,58 @@
             {% endfor %}
         </div>
     </section>
+    <div class="row">
+        <div class="col-md-4">
+            {% if topthreeleaders %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leader in topthreeleaders %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ leader.username }}</td>
+                                        <td>{{ leader.score }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="panel">
+                    <div class="panel-body"">
+                        <center><h4>Top Three</h4></center>
+                        <table class="table table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Username</th>
+                                    <th>Score</th>            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>No data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            {% include "web/competitions/_chart.html" %}
+        </div>
+    </div>
 </div>
 
 {% endblock content %}

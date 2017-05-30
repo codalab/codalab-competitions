@@ -1,6 +1,6 @@
 {% load codalab_tags %}
 
-<canvas id="chart" width="400" height="200"></canvas>
+<canvas id="chart" width="400" height="150"></canvas>
 <script>
     var ctx = document.getElementById("chart");
     var local_highscore = 0
@@ -15,7 +15,7 @@
                     yAxisID: 'score',
                     data: [{% for high_score in graph.high_scores %}{{ high_score|floatformat }}, {% endfor %}],
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                    //backgroundColor: 'rgba(255, 99, 132, 0.5)' This controls shaded areas under line.
                 },
                 {
                     type: 'bar',
