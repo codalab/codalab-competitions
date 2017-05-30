@@ -1242,14 +1242,11 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                 'submission_pk': submission.id,
                 'is_migrated': submission.is_migrated
             }
-            
             # Removed if to show scores on submissions view.
 
             #if (submission_info['is_in_leaderboard'] == True):
             # add score groups into data columns
-
             for score_group_index, score_group in enumerate(scores):
-
                 # Need to figure out a way to check if submission is garbage.
                 try:
                     user_score = filter(lambda user_score: user_score[1]['id'] == submission.id, score_group['scores'])[0] # This line return error.
@@ -1261,7 +1258,6 @@ class MyCompetitionSubmissionsPage(LoginRequiredMixin, TemplateView):
                     main_score = "---"
                     submission_info['score_' + str(score_group_index)] = "---"
             submission_info_list.append(submission_info)
-
         # order results
         sort_data_table(self.request, context, submission_info_list)
         # complete context
