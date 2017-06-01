@@ -231,7 +231,7 @@
     </section>
         <div class="row">
         <div class="col-md-4">
-            {% if topthreeleaders %}
+            {% if top_three_leaders %}
                 <div class="panel">
                     <div class="panel-body"">
                         <center><h4>Top Three</h4></center>
@@ -244,11 +244,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for leader in topthreeleaders %}
+                                {% for leader in top_three_leaders %}
                                     <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <td>{{ leader.username }}</td>
-                                        <td>{{ leader.score }}</td>
+                                        <td class="leader">{{ forloop.counter }}</td>
+                                        <td class="leader">{{ leader.username }}</td>
+                                        <td class="leader">{{ leader.score }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

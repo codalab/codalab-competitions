@@ -506,9 +506,9 @@ class CompetitionDetailView(DetailView):
             }
             my_leaders = []
             my_leaders = self.get_object().get_top_three()
-            context['topthreeleaders'] = my_leaders
+            context['top_three_leaders'] = my_leaders
         except DoesNotExist:
-            context['topthreeleaders'] = None
+            context['top_three_leaders'] = None
             context['graph'] = None
 
 

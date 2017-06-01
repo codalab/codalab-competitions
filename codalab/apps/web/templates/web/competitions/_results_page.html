@@ -82,7 +82,7 @@
                         <tr {% if phase.competition.anonymous_leaderboard and request.user.username == scoredata.username %}style="background-color: #D7FFFA;"{% endif %}>
                             <td class="row-position">
                                 {% if forloop.counter < 4 %}
-                                    <b><p style="color:green;">{{ forloop.counter }}</p></b>
+                                    <p class="leader-top3">{{ forloop.counter }}</p>
                                 {% else %}
                                     {{ forloop.counter }}
                                 {% endif %}
@@ -90,13 +90,13 @@
                             <td>
                                 {% if phase.competition.anonymous_leaderboard %}
                                     {% if forloop.counter < 4 %}
-                                        <b><p style="color:green;"><i>Anonymous</i></p></b>
+                                        <p class="leader-top3"><i>Anonymous</i></p><
                                     {% else %}
                                         <i>Anonymous</i>
                                     {% endif %}
                                 {% else %}
                                     {% if forloop.counter < 4 %}
-                                        <b><p style="color:green;">{{ scoredata.username }}</p></b>
+                                        <p class="leader-top3">{{ scoredata.username }}</p>
                                     {% else %}
                                         {{ scoredata.username }}
                                     {% endif %}
