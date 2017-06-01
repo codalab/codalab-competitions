@@ -488,8 +488,8 @@ class CompetitionDetailView(DetailView):
          # Top 3 Leaderboard
         # Get the month from submitted_at
         truncate_date = connection.ops.date_trunc_sql('day', 'submitted_at')
-        score_def = SubmissionScoreDef.objects.get(competition=competition, ordering=1)
-        qs = SubmissionScore.objects.filter(result__phase__competition=competition, scoredef__ordering=1)
+        score_def = SubmissionScoreDef.objects.get(competition=self.get_object(), ordering=1)
+        qs = SubmissionScore.objects.filter(result__phase__competition=self.get_object(), scoredef__ordering=1)
         qs = qs.extra({'day': truncate_date}).values('day')
         if score_def.sorting == 'asc':
             best_value = Max('value')
